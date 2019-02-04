@@ -188,6 +188,9 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTStatement& sta
         case ASTStatement::kExpression_Kind: {
             std::unique_ptr<Statement> result =
                               this->convertExpressionStatement((ASTExpressionStatement&) statement);
+            if (!result) {
+                return nullptr;
+            }
             if (fRTAdjust && Program::kGeometry_Kind == fKind) {
                 SkASSERT(result->fKind == Statement::kExpression_Kind);
                 Expression& expr = *((ExpressionStatement&) *result).fExpression;
@@ -1101,8 +1104,17 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     if (type.kind() == Type::kScalar_Kind) {
         std::vector<std::unique_ptr<Expression>> args;
         args.push_back(std::move(expr));
-        ASTIdentifier id(-1, type.fName);
-        std::unique_ptr<Expression> ctor = this->convertIdentifier(id);
+        std::unique_ptr<Expression> ctor;
+        if (type == *fContext.fFloatLiteral_Type) {
+            ctor = this->convertIdentifier(ASTIdentifier(-1, "float"));
+        } else if (type == *fContext.fIntLiteral_Type) {
+            ctor = this->convertIdentifier(ASTIdentifier(-1, "int"));
+        } else {
+            ctor = this->convertIdentifier(ASTIdentifier(-1, type.fName));
+        }
+        if (!ctor) {
+            printf("error, null identifier: %s\n", String(type.fName).c_str());
+        }
         SkASSERT(ctor);
         return this->call(-1, std::move(ctor), std::move(args));
     }
@@ -1405,8 +1417,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             default:                return nullptr;
         }
     }
-    if (left.fType.kind() == Type::kVector_Kind &&
-        left.fType.componentType() == *fContext.fFloat_Type &&
+    if (left.fType.kind() == Type::kVector_Kind && left.fType.componentType().isFloat() &&
         left.fType == right.fType) {
         SkASSERT(left.fKind  == Expression::kConstructor_Kind);
         SkASSERT(right.fKind == Expression::kConstructor_Kind);
@@ -1481,8 +1492,8 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                !Compiler::IsAssignment(expression.fOperator))) {
         fErrors.error(expression.fOffset, String("type mismatch: '") +
                                           Compiler::OperatorName(expression.fOperator) +
-                                          "' cannot operate on '" + left->fType.fName +
-                                          "', '" + right->fType.fName + "'");
+                                          "' cannot operate on '" + left->fType.description() +
+                                          "', '" + right->fType.description() + "'");
         return nullptr;
     }
     if (Compiler::IsAssignment(expression.fOperator)) {
@@ -1528,8 +1539,8 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
     if (!determine_binary_type(fContext, Token::EQEQ, ifTrue->fType, ifFalse->fType, &trueType,
                                &falseType, &resultType, true) || trueType != falseType) {
         fErrors.error(expression.fOffset, "ternary operator result mismatch: '" +
-                                          ifTrue->fType.fName + "', '" +
-                                          ifFalse->fType.fName + "'");
+                                          ifTrue->fType.description() + "', '" +
+                                          ifFalse->fType.description() + "'");
         return nullptr;
     }
     ifTrue = this->coerce(std::move(ifTrue), *trueType);
@@ -1807,18 +1818,14 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
     }
     switch (expression.fOperator) {
         case Token::PLUS:
-            if (!base->fType.isNumber() && base->fType.kind() != Type::kVector_Kind) {
+            if (!base->fType.isNumber() && base->fType.kind() != Type::kVector_Kind &&
+                base->fType != *fContext.fFloatLiteral_Type) {
                 fErrors.error(expression.fOffset,
                               "'+' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
             return base;
         case Token::MINUS:
-            if (!base->fType.isNumber() && base->fType.kind() != Type::kVector_Kind) {
-                fErrors.error(expression.fOffset,
-                              "'-' cannot operate on '" + base->fType.description() + "'");
-                return nullptr;
-            }
             if (base->fKind == Expression::kIntLiteral_Kind) {
                 return std::unique_ptr<Expression>(new IntLiteral(fContext, base->fOffset,
                                                                   -((IntLiteral&) *base).fValue));
@@ -1827,6 +1834,11 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                 double value = -((FloatLiteral&) *base).fValue;
                 return std::unique_ptr<Expression>(new FloatLiteral(fContext, base->fOffset,
                                                                     value));
+            }
+            if (!base->fType.isNumber() && base->fType.kind() != Type::kVector_Kind) {
+                fErrors.error(expression.fOffset,
+                              "'-' cannot operate on '" + base->fType.description() + "'");
+                return nullptr;
             }
             return std::unique_ptr<Expression>(new PrefixExpression(Token::MINUS, std::move(base)));
         case Token::PLUSPLUS:

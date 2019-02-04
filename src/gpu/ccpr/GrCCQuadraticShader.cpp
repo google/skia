@@ -69,10 +69,10 @@ void GrCCQuadraticShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
     this->calcHullCoverage(&AccessCodeString(f), fCoord_fGrad.fsIn(),
                            SkStringPrintf("%s.x", fEdge_fWind_fCorner.fsIn()).c_str(),
                            outputCoverage);
-    f->codeAppendf("%s *= %s.y;", outputCoverage, fEdge_fWind_fCorner.fsIn()); // Wind.
+    f->codeAppendf("%s *= half(%s.y);", outputCoverage, fEdge_fWind_fCorner.fsIn()); // Wind.
 
     if (kFloat4_GrSLType == fEdge_fWind_fCorner.type()) {
-        f->codeAppendf("%s = %s.z * %s.w + %s;",// Attenuated corner coverage.
+        f->codeAppendf("%s = half(%s.z * %s.w) + %s;",// Attenuated corner coverage.
                        outputCoverage, fEdge_fWind_fCorner.fsIn(), fEdge_fWind_fCorner.fsIn(),
                        outputCoverage);
     }
@@ -84,7 +84,9 @@ void GrCCQuadraticShader::calcHullCoverage(SkString* code, const char* coordAndG
     code->appendf("float2 grad = %s.zw;", coordAndGrad);
     code->append ("float f = x*x - y;");
     code->append ("float fwidth = abs(grad.x) + abs(grad.y);");
-    code->appendf("%s = min(0.5 - f/fwidth, 1);", outputCoverage); // Curve coverage.
-    code->appendf("half d = min(%s, 0);", edge); // Flat edge opposite the curve.
-    code->appendf("%s = max(%s + d, 0);", outputCoverage, outputCoverage); // Total hull coverage.
+    code->appendf("float curve_coverage = min(0.5 - f/fwidth, 1);");
+    // Flat edge opposite the curve.
+    code->appendf("float edge_coverage = min(%s, 0);", edge);
+    // Total hull coverage.
+    code->appendf("%s = max(half(curve_coverage + edge_coverage), 0);", outputCoverage);
 }

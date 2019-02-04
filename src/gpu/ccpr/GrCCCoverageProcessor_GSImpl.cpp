@@ -62,7 +62,7 @@ protected:
         if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
             SkASSERT(kFloat4_GrVertexAttribType == proc.fVertexAttribute.cpuType());
-            g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
+            g->codeAppendf("%s *= half(sk_in[0].sk_Position.w);", wind.c_str());
         }
 
         SkString emitVertexFn;
@@ -307,11 +307,11 @@ public:
         g->codeAppendf("float2 right = pts[(corneridx + (%s > 0 ? 1 : %i)) %% %i];",
                        wind.c_str(), proc.numInputPoints() - 1, proc.numInputPoints());
 
-        g->codeAppend ("float2 leftdir = corner - left;");
-        g->codeAppend ("leftdir = (float2(0) != leftdir) ? normalize(leftdir) : float2(1, 0);");
+        g->codeAppend ("half2 leftdir = corner - left;");
+        g->codeAppend ("leftdir = (half2(0) != leftdir) ? normalize(leftdir) : half2(1, 0);");
 
-        g->codeAppend ("float2 rightdir = right - corner;");
-        g->codeAppend ("rightdir = (float2(0) != rightdir) ? normalize(rightdir) : float2(1, 0);");
+        g->codeAppend ("half2 rightdir = right - corner;");
+        g->codeAppend ("rightdir = (half2(0) != rightdir) ? normalize(rightdir) : half2(1, 0);");
 
         // Find "outbloat" and "crossbloat" at our corner. The outbloat points diagonally out of the
         // triangle, in the direction that should ramp to zero coverage with attenuation. The
