@@ -128,21 +128,21 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkBitmap bitmap;
     if (GetResourceAsBitmap("images/color_wheel.png", &bitmap)) {
         bitmap.setImmutable();
-        draw(canvas, p, font, bitmap, kN32_SkColorType, "Native 32");
+        ::draw(canvas, p, font, bitmap, kN32_SkColorType, "Native 32");
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copy565 = copy_bitmap(bitmap, kRGB_565_SkColorType);
         p.setColor(SK_ColorRED);
-        draw(canvas, p, font, copy565, kRGB_565_SkColorType, "RGB 565");
+        ::draw(canvas, p, font, copy565, kRGB_565_SkColorType, "RGB 565");
         p.setColor(SK_ColorBLACK);
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copy4444 = copy_bitmap(bitmap, kARGB_4444_SkColorType);
-        draw(canvas, p, font, copy4444, kARGB_4444_SkColorType, "ARGB 4444");
+        ::draw(canvas, p, font, copy4444, kARGB_4444_SkColorType, "ARGB 4444");
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copyF16 = copy_bitmap(bitmap, kRGBA_F16_SkColorType);
-        draw(canvas, p, font, copyF16, kRGBA_F16_SkColorType, "RGBA F16");
+        ::draw(canvas, p, font, copyF16, kRGBA_F16_SkColorType, "RGBA F16");
 
     } else {
         canvas->translate(0.0f, SkIntToScalar(3 * SCALE));
@@ -150,12 +150,12 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
 
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapA8 = make_bitmap(kAlpha_8_SkColorType);
-    draw(canvas, p, font, bitmapA8, kAlpha_8_SkColorType, "Alpha 8");
+    ::draw(canvas, p, font, bitmapA8, kAlpha_8_SkColorType, "Alpha 8");
 
     p.setColor(SK_ColorRED);
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapG8 = make_bitmap(kGray_8_SkColorType);
-    draw(canvas, p, font, bitmapG8, kGray_8_SkColorType, "Gray 8");
+    ::draw(canvas, p, font, bitmapG8, kGray_8_SkColorType, "Gray 8");
 }
 
 sk_sp<SkImage> make_not_native32_color_wheel() {
