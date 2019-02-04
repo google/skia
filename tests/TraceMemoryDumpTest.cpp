@@ -73,7 +73,7 @@ void ValidateMemoryDumps(skiatest::Reporter* reporter, GrContext* context, size_
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
     const size_t kMemorySize = 1024;
     sk_sp<GrGLBuffer> buffer =
             GrGLBuffer::Make(gpu, kMemorySize, kVertex_GrBufferType, kDynamic_GrAccessPattern);
@@ -83,7 +83,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer, reporter,
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
@@ -109,7 +109,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
@@ -135,7 +135,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLTexture, report
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrSurfaceDesc sd;
     sd.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -157,7 +157,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
 
     GrSurfaceDesc sd;
     sd.fFlags = kRenderTarget_GrSurfaceFlag;

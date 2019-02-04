@@ -44,7 +44,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
     // TODO: Use 1010102 for opaque gradients, at least if destination is 1010102?
     SkColorType colorType = kRGBA_8888_SkColorType;
     if (kLow_GrSLPrecision != GrSLSamplerPrecision(args.fDstColorSpaceInfo->config()) &&
-        args.fContext->contextPriv().caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+        args.fContext->priv().caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
         colorType = kRGBA_F16_SkColorType;
     }
     SkAlphaType alphaType = premul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
@@ -55,7 +55,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
     SkASSERT(bitmap.isImmutable());
 
     sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
-            args.fContext->contextPriv().proxyProvider(), bitmap);
+            args.fContext->priv().proxyProvider(), bitmap);
     if (proxy == nullptr) {
         SkDebugf("Gradient won't draw. Could not create texture.");
         return nullptr;
@@ -103,7 +103,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     // 32-bit, output can be incorrect if the thresholds are too close together. However, the
     // analytic shaders are higher quality, so they can be used with lower precision hardware when
     // the thresholds are not ill-conditioned.
-    const GrShaderCaps* caps = args.fContext->contextPriv().caps()->shaderCaps();
+    const GrShaderCaps* caps = args.fContext->priv().caps()->shaderCaps();
     if (!caps->floatIs32Bits() && tryAnalyticColorizer) {
         // Could run into problems, check if thresholds are close together (with a limit of .01, so
         // that scales will be less than 100, which leaves 4 decimals of precision on 16-bit).

@@ -17,7 +17,7 @@
 std::unique_ptr<GrDrawableOp> GrDrawableOp::Make(
         GrContext* context, std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
         const SkRect& bounds) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
     return pool->allocate<GrDrawableOp>(std::move(drawable), bounds);
 }
 

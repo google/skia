@@ -91,8 +91,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 } else {
                                     GrPixelConfig config =
                                             SkColorType2GrPixelConfig(kBGRA_8888_SkColorType);
-                                    if (!context->contextPriv().caps()->isConfigTexturable(
-                                        config)) {
+                                    if (!context->priv().caps()->isConfigTexturable(config)) {
                                         continue;
                                     }
                                     if (!src || !dst) {
@@ -103,8 +102,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrSurfaceContext> dstContext =
-                                        context->contextPriv().makeWrappedSurfaceContext(
-                                                std::move(dst));
+                                        context->priv().makeWrappedSurfaceContext(std::move(dst));
 
                                 bool result = dstContext->copy(src.get(), srcRect, dstPoint);
 

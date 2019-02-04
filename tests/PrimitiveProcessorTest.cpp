@@ -33,7 +33,7 @@ public:
     const char* name() const override { return "Dummy Op"; }
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context, int numAttribs) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<Op>(numAttribs);
     }
@@ -118,27 +118,27 @@ private:
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 #if GR_GPU_STATS
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 #endif
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->contextPriv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox,
-                                                                   1, 1, kRGBA_8888_GrPixelConfig,
-                                                                   nullptr));
+            context->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox,
+                                                            1, 1, kRGBA_8888_GrPixelConfig,
+                                                            nullptr));
     if (!renderTargetContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;
     }
-    int attribCnt = context->contextPriv().caps()->maxVertexAttributes();
+    int attribCnt = context->priv().caps()->maxVertexAttributes();
     if (!attribCnt) {
         ERRORF(reporter, "No attributes allowed?!");
         return;
     }
     context->flush();
-    context->contextPriv().resetGpuStats();
+    context->priv().resetGpuStats();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
@@ -154,7 +154,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
-    context->contextPriv().resetGpuStats();
+    context->priv().resetGpuStats();
     renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(context, attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS
