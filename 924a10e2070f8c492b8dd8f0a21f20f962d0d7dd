@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7dd15e0_f9f18c82",
+        "filename": "tests/VkHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-04T16:18:50Z",
+      "side": 0,
+      "message": "it is illegal to call GetImageMemoryRequirements on imported ahb.",
+      "range": {
+        "startLine": 728,
+        "startChar": 4,
+        "endLine": 728,
+        "endChar": 36
+      },
+      "revId": "924a10e2070f8c492b8dd8f0a21f20f962d0d7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
