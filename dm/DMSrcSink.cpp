@@ -1652,7 +1652,7 @@ static SkTScopedComPtr<IXpsOMObjectFactory> make_xps_factory() {
     HRN(CoCreateInstance(CLSID_XpsOMObjectFactory,
                          nullptr,
                          CLSCTX_INPROC_SERVER,
-                         IID_PPV_ARGS(&factory)));
+                         IID_PPV_ARGS(&factory)))
     return SkTScopedComPtr<IXpsOMObjectFactory>(factory);
 }
 
