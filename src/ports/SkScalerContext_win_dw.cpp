@@ -710,9 +710,11 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     }
 
     // GetAlphaTextureBounds succeeds but returns an empty RECT if there are no
-    // glyphs of the specified texture type. When this happens, try with the
-    // alternate texture type.
-    if (DWRITE_TEXTURE_CLEARTYPE_3x1 == fTextureType) {
+    // glyphs of the specified texture type or it is too big for smoothing.
+    // When this happens, try with the alternate texture type.
+    if (DWRITE_TEXTURE_ALIASED_1x1 != fTextureType ||
+        DWRITE_TEXT_ANTIALIAS_MODE_GRAYSCALE == fAntiAliasMode)
+    {
         HRVM(this->getBoundingBox(glyph,
                                   DWRITE_RENDERING_MODE_ALIASED,
                                   DWRITE_TEXTURE_ALIASED_1x1,
