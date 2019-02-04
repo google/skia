@@ -34,6 +34,11 @@ public:
 
     const GrContextOptions& options() const { return fContext->options(); }
 
+    const GrCaps* caps() const { return fContext->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
+
     // from GrImageContext
 
     // from GrRecordingContext
@@ -42,8 +47,6 @@ public:
      * Create a GrContext without a resource cache
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
-
-    const GrCaps* caps() const { return fContext->fCaps.get(); }
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
@@ -283,8 +286,6 @@ public:
     GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
-
-    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache();
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )

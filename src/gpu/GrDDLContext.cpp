@@ -19,9 +19,6 @@ class SK_API GrDDLContext : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->backend(), proxy->priv().options(), proxy->priv().contextID()) {
-        fCaps = proxy->priv().refCaps();
-        fFPFactoryCache = proxy->priv().fpFactoryCache();
-        SkASSERT(fFPFactoryCache);
         fThreadSafeProxy = std::move(proxy);
     }
 
@@ -43,13 +40,17 @@ public:
     }
 
 protected:
-    bool init() override {
-        SkASSERT(fCaps);  // should've been set in ctor
+    friend class GrContextPriv;
+
+    bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) override {
+        SkASSERT(caps && FPFactoryCache);
         SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
-        if (!INHERITED::initCommon()) {
+        if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
             return false;
         }
+
+        SkASSERT(this->caps());
 
         return true;
     }
@@ -64,11 +65,9 @@ private:
 };
 
 sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
-    sk_sp<GrContext> context(new GrDDLContext(proxy));
+    sk_sp<GrDDLContext> context(new GrDDLContext(proxy));
 
-    // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
-    // also not be created
-    if (!context->init()) {
+    if (!context->init(proxy->priv().refCaps(), proxy->priv().fpFactoryCache())) {
         return nullptr;
     }
     return context;
