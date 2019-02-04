@@ -133,6 +133,7 @@ protected:
         sk_sp<SkSurface> surface(make_color_matching_surface(canvas, WIDTH, HEIGHT,
                                                              kPremul_SkAlphaType));
         if (!surface) {
+            DrawFailureMessage(canvas, "make_color_matching_surface failed");
             return;
         }
 

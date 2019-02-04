@@ -31,7 +31,8 @@ protected:
         const char* path = "images/mandrill_512_q075.jpg";
         sk_sp<SkImage> image = GetResourceAsImage(path);
         if (!image) {
-            SkDebugf("Failure: Is the resource path set properly?");
+            DrawFailureMessage(canvas, "Couldn't load images/mandrill_512_q075.jpg. "
+                                       "Did you forget to set the resource path?");
             return;
         }
 

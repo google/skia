@@ -15,6 +15,8 @@ DEF_SIMPLE_GM(bitmap_subset_shader, canvas, 256, 256) {
 
     SkBitmap source;
     if (!GetResourceAsBitmap("images/color_wheel.png", &source)) {
+        skiagm::GM::DrawFailureMessage(canvas, "Could not load images/color_wheel.png. "
+                                               "Did you forget to set the resourcePath?");
         return;
     }
     SkIRect left = SkIRect::MakeWH(source.width()/2, source.height());

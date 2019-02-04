@@ -45,6 +45,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> srcImg = GetResourceAsImage("images/rainbow-gradient.png");
         if (!srcImg) {
+            DrawFailureMessage(canvas, "Could not load images/rainbow-gradient.png. "
+                                       "Did you forget to set the resourcePath?");
             return;
         }
         fStorage.reset(srcImg->width() * srcImg->height() *

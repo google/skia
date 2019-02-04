@@ -92,6 +92,7 @@ protected:
             proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
+                DrawFailureMessage(canvas, "Failed to create proxy");
                 return;
             }
         }
@@ -219,6 +220,7 @@ protected:
             proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
+                DrawFailureMessage(canvas, "Failed to create proxy");
                 return;
             }
         }

@@ -61,6 +61,8 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 560, 370) {
     auto image = GetResourceAsImage("images/mandrill_128.png");
     auto mask = GetResourceAsImage("images/color_wheel.png");
     if (!image || !mask) {
+        skiagm::GM::DrawFailureMessage(canvas, "Could not load images. "
+                                               "Did you forget to set the resourcePath?");
         return;
     }
     auto blurmf = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5);

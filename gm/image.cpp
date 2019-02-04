@@ -407,6 +407,7 @@ DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
     auto surf = sk_tool_utils::makeSurface(canvas, info, nullptr);
     auto img = make_lazy_image(surf.get());
     if (!img) {
+        skiagm::GM::DrawFailureMessage(canvas, "Failed to make lazy image.");
         return;
     }
 

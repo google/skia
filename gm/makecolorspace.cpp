@@ -57,6 +57,8 @@ protected:
         sk_sp<SkImage> opaqueImage = GetResourceAsImage("images/mandrill_128.png");
         sk_sp<SkImage> premulImage = GetResourceAsImage("images/color_wheel.png");
         if (!opaqueImage || !premulImage) {
+            DrawFailureMessage(canvas, "Failed to load images. "
+                                       "Did you forget to set the resourcePath?");
             return;
         }
         canvas->drawImage(opaqueImage, 0.0f, 0.0f);

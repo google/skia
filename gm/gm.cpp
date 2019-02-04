@@ -92,6 +92,24 @@ void GM::DrawGpuOnlyMessage(SkCanvas* canvas) {
     return;
 }
 
+void GM::DrawFailureMessage(SkCanvas* canvas, const char format[], ...)  {
+    SkString failureMsg;
+
+    va_list argp;
+    va_start(argp, format);
+    failureMsg.appendVAList(format, argp);
+    va_end(argp);
+
+    constexpr SkScalar kOffset = 5.0f;
+    canvas->drawColor(SkColorSetRGB(200,0,0));
+    SkFont font;
+    SkRect bounds;
+    font.measureText(failureMsg.c_str(), failureMsg.size(), kUTF8_SkTextEncoding, &bounds);
+    SkPaint textPaint;
+    textPaint.setColor(SK_ColorWHITE);
+    canvas->drawString(failureMsg, kOffset, bounds.height() + kOffset, font, textPaint);
+}
+
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 

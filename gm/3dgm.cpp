@@ -103,6 +103,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (!fAnim) {
+            DrawFailureMessage(canvas, "No animation.");
             return;
         }
         SkMatrix44  camera,

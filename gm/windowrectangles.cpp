@@ -125,7 +125,6 @@ private:
     void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void stencilCheckerboard(GrRenderTargetContext*, bool flip);
-    void fail(SkCanvas*);
 };
 
 /**
@@ -176,7 +175,7 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     if (!ctx || !rtc || rtc->priv().maxWindowRectangles() < kNumWindows) {
-        this->fail(canvas);
+        DrawFailureMessage(canvas, "Requires GPU with %i window rectangles", kNumWindows);
         return;
     }
 
@@ -263,20 +262,6 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
                                     SkRect::Make(checker));
         }
     }
-}
-
-void WindowRectanglesMaskGM::fail(SkCanvas* canvas) {
-    SkFont font(sk_tool_utils::create_portable_typeface(), 20);
-
-    SkString errorMsg;
-    errorMsg.printf("Requires GPU with %i window rectangles", kNumWindows);
-
-    canvas->clipRect(SkRect::Make(kCoverRect));
-    canvas->clear(SK_ColorWHITE);
-
-    SkTextUtils::DrawString(canvas, errorMsg.c_str(), SkIntToScalar((kCoverRect.left() + kCoverRect.right())/2),
-                     SkIntToScalar((kCoverRect.top() + kCoverRect.bottom())/2 - 10),
-                            font, SkPaint(), SkTextUtils::kCenter_Align);
 }
 
 DEF_GM( return new WindowRectanglesMaskGM(); )

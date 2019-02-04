@@ -45,6 +45,7 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
         auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         if (nullptr == surface) {
+            DrawFailureMessage(canvas, "Could not create render target.");
             return;
         }
 

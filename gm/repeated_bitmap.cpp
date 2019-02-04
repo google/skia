@@ -14,6 +14,7 @@ static void draw_rotated_image(SkCanvas* canvas, const SkImage* image) {
     sk_tool_utils::draw_checkerboard(canvas, SkColorSetRGB(156, 154, 156),
                                      SK_ColorWHITE, 12);
     if (!image) {
+        skiagm::GM::DrawFailureMessage(canvas, "No image. Did you forget to set the resourcePath?");
         return;
     }
     SkRect rect = SkRect::MakeLTRB(-68.0f, -68.0f, 68.0f, 68.0f);
