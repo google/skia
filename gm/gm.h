@@ -13,12 +13,12 @@
 #include "SkCanvas.h"
 #include "SkClipOpPriv.h"
 #include "SkMacros.h"
-#include "SkMetaData.h"
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
 
 class SkAnimTimer;
+class SkMetaData;
 struct GrContextOptions;
 
 #define DEF_GM(code) \

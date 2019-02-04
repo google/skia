@@ -698,11 +698,6 @@ A glyph index is a 16-bit word.
     ##
 # end of Topic Math
 
-#Topic Meta_Data
-#Class SkMetaData
-##
-##
-
 #Topic Mip_Map
 #Substitute mip map
 ##
