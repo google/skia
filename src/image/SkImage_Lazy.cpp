@@ -425,7 +425,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we fall through here and have the CPU generate the mip maps for us.
-    if (!proxy && !willBeMipped && !ctx->contextPriv().disableGpuYUVConversion()) {
+    if (!proxy && !willBeMipped && !ctx->contextPriv().options().fDisableGpuYUVConversion) {
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo);
 
         SkColorType colorType = fInfo.colorType();
