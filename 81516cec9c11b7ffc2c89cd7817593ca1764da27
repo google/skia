@@ -22,6 +22,30 @@
       "revId": "81516cec9c11b7ffc2c89cd7817593ca1764da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e8fe693_d1893520",
+        "filename": "src/gpu/gl/GrGLBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-04T18:29:55Z",
+      "side": 1,
+      "message": "nice catch, done.",
+      "parentUuid": "75f6ebac_f1338034",
+      "range": {
+        "startLine": 61,
+        "startChar": 29,
+        "endLine": 61,
+        "endChar": 35
+      },
+      "revId": "81516cec9c11b7ffc2c89cd7817593ca1764da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
