@@ -16,6 +16,24 @@
       "revId": "d5c6e16e3ef640b45a43f153ea1309ec383fb658",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f04f0a4_a96d52ec",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-04T14:30:28Z",
+      "side": 0,
+      "message": "Here we\u0027re returning uint32_t, so everything is fine...",
+      "parentUuid": "2ff0a406_5c0e4528",
+      "revId": "d5c6e16e3ef640b45a43f153ea1309ec383fb658",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

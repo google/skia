@@ -100,6 +100,24 @@
     },
     {
       "key": {
+        "uuid": "db28f86c_3c20fb61",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-04T14:30:28Z",
+      "side": 1,
+      "message": "Here we\u0027re going back down to uint16_t, which is what\u0027s triggering the issue. This code:\n\nTakes a 565 value and shifts just the green bits by 16. That produces a 32-bit value that looks like: 00000GGGGGG00000 RRRRR000000BBBBB\n\nThen it does the mip-mapping math, taking advantage of the 0s in the overflow region of each channel. Finally, it squashes that 32-bit filtered value back into 16 bits, by shifting the green bits back into position. The mask for the R+B bits is just ~0b1111100000011111, which leaves all of the green bits in the top half.",
+      "parentUuid": "5125ad3b_d3e7d966",
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f704680_4cb6ae41",
         "filename": "tests/FitsInTest.cpp",
         "patchSetId": 6
@@ -120,6 +138,30 @@
       "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0173dbf3_5040297a",
+        "filename": "tests/FitsInTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-04T14:30:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f704680_4cb6ae41",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 39
+      },
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
