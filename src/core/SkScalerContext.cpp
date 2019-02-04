@@ -71,8 +71,6 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
     , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != nullptr)
 
     , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
-    , fPreBlendForFilter(fMaskFilter ? SkScalerContext::GetMaskPreBlend(fRec)
-                                     : SkMaskGamma::PreBlend())
 {
 #ifdef DUMP_REC
     SkDebugf("SkScalerContext checksum %x count %d length %d\n",
@@ -560,10 +558,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
                 dst += dstRB;
             }
             SkMask::FreeImage(dstM.fImage);
-
-            if (SkMask::kA8_Format == dstM.fFormat && fPreBlendForFilter.isApplicable()) {
-                applyLUTToA8Mask(srcM, fPreBlendForFilter.fG);
-            }
         }
     }
 }
@@ -1078,7 +1072,6 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         // The primary filter is blur, for which contrast makes no sense,
         // and for which the destination guess error is more visible.
         // Also, all existing users of blur have calibrated for linear.
-        // TODO: this means fPreBlendForFilter is never used?
         rec->ignorePreBlend();
     }
 }
