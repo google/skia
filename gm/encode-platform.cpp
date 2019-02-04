@@ -85,10 +85,14 @@ protected:
         SkBitmap opaqueBm, premulBm, unpremulBm;
 
         if (!GetResourceAsBitmap("images/mandrill_256.png", &opaqueBm)) {
+            DrawFailureMessage(canvas, "Could not load images/mandrill_256.png.png. "
+                                       "Did you forget to set the resourcePath?");
             return;
         }
         SkBitmap tmp;
         if (!GetResourceAsBitmap("images/yellow_rose.png", &tmp)) {
+            DrawFailureMessage(canvas, "Could not load images/yellow_rose.png. "
+                                       "Did you forget to set the resourcePath?");
             return;
         }
         tmp.extractSubset(&premulBm, SkIRect::MakeWH(256, 256));
