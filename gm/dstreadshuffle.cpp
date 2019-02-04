@@ -119,7 +119,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar y = 5;
         for (int i = 0; i < kNumShapeTypes; i++) {
             SkRandom colorRandom;
@@ -171,6 +171,7 @@ protected:
         canvas->translate(67.f, 10.f);
         DrawHairlines(surf->getCanvas());
         canvas->drawImage(surf->makeImageSnapshot(), 0.f, 0.f);
+        return kDrawComplete;
     }
 
 private:

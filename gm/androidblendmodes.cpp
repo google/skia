@@ -64,7 +64,7 @@ protected:
         canvas->drawBitmap(fCompositeSrc, 0, 0, &p);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkFont font(sk_tool_utils::create_portable_typeface());
 
         sk_tool_utils::draw_checkerboard(canvas,
@@ -103,6 +103,7 @@ protected:
                 yOffset += 256;
             }
         }
+        return kDrawComplete;
     }
 
 private:

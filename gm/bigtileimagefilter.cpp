@@ -48,7 +48,7 @@ protected:
         fGreenImage = create_circle_texture(kBitmapSize, SK_ColorGREEN);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         {
@@ -91,6 +91,7 @@ protected:
                                   SkCanvas::kStrict_SrcRectConstraint);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

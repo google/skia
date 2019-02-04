@@ -33,7 +33,7 @@ class FwidthSquircleGM : public GM {
 private:
     SkString onShortName() final { return SkString("fwidth_squircle"); }
     SkISize onISize() override { return SkISize::Make(200, 200); }
-    void onDraw(SkCanvas*) override;
+    const char* onDraw(SkCanvas*) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,25 +162,20 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
+const char* FwidthSquircleGM::onDraw(SkCanvas* canvas) {
     GrContext* ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-
-    canvas->clear(SK_ColorWHITE);
-
     if (!ctx || !rtc) {
-        DrawGpuOnlyMessage(canvas);
-        return;
+        return kDrawSkippedGPUOnly;
     }
-
     if (!ctx->contextPriv().caps()->shaderCaps()->shaderDerivativeSupport()) {
-        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
-        DrawFailureMessage(canvas, "Shader derivatives not supported.");
-        return;
+        return "Shader derivatives not supported";
     }
 
     // Draw the test directly to the frame buffer.
+    canvas->clear(SK_ColorWHITE);
     rtc->priv().testingOnly_addDrawOp(FwidthSquircleTestOp::Make(ctx, canvas->getTotalMatrix()));
+    return kDrawComplete;
 }
 
 DEF_GM( return new FwidthSquircleGM(); )

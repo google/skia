@@ -257,7 +257,7 @@ protected:
         fPaths.push_back().addCircle(0, 0, 1.2f);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         this->makePaths();
 
         SkPaint paint;
@@ -283,6 +283,7 @@ protected:
             canvas->drawPath(fPaths[i], paint);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

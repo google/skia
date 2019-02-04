@@ -26,7 +26,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(1240, 390); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(0, 0);
         path.cubicTo(140, 150, 40, 10, 170, 150);
@@ -48,6 +48,7 @@ protected:
             canvas->restore();
             canvas->translate(0, bounds.height());
         }
+        return kDrawComplete;
     }
 
 private:
@@ -67,7 +68,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1240, 390); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->save();
         canvas->translate(-2, 120);
         drawOne(canvas, fPath, SkRect::MakeLTRB(0, 0, 80, 150));
@@ -88,6 +89,7 @@ protected:
         canvas->translate(170, 0);
         drawOne(canvas, fFlipped, SkRect::MakeLTRB(0, 0, 150, 10));
         canvas->restore();
+        return kDrawComplete;
     }
 
     void drawOne(SkCanvas* canvas, const SkPath& path, const SkRect& clip) {
@@ -154,7 +156,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -248,6 +250,7 @@ protected:
         }
         canvas->restore();
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:
@@ -283,7 +286,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -379,6 +382,7 @@ protected:
         }
         canvas->restore();
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:

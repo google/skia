@@ -16,7 +16,7 @@ DEF_GPU_GM(cross_context_image, context, rtc, canvas, 512 * 3 + 60, 512 + 128 + 
     if (!encodedData) {
         skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_512.png. "
                                                "Did you forget to set the resourcePath?");
-        return;
+        return skiagm::GM::kDrawComplete;
     }
 
     sk_sp<SkImage> encodedImage = SkImage::MakeFromEncoded(encodedData);
@@ -43,4 +43,5 @@ DEF_GPU_GM(cross_context_image, context, rtc, canvas, 512 * 3 + 60, 512 + 128 + 
     canvas->drawImage(encodedSubset, 10, 512 + 30);
     canvas->drawImage(crossContextSubset, 512 + 30, 512 + 30);
     canvas->drawImage(crossContextRasterSubset, 512 + 512 + 60, 512 + 30);
+    return skiagm::GM::kDrawComplete;
 }

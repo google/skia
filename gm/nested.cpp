@@ -64,7 +64,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         SkPaint shapePaint;
         shapePaint.setColor(SK_ColorBLACK);
@@ -120,6 +120,7 @@ protected:
             yOff += 45;
         }
 
+        return kDrawComplete;
     }
 
 private:

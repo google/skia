@@ -26,7 +26,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(100, 100); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         constexpr SkScalar kOffset = 35000.0f;
         constexpr SkScalar kExtents = 1000.0f;
 
@@ -59,6 +59,7 @@ protected:
 
         // If the image is red, we erroneously decided the clipPath was empty and didn't record
         // the green drawColor, if it's green we're all good.
+        return kDrawComplete;
     }
 
 private:

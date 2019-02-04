@@ -62,7 +62,7 @@ protected:
         return SkISize::Make(W, H * 5);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrContext* ctx = canvas->getGrContext();
 
         // must be opaque to have a hope of testing LCD text
@@ -91,6 +91,7 @@ protected:
             surface->draw(canvas, x, y, nullptr);
             y += H;
         }
+        return kDrawComplete;
     }
 
 private:
@@ -121,7 +122,7 @@ protected:
         canvas->drawColor(SK_ColorRED);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         auto surf(sk_tool_utils::makeSurface(canvas, info, nullptr));
@@ -138,6 +139,7 @@ protected:
 
         sk_sp<SkImage> image2(surf2->makeImageSnapshot());
         canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
+        return kDrawComplete;
     }
 
 private:

@@ -87,7 +87,7 @@ protected:
         return SkISize::Make(540, 250);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
 
@@ -97,6 +97,7 @@ protected:
         y = draw_row(canvas, fBM16);
         canvas->translate(0, y);
         draw_row(canvas, fBM32);
+        return kDrawComplete;
     }
 
 private:
@@ -137,7 +138,7 @@ protected:
         return SkISize::Make(540, 330);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setFilterQuality(kLow_SkFilterQuality);
@@ -145,6 +146,7 @@ protected:
 
         canvas->drawBitmap(fBitmap, 10, 10, &paint);    // should stay blue (ignore paint's color)
         canvas->drawBitmap(fAlpha, 120, 10, &paint);    // should draw red
+        return kDrawComplete;
     }
 
 private:

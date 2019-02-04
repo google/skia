@@ -73,7 +73,7 @@ protected:
                  scale, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         this->makePath();
 
         // do perspective drawPaint as the background;
@@ -117,6 +117,7 @@ protected:
         showFour(canvas, SK_Scalar1, true);
         canvas->translate(SkIntToScalar(450), 0);
         showFour(canvas, scale, true);
+        return kDrawComplete;
     }
 
 private:

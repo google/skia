@@ -32,7 +32,7 @@ protected:
         return SkString("drawlooper");
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         this->init();
 
         SkPaint  paint;
@@ -44,6 +44,7 @@ protected:
         canvas->drawCircle(50, 50, 30, paint);
         canvas->drawRect({ 150, 50, 200, 100 }, paint);
         canvas->drawString("Looper", 230, 100, font, paint);
+        return kDrawComplete;
     }
 
 private:

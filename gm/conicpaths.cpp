@@ -89,7 +89,7 @@ protected:
         canvas->drawPath(fGiantCircle, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
 
         const SkScalar margin = 15;
@@ -121,6 +121,7 @@ protected:
         canvas->restore();
 
         this->drawGiantCircle(canvas);
+        return kDrawComplete;
     }
 
 private:

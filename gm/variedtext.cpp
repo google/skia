@@ -105,7 +105,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         for (int i = 0; i < kCnt; ++i) {
             fPaint.setColor(fColors[i]);
             fFont.setSize(fPtSizes[i]);
@@ -129,6 +129,7 @@ protected:
                 canvas->drawRect(fClipRects[i], wirePaint);
             }
         }
+        return kDrawComplete;
     }
 
     bool runAsBench() const override { return true; }

@@ -336,7 +336,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -369,6 +369,7 @@ protected:
             canvas->restore();
             canvas->translate(SkIntToScalar(120), 0);
         }
+        return kDrawComplete;
     }
 
 private:

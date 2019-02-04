@@ -58,7 +58,7 @@ protected:
         canvas->drawBitmapRect(fBM, r, &p);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar gScales[] = { 0.9f, 0.8f, 0.75f, 0.6f, 0.5f, 0.4f, 0.25f, 0.2f, 0.1f };
 
         SkASSERT(kNumVertImages-1 == (int)SK_ARRAY_COUNT(gScales)/2);
@@ -94,6 +94,7 @@ protected:
 
             this->draw(canvas, xOff, yOff, width, fBM.height());
         }
+        return kDrawComplete;
     }
 
 private:

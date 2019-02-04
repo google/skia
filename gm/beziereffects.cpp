@@ -144,17 +144,12 @@ protected:
     }
 
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
+        if (!renderTargetContext || !context) {
+            return kDrawSkippedGPUOnly;
         }
 
         struct Vertex {
@@ -245,6 +240,7 @@ protected:
                 }
             }
         }
+        return kDrawComplete;
     }
 
 private:
@@ -361,17 +357,12 @@ protected:
     }
 
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
+        if (!renderTargetContext || !context) {
+            return kDrawSkippedGPUOnly;
         }
 
         struct Vertex {
@@ -462,6 +453,7 @@ protected:
                 }
             }
         }
+        return kDrawComplete;
     }
 
 private:

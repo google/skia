@@ -111,7 +111,7 @@ protected:
         canvas->drawCircle(50, 50, 50, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(20, 20);
 
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
@@ -123,6 +123,7 @@ protected:
             }
             canvas->translate(120, 0);
         }
+        return kDrawComplete;
     }
 
 private:

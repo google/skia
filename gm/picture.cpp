@@ -57,7 +57,7 @@ protected:
         return SkISize::Make(450, 120);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
 
         SkMatrix matrix;
@@ -74,6 +74,7 @@ protected:
         paint.setAlpha(0x80);
         matrix.postTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, &paint);
+        return kDrawComplete;
     }
 
 private:

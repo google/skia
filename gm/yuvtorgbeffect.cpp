@@ -72,17 +72,12 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
+        if (!renderTargetContext || !context) {
+            return kDrawSkippedGPUOnly;
         }
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
@@ -93,7 +88,7 @@ protected:
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
                 DrawFailureMessage(canvas, "Failed to create proxy");
-                return;
+                return kDrawComplete;
             }
         }
 
@@ -137,6 +132,7 @@ protected:
                 x += renderRect.width() + kTestPad;
             }
         }
+        return kDrawComplete;
      }
 
 private:
@@ -200,17 +196,12 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
+        if (!renderTargetContext || !context) {
+            return kDrawSkippedGPUOnly;
         }
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
@@ -221,7 +212,7 @@ protected:
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
                 DrawFailureMessage(canvas, "Failed to create proxy");
-                return;
+                return kDrawComplete;
             }
         }
 
@@ -258,6 +249,7 @@ protected:
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
         }
+        return kDrawComplete;
     }
 
 private:

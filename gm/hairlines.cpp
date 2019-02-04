@@ -162,7 +162,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         constexpr SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
         constexpr SkScalar kWidths[] = { 0, 0.5f, 1.5f };
 
@@ -211,6 +211,7 @@ protected:
             }
         }
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:

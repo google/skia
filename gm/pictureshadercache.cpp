@@ -52,7 +52,7 @@ public:
         return SkISize::Make(100, 100);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setShader(SkShader::MakePictureShader(fPicture, SkShader::kRepeat_TileMode,
                                                     SkShader::kRepeat_TileMode, nullptr,
@@ -75,6 +75,7 @@ public:
         // When we draw to the canvas, we should see green because we should *not* reuse the
         // cached picture shader.
         canvas->drawRect(SkRect::MakeWH(fTileSize, fTileSize), paint);
+        return kDrawComplete;
     }
 
 private:

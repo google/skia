@@ -232,8 +232,8 @@ protected:
         fEmFace = MakeResourceAsTypeface("fonts/Em.ttf");
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        if (false) { test_stroke(canvas); return; }
+    const char* onDraw(SkCanvas* canvas) override {
+        if (false) { test_stroke(canvas); return kDrawComplete; }
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -271,6 +271,7 @@ protected:
         const int dst4[] = { 0, 0, 96, 0, 64, 96, 0, 64 };
         doDraw(canvas, font, &paint, src4, dst4, 4);
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:

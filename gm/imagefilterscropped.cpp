@@ -109,7 +109,7 @@ protected:
         make_checkerboard();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
             draw_bitmap, draw_path, draw_paint, draw_text
         };
@@ -166,6 +166,7 @@ protected:
             canvas->restore();
             canvas->translate(DX, 0);
         }
+        return kDrawComplete;
     }
 
 private:

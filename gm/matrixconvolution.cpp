@@ -87,7 +87,7 @@ protected:
         this->makeBitmap();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkIPoint kernelOffset = SkIPoint::Make(1, 0);
         SkImageFilter::CropRect rect(SkRect::Make(fBitmap.bounds()));
@@ -106,6 +106,7 @@ protected:
         this->draw(canvas, 410, 10, kernelOffset, MCIF::kClamp_TileMode, false, &rect);
         this->draw(canvas, 410, 110, kernelOffset, MCIF::kClampToBlack_TileMode, false, &rect);
         this->draw(canvas, 410, 210, kernelOffset, MCIF::kRepeat_TileMode, false, &rect);
+        return kDrawComplete;
     }
 
 private:

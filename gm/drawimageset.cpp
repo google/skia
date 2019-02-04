@@ -93,7 +93,7 @@ private:
         make_image_tiles(kTileW, kTileH, kM, kN, kColors, fSet);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar d = SkVector{kM * kTileW, kN * kTileH}.length();
         SkMatrix matrices[4];
         // rotation
@@ -162,6 +162,7 @@ private:
             canvas->restore();
             canvas->translate(2 * d, 0);
         }
+        return kDrawComplete;
     }
     static constexpr int kM = 4;
     static constexpr int kN = 3;
@@ -182,7 +183,7 @@ private:
         make_image_tiles(kTileW, kTileH, kM, kN, kColors, fSet);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         sk_tool_utils::draw_checkerboard(canvas, SK_ColorBLACK, SK_ColorWHITE, 50);
         static constexpr SkScalar kW = kM * kTileW;
         static constexpr SkScalar kH = kN * kTileH;
@@ -243,6 +244,7 @@ private:
             canvas->translate(0, kTranslate);
             canvas->save();
         }
+        return kDrawComplete;
     }
     static constexpr int kM = 2;
     static constexpr int kN = 2;

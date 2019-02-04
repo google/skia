@@ -65,7 +65,7 @@ protected:
         fStrokePaint.setStyle(SkPaint::kStroke_Style);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(kCubics); ++i) {
@@ -73,6 +73,7 @@ protected:
                              SkRect::MakeXYWH((i%3) * kCellSize, (i/3) * kCellSize, kCellSize,
                                               kCellSize));
         }
+        return kDrawComplete;
     }
 
     void drawStroke(SkCanvas* canvas, const SkPoint P[4], const SkRect& location) {

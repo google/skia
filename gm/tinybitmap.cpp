@@ -33,13 +33,14 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(100, 100); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         SkBitmap bm = make_bitmap();
         SkPaint paint;
         paint.setAlpha(0x80);
         paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                    SkShader::kMirror_TileMode));
         canvas->drawPaint(paint);
+        return kDrawComplete;
     }
 
 private:

@@ -99,7 +99,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrContext* context = canvas->getGrContext();
 
         sk_sp<SkImage> bottomLImg = make_image(context, kImgSize, kBottomLeft_GrSurfaceOrigin);
@@ -107,7 +107,7 @@ protected:
         if (!bottomLImg || !topLImg) {
             DrawFailureMessage(canvas, "Could not load images. "
                                        "Did you forget to set the resourcePath?");
-            return;
+            return kDrawComplete;
         }
 
         int bigOffset = 2 * kPad + kImgSize;
@@ -116,6 +116,7 @@ protected:
         this->draw(canvas, topLImg, SkIPoint::Make(bigOffset, kPad), 1);
         this->draw(canvas, bottomLImg, SkIPoint::Make(kPad, bigOffset), 7);
         this->draw(canvas, topLImg, SkIPoint::Make(bigOffset, bigOffset), 7);
+        return kDrawComplete;
     }
 
 private:

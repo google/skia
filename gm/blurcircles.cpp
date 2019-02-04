@@ -37,7 +37,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->scale(1.5f, 1.5f);
         canvas->translate(50,50);
 
@@ -55,6 +55,7 @@ protected:
                 canvas->translate(SkIntToScalar(150), 0);
             }
         }
+        return kDrawComplete;
     }
 private:
     static constexpr int kNumBlurs = 4;

@@ -37,7 +37,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         constexpr struct {
             SkColor fColor0;
             SkColor fColor1;
@@ -69,6 +69,7 @@ protected:
             canvas->restore();
             canvas->translate(r.width() + 10, 0);
         }
+        return kDrawComplete;
     }
 
 private:
