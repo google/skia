@@ -266,8 +266,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     static constexpr int kSize = 100;
     SkAutoPixmapStorage pixels;
     pixels.alloc(SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    fillPixels(&pixels,
-               [](int x, int y) { return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t(x * y); });
+    fillPixels(&pixels, [](int x, int y) {
+        return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t((x * y) & 0xFF);
+    });
 
     GrContext* context = context_info.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();

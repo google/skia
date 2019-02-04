@@ -83,9 +83,9 @@ bool SkEncodeImageWithWIC(SkWStream* stream, const SkPixmap& pixmap,
             uint8_t* dstRow = SkTAddOffset<uint8_t>(pixelStorage.get(), y * rowBytes);
             for (int x = 0; x < bitmap.width(); x++) {
                 uint32_t bgra = *bitmap.getAddr32(x, y);
-                dstRow[0] = (uint8_t) (bgra >>  0);
-                dstRow[1] = (uint8_t) (bgra >>  8);
-                dstRow[2] = (uint8_t) (bgra >> 16);
+                dstRow[0] = (uint8_t) ((bgra >>  0) & 0xFF);
+                dstRow[1] = (uint8_t) ((bgra >>  8) & 0xFF);
+                dstRow[2] = (uint8_t) ((bgra >> 16) & 0xFF);
                 dstRow += 3;
             }
         }

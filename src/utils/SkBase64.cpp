@@ -79,10 +79,10 @@ handlePad:
             int one = (uint8_t) (bytes[0] << 2);
             two = bytes[1];
             one |= two >> 4;
-            two = (uint8_t) (two << 4);
+            two = (uint8_t) ((two << 4) & 0xFF);
             three = bytes[2];
             two |= three >> 2;
-            three = (uint8_t) (three << 6);
+            three = (uint8_t) ((three << 6) & 0xFF);
             three |= bytes[3];
             SkASSERT(one < 256 && two < 256 && three < 256);
             *dst = (unsigned char) one;

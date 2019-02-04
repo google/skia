@@ -45,7 +45,7 @@ SkCanvas::SaveLayerFlags SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(uint32_t 
 DrawType SkPicturePlayback::ReadOpAndSize(SkReadBuffer* reader, uint32_t* size) {
     uint32_t temp = reader->readInt();
     uint32_t op;
-    if (((uint8_t)temp) == temp) {
+    if ((temp & 0xFF) == temp) {
         // old skp file - no size information
         op = temp;
         *size = 0;

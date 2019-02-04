@@ -196,7 +196,9 @@ public:
     }
 
 private:
-    static int ValueAt(uint64_t i) { return static_cast<int>(123456789 + 987654321 * i); }
+    static int ValueAt(uint64_t i) {
+        return static_cast<int>((123456789 + 987654321 * i) & 0xFFFFFFFF);
+    }
     int fLength;
 };
 

@@ -28,7 +28,7 @@
     e.g. 0x1234 -> 0x3412
 */
 static inline uint16_t SkEndianSwap16(uint16_t value) {
-    return static_cast<uint16_t>((value >> 8) | (value << 8));
+    return static_cast<uint16_t>((value >> 8) | ((value & 0xFF) << 8));
 }
 
 template<uint16_t N> struct SkTEndianSwap16 {

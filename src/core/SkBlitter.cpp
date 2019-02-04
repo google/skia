@@ -293,7 +293,7 @@ static inline void bits_to_runs(SkBlitter* blitter, int x, int y,
 
 // maskBitCount is the number of 1's to place in the mask. It must be in the range between 1 and 8.
 static uint8_t generate_right_mask(int maskBitCount) {
-    return static_cast<uint8_t>(0xFF00U >> maskBitCount);
+    return static_cast<uint8_t>((0xFF00U >> maskBitCount) & 0xFF);
 }
 
 void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
