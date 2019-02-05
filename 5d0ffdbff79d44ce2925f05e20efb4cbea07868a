@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3a31b4e_fab3889d",
+        "filename": "tools/bookmaker/parserCommon.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-05T22:24:10Z",
+      "side": 1,
+      "message": "I haven\u0027t looked too closely, but presumably fRoot is used/referenced outside this block.  I think the issue is |dom| is being destroyed when done here.\n\nSome values (arrays, objects, long strings) point to arena-allocated storage in the DOM -- so they cannot outlive it (we should probably clarify this in the header).\n\nHopefully the fix is as simple as adding fDOM to JsonCommon.",
+      "revId": "5d0ffdbff79d44ce2925f05e20efb4cbea07868a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
