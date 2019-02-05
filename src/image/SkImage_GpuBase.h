@@ -15,6 +15,7 @@
 #include "SkImage_Base.h"
 #include "SkYUVAIndex.h"
 
+class GrColorSpaceXform;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
@@ -89,6 +90,7 @@ protected:
 
     static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,
+                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const sk_sp<GrTextureProxy> proxies[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
