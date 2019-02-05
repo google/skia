@@ -70,7 +70,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                                                   &dstCoordScaleName);
 
         fragBuilder->codeAppend("// Read color from copy of the destination.\n");
-        fragBuilder->codeAppendf("half2 _dstTexCoord = (sk_FragCoord.xy - %s) * %s;",
+        fragBuilder->codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;",
                                  dstTopLeftName, dstCoordScaleName);
 
         if (flipY) {

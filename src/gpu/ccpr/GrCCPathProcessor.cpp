@@ -198,8 +198,9 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // NOTE: If we were just drawing a rect, ceil/floor would be enough. But since there are also
     // diagonals in the octagon that cross through pixel centers, we need to outset by another
     // quarter px to ensure those pixels get rasterized.
-    v->codeAppend ("float2 bloatdir = (0 != N[0].x) "
-                           "? half2(N[0].x, N[1].y) : half2(N[1].x, N[0].y);");
+    v->codeAppend ("half2 bloatdir = (0 != N[0].x) "
+                           "? half2(half(N[0].x), half(N[1].y))"
+                           ": half2(half(N[1].x), half(N[0].y));");
     v->codeAppend ("octocoord = (ceil(octocoord * bloatdir - 1e-4) + 0.25) * bloatdir;");
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
@@ -232,7 +233,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Scale coverage count by .5. Make it negative for even-odd paths and positive for winding
     // ones. Clamp winding coverage counts at 1.0 (i.e. min(coverage/2, .5)).
-    f->codeAppendf("coverage = min(abs(coverage) * %s.z, .5);", texcoord.fsIn());
+    f->codeAppendf("coverage = min(abs(coverage) * half(%s.z), .5);", texcoord.fsIn());
 
     // For negative values, this finishes the even-odd sawtooth function. Since positive (winding)
     // values were clamped at "coverage/2 = .5", this only undoes the previous multiply by .5.

@@ -67,30 +67,30 @@ public:
         (void)rect;
         auto cornerRadius = _outer.cornerRadius();
         (void)cornerRadius;
-        fCornerRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+        fCornerRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                             kDefault_GrSLPrecision, "cornerRadius");
         fProxyRectVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                          kDefault_GrSLPrecision, "proxyRect");
         fBlurRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                           kDefault_GrSLPrecision, "blurRadius");
         fragBuilder->codeAppendf(
-                "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = "
-                "half(%s + 2.0 * float(%s));\nhalf2 middle = half2((%s.zw - %s.xy) - 2.0 * "
-                "float(threshold));\nif (translatedFragPos.x >= threshold && translatedFragPos.x < "
-                "middle.x + threshold) {\n    translatedFragPos.x = threshold;\n} else if "
-                "(translatedFragPos.x >= middle.x + threshold) {\n    translatedFragPos.x -= "
-                "float(middle.x) - 1.0;\n}\nif (translatedFragPos.y > threshold && "
-                "translatedFragPos.y < middle.y + threshold) {\n    translatedFr",
+                "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
+                "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "
+                "(translatedFragPos.x >= threshold && translatedFragPos.x < middle.x + threshold) "
+                "{\n    translatedFragPos.x = threshold;\n} else if (translatedFragPos.x >= "
+                "middle.x + threshold) {\n    translatedFragPos.x -= middle.x - 1.0;\n}\nif "
+                "(translatedFragPos.y > threshold && translatedFragPos.y < middle.y + threshold) "
+                "{\n    translatedFragPos.y = threshold;",
                 args.fUniformHandler->getUniformCStr(fProxyRectVar),
                 args.fUniformHandler->getUniformCStr(fCornerRadiusVar),
                 args.fUniformHandler->getUniformCStr(fBlurRadiusVar),
                 args.fUniformHandler->getUniformCStr(fProxyRectVar),
                 args.fUniformHandler->getUniformCStr(fProxyRectVar));
         fragBuilder->codeAppendf(
-                "agPos.y = threshold;\n} else if (translatedFragPos.y >= middle.y + threshold) {\n "
-                "   translatedFragPos.y -= float(middle.y) - 1.0;\n}\nhalf2 proxyDims = "
-                "half2(half(2.0 * float(threshold) + 1.0));\nhalf2 texCoord = translatedFragPos / "
-                "proxyDims;\n%s = %s * texture(%s, float2(texCoord)).%s;\n",
+                "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
+                "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
+                "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;\n%s = %s * "
+                "texture(%s, float2(texCoord)).%s;\n",
                 args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());

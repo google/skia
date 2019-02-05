@@ -45,7 +45,7 @@ public:
 
         // Mali Bifrost uses fp16 for mediump. Making the intermediate color variable highp causes
         // calculations to be performed with sufficient precision.
-        fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
+        fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
             fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.00001);");
             fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, color.a);");
