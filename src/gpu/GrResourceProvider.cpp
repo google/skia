@@ -285,7 +285,7 @@ sk_sp<GrGpuResource> GrResourceProvider::findResourceByUniqueKey(const GrUniqueK
                                : sk_sp<GrGpuResource>(fCache->findAndRefUniqueResource(key));
 }
 
-sk_sp<const GrBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrBufferType intendedType,
+sk_sp<const GrBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferType intendedType,
                                                                  size_t size,
                                                                  const void* data,
                                                                  const GrUniqueKey& key) {
@@ -312,7 +312,7 @@ sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint1
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
-    sk_sp<GrBuffer> buffer(this->createBuffer(bufferSize, kIndex_GrBufferType,
+    sk_sp<GrBuffer> buffer(this->createBuffer(bufferSize, GrGpuBufferType::kIndex,
                                               kStatic_GrAccessPattern, Flags::kNone));
     if (!buffer) {
         return nullptr;
@@ -360,7 +360,7 @@ sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& 
     return this->gpu()->pathRendering()->createPath(path, style);
 }
 
-sk_sp<GrBuffer> GrResourceProvider::createBuffer(size_t size, GrBufferType intendedType,
+sk_sp<GrBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType intendedType,
                                                  GrAccessPattern accessPattern, Flags flags,
                                                  const void* data) {
     if (this->isAbandoned()) {

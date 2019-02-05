@@ -72,7 +72,7 @@ private:
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                              int sampleCnt) override;
 
-    sk_sp<GrBuffer> onCreateBuffer(size_t sizeInBytes, GrBufferType, GrAccessPattern,
+    sk_sp<GrBuffer> onCreateBuffer(size_t sizeInBytes, GrGpuBufferType, GrAccessPattern,
                                    const void*) override;
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,

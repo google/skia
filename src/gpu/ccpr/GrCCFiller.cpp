@@ -326,8 +326,8 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     fBaseInstances[1].fConics = fBaseInstances[0].fConics + fTotalPrimitiveCounts[0].fConics;
     int quadEndIdx = fBaseInstances[1].fConics + fTotalPrimitiveCounts[1].fConics;
 
-    fInstanceBuffer = onFlushRP->makeBuffer(kVertex_GrBufferType,
-                                            quadEndIdx * sizeof(QuadPointInstance));
+    fInstanceBuffer =
+            onFlushRP->makeBuffer(GrGpuBufferType::kVertex, quadEndIdx * sizeof(QuadPointInstance));
     if (!fInstanceBuffer) {
         SkDebugf("WARNING: failed to allocate CCPR fill instance buffer.\n");
         return false;
