@@ -48,12 +48,17 @@ void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
     char buff[1024];
     va_list va;
     va_start(va, fmt);
-    const auto len = vsprintf(buff, fmt, va);
+    const auto len = vsnprintf(buff, sizeof(buff), fmt, va);
     va_end(va);
 
-    if (len < 0 || len >= SkToInt(sizeof(buff))) {
+    if (len < 0) {
         SkDebugf("!! Could not format log message !!\n");
         return;
+    }
+
+    if (len >= SkToInt(sizeof(buff))) {
+        static constexpr char kEllipsesStr[] = "...";
+        strcpy(buff + sizeof(buff) - sizeof(kEllipsesStr), kEllipsesStr);
     }
 
     SkString jsonstr = json ? json->toString() : SkString();
