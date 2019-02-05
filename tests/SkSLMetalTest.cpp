@@ -42,7 +42,7 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
 
 DEF_TEST(SkSLMetalHelloWorld, r) {
     test(r,
-         "void main() { sk_FragColor = half4(0.75); }",
+         "void main() { sk_FragColor = float4(0.75); }",
          *SkSL::ShaderCapsFactory::Default(),
          "#include <metal_stdlib>\n"
          "#include <simd/simd.h>\n"
@@ -77,8 +77,8 @@ DEF_TEST(SkSLMetalMatrices, r) {
          "float3x3 m9 = float3x3(2);"
          "float4x4 m10 = float4x4(1);"
          "float4x4 m11 = float4x4(2);"
-         "sk_FragColor = half4(half(m1[0][0] + m2[0][0] + m3[0][0] + m4[0][0] + m5[0][0] + "
-                "m6[0][0] + m7[0][0] + m8[0][0] + m9[0][0] + m10[0][0] + m11[0][0]));"
+         "sk_FragColor = half4(m1[0][0] + m2[0][0] + m3[0][0] + m4[0][0] + m5[0][0] + m6[0][0] + "
+                "m7[0][0] + m8[0][0] + m9[0][0] + m10[0][0] + m11[0][0]);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#include <metal_stdlib>\n"
@@ -98,20 +98,29 @@ DEF_TEST(SkSLMetalMatrices, r) {
          "float2x2 float2x2_from_float4(float4 v) {\n"
          "    return float2x2(float2(v[0], v[1]), float2(v[2], v[3]));\n"
          "}\n"
-         "float2x2 float2x2_from_float(float x) {\n"
-         "    return float2x2(float2(x, 0), float2(0, x));\n"
-         "}\n"
          "float3x3 float3x3_from_float(float x) {\n"
          "    return float3x3(float3(x, 0, 0), float3(0, x, 0), float3(0, 0, x));\n"
          "}\n"
          "float4x4 float4x4_from_float(float x) {\n"
-         "    return float4x4(float4(x, 0, 0, 0), float4(0, x, 0, 0), float4(0, 0, x, 0), float4(0, 0, 0, x));\n"
+         "    return float4x4(float4(x, 0, 0, 0), float4(0, x, 0, 0), float4(0, 0, x, 0), float4(0,"
+                " 0, 0, x));\n"
          "}\n"
-         "fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {\n"
+         "fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant sksl_synthetic_uniforms& "
+                "_anonInterface0 [[buffer(1)]], bool _frontFacing [[front_facing]], float4 "
+                "_fragCoord [[position]]) {\n"
          "    Outputs _outputStruct;\n"
          "    thread Outputs* _out = &_outputStruct;\n"
-         "    float2x2 m5 = float2x2_from_float(float2x2_from_float4(float4(1.0, 2.0, 3.0, 4.0))[0][0]);\n"
-         "    _out->sk_FragColor = float4((((((((((float2x2_from_float4(float4(1.0, 2.0, 3.0, 4.0))[0][0] + float2x2_from_float4(float4(0.0))[0][0]) + float2x2_from_float4(float4(1.0, 2.0, 3.0, 4.0))[0][0]) + float2x2_from_float(1.0)[0][0]) + m5[0][0]) + float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0][0]) + float2x2(float2(5.0, 6.0), float2(7.0, 8.0))[0][0]) + float3x3_from_float(1.0)[0][0]) + float3x3_from_float(2.0)[0][0]) + float4x4_from_float(1.0)[0][0]) + float4x4_from_float(2.0)[0][0]);\n"
+         "    float2x2 m5 = float2x2_from_float(float2x2_from_float4(float4(1.0, 2.0, 3.0, "
+                "4.0))[0][0]);\n"
+         "    _out->sk_FragColor = float4((((((((((float2x2_from_float4(float4(1.0, 2.0, 3.0, "
+                "4.0))[0][0] + float2x2_from_float4(float4(0.0))[0][0]) + "
+                "float2x2_from_float4(float4(1.0, 2.0, 3.0, 4.0))[0][0]) + "
+                "float2x2_from_float(1.0)[0][0]) + m5[0][0]) + float2x2(float2(1.0, 2.0), "
+                "float2(3.0, 4.0))[0][0]) + float2x2(float2(5.0, 6.0), float2(7.0, 8.0))[0][0]) + "
+                "float3x3_from_float(1.0)[0][0]) + float3x3_from_float(2.0)[0][0]) + "
+                "float4x4_from_float(1.0)[0][0]) + float4x4_from_float(2.0)[0][0]);\n"
          "    return *_out;\n"
-         "}\n");
+         "}\n"
+
+);
 }

@@ -197,12 +197,6 @@ public:
     }
 
     String description() const override {
-        if (fNameString == "$floatLiteral") {
-            return "float";
-        }
-        if (fNameString == "$intLiteral") {
-            return "int";
-        }
         return fNameString;
     }
 

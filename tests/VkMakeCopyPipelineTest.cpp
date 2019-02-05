@@ -46,7 +46,7 @@ public:
 
             "// Copy Program VS\n"
             "void main() {"
-            "vTexCoord = half2(inPosition * uTexCoordXform.xy + uTexCoordXform.zw);"
+            "vTexCoord = inPosition * uTexCoordXform.xy + uTexCoordXform.zw;"
             "sk_Position.xy = inPosition * uPosXform.xy + uPosXform.zw;"
             "sk_Position.zw = half2(0, 1);"
             "}";

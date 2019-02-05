@@ -32,10 +32,12 @@ public:
         this->emitChild(1, &_child1, args);
         fragBuilder->codeAppendf(
                 "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else {\n    @if "
-                "(%s) {\n        half t_1 = t.x - 1.0;\n        half tiled_t = (t_1 - 2.0 * "
-                "floor(t_1 * 0.5)) - 1.0;\n        if (sk_Caps.mustDoOpBetweenFloorAndAbs) {\n     "
-                "       tiled_t = clamp(tiled_t, -1.0, 1.0);\n        }\n        t.x = "
-                "abs(tiled_t);\n    } else {\n        t.x = fract(t.x);\n    }",
+                "(%s) {\n        half t_1 = t.x - 1.0;\n        half tiled_t = (float(t_1) - 2.0 * "
+                "floor(float(float(t_1) * 0.5))) - 1.0;\n        if "
+                "(sk_Caps.mustDoOpBetweenFloorAndAbs) {\n            tiled_t = "
+                "half(clamp(float(tiled_t), -1.0, 1.0));\n        }\n        t.x = "
+                "half(abs(float(tiled_t)));\n    } else {\n        t.x = "
+                "half(fract(float(t.x)));\n    }",
                 _child1.c_str(),
                 (_outer.childProcessor(1).preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, (_outer.mirror() ? "true" : "false"));

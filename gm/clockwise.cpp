@@ -73,7 +73,7 @@ class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
             args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
         } else {
             // Verify layout(origin_upper_left) on gl_FragCoord does not affect gl_FrontFacing.
-            args.fFragBuilder->codeAppendf("%s = half4(min(half(sk_FragCoord.y), 1));",
+            args.fFragBuilder->codeAppendf("%s = half4(min(sk_FragCoord.y, 1));",
                                            args.fOutputCoverage);
         }
     }

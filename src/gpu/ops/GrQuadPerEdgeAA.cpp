@@ -659,12 +659,12 @@ public:
                                                        coverage.vsOut(), gp.fPosition.name());
                     }
 
-                    args.fFragBuilder->codeAppendf("%s = half4(half(%s));",
+                    args.fFragBuilder->codeAppendf("%s = float4(%s);",
                                                    args.fOutputCoverage, coverage.fsIn());
                 } else {
                     // Set coverage to 1, since it's either non-AA or the coverage was already
                     // folded into the output color
-                    args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                    args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
                 }
             }
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;

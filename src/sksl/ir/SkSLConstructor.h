@@ -32,13 +32,15 @@ struct Constructor : public Expression {
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
         if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind) {
-            if (fType.isFloat()) {
+            if (fType == *irGenerator.fContext.fFloat_Type ||
+                fType == *irGenerator.fContext.fHalf_Type) {
                 // promote float(1) to 1.0
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
                                                                     fOffset,
                                                                     intValue));
-            } else if (fType.isInteger()) {
+            } else if (fType == *irGenerator.fContext.fUInt_Type ||
+                       fType == *irGenerator.fContext.fUShort_Type) {
                 // promote uint(1) to 1u
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
                 return std::unique_ptr<Expression>(new IntLiteral(fOffset,
@@ -105,10 +107,10 @@ struct Constructor : public Expression {
         const FloatLiteral fzero(context, -1, 0);
         const IntLiteral izero(context, -1, 0);
         const Expression* zero;
-        if (fType.componentType().isFloat()) {
+        if (fType.componentType() == *context.fFloat_Type) {
             zero = &fzero;
         } else {
-            SkASSERT(fType.componentType().isInteger());
+            SkASSERT(fType.componentType() == *context.fInt_Type);
             zero = &izero;
         }
         for (int col = 0; col < fType.columns(); col++) {
