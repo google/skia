@@ -194,10 +194,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
         {d, d, kMeshColors[3]}
     };
 
-    sk_sp<const GrBuffer> vbuff(rp->createBuffer(sizeof(vdata), kVertex_GrBufferType,
-                                                 kDynamic_GrAccessPattern,
-                                                 GrResourceProvider::Flags::kRequireGpuMemory,
-                                                 vdata));
+    sk_sp<const GrBuffer> vbuff(
+            rp->createBuffer(sizeof(vdata), GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
+                             GrResourceProvider::Flags::kRequireGpuMemory, vdata));
     if (!vbuff) {
         ERRORF(reporter, "vbuff is null.");
         return;

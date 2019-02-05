@@ -76,7 +76,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer, reporter,
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
     const size_t kMemorySize = 1024;
     sk_sp<GrGLBuffer> buffer =
-            GrGLBuffer::Make(gpu, kMemorySize, kVertex_GrBufferType, kDynamic_GrAccessPattern);
+            GrGLBuffer::Make(gpu, kMemorySize, GrGpuBufferType::kVertex, kDynamic_GrAccessPattern);
 
     ValidateMemoryDumps(reporter, context, kMemorySize, true /* isOwned */);
 }

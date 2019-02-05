@@ -301,7 +301,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     // Allocate vertex buffer.
     size_t vertexStride = gp->vertexStride();
     vertexBuffer = rp->createBuffer(fVertexCount * vertexStride,
-                                    kVertex_GrBufferType,
+                                    GrGpuBufferType::kVertex,
                                     kStatic_GrAccessPattern,
                                     GrResourceProvider::Flags::kNone);
     void* verts = vertexBuffer ? vertexBuffer->map() : nullptr;
@@ -314,7 +314,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     uint16_t* indices = nullptr;
     if (this->isIndexed()) {
         indexBuffer = rp->createBuffer(fIndexCount * sizeof(uint16_t),
-                                       kIndex_GrBufferType,
+                                       GrGpuBufferType::kIndex,
                                        kStatic_GrAccessPattern,
                                        GrResourceProvider::Flags::kNone);
         indices = indexBuffer ? static_cast<uint16_t*>(indexBuffer->map()) : nullptr;

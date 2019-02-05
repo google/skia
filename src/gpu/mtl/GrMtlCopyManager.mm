@@ -29,7 +29,7 @@ void GrMtlCopyManager::createCopyProgramBuffer() {
         {1, 0},
         {1, 1},
     };
-    sk_sp<GrMtlBuffer> mtlBuffer = GrMtlBuffer::Make(fGpu, sizeof(vdata), kVertex_GrBufferType,
+    sk_sp<GrMtlBuffer> mtlBuffer = GrMtlBuffer::Make(fGpu, sizeof(vdata), GrGpuBufferType::kVertex,
                                                      kStatic_GrAccessPattern, vdata);
     fVertexAttributeBuffer = mtlBuffer->mtlBuffer();
 }

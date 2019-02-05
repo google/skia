@@ -343,33 +343,30 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrBuffer> GrVkGpu::onCreateBuffer(size_t size, GrBufferType type,
+sk_sp<GrBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                         GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrBuffer> buff;
     switch (type) {
-        case kVertex_GrBufferType:
+        case GrGpuBufferType::kVertex:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
             buff = GrVkVertexBuffer::Make(this, size, kDynamic_GrAccessPattern == accessPattern);
             break;
-        case kIndex_GrBufferType:
+        case GrGpuBufferType::kIndex:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStatic_GrAccessPattern == accessPattern);
             buff = GrVkIndexBuffer::Make(this, size, kDynamic_GrAccessPattern == accessPattern);
             break;
-        case kXferCpuToGpu_GrBufferType:
+        case GrGpuBufferType::kXferCpuToGpu:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyRead_Type);
             break;
-        case kXferGpuToCpu_GrBufferType:
+        case GrGpuBufferType::kXferGpuToCpu:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyWrite_Type);
             break;
-        case kDrawIndirect_GrBufferType:
-            SK_ABORT("DrawIndirect Buffers not supported  in vulkan backend.");
-            return nullptr;
         default:
             SK_ABORT("Unknown buffer type.");
             return nullptr;
@@ -2152,7 +2149,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     size_t imageRows = region.imageExtent.height;
     auto transferBuffer = sk_sp<GrVkTransferBuffer>(
             static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * imageRows,
-                                                                kXferGpuToCpu_GrBufferType,
+                                                                GrGpuBufferType::kXferGpuToCpu,
                                                                 kStream_GrAccessPattern)
                                                      .release()));
 

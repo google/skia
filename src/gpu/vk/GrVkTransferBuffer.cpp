@@ -31,11 +31,11 @@ sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Make(GrVkGpu* gpu, size_t size,
 
 GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                        const GrVkBuffer::Resource* bufferResource)
-    : INHERITED(gpu, desc.fSizeInBytes,
-                kCopyRead_Type == desc.fType ?
-                    kXferCpuToGpu_GrBufferType : kXferGpuToCpu_GrBufferType,
-                kStream_GrAccessPattern)
-    , GrVkBuffer(desc, bufferResource) {
+        : INHERITED(gpu, desc.fSizeInBytes,
+                    kCopyRead_Type == desc.fType ? GrGpuBufferType::kXferCpuToGpu
+                                                 : GrGpuBufferType::kXferGpuToCpu,
+                    kStream_GrAccessPattern)
+        , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 

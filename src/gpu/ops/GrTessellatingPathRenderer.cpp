@@ -77,9 +77,9 @@ public:
     }
     void* lock(int vertexCount) override {
         size_t size = vertexCount * stride();
-        fVertexBuffer =
-                fResourceProvider->createBuffer(size, kVertex_GrBufferType, kStatic_GrAccessPattern,
-                                                GrResourceProvider::Flags::kNone);
+        fVertexBuffer = fResourceProvider->createBuffer(size, GrGpuBufferType::kVertex,
+                                                        kStatic_GrAccessPattern,
+                                                        GrResourceProvider::Flags::kNone);
         if (!fVertexBuffer.get()) {
             return nullptr;
         }

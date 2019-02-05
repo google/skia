@@ -36,7 +36,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
 sk_sp<const GrBuffer> GrCCPathProcessor::FindVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
-    return onFlushRP->findOrMakeStaticBuffer(kVertex_GrBufferType, sizeof(kOctoEdgeNorms),
+    return onFlushRP->findOrMakeStaticBuffer(GrGpuBufferType::kVertex, sizeof(kOctoEdgeNorms),
                                              kOctoEdgeNorms, gVertexBufferKey);
 }
 
@@ -67,11 +67,13 @@ constexpr GrPrimitiveProcessor::Attribute GrCCPathProcessor::kEdgeNormsAttrib;
 sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
     if (onFlushRP->caps()->usePrimitiveRestart()) {
-        return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndicesAsStrips),
-                                                 kOctoIndicesAsStrips, gIndexBufferKey);
+        return onFlushRP->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
+                                                 sizeof(kOctoIndicesAsStrips), kOctoIndicesAsStrips,
+                                                 gIndexBufferKey);
     } else {
-        return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndicesAsTris),
-                                                 kOctoIndicesAsTris, gIndexBufferKey);
+        return onFlushRP->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
+                                                 sizeof(kOctoIndicesAsTris), kOctoIndicesAsTris,
+                                                 gIndexBufferKey);
     }
 }
 

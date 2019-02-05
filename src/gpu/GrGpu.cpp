@@ -217,7 +217,7 @@ sk_sp<GrRenderTarget> GrGpu::onWrapVulkanSecondaryCBAsRenderTarget(const SkImage
     return nullptr;
 }
 
-sk_sp<GrBuffer> GrGpu::createBuffer(size_t size, GrBufferType intendedType,
+sk_sp<GrBuffer> GrGpu::createBuffer(size_t size, GrGpuBufferType intendedType,
                                     GrAccessPattern accessPattern, const void* data) {
     this->handleDirtyContext();
     sk_sp<GrBuffer> buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);

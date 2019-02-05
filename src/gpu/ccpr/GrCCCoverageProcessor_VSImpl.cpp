@@ -449,19 +449,19 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         case PrimitiveType::kTriangles:
         case PrimitiveType::kWeightedTriangles: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gTriangleVertexBufferKey);
-            fVSVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType,
+            fVSVertexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,
                                                          sizeof(kTriangleVertices),
                                                          kTriangleVertices,
                                                          gTriangleVertexBufferKey);
             GR_DEFINE_STATIC_UNIQUE_KEY(gTriangleIndexBufferKey);
             if (caps.usePrimitiveRestart()) {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
                                                             sizeof(kTriangleIndicesAsStrips),
                                                             kTriangleIndicesAsStrips,
                                                             gTriangleIndexBufferKey);
                 fVSNumIndicesPerInstance = SK_ARRAY_COUNT(kTriangleIndicesAsStrips);
             } else {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
                                                             sizeof(kTriangleIndicesAsTris),
                                                             kTriangleIndicesAsTris,
                                                             gTriangleIndexBufferKey);
@@ -474,18 +474,18 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         case PrimitiveType::kCubics:
         case PrimitiveType::kConics: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gCurveVertexBufferKey);
-            fVSVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType,
-                                                         sizeof(kCurveVertices), kCurveVertices,
-                                                         gCurveVertexBufferKey);
+            fVSVertexBuffer =
+                    rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex, sizeof(kCurveVertices),
+                                               kCurveVertices, gCurveVertexBufferKey);
             GR_DEFINE_STATIC_UNIQUE_KEY(gCurveIndexBufferKey);
             if (caps.usePrimitiveRestart()) {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
                                                             sizeof(kCurveIndicesAsStrips),
                                                             kCurveIndicesAsStrips,
                                                             gCurveIndexBufferKey);
                 fVSNumIndicesPerInstance = SK_ARRAY_COUNT(kCurveIndicesAsStrips);
             } else {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
                                                             sizeof(kCurveIndicesAsTris),
                                                             kCurveIndicesAsTris,
                                                             gCurveIndexBufferKey);

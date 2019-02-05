@@ -147,9 +147,9 @@ static int inst_buffer_count(const GrCCPerFlushResourceSpecs& specs) {
 
 GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushRP,
                                              const GrCCPerFlushResourceSpecs& specs)
-          // Overallocate by one point so we can call Sk4f::Store at the final SkPoint in the array.
-          // (See transform_path_pts below.)
-          // FIXME: instead use built-in instructions to write only the first two lanes of an Sk4f.
+        // Overallocate by one point so we can call Sk4f::Store at the final SkPoint in the array.
+        // (See transform_path_pts below.)
+        // FIXME: instead use built-in instructions to write only the first two lanes of an Sk4f.
         : fLocalDevPtsBuffer(SkTMax(specs.fRenderedPathStats[kFillIdx].fMaxPointsPerPath,
                                     specs.fRenderedPathStats[kStrokeIdx].fMaxPointsPerPath) + 1)
         , fFiller(specs.fNumRenderedPaths[kFillIdx] + specs.fNumClipPaths,
@@ -165,7 +165,7 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
                               specs.fRenderedAtlasSpecs, onFlushRP->caps())
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
-        , fInstanceBuffer(onFlushRP->makeBuffer(kVertex_GrBufferType,
+        , fInstanceBuffer(onFlushRP->makeBuffer(GrGpuBufferType::kVertex,
                                                 inst_buffer_count(specs) * sizeof(PathInstance)))
         , fNextCopyInstanceIdx(0)
         , fNextPathInstanceIdx(specs.fNumCopiedPaths[kFillIdx] +

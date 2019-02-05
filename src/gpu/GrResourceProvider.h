@@ -145,7 +145,7 @@ public:
      *
      * @return The buffer if successful, otherwise nullptr.
      */
-    sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType intendedType, size_t size,
+    sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrGpuBufferType intendedType, size_t size,
                                                  const void* data, const GrUniqueKey& key);
 
     /**
@@ -205,7 +205,7 @@ public:
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    sk_sp<GrBuffer> createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, Flags,
+    sk_sp<GrBuffer> createBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern, Flags,
                                  const void* data = nullptr);
 
     /**

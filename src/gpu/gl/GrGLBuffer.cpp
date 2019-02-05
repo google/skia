@@ -29,11 +29,11 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
+sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                    GrAccessPattern accessPattern, const void* data) {
     if (gpu->glCaps().transferBufferType() == GrGLCaps::kNone_TransferBufferType &&
-        (kXferCpuToGpu_GrBufferType == intendedType ||
-         kXferGpuToCpu_GrBufferType == intendedType)) {
+        (GrGpuBufferType::kXferCpuToGpu == intendedType ||
+         GrGpuBufferType::kXferGpuToCpu == intendedType)) {
         return nullptr;
     }
 
@@ -48,57 +48,59 @@ sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrBufferType inten
 // objects are implemented as client-side-arrays on tile-deferred architectures.
 #define DYNAMIC_DRAW_PARAM GR_GL_STREAM_DRAW
 
-inline static GrGLenum gr_to_gl_access_pattern(GrBufferType bufferType,
+inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
                                                GrAccessPattern accessPattern) {
-    static const GrGLenum drawUsages[] = {
-        DYNAMIC_DRAW_PARAM,  // TODO: Do we really want to use STREAM_DRAW here on non-Chromium?
-        GR_GL_STATIC_DRAW,   // kStatic_GrAccessPattern
-        GR_GL_STREAM_DRAW    // kStream_GrAccessPattern
+    auto drawUsage = [](GrAccessPattern pattern) {
+        switch (pattern) {
+            case kDynamic_GrAccessPattern:
+                // TODO: Do we really want to use STREAM_DRAW here on non-Chromium?
+                return DYNAMIC_DRAW_PARAM;
+            case kStatic_GrAccessPattern:
+                return GR_GL_STATIC_DRAW;
+            case kStream_GrAccessPattern:
+                return GR_GL_STREAM_DRAW;
+        }
+        SK_ABORT("Unexpected access pattern");
+        return GR_GL_STATIC_DRAW;
     };
 
-    static const GrGLenum readUsages[] = {
-        GR_GL_DYNAMIC_READ,  // kDynamic_GrAccessPattern
-        GR_GL_STATIC_READ,   // kStatic_GrAccessPattern
-        GR_GL_STREAM_READ    // kStream_GrAccessPattern
+    auto readUsage = [](GrAccessPattern pattern) {
+        switch (pattern) {
+            case kDynamic_GrAccessPattern:
+                return GR_GL_DYNAMIC_READ;
+            case kStatic_GrAccessPattern:
+                return GR_GL_STATIC_READ;
+            case kStream_GrAccessPattern:
+                return GR_GL_STREAM_READ;
+        }
+        SK_ABORT("Unexpected access pattern");
+        return GR_GL_STATIC_READ;
     };
 
-    GR_STATIC_ASSERT(0 == kDynamic_GrAccessPattern);
-    GR_STATIC_ASSERT(1 == kStatic_GrAccessPattern);
-    GR_STATIC_ASSERT(2 == kStream_GrAccessPattern);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(drawUsages) == 1 + kLast_GrAccessPattern);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(readUsages) == 1 + kLast_GrAccessPattern);
-
-    static GrGLenum const* const usageTypes[] = {
-        drawUsages,  // kVertex_GrBufferType,
-        drawUsages,  // kIndex_GrBufferType,
-        drawUsages,  // kTexel_GrBufferType,
-        drawUsages,  // kDrawIndirect_GrBufferType,
-        drawUsages,  // kXferCpuToGpu_GrBufferType,
-        readUsages   // kXferGpuToCpu_GrBufferType,
+    auto usageType = [&drawUsage, &readUsage](GrGpuBufferType type, GrAccessPattern pattern) {
+        switch (type) {
+            case GrGpuBufferType::kVertex:
+            case GrGpuBufferType::kIndex:
+            case GrGpuBufferType::kXferCpuToGpu:
+                return drawUsage(pattern);
+            case GrGpuBufferType::kXferGpuToCpu:
+                return readUsage(pattern);
+        }
+        SK_ABORT("Unexpected gpu buffer type.");
+        return GR_GL_STATIC_DRAW;
     };
 
-    GR_STATIC_ASSERT(0 == kVertex_GrBufferType);
-    GR_STATIC_ASSERT(1 == kIndex_GrBufferType);
-    GR_STATIC_ASSERT(2 == kTexel_GrBufferType);
-    GR_STATIC_ASSERT(3 == kDrawIndirect_GrBufferType);
-    GR_STATIC_ASSERT(4 == kXferCpuToGpu_GrBufferType);
-    GR_STATIC_ASSERT(5 == kXferGpuToCpu_GrBufferType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(usageTypes) == kGrBufferTypeCount);
-
-    SkASSERT(bufferType >= 0 && bufferType <= kLast_GrBufferType);
-    SkASSERT(accessPattern >= 0 && accessPattern <= kLast_GrAccessPattern);
-
-    return usageTypes[bufferType][accessPattern];
+    return usageType(bufferType, accessPattern);
 }
 
-GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
+GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
                        GrAccessPattern accessPattern, const void* data)
-    : INHERITED(gpu, size, intendedType, accessPattern)
-    , fIntendedType(intendedType)
-    , fBufferID(0)
-    , fUsage(gr_to_gl_access_pattern(intendedType, accessPattern))
-    , fGLSizeInBytes(0)
-    , fHasAttachedToTexture(false) {
+        : INHERITED(gpu, size, intendedType, accessPattern)
+        , fIntendedType(intendedType)
+        , fBufferID(0)
+        , fUsage(gr_to_gl_access_pattern(intendedType, accessPattern))
+        , fGLSizeInBytes(0)
+        , fHasAttachedToTexture(false) {
     GL_CALL(GenBuffers(1, &fBufferID));
     if (fBufferID) {
         GrGLenum target = gpu->bindBuffer(fIntendedType, this);
@@ -165,7 +167,7 @@ void GrGLBuffer::onMap() {
     SkASSERT(!this->isMapped());
 
     // TODO: Make this a function parameter.
-    bool readOnly = (kXferGpuToCpu_GrBufferType == fIntendedType);
+    bool readOnly = (GrGpuBufferType::kXferGpuToCpu == fIntendedType);
 
     // Handling dirty context is done in the bindBuffer call
     switch (this->glCaps().mapBufferType()) {
@@ -187,7 +189,7 @@ void GrGLBuffer::onMap() {
                 GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
             }
             GrGLbitfield writeAccess = GR_GL_MAP_WRITE_BIT;
-            if (kXferCpuToGpu_GrBufferType != fIntendedType) {
+            if (GrGpuBufferType::kXferCpuToGpu != fIntendedType) {
                 // TODO: Make this a function parameter.
                 writeAccess |= GR_GL_MAP_INVALIDATE_BUFFER_BIT;
             }

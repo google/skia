@@ -94,7 +94,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         array->fGPUType != gpuType ||
         array->fStride != stride ||
         array->fOffset != offsetInBytes) {
-        gpu->bindBuffer(kVertex_GrBufferType, vertexBuffer);
+        gpu->bindBuffer(GrGpuBufferType::kVertex, vertexBuffer);
         const AttribLayout& layout = attrib_layout(cpuType);
         const GrGLvoid* offsetAsPtr = reinterpret_cast<const GrGLvoid*>(offsetInBytes);
         if (GrSLTypeIsFloatType(gpuType)) {

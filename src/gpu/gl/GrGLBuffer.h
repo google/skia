@@ -16,8 +16,8 @@ class GrGLCaps;
 
 class GrGLBuffer : public GrBuffer {
 public:
-    static sk_sp<GrGLBuffer> Make(GrGLGpu*, size_t size, GrBufferType intendedType, GrAccessPattern,
-                                  const void* data = nullptr);
+    static sk_sp<GrGLBuffer> Make(GrGLGpu*, size_t size, GrGpuBufferType intendedType,
+                                  GrAccessPattern, const void* data = nullptr);
 
     ~GrGLBuffer() override {
         // either release or abandon should have been called by the owner of this object.
@@ -36,7 +36,8 @@ public:
     bool hasAttachedToTexture() const { return fHasAttachedToTexture; }
 
 protected:
-    GrGLBuffer(GrGLGpu*, size_t size, GrBufferType intendedType, GrAccessPattern, const void* data);
+    GrGLBuffer(GrGLGpu*, size_t size, GrGpuBufferType intendedType, GrAccessPattern,
+               const void* data);
 
     void onAbandon() override;
     void onRelease() override;
@@ -55,11 +56,11 @@ private:
     void validate() const;
 #endif
 
-    GrBufferType   fIntendedType;
-    GrGLuint       fBufferID;
-    GrGLenum       fUsage;
-    size_t         fGLSizeInBytes;
-    bool           fHasAttachedToTexture;
+    GrGpuBufferType fIntendedType;
+    GrGLuint        fBufferID;
+    GrGLenum        fUsage;
+    size_t          fGLSizeInBytes;
+    bool            fHasAttachedToTexture;
 
     typedef GrBuffer INHERITED;
 };

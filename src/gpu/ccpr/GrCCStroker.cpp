@@ -372,7 +372,7 @@ public:
 
         int endConicsIdx = stroker->fBaseInstances[1].fConics +
                            stroker->fInstanceCounts[1]->fConics;
-        fInstanceBuffer = onFlushRP->makeBuffer(kVertex_GrBufferType,
+        fInstanceBuffer = onFlushRP->makeBuffer(GrGpuBufferType::kVertex,
                                                 endConicsIdx * sizeof(ConicInstance));
         if (!fInstanceBuffer) {
             SkDebugf("WARNING: failed to allocate CCPR stroke instance buffer.\n");

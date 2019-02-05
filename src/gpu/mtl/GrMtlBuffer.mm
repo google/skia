@@ -16,11 +16,8 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,
+sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
-    // TODO: DrawIndirect buffers aren't actually supported yet because we don't have a way of
-    // uploading data to them.
-    SkASSERT(intendedType != kDrawIndirect_GrBufferType);
     sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern));
     if (data && !buffer->onUpdateData(data, size)) {
         return nullptr;
@@ -28,7 +25,7 @@ sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrBufferType in
     return buffer;
 }
 
-GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,
+GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern)
         : INHERITED(gpu, size, intendedType, accessPattern)
         , fIntendedType(intendedType)
@@ -62,10 +59,6 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
         return false;
     }
     if (srcInBytes > fMtlBuffer.length) {
-        return false;
-    }
-    if (fIntendedType == kDrawIndirect_GrBufferType) {
-        // TODO: implement encoding data into argument (DrawIndirect) buffers.
         return false;
     }
     VALIDATE();
@@ -177,11 +170,10 @@ void GrMtlBuffer::onUnmap() {
 #ifdef SK_DEBUG
 void GrMtlBuffer::validate() const {
     SkASSERT(fMtlBuffer == nil ||
-             fIntendedType == kVertex_GrBufferType ||
-             fIntendedType == kIndex_GrBufferType ||
-             fIntendedType == kXferCpuToGpu_GrBufferType ||
-             fIntendedType == kXferGpuToCpu_GrBufferType);
-//           fIntendedType == kDrawIndirect_GrBufferType not yet supported
+             fIntendedType == GrGpuBufferType::kVertex ||
+             fIntendedType == GrGpuBufferType::kIndex ||
+             fIntendedType == GrGpuBufferType::kXferCpuToGpu ||
+             fIntendedType == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
              fMappedBuffer.length <= fMtlBuffer.length);
     SkASSERT(fIsDynamic == false); // TODO: implement synchronization to allow dynamic access.

@@ -84,10 +84,8 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
     // create and fill transfer buffer
     size_t size = rowBytes*kBufferHeight;
     auto bufferFlags = GrResourceProvider::Flags::kNoPendingIO;
-    sk_sp<GrBuffer> buffer(resourceProvider->createBuffer(size,
-                                                          kXferCpuToGpu_GrBufferType,
-                                                          kDynamic_GrAccessPattern,
-                                                          bufferFlags));
+    sk_sp<GrBuffer> buffer(resourceProvider->createBuffer(size, GrGpuBufferType::kXferCpuToGpu,
+                                                          kDynamic_GrAccessPattern, bufferFlags));
     if (!buffer) {
         return;
     }
