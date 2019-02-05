@@ -42,77 +42,7 @@ bool GrRenderTargetContext::isWrapped_ForTesting() const {
     return fRenderTargetProxy->isWrapped_ForTesting();
 }
 
-void GrContextPriv::setTextBlobCacheLimit_ForTesting(size_t bytes) {
-    fContext->fTextBlobCache->setBudget(bytes);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
-
-void GrContextPriv::purgeAllUnlockedResources_ForTesting() {
-    fContext->fResourceCache->purgeAllUnlocked();
-}
-
-void GrContextPriv::resetGpuStats() const {
-#if GR_GPU_STATS
-    fContext->fGpu->stats()->reset();
-#endif
-}
-
-void GrContextPriv::dumpCacheStats(SkString* out) const {
-#if GR_CACHE_STATS
-    fContext->fResourceCache->dumpStats(out);
-#endif
-}
-
-void GrContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                                SkTArray<double>* values) const {
-#if GR_CACHE_STATS
-    fContext->fResourceCache->dumpStatsKeyValuePairs(keys, values);
-#endif
-}
-
-void GrContextPriv::printCacheStats() const {
-    SkString out;
-    this->dumpCacheStats(&out);
-    SkDebugf("%s", out.c_str());
-}
-
-void GrContextPriv::dumpGpuStats(SkString* out) const {
-#if GR_GPU_STATS
-    return fContext->fGpu->stats()->dump(out);
-#endif
-}
-
-void GrContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                              SkTArray<double>* values) const {
-#if GR_GPU_STATS
-    return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
-#endif
-}
-
-void GrContextPriv::printGpuStats() const {
-    SkString out;
-    this->dumpGpuStats(&out);
-    SkDebugf("%s", out.c_str());
-}
-
-sk_sp<SkImage> GrContextPriv::getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index) {
-    auto atlasManager = this->getAtlasManager();
-    if (!atlasManager) {
-        return nullptr;
-    }
-
-    unsigned int numActiveProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numActiveProxies);
-    if (index >= numActiveProxies || !proxies || !proxies[index]) {
-        return nullptr;
-    }
-
-    SkASSERT(proxies[index]->priv().isExact());
-    sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         kPremul_SkAlphaType, proxies[index], nullptr));
-    return image;
-}
 
 #if GR_GPU_STATS
 void GrGpu::Stats::dump(SkString* out) {
@@ -262,11 +192,6 @@ GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
-    fContext->flush();
-    fContext->fDrawingManager->testingOnly_removeOnFlushCallbackObject(cb);
-}
 
 void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
     int n = std::find(fOnFlushCBObjects.begin(), fOnFlushCBObjects.end(), cb) -
