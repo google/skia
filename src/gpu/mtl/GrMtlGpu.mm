@@ -131,8 +131,8 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     fCmdBuffer = [fQueue commandBuffer];
 }
 
-sk_sp<GrBuffer> GrMtlGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
-                                         GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrGpuBuffer> GrMtlGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
+                                            GrAccessPattern accessPattern, const void* data) {
     return GrMtlBuffer::Make(this, size, type, accessPattern, data);
 }
 
