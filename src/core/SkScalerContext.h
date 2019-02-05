@@ -411,7 +411,9 @@ protected:
 private:
     friend class SkRandomScalerContext; // For debug purposes
 
-    static SkScalerContextRec PreprocessRec(const SkDescriptor& desc);
+    static SkScalerContextRec PreprocessRec(const SkTypeface& typeface,
+                                            const SkScalerContextEffects& effects,
+                                            const SkDescriptor& desc);
 
     // never null
     sk_sp<SkTypeface> fTypeface;
