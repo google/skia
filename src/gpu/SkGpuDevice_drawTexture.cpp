@@ -289,11 +289,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
     auto fp = producer->createFragmentProcessor(*textureMatrix, clippedSrcRect, constraintMode,
                                                 coordsAllInsideSrcRect, filterMode);
-    SkColorSpace* rtColorSpace = fRenderTargetContext->colorSpaceInfo().colorSpace();
-    SkColorSpace* targetColorSpace = producer->targetColorSpace();
-    SkColorSpace* dstColorSpace = SkToBool(rtColorSpace) ? rtColorSpace : targetColorSpace;
     fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
-                                       dstColorSpace);
+                                       fRenderTargetContext->colorSpaceInfo().colorSpace());
     if (!fp) {
         return;
     }

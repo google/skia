@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrColorSpaceXform.h"
 #include "GrImageTextureMaker.h"
 #include "SkGr.h"
 #include "SkImage_GpuYUVA.h"
@@ -81,9 +82,6 @@ SkAlphaType GrYUVAImageTextureMaker::alphaType() const {
 SkColorSpace* GrYUVAImageTextureMaker::colorSpace() const {
     return fImage->colorSpace();
 }
-SkColorSpace* GrYUVAImageTextureMaker::targetColorSpace() const {
-    return fImage->targetColorSpace();
-}
 
 std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProcessor(
     const SkMatrix& textureMatrix,
@@ -111,7 +109,11 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         filter = GrSamplerState::Filter::kBilerp;
     }
 
-    return GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
-                                  fImage->fYUVColorSpace, filter);
-
+    auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
+                                     fImage->fYUVColorSpace, filter);
+    if (fImage->fTargetColorSpace) {
+        fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fColorSpace.get(),
+                                           fImage->alphaType(), fImage->fTargetColorSpace.get());
+    }
+    return fp;
 }

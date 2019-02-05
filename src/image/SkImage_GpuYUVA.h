@@ -55,8 +55,6 @@ public:
     // Returns a ref-ed texture proxy with miplevels
     sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
 
-    SkColorSpace* targetColorSpace() const { return fTargetColorSpace.get(); }
-
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
      */
