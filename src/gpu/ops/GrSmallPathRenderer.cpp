@@ -794,7 +794,7 @@ private:
         if (flushInfo->fInstancesToFlush) {
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =
-                static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
+                    static_cast<int>(flushInfo->fIndexBuffer->size() / sizeof(uint16_t) / 6);
             mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerQuad, kVerticesPerQuad,
                                       flushInfo->fInstancesToFlush, maxInstancesPerDraw);
             mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);

@@ -66,8 +66,8 @@ public:
 
     GR_STATIC_ASSERT(4 * 12 == sizeof(Instance));
 
-    static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
-    static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
+    static sk_sp<const GrGpuBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
+    static sk_sp<const GrGpuBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
     GrCCPathProcessor(const GrTextureProxy* atlas,
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
