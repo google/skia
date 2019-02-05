@@ -75,7 +75,7 @@ SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
     // Note: this is the imageInfo for the flattened image, not the YUV planes
     return SkImageInfo::Make(this->width(), this->height(), kRGBA_8888_SkColorType,
-                             fAlphaType, fColorSpace);
+                             fAlphaType, fTargetColorSpace ? fTargetColorSpace : fColorSpace);
 }
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
