@@ -12,6 +12,10 @@
 #include "GrVkGpu.h"
 #include "GrVkUniformHandler.h"
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+#include <sanitizer/lsan_interface.h>
+#endif
+
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu* gpu) {
     SkSTArray<2, uint32_t> visibilities;
     // We set the visibility of the first binding to all supported geometry processing shader
@@ -227,6 +231,10 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         // null.
         dsSamplerLayoutCreateInfo.pBindings = numBindings ? dsSamplerBindings.get() : nullptr;
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8713
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
                             CreateDescriptorSetLayout(gpu->device(),
                                                       &dsSamplerLayoutCreateInfo,
@@ -258,6 +266,10 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         uniformLayoutCreateInfo.bindingCount = 2;
         uniformLayoutCreateInfo.pBindings = dsUniBindings;
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8713
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorSetLayout(gpu->device(),
                                                                           &uniformLayoutCreateInfo,
                                                                           nullptr,
