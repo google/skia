@@ -9,25 +9,35 @@
 #include "WindowContextFactory_mac.h"
 #include "Window_mac.h"
 
-@interface MainView : NSView
 
-- (MainView*)initWithWindow:(sk_app::Window*)initWindow;
-
-@end
-
-@interface WindowDelegate : NSObject<NSWindowDelegate>
-
-- (WindowDelegate*)initWithWindow:(sk_app::Window*)initWindow;
-
-@end
 
 ///////////////////////////////////////////////////////////////////////////////
 
 using sk_app::Window;
+int gWindowCount = 0;
 
 namespace sk_app {
 
-static int gWindowCount = 0;
+void closeWindowCallback(GLFWwindow* window) {
+    --gWindowCount;
+}
+
+void resizeWindowCallback(GLFWwindow* window, int w, int h) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+    macWindow->onResize(w, h);
+}
+
+void refreshWindowCallback(GLFWwindow* window) {
+    sk_app::Window_mac* macWindow =
+        reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(window));
+    macWindow->onPaint();
+}
+
+//void resizeFramebufferWindowCallback(GLFWwindow* window, int w, int h) {
+//    sk_app::Window_mac* macWindow = reinterpret_cast<sk_app::Window_mac*>(glfwGetWindowUserPointer(fWindow));
+//    macWindow->onResize(w, h);
+//}
 
 Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
@@ -53,54 +63,39 @@ bool Window_mac::initWindow() {
     constexpr int initialWidth = 1280;
     constexpr int initialHeight = 960;
 
-    NSUInteger windowStyle = (NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask |
-                              NSMiniaturizableWindowMask);
-
-    NSRect windowRect = NSMakeRect(100, 100, initialWidth, initialHeight);
-    fWindow = [[NSWindow alloc] initWithContentRect:windowRect styleMask:windowStyle
-                                backing:NSBackingStoreBuffered defer:NO];
-    if (nil == fWindow) {
-        return false;
-    }
-    WindowDelegate* delegate = [[WindowDelegate alloc] initWithWindow:this];
-    [fWindow setDelegate:delegate];
-    [delegate release];
-
-    // create view
-    MainView* view = [[[MainView alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)] initWithWindow:this];
-    if (nil == view) {
-        [fWindow release];
-        fWindow = nil;
+    fWindow = glfwCreateWindow(initialWidth, initialHeight, "App", nullptr, nullptr);
+    if (!fWindow) {
         return false;
     }
 
-    // attach view to window
-    [fWindow setContentView:view];
+    glfwSetWindowUserPointer(fWindow, this);
+
+    glfwSetWindowSizeCallback(fWindow, resizeWindowCallback);
+//        glfwSetWindowFramebufferSizeCallback(fWindow, resizeFramebufferWindowCallback);
+    glfwSetWindowCloseCallback(fWindow, closeWindowCallback);
+    glfwSetWindowRefreshCallback(fWindow, refreshWindowCallback);
 
     return true;
 }
 
 void Window_mac::closeWindow() {
-    [fWindow release];
-    fWindow = nil;
+    glfwDestroyWindow(fWindow);
+    fWindow = nullptr;
 }
 
 void Window_mac::setTitle(const char* title) {
-    NSString *titleString = [NSString stringWithCString:title encoding:NSUTF8StringEncoding];
-    [fWindow setTitle:titleString];
+    glfwSetWindowTitle(fWindow, title);
 }
 
 void Window_mac::show() {
-    [NSApp activateIgnoringOtherApps:YES];
-
-    [fWindow makeKeyAndOrderFront:NSApp];
+    glfwShowWindow(fWindow);
 }
 
 bool Window_mac::attach(BackendType attachType) {
     this->initWindow();
 
     window_context_factory::MacWindowInfo info;
-    info.fMainView = this->view();
+    info.fWindow = fWindow;
     switch (attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
@@ -117,75 +112,18 @@ bool Window_mac::attach(BackendType attachType) {
 }
 
 void Window_mac::onInval() {
-    [[fWindow contentView] setNeedsDisplay:YES];
+//    [[fWindow contentView] setNeedsDisplay:YES];
     // MacOS already queues a single drawRect event for multiple invalidations
     // so we don't need to use our invalidation method (and it can mess things up
     // if for some reason MacOS skips a drawRect when we need one).
-    this->markInvalProcessed();
+//    this->markInvalProcessed();
 }
 
 }   // namespace sk_app
 
 ///////////////////////////////////////////////////////////////////////////////
 
-@implementation WindowDelegate {
-    sk_app::Window* fWindow;
-}
-
-- (WindowDelegate*)initWithWindow:(sk_app::Window *)initWindow {
-    fWindow = initWindow;
-
-    return self;
-}
-
-- (void)windowDidResize:(NSNotification *)notification {
-    sk_app::Window_mac* macWindow = reinterpret_cast<sk_app::Window_mac*>(fWindow);
-    const NSRect mainRect = [macWindow->view() bounds];
-
-    fWindow->onResize(mainRect.size.width, mainRect.size.height);
-}
-
-- (BOOL)windowShouldClose:(NSWindow*)sender {
-    --sk_app::gWindowCount;
-    if (sk_app::gWindowCount < 1) {
-        [NSApp terminate:self];
-    }
-
-    reinterpret_cast<sk_app::Window_mac*>(fWindow)->closeWindow();
-
-    return FALSE;
-}
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////
-
-@implementation MainView {
-    sk_app::Window* fWindow;
-}
-
-- (MainView*)initWithWindow:(sk_app::Window *)initWindow {
-    fWindow = initWindow;
-
-    return self;
-}
-
-- (BOOL)isOpaque {
-    return YES;
-}
-
-- (BOOL)canBecomeKeyView {
-    return YES;
-}
-
-- (BOOL)acceptsFirstResponder {
-    return YES;
-}
-
-- (void)drawRect:(NSRect)dirtyRect {
-    fWindow->onPaint();
-}
-
+/*
 static Window::Key get_key(unsigned short vk) {
     // This will work with an ANSI QWERTY keyboard.
     // Something more robust would be needed to support alternate keyboards.
@@ -308,7 +246,6 @@ static uint32_t get_modifiers(const NSEvent* event) {
     // TODO: support hasPreciseScrollingDeltas?
     fWindow->onMouseWheel([event scrollingDeltaY], get_modifiers(event));
 }
+*/
 
-
-@end
 

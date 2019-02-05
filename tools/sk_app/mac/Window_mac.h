@@ -10,7 +10,7 @@
 
 #include "../Window.h"
 
-#import <Cocoa/Cocoa.h>
+#include "GLFW/glfw3.h"
 
 namespace sk_app {
 
@@ -18,7 +18,7 @@ class Window_mac : public Window {
 public:
     Window_mac()
             : INHERITED()
-            , fWindow(nil)
+            , fWindow(nullptr)
             , fMSAASampleCount(1) {}
     ~Window_mac() override {
         this->closeWindow();
@@ -33,11 +33,10 @@ public:
 
     void onInval() override;
 
-    NSView* view() { return [fWindow contentView]; }
     void closeWindow();
 
 private:
-    NSWindow*    fWindow;
+    GLFWwindow*  fWindow;
     int          fMSAASampleCount;
 
     typedef Window INHERITED;
