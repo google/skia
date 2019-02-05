@@ -36,7 +36,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     fIsDynamic = false;
 
     // The managed resource mode is only available for macOS. iOS should use shared.
-    fMtlBuffer =
+    fMtlBuffer = size == 0 ? nil :
             [gpu->device() newBufferWithLength: size
                                        options: !fIsDynamic ? MTLResourceStorageModePrivate
 #ifdef SK_BUILD_FOR_MAC
