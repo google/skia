@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "f8911af4_3cc51ec0",
+        "filename": "gm/fwidth_squircle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-05T00:52:47Z",
+      "side": 1,
+      "message": "Oh wow! That\u0027s scary. I\u0027ve been working under the assumption that expression results are truncated at the point of use, as opposed to demoting all sub-expressions to half precision. \n\nAll I\u0027ve found so far is 4.5.2 in https://www.khronos.org/registry/OpenGL/specs/es/2.0/GLSL_ES_Specification_1.00.pdf :\n\n\"For constant expressions and sub-expressions, where the precision is not defined, the evaluation is\nperformed at or above the highest supported precision of the target (either mediump or highp). The\nevaluation of constant expressions must be invariant and will usually be performed at compile time\"\n\nHowever, my reading of that tells me it only applies for CONSTANT expressions that can be evaluated at compile time? This seems pretty important to narrow down. If it is the case, I might suggest an SkSL feature that stores sub-expressions of higher precision into intermediate variables :-)",
+      "parentUuid": "70a0d561_a9461ada",
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cac51e76_166cd1d7",
         "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
         "patchSetId": 4
@@ -175,6 +193,30 @@
       "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "957ed504_8cef500f",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-05T00:52:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7df69c5e_274fcfe3",
+      "range": {
+        "startLine": 69,
+        "startChar": 65,
+        "endLine": 69,
+        "endChar": 84
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

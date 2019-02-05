@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d08a966_0e573c22",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor_GSImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-05T00:52:47Z",
+      "side": 1,
+      "message": "Ugh! I think I led you astray. These are actually normalized directions; I was thinking they were 0/1 values in both x and y. Can we undo this and go back to what you had previously (converting the dot product to half)?\n\nSorry again.",
+      "revId": "f099e35799e5ac557b7f641a71b166e09766ebc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
