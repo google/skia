@@ -44,7 +44,6 @@ private:
     void validate() const;
 #endif
 
-    GrGpuBufferType fIntendedType;
     bool fIsDynamic;
     id<MTLBuffer> fMtlBuffer;
     id<MTLBuffer> fMappedBuffer;
