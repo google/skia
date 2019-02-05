@@ -247,6 +247,9 @@ def compile_fn(api, checkout_root, out_dir):
   if 'SafeStack' in extra_tokens:
     assert sanitize == ''
     sanitize = 'safe-stack'
+  if 'MSRTC' in extra_tokens:
+    assert sanitize == ''
+    sanitize = 'MSVC'
 
   for (k,v) in {
     'cc':  cc,
