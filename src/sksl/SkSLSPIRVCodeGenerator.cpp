@@ -433,13 +433,13 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
 }
 
 Type SPIRVCodeGenerator::getActualType(const Type& type) {
-    if (type == *fContext.fHalf_Type) {
+    if (type.isFloat()) {
         return *fContext.fFloat_Type;
     }
-    if (type == *fContext.fShort_Type || type == *fContext.fByte_Type) {
+    if (type.isSigned()) {
         return *fContext.fInt_Type;
     }
-    if (type == *fContext.fUShort_Type || type == *fContext.fUByte_Type) {
+    if (type.isUnsigned()) {
         return *fContext.fUInt_Type;
     }
     if (type.kind() == Type::kMatrix_Kind || type.kind() == Type::kVector_Kind) {
@@ -472,11 +472,13 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             case Type::kScalar_Kind:
                 if (type == *fContext.fBool_Type) {
                     this->writeInstruction(SpvOpTypeBool, result, fConstantBuffer);
-                } else if (type == *fContext.fInt_Type) {
+                } else if (type == *fContext.fInt_Type || type == *fContext.fShort_Type ||
+                           type == *fContext.fIntLiteral_Type) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
-                } else if (type == *fContext.fUInt_Type) {
+                } else if (type == *fContext.fUInt_Type || type == *fContext.fUShort_Type) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 0, fConstantBuffer);
-                } else if (type == *fContext.fFloat_Type) {
+                } else if (type == *fContext.fFloat_Type || type == *fContext.fHalf_Type ||
+                           type == *fContext.fFloatLiteral_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 32, fConstantBuffer);
                 } else if (type == *fContext.fDouble_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 64, fConstantBuffer);
@@ -2043,7 +2045,8 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
             }
             return result;
         } else {
-            ABORT("unsupported binary expression: %s", b.description().c_str());
+            ABORT("unsupported binary expression: %s (%s, %s)", b.description().c_str(),
+                  b.fLeft->fType.description().c_str(), b.fRight->fType.description().c_str());
         }
     } else {
         tmp = this->getActualType(b.fLeft->fType);
@@ -2473,7 +2476,7 @@ SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    if (f.fType == *fContext.fFloat_Type || f.fType == *fContext.fHalf_Type) {
+    if (f.fType != *fContext.fDouble_Type) {
         float value = (float) f.fValue;
         auto entry = fFloatConstants.find(value);
         if (entry == fFloatConstants.end()) {
@@ -2488,7 +2491,6 @@ SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
         }
         return entry->second;
     } else {
-        SkASSERT(f.fType == *fContext.fDouble_Type);
         auto entry = fDoubleConstants.find(f.fValue);
         if (entry == fDoubleConstants.end()) {
             SpvId result = this->nextId();

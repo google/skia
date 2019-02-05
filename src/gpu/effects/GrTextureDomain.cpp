@@ -151,15 +151,15 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
         // pixel coordinate. This will then be clamped to 1.f if it's greater than the control
         // parameter, which simulates kNearest and kBilerp behavior depending on if it's 0 or 1.
         if (decalX && decalY) {
-            builder->codeAppendf("half err = max(abs(clampedCoord.x - origCoord.x) * %s.x, "
-                                                "abs(clampedCoord.y - origCoord.y) * %s.y);",
+            builder->codeAppendf("half err = max(half(abs(clampedCoord.x - origCoord.x) * %s.x), "
+                                                "half(abs(clampedCoord.y - origCoord.y) * %s.y));",
                                  fDecalName.c_str(), fDecalName.c_str());
         } else if (decalX) {
-            builder->codeAppendf("half err = abs(clampedCoord.x - origCoord.x) * %s.x;",
+            builder->codeAppendf("half err = half(abs(clampedCoord.x - origCoord.x) * %s.x);",
                                  fDecalName.c_str());
         } else {
             SkASSERT(decalY);
-            builder->codeAppendf("half err = abs(clampedCoord.y - origCoord.y) * %s.y;",
+            builder->codeAppendf("half err = half(abs(clampedCoord.y - origCoord.y) * %s.y);",
                                  fDecalName.c_str());
         }
 
@@ -427,7 +427,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                                                                      kHalf4_GrSLType,
                                                                      "scaleAndTranslate",
                                                                      &scaleAndTranslateName);
-            args.fFragBuilder->codeAppendf("half2 coords = sk_FragCoord.xy * %s.xy + %s.zw;",
+            args.fFragBuilder->codeAppendf("half2 coords = half2(sk_FragCoord.xy * %s.xy + %s.zw);",
                                            scaleAndTranslateName, scaleAndTranslateName);
             fGLDomain.sampleTexture(args.fFragBuilder,
                                     args.fUniformHandler,

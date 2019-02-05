@@ -204,6 +204,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                                                               SkSL::String(shaderString),
                                                               settings);
     if (!program) {
+        printf("%s\n", shaderString);
         SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
         SkASSERT(false);
     }

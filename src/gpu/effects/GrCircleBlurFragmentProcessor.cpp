@@ -274,9 +274,8 @@ public:
                                                           kDefault_GrSLPrecision, "circleData");
         fragBuilder->codeAppendf(
                 "half2 vec = half2(half((sk_FragCoord.x - float(%s.x)) * float(%s.w)), "
-                "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = "
-                "float(length(vec)) + (0.5 - float(%s.z)) * float(%s.w);\n%s = %s * texture(%s, "
-                "float2(half2(dist, 0.5))).%s.w;\n",
+                "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = length(vec) + "
+                "(0.5 - %s.z) * %s.w;\n%s = %s * texture(%s, float2(half2(dist, 0.5))).%s.w;\n",
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),

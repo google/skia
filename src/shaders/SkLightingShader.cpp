@@ -168,32 +168,33 @@ private:
                                                           kFloat3_GrSLType, kDefault_GrSLPrecision,
                                                           "AmbientColor", &ambientColorUniName);
 
-            fragBuilder->codeAppendf("float4 diffuseColor = %s;", args.fInputColor);
+            fragBuilder->codeAppendf("half4 diffuseColor = %s;", args.fInputColor);
 
             SkString dstNormalName("dstNormal");
             this->emitChild(0, &dstNormalName, args);
 
             fragBuilder->codeAppendf("float3 normal = %s.xyz;", dstNormalName.c_str());
 
-            fragBuilder->codeAppend( "float3 result = float3(0.0);");
+            fragBuilder->codeAppend( "half3 result = half3(0.0);");
 
             // diffuse light
             if (lightingFP.fDirectionalLights.count() != 0) {
                 fragBuilder->codeAppendf("for (int i = 0; i < %d; i++) {",
                                          lightingFP.fDirectionalLights.count());
                 // TODO: modulate the contribution from each light based on the shadow map
-                fragBuilder->codeAppendf("    float NdotL = saturate(dot(normal, %s[i]));",
+                fragBuilder->codeAppendf("    half NdotL = saturate(half(dot(normal, %s[i])));",
                                          lightDirsUniName);
-                fragBuilder->codeAppendf("    result += %s[i]*diffuseColor.rgb*NdotL;",
+                fragBuilder->codeAppendf("    result += half3(%s[i])*diffuseColor.rgb*NdotL;",
                                          lightColorsUniName);
                 fragBuilder->codeAppend("}");
             }
 
             // ambient light
-            fragBuilder->codeAppendf("result += %s * diffuseColor.rgb;", ambientColorUniName);
+            fragBuilder->codeAppendf("result += half3(%s) * diffuseColor.rgb;",
+                                     ambientColorUniName);
 
             // Clamping to alpha (equivalent to an unpremul'd clamp to 1.0)
-            fragBuilder->codeAppendf("%s = float4(clamp(result.rgb, 0.0, diffuseColor.a), "
+            fragBuilder->codeAppendf("%s = half4(clamp(result.rgb, 0.0, diffuseColor.a), "
                                                "diffuseColor.a);", args.fOutputColor);
         }
 

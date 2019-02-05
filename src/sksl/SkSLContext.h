@@ -21,23 +21,25 @@ public:
     Context()
     : fInvalid_Type(new Type("<INVALID>"))
     , fVoid_Type(new Type("void"))
-    , fDouble_Type(new Type("double", Type::kFloat_NumberKind, 4))
+    , fFloatLiteral_Type(new Type("$floatLiteral", Type::kFloat_NumberKind, 3))
+    , fIntLiteral_Type(new Type("$intLiteral", Type::kSigned_NumberKind, 1))
+    , fDouble_Type(new Type("double", Type::kFloat_NumberKind, 6))
     , fDouble2_Type(new Type("double2", *fDouble_Type, 2))
     , fDouble3_Type(new Type("double3", *fDouble_Type, 3))
     , fDouble4_Type(new Type("double4", *fDouble_Type, 4))
-    , fFloat_Type(new Type("float", Type::kFloat_NumberKind, 3))
+    , fFloat_Type(new Type("float", Type::kFloat_NumberKind, 5))
     , fFloat2_Type(new Type("float2", *fFloat_Type, 2))
     , fFloat3_Type(new Type("float3", *fFloat_Type, 3))
     , fFloat4_Type(new Type("float4", *fFloat_Type, 4))
-    , fHalf_Type(new Type("half", Type::kFloat_NumberKind, 2))
+    , fHalf_Type(new Type("half", Type::kFloat_NumberKind, 4))
     , fHalf2_Type(new Type("half2", *fHalf_Type, 2))
     , fHalf3_Type(new Type("half3", *fHalf_Type, 3))
     , fHalf4_Type(new Type("half4", *fHalf_Type, 4))
-    , fUInt_Type(new Type("uint", Type::kUnsigned_NumberKind, 1))
+    , fUInt_Type(new Type("uint", Type::kUnsigned_NumberKind, 2))
     , fUInt2_Type(new Type("uint2", *fUInt_Type, 2))
     , fUInt3_Type(new Type("uint3", *fUInt_Type, 3))
     , fUInt4_Type(new Type("uint4", *fUInt_Type, 4))
-    , fInt_Type(new Type("int", Type::kSigned_NumberKind, 1))
+    , fInt_Type(new Type("int", Type::kSigned_NumberKind, 2))
     , fInt2_Type(new Type("int2", *fInt_Type, 2))
     , fInt3_Type(new Type("int3", *fInt_Type, 3))
     , fInt4_Type(new Type("int4", *fInt_Type, 4))
@@ -206,6 +208,8 @@ public:
 
     const std::unique_ptr<Type> fInvalid_Type;
     const std::unique_ptr<Type> fVoid_Type;
+    const std::unique_ptr<Type> fFloatLiteral_Type;
+    const std::unique_ptr<Type> fIntLiteral_Type;
 
     const std::unique_ptr<Type> fDouble_Type;
     const std::unique_ptr<Type> fDouble2_Type;

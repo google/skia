@@ -52,7 +52,7 @@ DEF_TEST(SkSLUndefinedFunction, r) {
 DEF_TEST(SkSLGenericArgumentMismatch, r) {
     test_failure(r,
                  "void main() { float x = sin(1, 2); }",
-                 "error: 1: call to 'sin' expected 1 argument, but found 2\n1 error\n");
+                 "error: 1: no match for sin(int, int)\n1 error\n");
     test_failure(r,
                  "void main() { float x = sin(true); }",
                  "error: 1: no match for sin(bool)\n1 error\n");
@@ -341,7 +341,7 @@ DEF_TEST(SkSLUseWithoutInitialize, r) {
                  "error: 1: 'x' has not been assigned\n1 error\n");
     test_failure(r,
                  "void main() { int x; switch (3) { case 0: x = 0; case 1: x = 1; }"
-                               "sk_FragColor = float4(x); }",
+                               "sk_FragColor = half4(x); }",
                  "error: 1: 'x' has not been assigned\n1 error\n");
 }
 
@@ -461,10 +461,10 @@ DEF_TEST(SkSLFieldAfterRuntimeArray, r) {
 DEF_TEST(SkSLStaticIf, r) {
     test_success(r,
                  "void main() { float x = 5; float y = 10;"
-                 "@if (x < y) { sk_FragColor = float4(1); } }");
+                 "@if (x < y) { sk_FragColor = half4(1); } }");
     test_failure(r,
                  "void main() { float x = sqrt(25); float y = 10;"
-                 "@if (x < y) { sk_FragColor = float4(1); } }",
+                 "@if (x < y) { sk_FragColor = half4(1); } }",
                  "error: 1: static if has non-static test\n1 error\n");
 }
 
@@ -473,16 +473,16 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = float4(1); break;"
-                 "default: sk_FragColor = float4(0);"
+                 "case 1: sk_FragColor = half4(1); break;"
+                 "default: sk_FragColor = half4(0);"
                  "}"
                  "}");
     test_failure(r,
                  "void main() {"
                  "int x = int(sqrt(1));"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = float4(1); break;"
-                 "default: sk_FragColor = float4(0);"
+                 "case 1: sk_FragColor = half4(1); break;"
+                 "default: sk_FragColor = half4(0);"
                  "}"
                  "}",
                  "error: 1: static switch has non-static test\n1 error\n");
@@ -490,8 +490,8 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = float4(1); if (sqrt(0) < sqrt(1)) break;"
-                 "default: sk_FragColor = float4(0);"
+                 "case 1: sk_FragColor = half4(1); if (sqrt(0) < sqrt(1)) break;"
+                 "default: sk_FragColor = half4(0);"
                  "}"
                  "}",
                  "error: 1: static switch contains non-static conditional break\n1 error\n");

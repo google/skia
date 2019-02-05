@@ -90,14 +90,10 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             else if (component == *fContext.fDouble_Type) {
                 result = "dvec";
             }
-            else if (component == *fContext.fInt_Type ||
-                     component == *fContext.fShort_Type ||
-                     component == *fContext.fByte_Type) {
+            else if (component.isSigned()) {
                 result = "ivec";
             }
-            else if (component == *fContext.fUInt_Type ||
-                     component == *fContext.fUShort_Type ||
-                     component == *fContext.fUByte_Type) {
+            else if (component.isUnsigned()) {
                 result = "uvec";
             }
             else if (component == *fContext.fBool_Type) {
@@ -703,7 +699,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
 void GLSLCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
     if (c.fArguments.size() == 1 &&
-        this->getTypeName(c.fType) == this->getTypeName(c.fArguments[0]->fType)) {
+        (this->getTypeName(c.fType) == this->getTypeName(c.fArguments[0]->fType) ||
+        (c.fType.kind() == Type::kScalar_Kind &&
+         c.fArguments[0]->fType == *fContext.fFloatLiteral_Type))) {
         // in cases like half(float), they're different types as far as SkSL is concerned but the
         // same type as far as GLSL is concerned. We avoid a redundant float(float) by just writing
         // out the inner expression here.

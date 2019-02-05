@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct FloatLiteral : public Expression {
     FloatLiteral(const Context& context, int offset, double value)
-    : INHERITED(offset, kFloatLiteral_Kind, *context.fFloat_Type)
+    : INHERITED(offset, kFloatLiteral_Kind, *context.fFloatLiteral_Type)
     , fValue(value) {}
 
     FloatLiteral(int offset, double value, const Type* type)
@@ -35,6 +35,13 @@ struct FloatLiteral : public Expression {
 
     bool isConstant() const override {
         return true;
+    }
+
+    int coercionCost(const Type& target) const override {
+        if (target.isFloat()) {
+            return 0;
+        }
+        return INHERITED::coercionCost(target);
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {

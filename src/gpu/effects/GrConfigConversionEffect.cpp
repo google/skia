@@ -27,11 +27,10 @@ public:
 
         fragBuilder->forceHighPrecision();
         fragBuilder->codeAppendf(
-                "%s = half4(floor(float4(float4(%s * 255.0) + 0.5)) / 255.0);\n@switch (%d) {\n    "
-                "case 0:\n        %s.xyz = half3(floor(float3(float3((%s.xyz * %s.w) * 255.0) + "
-                "0.5)) / 255.0);\n        break;\n    case 1:\n        %s.xyz = float(%s.w) <= 0.0 "
-                "? half3(0.0) : half3(floor(float3(float3((%s.xyz / %s.w) * 255.0) + 0.5)) / "
-                "255.0);\n        break;\n}\n",
+                "%s = floor(%s * 255.0 + 0.5) / 255.0;\n@switch (%d) {\n    case 0:\n        "
+                "%s.xyz = floor((%s.xyz * %s.w) * 255.0 + 0.5) / 255.0;\n        break;\n    case "
+                "1:\n        %s.xyz = %s.w <= 0.0 ? half3(0.0) : floor((%s.xyz / %s.w) * 255.0 + "
+                "0.5) / 255.0;\n        break;\n}\n",
                 args.fOutputColor, args.fInputColor, (int)_outer.pmConversion(), args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor);

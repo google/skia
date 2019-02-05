@@ -357,8 +357,7 @@ bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
     if (t1.columns() > 1) {
         return this->canCoerce(t1.componentType(), t2.componentType());
     }
-    return ((t1 == *fContext.fFloat_Type || t1 == *fContext.fHalf_Type) &&
-            (t2 == *fContext.fFloat_Type || t2 == *fContext.fHalf_Type));
+    return t1.isFloat() && t2.isFloat();
 }
 
 void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {

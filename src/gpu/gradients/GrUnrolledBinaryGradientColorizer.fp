@@ -104,7 +104,7 @@ void main() {
         }
     }
 
-    sk_OutColor = t * scale + bias;
+    sk_OutColor = half4(t * scale + bias);
 }
 
 //////////////////////////////////////////////////////////////////////////////

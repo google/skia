@@ -39,7 +39,7 @@ public:
         this->emitChild(1, &_child1, args);
         fragBuilder->codeAppendf(
                 "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
-                "0.0) {\n    %s = %s;\n} else if (float(t.x) > 1.0) {\n    %s = %s;\n} else {",
+                "0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
                 _child1.c_str(),
                 (_outer.childProcessor(1).preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, args.fOutputColor,
