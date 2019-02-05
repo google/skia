@@ -39,11 +39,13 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      const SkSurfaceProps& surfaceProps,
                                      bool isMipMapped, bool willUseGLFBO0, bool isTextureable) {
     if (!backendFormat.isValid()) {
+        SkDebugf("1\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     if (GrBackendApi::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
         // The willUseGLFBO0 flags can only be used for a GL backend.
+        SkDebugf("2\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
@@ -53,15 +55,18 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, ii.colorType());
     if (config == kUnknown_GrPixelConfig) {
+        SkDebugf("3\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     if (!SkSurface_Gpu::Valid(this->caps(), config, ii.colorSpace())) {
+        SkDebugf("4\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
     if (!sampleCnt) {
+        SkDebugf("5\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
@@ -72,11 +77,13 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
     }
 
     if (willUseGLFBO0 && isTextureable) {
+        SkDebugf("6\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     if (isTextureable && !this->caps()->isConfigTexturable(config)) {
         // Skia doesn't agree that this is textureable.
+        SkDebugf("7\n");
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
