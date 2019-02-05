@@ -13,7 +13,7 @@
 #include "SkNx.h"
 #include "ccpr/GrCCStrokeGeometry.h"
 
-class GrBuffer;
+class GrGpuBuffer;
 class GrCCCoverageProcessor;
 class GrOnFlushResourceProvider;
 class GrOpFlushState;
@@ -116,7 +116,7 @@ private:
     GrSTAllocator<128, InstanceTallies> fTalliesAllocator;
     const InstanceTallies* fInstanceCounts[kNumScissorModes] = {&fZeroTallies, &fZeroTallies};
 
-    sk_sp<GrBuffer> fInstanceBuffer;
+    sk_sp<GrGpuBuffer> fInstanceBuffer;
     // The indices stored in batches are relative to these base instances.
     InstanceTallies fBaseInstances[kNumScissorModes];
 

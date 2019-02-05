@@ -93,7 +93,6 @@ protected:
     bool internalHasUniqueRef() const { return fRefCnt == 1; }
 
 private:
-    friend class GrIORefProxy; // needs to forward on wrapped IO calls
     // This is for a unit test.
     template <typename T>
     friend void testingOnly_getIORefCnts(const T*, int* refCnt, int* readCnt, int* writeCnt);
@@ -120,7 +119,6 @@ private:
         this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
     }
 
-private:
     void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
             static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
@@ -131,6 +129,7 @@ private:
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 
+    friend class GrIORefProxy;    // needs to forward on wrapped IO calls
     friend class GrResourceCache; // to check IO ref counts.
 
     template <typename, GrIOType> friend class GrPendingIOResource;
