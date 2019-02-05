@@ -229,14 +229,17 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     fActiveOpList = nullptr;
 
     fDAG.prepForFlush();
-    SkASSERT(SkToBool(fVertexBufferSpace) == SkToBool(fIndexBufferSpace));
-    if (!fVertexBufferSpace) {
-        fVertexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]());
-        fIndexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]());
+    if (!fCpuBufferCache) {
+        // We use allow more buffers when the backend is using client side arrays. Otherwise, we
+        // expect each pool will use CPU buffer at a time and upload it to a GPU buffer before
+        // recycling it.
+        int maxCachedBuffers = fContext->contextPriv().caps()->preferClientSideDynamicBuffers() ?
+                2 : 6;
+        fCpuBufferCache = GrBufferAllocPool::CpuBufferCache::Make(maxCachedBuffers);
     }
 
     GrOpFlushState flushState(gpu, fContext->priv().resourceProvider(), &fTokenTracker,
-                              fVertexBufferSpace.get(), fIndexBufferSpace.get());
+                              fCpuBufferCache);
 
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
