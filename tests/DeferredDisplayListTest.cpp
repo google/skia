@@ -42,9 +42,6 @@
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLTypes.h"
-#ifdef SK_VULKAN
-#include <vulkan/vulkan_core.h>
-#endif
 
 // Try to create a backend format from the provided colorType and config. Return an invalid
 // backend format if the combination is infeasible.
@@ -54,6 +51,10 @@ static GrBackendFormat create_backend_format(GrContext* context,
     const GrCaps* caps = context->priv().caps();
 
     switch (context->backend()) {
+#ifdef SK_METAL
+    case GrBackendApi::kMetal:
+        return caps->getBackendFormatFromColorType(ct);
+#endif
     case GrBackendApi::kOpenGL: {
         const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
         GrGLStandard standard = glCaps->standard();
