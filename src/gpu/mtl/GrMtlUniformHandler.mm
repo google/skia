@@ -188,7 +188,8 @@ static void get_ubo_aligned_offset(uint32_t* uniformOffset,
         SkASSERT(0 == (elementSize & 0xF));
         *currentOffset = *uniformOffset + elementSize * arrayCount;
     } else {
-        *currentOffset = *uniformOffset + grsltype_to_mtl_size(type);
+        // It looks like Metal expects individual elements to be aligned as well
+        *currentOffset = *uniformOffset + SkTMax<uint32_t>(16, grsltype_to_mtl_size(type));
     }
 }
 

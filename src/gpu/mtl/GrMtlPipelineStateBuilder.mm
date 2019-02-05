@@ -69,6 +69,11 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
         }
     }
 
+#ifdef SK_OUTPUT_METAL_SHADER
+    SkDebugf("---------------\n");
+    SkDebugf("%s\n", shaderString.c_str());
+#endif
+
     SkSL::Program::Inputs inputs;
     id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shaderString.c_str(),
                                                              kind, settings, &inputs);

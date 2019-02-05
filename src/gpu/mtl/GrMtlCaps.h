@@ -63,17 +63,11 @@ public:
     }
 
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
-                                              SkColorType) const override {
-        return kUnknown_GrPixelConfig;
-    }
+                                              SkColorType) const override;
 
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override {
-        return kUnknown_GrPixelConfig;
-    }
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
 
-    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override {
-        return kUnknown_GrPixelConfig;
-    }
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
