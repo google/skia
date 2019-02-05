@@ -322,6 +322,9 @@ config("warnings") {
       "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
     ]
 
+    if (is_win) {
+      cflags += [ "-Wno-extra-semi-stmt" ]
+    }
     if (target_cpu == "arm" && is_ios) {
       # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
       # We're pretty sure it's actually 8-byte alignment.
@@ -428,10 +431,7 @@ config("debug_symbols") {
   } else if (is_win) {
     cflags = [ "/Z7" ]
     if (is_clang) {
-      cflags += [
-        "-mllvm",
-        "-emit-codeview-ghash-section",
-      ]
+      cflags += [ "-gcodeview-ghash" ]
       ldflags = [ "/DEBUG:GHASH" ]
     } else {
       ldflags = [ "/DEBUG:FASTLINK" ]
