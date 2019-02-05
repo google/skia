@@ -102,6 +102,7 @@ public:
 
 protected:
     GrBuffer(GrGpu*, size_t sizeInBytes, GrGpuBufferType, GrAccessPattern);
+    GrGpuBufferType intendedType() const { return fIntendedType; }
 
     void* fMapPtr;
 

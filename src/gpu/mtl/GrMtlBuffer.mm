@@ -28,7 +28,6 @@ sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern)
         : INHERITED(gpu, size, intendedType, accessPattern)
-        , fIntendedType(intendedType)
         , fIsDynamic(accessPattern == kDynamic_GrAccessPattern) {
     // TODO: We are treating all buffers as static access since we don't have an implementation to
     // synchronize gpu and cpu access of a resource yet. See comments in GrMtlBuffer::internalMap()
@@ -170,10 +169,10 @@ void GrMtlBuffer::onUnmap() {
 #ifdef SK_DEBUG
 void GrMtlBuffer::validate() const {
     SkASSERT(fMtlBuffer == nil ||
-             fIntendedType == GrGpuBufferType::kVertex ||
-             fIntendedType == GrGpuBufferType::kIndex ||
-             fIntendedType == GrGpuBufferType::kXferCpuToGpu ||
-             fIntendedType == GrGpuBufferType::kXferGpuToCpu);
+             this->intendedType() == GrGpuBufferType::kVertex ||
+             this->intendedType() == GrGpuBufferType::kIndex ||
+             this->intendedType() == GrGpuBufferType::kXferCpuToGpu ||
+             this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
              fMappedBuffer.length <= fMtlBuffer.length);
     SkASSERT(fIsDynamic == false); // TODO: implement synchronization to allow dynamic access.
