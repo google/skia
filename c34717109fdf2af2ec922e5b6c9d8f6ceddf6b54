@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7951db36_6fa001b9",
+        "filename": "third_party/icu/README.md",
+        "patchSetId": 58
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-05T21:29:39Z",
+      "side": 1,
+      "message": "to",
+      "range": {
+        "startLine": 27,
+        "startChar": 70,
+        "endLine": 27,
+        "endChar": 72
+      },
+      "revId": "c34717109fdf2af2ec922e5b6c9d8f6ceddf6b54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f049364_a87a00a1",
+        "filename": "third_party/icu/README.md",
+        "patchSetId": 58
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-05T21:29:39Z",
+      "side": 1,
+      "message": "new",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 14
+      },
+      "revId": "c34717109fdf2af2ec922e5b6c9d8f6ceddf6b54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
