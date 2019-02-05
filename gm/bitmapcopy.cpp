@@ -112,7 +112,7 @@ protected:
             SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = font.getSpacing() / SkScalar(2);
-            canvas->drawSimpleText(name, strlen(name), kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawString(name, x, y, font, paint);
 
             // Draw destination bitmap
             canvas->translate(0, vertOffset);

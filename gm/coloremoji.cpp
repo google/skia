@@ -91,7 +91,7 @@ protected:
                 font.setSize(textSize);
                 font.getMetrics(&metrics);
                 y += -metrics.fAscent;
-                canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 10, y, font, SkPaint());
+                canvas->drawString(text, 10, y, font, SkPaint());
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
@@ -128,8 +128,7 @@ protected:
                             shaderFont.setSize(30);
                             shaderFont.getMetrics(&metrics);
                             y += -metrics.fAscent;
-                            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 380, y,
-                                                   shaderFont, shaderPaint);
+                            canvas->drawString(text, 380, y, shaderFont, shaderPaint);
                             y += metrics.fDescent + metrics.fLeading;
                         }
                     }
@@ -168,10 +167,10 @@ protected:
             canvas->save();
             canvas->drawRect(clipRect, clipHairline);
             paint.setAlpha(0x20);
-            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawString(text, 0, 0, font, paint);
             canvas->clipRect(clipRect);
             paint.setAlpha(0xFF);
-            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
+            canvas->drawString(text, 0, 0, font, paint);
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }
