@@ -66,11 +66,13 @@ GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
 void GrMtlRenderTarget::onAbandon() {
     fRenderTexture = nil;
     fResolveTexture = nil;
+    INHERITED::onAbandon();
 }
 
 void GrMtlRenderTarget::onRelease() {
     fRenderTexture = nil;
     fResolveTexture = nil;
+    INHERITED::onRelease();
 }
 
 bool GrMtlRenderTarget::completeStencilAttachment() {
