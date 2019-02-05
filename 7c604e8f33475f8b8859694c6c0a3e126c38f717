@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b0307023_45673db7",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-05T19:12:27Z",
+      "side": 1,
+      "message": "I ended up managing alpha on setLuminanceColor.",
+      "parentUuid": "efd29ad4_b06e65a9",
+      "range": {
+        "startLine": 59,
+        "startChar": 39,
+        "endLine": 59,
+        "endChar": 53
+      },
+      "revId": "7c604e8f33475f8b8859694c6c0a3e126c38f717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9639d4d_ca447457",
         "filename": "src/core/SkScalerContext.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "7c604e8f33475f8b8859694c6c0a3e126c38f717",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66a295b0_fd6dc8f7",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1041,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-05T19:12:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9639d4d_ca447457",
+      "range": {
+        "startLine": 1041,
+        "startChar": 27,
+        "endLine": 1041,
+        "endChar": 68
+      },
+      "revId": "7c604e8f33475f8b8859694c6c0a3e126c38f717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
