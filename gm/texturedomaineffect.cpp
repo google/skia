@@ -25,7 +25,7 @@ namespace skiagm {
 /**
  * This GM directly exercises GrTextureDomainEffect.
  */
-class TextureDomainEffect : public GM {
+class TextureDomainEffect : public GpuGM {
 public:
     TextureDomainEffect(GrSamplerState::Filter filter)
             : fFilter(filter) {
@@ -82,19 +82,8 @@ protected:
         fImage = surface->makeImageSnapshot();
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrRenderTargetContext* renderTargetContext =
-            canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
-        GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
-        }
-
+    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                SkCanvas* canvas) override {
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxy;
         if (fFilter == GrSamplerState::Filter::kMipMap) {
