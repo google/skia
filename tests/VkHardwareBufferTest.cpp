@@ -400,9 +400,12 @@ public:
         }
     }
     void cleanup() override {
-        this->releaseImage();
-
         fGrContext.reset();
+        this->releaseImage();
+        if (fSignalSemaphore != VK_NULL_HANDLE) {
+            fVkDestroySemaphore(fDevice, fSignalSemaphore, nullptr);
+            fSignalSemaphore = VK_NULL_HANDLE;
+        }
         fBackendContext.fMemoryAllocator.reset();
         if (fDevice != VK_NULL_HANDLE) {
             fVkDeviceWaitIdle(fDevice);
@@ -488,6 +491,9 @@ private:
     VkPhysicalDeviceFeatures2*          fFeatures = nullptr;
     VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
+
+    // We hold on to the semaphore so we can delete once the GPU is done.
+    VkSemaphore fSignalSemaphore = VK_NULL_HANDLE;
 
     VkDevice fDevice = VK_NULL_HANDLE;
 
@@ -899,7 +905,7 @@ bool VulkanTestHelper::exportSemaphore(skiatest::Reporter* reporter,
         ERRORF(reporter, "Failed to export signal semaphore, err: %d", err);
         return false;
     }
-    fVkDestroySemaphore(fDevice, semaphore, nullptr);
+    fSignalSemaphore = semaphore;
     return true;
 }
 
