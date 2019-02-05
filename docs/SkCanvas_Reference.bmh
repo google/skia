@@ -3923,6 +3923,40 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
+#Method template <typename T> void drawString(const T&, SkScalar x, SkScalar y, const SkFont& font,
+                                              const SkPaint& paint)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method template <size_t N> void drawString(const char (&cstr)[N], SkScalar x, SkScalar y,
+                                            const SkFont& font, const SkPaint& paint)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
 #In Draw_Text
 #In Draw
