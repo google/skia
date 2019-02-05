@@ -329,7 +329,7 @@ DEF_TEST(SkSLFPSections, r) {
          "@constructorParams { int x, float y, std::vector<float> z }"
          "in float w;"
          "void main() {"
-         "sk_OutColor = half4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {

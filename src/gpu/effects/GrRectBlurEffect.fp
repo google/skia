@@ -123,21 +123,21 @@ void main() {
         float2 smallDims = float2(width - profileSize, height - profileSize);
         float center = 2 * floor(profileSize / 2 + 0.25) - 1;
         float2 wh = smallDims - float2(center, center);
-        half hcoord = half(((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize);
+        half hcoord = ((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize;
         half hlookup = texture(blurProfile, float2(hcoord, 0.5)).a;
-        half vcoord = half(((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize);
+        half vcoord = ((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize;
         half vlookup = texture(blurProfile, float2(vcoord, 0.5)).a;
         sk_OutColor = sk_InColor * hlookup * vlookup;
     } else {
-        half2 translatedPos = half2(sk_FragCoord.xy - rect.xy);
-        half width = half(rect.z - rect.x);
-        half height = half(rect.w - rect.y);
+        half2 translatedPos = sk_FragCoord.xy - rect.xy;
+        half width = rect.z - rect.x;
+        half height = rect.w - rect.y;
         half2 smallDims = half2(width - profileSize, height - profileSize);
         half center = 2 * floor(profileSize / 2 + 0.25) - 1;
-        half2 wh = smallDims - half2(center, center);
-        half hcoord = ((half(abs(translatedPos.x - 0.5 * width)) - 0.5 * wh.x)) / profileSize;
+        half2 wh = smallDims - float2(center, center);
+        half hcoord = ((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize;
         half hlookup = texture(blurProfile, float2(hcoord, 0.5)).a;
-        half vcoord = ((half(abs(translatedPos.y - 0.5 * height)) - 0.5 * wh.y)) / profileSize;
+        half vcoord = ((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize;
         half vlookup = texture(blurProfile, float2(vcoord, 0.5)).a;
         sk_OutColor = sk_InColor * hlookup * vlookup;
     }

@@ -860,11 +860,10 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fFPCoordTransformHandler);
 
     // transforms all points so that we can compare them to our test circle
-    fragBuilder->codeAppendf("half xShifted = half(%s.x - floor(%s.x / %s.z) * %s.z);",
+    fragBuilder->codeAppendf("half xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
                              dashParams.fsIn(), dashParams.fsIn(), dashParams.fsIn(),
                              dashParams.fsIn());
-    fragBuilder->codeAppendf("half2 fragPosShifted = half2(xShifted, half(%s.y));",
-                             dashParams.fsIn());
+    fragBuilder->codeAppendf("half2 fragPosShifted = half2(xShifted, %s.y);", dashParams.fsIn());
     fragBuilder->codeAppendf("half2 center = half2(%s.y, 0.0);", circleParams.fsIn());
     fragBuilder->codeAppend("half dist = length(center - fragPosShifted);");
     if (dce.aaMode() != AAMode::kNone) {
@@ -1060,23 +1059,18 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fFPCoordTransformHandler);
 
     // transforms all points so that we can compare them to our test rect
-    fragBuilder->codeAppendf("half xShifted = half(%s.x - floor(%s.x / %s.z) * %s.z);",
+    fragBuilder->codeAppendf("half xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
                              inDashParams.fsIn(), inDashParams.fsIn(), inDashParams.fsIn(),
                              inDashParams.fsIn());
-    fragBuilder->codeAppendf("half2 fragPosShifted = half2(xShifted, half(%s.y));",
-                             inDashParams.fsIn());
+    fragBuilder->codeAppendf("half2 fragPosShifted = half2(xShifted, %s.y);", inDashParams.fsIn());
     if (de.aaMode() == AAMode::kCoverage) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
         fragBuilder->codeAppend("half xSub, ySub;");
-        fragBuilder->codeAppendf("xSub = half(min(fragPosShifted.x - %s.x, 0.0));",
-                                 inRectParams.fsIn());
-        fragBuilder->codeAppendf("xSub += half(min(%s.z - fragPosShifted.x, 0.0));",
-                                 inRectParams.fsIn());
-        fragBuilder->codeAppendf("ySub = half(min(fragPosShifted.y - %s.y, 0.0));",
-                                 inRectParams.fsIn());
-        fragBuilder->codeAppendf("ySub += half(min(%s.w - fragPosShifted.y, 0.0));",
-                                 inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("ySub = min(fragPosShifted.y - %s.y, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("ySub += min(%s.w - fragPosShifted.y, 0.0);", inRectParams.fsIn());
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
         fragBuilder->codeAppendf(
@@ -1085,10 +1079,8 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         // For MSAA, we don't modulate the alpha by the Y distance, since MSAA coverage will handle
         // AA on the the top and bottom edges. The shader is only responsible for intra-dash alpha.
         fragBuilder->codeAppend("half xSub;");
-        fragBuilder->codeAppendf("xSub = half(min(fragPosShifted.x - %s.x, 0.0));",
-                                 inRectParams.fsIn());
-        fragBuilder->codeAppendf("xSub += half(min(%s.z - fragPosShifted.x, 0.0));",
-                                 inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub = min(fragPosShifted.x - %s.x, 0.0);", inRectParams.fsIn());
+        fragBuilder->codeAppendf("xSub += min(%s.z - fragPosShifted.x, 0.0);", inRectParams.fsIn());
         // Now compute coverage in x to get the fraction of the pixel covered.
         fragBuilder->codeAppendf("half alpha = (1.0 + max(xSub, -1.0));");
     } else {

@@ -53,9 +53,9 @@ void main() {
     half d;
     @if (edgeType == GrClipEdgeType::kInverseFillBW ||
          edgeType == GrClipEdgeType::kInverseFillAA) {
-        d = half((length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z);
+        d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;
     } else {
-        d = half((1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z);
+        d = (1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z;
     }
     @if (edgeType == GrClipEdgeType::kFillAA ||
          edgeType == GrClipEdgeType::kInverseFillAA ||
