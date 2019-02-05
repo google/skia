@@ -94,7 +94,11 @@ shared_library("libGLESv2") {
           ".",
           angle_root)
   if (is_win) {
-    sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
+    sources += [
+      "$angle_root/src/common/third_party/xxhash/xxhash.c",
+      "$angle_root/src/common/third_party/xxhash/xxhash.h",
+      "$angle_root/src/libGLESv2/libGLESv2_autogen.def",
+    ]
   }
   if (is_linux) {
     libs += [
