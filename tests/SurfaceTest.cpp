@@ -869,6 +869,76 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
     }
 }
 
+struct ReleaseChecker {
+    ReleaseChecker() : fReleaseCount(0) {}
+    int fReleaseCount;
+    static void Release(void* self) {
+        static_cast<ReleaseChecker*>(self)->fReleaseCount++;
+    }
+};
+
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu, reporter, ctxInfo) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+
+    GrContext* ctx = ctxInfo.grContext();
+    GrGpu* gpu = ctx->priv().getGpu();
+
+    for (bool useTexture : {false, true}) {
+        GrBackendTexture backendTex;
+        GrBackendRenderTarget backendRT;
+        sk_sp<SkSurface> surface;
+
+        ReleaseChecker releaseChecker;
+        GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
+
+        if (useTexture) {
+            backendTex = gpu->createTestingOnlyBackendTexture(
+                pixels.get(), kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+            if (!backendTex.isValid()) {
+                continue;
+            }
+
+            surface = SkSurface::MakeFromBackendTexture(ctx, backendTex, texOrigin, 1,
+                                                        kRGBA_8888_SkColorType,
+                                                        nullptr, nullptr,
+                                                        ReleaseChecker::Release,
+                                                        &releaseChecker);
+        } else {
+            backendRT = gpu->createTestingOnlyBackendRenderTarget(kWidth, kHeight,
+                                                                  GrColorType::kRGBA_8888);
+            if (!backendRT.isValid()) {
+                continue;
+            }
+            surface = SkSurface::MakeFromBackendRenderTarget(ctx, backendRT, texOrigin,
+                                                             kRGBA_8888_SkColorType,
+                                                             nullptr, nullptr,
+                                                             ReleaseChecker::Release,
+                                                             &releaseChecker);
+        }
+        if (!surface) {
+            ERRORF(reporter, "Failed to create surface");
+            continue;
+        }
+
+        surface->getCanvas()->clear(SK_ColorRED);
+        surface->flush();
+        gpu->testingOnly_flushGpuAndSync();
+
+        // Now exercise the release proc
+        REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+        surface.reset(nullptr); // force a release of the surface
+        REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+
+        if (useTexture) {
+            gpu->deleteTestingOnlyBackendTexture(backendTex);
+        } else {
+            gpu->deleteTestingOnlyBackendRenderTarget(backendRT);
+        }
+    }
+}
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInfo) {
     GrGpu* gpu = ctxInfo.grContext()->priv().getGpu();

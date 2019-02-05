@@ -475,7 +475,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     if (releaseProc) {
         releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
         // This gives the texture a ref on the releaseHelper
-        tex->setRelease(releaseHelper);
+        tex->setRelease(std::move(releaseHelper));
     }
 
     SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
@@ -487,7 +487,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
-        GrWrapOwnership ownership, GrWrapCacheable cacheable) {
+        GrWrapOwnership ownership, GrWrapCacheable cacheable, ReleaseProc releaseProc,
+        ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -508,6 +509,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         return nullptr;
     }
 
+    sk_sp<GrReleaseProcHelper> releaseHelper;
+    if (releaseProc) {
+        releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
+        // This gives the texture a ref on the releaseHelper
+        tex->setRelease(std::move(releaseHelper));
+    }
+
     SkASSERT(tex->asRenderTarget());  // A GrTextureRenderTarget
     // Make sure we match how we created the proxy with SkBudgeted::kNo
     SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
@@ -516,7 +524,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 }
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
-        const GrBackendRenderTarget& backendRT, GrSurfaceOrigin origin) {
+        const GrBackendRenderTarget& backendRT, GrSurfaceOrigin origin, ReleaseProc releaseProc,
+        ReleaseContext releaseCtx) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -530,6 +539,14 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     if (!rt) {
         return nullptr;
     }
+
+    sk_sp<GrReleaseProcHelper> releaseHelper;
+    if (releaseProc) {
+        releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
+        // This gives the render target a ref on the releaseHelper
+        rt->setRelease(std::move(releaseHelper));
+    }
+
     SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
     SkASSERT(!rt->getUniqueKey().isValid());
     // Make sure we match how we created the proxy with SkBudgeted::kNo
