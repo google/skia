@@ -274,8 +274,8 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
                                            const GrBuffer* instanceBuffer) {
     size_t bufferIndex = GrMtlUniformHandler::kLastUniformBinding + 1;
     if (vertexBuffer) {
-        SkASSERT(!vertexBuffer->isCPUBacked());
-        SkASSERT(!vertexBuffer->isMapped());
+        SkASSERT(!vertexBuffer->isCpuBuffer());
+        SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
 
         auto mtlVertexBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer)->mtlBuffer();
         SkASSERT(mtlVertexBuffer);
@@ -284,8 +284,8 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
                                          atIndex: bufferIndex++];
     }
     if (instanceBuffer) {
-        SkASSERT(!instanceBuffer->isCPUBacked());
-        SkASSERT(!instanceBuffer->isMapped());
+        SkASSERT(!instanceBuffer->isCpuBuffer());
+        SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer)->isMapped());
 
         auto mtlInstanceBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer)->mtlBuffer();
         SkASSERT(mtlInstanceBuffer);
@@ -327,8 +327,8 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
     id<MTLBuffer> mtlIndexBuffer;
     if (indexBuffer) {
-        SkASSERT(!indexBuffer->isCPUBacked());
-        SkASSERT(!indexBuffer->isMapped());
+        SkASSERT(!indexBuffer->isCpuBuffer());
+        SkASSERT(!static_cast<const GrGpuBuffer*>(indexBuffer)->isMapped());
 
         mtlIndexBuffer = static_cast<const GrMtlBuffer*>(indexBuffer)->mtlBuffer();
         SkASSERT(mtlIndexBuffer);
