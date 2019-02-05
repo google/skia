@@ -260,7 +260,7 @@ void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
     if (fAttachmentFlags & kExternal_AttachmentFlag) {
         SkASSERT(!(fAttachmentFlags & ~kExternal_AttachmentFlag));
         uint64_t handle = (uint64_t)fRenderPass;
-        b->add32((uint32_t)handle);
+        b->add32((uint32_t)(handle & 0xFFFFFFFF));
         b->add32((uint32_t)(handle>>32));
     }
 }
