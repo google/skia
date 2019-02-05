@@ -65,7 +65,6 @@ protected:
 
     SkAlphaType alphaType() const override;
     SkColorSpace* colorSpace() const override;
-    SkColorSpace* targetColorSpace() const override;
 
 private:
     const SkImage_GpuYUVA*  fImage;

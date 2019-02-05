@@ -75,7 +75,7 @@ SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
     // Note: this is the imageInfo for the flattened image, not the YUV planes
     return SkImageInfo::Make(this->width(), this->height(), kRGBA_8888_SkColorType,
-                             fAlphaType, fColorSpace);
+                             fAlphaType, fTargetColorSpace ? fTargetColorSpace : fColorSpace);
 }
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
@@ -112,9 +112,11 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
             return nullptr;
         }
 
+        auto colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(), fAlphaType,
+                                                       fTargetColorSpace.get(), fAlphaType);
         const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
         if (!RenderYUVAToRGBA(fContext.get(), renderTargetContext.get(), rect, fYUVColorSpace,
-                              fProxies, fYUVAIndices)) {
+                              std::move(colorSpaceXform), fProxies, fYUVAIndices)) {
             return nullptr;
         }
 

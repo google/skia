@@ -185,7 +185,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     }
 
     sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(), fColorSpace);
+        this->asTextureProxyRef(), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -343,6 +343,7 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
 
 bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                        const SkRect& rect, SkYUVColorSpace yuvColorSpace,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        const sk_sp<GrTextureProxy> proxies[4],
                                        const SkYUVAIndex yuvaIndices[4]) {
     SkASSERT(renderTargetContext);
@@ -353,9 +354,12 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
-                                                           yuvColorSpace,
-                                                           GrSamplerState::Filter::kNearest));
+    auto fp = GrYUVtoRGBEffect::Make(proxies, yuvaIndices, yuvColorSpace,
+                                     GrSamplerState::Filter::kNearest);
+    if (colorSpaceXform) {
+        fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
+    }
+    paint.addColorFragmentProcessor(std::move(fp));
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
