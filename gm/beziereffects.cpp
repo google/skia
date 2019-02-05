@@ -76,7 +76,7 @@ public:
 
     const char* name() const override { return "BezierConicTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,
@@ -152,7 +152,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
@@ -298,7 +298,7 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,
@@ -369,7 +369,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }

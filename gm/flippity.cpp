@@ -57,7 +57,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 
 
 // Create a fixed size text label like "LL" or "LR".
-static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkColor color) {
+static sk_sp<SkImage> make_text_image(GrContext_Base* context, const char* text, SkColor color) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(color);
@@ -88,7 +88,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
-static sk_sp<SkImage> make_reference_image(GrContext* context,
+static sk_sp<SkImage> make_reference_image(GrRecordingContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.count());
@@ -192,7 +192,7 @@ protected:
         canvas->restore();
     }
 
-    void drawRow(GrContext* context, SkCanvas* canvas,
+    void drawRow(GrRecordingContext* context, SkCanvas* canvas,
                  bool bottomLeftImage, bool drawSubset, bool drawScaled) {
 
         sk_sp<SkImage> referenceImage = make_reference_image(context, fLabels, bottomLeftImage);
@@ -208,7 +208,7 @@ protected:
         canvas->restore();
     }
 
-    void makeLabels(GrContext* context) {
+    void makeLabels(GrRecordingContext* context) {
         static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
 
         static const SkColor kLabelColors[kNumLabels] = {
@@ -226,7 +226,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;

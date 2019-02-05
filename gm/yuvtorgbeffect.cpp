@@ -80,7 +80,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
@@ -208,7 +208,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
