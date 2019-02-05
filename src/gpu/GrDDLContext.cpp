@@ -61,12 +61,3 @@ protected:
 private:
     typedef GrContext INHERITED;
 };
-
-sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
-    sk_sp<GrContext> context(new GrDDLContext(proxy));
-
-    if (!context->init(proxy->priv().refCaps(), proxy->priv().fpFactoryCache())) {
-        return nullptr;
-    }
-    return context;
-}
