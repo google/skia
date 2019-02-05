@@ -8,8 +8,8 @@
 #ifndef GrProcessor_DEFINED
 #define GrProcessor_DEFINED
 
-#include "GrBuffer.h"
 #include "GrColor.h"
+#include "GrGpuBuffer.h"
 #include "GrProcessorUnitTest.h"
 #include "GrSamplerState.h"
 #include "GrShaderVar.h"
