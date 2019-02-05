@@ -228,7 +228,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         return nullptr;
     }
 
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
+    return SkImage_Gpu::MakePromiseTexture(fContext,
                                            backendFormat,
                                            width,
                                            height,
@@ -262,7 +262,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         return nullptr;
     }
 
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext,
                                                    yuvColorSpace,
                                                    yuvaFormats,
                                                    yuvaSizes,

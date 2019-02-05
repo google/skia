@@ -98,8 +98,10 @@ protected:
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
             if (auto ctx = canvas->getGrContext()) {
-                auto img = ctx->priv().getFontAtlasImage_ForTesting(kA8_GrMaskFormat);
-                canvas->drawImage(img, 200, 0);
+                if (auto direct = ctx->priv().asDirectContext()) {
+                    auto img = direct->priv().getFontAtlasImage_ForTesting(kA8_GrMaskFormat);
+                    canvas->drawImage(img, 200, 0);
+                }
             }
         }
     }
