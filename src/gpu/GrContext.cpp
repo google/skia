@@ -886,12 +886,15 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    GrSurfaceOrigin origin,
                                                                    int sampleCnt,
                                                                    sk_sp<SkColorSpace> colorSpace,
-                                                                   const SkSurfaceProps* props) {
+                                                                   const SkSurfaceProps* props,
+                                                                   ReleaseProc releaseProc,
+                                                                   ReleaseContext releaseCtx) {
     ASSERT_SINGLE_OWNER_PRIV
     SkASSERT(sampleCnt > 0);
 
     sk_sp<GrTextureProxy> proxy(this->proxyProvider()->wrapRenderableBackendTexture(
-            tex, origin, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo));
+            tex, origin, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, releaseProc,
+            releaseCtx));
     if (!proxy) {
         return nullptr;
     }
@@ -904,10 +907,13 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const GrBackendRenderTarget& backendRT,
                                                 GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* surfaceProps) {
+                                                const SkSurfaceProps* surfaceProps,
+                                                ReleaseProc releaseProc,
+                                                ReleaseContext releaseCtx) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendRenderTarget(backendRT, origin);
+    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendRenderTarget(
+            backendRT, origin, releaseProc, releaseCtx);
     if (!proxy) {
         return nullptr;
     }

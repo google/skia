@@ -33,7 +33,8 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
         // Adopt ownership so our caller doesn't have to worry about deleting the backend texture.
         if (isRT) {
             proxy = context->priv().proxyProvider()->wrapRenderableBackendTexture(
-                    backendTex, origin, 1, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo);
+                    backendTex, origin, 1, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo, nullptr,
+                    nullptr);
         } else {
             proxy = context->priv().proxyProvider()->wrapBackendTexture(
                     backendTex, origin, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);

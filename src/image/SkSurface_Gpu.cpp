@@ -421,7 +421,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* props) {
+                                                   const SkSurfaceProps* props,
+                                                   SkSurface::TextureReleaseProc textureReleaseProc,
+                                                   SkSurface::ReleaseContext releaseContext) {
     if (!context) {
         return nullptr;
     }
@@ -445,7 +447,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
         origin,
         sampleCnt,
         std::move(colorSpace),
-        props));
+        props,
+        textureReleaseProc,
+        releaseContext));
     if (!rtc) {
         return nullptr;
     }
@@ -490,7 +494,9 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         GrSurfaceOrigin origin,
                                                         SkColorType colorType,
                                                         sk_sp<SkColorSpace> colorSpace,
-                                                        const SkSurfaceProps* props) {
+                                                        const SkSurfaceProps* props,
+                                                        SkSurface::RenderTargetReleaseProc relProc,
+                                                        SkSurface::ReleaseContext releaseContext) {
     if (!context) {
         return nullptr;
     }
@@ -509,7 +515,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
 
     sk_sp<GrRenderTargetContext> rtc(
             context->priv().makeBackendRenderTargetRenderTargetContext(
-                    rtCopy, origin, std::move(colorSpace), props));
+                    rtCopy, origin, std::move(colorSpace), props, relProc, releaseContext));
     if (!rtc) {
         return nullptr;
     }

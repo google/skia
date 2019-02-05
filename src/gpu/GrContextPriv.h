@@ -70,18 +70,26 @@ public:
                                                       GrSurfaceOrigin origin,
                                                       sk_sp<SkColorSpace> colorSpace);
 
+    // These match the definitions in SkSurface & GrSurface.h, for whence they came
+    typedef void* ReleaseContext;
+    typedef void (*ReleaseProc)(ReleaseContext);
+
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
                                                          const GrBackendTexture& tex,
                                                          GrSurfaceOrigin origin,
                                                          int sampleCnt,
                                                          sk_sp<SkColorSpace> colorSpace,
-                                                         const SkSurfaceProps* = nullptr);
+                                                         const SkSurfaceProps* = nullptr,
+                                                         ReleaseProc = nullptr,
+                                                         ReleaseContext = nullptr);
 
     sk_sp<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
                                                               const GrBackendRenderTarget&,
                                                               GrSurfaceOrigin origin,
                                                               sk_sp<SkColorSpace> colorSpace,
-                                                              const SkSurfaceProps* = nullptr);
+                                                              const SkSurfaceProps* = nullptr,
+                                                              ReleaseProc = nullptr,
+                                                              ReleaseContext = nullptr);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureAsRenderTargetRenderTargetContext(
                                                                  const GrBackendTexture& tex,
