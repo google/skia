@@ -1,0 +1,14 @@
+
+IntelHD2000   6 - sandy bridge
+
+IntelHD4400   7 - haswell
+
+IntelHD405    8 - cherryview braswell
+IntelIris6100 8 - broadwell
+
+IntelIris540  9 - skylake
+IntelIris640  9 - kaby lake
+
+MaliT760
+MaliT860
+MaliT880
