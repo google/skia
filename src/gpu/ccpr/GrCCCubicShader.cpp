@@ -128,7 +128,7 @@ void GrCCCubicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
     // Wind is the sign of both L and/or M. Take the sign of whichever has the larger magnitude.
     // (In reality, either would be fine because we chop cubics with more than a half pixel of
     // padding around the L & M lines, so neither should approach zero.)
-    f->codeAppend ("half wind = sign(l + m);");
+    f->codeAppend ("half wind = sign(half(l + m));");
     f->codeAppendf("%s *= wind;", outputCoverage);
 
     if (fCornerCoverage.fsIn()) {
@@ -144,7 +144,9 @@ void GrCCCubicShader::calcHullCoverage(SkString* code, const char* klmAndEdge,
     code->append ("float f = k*k*k - l*m;");
     code->appendf("float2 grad = %s.xy * k + %s.zw;", gradMatrix, gradMatrix);
     code->append ("float fwidth = abs(grad.x) + abs(grad.y);");
-    code->appendf("%s = min(0.5 - f/fwidth, 1);", outputCoverage); // Curve coverage.
-    code->appendf("half d = min(%s.w, 0);", klmAndEdge); // Flat edge opposite the curve.
-    code->appendf("%s = max(%s + d, 0);", outputCoverage, outputCoverage); // Total hull coverage.
+    code->appendf("float curve_coverage = min(0.5 - f/fwidth, 1);");
+     // Flat edge opposite the curve.
+    code->appendf("float edge_coverage = min(%s.w, 0);", klmAndEdge);
+    // Total hull coverage.
+    code->appendf("%s = max(half(curve_coverage + edge_coverage), 0);", outputCoverage);
 }

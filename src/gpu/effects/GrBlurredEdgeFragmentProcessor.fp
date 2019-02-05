@@ -16,7 +16,7 @@ void main() {
     half factor = 1.0 - sk_InColor.a;
     @switch (mode) {
         case Mode::kGaussian:
-            factor = exp(-factor * factor * 4.0) - 0.018;
+            factor = half(exp(-factor * factor * 4.0) - 0.018);
             break;
         case Mode::kSmoothStep:
             factor = smoothstep(1.0, 0.0, factor);
