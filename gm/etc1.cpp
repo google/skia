@@ -22,7 +22,7 @@
 #include "ops/GrFillRectOp.h"
 
 // Basic test of Ganesh's ETC1 support
-class ETC1GM : public skiagm::GM {
+class ETC1GM : public skiagm::GpuGM {
 public:
     ETC1GM() {
         this->setBGColor(0xFFCCCCCC);
@@ -62,17 +62,10 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrRenderTargetContext* renderTargetContext =
-            canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
-        GrContext* context = canvas->getGrContext();
-        if (!context || context->abandoned()) {
-            DrawFailureMessage(canvas, "GrContext unavailable or abandoned.");
+    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                SkCanvas* canvas) override {
+        if (context->abandoned()) {
+            DrawFailureMessage(canvas, "GrContext abandoned.");
             return;
         }
 
