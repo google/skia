@@ -49,9 +49,11 @@ protected:
 
     void onAbandon() override {
         fTexture = nil;
+        INHERITED::onAbandon();
     }
     void onRelease() override {
         fTexture = nil;
+        INHERITED::onRelease();
     }
 
      bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
