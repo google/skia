@@ -73,7 +73,7 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
     return proxy->instantiate(resourceProvider);
 }
 
-sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType, size_t size,
+sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,
                                                       const void* data) {
     auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
     return sk_sp<GrBuffer>(resourceProvider->createBuffer(size, intendedType,
@@ -82,10 +82,8 @@ sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType,
                                                           data));
 }
 
-sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBufferType intendedType,
-                                                                        size_t size,
-                                                                        const void* data,
-                                                                        const GrUniqueKey& key) {
+sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
+        GrGpuBufferType intendedType, size_t size, const void* data, const GrUniqueKey& key) {
     auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
     sk_sp<const GrBuffer> buffer = resourceProvider->findOrMakeStaticBuffer(intendedType, size,
                                                                             data, key);
