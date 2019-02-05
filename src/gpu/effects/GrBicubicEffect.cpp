@@ -75,8 +75,8 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     // starting coords are near a texel boundary and accumulations of imgInc would cause us to skip/
     // double hit a texel.
     fragBuilder->codeAppendf("coord /= %s;", imgInc);
-    fragBuilder->codeAppend("float2 f = fract(coord);");
-    fragBuilder->codeAppendf("coord = (coord - f + float2(0.5)) * %s;", imgInc);
+    fragBuilder->codeAppend("half2 f = half2(fract(coord));");
+    fragBuilder->codeAppendf("coord = (coord - f + half2(0.5)) * %s;", imgInc);
     fragBuilder->codeAppend("half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
     fragBuilder->codeAppend("half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
     fragBuilder->codeAppend("half4 rowColors[4];");

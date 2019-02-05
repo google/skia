@@ -2043,7 +2043,7 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHand
     };
     SkString lightBody;
     lightBody.appendf("\thalf3 halfDir = half3(normalize(surfaceToLight + half3(0, 0, 1)));\n");
-    lightBody.appendf("\tfloat colorScale = %s * pow(dot(normal, halfDir), %s);\n",
+    lightBody.appendf("\thalf colorScale = half(%s * pow(dot(normal, halfDir), %s));\n",
                       ks, shininess);
     lightBody.appendf("\thalf3 color = lightColor * saturate(colorScale);\n");
     lightBody.appendf("\treturn half4(color, max(max(color.r, color.g), color.b));\n");

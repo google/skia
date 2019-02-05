@@ -157,28 +157,28 @@ private:
                                  args.fFPCoordTransformHandler);
 
             fragBuilder->codeAppend("float d = length(circleEdge.xy);");
-            fragBuilder->codeAppend("half distanceToOuterEdge = circleEdge.z * (1.0 - d);");
+            fragBuilder->codeAppend("half distanceToOuterEdge = half(circleEdge.z * (1.0 - d));");
             fragBuilder->codeAppend("half edgeAlpha = saturate(distanceToOuterEdge);");
             if (cgp.fStroke) {
                 fragBuilder->codeAppend(
-                        "half distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
+                        "half distanceToInnerEdge = half(circleEdge.z * (d - circleEdge.w));");
                 fragBuilder->codeAppend("half innerAlpha = saturate(distanceToInnerEdge);");
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
             if (cgp.fInClipPlane.isInitialized()) {
                 fragBuilder->codeAppend(
-                        "half clip = saturate(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
-                        "clipPlane.z);");
+                        "half clip = half(saturate(circleEdge.z * dot(circleEdge.xy, "
+                        "clipPlane.xy) + clipPlane.z));");
                 if (cgp.fInIsectPlane.isInitialized()) {
                     fragBuilder->codeAppend(
-                            "clip *= saturate(circleEdge.z * dot(circleEdge.xy, isectPlane.xy) + "
-                            "isectPlane.z);");
+                            "clip *= half(saturate(circleEdge.z * dot(circleEdge.xy, "
+                            "isectPlane.xy) + isectPlane.z));");
                 }
                 if (cgp.fInUnionPlane.isInitialized()) {
                     fragBuilder->codeAppend(
-                            "clip = saturate(clip + saturate(circleEdge.z * dot(circleEdge.xy, "
-                            "unionPlane.xy) + unionPlane.z));");
+                            "clip = saturate(clip + half(saturate(circleEdge.z * dot(circleEdge.xy,"
+                            " unionPlane.xy) + unionPlane.z)));");
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
                 if (cgp.fInRoundCapCenters.isInitialized()) {
@@ -186,10 +186,10 @@ private:
                     // by the clip planes. The inverse of the clip planes is applied so that there
                     // is no double counting.
                     fragBuilder->codeAppendf(
-                            "half dcap1 = circleEdge.z * (%s - length(circleEdge.xy - "
-                            "                                         roundCapCenters.xy));"
-                            "half dcap2 = circleEdge.z * (%s - length(circleEdge.xy - "
-                            "                                         roundCapCenters.zw));"
+                            "half dcap1 = half(circleEdge.z * (%s - length(circleEdge.xy - "
+                            "                                              roundCapCenters.xy)));"
+                            "half dcap2 = half(circleEdge.z * (%s - length(circleEdge.xy - "
+                            "                                              roundCapCenters.zw)));"
                             "half capAlpha = (1 - clip) * (max(dcap1, 0) + max(dcap2, 0));"
                             "edgeAlpha = min(edgeAlpha + capAlpha, 1.0);",
                             capRadius.fsIn(), capRadius.fsIn());
@@ -327,10 +327,10 @@ private:
                     // The two boundary dash intervals are stored in wrapDashes.xy and .zw and fed
                     // to the fragment shader as a varying.
                     float4 wrapDashes;
-                    half lastIntervalLength = mod(6.28318530718, dashParams.y);
+                    half lastIntervalLength = mod(6.28318530718, half(dashParams.y));
                     // We can happen to be perfectly divisible.
                     if (0 == lastIntervalLength) {
-                        lastIntervalLength = dashParams.y;
+                        lastIntervalLength = half(dashParams.y);
                     }
                     // Let 'l' be the last interval before reaching 2 pi.
                     // Based on the phase determine whether (l-1)th, l-th, or (l+1)th interval's
@@ -338,9 +338,9 @@ private:
                     // interval.
                     half offset = 0;
                     if (-dashParams.w >= lastIntervalLength) {
-                         offset = -dashParams.y;
+                         offset = half(-dashParams.y);
                     } else if (dashParams.w > dashParams.y - lastIntervalLength) {
-                         offset = dashParams.y;
+                         offset = half(dashParams.y);
                     }
                     wrapDashes.x = -lastIntervalLength + offset - dashParams.w;
                     // The end of this dash may be beyond the 2 pi and therefore clipped. Hence the
@@ -351,9 +351,9 @@ private:
                     // "corresponding" dash appears in the 0th interval and is closest to l.
                     offset = 0;
                     if (dashParams.w >= dashParams.x) {
-                        offset = dashParams.y;
+                        offset = half(dashParams.y);
                     } else if (-dashParams.w > dashParams.y - dashParams.x) {
-                        offset = -dashParams.y;
+                        offset = half(-dashParams.y);
                     }
                     wrapDashes.z = lastIntervalLength + offset - dashParams.w;
                     wrapDashes.w = wrapDashes.z + dashParams.x;
@@ -361,7 +361,7 @@ private:
                     // circle.
                     wrapDashes.z = max(wrapDashes.z, lastIntervalLength);
             )");
-            vertBuilder->codeAppendf("%s = wrapDashes;", wrapDashes.vsOut());
+            vertBuilder->codeAppendf("%s = half4(wrapDashes);", wrapDashes.vsOut());
             vertBuilder->codeAppendf("%s = lastIntervalLength;", lastIntervalLength.vsOut());
             fragBuilder->codeAppendf("half4 wrapDashes = %s;", wrapDashes.fsIn());
             fragBuilder->codeAppendf("half lastIntervalLength = %s;", lastIntervalLength.fsIn());
@@ -398,27 +398,30 @@ private:
                     float d = length(circleEdge.xy) * circleEdge.z;
 
                     // Compute coverage from outer/inner edges of the stroke.
-                    half distanceToOuterEdge = circleEdge.z - d;
+                    half distanceToOuterEdge = half(circleEdge.z - d);
                     half edgeAlpha = saturate(distanceToOuterEdge);
-                    half distanceToInnerEdge = d - circleEdge.z * circleEdge.w;
+                    half distanceToInnerEdge = half(d - circleEdge.z * circleEdge.w);
                     half innerAlpha = saturate(distanceToInnerEdge);
                     edgeAlpha *= innerAlpha;
 
-                    half angleFromStart = atan(circleEdge.y, circleEdge.x) - dashParams.z;
+                    half angleFromStart = half(atan(circleEdge.y, circleEdge.x) - dashParams.z);
                     angleFromStart = mod(angleFromStart, 6.28318530718);
                     float x = mod(angleFromStart, dashParams.y);
                     // Convert the radial distance from center to pixel into a diameter.
                     d *= 2;
-                    half2 currDash = half2(-dashParams.w, dashParams.x - dashParams.w);
-                    half2 nextDash = half2(dashParams.y - dashParams.w,
-                                           dashParams.y + dashParams.x - dashParams.w);
-                    half2 prevDash = half2(-dashParams.y - dashParams.w,
-                                           -dashParams.y + dashParams.x - dashParams.w);
+                    half2 currDash = half2(half(-dashParams.w), half(dashParams.x) -
+                                                                half(dashParams.w));
+                    half2 nextDash = half2(half(dashParams.y) - half(dashParams.w),
+                                           half(dashParams.y) + half(dashParams.x) -
+                                                                half(dashParams.w));
+                    half2 prevDash = half2(half(-dashParams.y) - half(dashParams.w),
+                                           half(-dashParams.y) + half(dashParams.x) -
+                                                                 half(dashParams.w));
                     half dashAlpha = 0;
                 )");
             fragBuilder->codeAppendf(R"(
                     if (angleFromStart - x + dashParams.y >= 6.28318530718) {
-                         dashAlpha += %s(x - wrapDashes.z, d) * %s(wrapDashes.w - x, d);
+                         dashAlpha += half(%s(x - wrapDashes.z, d) * %s(wrapDashes.w - x, d));
                          currDash.y = min(currDash.y, lastIntervalLength);
                          if (nextDash.x >= lastIntervalLength) {
                              // The next dash is outside the 0..2pi range, throw it away
@@ -431,7 +434,7 @@ private:
             )", fnName.c_str(), fnName.c_str());
             fragBuilder->codeAppendf(R"(
                     if (angleFromStart - x - dashParams.y < -0.01) {
-                         dashAlpha += %s(x - wrapDashes.x, d) * %s(wrapDashes.y - x, d);
+                         dashAlpha += half(%s(x - wrapDashes.x, d) * %s(wrapDashes.y - x, d));
                          currDash.x = max(currDash.x, 0);
                          if (prevDash.y <= 0) {
                              // The previous dash is outside the 0..2pi range, throw it away
@@ -443,9 +446,9 @@ private:
                     }
             )", fnName.c_str(), fnName.c_str());
             fragBuilder->codeAppendf(R"(
-                    dashAlpha += %s(x - currDash.x, d) * %s(currDash.y - x, d);
-                    dashAlpha += %s(x - nextDash.x, d) * %s(nextDash.y - x, d);
-                    dashAlpha += %s(x - prevDash.x, d) * %s(prevDash.y - x, d);
+                    dashAlpha += half(%s(x - currDash.x, d) * %s(currDash.y - x, d));
+                    dashAlpha += half(%s(x - nextDash.x, d) * %s(nextDash.y - x, d));
+                    dashAlpha += half(%s(x - prevDash.x, d) * %s(prevDash.y - x, d));
                     dashAlpha = min(dashAlpha, 1);
                     edgeAlpha *= dashAlpha;
             )", fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(), fnName.c_str(),
@@ -581,7 +584,7 @@ private:
 
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("half invlen = half(inversesqrt(grad_dot));");
             fragBuilder->codeAppend("half edgeAlpha = saturate(0.5-test*invlen);");
 
             // for inner curve
@@ -590,7 +593,7 @@ private:
                                          ellipseRadii.fsIn());
                 fragBuilder->codeAppend("test = dot(offset, offset) - 1.0;");
                 fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
-                fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
+                fragBuilder->codeAppend("invlen = half(inversesqrt(dot(grad, grad)));");
                 fragBuilder->codeAppend("edgeAlpha *= saturate(0.5+test*invlen);");
             }
 
@@ -720,8 +723,8 @@ private:
             // for outer curve
             fragBuilder->codeAppendf("half2 scaledOffset = %s.xy;", offsets0.fsIn());
             fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("half2 duvdx = dFdx(%s);", offsets0.fsIn());
-            fragBuilder->codeAppendf("half2 duvdy = dFdy(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("half2 duvdx = half2(dFdx(%s));", offsets0.fsIn());
+            fragBuilder->codeAppendf("half2 duvdy = half2(dFdy(%s));", offsets0.fsIn());
             fragBuilder->codeAppendf(
                     "half2 grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
                     "                  2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
@@ -730,7 +733,7 @@ private:
             fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("half invlen = half(inversesqrt(grad_dot));");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
                 fragBuilder->codeAppend("half edgeAlpha = saturate(1.0-test*invlen);");
@@ -743,13 +746,13 @@ private:
             if (DIEllipseStyle::kStroke == diegp.fStyle) {
                 fragBuilder->codeAppendf("scaledOffset = %s.xy;", offsets1.fsIn());
                 fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
-                fragBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
-                fragBuilder->codeAppendf("duvdy = dFdy(%s);", offsets1.fsIn());
+                fragBuilder->codeAppendf("duvdx = half2(dFdx(%s));", offsets1.fsIn());
+                fragBuilder->codeAppendf("duvdy = half2(dFdy(%s));", offsets1.fsIn());
                 fragBuilder->codeAppendf(
                         "grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
                         "             2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
                         offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn());
-                fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
+                fragBuilder->codeAppend("invlen = half(inversesqrt(dot(grad, grad)));");
                 fragBuilder->codeAppend("edgeAlpha *= saturate(0.5+test*invlen);");
             }
 

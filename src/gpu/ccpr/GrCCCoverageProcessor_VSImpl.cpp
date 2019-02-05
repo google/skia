@@ -268,7 +268,8 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
         SkASSERT(3 == numInputPoints);
         SkASSERT(kFloat4_GrVertexAttribType ==
                  proc.fInstanceAttributes[kInstanceAttribIdx_X].cpuType());
-        v->codeAppendf("wind *= %s.w;", proc.fInstanceAttributes[kInstanceAttribIdx_X].name());
+        v->codeAppendf("wind *= half(%s.w);",
+                       proc.fInstanceAttributes[kInstanceAttribIdx_X].name());
     }
 
     float bloat = kAABloatRadius;

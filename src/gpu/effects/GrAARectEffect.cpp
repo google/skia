@@ -33,10 +33,10 @@ public:
                 "float4 prevRect = float4(%f, %f, %f, %f);\nhalf alpha;\n@switch (%d) {\n    case "
                 "0:\n    case 2:\n        alpha = half(all(greaterThan(float4(sk_FragCoord.xy, "
                 "%s.zw), float4(%s.xy, sk_FragCoord.xy))) ? 1 : 0);\n        break;\n    "
-                "default:\n        half xSub, ySub;\n        xSub = half(min(sk_FragCoord.x - "
-                "%s.x, 0.0));\n        xSub += half(min(%s.z - sk_FragCoord.x, 0.0));\n        "
-                "ySub = half(min(sk_FragCoord.y - %s.y, 0.0));\n        ySub += half(min(%s.w - "
-                "sk_FragCoord.y, 0.0));\n        alpha = half((1",
+                "default:\n        half xSub, ySub;\n        xSub = min(half(sk_FragCoord.x - "
+                "%s.x), 0.0);\n        xSub += min(half(%s.z - sk_FragCoord.x), 0.0);\n        "
+                "ySub = min(half(sk_FragCoord.y - %s.y), 0.0);\n        ySub += min(half(%s.w - "
+                "sk_FragCoord.y), 0.0);\n        alpha = (1.0 + ",
                 prevRect.left(),
                 prevRect.top(),
                 prevRect.right(),
@@ -49,8 +49,8 @@ public:
                 args.fUniformHandler->getUniformCStr(fRectUniformVar),
                 args.fUniformHandler->getUniformCStr(fRectUniformVar));
         fragBuilder->codeAppendf(
-                ".0 + max(float(xSub), -1.0)) * (1.0 + max(float(ySub), -1.0)));\n}\n@if (%d == 2 "
-                "|| %d == 3) {\n    alpha = half(1.0 - float(alpha));\n}\n%s = %s * alpha;\n",
+                "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) {\n    "
+                "alpha = 1.0 - alpha;\n}\n%s = %s * alpha;\n",
                 (int)_outer.edgeType(),
                 (int)_outer.edgeType(),
                 args.fOutputColor,

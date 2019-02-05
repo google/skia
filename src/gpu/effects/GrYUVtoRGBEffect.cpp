@@ -119,7 +119,7 @@ public:
         static const char kChannelToChar[4] = { 'x', 'y', 'z', 'w' };
 
         fragBuilder->codeAppendf(
-            "half4 yuvOne = half4(tmp%d.%c, tmp%d.%c, tmp%d.%c, 1.0) * %s;",
+            "half4 yuvOne = half4(half(tmp%d.%c), half(tmp%d.%c), half(tmp%d.%c), 1.0) * %s;",
                 _outer.yuvaIndex(0).fIndex, kChannelToChar[(int)_outer.yuvaIndex(0).fChannel],
                 _outer.yuvaIndex(1).fIndex, kChannelToChar[(int)_outer.yuvaIndex(1).fChannel],
                 _outer.yuvaIndex(2).fIndex, kChannelToChar[(int)_outer.yuvaIndex(2).fChannel],
@@ -128,12 +128,12 @@ public:
 
         if (_outer.yuvaIndex(3).fIndex >= 0) {
             fragBuilder->codeAppendf(
-                "float a = tmp%d.%c;", _outer.yuvaIndex(3).fIndex,
+                "half a = tmp%d.%c;", _outer.yuvaIndex(3).fIndex,
                                        kChannelToChar[(int)_outer.yuvaIndex(3).fChannel]);
             // premultiply alpha
             fragBuilder->codeAppend("yuvOne *= a;");
         } else {
-            fragBuilder->codeAppendf("float a = 1.0;");
+            fragBuilder->codeAppendf("half a = 1.0;");
         }
 
         fragBuilder->codeAppendf("%s = half4(yuvOne.xyz, a);", args.fOutputColor);

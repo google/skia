@@ -22,10 +22,10 @@ void main() {
     // using atan instead.
     half angle;
     if (sk_Caps.atan2ImplementedAsAtanYOverX) {
-        angle = 2 * atan(-sk_TransformedCoords2D[0].y,
-                         length(sk_TransformedCoords2D[0]) - sk_TransformedCoords2D[0].x);
+        angle = half(2 * atan(-sk_TransformedCoords2D[0].y,
+                              length(sk_TransformedCoords2D[0]) - sk_TransformedCoords2D[0].x));
     } else {
-        angle = atan(-sk_TransformedCoords2D[0].y, -sk_TransformedCoords2D[0].x);
+        angle = half(atan(-sk_TransformedCoords2D[0].y, -sk_TransformedCoords2D[0].x));
     }
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
