@@ -14,8 +14,11 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 import java.io.File;
 import java.io.IOException;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 import java.text.SimpleDateFormat;
 import java.util.Date;
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
@@ -30,17 +33,32 @@ public class SkQPRunner extends Runner implements Filterable {
     private int mShouldRunTestCount;
     private Description[] mTests;
     private boolean[] mShouldSkipTest;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     private String mOutputDirectory;
     private SkQP mImpl;
+=======
+    private SkQP impl;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     private static final String TAG = SkQP.LOG_PREFIX;
 
     private static void Fail(Description desc, RunNotifier notifier, String failure) {
         notifier.fireTestFailure(new Failure(desc, new SkQPFailure(failure)));
     }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+    private static File GetOutputDir() {
+        Context c = InstrumentationRegistry.getTargetContext();
+        // File f = c.getFilesDir();
+        File f = c.getExternalFilesDir(null);
+        return new File(f, "output");
+    }
+
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     ////////////////////////////////////////////////////////////////////////////
 
     public SkQPRunner(Class testClass) {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         mImpl = new SkQP();
         Context context = InstrumentationRegistry.getTargetContext();
         String now = (new SimpleDateFormat("yyyy-MM-dd'T'HHmmss")).format(new Date());
@@ -48,6 +66,16 @@ public class SkQPRunner extends Runner implements Filterable {
         reportPath.mkdirs();
         mOutputDirectory = reportPath.getAbsolutePath();
         Log.i(TAG, String.format("output written to \"%s\"", mOutputDirectory));
+=======
+        impl = new SkQP();
+        File filesDir = SkQPRunner.GetOutputDir();
+        try {
+            SkQP.ensureEmtpyDirectory(filesDir);
+        } catch (IOException e) {
+            Log.w(TAG, "ensureEmtpyDirectory: " + e.getMessage());
+        }
+        Log.i(TAG, String.format("output written to \"%s\"", filesDir.getAbsolutePath()));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
         AssetManager assetManager = context.getResources().getAssets();
         mImpl.nInit(assetManager, mOutputDirectory);
@@ -55,15 +83,31 @@ public class SkQPRunner extends Runner implements Filterable {
         mTests = new Description[this.testCount()];
         mShouldSkipTest = new boolean[mTests.length]; // = {false, false, ....};
         int index = 0;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         for (int backend = 0; backend < mImpl.mBackends.length; backend++) {
             for (int gm = 0; gm < mImpl.mGMs.length; gm++) {
                 mTests[index++] = Description.createTestDescription(SkQPRunner.class,
                     mImpl.mBackends[backend] + "_" + mImpl.mGMs[gm]);
+=======
+        String badIdentifiers = "[^A-Za-z0-9_]";
+        for (int backend = 0; backend < impl.mBackends.length; backend++) {
+            String backendName = impl.mBackends[backend];
+            assert(!backendName.matches("^[0-9]"));
+            for (int gm = 0; gm < impl.mGMs.length; gm++) {
+                String name = (backendName + "_" + impl.mGMs[gm]).replaceAll(badIdentifiers, "_");
+                mTests[index++] = Description.createTestDescription(SkQPRunner.class, name);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
             }
         }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++) {
             mTests[index++] = Description.createTestDescription(SkQPRunner.class,
                     "unitTest_" + mImpl.mUnitTests[unitTest]);
+=======
+        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
+            String name = ("unitTest_" + impl.mUnitTests[unitTest]).replaceAll(badIdentifiers, "_");
+            mTests[index++] = Description.createTestDescription(SkQPRunner.class, name);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         }
         assert(index == mTests.length);
         mShouldRunTestCount = mTests.length;
@@ -100,6 +144,7 @@ public class SkQPRunner extends Runner implements Filterable {
 
     @Override
     public void run(RunNotifier notifier) {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         int testNumber = 0;  // out of number of actually run tests.
         int testIndex = 0;  // out of potential tests.
         for (int backend = 0; backend < mImpl.mBackends.length; backend++) {
@@ -110,6 +155,19 @@ public class SkQPRunner extends Runner implements Filterable {
                     continue;
                 }
                 ++testNumber;
+=======
+        int testNumber = 1;  // out of number of actually run tests.
+        int testIndex = 0;  // out of potential tests.
+        for (int backend = 0; backend < impl.mBackends.length; backend++) {
+            for (int gm = 0; gm < impl.mGMs.length; gm++, testIndex++) {
+                Description desc = mTests[testIndex];
+                String name = desc.getMethodName();
+                if (mShouldSkipTest[testIndex]) {
+                    continue;
+                }
+                Log.v(TAG, String.format("Rendering Test '%s' started (%d/%d).",
+                                         name, testNumber++, mShouldRunTestCount));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
                 notifier.fireTestStarted(desc);
                 long value = java.lang.Long.MAX_VALUE;
                 String error = null;
@@ -122,18 +180,29 @@ public class SkQPRunner extends Runner implements Filterable {
                 if (error != null) {
                     SkQPRunner.Fail(desc, notifier, String.format("Exception: %s", error));
                     Log.w(TAG, String.format("[ERROR] '%s': %s", name, error));
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
                     result = "ERROR";
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
                 } else if (value != 0) {
                     SkQPRunner.Fail(desc, notifier, String.format(
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
                                 "Image mismatch: max channel diff = %d", value));
                     Log.w(TAG, String.format("[FAIL] '%s': %d > 0", name, value));
                     result = "FAIL";
+=======
+                                "Image mismatch: error metric = %f", value));
+                    Log.w(TAG, String.format("[FAIL] '%s': %f > 0", name, value));
+                } else {
+                    Log.i(TAG, String.format("Rendering Test '%s' passed", name));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
                 }
                 notifier.fireTestFinished(desc);
                 Log.i(TAG, String.format("Rendering Test '%s' complete (%d/%d). [%s]",
                                          name, testNumber, mShouldRunTestCount, result));
             }
         }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++, testIndex++) {
             Description desc = mTests[testIndex];
             String name = desc.getMethodName();
@@ -141,6 +210,17 @@ public class SkQPRunner extends Runner implements Filterable {
                 continue;
             }
             ++testNumber;
+=======
+        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++, testIndex++) {
+            Description desc = mTests[testIndex];
+            String name = desc.getMethodName();
+            if (mShouldSkipTest[testIndex]) {
+                continue;
+            }
+
+            Log.v(TAG, String.format("Test '%s' started (%d/%d).",
+                                     name, testNumber++, mShouldRunTestCount));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
             notifier.fireTestStarted(desc);
             String[] errors = mImpl.nExecuteUnitTest(unitTest);
             String result = "pass";
@@ -150,7 +230,12 @@ public class SkQPRunner extends Runner implements Filterable {
                     SkQPRunner.Fail(desc, notifier, error);
                     Log.w(TAG, String.format("[FAIL] '%s': %s", name, error));
                 }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
                 result = "FAIL";
+=======
+            } else {
+                Log.i(TAG, String.format("Test '%s' passed.", name));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
             }
             notifier.fireTestFinished(desc);
             Log.i(TAG, String.format("Test '%s' complete (%d/%d). [%s]",

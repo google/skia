@@ -55,12 +55,21 @@ public:
     VkPhysicalDevice physicalDevice() const { return fPhysicalDevice; }
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     uint32_t  queueIndex() const { return fQueueIndex; }
     GrVkCommandPool* cmdPool() const { return fCmdPool; }
     const VkPhysicalDeviceProperties& physicalDeviceProperties() const {
         return fPhysDevProps;
     }
     const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties() const {
+=======
+    uint32_t  queueIndex() const { return fBackendContext->fGraphicsQueueIndex; }
+    VkCommandPool cmdPool() const { return fCmdPool; }
+    VkPhysicalDeviceProperties physicalDeviceProperties() const {
+        return fPhysDevProps;
+    }
+    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties() const {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         return fPhysDevMemProps;
     }
 
@@ -73,6 +82,22 @@ public:
         kSkip_SyncQueue
     };
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+                             int readWidth, int readHeight, size_t rowBytes,
+                             GrPixelConfig readConfig, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override;
+
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
+                              int width, int height,
+                              GrPixelConfig srcConfig, DrawPreference*,
+                              WritePixelTempDrawInfo*) override;
+
+    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
+
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
 #if GR_TEST_UTILS
@@ -87,6 +112,8 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
+
+    void testingOnly_flushGpuAndSync() override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -214,6 +241,10 @@ private:
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
+
     void onFinishFlush(bool insertedSemaphores) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
@@ -278,8 +309,13 @@ private:
     // just a raw pointer; object's lifespan is managed by fCmdPool
     GrVkPrimaryCommandBuffer*                             fCurrentCmdBuffer;
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;
+=======
+    VkPhysicalDeviceProperties                   fPhysDevProps;
+    VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     SkTArray<std::unique_ptr<SkDrawable::GpuDrawHandler>> fDrawables;
 

@@ -88,6 +88,7 @@ public:
                         VkPipelineStageFlags dstStageMask,
                         bool byRegion,
                         bool releaseFamilyQueue = false);
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we
@@ -98,6 +99,8 @@ public:
         SkASSERT(fResource);
         fLayout->setImageLayout(newLayout);
     }
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     struct ImageDesc {
         VkImageType         fImageType;

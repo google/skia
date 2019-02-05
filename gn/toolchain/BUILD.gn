@@ -52,7 +52,10 @@ toolchain("msvc") {
   }
 
   cl_m32_flag = ""
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
   if (clang_win != "") {
     if (target_cpu == "x86") {
       # cl.exe knows implicitly by the choice of executable that it's targeting
@@ -60,6 +63,7 @@ toolchain("msvc") {
       # platforms. (All our builders are x86-64, so x86 is always non-host.)
       cl_m32_flag = "-m32"
     }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     if (host_os == "win") {
       cl = "\"$clang_win/bin/clang-cl.exe\""
       lib = "\"$clang_win/bin/lld-link.exe\" /lib"
@@ -69,6 +73,9 @@ toolchain("msvc") {
       lib = "\"$clang_win/bin/lld-link\" /lib"
       link = "\"$clang_win/bin/lld-link\""
     }
+=======
+    cl = "$clang_win/bin/clang-cl.exe"
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
   } else {
     cl = "\"$bin/cl.exe\""
     lib = "\"$bin/lib.exe\""
@@ -97,6 +104,11 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     description = "compile {{source}}"
   }
 
@@ -110,6 +122,11 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     description = "compile {{source}}"
   }
 

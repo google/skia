@@ -113,6 +113,18 @@ void GrVkGpuRTCommandBuffer::init() {
     } else {
         cbInfo.fBounds.setEmpty();
     }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+
+    if (VK_ATTACHMENT_LOAD_OP_CLEAR == fVkColorLoadOp) {
+        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
+    } else if (VK_ATTACHMENT_LOAD_OP_LOAD == fVkColorLoadOp &&
+               VK_ATTACHMENT_STORE_OP_STORE == fVkColorStoreOp) {
+        cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
+    } else if (VK_ATTACHMENT_LOAD_OP_DONT_CARE == fVkColorLoadOp) {
+        cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
+    }
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     if (VK_ATTACHMENT_LOAD_OP_CLEAR == fVkColorLoadOp) {
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
@@ -176,8 +188,43 @@ void GrVkGpuRTCommandBuffer::submit() {
             CopyInfo& copyInfo = cbInfo.fPreCopies[j];
             fGpu->copySurface(fRenderTarget, fOrigin, copyInfo.fSrc, copyInfo.fSrcOrigin,
                               copyInfo.fSrcRect, copyInfo.fDstPoint, copyInfo.fShouldDiscardDst);
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
         }
 
+        // Make sure we do the following layout changes after all copies, uploads, or any other pre
+        // work is done since we may change the layouts in the pre-work. Also since the draws will
+        // be submitted in different render passes, we need to guard againts write and write issues.
+
+        // Change layout of our render target so it can be used as the color attachment.
+        targetImage->setImageLayout(fGpu,
+                                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                    false);
+
+        // If we are using a stencil attachment we also need to update its layout
+        if (stencil) {
+            GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+            vkStencil->setImageLayout(fGpu,
+                                      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                      false);
+        }
+
+        // If we have any sampled images set their layout now.
+        for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
+            cbInfo.fSampledImages[j]->setImageLayout(fGpu,
+                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                                     VK_ACCESS_SHADER_READ_BIT,
+                                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                                     false);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
+        }
+
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 
         // TODO: Many things create a scratch texture which adds the discard immediately, but then
         // don't draw to it right away. This causes the discard to be ignored and we get yelled at
@@ -186,6 +233,15 @@ void GrVkGpuRTCommandBuffer::submit() {
         if (cbInfo.fIsEmpty &&
             cbInfo.fLoadStoreState != LoadStoreState::kStartsWithClear &&
             cbInfo.fLoadStoreState != LoadStoreState::kStartsWithDiscard) {
+=======
+        // TODO: We can't add this optimization yet since many things create a scratch texture which
+        // adds the discard immediately, but then don't draw to it right away. This causes the
+        // discard to be ignored and we get yelled at for loading uninitialized data. However, once
+        // MDB lands, the discard will get reordered with the rest of the draw commands and we can
+        // re-enable this.
+#if 0
+        if (cbInfo.fIsEmpty && cbInfo.fLoadStoreState != kStartsWithClear) {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
             // We have sumbitted no actual draw commands to the command buffer and we are not using
             // the render pass to do a clear so there is no need to submit anything.
             continue;
@@ -448,7 +504,11 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f&
         SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
         oldRP->unref(fGpu);
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         cbInfo.fColorClearValue.color = {{color.fR, color.fG, color.fB, color.fA}};
+=======
+        GrColorToRGBAFloat(color, cbInfo.fColorClearValue.color.float32);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithClear;
         // If we are going to clear the whole render target then the results of any copies we did
         // immediately before to the target won't matter, so just drop them.
@@ -701,17 +761,70 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     return pipelineState;
 }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                                     const GrPipeline& pipeline,
                                     const GrPipeline::FixedDynamicState* fixedDynamicState,
                                     const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+=======
+static void prepare_sampled_images(const GrResourceIOProcessor& processor,
+                                   SkTArray<GrVkImage*>* sampledImages,
+                                   GrVkGpu* gpu) {
+    for (int i = 0; i < processor.numTextureSamplers(); ++i) {
+        const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.peekTexture());
+
+        // We may need to resolve the texture first if it is also a render target
+        GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
+        if (texRT) {
+            gpu->onResolveRenderTarget(texRT, sampler.proxy()->origin());
+        }
+
+        // Check if we need to regenerate any mip maps
+        if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter()) {
+            if (vkTexture->texturePriv().mipMapsAreDirty()) {
+                gpu->generateMipmap(vkTexture, sampler.proxy()->origin());
+                vkTexture->texturePriv().markMipMapsClean();
+            }
+        }
+        sampledImages->push_back(vkTexture);
+    }
+}
+
+void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
+                                    const GrPrimitiveProcessor& primProc,
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
                                     const GrMesh meshes[],
                                     int meshCount,
                                     const SkRect& bounds) {
     if (!meshCount) {
         return;
     }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
 
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+
+    prepare_sampled_images(primProc, &cbInfo.fSampledImages, fGpu);
+    GrFragmentProcessor::Iter iter(pipeline);
+    while (const GrFragmentProcessor* fp = iter.next()) {
+        prepare_sampled_images(*fp, &cbInfo.fSampledImages, fGpu);
+    }
+    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
+        cbInfo.fSampledImages.push_back(static_cast<GrVkTexture*>(dstTexture));
+    }
+
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+    GrVkPipelineState* pipelineState = this->prepareDrawState(pipeline,
+                                                              primProc,
+                                                              primitiveType,
+                                                              SkToBool(dynamicStates));
+    if (!pipelineState) {
+        return;
+    }
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
+
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
     auto prepareSampledImage = [&](GrTexture* texture, GrSamplerState::Filter filter) {
@@ -768,6 +881,8 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
     bool dynamicTextures = dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures;
 
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         if (mesh.primitiveType() != primitiveType) {

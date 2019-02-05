@@ -239,7 +239,14 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     }
 
     this->handleDirtyContext();
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 
+=======
+    // We don't allow conversion between integer configs and float/fixed configs.
+    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
+        return false;
+    }
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
                                canDiscardOutsideDstRect);
 }

@@ -84,12 +84,21 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
 void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                VkAccessFlags dstAccessMask,
                                VkPipelineStageFlags dstStageMask,
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
                                bool byRegion, bool releaseFamilyQueue) {
+=======
+                               bool byRegion,
+                               bool releaseFamilyQueue) {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     VkImageLayout currentLayout = this->currentLayout();
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     if (releaseFamilyQueue && fInfo.fCurrentQueueFamily == fInitialQueueFamily) {
+=======
+    if (releaseFamilyQueue && fInfo.fCurrentQueueFamily == fInfo.fInitialQueueFamily) {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         // We never transfered the image to this queue and we are releasing it so don't do anything.
         return;
     }
@@ -97,6 +106,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     // If the old and new layout are the same and the layout is a read only layout, there is no need
     // to put in a barrier.
     if (newLayout == currentLayout &&
+        !releaseFamilyQueue &&
         (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
@@ -110,6 +120,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 
     uint32_t srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     uint32_t dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     if (fInfo.fCurrentQueueFamily != VK_QUEUE_FAMILY_IGNORED &&
         gpu->queueIndex() != fInfo.fCurrentQueueFamily) {
         // The image still is owned by its original queue family and we need to transfer it into
@@ -127,6 +138,16 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         srcQueueFamilyIndex = fInfo.fCurrentQueueFamily;
         dstQueueFamilyIndex = fInitialQueueFamily;
         fInfo.fCurrentQueueFamily = fInitialQueueFamily;
+=======
+    if (VK_QUEUE_FAMILY_IGNORED != fInfo.fCurrentQueueFamily) {
+        srcQueueFamilyIndex = fInfo.fInitialQueueFamily;
+        dstQueueFamilyIndex = gpu->queueIndex();
+        fInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    } else if (releaseFamilyQueue) {
+        srcQueueFamilyIndex = gpu->queueIndex();
+        dstQueueFamilyIndex = fInfo.fInitialQueueFamily;
+        fInfo.fCurrentQueueFamily = fInfo.fInitialQueueFamily;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     }
 
     VkImageMemoryBarrier imageMemoryBarrier = {
@@ -214,9 +235,15 @@ GrVkImage::~GrVkImage() {
     SkASSERT(!fResource);
 }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
     if (fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
         this->setImageLayout(gpu, this->currentLayout(), 0, 0, false, true);
+=======
+void GrVkImage::releaseImage(const GrVkGpu* gpu) {
+    if (VK_QUEUE_FAMILY_IGNORED != fInfo.fInitialQueueFamily) {
+        this->setImageLayout(gpu, fInfo.fImageLayout, 0, 0, false, true);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     }
     if (fResource) {
         fResource->removeOwningTexture();

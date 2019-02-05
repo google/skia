@@ -370,8 +370,25 @@ public:
      */
     virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
                                                                        GrColorType) = 0;
+=======
+    /**
+     * Flushes all work to the gpu and forces the GPU to wait until all the gpu work has completed.
+     * This is for testing purposes only.
+     */
+    virtual void testingOnly_flushGpuAndSync() = 0;
+
+    // width and height may be larger than rt (if underlying API allows it).
+    // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
+    // the GrStencilAttachment.
+    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                        int width,
+                                                                        int height) = 0;
+    // clears target's entire stencil buffer to 0
+    virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     virtual void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) = 0;
 
@@ -494,6 +511,14 @@ private:
                                GrSurface* src, GrSurfaceOrigin srcOrigin,
                                const SkIRect& srcRect, const SkIPoint& dstPoint,
                                bool canDiscardOutsideDstRect) = 0;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+
+    // overridden by backend specific derived class to perform the multisample queries
+    virtual void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin rtOrigin,
+                                         const GrStencilSettings&,
+                                         int* effectiveSampleCnt, SamplePattern*) = 0;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 

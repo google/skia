@@ -42,18 +42,39 @@ How to build and run the SkQP tests
         cd skia
         git checkout origin/skqp/dev  # or whatever release tag you need
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 3.  Build the APK:
+=======
+3.  Download dependencies and the model:
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         tools/git-sync-deps
         tools/skqp/make_universal_apk
+=======
+        python tools/skqp/download_model
+        python tools/skqp/setup_resources
+        python tools/git-sync-deps
 
-4.  Build, install, and run.
+4.  Configure the build:
+
+        python tools/skqp/generate_gn_args out/skqp-arm "$ANDROID_NDK" \
+               --arch arm \
+               --api_level 26
+        bin/gn gen out/skqp-arm
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
+
+    If you want to test another architecture, replace `arm` with `x86`, `x64`
+    or `arm64`. Run 'python tools/skqp/generate_gn_args -h' for
+    all options.
+
+5.  Build, install, and run.
 
         adb install -r out/skqp/skqp-universal-debug.apk
         adb logcat -c
         adb shell am instrument -w org.skia.skqp
 
-5.  Monitor the output with:
+6.  Monitor the output with:
 
         adb logcat TestRunner org.skia.skqp skia "*:S"
 
@@ -62,7 +83,7 @@ How to build and run the SkQP tests
         01-23 15:22:12.688 27158 27173 I org.skia.skqp:
         output written to "/storage/emulated/0/Android/data/org.skia.skqp/files/output"
 
-6.  Retrieve and view the report with:
+7.  Retrieve and view the report with:
 
         OUTPUT_LOCATION="/storage/emulated/0/Android/data/org.skia.skqp/files/output"
         adb pull $OUTPUT_LOCATION /tmp/
@@ -79,10 +100,21 @@ Unit tests can be run with the `unitTest_` prefix:
 
     adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest_GrSurface -w org.skia.skqp
 
+Running a single test
+---------------------
+
+To run a single test, for example `gles_aarectmodes`:
+
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles_aarectmodes' -w org.skia.skqp
+
+Unit tests can be run with the `unitTest_` prefix:
+
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest_GrSurface -w org.skia.skqp
+
 Run as a non-APK executable
 ---------------------------
 
-1.  Follow steps 1-3 as above.
+1.  Follow steps 1-4 as above.
 
 2.  Build the SkQP program, load files on the device, and run skqp:
 

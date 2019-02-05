@@ -275,9 +275,20 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     SkASSERT(!this->fragColorIsInOut());
+=======
+    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    SkASSERT(!this->fragColorIsInOut());
+    SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
+                                              fVS,
+                                              &vertShaderModule,
+                                              &shaderStageInfo[0],
+                                              settings,
+                                              desc));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     sk_sp<SkData> cached;
     auto persistentCache = fGpu->getContext()->contextPriv().getPersistentCache();

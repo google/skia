@@ -31,6 +31,7 @@ struct GrVkAlloc {
             , fOffset(0)
             , fSize(0)
             , fFlags(0)
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
             , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
@@ -47,11 +48,27 @@ struct GrVkAlloc {
     VkDeviceSize      fSize;    // this can be indeterminate iff Tex uses borrow semantics
     uint32_t          fFlags;
     GrVkBackendMemory fBackendMemory; // handle to memory allocated via GrVkMemoryAllocator.
+=======
+            , fUsesSystemHeap(false) {}
+
+    GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
+            : fMemory(memory)
+            , fOffset(offset)
+            , fSize(size)
+            , fFlags(flags)
+            , fUsesSystemHeap(false) {}
+
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceSize   fOffset;
+    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t       fFlags;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
         kMappable_Flag    = 0x2,   // memory is able to be mapped.
     };
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 
     bool operator==(const GrVkAlloc& that) const {
         return fMemory == that.fMemory && fOffset == that.fOffset && fSize == that.fSize &&
@@ -125,9 +142,14 @@ struct GrVkYcbcrConversionInfo {
     // The format features here should be those returned by a call to
     // vkAndroidHardwareBufferFormatPropertiesANDROID
     VkFormatFeatureFlags             fExternalFormatFeatures;
+=======
+private:
+    friend class GrVkHeap; // For access to usesSystemHeap
+    bool fUsesSystemHeap;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 };
-
 struct GrVkImageInfo {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     VkImage                  fImage;
     GrVkAlloc                fAlloc;
     VkImageTiling            fImageTiling;
@@ -169,6 +191,20 @@ struct GrVkImageInfo {
             , fLevelCount(info.fLevelCount)
             , fCurrentQueueFamily(info.fCurrentQueueFamily)
             , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
+=======
+    /**
+     * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
+     * been created with VkImageCreateFlags containing VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT.
+     */
+    VkImage        fImage;
+    GrVkAlloc      fAlloc;
+    VkImageTiling  fImageTiling;
+    VkImageLayout  fImageLayout;
+    VkFormat       fFormat;
+    uint32_t       fLevelCount;
+    uint32_t       fInitialQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    uint32_t       fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle

@@ -38,7 +38,12 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+=======
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -134,7 +139,12 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+=======
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },

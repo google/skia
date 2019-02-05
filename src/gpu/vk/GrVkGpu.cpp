@@ -189,8 +189,13 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     }
     fCaps.reset(SkRef(fVkCaps.get()));
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendContext.fPhysicalDevice, &fPhysDevMemProps));
+=======
+    VK_CALL(GetPhysicalDeviceProperties(fBackendContext->fPhysicalDevice, &fPhysDevProps));
+    VK_CALL(GetPhysicalDeviceMemoryProperties(fBackendContext->fPhysicalDevice, &fPhysDevMemProps));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     fResourceProvider.init();
 
@@ -570,20 +575,52 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
                                                     &layout));
 
     const GrVkAlloc& alloc = tex->alloc();
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     VkDeviceSize offset = top * layout.rowPitch + left * bpp;
+=======
+    VkDeviceSize offset = alloc.fOffset + texTop*layout.rowPitch + left*bpp;
+    VkDeviceSize offsetDiff = 0;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     VkDeviceSize size = height*layout.rowPitch;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     SkASSERT(size + offset <= alloc.fSize);
     void* mapPtr = GrVkMemory::MapAlloc(this, alloc);
     if (!mapPtr) {
+=======
+    // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
+    // are aligned to the nonCoherentAtomSize limit. We may have to move the initial offset back to
+    // meet the alignment requirements. So we track how far we move back and then adjust the mapped
+    // ptr back up so that this is opaque to the caller.
+    if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        VkDeviceSize alignment = this->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        offsetDiff = offset & (alignment - 1);
+        offset = offset - offsetDiff;
+        // Make size of the map aligned to nonCoherentAtomSize
+        size = (size + alignment - 1) & ~(alignment - 1);
+    }
+    SkASSERT(offset >= alloc.fOffset);
+    SkASSERT(size <= alloc.fOffset + alloc.fSize);
+    void* mapPtr;
+    err = GR_VK_CALL(interface, MapMemory(fDevice, alloc.fMemory, offset, size, 0, &mapPtr));
+    if (err) {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         return false;
     }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
+=======
+    mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
                  height);
 
     GrVkMemory::FlushMappedAlloc(this, alloc, offset, size);
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     GrVkMemory::UnmapAlloc(this, alloc);
+=======
+    GR_VK_CALL(interface, UnmapMemory(fDevice, alloc.fMemory));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     return true;
 }
@@ -1297,6 +1334,7 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
 ////////////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc,
                        size_t bufferOffset, size_t srcRowBytes, size_t dstRowBytes,
                        size_t trimRowBytes, int h) {
@@ -1305,6 +1343,35 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
     SkASSERT(size + offset <= alloc.fSize);
     void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
+=======
+bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc, size_t bufferOffset,
+                       size_t srcRowBytes, size_t dstRowBytes, int h) {
+    // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
+    // are aligned to the nonCoherentAtomSize limit. We may have to move the initial offset back to
+    // meet the alignment requirements. So we track how far we move back and then adjust the mapped
+    // ptr back up so that this is opaque to the caller.
+    VkDeviceSize mapSize = dstRowBytes * h;
+    VkDeviceSize mapOffset = alloc.fOffset + bufferOffset;
+    VkDeviceSize offsetDiff = 0;
+    if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+        VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+        offsetDiff = mapOffset & (alignment - 1);
+        mapOffset = mapOffset - offsetDiff;
+        // Make size of the map aligned to nonCoherentAtomSize
+        mapSize = (mapSize + alignment - 1) & ~(alignment - 1);
+    }
+    SkASSERT(mapOffset >= alloc.fOffset);
+    SkASSERT(mapSize + mapOffset <= alloc.fOffset + alloc.fSize);
+    void* mapPtr;
+    VkResult err = GR_VK_CALL(gpu->vkInterface(), MapMemory(gpu->device(),
+                                                            alloc.fMemory,
+                                                            mapOffset,
+                                                            mapSize,
+                                                            0,
+                                                            &mapPtr));
+    mapPtr = reinterpret_cast<char*>(mapPtr) + offsetDiff;
+    if (err) {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         return false;
     }
     mapPtr = reinterpret_cast<char*>(mapPtr) + offset;
@@ -1318,8 +1385,13 @@ bool copy_testing_data(GrVkGpu* gpu, const void* srcData, const GrVkAlloc& alloc
         // with some data.
         memset(mapPtr, 0, dstRowBytes * h);
     }
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     GrVkMemory::FlushMappedAlloc(gpu, alloc, offset, size);
     GrVkMemory::UnmapAlloc(gpu, alloc);
+=======
+    GrVkMemory::FlushMappedAlloc(gpu, alloc, mapOffset, mapSize);
+    GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     return true;
 }
 
@@ -1362,7 +1434,15 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
 
     VkImage image = VK_NULL_HANDLE;
     GrVkAlloc alloc;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     VkImageLayout initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+=======
+
+    VkImageTiling imageTiling = linearTiling ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
+    VkImageLayout initialLayout = (VK_IMAGE_TILING_LINEAR == imageTiling)
+                                ? VK_IMAGE_LAYOUT_PREINITIALIZED
+                                : VK_IMAGE_LAYOUT_UNDEFINED;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     // Create Image
     VkSampleCountFlagBits vkSamples;
@@ -1711,6 +1791,7 @@ void GrVkGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct) {
     if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
         return GrBackendRenderTarget();
@@ -1748,6 +1829,11 @@ void GrVkGpu::testingOnly_flushGpuAndSync() {
     this->submitCommandBuffer(kForce_SyncQueue);
 }
 #endif
+=======
+void GrVkGpu::testingOnly_flushGpuAndSync() {
+    this->submitCommandBuffer(kForce_SyncQueue);
+}
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1960,6 +2046,7 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
                             const SkIRect& srcRect, const SkIPoint& dstPoint,
                             bool canDiscardOutsideDstRect) {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 #ifdef SK_DEBUG
     if (GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget())) {
         SkASSERT(!srcRT->wrapsSecondaryCommandBuffer());
@@ -1977,16 +2064,30 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
     if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin,
                                         srcConfig, srcSampleCnt, srcOrigin)) {
+=======
+    if (can_copy_as_resolve(dst, dstOrigin, src, srcOrigin, this)) {
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
     }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()),
                                      srcConfig, SkToBool(src->asTexture()))) {
         SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
                                                       dstPoint, canDiscardOutsideDstRect));
         auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
         this->didWriteToSurface(dst, dstOrigin, &dstRect);
+=======
+    if (this->vkCaps().mustSubmitCommandsBeforeCopyOp()) {
+        this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
+    }
+
+    if (fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
+                                       canDiscardOutsideDstRect)) {
+        auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
+        this->didWriteToSurface(dst, &dstRect);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         return true;
     }
 
@@ -2149,8 +2250,13 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     }
 
     size_t transBufferRowBytes = bpp * region.imageExtent.width;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     size_t imageRows = region.imageExtent.height;
     auto transferBuffer = sk_sp<GrVkTransferBuffer>(
+=======
+    size_t imageRows = bpp * region.imageExtent.height;
+    GrVkTransferBuffer* transferBuffer =
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
             static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * imageRows,
                                                                 kXferGpuToCpu_GrBufferType,
                                                                 kStream_GrAccessPattern)
@@ -2182,7 +2288,11 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     this->submitCommandBuffer(kForce_SyncQueue);
     void* mappedMemory = transferBuffer->map();
     const GrVkAlloc& transAlloc = transferBuffer->alloc();
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     GrVkMemory::InvalidateMappedAlloc(this, transAlloc, 0, transAlloc.fSize);
+=======
+    GrVkMemory::InvalidateMappedAlloc(this, transAlloc, transAlloc.fOffset, VK_WHOLE_SIZE);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     if (copyFromOrigin) {
         uint32_t skipRows = region.imageExtent.height - height;

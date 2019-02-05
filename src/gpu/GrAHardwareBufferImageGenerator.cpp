@@ -373,7 +373,11 @@ static GrBackendTexture make_gl_backend_texture(
         const GrBackendFormat& backendFormat) {
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
+=======
+    EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(fGraphicBuffer);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
                          isProtectedContent ? EGL_PROTECTED_CONTENT_EXT : EGL_NONE,
                          isProtectedContent ? EGL_TRUE : EGL_NONE,

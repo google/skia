@@ -2390,6 +2390,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrContextOptions& contextOptions,
                                                  GrShaderCaps* shaderCaps) {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     bool isX86PowerVRRogue = false;
 #if defined(SK_CPU_X86)
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
@@ -2397,6 +2398,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||

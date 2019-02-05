@@ -755,7 +755,11 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
     this->writeLine(") {");
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
+=======
+    ASSERT(!fProgram.fSettings.fFragColorIsInOut);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     if ("main" == f.fDeclaration.fName) {
         if (fNeedsGlobalStructInit) {

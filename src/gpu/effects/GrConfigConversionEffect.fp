@@ -57,6 +57,15 @@
         // Adding discard to appease vulkan validation warning about loading uninitialized data on
         // draw
         readRTC->discard();
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+
+        GrSurfaceDesc desc;
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+        desc.fWidth = kSize;
+        desc.fHeight = kSize;
+        desc.fConfig = kConfig;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 

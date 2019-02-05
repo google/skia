@@ -4177,6 +4177,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     return beRT;
 }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     SkASSERT(GrBackendApi::kOpenGL == backendRT.backend());
     GrGLFramebufferInfo info;
@@ -4191,6 +4192,11 @@ void GrGLGpu::testingOnly_flushGpuAndSync() {
     GL_CALL(Finish());
 }
 #endif
+=======
+void GrGLGpu::testingOnly_flushGpuAndSync() {
+    GL_CALL(Finish());
+}
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
 ///////////////////////////////////////////////////////////////////////////////
 

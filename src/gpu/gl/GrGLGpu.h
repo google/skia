@@ -156,6 +156,8 @@ public:
 
     void submit(GrGpuCommandBuffer* buffer) override;
 
+    void testingOnly_flushGpuAndSync() override;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -247,6 +249,12 @@ private:
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool canDiscardOutsideDstRect) override;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+
+    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

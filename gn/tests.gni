@@ -281,10 +281,18 @@ tests_sources = [
   "$_tests/UnicodeTest.cpp",
   "$_tests/UtilsTest.cpp",
   "$_tests/VerticesTest.cpp",
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
   "$_tests/VkBackendSurfaceTest.cpp",
   "$_tests/VkDrawableTest.cpp",
   "$_tests/VkHardwareBufferTest.cpp",
   "$_tests/VkMakeCopyPipelineTest.cpp",
+=======
+  "$_tests/VkClearTests.cpp",
+  "$_tests/VkHardwareBufferTest.cpp",
+  "$_tests/VkHeapTests.cpp",
+  "$_tests/VkMakeCopyPipelineTest.cpp",
+  "$_tests/VkUploadPixelsTests.cpp",
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
   "$_tests/VkWrapTests.cpp",
   "$_tests/VptrTest.cpp",
   "$_tests/WindowRectanglesTest.cpp",

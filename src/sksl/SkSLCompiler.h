@@ -31,7 +31,10 @@
 #define SK_WIDTH_BUILTIN               10011
 #define SK_HEIGHT_BUILTIN              10012
 #define SK_FRAGCOORD_BUILTIN              15
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 #define SK_CLOCKWISE_BUILTIN              17
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
 #define SK_CLIPDISTANCE_BUILTIN            3

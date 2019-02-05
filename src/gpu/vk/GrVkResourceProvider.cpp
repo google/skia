@@ -122,7 +122,11 @@ GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
                                             pipelineLayout,
                                             dst->numColorSamples(),
                                             *dst->simpleRenderPass(),
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
                                             this->pipelineCache());
+=======
+                                            fPipelineCache);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         if (!pipeline) {
             return nullptr;
         }

@@ -213,7 +213,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             context->flush();
             gpu->testingOnly_flushGpuAndSync();
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
             gpu->deleteTestingOnlyBackendTexture(backendTex);
+=======
+            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
         }
     }
 }

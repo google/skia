@@ -40,7 +40,15 @@ cmd = ['./apps/gradlew',
 if not args.no_daemon:
   cmd += ['--daemon']
 try:
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
   subprocess.check_call(cmd, cwd=os.path.join(os.path.dirname(__file__), ".."))
+=======
+    subprocess.check_call(['./apps/gradlew',
+      ':' + args.app_name + ':assemble' + target_cpu + android_buildtype,
+      '-papps/' + args.app_name,
+      '-P' + target_cpu + '.out.dir=' + os.path.abspath(args.output_dir),
+      '--daemon'], cwd=os.path.join(os.path.dirname(__file__), ".."))
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 except subprocess.CalledProcessError as error:
   print error
   sys.exit("gradle build failed")
@@ -48,7 +56,10 @@ except subprocess.CalledProcessError as error:
 # copy apk back into the main out directory
 current_dir = os.path.dirname(__file__)
 apk_src = os.path.join(current_dir, "..", "apps", args.app_name, "build", "outputs", "apk",
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
                        target_cpu, android_buildtype,
+=======
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
                        args.app_name + "-"  + target_cpu + "-"  + android_buildtype + ".apk")
 apk_dst = os.path.join(args.output_dir, args.app_name + ".apk")
 shutil.copyfile(apk_src, apk_dst)

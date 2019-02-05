@@ -30,6 +30,7 @@ import (
 )
 
 const (
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 	BUNDLE_RECIPES_NAME        = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_GO_DEPS_NAME       = "Housekeeper-PerCommit-IsolateGoDeps"
@@ -39,10 +40,24 @@ const (
 	ISOLATE_NDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
+=======
+	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
+	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
+	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	ISOLATE_SDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
+	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
+	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 	DEFAULT_OS_MAC       = "Mac-10.13.6"
+=======
+	DEFAULT_OS_MAC       = "Mac-10.13.3"
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
@@ -453,7 +468,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 			"Win10":      "Windows-10-17763.195",
+=======
+			"Win10":      "Windows-10-16299.248",
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -464,12 +483,18 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
 		if os == "Win10" && parts["model"] == "Golo" {
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 			// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
 			d["os"] = "Windows-10-16299.309"
 		}
 		if d["os"] == DEFAULT_OS_WIN {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
 			d["image"] = "windows-server-2016-dc-v20190108"
+=======
+			// Golo/MTV lab bots have Windows 10 version 1703, whereas Skolo bots have Windows 10 version
+			// 1709.
+			d["os"] = "Windows-10-15063"
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -563,6 +588,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return dockerGceDimensions()
 			} else if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 					"GT610":         "10de:104a-23.21.13.9101",
 					"GTX660":        "10de:11c0-25.21.14.1634",
 					"GTX960":        "10de:1401-25.21.14.1634",
@@ -573,6 +599,20 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"RadeonHD7770":  "1002:683d-24.20.13001.1010",
 					"RadeonR9M470X": "1002:6646-24.20.13001.1010",
 					"QuadroP400":    "10de:1cb3-25.21.14.1678",
+=======
+					"GT610":         "10de:104a-22.21.13.8205",
+					"GTX1070":       "10de:1ba1-23.21.13.8813",
+					"GTX660":        "10de:11c0-23.21.13.8813",
+					"GTX960":        "10de:1401-23.21.13.8813",
+					"IntelHD530":    "8086:1912-21.20.16.4590",
+					"IntelHD4400":   "8086:0a16-20.19.15.4703",
+					"IntelHD4600":   "8086:0412-20.19.15.4703",
+					"IntelIris540":  "8086:1926-21.20.16.4839",
+					"IntelIris6100": "8086:162b-20.19.15.4703",
+					"RadeonHD7770":  "1002:683d-22.19.165.512",
+					"RadeonR9M470X": "1002:6646-22.19.165.512",
+					"QuadroP400":    "10de:1cb3-22.21.13.8205",
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
@@ -727,6 +767,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "android_sdk_linux",
 		path:    "android_sdk_linux",
 	},
+	ISOLATE_SDK_LINUX_NAME: {
+		isolateFile: "isolate_android_sdk_linux.isolate",
+		cipdPkg:     "android_sdk_linux",
+	},
 	ISOLATE_WIN_TOOLCHAIN_NAME: {
 		cipdPkg: "win_toolchain",
 		path:    "win_toolchain",
@@ -837,9 +881,18 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else if strings.Contains(name, "Win") {
 			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
 			pkg.Path = "n"
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
 			task.CipdPackages = append(task.CipdPackages, pkg)
 		} else if !strings.Contains(name, "SKQP") {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+=======
+			pkgs = append(pkgs, pkg)
+		} else {
+			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+			if strings.Contains(name, "SKQP") {
+				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME))
+			}
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cast_toolchain"))

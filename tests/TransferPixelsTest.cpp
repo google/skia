@@ -65,6 +65,13 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
     auto resourceProvider = context->contextPriv().resourceProvider();
     GrGpu* gpu = context->contextPriv().getGpu();
 
+    if (!gpu->caps()->isConfigTexturable(config)) {
+        return;
+    }
+    if (renderTarget && !gpu->caps()->isConfigRenderable(config, false)) {
+        return;
+    }
+
     // set up the data
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;

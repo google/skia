@@ -160,6 +160,14 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
         return false;
     }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+    if (gpu->vkCaps().newCBOnPipelineChange()) {
+        // We bind a new pipeline here for the copy so we must start a new command buffer.
+        gpu->finishFlush(0, nullptr);
+    }
+
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
     if (!rt) {
         return false;
@@ -321,6 +329,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
     if (stencil) {
         GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
         // We aren't actually using the stencil but we still load and store it so we need
         // appropriate barriers.
         // TODO: Once we refactor surface and how we conntect stencil to RTs, we should not even
@@ -330,6 +339,13 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
                                   VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+=======
+        vkStencil->setImageLayout(gpu,
+                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
                                   false);
     }
 

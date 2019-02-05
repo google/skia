@@ -72,6 +72,16 @@ public:
         return fMustDoCopiesFromOrigin;
     }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
+=======
+    // On Nvidia there is a current bug where we must the current command buffer before copy
+    // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
+    // as draws.
+    bool mustSubmitCommandsBeforeCopyOp() const {
+        return fMustSubmitCommandsBeforeCopyOp;
+    }
+
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     // Sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
@@ -86,9 +96,24 @@ public:
         return fNewCBOnPipelineChange;
     }
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     // Returns true if we should always make dedicated allocations for VkImages.
     bool shouldAlwaysUseDedicatedImageMemory() const {
         return fShouldAlwaysUseDedicatedImageMemory;
+=======
+    // On certain Intel devices/drivers (IntelHD405) there is a bug if we try to flush non-coherent
+    // memory and pass in VK_WHOLE_SIZE. This returns whether or not it is safe to use VK_WHOLE_SIZE
+    // or not.
+    bool canUseWholeSizeOnFlushMappedMemory() const {
+        return fCanUseWholeSizeOnFlushMappedMemory;
+    }
+
+    /**
+     * Returns both a supported and most prefered stencil format to use in draws.
+     */
+    const StencilFormat& preferedStencilFormat() const {
+        return fPreferedStencilFormat;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
     }
 
     /**
@@ -179,6 +204,7 @@ private:
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     uint8_t getYcbcrKeyFromYcbcrInfo(const GrVkYcbcrConversionInfo& info);
 
     void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
@@ -186,6 +212,9 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+=======
+    void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     struct ConfigInfo {
         ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
@@ -219,6 +248,7 @@ private:
     bool fNewCBOnPipelineChange = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
 
+<<<<<<< HEAD   (21ca37 Remove GM::onDrawBackground)
     bool fSupportsPhysicalDeviceProperties2 = false;
     bool fSupportsMemoryRequirements2 = false;
     bool fSupportsBindMemory2 = false;
@@ -229,8 +259,13 @@ private:
     bool fSupportsDedicatedAllocation = false;
     bool fSupportsExternalMemory = false;
     bool fSupportsAndroidHWBExternalMemory = false;
+=======
+    bool fMustSubmitCommandsBeforeCopyOp;
+>>>>>>> BRANCH (2441c9 remove `-landroid_support`)
 
     bool fSupportsYcbcrConversion = false;
+
+    bool fCanUseWholeSizeOnFlushMappedMemory;
 
     typedef GrCaps INHERITED;
 };
