@@ -19,7 +19,7 @@
 #include "SkTo.h"
 
 namespace skiagm {
-class ImageFromYUVTextures : public GM {
+class ImageFromYUVTextures : public GpuGM {
 public:
     ImageFromYUVTextures() {
         this->setBGColor(0xFFFFFFFF);
@@ -152,14 +152,7 @@ protected:
         context->resetContext();
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
-        if (!context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
-
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         constexpr SkScalar kPad = 10.f;
 
         SkTArray<sk_sp<SkImage>> images;

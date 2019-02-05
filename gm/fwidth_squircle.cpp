@@ -21,20 +21,13 @@
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
+/**
+ * This test ensures that fwidth() works properly on GPU configs by drawing a squircle.
+ */
 namespace skiagm {
 
 static constexpr GrGeometryProcessor::Attribute gVertex =
         {"bboxcoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-
-/**
- * This ensures that fwidth() works properly on GPU configs by drawing a squircle.
- */
-class FwidthSquircleGM : public GM {
-private:
-    SkString onShortName() final { return SkString("fwidth_squircle"); }
-    SkISize onISize() override { return SkISize::Make(200, 200); }
-    void onDraw(SkCanvas*) override;
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SkSL code.
@@ -162,28 +155,16 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-
-    canvas->clear(SK_ColorWHITE);
-
-    if (!ctx || !rtc) {
-        DrawGpuOnlyMessage(canvas);
-        return;
-    }
-
+DEF_SIMPLE_GPU_GM(fwidth_squircle, ctx, rtc, canvas, 200, 200) {
     if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
-        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
-        DrawFailureMessage(canvas, "Shader derivatives not supported.");
+        skiagm::GM::DrawFailureMessage(canvas, "Shader derivatives not supported.");
         return;
     }
 
     // Draw the test directly to the frame buffer.
+    canvas->clear(SK_ColorWHITE);
     rtc->priv().testingOnly_addDrawOp(FwidthSquircleTestOp::Make(ctx, canvas->getTotalMatrix()));
 }
-
-DEF_GM( return new FwidthSquircleGM(); )
 
 }
 
