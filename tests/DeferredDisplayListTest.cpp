@@ -54,6 +54,68 @@ static GrBackendFormat create_backend_format(GrContext* context,
     const GrCaps* caps = context->priv().caps();
 
     switch (context->backend()) {
+#ifdef SK_METAL
+    case GrBackendApi::kMetal: {
+        switch (ct) {
+            case kUnknown_SkColorType:
+                return GrBackendFormat();
+            case kAlpha_8_SkColorType:
+                // TODO: what about kAlpha_8_GrPixelConfig and kAlpha_8_as_Alpha_GrPixelConfig
+                if (kAlpha_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMtl(MTLPixelFormatR8Unorm);
+                }
+                break;
+#ifdef SK_BUILD_FOR_IOS
+            case kRGB_565_SkColorType:
+                if (kRGB_565_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMtl(MTLPixelFormatB5G6R5Unorm);
+                }
+                break;
+            case kARGB_4444_SkColorType:
+                if (kRGBA_4444_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMtl(MTLPixelFormatABGR4Unorm);
+                }
+                break;
+#endif
+            case kRGBA_8888_SkColorType:
+                if (kRGBA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm);
+                }
+                break;
+            case kRGB_888x_SkColorType:
+                if (kRGB_888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
+                }
+                break;
+            case kBGRA_8888_SkColorType:
+                if (kBGRA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeMtl(MTLPixelFormatBGRA8Unorm);
+                }
+                break;
+            case kRGBA_1010102_SkColorType:
+                if (kRGBA_1010102_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMtl(MTLPixelFormatRGB10A2Unorm);
+                }
+                break;
+            case kRGB_101010x_SkColorType:
+                return GrBackendFormat();
+            case kGray_8_SkColorType:
+                // TODO: what about kAlpha_8_GrPixelConfig and kGray_8_as_Lum_GrPixelConfig?
+                if (kGray_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMtl(MTLPixelFormatR8Unorm);
+                }
+                break;
+            case kRGBA_F16_SkColorType:
+                if (kRGBA_half_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Float);
+                }
+                break;
+            case kRGBA_F32_SkColorType:
+                return GrBackendFormat();
+        }
+    }
+    break;
+#endif
     case GrBackendApi::kOpenGL: {
         const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
         GrGLStandard standard = glCaps->standard();
