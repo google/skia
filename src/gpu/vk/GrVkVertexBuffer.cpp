@@ -49,7 +49,7 @@ void GrVkVertexBuffer::onAbandon() {
 
 void GrVkVertexBuffer::onMap() {
     if (!this->wasDestroyed()) {
-        this->GrBuffer::fMapPtr = this->vkMap(this->getVkGpu());
+        this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu());
     }
 }
 
