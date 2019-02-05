@@ -14,6 +14,8 @@
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
+#include "GrGpuBuffer.h"
+
 class GrBuffer;
 class GrGpu;
 

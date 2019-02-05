@@ -343,9 +343,9 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
-                                        GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrBuffer> buff;
+sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
+                                           GrAccessPattern accessPattern, const void* data) {
+    sk_sp<GrGpuBuffer> buff;
     switch (type) {
         case GrGpuBufferType::kVertex:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
@@ -419,7 +419,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
 }
 
 bool GrVkGpu::onTransferPixels(GrTexture* texture, int left, int top, int width, int height,
-                               GrColorType bufferColorType, GrBuffer* transferBuffer,
+                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
                                size_t bufferOffset, size_t rowBytes) {
     // Can't transfer compressed data
     SkASSERT(!GrPixelConfigIsCompressed(texture->config()));
