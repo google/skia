@@ -15,8 +15,7 @@
 #include "SkRefCnt.h"
 #include "SkTDynamicHash.h"
 
-class GrResourceProvider;
-class GrSingleOwner;
+class GrImageContext;
 class GrBackendRenderTarget;
 class SkBitmap;
 class SkImage;
@@ -26,8 +25,7 @@ class SkImage;
  */
 class GrProxyProvider {
 public:
-    GrProxyProvider(GrResourceProvider*, GrResourceCache*, sk_sp<const GrCaps>, GrSingleOwner*);
-    GrProxyProvider(uint32_t contextUniqueID, sk_sp<const GrCaps>, GrSingleOwner*);
+    GrProxyProvider(GrImageContext*);
 
     ~GrProxyProvider();
 
@@ -215,13 +213,11 @@ public:
      */
     void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*, InvalidateGPUResource);
 
-    uint32_t contextUniqueID() const { return fContextUniqueID; }
+    uint32_t contextID() const { return fContextUniqueID; }
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }
 
     void abandon() {
-        fResourceCache = nullptr;
-        fResourceProvider = nullptr;
         fAbandoned = true;
     }
 
@@ -272,15 +268,8 @@ private:
     // on these proxies but they must send a message to the resourceCache when they are deleted.
     UniquelyKeyedProxyHash fUniquelyKeyedProxies;
 
-    GrResourceProvider*    fResourceProvider;
-    GrResourceCache*       fResourceCache;
+    GrImageContext*        fImageContext;
     bool                   fAbandoned;
-    sk_sp<const GrCaps>    fCaps;
-    // If this provider is owned by a DDLContext then this is the DirectContext's ID.
-    uint32_t               fContextUniqueID;
-
-    // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif
