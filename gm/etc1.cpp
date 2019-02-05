@@ -70,7 +70,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        GrRecordingContext* context = canvas->getGrContext();
         if (!context || context->abandoned()) {
             DrawFailureMessage(canvas, "GrContext unavailable or abandoned.");
             return;

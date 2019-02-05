@@ -782,7 +782,7 @@ protected:
                     }
 
                     if (context) {
-                        if (context->abandoned()) {
+                        if (context->priv().abandoned1()) {
                             return;
                         }
 
@@ -848,7 +848,11 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        this->createImages(canvas->getGrContext());
+        if (!canvas->getGrContext() || !canvas->getGrContext()->asDirectContext()) {
+            return;
+        }
+
+        this->createImages(canvas->getGrContext()->asDirectContext());
 
         int x = kLabelWidth;
         for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
