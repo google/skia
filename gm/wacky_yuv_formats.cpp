@@ -904,4 +904,151 @@ private:
 
 DEF_GM(return new WackyYUVFormatsGM(false);)
 DEF_GM(return new WackyYUVFormatsGM(true);)
+
+class YUVMakeColorSpaceGM : public GM {
+public:
+    YUVMakeColorSpaceGM() {
+        this->setBGColor(0xFFCCCCCC);
+    }
+
+protected:
+    SkString onShortName() override {
+        return SkString("yuv_make_color_space");
+    }
+
+    SkISize onISize() override {
+        int numCols = 4; // (transparent, opaque) x (untagged, tagged)
+        int numRows = 5; // original, YUV, subset, readPixels, makeNonTextureImage
+        return SkISize::Make(numCols * (kTileWidthHeight + kPad) + kPad,
+                             numRows * (kTileWidthHeight + kPad) + kPad);
+    }
+
+    void onOnceBeforeDraw() override {
+        SkPoint origin = { kTileWidthHeight/2.0f, kTileWidthHeight/2.0f };
+        float outerRadius = kTileWidthHeight/2.0f - 20.0f;
+        float innerRadius = 20.0f;
+
+        {
+            // transparent
+            SkTDArray<SkRect> circles;
+            SkPath path = create_splat(origin, innerRadius, outerRadius, 1.0f, 5, &circles);
+            fOriginalBMs[0] = make_bitmap(path, circles, false);
+        }
+
+        {
+            // opaque
+            SkTDArray<SkRect> circles;
+            SkPath path = create_splat(origin, innerRadius, outerRadius, 1.0f, 7, &circles);
+            fOriginalBMs[1] = make_bitmap(path, circles, true);
+        }
+
+        fTargetColorSpace = SkColorSpace::MakeSRGB()->makeColorSpin();
+    }
+
+    void createImages(GrContext* context) {
+        for (bool opaque : { false, true }) {
+            PlaneData planes;
+            extract_planes(fOriginalBMs[opaque], kJPEG_SkYUVColorSpace, &planes);
+
+            SkBitmap resultBMs[4];
+            SkYUVAIndex yuvaIndices[4];
+            create_YUV(planes, kAYUV_YUVFormat, resultBMs, yuvaIndices, opaque);
+            int numTextures;
+            if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
+                continue;
+            }
+
+            GrGpu* gpu = context->priv().getGpu();
+            if (!gpu) {
+                return;
+            }
+
+            GrBackendTexture yuvaTextures[4];
+            for (int i = 0; i < numTextures; ++i) {
+                yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i], yuvaIndices, i);
+                if (yuvaTextures[i].isValid()) {
+                    fBackendTextures.push_back(yuvaTextures[i]);
+                }
+            }
+
+            fImages[opaque][0] = SkImage::MakeFromYUVATextures(
+                    context,
+                    kJPEG_SkYUVColorSpace,
+                    yuvaTextures,
+                    yuvaIndices,
+                    { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                    kTopLeft_GrSurfaceOrigin);
+            fImages[opaque][1] = SkImage::MakeFromYUVATextures(
+                    context,
+                    kJPEG_SkYUVColorSpace,
+                    yuvaTextures,
+                    yuvaIndices,
+                    { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                    kTopLeft_GrSurfaceOrigin,
+                    SkColorSpace::MakeSRGB());
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        GrContext* context = canvas->getGrContext();
+        if (!context || context->abandoned()) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+        this->createImages(context);
+
+        int x = kPad;
+        for (int tagged : { 0, 1 }) {
+            for (int opaque : { 0, 1 }) {
+                int y = kPad;
+
+                auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
+                    ->makeColorSpace(fTargetColorSpace);
+                canvas->drawImage(raster, x, y);
+                y += kTileWidthHeight + kPad;
+
+                auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
+                SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
+                canvas->drawImage(yuv, x, y);
+                y += kTileWidthHeight + kPad;
+
+                auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
+                                                              kTileWidthHeight / 2));
+                canvas->drawImage(subset, x, y);
+                y += kTileWidthHeight + kPad;
+
+                auto nonTexture = yuv->makeNonTextureImage();
+                canvas->drawImage(nonTexture, x, y);
+                y += kTileWidthHeight + kPad;
+
+                SkBitmap readBack;
+                readBack.allocPixels(as_IB(yuv)->onImageInfo());
+                yuv->readPixels(readBack.pixmap(), 0, 0);
+                canvas->drawBitmap(readBack, x, y);
+
+                x += kTileWidthHeight + kPad;
+            }
+        }
+
+        context->flush();
+        GrGpu* gpu = context->priv().getGpu();
+        SkASSERT(gpu);
+        gpu->testingOnly_flushGpuAndSync();
+        for (const auto& tex : fBackendTextures) {
+            gpu->deleteTestingOnlyBackendTexture(tex);
+        }
+        fBackendTextures.reset();
+    }
+
+private:
+    SkBitmap fOriginalBMs[2];
+    sk_sp<SkImage> fImages[2][2];
+    SkTArray<GrBackendTexture> fBackendTextures;
+    sk_sp<SkColorSpace> fTargetColorSpace;
+
+    typedef GM INHERITED;
+};
+
+DEF_GM(return new YUVMakeColorSpaceGM();)
+
 }
