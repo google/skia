@@ -162,27 +162,25 @@ public:
         : SkScalerContext(std::move(face), effects, desc)
     {
         fRec.getSingleMatrix(&fMatrix);
-        SkScalar upem = this->geTestSVGTypeface()->fUpem;
+        SkScalar upem = this->getTestSVGTypeface()->fUpem;
         fMatrix.preScale(1.f/upem, 1.f/upem);
     }
 
 protected:
-    SkTestSVGTypeface* geTestSVGTypeface() const {
+    SkTestSVGTypeface* getTestSVGTypeface() const {
         return static_cast<SkTestSVGTypeface*>(this->getTypeface());
     }
 
     unsigned generateGlyphCount() override {
-        return this->geTestSVGTypeface()->onCountGlyphs();
+        return this->getTestSVGTypeface()->countGlyphs();
     }
 
     uint16_t generateCharToGlyph(SkUnichar u) override {
-        uint16_t g;
-        (void) this->geTestSVGTypeface()->onCharsToGlyphs(&u, SkTypeface::kUTF32_Encoding, &g, 1);
-        return g;
+        return this->getTestSVGTypeface()->unicharToGlyph(u);
     }
 
     bool generateAdvance(SkGlyph* glyph) override {
-        this->geTestSVGTypeface()->getAdvance(glyph);
+        this->getTestSVGTypeface()->getAdvance(glyph);
 
         const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
                                                SkFloatToScalar(glyph->fAdvanceY));
@@ -193,13 +191,13 @@ protected:
 
     void generateMetrics(SkGlyph* glyph) override {
         SkGlyphID glyphID = glyph->getGlyphID();
-        glyphID = glyphID < this->geTestSVGTypeface()->fGlyphCount ? glyphID : 0;
+        glyphID = glyphID < this->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
 
         glyph->zeroMetrics();
         glyph->fMaskFormat = SkMask::kARGB32_Format;
         this->generateAdvance(glyph);
 
-        SkTestSVGTypeface::Glyph& glyphData = this->geTestSVGTypeface()->fGlyphs[glyphID];
+        SkTestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
         if (!glyphData.fSvg) {
             return;
         }
@@ -222,7 +220,7 @@ protected:
 
     void generateImage(const SkGlyph& glyph) override {
         SkGlyphID glyphID = glyph.getGlyphID();
-        glyphID = glyphID < this->geTestSVGTypeface()->fGlyphCount ? glyphID : 0;
+        glyphID = glyphID < this->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
 
         SkBitmap bm;
         // TODO: this should be SkImageInfo::MakeS32 when that passes all the tests.
@@ -230,7 +228,7 @@ protected:
                          glyph.fImage, glyph.rowBytes());
         bm.eraseColor(0);
 
-        SkTestSVGTypeface::Glyph& glyphData = this->geTestSVGTypeface()->fGlyphs[glyphID];
+        SkTestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
 
         SkScalar dx = SkFixedToScalar(glyph.getSubXFixed());
         SkScalar dy = SkFixedToScalar(glyph.getSubYFixed());
@@ -253,7 +251,7 @@ protected:
     }
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
-        this->geTestSVGTypeface()->getFontMetrics(metrics);
+        this->getTestSVGTypeface()->getFontMetrics(metrics);
         SkFontPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
     }
 
