@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "86e23d1e_7a5171c2",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-06T19:39:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4e74b08_c2d6bf86",
+      "range": {
+        "startLine": 44,
+        "startChar": 22,
+        "endLine": 44,
+        "endChar": 29
+      },
+      "revId": "c0e6c8523b24bf5c5d04f60b8a8315b5d08852ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4ed2461_cec0b898",
         "filename": "include/private/SkVx.h",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fa16a277_54185972",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-06T19:39:42Z",
+      "side": 1,
+      "message": "yep, renamed to to_vext().",
+      "parentUuid": "d4ed2461_cec0b898",
+      "range": {
+        "startLine": 149,
+        "startChar": 18,
+        "endLine": 149,
+        "endChar": 22
+      },
+      "revId": "c0e6c8523b24bf5c5d04f60b8a8315b5d08852ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa2a4417_fb71ab57",
         "filename": "include/private/SkVx.h",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2019-02-06T18:21:46Z",
       "side": 1,
       "message": "nit: Is this Scalar/vector? The params are (scalar, vector).",
+      "range": {
+        "startLine": 220,
+        "startChar": 3,
+        "endLine": 220,
+        "endChar": 16
+      },
+      "revId": "c0e6c8523b24bf5c5d04f60b8a8315b5d08852ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f69efab_efa0d4ab",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-06T19:39:42Z",
+      "side": 1,
+      "message": "yep, had them backwards.  swapped.",
+      "parentUuid": "aa2a4417_fb71ab57",
       "range": {
         "startLine": 220,
         "startChar": 3,
