@@ -182,7 +182,7 @@ GrVkCopyPipeline* GrVkCopyPipeline::Create(GrVkGpu* gpu,
     {
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
         // skia:8712
-        __lsan::ScopedDisabler lsanDisabler;
+        //__lsan::ScopedDisabler lsanDisabler;
 #endif
         err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
                                                                      cache, 1,
