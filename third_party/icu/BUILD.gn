@@ -72,7 +72,10 @@ if (skia_use_icu) {
           "U_STATIC_IMPLEMENTATION",
         ]
         libs = [ "Advapi32.lib" ]
-        sources += [ "../externals/icu/source/stubdata/stubdata.cpp" ]
+        sources += [
+          "../externals/icu/source/stubdata/stubdata.cpp",
+          "SkLoadICU.cpp",
+        ]
       } else {
         sources += [ "$data_assembly" ]
         deps = [

@@ -1,0 +1,50 @@
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+
+#include "SkLoadICU.h"
+
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_USING_THIRD_PARTY_ICU)
+
+#include "../private/SkLeanWindows.h"
+
+#include "unicode/uvernum.h"
+#include "unicode/udata.h"
+
+#define ICU_UTIL_DATA_SYMBOL "icudt" U_ICU_VERSION_SHORT "_dat"
+#define ICU_UTIL_DATA_SHARED_MODULE_NAME "icudt.dll"
+
+bool SkLoadICU() {
+    static bool good = false;
+    SkOnce once;
+    once([]() {
+        HMODULE module = LoadLibraryA(ICU_UTIL_DATA_SHARED_MODULE_NAME);
+        if (!module) {
+            SkDebugf("Failed to load " ICU_UTIL_DATA_SHARED_MODULE_NAME "\n");
+            return;
+        }
+        FARPROC addr = GetProcAddress(module, ICU_UTIL_DATA_SYMBOL);
+        if (!addr) {
+            SkDebugf("Symbol " ICU_UTIL_DATA_SYMBOL " missing in "
+                     ICU_UTIL_DATA_SHARED_MODULE_NAME ".\n");
+            return;
+        }
+        UErrorCode err = U_ZERO_ERROR;
+        udata_setCommonData(reinterpret_cast<void*>(addr), &err);
+        if (err != U_ZERO_ERROR) {
+            SkDebugf("udata_setCommonData() returned %d.\n", (int)err);
+            return;
+        }
+        udata_setFileAccess(UDATA_ONLY_PACKAGES, &err);
+        if (err != U_ZERO_ERROR) {
+            SkDebugf("udata_setFileAccess() returned %d.\n", (int)err);
+            return;
+        }
+        good = true;
+    });
+    return good;
+}
+
+#undef ICU_UTIL_DATA_SHARED_MODULE_NAME
+#undef ICU_UTIL_DATA_SYMBOL
+
+#endif  // defined(SK_BUILD_FOR_WIN) && defined(SK_USING_THIRD_PARTY_ICU)
