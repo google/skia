@@ -16,6 +16,24 @@
       "revId": "5d0ffdbff79d44ce2925f05e20efb4cbea07868a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76d1072f_494d4abf",
+        "filename": "tools/bookmaker/parserCommon.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-06T14:17:51Z",
+      "side": 1,
+      "message": ":facepalm: For some reason when I wrote this, I skimmed over this part, and thought that the DOM was on the stack for the duration of the parse. That\u0027s trivially false. Thanks for the fresh set of eyes!",
+      "parentUuid": "d3a31b4e_fab3889d",
+      "revId": "5d0ffdbff79d44ce2925f05e20efb4cbea07868a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
