@@ -268,7 +268,7 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
         // skia:8713
-        __lsan::ScopedDisabler lsanDisabler;
+        //__lsan::ScopedDisabler lsanDisabler;
 #endif
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorSetLayout(gpu->device(),
                                                                           &uniformLayoutCreateInfo,
