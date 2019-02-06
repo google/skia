@@ -1,10 +1,7 @@
 # Copyright 2019 Google LLC.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-icu_dtname = "icudt63_dat"
-icu_dat_md5 = "6217818389487f8540fb0adff2c3e5b5"
-icu_dat_bucket = "skia-icu-data"
-_src = "../externals/icu/icu4c/source"
+_src = "../externals/icu/source"
 icu_sources = [
   "$_src/common/appendable.cpp",
   "$_src/common/bmpset.cpp",
