@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f7676d0_f54b88f2",
+        "filename": "third_party/icu/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-06T19:08:05Z",
+      "side": 1,
+      "message": "Is it possible to do this in the skia_use_system_icu case as well so we don\u0027t need all the \"../../../\"?",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 11
+      },
+      "revId": "f3c70e07b2f0ddf4066bd35852daf00759928829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
