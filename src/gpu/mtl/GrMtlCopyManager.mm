@@ -83,7 +83,8 @@ void GrMtlCopyManager::createCopyProgramShaders() {
     id<MTLLibrary> fragmentLibrary = GrCompileMtlShaderLibrary(fGpu, fragShaderText.c_str(),
                                                                SkSL::Program::kFragment_Kind,
                                                                settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+    // FIXME: at the moment we always set inputs.fRTHeight to be true
+    // SkASSERT(inputs.isEmpty());
     SkASSERT(fragmentLibrary);
 
     id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];

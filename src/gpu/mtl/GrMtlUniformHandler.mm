@@ -174,9 +174,13 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
 static void get_ubo_aligned_offset(uint32_t* uniformOffset,
                                    uint32_t* currentOffset,
+                                   uint32_t* maxAlignment,
                                    GrSLType type,
                                    int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
+    if (alignmentMask > *maxAlignment) {
+        *maxAlignment = alignmentMask;
+    }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
@@ -231,14 +235,17 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
     uni.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
 
     uint32_t* currentOffset;
+    uint32_t* maxAlignment;
     uint32_t geomStages = kVertex_GrShaderFlag | kGeometry_GrShaderFlag;
     if (geomStages & visibility) {
         currentOffset = &fCurrentGeometryUBOOffset;
+        maxAlignment = &fCurrentGeometryUBOMaxAlignment;
     } else {
         SkASSERT(kFragment_GrShaderFlag == visibility);
         currentOffset = &fCurrentFragmentUBOOffset;
+        maxAlignment = &fCurrentFragmentUBOMaxAlignment;
     }
-    get_ubo_aligned_offset(&uni.fUBOffset, currentOffset, type, arrayCount);
+    get_ubo_aligned_offset(&uni.fUBOffset, currentOffset, maxAlignment, type, arrayCount);
 
     SkString layoutQualifier;
     layoutQualifier.appendf("offset=%d", uni.fUBOffset);
