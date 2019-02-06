@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12938383_2b27c696",
+        "filename": "src/core/SkRemoteGlyphCacheImpl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-06T20:06:17Z",
+      "side": 1,
+      "message": "update?",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 68,
+        "endChar": 90
+      },
+      "revId": "a746392958eeb59144b9bf04b8c03b9d0c796f0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
