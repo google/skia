@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkFont.h"
 #include "SkFontArguments.h"
+#include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkMalloc.h"
-#include "SkOnce.h"
-#include "SkFont.h"
-#include "SkFontMetrics.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -41,11 +40,9 @@
 #include <memory>
 #include <utility>
 
-#ifdef SK_USING_THIRD_PARTY_ICU
+#if defined(SK_USING_THIRD_PARTY_ICU)
 #include "SkLoadICU.h"
-#else
-static inline void SkLoadICU() {}
-#endif  // SK_USING_THIRD_PARTY_ICU
+#endif
 
 namespace {
 template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
@@ -636,9 +633,12 @@ struct SkShaper::Impl {
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
-    SkOnce once;
-    once([] { SkLoadICU(); });
-
+#if defined(SK_USING_THIRD_PARTY_ICU)
+    if (!SkLoadICU()) {
+        SkDebugf("SkLoadICU() failed!\n");
+        return;
+    }
+#endif
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
     if (!fImpl->fHarfBuzzFont) {
