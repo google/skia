@@ -7,6 +7,10 @@
 
 #include "GrRecordingContext.h"
 
+#include "GrCaps.h"
+#include "GrRecordingContextPriv.h"
+#include "GrSkSLFPFactoryCache.h"
+
 GrRecordingContext::GrRecordingContext(GrBackendApi backend,
                                        const GrContextOptions& options,
                                        uint32_t uniqueID)
@@ -15,3 +19,11 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
 
 GrRecordingContext::~GrRecordingContext() { }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
+    return fContext->refCaps();
+}
+
+sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
+    return fContext->fpFactoryCache();
+}

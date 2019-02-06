@@ -245,7 +245,7 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
             // When recording DDLs we do not want to install change listeners because doing
             // so isn't threadsafe.
             if (bm && !proxyProvider->recordingDDL()) {
-                GrInstallBitmapUniqueKeyInvalidator(originalKey, proxyProvider->contextUniqueID(),
+                GrInstallBitmapUniqueKeyInvalidator(originalKey, proxyProvider->contextID(),
                                                     bm->pixelRef());
             }
         }

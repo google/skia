@@ -25,6 +25,10 @@ public:
 
     sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() { return fContext->fpFactoryCache(); }
 
+    GrImageContext* asImageContext() { return fContext->asImageContext(); }
+    GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
+    GrContext* asDirectContext() { return fContext->asDirectContext(); }
+
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
     GrBaseContextPriv(const GrBaseContextPriv&); // unimpl
