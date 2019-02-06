@@ -11,6 +11,7 @@
 
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include <map>
 
 class SubtopicKeys {
 public:
