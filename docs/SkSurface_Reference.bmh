@@ -226,12 +226,53 @@ void draw(SkCanvas* ) {
 
 # ------------------------------------------------------------------------------
 
+#Typedef void* ReleaseContext
+#Line # parameter type for MakeFromBackendTexture ##
+
+#Code
+#Populate
+##
+
+Caller data passed to RenderTarget/TextureReleaseProc; may be nullptr.
+
+#SeeAlso MakeFromBackendTexture MakeFromBackendRenderTarget RenderTargetReleaseProc TextureReleaseProc
+
+##
+
+#Typedef void (RenderTargetReleaseProc(ReleaseContext releaseContext)
+#Line # parameter type for MakeFromBackendRenderTarget ##
+
+#Code
+#Populate
+##
+
+User function called when supplied render target may be deleted.
+
+#SeeAlso MakeFromBackendRenderTarget ReleaseContext
+
+##
+
+#Typedef void (TextureReleaseProc(ReleaseContext releaseContext)
+#Line # parameter type for MakeFromBackendTexture ##
+
+#Code
+#Populate
+##
+
+User function called when supplied texture may be deleted.
+
+#SeeAlso MakeFromBackendTexture ReleaseContext
+
+##
+
 #Method static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* surfaceProps)
+                                                   const SkSurfaceProps* surfaceProps,
+                                                   TextureReleaseProc textureReleaseProc = nullptr,
+                                                   ReleaseContext releaseContext = nullptr)
 #In Constructors
 #Line # creates Surface from GPU texture ##
 #Populate
@@ -266,7 +307,9 @@ void draw(SkCanvas* ) {
                                                 GrSurfaceOrigin origin,
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* surfaceProps)
+                                                const SkSurfaceProps* surfaceProps,
+                                                RenderTargetReleaseProc renderTargetReleaseProc = nullptr,
+                                                ReleaseContext releaseContext = nullptr)
 #In Constructors
 #Line # creates Surface from GPU render target ##
 #Populate

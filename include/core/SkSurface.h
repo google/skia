@@ -245,14 +245,15 @@ public:
         @param releaseContext           state passed to textureReleaseProc
         @return                         SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
-                                                const GrBackendRenderTarget& backendRenderTarget,
-                                                GrSurfaceOrigin origin,
-                                                SkColorType colorType,
-                                                sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* surfaceProps,
-                                                TextureReleaseProc textureReleaseProc = nullptr,
-                                                ReleaseContext releaseContext = nullptr);
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(
+            GrContext* context,
+            const GrBackendRenderTarget& backendRenderTarget,
+            GrSurfaceOrigin origin,
+            SkColorType colorType,
+            sk_sp<SkColorSpace> colorSpace,
+            const SkSurfaceProps* surfaceProps,
+            RenderTargetReleaseProc renderTargetReleaseProc = nullptr,
+            ReleaseContext releaseContext = nullptr);
 
     /** Wraps a GPU-backed texture into SkSurface. Caller must ensure backendTexture is
         valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
