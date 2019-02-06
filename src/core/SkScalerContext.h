@@ -311,18 +311,16 @@ public:
                                   SkScalerContextFlags scalerContextFlags,
                                   const SkMatrix& deviceMatrix,
                                   SkScalerContextRec* rec,
-                                  SkScalerContextEffects* effects,
-                                  bool enableTypefaceFiltering = true);
+                                  SkScalerContextEffects* effects);
 
     // If we are creating rec and effects from a font only, then there is no device around either.
     static void MakeRecAndEffectsFromFont(const SkFont& font,
                                           SkScalerContextRec* rec,
-                                          SkScalerContextEffects* effects,
-                                          bool enableTypefaceFiltering = true) {
+                                          SkScalerContextEffects* effects) {
         SkPaint paint;
         return MakeRecAndEffects(
                 font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
-                SkScalerContextFlags::kNone, SkMatrix::I(), rec, effects, enableTypefaceFiltering);
+                SkScalerContextFlags::kNone, SkMatrix::I(), rec, effects);
     }
 
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
