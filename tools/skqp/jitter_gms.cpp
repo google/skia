@@ -43,7 +43,8 @@ static void do_gm(SkBitmap* bm, skiagm::GM* gm, SkPoint jitter) {
     SkAutoCanvasRestore autoCanvasRestore(&canvas, true);
     canvas.clear(SK_ColorWHITE);
     canvas.translate(jitter.x(), jitter.y());
-    gm->draw(&canvas);
+    SkString errorMsg;
+    gm->draw(&canvas, &errorMsg);
     canvas.flush();
 }
 
