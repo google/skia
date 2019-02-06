@@ -11,12 +11,12 @@
 #include "GrContext.h"
 #include "SkImage.h"
 
-DEF_SIMPLE_GPU_GM(cross_context_image, context, rtc, canvas, 512 * 3 + 60, 512 + 128 + 30) {
+DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
+                           512 * 3 + 60, 512 + 128 + 30) {
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_512.png");
     if (!encodedData) {
-        skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_512.png. "
-                                               "Did you forget to set the resourcePath?");
-        return;
+        *errorMsg = "Could not load mandrill_512.png. Did you forget to set the resourcePath?";
+        return skiagm::DrawResult::kFail;
     }
 
     sk_sp<SkImage> encodedImage = SkImage::MakeFromEncoded(encodedData);
@@ -43,4 +43,5 @@ DEF_SIMPLE_GPU_GM(cross_context_image, context, rtc, canvas, 512 * 3 + 60, 512 +
     canvas->drawImage(encodedSubset, 10, 512 + 30);
     canvas->drawImage(crossContextSubset, 512 + 30, 512 + 30);
     canvas->drawImage(crossContextRasterSubset, 512 + 512 + 60, 512 + 30);
+    return skiagm::DrawResult::kOk;
 }

@@ -26,9 +26,10 @@ void GMBench::onDraw(int loops, SkCanvas* canvas) {
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
+    SkString errorMsg;
     for (int i = 0; i < loops; ++i) {
         SkAutoCanvasRestore acr(canvas, true);
-        fGM->drawContent(canvas);
+        fGM->drawContent(canvas, &errorMsg);
     }
 }
 
