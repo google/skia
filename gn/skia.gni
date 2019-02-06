@@ -3,5 +3,6 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_use_icu = !is_ios
+  skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
 }
+
