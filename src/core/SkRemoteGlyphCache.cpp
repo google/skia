@@ -60,9 +60,9 @@ static const SkDescriptor* create_descriptor(
         const SkPaint& paint, const SkFont& font, const SkMatrix& m,
         const SkSurfaceProps& props, SkScalerContextFlags flags,
         SkAutoDescriptor* ad, SkScalerContextEffects* effects) {
-    SkScalerContextRec deviceRec;
-    SkScalerContext::MakeRecAndEffects(font, paint, props, flags, m, &deviceRec, effects);
-    return SkScalerContext::AutoDescriptorGivenRecAndEffects(deviceRec, *effects, ad);
+    SkScalerContextRec rec;
+    SkScalerContext::MakeRecAndEffects(font, paint, props, flags, m, &rec, effects);
+    return SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }
 
 // -- Serializer ----------------------------------------------------------------------------------
@@ -306,15 +306,15 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         const SkMatrix& matrix,
         SkScalerContextFlags flags,
         SkScalerContextEffects* effects) {
-    SkAutoDescriptor keyAutoDesc;
-    auto keyDesc = create_descriptor(paint, font, matrix, props, flags, &keyAutoDesc, effects);
+    SkAutoDescriptor descStorage;
+    auto desc = create_descriptor(paint, font, matrix, props, flags, &descStorage, effects);
 
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
     TRACE_EVENT1("skia", "RecForDesc", "rec",
             TRACE_STR_COPY(
-                    [keyDesc](){
-                        auto ptr = keyDesc->findEntry(kRec_SkDescriptorTag, nullptr);
+                    [desc](){
+                        auto ptr = desc->findEntry(kRec_SkDescriptorTag, nullptr);
                         SkScalerContextRec rec;
                         std::memcpy(&rec, ptr, sizeof(rec));
                         return rec.dump();
@@ -323,8 +323,8 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     );
 
     // Already locked.
-    if (fLockedDescs.find(keyDesc) != fLockedDescs.end()) {
-        auto it = fRemoteGlyphStateMap.find(keyDesc);
+    if (fLockedDescs.find(desc) != fLockedDescs.end()) {
+        auto it = fRemoteGlyphStateMap.find(desc);
         SkASSERT(it != fRemoteGlyphStateMap.end());
         SkGlyphCacheState* cache = it->second.get();
         cache->setFontAndEffects(font, SkScalerContextEffects{paint});
@@ -332,16 +332,9 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     }
 
     // Try to lock.
-    auto it = fRemoteGlyphStateMap.find(keyDesc);
+    auto it = fRemoteGlyphStateMap.find(desc);
     if (it != fRemoteGlyphStateMap.end()) {
         SkGlyphCacheState* cache = it->second.get();
-#ifdef SK_DEBUG
-        SkScalerContextEffects deviceEffects;
-        SkAutoDescriptor deviceAutoDesc;
-        auto deviceDesc = create_descriptor(
-                paint, font, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
-        SkASSERT(cache->getDeviceDescriptor() == *deviceDesc);
-#endif
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
         if (locked) {
             fLockedDescs.insert(it->first);
@@ -362,22 +355,17 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
                                       tf->isFixedPitch());
     }
 
-    SkScalerContextEffects deviceEffects;
-    SkAutoDescriptor deviceAutoDesc;
-    auto deviceDesc = create_descriptor(
-            paint, font, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
-
-    auto context = tf->createScalerContext(deviceEffects, deviceDesc);
+    auto context = tf->createScalerContext(*effects, desc);
 
     // Create a new cache state and insert it into the map.
     auto newHandle = fDiscardableHandleManager->createHandle();
     auto cacheState = skstd::make_unique<SkGlyphCacheState>(
-            *keyDesc, *deviceDesc, std::move(context), newHandle);
+            *desc, std::move(context), newHandle);
 
     auto* cacheStatePtr = cacheState.get();
 
-    fLockedDescs.insert(&cacheStatePtr->getKeyDescriptor());
-    fRemoteGlyphStateMap[&cacheStatePtr->getKeyDescriptor()] = std::move(cacheState);
+    fLockedDescs.insert(&cacheStatePtr->getDescriptor());
+    fRemoteGlyphStateMap[&cacheStatePtr->getDescriptor()] = std::move(cacheState);
 
     checkForDeletedEntries();
 
@@ -399,19 +387,16 @@ void SkStrikeServer::checkForDeletedEntries() {
 
 // -- SkGlyphCacheState ----------------------------------------------------------------------------
 SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
-        const SkDescriptor& keyDescriptor,
-        const SkDescriptor& deviceDescriptor,
+        const SkDescriptor& descriptor,
         std::unique_ptr<SkScalerContext> context,
         uint32_t discardableHandleId)
-        : fKeyDescriptor{keyDescriptor}
-        , fDeviceDescriptor{deviceDescriptor}
+        : fDescriptor{descriptor}
         , fDiscardableHandleId(discardableHandleId)
         , fIsSubpixel{context->isSubpixel()}
         , fAxisAlignmentForHText{context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.
         , fContext{std::move(context)} {
-    SkASSERT(fKeyDescriptor.getDesc() != nullptr);
-    SkASSERT(fDeviceDescriptor.getDesc() != nullptr);
+    SkASSERT(fDescriptor.getDesc() != nullptr);
     SkASSERT(fContext != nullptr);
 }
 
@@ -457,7 +442,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fDiscardableHandleId);
-    serializer->writeDescriptor(*fKeyDescriptor.getDesc());
+    serializer->writeDescriptor(*fDescriptor.getDesc());
 
     // Write FontMetrics.
     // TODO(khushalsagar): Do we need to re-send each time?
@@ -509,7 +494,7 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyp
 void SkStrikeServer::SkGlyphCacheState::ensureScalerContext() {
     if (fContext == nullptr) {
         auto tf = fFont->getTypefaceOrDefault();
-        fContext = tf->createScalerContext(fEffects, fDeviceDescriptor.getDesc());
+        fContext = tf->createScalerContext(fEffects, fDescriptor.getDesc());
     }
 }
 
