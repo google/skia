@@ -139,7 +139,7 @@ static bool UVMatToGeomMatForImage(SkMatrix* geomMat, const SkMatrix& uvMat) {
 
 // This GM exercises drawImage with a set of matrices that use an unusual amount of flips and
 // rotates.
-class FlippityGM : public skiagm::GM {
+class FlippityGM : public skiagm::GpuGM {
 public:
     FlippityGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -225,13 +225,7 @@ protected:
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
-        if (!context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->makeLabels(context);
 
         canvas->save();

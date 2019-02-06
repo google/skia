@@ -128,7 +128,7 @@ private:
 /**
  * This GM directly exercises effects that draw Bezier curves in the GPU backend.
  */
-class BezierConicEffects : public GM {
+class BezierConicEffects : public GpuGM {
 public:
     BezierConicEffects() {
         this->setBGColor(0xFFFFFFFF);
@@ -144,19 +144,8 @@ protected:
     }
 
 
-    void onDraw(SkCanvas* canvas) override {
-        GrRenderTargetContext* renderTargetContext =
-            canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
-        GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
-        }
-
+    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                SkCanvas* canvas) override {
         struct Vertex {
             SkPoint fPosition;
             float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
@@ -345,7 +334,7 @@ private:
 /**
  * This GM directly exercises effects that draw Bezier quad curves in the GPU backend.
  */
-class BezierQuadEffects : public GM {
+class BezierQuadEffects : public GpuGM {
 public:
     BezierQuadEffects() {
         this->setBGColor(0xFFFFFFFF);
@@ -361,19 +350,8 @@ protected:
     }
 
 
-    void onDraw(SkCanvas* canvas) override {
-        GrRenderTargetContext* renderTargetContext =
-            canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
-        GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
-        }
-
+    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                SkCanvas* canvas) override {
         struct Vertex {
             SkPoint fPosition;
             float   fUV[4]; // The last two values are ignored. The effect expects a vec4f.
