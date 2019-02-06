@@ -591,8 +591,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				if parts["os"] == "Ubuntu18" && parts["cpu_or_gpu_value"] == "QuadroP400" {
-					// Ubuntu18 has a slightly newer GPU driver.
-					gpu = "10de:1cb3-390.87"
+					// Ubuntu18 has a newer GPU driver.
+					gpu = "10de:1cb3-415.27"
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
