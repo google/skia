@@ -105,7 +105,7 @@ bool Catalog::parseFromFile(const char* path) {
     fTextOut = false;
     fPngOut = true;
     JsonStatus* status = &fStack.back();
-    status->fIter = status->fObject.begin();
+    status->reset();
     fContinuation = false;
     return parseFiddles();
 }
