@@ -1485,6 +1485,9 @@ public:
         */
         bool isClosedContour() const;
 
+        // Returns the next verb, or kDone, without changing the state of the iterator
+        Verb peekVerb() const;
+
     private:
         const SkPoint*  fPts;
         const uint8_t*  fVerbs;
