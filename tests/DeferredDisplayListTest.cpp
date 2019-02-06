@@ -54,6 +54,10 @@ static GrBackendFormat create_backend_format(GrContext* context,
     const GrCaps* caps = context->priv().caps();
 
     switch (context->backend()) {
+#ifdef SK_METAL
+    case GrBackendApi::kMetal:
+        return caps->getBackendFormatFromColorType(ct);
+#endif
     case GrBackendApi::kOpenGL: {
         const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
         GrGLStandard standard = glCaps->standard();
@@ -705,7 +709,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
         GrBackendTexture backend;
         sk_sp<SkSurface> s = params.make(context, &backend);
         if (!s) {
-            params.cleanUpBackEnd(context, backend);
             continue;
         }
 

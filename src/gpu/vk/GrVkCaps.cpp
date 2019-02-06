@@ -714,7 +714,7 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return true;
 }
 
-GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool hasYcbcrConversion) {
+static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool hasYcbcrConversion) {
     if (format == VK_FORMAT_UNDEFINED) {
         // If the format is undefined then it is only valid as an external image which requires that
         // we have a valid VkYcbcrConversion.
