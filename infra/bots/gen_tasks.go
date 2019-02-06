@@ -315,7 +315,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -492,6 +492,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"NexusPlayer":     {"fugu", "OPR2.170623.027"},
 				"Pixel":           {"sailfish", "PPR1.180610.009"},
 				"Pixel2XL":        {"taimen", "PPR1.180610.009"},
+				"Pixel3":          {"blueline", "PQ1A.190105.004"},
 			}[parts["model"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
