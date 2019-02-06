@@ -425,4 +425,26 @@ GrBackendTexture GrGpu::createTestingOnlyBackendTexture(const void* pixels, int 
     return this->createTestingOnlyBackendTexture(pixels, w, h, grCT, isRenderTarget, isMipped,
                                                  rowBytes);
 }
+
+#if GR_GPU_STATS
+void GrGpu::Stats::dump(SkString* out) {
+    out->appendf("Render Target Binds: %d\n", fRenderTargetBinds);
+    out->appendf("Shader Compilations: %d\n", fShaderCompilations);
+    out->appendf("Textures Created: %d\n", fTextureCreates);
+    out->appendf("Texture Uploads: %d\n", fTextureUploads);
+    out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
+    out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
+    out->appendf("Number of draws: %d\n", fNumDraws);
+}
+
+void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+    keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
+    keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
+    keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);
+    keys->push_back(SkString("number_of_draws")); values->push_back(fNumDraws);
+    keys->push_back(SkString("number_of_failed_draws")); values->push_back(fNumFailedDraws);
+}
+
+#endif
+
 #endif
