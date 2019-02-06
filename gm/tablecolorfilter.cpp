@@ -109,7 +109,7 @@ protected:
         return SkISize::Make(700, 1650);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
         canvas->translate(20, 20);
 
@@ -219,7 +219,7 @@ protected:
         return SkISize::Make(790, 790);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         SkBitmap bm;
         make_bm1(&bm);
 

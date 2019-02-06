@@ -126,7 +126,7 @@ protected:
         return surface;
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         auto surf(compat_surface(canvas, this->getISize(), this->isCanvasDeferred()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());

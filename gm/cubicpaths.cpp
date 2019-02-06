@@ -26,7 +26,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(1240, 390); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(0, 0);
         path.cubicTo(140, 150, 40, 10, 170, 150);
@@ -154,7 +154,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -283,7 +283,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;

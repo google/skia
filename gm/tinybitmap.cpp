@@ -33,7 +33,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(100, 100); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         SkBitmap bm = make_bitmap();
         SkPaint paint;
         paint.setAlpha(0x80);

@@ -336,7 +336,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
 
         SkPoint pts[2] = {
             { 0, 0 },

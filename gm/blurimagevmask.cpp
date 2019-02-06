@@ -52,12 +52,11 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 }
 
 #include "Resources.h"
-DEF_SIMPLE_GM(blur_image, canvas, 500, 500) {
+DEF_SIMPLE_GM_CAN_FAIL(blur_image, canvas, errorMsg, 500, 500) {
     auto image = GetResourceAsImage("images/mandrill_128.png");
     if (!image) {
-        skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_128.png. "
-                                               "Did you forget to set the resourcePath?");
-        return;
+        *errorMsg = "Could not load mandrill_128.png. Did you forget to set the resourcePath?";
+        return skiagm::DrawResult::kFail;
     }
 
     SkPaint paint;
@@ -69,4 +68,5 @@ DEF_SIMPLE_GM(blur_image, canvas, 500, 500) {
     canvas->drawImage(image, 10, 10, &paint);
     canvas->scale(1.01f, 1.01f);
     canvas->drawImage(image, 10 + image->width() + 10.f, 10, &paint);
+    return skiagm::DrawResult::kOk;
 }

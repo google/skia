@@ -48,7 +48,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         for (int y = 100; y < kHeight; y += 200) {
             for (int x = 100; x < kWidth; x += 200) {
                 switch (fType) {

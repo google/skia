@@ -35,7 +35,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 480); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
 
         y = textHeight;
         drawText(canvas, SkString("TEXT: SubpixelTrue LCDRenderTrue"),
@@ -96,7 +96,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(320, 120); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         const char* lcd_text = "LCD";
         const char* gray_text = "GRAY";
 

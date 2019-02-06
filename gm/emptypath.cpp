@@ -40,7 +40,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;

@@ -67,7 +67,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         canvas->clear(SK_ColorBLACK);
         test(canvas,   0,   0, Type::kFractalNoise,
              0.1f, 0.1f, 0, 0, false);
@@ -128,7 +128,7 @@ protected:
         paint->setShader(std::move(shader));
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         canvas->translate(10, 10);
 
         SkPaint paint;

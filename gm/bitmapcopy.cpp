@@ -69,7 +69,7 @@ protected:
         return SkISize::Make(540, 330);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         SkScalar horizMargin = 10;
         SkScalar vertMargin = 10;

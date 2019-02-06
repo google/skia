@@ -71,7 +71,7 @@ protected:
         return SkISize::Make(400, 640);
     }
 
-    virtual void onDraw(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkBlendMode gModes[] = {

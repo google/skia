@@ -257,7 +257,7 @@ protected:
         fPaths.push_back().addCircle(0, 0, 1.2f);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         this->makePaths();
 
         SkPaint paint;

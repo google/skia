@@ -180,7 +180,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -236,7 +236,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
 
         SkPoint pts[2] ={
             { 0, 0 },
@@ -294,7 +294,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -347,13 +347,13 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 500); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         SkMatrix perspective;
         perspective.setIdentity();
         perspective.setPerspY(0.001f);
         perspective.setSkewX(SkIntToScalar(8) / 25);
         canvas->concat(perspective);
-        INHERITED::onDraw(canvas);
+        return INHERITED::onDraw(canvas);
     }
 
 private:
@@ -393,7 +393,7 @@ protected:
         canvas->drawColor(SK_ColorBLUE);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
         SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
@@ -473,7 +473,7 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(300) };

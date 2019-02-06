@@ -32,7 +32,7 @@ protected:
         return SkISize::Make(700, 500);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         sk_sp<SkData> name(SkData::MakeWithCString("target-a"));
 
         canvas->save();

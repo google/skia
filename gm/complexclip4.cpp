@@ -31,7 +31,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(970, 780); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         SkPaint p;
         p.setAntiAlias(fDoAAClip);
         p.setColor(SK_ColorYELLOW);

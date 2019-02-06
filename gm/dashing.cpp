@@ -57,7 +57,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 340); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         constexpr struct {
             int fOnInterval;
             int fOffInterval;
@@ -145,7 +145,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 480); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         constexpr int gIntervals[] = {
             3,  // 3 dashes: each count [0] followed by intervals [1..count]
             2,  10, 10,
@@ -244,7 +244,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         // 1on/1off 1x1 squares with phase of 0 - points fastpath
         canvas->save();
             canvas->translate(2, 0);
@@ -334,7 +334,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 1100); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) {
         constexpr struct {
             int fOnInterval;
             int fOffInterval;
