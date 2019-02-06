@@ -131,7 +131,6 @@
   "Housekeeper-Nightly-UpdateGoDEPS",
   "Housekeeper-OnDemand-Presubmit",
   "Housekeeper-PerCommit",
-  "Housekeeper-PerCommit-Bookmaker",
   "Housekeeper-PerCommit-BundleRecipes",
   "Housekeeper-PerCommit-CheckGeneratedFiles",
   "Housekeeper-PerCommit-InfraTests",
