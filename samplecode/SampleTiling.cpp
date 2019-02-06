@@ -107,7 +107,9 @@ protected:
                     SkPaint p;
                     SkString str;
                     p.setDither(true);
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
                     p.setLooper(fLooper);
+#endif
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                     SkTextUtils::DrawString(textCanvas, str.c_str(), x + r.width()/2, y, SkFont(), p,
@@ -139,7 +141,9 @@ protected:
                 }
                 if (textCanvas) {
                     SkPaint p;
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
                     p.setLooper(fLooper);
+#endif
                     textCanvas->drawString(
                             SkStringPrintf("%s, %s", gConfigNames[i], gFilterNames[j]),
                             x, y + r.height() * 2 / 3, SkFont(), p);
