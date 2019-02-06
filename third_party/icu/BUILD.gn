@@ -44,6 +44,9 @@ if (skia_use_icu) {
       }
     }
 
+    if (is_win) {
+      _data_obj = "$target_gen_dir/icudtl_dat.obj"
+    }
     third_party("icu") {
       public_include_dirs = [
         "../externals/icu/source/common",
@@ -53,26 +56,22 @@ if (skia_use_icu) {
       public_defines = [
         "U_USING_ICU_NAMESPACE=0",
         "SK_USING_THIRD_PARTY_ICU",
+        "U_STATIC_IMPLEMENTATION",
       ]
       configs -= [ "//gn:no_rtti" ]
       defines = [
         # http://userguide.icu-project.org/howtouseicu
         "U_COMMON_IMPLEMENTATION",
-        "U_STATIC_IMPLEMENTATION",
         "U_ENABLE_DYLOAD=0",
         "U_I18N_IMPLEMENTATION",
       ]
       sources = icu_sources
       if (is_win) {
+        sources += [ _data_obj ]
         deps = [
-          ":icudata",
+          ":assemble_data",
         ]
-        public_defines += [
-          "U_NOEXCEPT=",
-          "U_STATIC_IMPLEMENTATION",
-        ]
-        libs = [ "Advapi32.lib" ]
-        sources += [ "../externals/icu/source/stubdata/stubdata.cpp" ]
+        public_defines += [ "U_NOEXCEPT=" ]
       } else {
         sources += [ "$data_assembly" ]
         deps = [
@@ -81,14 +80,21 @@ if (skia_use_icu) {
       }
     }
     if (is_win) {
-      copy("icudata") {
+      action("assemble_data") {
+        script = "make_data_obj_win.py"
         sources = [
-          "../externals/icu/windows/icudt.dll",
+          "../externals/icu/android/icudtl.dat",
         ]
         outputs = [
-          "$root_out_dir/icudt.dll",
+          _data_obj,
         ]
-        data = outputs
+        args = [
+          "icudt63_dat",
+          current_os,
+          target_cpu,
+          rebase_path(sources[0], root_build_dir),
+          rebase_path(_data_obj, root_build_dir),
+        ]
       }
     }
   }
