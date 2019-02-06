@@ -16,6 +16,24 @@
       "revId": "6d90124b22e4f57d1690a60fc65f74aa3b30c71b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ae6b0a1_9c9e308c",
+        "filename": "gm/gradients_no_texture.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-06T20:59:54Z",
+      "side": 1,
+      "message": "I considered that as well. The only concern would be people not knowing the other onDraw existed when they needed to handle an error. What if we gave it a different name?\n\n  onDrawNoFail\n  onDrawCannotFail\n  onDrawSimple\n  onDrawAlwaysSucceeds\n  ...\n\n?",
+      "parentUuid": "961585ef_e2fcd50b",
+      "revId": "6d90124b22e4f57d1690a60fc65f74aa3b30c71b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
