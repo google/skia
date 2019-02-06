@@ -414,7 +414,7 @@ static const char* block_names[] = {
 };
 
 string StatusIter::baseDir() {
-    SkASSERT(fStack.back().fObject.isArray());
+    SkASSERT(fStack.back().fArray);
     SkASSERT(fStack.size() > 2);
     string dir;
     for (unsigned index = 2; index < fStack.size(); ++index) {
@@ -438,7 +438,7 @@ bool StatusIter::next(string* strPtr, StatusFilter *filter) {
                 return false;
             }
             status = &fStack.back();
-            if (status->fIter != status->fObject.end()) {
+            if (!status->atEnd()) {
                 break;
             }
             fStack.pop_back();
@@ -446,8 +446,9 @@ bool StatusIter::next(string* strPtr, StatusFilter *filter) {
         if (1 == fStack.size()) {
             do {
                 blockType = StatusFilter::kUnknown;
+                SkASSERT(status->fObject);
                 for (unsigned index = 0; index < SK_ARRAY_COUNT(block_names); ++index) {
-                    if (status->fIter.key().asString() == block_names[index]) {
+                    if (!strcmp(status->fObjectIter->fKey.begin(), block_names[index])) {
                         blockType = (StatusFilter) index;
                         break;
                     }
@@ -455,34 +456,35 @@ bool StatusIter::next(string* strPtr, StatusFilter *filter) {
                 if (blockType <= fFilter) {
                     break;
                 }
-                status->fIter++;
-            } while (status->fIter != status->fObject.end());
-            if (status->fIter == status->fObject.end()) {
+                status->advance();
+            } while (!status->atEnd());
+            if (status->atEnd()) {
                 continue;
             }
         }
-        if (!status->fObject.isArray()) {
-            SkASSERT(status->fIter != status->fObject.end());
-            JsonStatus block = {
-                *status->fIter,
-                status->fIter->begin(),
-                status->fIter.key().asString(),
-                blockType
-            };
+        if (!status->fArray) {
+            SkASSERT(status->fObjectIter != status->fObject->end());
+            JsonStatus block = JsonStatus::Make(status->current(),
+                                                status->fObjectIter->fKey.begin(),
+                                                blockType);
             fStack.emplace_back(block);
             status = &(&fStack.back())[-1];
-            status->fIter++;
+            status->advance();
             status = &fStack.back();
             continue;
         }
-        str = status->fIter->asString();
+        if (const skjson::StringValue* sv = status->current()) {
+            str = sv->begin();
+        } else {
+            str = status->current().toString().c_str();
+        }
         if (strPtr) {
             *strPtr = str;
         }
         if (filter) {
             *filter = status->fStatusFilter;
         }
-        status->fIter++;
+        status->advance();
         if (str.length() - strlen(fSuffix) == str.find(fSuffix)) {
             return true;
         }
@@ -496,14 +498,12 @@ bool JsonCommon::parseFromFile(const char* path) {
         SkDebugf("file %s:\n", path);
         return this->reportError<bool>("file not readable");
     }
-    Json::Reader reader;
-    const char* data = (const char*)json->data();
-    if (!reader.parse(data, data + json->size(), fRoot)) {
+    fDom.reset(new skjson::DOM((const char*)json->data(), json->size()));
+    if (!fDom->root().is<skjson::ObjectValue>()) {
         SkDebugf("file %s:\n", path);
         return this->reportError<bool>("file not parsable");
     }
-    JsonStatus block = { fRoot, fRoot.begin(), "", StatusFilter::kUnknown };
+    JsonStatus block = JsonStatus::Make(fDom->root(), "", StatusFilter::kUnknown);
     fStack.emplace_back(block);
     return true;
 }
-
