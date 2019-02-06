@@ -196,6 +196,10 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
         SkASSERT(false);
     }
 
+    // FIXME: only add this when truly needed
+    if (SkSL::Program::kFragment_Kind == kind) {
+        program->fInputs.fRTHeight = true;
+    }
     *outInputs = program->fInputs;
     SkSL::String code;
     if (!gpu->shaderCompiler()->toMetal(*program, &code)) {
