@@ -782,10 +782,6 @@ protected:
                     }
 
                     if (context) {
-                        if (context->abandoned()) {
-                            return;
-                        }
-
                         GrGpu* gpu = context->priv().getGpu();
                         if (!gpu) {
                             return;
@@ -876,16 +872,14 @@ protected:
             }
         }
         if (auto context = canvas->getGrContext()) {
-            if (!context->abandoned()) {
-                context->flush();
-                GrGpu* gpu = context->priv().getGpu();
-                SkASSERT(gpu);
-                gpu->testingOnly_flushGpuAndSync();
-                for (const auto& tex : fBackendTextures) {
-                    gpu->deleteTestingOnlyBackendTexture(tex);
-                }
-                fBackendTextures.reset();
+            context->flush();
+            GrGpu* gpu = context->priv().getGpu();
+            SkASSERT(gpu);
+            gpu->testingOnly_flushGpuAndSync();
+            for (const auto& tex : fBackendTextures) {
+                gpu->deleteTestingOnlyBackendTexture(tex);
             }
+            fBackendTextures.reset();
         }
         SkASSERT(!fBackendTextures.count());
     }
