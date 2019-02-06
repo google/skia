@@ -201,7 +201,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             texCtx->writePixels(info, data.get(), 0, 0, 0);
                         }
                     }
-                    context->priv().purgeAllUnlockedResources_ForTesting();
+                    context->priv().testingOnly_purgeAllUnlockedResources();
 
                     GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
                     GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(desc.fConfig,
@@ -234,7 +234,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             surfCtx->writePixels(info, data.get(), 0, 0, 0);
                         }
                     }
-                    context->priv().purgeAllUnlockedResources_ForTesting();
+                    context->priv().testingOnly_purgeAllUnlockedResources();
                 }
             }
         }

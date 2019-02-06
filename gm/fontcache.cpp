@@ -66,7 +66,7 @@ protected:
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
             if (auto ctx = canvas->getGrContext()) {
-                auto img = ctx->priv().getFontAtlasImage_ForTesting(kA8_GrMaskFormat);
+                auto img = ctx->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
                 canvas->drawImage(img, 0, 0);
             }
         }
