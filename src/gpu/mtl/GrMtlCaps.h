@@ -67,9 +67,7 @@ public:
         return kUnknown_GrPixelConfig;
     }
 
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override {
-        return kUnknown_GrPixelConfig;
-    }
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
 
     GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override {
         return kUnknown_GrPixelConfig;

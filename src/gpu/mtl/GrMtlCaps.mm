@@ -436,3 +436,77 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromGrColorType(GrColorType ct,
     return GrBackendFormat::MakeMtl(format);
 }
 
+static GrPixelConfig validate_image_info(GrMTLPixelFormat format,
+                                         SkColorType ct,
+                                         bool hasYcbcrConversion) {
+    switch (ct) {
+        case kUnknown_SkColorType:
+            break;
+        case kAlpha_8_SkColorType:
+            if (MTLPixelFormatR8Unorm == format) {
+                return kAlpha_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGB_565_SkColorType:
+            if (MTLPixelFormatB5G6R5Unorm == format) {
+                return kRGB_565_GrPixelConfig;
+            }
+            break;
+        case kARGB_4444_SkColorType:
+            if (MTLPixelFormatABGR4Unorm == format) {
+                return kRGBA_4444_GrPixelConfig;
+            }
+            break;
+        case kRGBA_8888_SkColorType:
+            if (MTLPixelFormatRGBA8Unorm == format) {
+                return kRGBA_8888_GrPixelConfig;
+            } else if (MTLPixelFormatRGBA8Unorm_sRGB == format) {
+                return kSRGBA_8888_GrPixelConfig;
+            }
+            break;
+        case kRGB_888x_SkColorType:
+            return kUnknown_GrPixelConfig; // TODO: MTLPixelFormatRGB8Unorm
+            break;
+        case kBGRA_8888_SkColorType:
+            if (MTLPixelFormatBGRA8Unorm == format) {
+                return kBGRA_8888_GrPixelConfig;
+            } else if (MTLPixelFormatBGRA8Unorm_sRGB == format) {
+                return kSBGRA_8888_GrPixelConfig;
+            }
+            break;
+        case kRGBA_1010102_SkColorType:
+            if (MTLPixelFormatRGB10A2Unorm == format) {
+                return kRGBA_1010102_GrPixelConfig;
+            }
+            break;
+        case kRGB_101010x_SkColorType:
+            return kUnknown_GrPixelConfig;
+        case kGray_8_SkColorType:
+            if (MTLPixelFormatR8Unorm == format) {
+                return kGray_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGBA_F16_SkColorType:
+            if (MTLPixelFormatRGBA16Float == format) {
+                return kRGBA_half_GrPixelConfig;
+            }
+            break;
+        case kRGBA_F32_SkColorType:
+            if (MTLPixelFormatRGBA32Float == format) {
+                return kRGBA_float_GrPixelConfig;
+            }
+            break;
+    }
+
+    return kUnknown_GrPixelConfig;
+}
+
+GrPixelConfig GrMtlCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
+                                                    SkColorType ct) const {
+    const GrMTLPixelFormat* mtlFormat = format.getMtlFormat();
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    if (!mtlFormat || !ycbcrInfo) {
+        return kUnknown_GrPixelConfig;
+    }
+    return validate_image_info(*mtlFormat, ct, ycbcrInfo->isValid());
+}
