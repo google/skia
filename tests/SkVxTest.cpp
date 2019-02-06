@@ -76,4 +76,37 @@ DEF_TEST(SkVx, r) {
 
     REPORTER_ASSERT(r, all(if_then_else(float4{1,2,3,2} <= float4{2,2,2,2}, float4(42), float4(47))
                            == float4{42,42,47,42}));
+
+    REPORTER_ASSERT(r, all(floor(float4{-1.5f,1.5f,1.0f,-1.0f}) == float4{-2.0f,1.0f,1.0f,-1.0f}));
+    REPORTER_ASSERT(r, all( ceil(float4{-1.5f,1.5f,1.0f,-1.0f}) == float4{-1.0f,2.0f,1.0f,-1.0f}));
+    REPORTER_ASSERT(r, all(trunc(float4{-1.5f,1.5f,1.0f,-1.0f}) == float4{-1.0f,1.0f,1.0f,-1.0f}));
+    REPORTER_ASSERT(r, all(round(float4{-1.5f,1.5f,1.0f,-1.0f}) == float4{-2.0f,2.0f,1.0f,-1.0f}));
+
+
+    REPORTER_ASSERT(r, all(abs(float4{-2,-1,0,1}) == float4{2,1,0,1}));
+
+    // TODO(mtklein): these tests could be made less loose.
+    REPORTER_ASSERT(r, all( sqrt(float4{2,3,4,5}) < float4{2,2,3,3}));
+    REPORTER_ASSERT(r, all(  rcp(float4{2,3,4,5}) < float4{1.0f,0.5f,0.5f,0.3f}));
+    REPORTER_ASSERT(r, all(rsqrt(float4{2,3,4,5}) < float4{1.0f,1.0f,1.0f,0.5f}));
+
+    REPORTER_ASSERT(r, all(cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
+
+    float buf[4] = {1,2,3,4};
+    REPORTER_ASSERT(r, all(float4::Load(buf) == float4{1,2,3,4}));
+    float4{2,3,4,5}.store(buf);
+    REPORTER_ASSERT(r, all(float4::Load(buf) == float4{2,3,4,5}));
+
+    {
+
+        int4 iota = {0,1,2,3};
+        int i = 0;
+        for (int val : iota) {
+            REPORTER_ASSERT(r, val == i++);
+        }
+        for (int& val : iota) {
+            val = 42;
+        }
+        REPORTER_ASSERT(r, all(iota == 42));
+    }
 }
