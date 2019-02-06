@@ -269,6 +269,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
         if (DisconnectType::kCleanup == type) {
             this->destroyResources();
         } else {
+            SK_ABORT("GrVkGpu::disconnect(DisconnectType::kAbandon)");
             if (fCmdPool) {
                 fCmdPool->unrefAndAbandon();
                 fCmdPool = nullptr;

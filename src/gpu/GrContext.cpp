@@ -38,6 +38,9 @@
 #include "effects/GrSkSLFP.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextBlobCache.h"
+#ifdef SK_VULKAN
+#include "vk/GrVkPipeline.h"
+#endif
 #include <atomic>
 #include <unordered_map>
 
@@ -57,6 +60,11 @@
 #define RETURN_FALSE_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
 
+void GrContext::assertZeroCount() {
+#ifdef SK_VULKAN
+    GrVkPipeline::assertZeroCount();
+#endif
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t id)
@@ -165,6 +173,7 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 //////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {
+    SK_ABORT("GrContext::abandonContext");
     ASSERT_SINGLE_OWNER
 
     fProxyProvider->abandon();

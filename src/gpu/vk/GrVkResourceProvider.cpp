@@ -447,6 +447,7 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 }
 
 void GrVkResourceProvider::abandonResources() {
+    SK_ABORT("GrVkResourceProvider::abandonResources");
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->wait();

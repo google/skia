@@ -53,6 +53,7 @@ class SkTraceMemoryDump;
 
 class SK_API GrContext : public GrRecordingContext {
 public:
+    static void assertZeroCount();
     /**
      * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
      * GrGLMakeNativeInterface() is used if it succeeds.

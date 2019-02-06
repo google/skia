@@ -13,6 +13,16 @@
 #include "GrVkGpu.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkUtil.h"
+#include <atomic>
+
+static std::atomic<int32_t> gPipelineCnt;
+
+// static
+void GrVkPipeline::assertZeroCount() {
+    int pipelineCnt = gPipelineCnt.load(std::memory_order_acquire);
+    SkASSERTF(pipelineCnt == 0,
+              "Seems to be %d VkPipelines that haven't been destroyed.", pipelineCnt);
+}
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>
@@ -500,6 +510,19 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
+static void wrappedCreate(GrVkGpu* gpu, VkPipelineCache cache, VkGraphicsPipelineCreateInfo* pipelineCreateInfo, VkPipeline* vkPipeline) {
+    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
+                                                                          cache, 1,
+                                                                          pipelineCreateInfo,
+                                                                          nullptr, vkPipeline));
+    SkASSERTF(!err, "Failed to create pipeline. Error: %d\n", err);
+}
+
+GrVkPipeline::GrVkPipeline(VkPipeline pipeline) :
+        INHERITED(), fPipeline(pipeline) {
+    gPipelineCnt.fetch_add(+1, std::memory_order_relaxed);
+}
+
 GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, int numColorSamples,
                                    const GrPrimitiveProcessor& primProc,
                                    const GrPipeline& pipeline, const GrStencilSettings& stencil,
@@ -562,27 +585,15 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, int numColorSamples,
     pipelineCreateInfo.basePipelineIndex = -1;
 
     VkPipeline vkPipeline;
-    VkResult err;
-    {
-#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8712
-        __lsan::ScopedDisabler lsanDisabler;
-#endif
-        err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                     cache, 1,
-                                                                     &pipelineCreateInfo,
-                                                                     nullptr, &vkPipeline));
-    }
-    if (err) {
-        SkDebugf("Failed to create pipeline. Error: %d\n", err);
-        return nullptr;
-    }
-
+    wrappedCreate(gpu, cache, &pipelineCreateInfo, &vkPipeline);
     return new GrVkPipeline(vkPipeline);
 }
 
 void GrVkPipeline::freeGPUData(GrVkGpu* gpu) const {
+    SkASSERT(!freed);
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
+    gPipelineCnt.fetch_add(-1, std::memory_order_acq_rel);
+    freed = true;
 }
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,

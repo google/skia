@@ -99,7 +99,7 @@ std::function<void()> context_restorer() {
     if (!display) {
         display = get_display();
     }
-    return [display, drawable, context] { glXMakeCurrent(display, drawable, context); };
+    return [display, drawable, context] { SkASSERT(glXMakeCurrent(display, drawable, context)); };
 }
 
 GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* shareContext)
@@ -234,20 +234,20 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
     SkScopeExit restorer(context_restorer());
     //SkDebugf("Making context current.\n");
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
-      SkDebugf("Could not set the context.\n");
+        SK_ABORT("Could not set the context.\n");
         this->destroyGLContext();
         return;
     }
 
     auto gl = GrGLMakeNativeInterface();
     if (!gl) {
-        SkDebugf("Failed to create gl interface");
+        SK_ABORT("Failed to create gl interface");
         this->destroyGLContext();
         return;
     }
 
     if (!gl->validate()) {
-        SkDebugf("Failed to validate gl interface");
+        SK_ABORT("Failed to validate gl interface");
         this->destroyGLContext();
         return;
     }
@@ -266,7 +266,7 @@ void GLXGLTestContext::destroyGLContext() {
         if (fContext) {
             if (glXGetCurrentContext() == fContext) {
                 // This will ensure that the context is immediately deleted.
-                glXMakeContextCurrent(fDisplay, None, None, nullptr);
+                SkASSERT(glXMakeContextCurrent(fDisplay, None, None, nullptr));
             }
             glXDestroyContext(fDisplay, fContext);
             fContext = nullptr;
@@ -349,9 +349,7 @@ GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXF
 }
 
 void GLXGLTestContext::onPlatformMakeCurrent() const {
-    if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
-        SkDebugf("Could not set the context.\n");
-    }
+    SkASSERT(glXMakeCurrent(fDisplay, fGlxPixmap, fContext));
 }
 
 std::function<void()> GLXGLTestContext::onPlatformGetAutoContextRestore() const {
