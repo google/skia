@@ -142,7 +142,8 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
     [fGLView setOpenGLContext:fGLContext];
     [fGLView setPixelFormat:fPixelFormat];
-    [fGLView setWantsBestResolutionOpenGLSurface:YES];
+    // TODO: support Retina displays
+    [fGLView setWantsBestResolutionOpenGLSurface:NO];
     [fGLContext setView:fGLView];
 
     [fGLContext makeCurrentContext];

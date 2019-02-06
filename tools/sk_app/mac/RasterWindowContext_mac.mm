@@ -153,7 +153,8 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
     [fRasterView setOpenGLContext:fGLContext];
     [fRasterView setPixelFormat:fPixelFormat];
-    [fRasterView setWantsBestResolutionOpenGLSurface:YES];
+    // TODO: support Retina displays
+    [fRasterView setWantsBestResolutionOpenGLSurface:NO];
     [fGLContext setView:fRasterView];
 
     [fGLContext makeCurrentContext];

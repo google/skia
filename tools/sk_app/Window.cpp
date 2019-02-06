@@ -95,14 +95,14 @@ void Window::onResize(int w, int h) {
     this->visitLayers([=](Layer* layer) { layer->onResize(w, h); });
 }
 
-int Window::width() {
+int Window::width() const {
     if (!fWindowContext) {
         return 0;
     }
     return fWindowContext->width();
 }
 
-int Window::height() {
+int Window::height() const {
     if (!fWindowContext) {
         return 0;
     }
