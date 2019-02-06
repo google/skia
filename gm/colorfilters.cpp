@@ -48,7 +48,7 @@ protected:
         return SkISize::Make(620, 430);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         SkRect r;
         r.setWH(600, 50);
@@ -73,6 +73,7 @@ protected:
             canvas->drawRect(r, paint);
             canvas->translate(0, r.height() + 10);
         }
+        return DrawResult::kOk;
     }
 
 private:

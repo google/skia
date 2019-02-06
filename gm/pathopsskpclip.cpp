@@ -31,7 +31,7 @@ protected:
         return SkISize::Make(1200, 900);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPictureRecorder recorder;
         SkCanvas* rec = recorder.beginRecording(1200, 900, nullptr, 0);
         SkPath p;
@@ -58,6 +58,7 @@ protected:
         canvas->translate(SkIntToScalar(1200 / 2), 0);
         canvas->drawPicture(pict);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

@@ -103,7 +103,7 @@ protected:
         return SkISize::Make(600, 420);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBlendMode modes[] = {
             SkBlendMode::kSrcOver,
             SkBlendMode::kDstOver,
@@ -138,6 +138,7 @@ protected:
             }
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
 private:

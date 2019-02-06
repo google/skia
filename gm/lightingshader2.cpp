@@ -141,7 +141,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint labelPaint;
         SkFont font(
                 sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle()), kLabelSize);
@@ -250,6 +250,7 @@ protected:
 
             gridNum++;
         }
+        return DrawResult::kOk;
     }
 
 private:

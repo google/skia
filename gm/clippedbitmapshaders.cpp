@@ -76,7 +76,7 @@ protected:
         return SkISize::Make(300, 300);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkBitmap bmp = create_bitmap();
         SkMatrix s;
         s.reset();
@@ -105,6 +105,7 @@ protected:
                 canvas->restore();
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

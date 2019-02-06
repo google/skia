@@ -28,7 +28,7 @@ protected:
         return SkISize::Make(1024, 600);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap orig;
         GetResourceAsBitmap("images/mandrill_512_q075.jpg", &orig);
         auto pngData = SkEncodeBitmap(orig, SkEncodedImageFormat::kPNG, 100);
@@ -42,6 +42,7 @@ protected:
         SkFont font;
         font.setEdging(SkFont::Edging::kAlias);
         canvas->drawString("Images should look identical.", 450.0f, 550.0f, font, SkPaint());
+        return DrawResult::kOk;
     }
 
 private:

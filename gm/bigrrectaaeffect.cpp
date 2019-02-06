@@ -48,8 +48,8 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
 
         int y = kPad;
@@ -90,6 +90,7 @@ protected:
             canvas->restore();
             x = x + fTestOffsetX;
         }
+        return DrawResult::kOk;
     }
 
 private:

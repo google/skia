@@ -83,7 +83,7 @@ namespace skiagm {
             fBGPaint.setShader(make_bg_shader());
         }
 
-        void onDraw(SkCanvas* canvas) override {
+        DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
             const SkRect bounds = SkRect::MakeWH(W, H);
             constexpr SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
@@ -112,6 +112,7 @@ namespace skiagm {
                 canvas->restore();
                 canvas->translate(W * 5 / 4, 0);
             }
+            return DrawResult::kOk;
         }
 
     private:

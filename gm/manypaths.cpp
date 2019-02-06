@@ -42,7 +42,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkRandom rand(1);
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -55,6 +55,7 @@ protected:
             paint.setColor(gen_color(&rand));
             canvas->drawOval(circle, paint);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -81,7 +82,7 @@ protected:
         return SkISize::Make(800, 300);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkRandom rand(1);
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -108,6 +109,7 @@ protected:
             }
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
 private:

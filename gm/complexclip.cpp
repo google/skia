@@ -38,7 +38,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(970, 780); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPath path;
         path.moveTo(0,   50)
             .quadTo(0,   0,   50,  0)
@@ -158,6 +158,7 @@ protected:
         if (fDoSaveLayer) {
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 private:
     void drawHairlines(SkCanvas* canvas, const SkPath& path,

@@ -38,7 +38,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         canvas->drawColor(SK_ColorGRAY);
         SkScalar y = 0;
@@ -63,6 +63,7 @@ protected:
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

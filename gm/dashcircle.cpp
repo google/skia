@@ -35,7 +35,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(900, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint refPaint;
         refPaint.setAntiAlias(true);
         refPaint.setColor(0xFFbf3f7f);
@@ -92,6 +92,7 @@ protected:
             canvas->restore();
             canvas->translate(radius * 2 + 50, 0);
         }
+        return DrawResult::kOk;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -118,7 +119,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(635, 900); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // These intervals are defined relative to tau.
         static constexpr SkScalar kIntervals[][2]{
                 {0.333f, 0.333f},
@@ -212,6 +213,7 @@ protected:
             canvas->translate(0, bounds.height() + kPad);
         }
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 protected:

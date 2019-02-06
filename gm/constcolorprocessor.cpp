@@ -44,8 +44,8 @@ protected:
                                                SkShader::kClamp_TileMode);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,
             0xFFFF00FF,
@@ -155,6 +155,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

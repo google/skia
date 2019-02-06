@@ -53,7 +53,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint p;
         p.setAntiAlias(false);
         p.setStyle(SkPaint::kFill_Style);
@@ -76,6 +76,7 @@ protected:
         SkPaint surfPaint;
         surfPaint.setBlendMode(SkBlendMode::kSrcOver);
         surface->draw(canvas, 0, 0, &surfPaint);
+        return DrawResult::kOk;
     }
 
     void drawColumn(SkCanvas* canvas, SkColor backgroundColor, SkColor textColor, bool useGrad) {

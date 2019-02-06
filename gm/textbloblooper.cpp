@@ -219,7 +219,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -237,6 +237,7 @@ protected:
             canvas->restore();
             y += SkScalarFloorToInt(bounds.height());
         }
+        return DrawResult::kOk;
     }
 
 private:

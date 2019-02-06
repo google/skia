@@ -93,7 +93,7 @@ protected:
         return SkISize::Make(512, 512);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPoint points[2];
 
         SkColor colors[] = {
@@ -155,6 +155,7 @@ protected:
                 shade_rect(canvas, shader, cellRow, cellCol);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

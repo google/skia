@@ -31,7 +31,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(970, 780); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkPaint p;
         p.setAntiAlias(fDoAAClip);
         p.setColor(SK_ColorYELLOW);
@@ -82,6 +82,7 @@ protected:
             canvas->restore();
 
         canvas->restore();
+        return DrawResult::kOk;
     }
 private:
 

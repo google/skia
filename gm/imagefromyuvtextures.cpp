@@ -144,7 +144,8 @@ protected:
         context->resetContext();
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         constexpr SkScalar kPad = 10.f;
 
         SkTArray<sk_sp<SkImage>> images;
@@ -192,6 +193,7 @@ protected:
             };
             this->deleteBackendTextures(context, texturesToDelete, 4);
         }
+        return DrawResult::kOk;
      }
 
 private:

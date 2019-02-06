@@ -66,7 +66,7 @@ protected:
         return SkISize::Make(760, 800);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (nullptr == fBitmap.pixelRef() || !fImage->isValid(canvas->getGrContext())) {
             fImage = make_image(canvas, &fCenter);
             image_to_bitmap(fImage.get(), &fBitmap);
@@ -101,6 +101,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

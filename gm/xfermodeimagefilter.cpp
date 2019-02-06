@@ -44,7 +44,7 @@ protected:
                                                       8));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;
 
@@ -198,6 +198,7 @@ protected:
             x = 0;
             y += fBitmap.height() + MARGIN;
         }
+        return DrawResult::kOk;
     }
 
 private:

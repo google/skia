@@ -85,7 +85,7 @@ protected:
         fMaskFilter = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         createShader();
         createMaskFilter();
 
@@ -126,6 +126,7 @@ protected:
         paint2.setColor(SK_ColorGRAY);
 
         canvas->drawPath(path, paint2);
+        return DrawResult::kOk;
     }
 
 private:

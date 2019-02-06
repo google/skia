@@ -43,7 +43,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -138,6 +138,7 @@ protected:
         }
         canvas->restore();
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:
@@ -173,7 +174,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -268,6 +269,7 @@ protected:
         }
         canvas->restore();
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

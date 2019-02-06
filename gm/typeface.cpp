@@ -109,7 +109,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkFont font;
         font.setSize(30);
 
@@ -135,6 +135,7 @@ protected:
             }
             y += dy;
         }
+        return DrawResult::kOk;
     }
 
 private:

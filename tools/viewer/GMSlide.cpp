@@ -24,7 +24,8 @@ void GMSlide::draw(SkCanvas* canvas) {
     // Do we care about timing the draw of the background (once)?
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
-    fGM->drawContent(canvas);
+    SkString errorMsg;
+    fGM->drawContent(canvas, &errorMsg);
 }
 
 bool GMSlide::animate(const SkAnimTimer& timer) {

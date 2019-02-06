@@ -115,7 +115,7 @@ protected:
         return SkISize::Make(600, 420);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkHighContrastConfig configs[] = {
             { false, InvertStyle::kNoInvert, 0.0f },
             { false, InvertStyle::kInvertBrightness, 0.0f },
@@ -137,6 +137,7 @@ protected:
             draw_label(canvas, configs[i]);
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
 private:

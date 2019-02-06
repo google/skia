@@ -52,7 +52,7 @@ protected:
         fBitmap = make_bm(360, 288);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
 
         paint.setAntiAlias(true);
@@ -65,6 +65,7 @@ protected:
         paint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kRepeat_TileMode,
                                                    SkShader::kRepeat_TileMode, &mat));
         canvas->drawRect({ 8, 8, 1008, 608 }, paint);
+        return DrawResult::kOk;
     }
 
 private:

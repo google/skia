@@ -34,7 +34,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(SK_Scalar1, SK_Scalar1);
 
         SkRandom rand;
@@ -59,6 +59,7 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, n, pts, p3);
 
         delete[] pts;
+        return DrawResult::kOk;
     }
 
 private:
