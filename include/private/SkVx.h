@@ -275,11 +275,7 @@ ___ Vec<N,T> floor(Vec<N,T> x) { return map(x, [](T a) { return std::floor(a); }
 ___ Vec<N,T> trunc(Vec<N,T> x) { return map(x, [](T a) { return std::trunc(a); }); }
 ___ Vec<N,T> round(Vec<N,T> x) { return map(x, [](T a) { return std::round(a); }); }
 ___ Vec<N,T>  sqrt(Vec<N,T> x) { return map(x, [](T a) { return std:: sqrt(a); }); }
-
 ___ Vec<N,T>   abs(Vec<N,T> x) { return if_then_else(x < T(0), -x, x); }
-___ Vec<N,T>   rcp(Vec<N,T> x) { return T(1) / x; }
-___ Vec<N,T> rsqrt(Vec<N,T> x) { return rcp(sqrt(x)); }
-
 
 ___ T min(Vec<N,T> x) { return *std::min_element(x.vals, x.vals+N); }
 ___ T max(Vec<N,T> x) { return *std::max_element(x.vals, x.vals+N); }
@@ -287,15 +283,30 @@ ___ T max(Vec<N,T> x) { return *std::max_element(x.vals, x.vals+N); }
 ___ bool any(Vec<N,T> x) { return std::any_of(x.vals, x.vals+N, [](T a) { return a != Mask<T>(0); }); }
 ___ bool all(Vec<N,T> x) { return std::all_of(x.vals, x.vals+N, [](T a) { return a != Mask<T>(0); }); }
 
+// These operations may have platform-specific results:
+//   - mad() may fuse the mul-add if FMA instructions are available;
+//   - rcp() and rsqrt() have plaform-specific precision.
+___ Vec<N,T>   mad(Vec<N,T> f, Vec<N,T> m, Vec<N,T> a) { return f*m+a; }
+___ Vec<N,T>   rcp(Vec<N,T> x) { return T(1) / x; }
+___ Vec<N,T> rsqrt(Vec<N,T> x) { return rcp(sqrt(x)); }
+
+// All vector/scalar combinations for mad().
+___ Vec<N,T> mad(T f, Vec<N,T> m, Vec<N,T> a) { return Vec<N,T>(f)*m + a; }
+___ Vec<N,T> mad(Vec<N,T> f, T m, Vec<N,T> a) { return f*Vec<N,T>(m) + a; }
+___ Vec<N,T> mad(Vec<N,T> f, Vec<N,T> m, T a) { return f*m + Vec<N,T>(a); }
+___ Vec<N,T> mad(Vec<N,T> f, T m, T a) { return f*Vec<N,T>(m) + Vec<N,T>(a); }
+___ Vec<N,T> mad(T f, Vec<N,T> m, T a) { return Vec<N,T>(f)*m + Vec<N,T>(a); }
+___ Vec<N,T> mad(T f, T m, Vec<N,T> a) { return Vec<N,T>(f)*Vec<N,T>(m) + a; }
+
 // Platform-specific specializations and overloads can now drop in here.
 
 }  // namespace skvx
 
-// Since cast() takes an extra template argument D (the type to cast to),
-// argument-dependent lookup won't let us just type cast<D>(...), instead
-// skvx::cast<D>(...).  That's annoying given how nice all the other methods
-// are, so we'll just move this guy outside into the global namespace.
-// That's pretty harmless... it still only works on skvx::Vec types.
+// These next few routines take extra template arguments that prevent
+// argument-dependent lookup.  They must live outside the skvx namespace,
+// but since they operate only on skvx::Vec, that shouldn't be a big deal.
+
+// cast() Vec<N,S> to Vec<N,D>, as if applying a C-cast to each lane.
 template <typename D, int N, typename S>
 static inline ALWAYS_INLINE skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
 #if !defined(SKNX_NO_SIMD) && defined(__clang__)
@@ -305,6 +316,17 @@ static inline ALWAYS_INLINE skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
 #endif
 }
 
+// Shuffle values from a vector pretty arbitrarily:
+//    skvx::Vec<4,float> rgba = {R,G,B,A};
+//    shuffle<2,1,0,3>        (rgba) ~> {B,G,R,A}
+//    shuffle<2,1>            (rgba) ~> {B,G}
+//    shuffle<2,1,2,1,2,1,2,1>(rgba) ~> {B,G,B,G,B,G,B,G}
+//    shuffle<3,3,3,3>        (rgba) ~> {A,A,A,A}
+// The only real restriction is that the output also be a legal N=power-of-two sknx::Vec.
+template <int... Ix, int N, typename T>
+static inline ALWAYS_INLINE skvx::Vec<sizeof...(Ix),T> shuffle(skvx::Vec<N,T> x) {
+    return { x[Ix]... };
+}
 
 #undef ALWAYS_INLINE
 #undef ___

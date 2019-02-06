@@ -98,7 +98,6 @@ DEF_TEST(SkVx, r) {
     REPORTER_ASSERT(r, all(float4::Load(buf) == float4{2,3,4,5}));
 
     {
-
         int4 iota = {0,1,2,3};
         int i = 0;
         for (int val : iota) {
@@ -109,4 +108,11 @@ DEF_TEST(SkVx, r) {
         }
         REPORTER_ASSERT(r, all(iota == 42));
     }
+
+    REPORTER_ASSERT(r, all(mad(float4{1,2,3,4}, 2.0f, 3.0f) == float4{5,7,9,11}));
+
+    REPORTER_ASSERT(r, all(shuffle<2,1,0,3>        (float4{1,2,3,4}) == float4{3,2,1,4}));
+    REPORTER_ASSERT(r, all(shuffle<2,1>            (float4{1,2,3,4}) == float2{3,2}));
+    REPORTER_ASSERT(r, all(shuffle<2,1,2,1,2,1,2,1>(float4{1,2,3,4}) == float8{3,2,3,2,3,2,3,2}));
+    REPORTER_ASSERT(r, all(shuffle<3,3,3,3>        (float4{1,2,3,4}) == float4{4,4,4,4}));
 }
