@@ -159,7 +159,6 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     if (pipeline.isScissorEnabled()) {
         return; // TODO: ScissorRects are not supported.
     }
-
     std::unique_ptr<GrMtlPipelineState> pipelineState(
             this->prepareDrawState(primProc, pipeline, fixedDynamicState, meshes, meshCount));
     if (!pipelineState) {
