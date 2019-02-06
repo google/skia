@@ -472,8 +472,10 @@ bool AutoDrawLooper::doNext() {
 
     SkPaint* paint = fLazyPaintPerLooper.set(fLazyPaintInit.isValid() ?
                                              *fLazyPaintInit.get() : fOrigPaint);
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     // never want our downstream clients (i.e. devices) to see loopers
     paint->setDrawLooper(nullptr);
+#endif
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);

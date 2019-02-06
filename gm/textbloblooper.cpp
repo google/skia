@@ -230,7 +230,9 @@ protected:
 
         int y = 0;
         for (int looper = 0; looper < fLoopers.count(); looper++) {
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
             paint.setLooper(fLoopers[looper]);
+#endif
             canvas->save();
             canvas->translate(0, SkIntToScalar(y));
             canvas->drawTextBlob(fBlob, 0, 0, paint);
