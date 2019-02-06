@@ -35,7 +35,7 @@ protected:
         return SkISize::Make(800, 600);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkClipOp ops[] = {
             kDifference_SkClipOp,
             kIntersect_SkClipOp,
@@ -84,6 +84,7 @@ protected:
             canvas->restore();
             canvas->translate(fX1 + fX2, 0);
         }
+        return DrawResult::kOk;
     }
 
 private:

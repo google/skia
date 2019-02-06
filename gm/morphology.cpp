@@ -50,7 +50,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         struct {
             int fWidth, fHeight;
             int fRadiusX, fRadiusY;
@@ -81,6 +81,7 @@ protected:
                 this->drawClippedBitmap(canvas, paint, i * 140, j * 140);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

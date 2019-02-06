@@ -76,7 +76,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint textPaint;
         SkFont font(sk_tool_utils::create_portable_typeface(), 12);
 
@@ -146,6 +146,7 @@ protected:
                 y += r.height() * 4 / 3;
             }
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -199,7 +200,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(650, 610); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
 
         const SkScalar w = SkIntToScalar(gWidth);
@@ -247,6 +248,7 @@ protected:
             }
             y += r.height() * 4 / 3;
         }
+        return DrawResult::kOk;
     }
 
 private:

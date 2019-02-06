@@ -109,7 +109,7 @@ protected:
         return SkISize::Make(700, 1650);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         canvas->drawColor(0xFFDDDDDD);
         canvas->translate(20, 20);
 
@@ -184,6 +184,7 @@ protected:
             // Move down one line to the beginning of the block for next bitmap
             y += yOffset;
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -219,7 +220,7 @@ protected:
         return SkISize::Make(790, 790);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkBitmap bm;
         make_bm1(&bm);
 
@@ -269,6 +270,7 @@ protected:
             canvas->restore();
             canvas->translate(0, r.height() + spacer);
         }
+        return DrawResult::kOk;
     }
 
 private:

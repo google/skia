@@ -35,7 +35,7 @@ protected:
         fImages.push_back(make_image2());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkTDArray<SkMatrix> matrices;
         matrices.push()->setAll(1.f, 0.f,    0.f,
                                 0.f, 1.f,    0.f,
@@ -109,6 +109,7 @@ protected:
             }
         }
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

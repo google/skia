@@ -35,7 +35,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         SkPath path;
         paint.setStyle(SkPaint::Style::kStroke_Style);
@@ -74,6 +74,7 @@ protected:
             }
         }
 
+        return DrawResult::kOk;
     }
 
 private:

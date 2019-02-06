@@ -76,7 +76,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(gSize, gSize); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (nullptr == fImage) {
             fImage = makebm(gSurfaceSize, gSurfaceSize);
         }
@@ -126,6 +126,7 @@ protected:
             }
         }
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

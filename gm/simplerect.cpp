@@ -26,7 +26,7 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(1, 1);    // want to exercise non-identity ctm performance
 
         const SkScalar min = -20;
@@ -43,6 +43,7 @@ protected:
             SkScalar h = rand.nextRangeScalar(0, size);
             canvas->drawRect(SkRect::MakeXYWH(x, y, w, h), paint);
         }
+        return DrawResult::kOk;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

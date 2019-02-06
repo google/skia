@@ -37,7 +37,7 @@ protected:
         return SkISize::Make(580, 780);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         struct {
             SkPoint offset;
             SkVector scale;
@@ -59,6 +59,7 @@ protected:
             canvas->scale(cfgs[i].scale.x(), cfgs[i].scale.y());
             drawSets(canvas);
         }
+        return DrawResult::kOk;
     }
 
 private:

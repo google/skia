@@ -78,7 +78,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(640, 572); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         sk_sp<SkImage> src = make_src();
         sk_sp<SkImage> dst = make_dst();
         sk_sp<SkImageFilter> srcFilter = SkImageSource::Make(src);
@@ -155,6 +155,7 @@ protected:
             }
             canvas->translate(0, HH + 12);
         }
+        return DrawResult::kOk;
     }
 
 private:

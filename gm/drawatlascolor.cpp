@@ -67,7 +67,7 @@ protected:
                              2 * kNumColors * (kAtlasSize + kPad) + kTextPad + kPad);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkRect target = SkRect::MakeWH(SkIntToScalar(kAtlasSize), SkIntToScalar(kAtlasSize));
 
         auto atlas = make_atlas(canvas, kAtlasSize);
@@ -149,6 +149,7 @@ protected:
                               gModes[i], nullptr, &paint);
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
 private:

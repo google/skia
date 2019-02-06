@@ -116,7 +116,7 @@ protected:
         fPicture = recorder.finishRecordingAsPicture();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const struct {
             SkISize  size;
             SkScalar scaleX, scaleY;
@@ -179,6 +179,7 @@ protected:
                                               SkIntToScalar(bm.height())), p);
             canvas->drawBitmap(bm, x, y);
         }
+        return DrawResult::kOk;
     }
 
 private:

@@ -140,7 +140,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         const struct {
             SkColor         fColor;
@@ -176,6 +176,7 @@ protected:
                 xOff += 200;
             }
         }
+        return DrawResult::kOk;
     }
 private:
 

@@ -115,7 +115,7 @@ protected:
         return SkISize::Make(975, 1175);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkBlendMode modes[] = {
             SkBlendMode::kClear,
             SkBlendMode::kSrc,
@@ -181,6 +181,7 @@ protected:
             canvas->restore();
             canvas->translate(0, 40);
         }
+        return DrawResult::kOk;
     }
 
 private:

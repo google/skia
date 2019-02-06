@@ -80,7 +80,7 @@ protected:
         canvas->drawImage(fImage1.get(), 300, 0);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(20, 20);
 
         this->drawSet(canvas);
@@ -96,6 +96,7 @@ protected:
         canvas->scale(2, 2);
         this->drawSet(canvas);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:
@@ -300,7 +301,7 @@ protected:
         draw_as_bitmap(canvas, fImageSubset.get(), 150+101, 0);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         this->makeCaches(canvas->getGrContext());
 
         canvas->translate(20, 20);
@@ -318,6 +319,7 @@ protected:
         canvas->scale(2, 2);
         this->drawSet(canvas);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

@@ -30,18 +30,18 @@ protected:
         return SkISize::Make(360, 180);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkBitmap bm, bm4444;
         if (!GetResourceAsBitmap("images/dog.jpg", &bm)) {
-            DrawFailureMessage(canvas, "Could not decode the file. "
-                                       "Did you forget to set the resourcePath?");
-            return;
+            *errorMsg = "Could not decode the file. Did you forget to set the resourcePath?";
+            return DrawResult::kFail;
         }
         canvas->drawBitmap(bm, 0, 0);
 
         // This should dither or we will see artifacts in the background of the image.
         SkAssertResult(sk_tool_utils::copy_to(&bm4444, kARGB_4444_SkColorType, bm));
         canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
+        return DrawResult::kOk;
     }
 
 private:

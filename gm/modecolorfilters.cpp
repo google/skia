@@ -67,7 +67,7 @@ protected:
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // size of rect for each test case
         constexpr int kRectWidth  = 20;
         constexpr int kRectHeight = 20;
@@ -144,6 +144,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

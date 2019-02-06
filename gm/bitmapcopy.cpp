@@ -69,7 +69,7 @@ protected:
         return SkISize::Make(540, 330);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkPaint paint;
         SkScalar horizMargin = 10;
         SkScalar vertMargin = 10;
@@ -122,6 +122,7 @@ protected:
 
             canvas->translate(horizOffset, 0);
         }
+        return DrawResult::kOk;
     }
 
 private:

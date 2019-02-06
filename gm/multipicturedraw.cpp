@@ -485,7 +485,7 @@ namespace skiagm {
             fPictures[3] = make_single_layer_hex_plane_picture().release();
         }
 
-        void onDraw(SkCanvas* canvas) override {
+        DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
             SkMultiPictureDraw mpd;
             SkTArray<ComposeStep> composeSteps;
 
@@ -503,6 +503,7 @@ namespace skiagm {
                 canvas->drawImage(step.fSurf->makeImageSnapshot().get(),
                                   step.fX, step.fY, step.fPaint);
             }
+            return DrawResult::kOk;
         }
 
         SkISize onISize() override { return SkISize::Make(kPicWidth, kPicHeight); }

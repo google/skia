@@ -43,7 +43,7 @@ protected:
 
     virtual SkString onShortName() { return SkString("chrome_gradtext1"); }
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkPaint paint;
         SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 
@@ -59,6 +59,7 @@ protected:
         font.setEdging(SkFont::Edging::kAlias);
 
         canvas->drawString("I", 0, 100, font, paint);
+        return DrawResult::kOk;
     }
 private:
     typedef GM INHERITED;
@@ -73,7 +74,7 @@ protected:
 
     virtual SkString onShortName() { return SkString("chrome_gradtext2"); }
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkPaint paint;
         SkFont font(sk_tool_utils::create_portable_typeface());
         font.setEdging(SkFont::Edging::kAlias);
@@ -90,6 +91,7 @@ protected:
         canvas->drawString("Gradient Fill Text", 0, 150, font, paint);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawString("Gradient Stroke Text", 0, 200, font, paint);
+        return DrawResult::kOk;
     }
 private:
     typedef GM INHERITED;

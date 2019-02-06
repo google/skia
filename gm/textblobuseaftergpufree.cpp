@@ -28,7 +28,8 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         const char text[] = "Hamburgefons";
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 20);
@@ -44,6 +45,7 @@ protected:
         // This text should look fine
         context->freeGpuResources();
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
+        return DrawResult::kOk;
     }
 
 private:

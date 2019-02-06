@@ -76,7 +76,8 @@ protected:
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext* renderTargetContext, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext*, GrRenderTargetContext* renderTargetContext, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
@@ -95,6 +96,7 @@ protected:
                 canvas->drawImage(img, 200, 0);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

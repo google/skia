@@ -30,7 +30,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font(sk_tool_utils::create_portable_typeface(), 1500);
@@ -47,6 +47,7 @@ protected:
 
         paint.setColor(SK_ColorBLUE);
         canvas->drawSimpleText("\\", 1, kUTF8_SkTextEncoding, pos.fX, pos.fY, font, paint);
+        return DrawResult::kOk;
     }
 
 private:

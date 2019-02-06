@@ -41,11 +41,12 @@ protected:
                                                             SkShader::kClamp_TileMode, &badMatrix));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkRect rect = SkRect::MakeXYWH(10, 10, 80, 80);
         for (int i = 0; i < fPaints.count(); ++i) {
             canvas->drawRect(rect, fPaints[i]);
         }
+        return DrawResult::kOk;
     }
 
 private:

@@ -77,7 +77,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->scale(1.3f, 1.3f);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fTallBmps); ++i) {
             SkASSERT(fTallBmps[i].fItemCnt > 10);
@@ -93,6 +93,7 @@ protected:
             canvas->drawBitmapRect(bmp, subRect, dstRect, &paint);
             canvas->translate(SkIntToScalar(bmp.width() + 10), 0);
         }
+        return DrawResult::kOk;
     }
 
 private:

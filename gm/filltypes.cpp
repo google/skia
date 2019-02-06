@@ -62,7 +62,7 @@ protected:
                  scale, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         this->makePath();
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
@@ -82,6 +82,7 @@ protected:
         showFour(canvas, SK_Scalar1, paint);
         canvas->translate(SkIntToScalar(450), 0);
         showFour(canvas, scale, paint);
+        return DrawResult::kOk;
     }
 
 private:

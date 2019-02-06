@@ -240,7 +240,7 @@ protected:
                           SK_Scalar1 * 100 * (testCount / 10) + 3 * SK_Scalar1 / 4);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
 
         int testCount = 0;
@@ -267,6 +267,7 @@ protected:
                 canvas->restore();
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

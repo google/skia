@@ -74,7 +74,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(650, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -175,6 +175,7 @@ protected:
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }
+        return DrawResult::kOk;
     }
 
     typedef GM INHERITED;

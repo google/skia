@@ -104,7 +104,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -142,6 +142,7 @@ protected:
                 canvas->translate(0, SkScalarFloorToScalar(bounds.height() + SkIntToScalar(25)));
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

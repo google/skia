@@ -57,7 +57,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 340); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         constexpr struct {
             int fOnInterval;
             int fOffInterval;
@@ -95,6 +95,7 @@ protected:
         // Draw 0 on, 0 off dashed line
         paint.setStrokeWidth(SkIntToScalar(8));
         drawline(canvas, 0, 0, paint);
+        return DrawResult::kOk;
     }
 };
 
@@ -145,7 +146,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 480); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         constexpr int gIntervals[] = {
             3,  // 3 dashes: each count [0] followed by intervals [1..count]
             2,  10, 10,
@@ -186,6 +187,7 @@ protected:
                 canvas->drawPath(path, paint);
             }
         }
+        return DrawResult::kOk;
     }
 };
 
@@ -244,7 +246,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         // 1on/1off 1x1 squares with phase of 0 - points fastpath
         canvas->save();
             canvas->translate(2, 0);
@@ -316,6 +318,7 @@ protected:
                 this->drawDashedLines(canvas, 100, SkIntToScalar(phase), SkIntToScalar(3), 1, false);
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
 };
@@ -334,7 +337,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(640, 1100); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         constexpr struct {
             int fOnInterval;
             int fOffInterval;
@@ -419,6 +422,7 @@ protected:
 
         canvas->translate(SkIntToScalar(100), 0);
         drawline(canvas, 1, 30, paint, 0);
+        return DrawResult::kOk;
     }
 };
 
@@ -442,7 +446,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(400, 200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         constexpr int kOn = 4;
         constexpr int kOff = 4;
         constexpr int kIntervalLength = kOn + kOff;
@@ -493,6 +497,7 @@ protected:
                       sign * SkIntToScalar(10003), SkIntToScalar(y));
             phase = (phase + 1) % kIntervalLength;
         }
+        return DrawResult::kOk;
     }
 
 private:

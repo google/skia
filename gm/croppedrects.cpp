@@ -50,7 +50,7 @@ private:
         fSrcImageShader = fSrcImage->makeShader();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorWHITE);
 
         {
@@ -96,6 +96,7 @@ private:
         }
 
         // TODO: assert the draw target only has one op in the post-MDB world.
+        return DrawResult::kOk;
     }
 
     sk_sp<SkImage> fSrcImage;

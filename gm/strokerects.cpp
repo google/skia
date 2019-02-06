@@ -45,7 +45,7 @@ protected:
         r->offset(-w/2 + woffset, -h/2 + hoffset);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
 
@@ -69,6 +69,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

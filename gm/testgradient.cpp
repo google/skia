@@ -24,7 +24,7 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // Set up a gradient paint for a rect.
         // And non-gradient paint for other objects.
         canvas->drawColor(SK_ColorWHITE);
@@ -61,6 +61,7 @@ protected:
         paint.setColor(0xFF4281A4);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRoundRect(rect, 10, 10, paint);
+        return DrawResult::kOk;
     }
 
 private:

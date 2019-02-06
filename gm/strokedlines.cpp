@@ -195,7 +195,7 @@ protected:
         SkASSERT(kNumRows == fPaints.count() + fMatrices.count());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(0, kRadius+kPad);
 
         for (int i = 0; i < fPaints.count(); ++i) {
@@ -213,6 +213,7 @@ protected:
 
             canvas->translate(0, 2*(kRadius+kPad));
         }
+        return DrawResult::kOk;
     }
 
 private:

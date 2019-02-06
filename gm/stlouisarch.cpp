@@ -67,7 +67,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->save();
         canvas->scale(1, -1);
         canvas->translate(0, -kHeight);
@@ -80,6 +80,7 @@ protected:
             canvas->drawPath(fPaths[p], paint);
         }
         canvas->restore();
+        return DrawResult::kOk;
     }
 
     const SkScalar kWidth = 256;
