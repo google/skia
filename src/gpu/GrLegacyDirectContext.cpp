@@ -24,14 +24,14 @@
 #include "vk/GrVkGpu.h"
 #endif
 
-class SK_API GrDirectContext : public GrContext {
+class SK_API GrLegacyDirectContext : public GrContext {
 public:
-    GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
+    GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
             : INHERITED(backend, options)
             , fAtlasManager(nullptr) {
     }
 
-    ~GrDirectContext() override {
+    ~GrLegacyDirectContext() override {
         // this if-test protects against the case where the context is being destroyed
         // before having been fully created
         if (this->priv().getGpu()) {
@@ -120,7 +120,7 @@ sk_sp<GrContext> GrContext::MakeGL() {
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kOpenGL, options));
+    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kOpenGL, options));
 
     context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
     if (!context->fGpu) {
@@ -140,7 +140,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMock, options));
+    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMock, options));
 
     context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
     if (!context->fGpu) {
@@ -166,7 +166,7 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
 #ifdef SK_VULKAN
     GrContextOptions defaultOptions;
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kVulkan, options));
+    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kVulkan, options));
 
     context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
     if (!context->fGpu) {
@@ -189,7 +189,7 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMetal, options));
+    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
 
     context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
     if (!context->fGpu) {

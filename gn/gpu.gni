@@ -87,7 +87,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrDeferredUpload.h",
   "$_src/gpu/GrDeinstantiateProxyTracker.cpp",
   "$_src/gpu/GrDeinstantiateProxyTracker.h",
-  "$_src/gpu/GrDirectContext.cpp",
+  "$_src/gpu/GrLegacyDirectContext.cpp",
   "$_src/gpu/GrDistanceFieldGenFromVector.cpp",
   "$_src/gpu/GrDistanceFieldGenFromVector.h",
   "$_src/gpu/GrDrawingManager.cpp",
