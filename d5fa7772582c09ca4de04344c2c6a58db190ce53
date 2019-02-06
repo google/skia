@@ -22,6 +22,30 @@
       "revId": "d5fa7772582c09ca4de04344c2c6a58db190ce53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04092bac_fbc3286e",
+        "filename": "tools/bookmaker/parserCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-06T14:42:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "059877d3_9230178f",
+      "range": {
+        "startLine": 318,
+        "startChar": 31,
+        "endLine": 318,
+        "endChar": 36
+      },
+      "revId": "d5fa7772582c09ca4de04344c2c6a58db190ce53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
