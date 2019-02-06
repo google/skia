@@ -142,7 +142,8 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
     [fGLView setOpenGLContext:fGLContext];
     [fGLView setPixelFormat:fPixelFormat];
-    [fGLView setWantsBestResolutionOpenGLSurface:YES];
+    // TODO: support Retina displays
+    [fGLView setWantsBestResolutionOpenGLSurface:NO];
     [fGLContext setView:fGLView];
 
     [fGLContext makeCurrentContext];
@@ -160,7 +161,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = SkTMax(fSampleCount, 1);
 
-    const NSRect viewportRect = [fMainView bounds];
+    const NSRect viewportRect = [fMainView frame];
     fWidth = viewportRect.size.width;
     fHeight = viewportRect.size.height;
     glViewport(0, 0, fWidth, fHeight);

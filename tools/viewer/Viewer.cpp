@@ -1237,6 +1237,8 @@ void Viewer::onBackendCreated() {
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
+    canvas->save();
+
     this->drawSlide(canvas);
 
     fCommands.drawHelp(canvas);
@@ -1247,6 +1249,8 @@ void Viewer::onPaint(SkCanvas* canvas) {
         // Clean out cache items that haven't been used in more than 10 seconds.
         ctx->performDeferredCleanup(std::chrono::seconds(10));
     }
+
+    canvas->restore();
 }
 
 void Viewer::onResize(int width, int height) {
