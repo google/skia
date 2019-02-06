@@ -24,14 +24,14 @@ static void excercise_draw_pos_text(SkCanvas* canvas,
     canvas->drawTextBlob(builder.make(), x, y, paint);
 }
 
-DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
+DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
     SkPaint p;
 
     SkFont font(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
     if (!font.getTypefaceOrDefault()) {
-        skiagm::GM::DrawFailureMessage(canvas, "Could not load fonts/Roboto2-Regular_NoEmbed.ttf. "
-                                               "Did you forget to set the resourcePath?");
-        return;
+        *errorMsg = "Could not load fonts/Roboto2-Regular_NoEmbed.ttf. "
+                    "Did you forget to set the resourcePath?";
+        return skiagm::DrawResult::kFail;
     }
 
     const char text[] = "HELLO, WORLD!";
@@ -54,6 +54,7 @@ DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
     canvas->scale(1.0, 0.5);
     p.setColor(0xF0000080);
     canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 30, 700, font, p);
+    return skiagm::DrawResult::kOk;
 }
 
 

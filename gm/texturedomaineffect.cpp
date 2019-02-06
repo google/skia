@@ -82,16 +82,16 @@ protected:
         fImage = surface->makeImageSnapshot();
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxy;
         if (fFilter == GrSamplerState::Filter::kMipMap) {
             SkBitmap copy;
             SkImageInfo info = as_IB(fImage)->onImageInfo().makeColorType(kN32_SkColorType);
             if (!copy.tryAllocPixels(info) || !fImage->readPixels(copy.pixmap(), 0, 0)) {
-                DrawFailureMessage(canvas, "Failed to read pixels.");
-                return;
+                *errorMsg = "Failed to read pixels.";
+                return DrawResult::kFail;
             }
             proxy = proxyProvider->createMipMapProxyFromBitmap(copy);
         } else {
@@ -99,8 +99,8 @@ protected:
                 fImage, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, SkBackingFit::kExact);
         }
         if (!proxy) {
-            DrawFailureMessage(canvas, "Failed to create proxy.");
-            return;
+            *errorMsg = "Failed to create proxy.";
+            return DrawResult::kFail;
         }
 
         SkTArray<SkMatrix> textureMatrices;
@@ -150,6 +150,7 @@ protected:
                 y += renderRect.height() + kTestPad;
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

@@ -899,7 +899,7 @@ private:
 DEF_GM(return new WackyYUVFormatsGM(false);)
 DEF_GM(return new WackyYUVFormatsGM(true);)
 
-class YUVMakeColorSpaceGM : public GM {
+class YUVMakeColorSpaceGM : public GpuGM {
 public:
     YUVMakeColorSpaceGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -983,12 +983,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
-        if (!context || context->abandoned()) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->createImages(context);
 
         int x = kPad;
