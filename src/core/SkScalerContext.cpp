@@ -926,8 +926,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
                                         SkScalerContextFlags scalerContextFlags,
                                         const SkMatrix& deviceMatrix,
                                         SkScalerContextRec* rec,
-                                        SkScalerContextEffects* effects,
-                                        bool enableTypefaceFiltering) {
+                                        SkScalerContextEffects* effects) {
     SkASSERT(!deviceMatrix.hasPerspective());
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
