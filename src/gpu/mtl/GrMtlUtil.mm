@@ -16,7 +16,7 @@
 
 #import <Metal/Metal.h>
 
-#define PRINT_MSL 0 // print out the MSL code generated
+#define PRINT_MSL 1 // print out the MSL code generated
 
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     MTLPixelFormat dontCare;
@@ -196,13 +196,19 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
         SkASSERT(false);
     }
 
+    // FIXME: only add this when truly needed
+    if (SkSL::Program::kFragment_Kind == kind) {
+        program->fInputs.fRTHeight = true;
+    }
     *outInputs = program->fInputs;
+
     SkSL::String code;
     if (!gpu->shaderCompiler()->toMetal(*program, &code)) {
         SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
         SkASSERT(false);
         return nil;
     }
+
     NSString* mtlCode = [[NSString alloc] initWithCString: code.c_str()
                                                  encoding: NSASCIIStringEncoding];
 #if PRINT_MSL
