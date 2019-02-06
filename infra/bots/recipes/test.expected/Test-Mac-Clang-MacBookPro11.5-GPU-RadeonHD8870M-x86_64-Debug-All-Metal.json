@@ -487,8 +487,6 @@
       ".SRW",
       "--match",
       "~^ClearOp$",
-      "~^DDLSurfaceCharacterizationTest$",
-      "~^DDLNonTextureabilityTest$",
       "~^DDLOperatorEqTest$",
       "~^DeferredProxyTest$",
       "~^GPUMemorySize$",
