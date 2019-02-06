@@ -10,7 +10,7 @@
 #ifdef SK_USING_THIRD_PARTY_ICU
 #include "SkLoadICU.h"
 #else
-static inline void SkLoadICU() {}
+static inline bool SkLoadICU() { return true; }
 #endif  // SK_USING_THIRD_PARTY_ICU
 
 #include "sample/chromium/font_subsetter.h"
@@ -20,8 +20,12 @@ sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
                               const SkPDFGlyphUse& glyphUsage,
                               const char* fontName,
                               int ttcIndex) {
+    static bool icuWorks = false;
     SkOnce once;
-    once([] { SkLoadICU(); });
+    once([] { icuWorks = SkLoadICU(); });
+    if (!icuWorks) {
+        return nullptr;
+    }
     // Generate glyph id array in format needed by sfntly.
     // TODO(halcanary): sfntly should take a more compact format.
     std::vector<unsigned> subset;
