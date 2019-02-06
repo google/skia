@@ -117,7 +117,8 @@ protected:
         return nullptr;
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         constexpr int kWidth = 50;
         constexpr int kHeight = 50;
         constexpr SkScalar kPad = 5.f;
@@ -133,8 +134,8 @@ protected:
         };
         SkASSERT(SkToBool(rectImgs[0]) == SkToBool(rectImgs[1]));
         if (!rectImgs[0]) {
-            DrawFailureMessage(canvas, "Could not create rectangle texture image.");
-            return;
+            *errorMsg = "Could not create rectangle texture image.";
+            return DrawResult::kFail;
         }
 
         constexpr SkFilterQuality kQualities[] = {
@@ -189,6 +190,7 @@ protected:
                 canvas->translate(0, kPad + 1.5f * kHeight * s);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:
