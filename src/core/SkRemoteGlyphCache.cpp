@@ -56,15 +56,12 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
     return desc;
 }
 
-enum DescriptorType : bool { kKey = false, kDevice = true };
 static const SkDescriptor* create_descriptor(
-        DescriptorType type, const SkPaint& paint, const SkFont& font, const SkMatrix& m,
+        const SkPaint& paint, const SkFont& font, const SkMatrix& m,
         const SkSurfaceProps& props, SkScalerContextFlags flags,
         SkAutoDescriptor* ad, SkScalerContextEffects* effects) {
     SkScalerContextRec deviceRec;
-    bool enableTypefaceFiltering = (type == kDevice);
-    SkScalerContext::MakeRecAndEffects(
-            font, paint, props, flags, m, &deviceRec, effects, enableTypefaceFiltering);
+    SkScalerContext::MakeRecAndEffects(font, paint, props, flags, m, &deviceRec, effects);
     return SkScalerContext::AutoDescriptorGivenRecAndEffects(deviceRec, *effects, ad);
 }
 
@@ -310,8 +307,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         SkScalerContextFlags flags,
         SkScalerContextEffects* effects) {
     SkAutoDescriptor keyAutoDesc;
-    auto keyDesc = create_descriptor(
-            kKey, paint, font, matrix, props, flags, &keyAutoDesc, effects);
+    auto keyDesc = create_descriptor(paint, font, matrix, props, flags, &keyAutoDesc, effects);
 
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
@@ -343,7 +339,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         SkScalerContextEffects deviceEffects;
         SkAutoDescriptor deviceAutoDesc;
         auto deviceDesc = create_descriptor(
-                kDevice, paint, font, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
+                paint, font, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
         SkASSERT(cache->getDeviceDescriptor() == *deviceDesc);
 #endif
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
@@ -369,7 +365,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     SkScalerContextEffects deviceEffects;
     SkAutoDescriptor deviceAutoDesc;
     auto deviceDesc = create_descriptor(
-            kDevice, paint, font, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
+            paint, font, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
 
     auto context = tf->createScalerContext(deviceEffects, deviceDesc);
 
