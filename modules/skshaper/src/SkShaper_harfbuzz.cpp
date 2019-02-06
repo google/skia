@@ -44,7 +44,7 @@
 #ifdef SK_USING_THIRD_PARTY_ICU
 #include "SkLoadICU.h"
 #else
-static inline void SkLoadICU() {}
+static inline bool SkLoadICU() { return true; }
 #endif  // SK_USING_THIRD_PARTY_ICU
 
 namespace {
@@ -636,8 +636,12 @@ struct SkShaper::Impl {
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
+    static bool icuWorks = false;
     SkOnce once;
-    once([] { SkLoadICU(); });
+    once([] { icuWorks = SkLoadICU(); });
+    if (!icuWorks) {
+        return;
+    }
 
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
