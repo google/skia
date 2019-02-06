@@ -24,6 +24,10 @@
 
 #include "GrTypes.h"
 
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#include <android/hardware_buffer.h>
+#endif
+
 class SkCanvas;
 class SkDeferredDisplayList;
 class SkPaint;
@@ -291,6 +295,33 @@ public:
                                                             SkColorType colorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps);
+
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+    /** Creates SkSurface from Android hardware buffer.
+        Returned SkSurface takes a reference on the buffer. The ref on the buffer will be released
+        when the SkSurface is destroyed and there is no pending work on the GPU involving the
+        buffer.
+
+        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+
+        Currently this is only supported for buffers that can be textured as well as rendered to.
+        In other workds that must have both AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT and
+        AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE usage bits.
+
+        @param context         GPU context
+        @param hardwareBuffer  AHardwareBuffer Android hardware buffer
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorSpace      range of colors; may be nullptr
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @return                created SkSurface, or nullptr
+    */
+    static sk_sp<SkSurface> MakeFromAHardwareBuffer(GrContext* context,
+                                                    AHardwareBuffer* hardwareBuffer,
+                                                    GrSurfaceOrigin origin,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkSurfaceProps* surfaceProps);
+#endif
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
         pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted

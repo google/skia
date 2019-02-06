@@ -35,14 +35,7 @@ public:
 
     ~GrAHardwareBufferImageGenerator() override;
 
-    typedef void* DeleteImageCtx;
-    typedef void (*DeleteImageProc)(DeleteImageCtx);
-
     static void DeleteGLTexture(void* ctx);
-
-#ifdef SK_VULKAN
-    static void DeleteVkImage(void* ctx);
-#endif
 
 protected:
 
