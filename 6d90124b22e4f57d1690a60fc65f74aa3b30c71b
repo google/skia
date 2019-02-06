@@ -34,6 +34,24 @@
       "revId": "6d90124b22e4f57d1690a60fc65f74aa3b30c71b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d97ac637_8d7c9005",
+        "filename": "gm/gradients_no_texture.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-06T22:07:51Z",
+      "side": 1,
+      "message": "Sure.  I\u0027m not sure having to override onDraw() or a different name makes it any more or less discoverable.  I really wouldn\u0027t worry about that part... if you start making enough GMs fail, people will become familiar with the new feature eventually.",
+      "parentUuid": "1ae6b0a1_9c9e308c",
+      "revId": "6d90124b22e4f57d1690a60fc65f74aa3b30c71b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
