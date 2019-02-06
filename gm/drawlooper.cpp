@@ -37,7 +37,9 @@ protected:
 
         SkPaint  paint;
         paint.setAntiAlias(true);
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint.setLooper(fLooper);
+#endif
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 72);
 

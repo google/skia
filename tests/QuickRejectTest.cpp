@@ -80,6 +80,7 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     canvas.drawBitmap(src, SkIntToScalar(-10), 0, &paint);
     REPORTER_ASSERT(reporter, 0 == *dst.getAddr32(5, 5));
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     // now install our looper, which will draw, since it internally translates
     // to the left. The test is to ensure that canvas' quickReject machinary
     // allows us through, even though sans-looper we would look like we should
@@ -87,6 +88,7 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     paint.setLooper(sk_make_sp<TestLooper>());
     canvas.drawBitmap(src, SkIntToScalar(-10), 0, &paint);
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == *dst.getAddr32(5, 5));
+#endif
 }
 
 static void test_layers(skiatest::Reporter* reporter) {
@@ -182,7 +184,9 @@ DEF_TEST(looper_nothingtodraw, reporter) {
 
     SkLayerDrawLooper::Builder builder;
     builder.addLayer();
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     paint.setDrawLooper(builder.detach());
+#endif
     // the presence of the looper fools this predicate, so we think it might draw
     REPORTER_ASSERT(reporter, !paint.nothingToDraw());
 
