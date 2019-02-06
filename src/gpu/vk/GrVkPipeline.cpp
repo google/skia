@@ -14,6 +14,10 @@
 #include "GrVkRenderTarget.h"
 #include "GrVkUtil.h"
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+#include <sanitizer/lsan_interface.h>
+#endif
+
 static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
     switch (type) {
         case kFloat_GrVertexAttribType:
@@ -558,10 +562,17 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, int numColorSamples,
     pipelineCreateInfo.basePipelineIndex = -1;
 
     VkPipeline vkPipeline;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                          cache, 1,
-                                                                          &pipelineCreateInfo,
-                                                                          nullptr, &vkPipeline));
+    VkResult err;
+    {
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8712
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
+        err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
+                                                                     cache, 1,
+                                                                     &pipelineCreateInfo,
+                                                                     nullptr, &vkPipeline));
+    }
     if (err) {
         SkDebugf("Failed to create pipeline. Error: %d\n", err);
         return nullptr;
