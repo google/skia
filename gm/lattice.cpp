@@ -192,10 +192,11 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         this->onDrawHelper(canvas, 0, 0, 0, 0);
         canvas->translate(0.0f, 400.0f);
         this->onDrawHelper(canvas, 3, 7, 4, 11);
+        return DrawResult::kOk;
     }
 
 private:
@@ -314,7 +315,7 @@ public:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         //draw a rectangle in the background with transparent pixels
         SkPaint paint;
@@ -330,6 +331,7 @@ public:
         canvas->translate(0.0f, 400.0f);
         paint.setBlendMode(SkBlendMode::kSrcATop);
         this->onDrawHelper(canvas, 0, 0, 0, 0, paint);
+        return DrawResult::kOk;
     }
 
 private:

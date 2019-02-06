@@ -144,8 +144,8 @@ protected:
     }
 
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         struct Vertex {
             SkPoint fPosition;
             float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
@@ -234,6 +234,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -350,8 +351,8 @@ protected:
     }
 
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         struct Vertex {
             SkPoint fPosition;
             float   fUV[4]; // The last two values are ignored. The effect expects a vec4f.
@@ -440,6 +441,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

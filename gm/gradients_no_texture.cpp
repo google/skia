@@ -91,7 +91,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(640, 615); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         constexpr SkPoint kPts[2] = { { 0, 0 },
                                          { SkIntToScalar(50), SkIntToScalar(50) } };
         constexpr SkShader::TileMode kTM = SkShader::kClamp_TileMode;
@@ -115,6 +115,7 @@ protected:
                 canvas->translate(SkIntToScalar(kRect.width() + 20), 0);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -229,7 +230,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(880, 400); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const Proc procs[] = {
             make0, make1, make2, make3,
         };
@@ -267,6 +268,7 @@ protected:
 
             canvas->translate(0, r.height() + 2*r.height() + 8);
         }
+        return DrawResult::kOk;
     }
 
 private:

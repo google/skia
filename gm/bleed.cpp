@@ -312,7 +312,7 @@ protected:
                                                  2 * kMaxTileSize));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         fShader = gBleedRec[fBT].fShaderMaker();
 
         canvas->clear(SK_ColorGRAY);
@@ -398,6 +398,7 @@ protected:
             }
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
     void modifyGrContextOptions(GrContextOptions* options) override {

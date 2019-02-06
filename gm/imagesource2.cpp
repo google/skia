@@ -59,7 +59,7 @@ protected:
         fImage = surface->makeImageSnapshot();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkRect srcRect = SkRect::MakeLTRB(0, 0,
                                                 SkIntToScalar(kImageSize),
                                                 SkIntToScalar(kImageSize));
@@ -70,6 +70,7 @@ protected:
 
         canvas->saveLayer(nullptr, &p);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

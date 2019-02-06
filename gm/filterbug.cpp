@@ -45,7 +45,7 @@ protected:
         fBot = make_image(22, 27);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         static const SkFilterQuality kFilterQuality = SkFilterQuality::kHigh_SkFilterQuality;
         static const bool kDoAA = true;
 
@@ -88,6 +88,7 @@ protected:
 
             canvas->drawRect(r3, p3);
         }
+        return DrawResult::kOk;
     }
 
 private:

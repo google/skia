@@ -109,7 +109,7 @@ protected:
         return SkISize::Make(860, 820);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkRect  r = { 0, 0, 100, 50 };
@@ -145,6 +145,7 @@ protected:
             canvas->restore();
             canvas->translate(4 * r.width() * 4/3 * scales[s], 0);
         }
+        return DrawResult::kOk;
     }
 
 private:

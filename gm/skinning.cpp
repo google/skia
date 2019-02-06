@@ -111,7 +111,7 @@ protected:
                                          !fCache);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // Set the initial position.
         int xpos = kCellSize;
         int ypos = kCellSize;
@@ -124,6 +124,7 @@ protected:
 
         // Draw the vertices.
         drawPermutations(canvas, xpos, ypos, bones, 1);
+        return DrawResult::kOk;
     }
 
 private:

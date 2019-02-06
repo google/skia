@@ -85,7 +85,7 @@ protected:
         return SkISize::Make(500, 600);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         int veryBig = 65*1024; // 64K < size
         int big = 33*1024;     // 32K < size < 64K
         // smaller than many max texture sizes, but large enough to gpu-tile for memory reasons.
@@ -114,6 +114,7 @@ protected:
         colors[1] = SK_ColorYELLOW;
         // This used to be big enough that we didn't draw on CPU, but now we do.
         show_image(canvas, veryBig, small, colors, fProc);
+        return DrawResult::kOk;
     }
 
 private:

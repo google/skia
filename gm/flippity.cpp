@@ -225,7 +225,8 @@ protected:
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         this->makeLabels(context);
 
         canvas->save();
@@ -257,6 +258,7 @@ protected:
         for (int i = 0; i < kNumMatrices; ++i) {
             canvas->drawLine(i * kCellSize, 0, i * kCellSize, kGMHeight, SkPaint());
         }
+        return DrawResult::kOk;
     }
 
 private:

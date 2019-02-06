@@ -49,7 +49,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
@@ -91,6 +91,7 @@ protected:
         if (kBench_Mode != this->getMode()) {
             this->drawOverlay(canvas);
         }
+        return DrawResult::kOk;
     }
 
     void drawOverlay(SkCanvas* canvas) {

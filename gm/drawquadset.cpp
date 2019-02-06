@@ -159,7 +159,7 @@ private:
     SkString onShortName() final { return SkString("draw_quad_set"); }
     SkISize onISize() override { return SkISize::Make(800, 800); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkMatrix rowMatrices[5];
         // Identity
         rowMatrices[0].setIdentity();
@@ -217,6 +217,7 @@ private:
             // And advance to the next row
             canvas->translate(0.f, kRowCount * kTileHeight + 20.f);
         }
+        return DrawResult::kOk;
     }
 };
 

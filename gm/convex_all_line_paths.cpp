@@ -309,7 +309,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // the right edge of the last drawn path
         SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
         if (fDoStrokeAndFill) {
@@ -387,6 +387,7 @@ protected:
             canvas->drawPath(p3, p);
             canvas->restore();
         }
+        return DrawResult::kOk;
     }
 
 private:

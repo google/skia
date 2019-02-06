@@ -38,7 +38,7 @@ protected:
         return SkISize::Make(600, 600);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap bitmap;
         create_bitmap(&bitmap);
         int x = bitmap.width() / 2;
@@ -70,6 +70,7 @@ protected:
             canvas->translate(0, SkIntToScalar(bitmap.height() + 20));
             canvas->drawBitmap(subset, 0, 0);
         }
+        return DrawResult::kOk;
     }
 
 private:

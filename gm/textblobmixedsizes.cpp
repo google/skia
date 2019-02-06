@@ -89,7 +89,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* inputCanvas) override {
+    DrawResult onDraw(SkCanvas* inputCanvas, SkString* errorMsg) override {
         SkCanvas* canvas = inputCanvas;
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
@@ -164,6 +164,7 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
+        return DrawResult::kOk;
     }
 
 private:

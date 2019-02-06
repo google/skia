@@ -137,7 +137,7 @@ protected:
                              SkScalarRoundToInt(fTotalHeight));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint rectPaint;
         rectPaint.setStyle(SkPaint::kStroke_Style);
         rectPaint.setStrokeWidth(-1);
@@ -192,6 +192,7 @@ protected:
                 canvas->restore();
             }
         }
+        return DrawResult::kOk;
     }
 private:
     Clip fClip;

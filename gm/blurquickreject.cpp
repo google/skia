@@ -30,7 +30,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         constexpr SkScalar kBlurRadius = SkIntToScalar(20);
         constexpr SkScalar kBoxSize = SkIntToScalar(100);
 
@@ -70,6 +70,7 @@ protected:
             canvas->drawRect(blurRects[i], hairlinePaint);
         }
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

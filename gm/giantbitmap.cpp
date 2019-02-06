@@ -92,7 +92,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(640, 480); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
 
         SkMatrix m;
@@ -112,6 +112,7 @@ protected:
 //        SkRect r = SkRect::MakeXYWH(-50, -50, 32, 16);
 //        canvas->drawRect(r, paint); return;
         canvas->drawPaint(paint);
+        return DrawResult::kOk;
     }
 
 private:

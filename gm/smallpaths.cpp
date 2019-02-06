@@ -230,7 +230,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -279,6 +279,7 @@ protected:
             canvas->translate(gXTranslate[i], fDY[i]);
         }
 
+        return DrawResult::kOk;
     }
 
 private:

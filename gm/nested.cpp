@@ -64,7 +64,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         SkPaint shapePaint;
         shapePaint.setColor(SK_ColorBLACK);
@@ -120,6 +120,7 @@ protected:
             yOff += 45;
         }
 
+        return DrawResult::kOk;
     }
 
 private:

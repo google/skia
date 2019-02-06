@@ -59,7 +59,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(8.5f, 8.5f);
 
         const SkRect rect = { 0, 0, 80, 80 };
@@ -102,6 +102,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

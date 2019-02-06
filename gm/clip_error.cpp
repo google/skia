@@ -38,7 +38,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -67,6 +67,7 @@ protected:
         canvas->clipRect(SkRect::MakeLTRB(0, 256, WIDTH, 510));
         draw_text(canvas, blob, paint, blurPaint, clearPaint);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

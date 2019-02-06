@@ -44,7 +44,7 @@ public:
         fRRect.setRectRadii(r, radii);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkLayerDrawLooper::Builder looperBuilder;
         {
             SkLayerDrawLooper::LayerInfo info;
@@ -74,6 +74,7 @@ public:
         paint.setAntiAlias(true);
 
         canvas->drawRRect(fRRect, paint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -127,7 +128,7 @@ protected:
         return SkISize::Make(1000, 500);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->scale(1.5f, 1.5f);
         canvas->translate(50,50);
 
@@ -157,6 +158,7 @@ protected:
                 }
             }
         }
+        return DrawResult::kOk;
     }
 private:
     const SkString  fName;

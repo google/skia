@@ -32,7 +32,7 @@ protected:
         return SkISize::Make(700, 500);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         sk_sp<SkData> name(SkData::MakeWithCString("target-a"));
 
         canvas->save();
@@ -48,6 +48,7 @@ protected:
         drawLabeledRect(canvas, "Target A", point.x(), point.y());
         SkAnnotateNamedDestination(canvas, point, name.get());
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

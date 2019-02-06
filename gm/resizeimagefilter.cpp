@@ -58,7 +58,7 @@ protected:
         return SkISize::Make(520, 100);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorBLACK);
 
         const SkRect srcRect = SkRect::MakeWH(96, 96);
@@ -94,6 +94,7 @@ protected:
             canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
             this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, std::move(source));
         }
+        return DrawResult::kOk;
     }
 
 private:

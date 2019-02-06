@@ -62,13 +62,14 @@ protected:
         fPaint.setAntiAlias(fAntialias);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorWHITE);
 
         canvas->save();
         canvas->translate(canvas->imageInfo().width() / 2.f, canvas->imageInfo().height() / 2.f);
         this->drawShapes(canvas);
         canvas->restore();
+        return DrawResult::kOk;
     }
 
     virtual void drawShapes(SkCanvas* canvas) const = 0;

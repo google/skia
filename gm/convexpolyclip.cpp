@@ -140,7 +140,7 @@ protected:
         fBmp = make_bmp(100, 100);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkScalar y = 0;
         constexpr SkScalar kMargin = 10.f;
 
@@ -212,6 +212,7 @@ protected:
             y = 0;
             startX += 2 * fBmp.width() + SkScalarCeilToInt(2 * textW) + 6 * kMargin;
         }
+        return DrawResult::kOk;
     }
 
     bool runAsBench() const override { return true; }

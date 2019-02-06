@@ -30,7 +30,7 @@ protected:
         return SkISize::Make(550, 700);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font;
@@ -41,8 +41,8 @@ protected:
         sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
 
         if (!distortableStream) {
-            DrawFailureMessage(canvas, "No distortableStream");
-            return;
+            *errorMsg = "No distortableStream";
+            return DrawResult::kFail;
         }
         const char* text = "abc";
         const size_t textLen = strlen(text);
@@ -89,6 +89,7 @@ protected:
             canvas->translate(0, SkIntToScalar(360));
             font.setSubpixel(true);
         }
+        return DrawResult::kOk;
     }
 
 private:

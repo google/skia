@@ -54,7 +54,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;
         sk_sp<SkImageFilter> displ(SkImageSource::Make(fCheckerboard));
@@ -194,6 +194,7 @@ protected:
             SkDisplacementMapEffect::kA_ChannelSelectorType,
             40.0f, nullptr, nullptr));
         this->drawClippedBitmap(canvas, 400, 400, paint);
+        return DrawResult::kOk;
     }
 
 private:
