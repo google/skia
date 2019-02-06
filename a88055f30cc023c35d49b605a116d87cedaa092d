@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aac67995_c0decdaa",
+        "filename": "third_party/icu/SkLoadICU.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-06T20:28:14Z",
+      "side": 1,
+      "message": "I added this so you could get at SkDebugf, but apparently in the current build you cannot get there from here?",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 20
+      },
+      "revId": "a88055f30cc023c35d49b605a116d87cedaa092d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
