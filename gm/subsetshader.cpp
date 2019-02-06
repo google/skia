@@ -10,14 +10,14 @@
 #include "SkShader.h"
 #include "gm.h"
 
-DEF_SIMPLE_GM(bitmap_subset_shader, canvas, 256, 256) {
+DEF_SIMPLE_GM_CAN_FAIL(bitmap_subset_shader, canvas, errorMsg, 256, 256) {
     canvas->clear(SK_ColorWHITE);
 
     SkBitmap source;
     if (!GetResourceAsBitmap("images/color_wheel.png", &source)) {
-        skiagm::GM::DrawFailureMessage(canvas, "Could not load images/color_wheel.png. "
-                                               "Did you forget to set the resourcePath?");
-        return;
+        *errorMsg = "Could not load images/color_wheel.png. "
+                    "Did you forget to set the resourcePath?";
+        return skiagm::DrawResult::kFail;
     }
     SkIRect left = SkIRect::MakeWH(source.width()/2, source.height());
     SkIRect right = SkIRect::MakeXYWH(source.width()/2, 0,
@@ -35,4 +35,5 @@ DEF_SIMPLE_GM(bitmap_subset_shader, canvas, 256, 256) {
     canvas->drawRect(SkRect::MakeWH(256.0f, 128.0f), paint);
     paint.setShader(SkShader::MakeBitmapShader(rightBitmap, tm, tm, &matrix));
     canvas->drawRect(SkRect::MakeXYWH(0, 128.0f, 256.0f, 128.0f), paint);
+    return skiagm::DrawResult::kOk;
 }
