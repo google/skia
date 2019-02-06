@@ -167,11 +167,8 @@ public:
         return MakeRaster(SkImageInfo::MakeN32Premul(width, height), surfaceProps);
     }
 
-    /** Caller data passed to RenderTarget/TextureReleaseProc; may be nullptr. */
+    /** Caller data passed to RenderTargetReleaseProc or TextureReleaseProc; may be nullptr. */
     typedef void* ReleaseContext;
-
-    /** User function called when supplied render target may be deleted. */
-    typedef void (*RenderTargetReleaseProc)(ReleaseContext releaseContext);
 
     /** User function called when supplied texture may be deleted. */
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
@@ -215,6 +212,9 @@ public:
                                                    TextureReleaseProc textureReleaseProc = nullptr,
                                                    ReleaseContext releaseContext = nullptr);
 
+    /** User function called when supplied render target may be deleted. */
+    typedef void (*RenderTargetReleaseProc)(ReleaseContext releaseContext);
+
     /** Wraps a GPU-backed buffer into SkSurface. Caller must ensure backendRenderTarget
         is valid for the lifetime of returned SkSurface.
 
@@ -245,14 +245,15 @@ public:
         @param releaseContext           state passed to textureReleaseProc
         @return                         SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
-                                                const GrBackendRenderTarget& backendRenderTarget,
-                                                GrSurfaceOrigin origin,
-                                                SkColorType colorType,
-                                                sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* surfaceProps,
-                                                TextureReleaseProc textureReleaseProc = nullptr,
-                                                ReleaseContext releaseContext = nullptr);
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(
+            GrContext* context,
+            const GrBackendRenderTarget& backendRenderTarget,
+            GrSurfaceOrigin origin,
+            SkColorType colorType,
+            sk_sp<SkColorSpace> colorSpace,
+            const SkSurfaceProps* surfaceProps,
+            RenderTargetReleaseProc renderTargetReleaseProc = nullptr,
+            ReleaseContext releaseContext = nullptr);
 
     /** Wraps a GPU-backed texture into SkSurface. Caller must ensure backendTexture is
         valid for the lifetime of returned SkSurface. If sampleCnt greater than zero,
