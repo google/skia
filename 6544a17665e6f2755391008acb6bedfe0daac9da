@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3dced279_bdde11ef",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-06T15:26:21Z",
+      "side": 1,
+      "message": "nit: two spaces",
+      "range": {
+        "startLine": 62,
+        "startChar": 25,
+        "endLine": 62,
+        "endChar": 27
+      },
+      "revId": "6544a17665e6f2755391008acb6bedfe0daac9da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa986867_9be068b7",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-06T15:26:21Z",
+      "side": 1,
+      "message": "I don\u0027t understand the syntax here. ys[0]... and ys.vals...",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "6544a17665e6f2755391008acb6bedfe0daac9da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
