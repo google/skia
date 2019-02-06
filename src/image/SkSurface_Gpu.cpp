@@ -6,6 +6,7 @@
  */
 
 #include "SkSurface_Gpu.h"
+#include "GrAHardwareBufferUtils.h"
 #include "GrBackendSurface.h"
 #include "GrCaps.h"
 #include "GrContextPriv.h"
@@ -570,5 +571,60 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
+
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
+                                                    AHardwareBuffer* hardwareBuffer,
+                                                    GrSurfaceOrigin origin,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkSurfaceProps* surfaceProps) {
+    AHardwareBuffer_Desc bufferDesc;
+    AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
+
+    if (!SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT)) {
+        return nullptr;
+    }
+
+    bool isTextureable = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE);
+    bool isProtectedContent = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
+
+    // We currently don't support protected content
+    if (isProtectedContent) {
+        return nullptr;
+    }
+
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(context,
+                                                                             hardwareBuffer,
+                                                                             bufferDesc.format,
+                                                                             true);
+    if (!backendFormat.isValid()) {
+        return nullptr;
+    }
+
+    if (isTextureable) {
+        GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
+        GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
+
+        GrBackendTexture backendTexture =
+                GrAHardwareBufferUtils::MakeBackendTexture(context, hardwareBuffer,
+                                                           bufferDesc.width, bufferDesc.height,
+                                                           &deleteImageProc, &deleteImageCtx,
+                                                           isProtectedContent, backendFormat,
+                                                           true);
+        if (!backendTexture.isValid()) {
+            return nullptr;
+        }
+
+        SkColorType colorType =
+                GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
+
+        return SkSurface::MakeFromBackendTexture(context, backendTexture, origin, 0,
+                                                 colorType, std::move(colorSpace),
+                                                 surfaceProps, deleteImageProc, deleteImageCtx);
+    } else {
+        return nullptr;
+    }
+}
+#endif
 
 #endif
