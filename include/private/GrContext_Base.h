@@ -56,7 +56,6 @@ protected:
 
     sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
 
-    GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }

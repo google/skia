@@ -8,6 +8,8 @@
 #include "GrProxyProvider.h"
 
 #include "GrCaps.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrRenderTarget.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
@@ -28,42 +30,11 @@
 #include "SkTraceEvent.h"
 
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fImageContext->priv().singleOwner());)
 
-GrProxyProvider::GrProxyProvider(GrResourceProvider* resourceProvider,
-                                 GrResourceCache* resourceCache,
-                                 sk_sp<const GrCaps> caps,
-                                 GrSingleOwner* owner)
-        : fResourceProvider(resourceProvider)
-        , fResourceCache(resourceCache)
-        , fAbandoned(false)
-        , fCaps(caps)
-        , fContextUniqueID(resourceCache->contextUniqueID())
-#ifdef SK_DEBUG
-        , fSingleOwner(owner)
-#endif
-{
-    SkASSERT(fResourceProvider);
-    SkASSERT(fResourceCache);
-    SkASSERT(fCaps);
-    SkASSERT(fSingleOwner);
-}
-
-GrProxyProvider::GrProxyProvider(uint32_t contextUniqueID,
-                                 sk_sp<const GrCaps> caps,
-                                 GrSingleOwner* owner)
-        : fResourceProvider(nullptr)
-        , fResourceCache(nullptr)
-        , fAbandoned(false)
-        , fCaps(caps)
-        , fContextUniqueID(contextUniqueID)
-#ifdef SK_DEBUG
-        , fSingleOwner(owner)
-#endif
-{
-    SkASSERT(fContextUniqueID != SK_InvalidUniqueID);
-    SkASSERT(fCaps);
-    SkASSERT(fSingleOwner);
+GrProxyProvider::GrProxyProvider(GrImageContext* imageContext)
+        : fImageContext(imageContext)
+        , fAbandoned(false) {
 }
 
 GrProxyProvider::~GrProxyProvider() {
@@ -130,6 +101,36 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
     }
     return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#if GR_TEST_UTILS
+sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
+        const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted) {
+    GrDirectContext* direct = fImageContext->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    sk_sp<GrTexture> tex;
+
+    if (SkBackingFit::kApprox == fit) {
+        tex = fResourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNone);
+    } else {
+        tex = fResourceProvider->createTexture(desc, budgeted, GrResourceProvider::Flags::kNone);
+    }
+    if (!tex) {
+        return nullptr;
+    }
+
+    return this->createWrapped(std::move(tex), origin);
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createWrapped(sk_sp<GrTexture> tex,
+                                                                 GrSurfaceOrigin origin) {
+    return this->createWrapped(std::move(tex), origin);
+}
+#endif
 
 sk_sp<GrTextureProxy> GrProxyProvider::createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
 #ifdef SK_DEBUG
@@ -772,6 +773,18 @@ void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureP
     if (invalidGpuResource) {
         invalidGpuResource->resourcePriv().removeUniqueKey();
     }
+}
+
+uint32_t GrProxyProvider::contextID() const {
+    return fImageContext->priv().contextID();
+}
+
+const GrCaps* GrProxyProvider::caps() const {
+    return fImageContext->priv().caps();
+}
+
+sk_sp<const GrCaps> GrProxyProvider::refCaps() const {
+    return fImageContext->priv().refCaps();
 }
 
 void GrProxyProvider::orphanAllUniqueKeys() {
