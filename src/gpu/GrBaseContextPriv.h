@@ -23,7 +23,11 @@ public:
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() { return fContext->fpFactoryCache(); }
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
+
+    GrImageContext* asImageContext() { return fContext->asImageContext(); }
+    GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
+    GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}

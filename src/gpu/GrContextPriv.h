@@ -39,7 +39,16 @@ public:
 
     sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
 
+    GrImageContext* asImageContext() { return fContext->asImageContext(); }
+    GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
+    GrContext* asDirectContext() { return fContext->asDirectContext(); }
+
     // from GrImageContext
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    /** This is only useful for debug purposes */
+    SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
 
@@ -200,9 +209,6 @@ public:
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
-    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
-    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
-
     GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
 
@@ -259,9 +265,6 @@ public:
     GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
-
-    /** This is only useful for debug purposes */
-    SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
 
 #ifdef SK_ENABLE_DUMP_GPU
     /** Returns a string with detailed information about the context & GPU, in JSON format. */

@@ -23,9 +23,18 @@ public:
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() { return fContext->fpFactoryCache(); }
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
+
+    GrImageContext* asImageContext() { return fContext->asImageContext(); }
+    GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
+    GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    /** This is only useful for debug purposes */
+    SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
 private:
     explicit GrImageContextPriv(GrImageContext* context) : fContext(context) {}
