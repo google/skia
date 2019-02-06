@@ -45,19 +45,20 @@ public:
 
         // Mali Bifrost uses fp16 for mediump. Making the intermediate color variable highp causes
         // calculations to be performed with sufficient precision.
-        fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
+        fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
-            fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.00001);");
-            fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, color.a);");
+            fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
+            fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, color.a);");
         }
-        fragBuilder->codeAppendf("color = half4(%s(color.r), %s(color.g), %s(color.b), color.a);",
-                                    srgbFuncName.c_str(),
-                                    srgbFuncName.c_str(),
-                                    srgbFuncName.c_str());
+        fragBuilder->codeAppendf("color = float4(%s(half(color.r)), %s(half(color.g)), "
+                                 "%s(half(color.b)), color.a);",
+                                 srgbFuncName.c_str(),
+                                 srgbFuncName.c_str(),
+                                 srgbFuncName.c_str());
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
-            fragBuilder->codeAppendf("color = half4(color.rgb, 1) * color.a;");
+            fragBuilder->codeAppendf("color = float4(color.rgb, 1) * color.a;");
         }
-        fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
+        fragBuilder->codeAppendf("%s = half4(color);", args.fOutputColor);
     }
 
     static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
