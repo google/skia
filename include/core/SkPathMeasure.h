@@ -10,9 +10,8 @@
 
 #include "../private/SkNoncopyable.h"
 #include "../private/SkTDArray.h"
+#include "SkContourMeasure.h"
 #include "SkPath.h"
-
-struct SkConic;
 
 class SK_API SkPathMeasure : SkNoncopyable {
 public:
@@ -84,43 +83,8 @@ public:
 #endif
 
 private:
-    SkPath::Iter    fIter;
-    SkPath          fPath;
-    SkScalar        fTolerance;
-    SkScalar        fLength;            // relative to the current contour
-    unsigned        fFirstPtIndex;      // relative to the current contour
-    bool            fIsClosed;          // relative to the current contour
-    bool            fForceClosed;
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
-    int             fSubdivisionsMax;
-#endif
-    struct Segment {
-        SkScalar    fDistance;  // total distance up to this point
-        unsigned    fPtIndex; // index into the fPts array
-        unsigned    fTValue : 30;
-        unsigned    fType : 2;  // actually the enum SkSegType
-                                // See SkPathMeasurePriv.h
-
-        SkScalar getScalarT() const;
-    };
-    SkTDArray<Segment>  fSegments;
-    SkTDArray<SkPoint>  fPts; // Points used to define the segments
-
-    static const Segment* NextSegment(const Segment*);
-
-    void     buildSegments();
-    SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
-                                int mint, int maxt, unsigned ptIndex);
-    SkScalar compute_conic_segs(const SkConic&, SkScalar distance,
-                                int mint, const SkPoint& minPt,
-                                int maxt, const SkPoint& maxPt, unsigned ptIndex);
-    SkScalar compute_cubic_segs(const SkPoint pts[3], SkScalar distance,
-                                int mint, int maxt, unsigned ptIndex);
-    const Segment* distanceToSegment(SkScalar distance, SkScalar* t);
-    bool quad_too_curvy(const SkPoint pts[3]);
-    bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,const SkPoint& lastPt);
-    bool cheap_dist_exceeds_limit(const SkPoint& pt, SkScalar x, SkScalar y);
-    bool cubic_too_curvy(const SkPoint pts[4]);
+    SkContourMeasureIter    fIter;
+    sk_sp<SkContourMeasure> fContour;
 };
 
 #endif
