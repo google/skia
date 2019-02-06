@@ -82,7 +82,7 @@ protected:
     virtual void makeBitmap() = 0;
     virtual SkScalar getScale() = 0;
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         canvas->translate(10, 10);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrix); ++i) {
@@ -93,6 +93,7 @@ protected:
             draw_row(canvas, fBM, fMatrix[i], size.fWidth);
             canvas->translate(0, size.fHeight);
         }
+        return DrawResult::kOk;
     }
 
 private:

@@ -27,7 +27,7 @@ protected:
         return SkISize::Make(455, 475);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkScalar w = SkIntToScalar(kSize);
@@ -79,6 +79,7 @@ protected:
                 y += h + SkIntToScalar(30);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

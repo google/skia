@@ -77,7 +77,7 @@ protected:
         return make(fPicture, fPicture->cullRect(), fq);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorGRAY);
         {
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
@@ -137,6 +137,7 @@ protected:
             canvas->translate(srcRect.width(), 0);
             fill_rect_filtered(canvas, srcRect, pictureSourcePixelated);
         }
+        return DrawResult::kOk;
     }
 
 private:

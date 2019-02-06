@@ -144,7 +144,7 @@ protected:
         return SkISize::Make(560, 475);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setColor(SK_ColorWHITE);
         paint.setAntiAlias(true);
@@ -187,6 +187,7 @@ protected:
         }
         canvas->drawPath(mandoline.path(), paint);
         canvas->restore();
+        return DrawResult::kOk;
     }
 };
 

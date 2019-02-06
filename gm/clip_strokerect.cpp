@@ -24,7 +24,7 @@ protected:
         return SkISize::Make(200, 400);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
@@ -61,6 +61,7 @@ protected:
         p.setColor(SK_ColorBLUE);
         p.setStrokeWidth(2);
         canvas->drawRect(rect2, p);
+        return DrawResult::kOk;
     }
 
 private:

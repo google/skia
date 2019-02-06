@@ -208,7 +208,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
     constexpr AddSegmentFunc gSegmentFunctions[] = {
         AddMove,
         AddMoveClose,
@@ -359,6 +359,7 @@ protected:
         }
         canvas->restore();
         canvas->restore();
+        return DrawResult::kOk;
     }
 
 private:

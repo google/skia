@@ -225,7 +225,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override{
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override{
 
         SkPaint blackFill;
 
@@ -311,6 +311,7 @@ protected:
             }
         }
 
+        return DrawResult::kOk;
     }
 
 private:

@@ -110,7 +110,7 @@ protected:
         return SkISize::Make(960, 1200);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->scale(2, 2);
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 8);
@@ -145,6 +145,7 @@ protected:
             canvas->translate(80, 0);
             test_surface(canvas, surf2.get(), true);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -241,7 +242,7 @@ protected:
         return SkISize::Make(960, 1200);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         const ImageMakerProc procs[] = {
@@ -254,6 +255,7 @@ protected:
             }
             canvas->translate(0, 120);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -396,13 +398,13 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
     return reader.readImage();
 }
 
-DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
+DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, nullptr);
     auto surf = sk_tool_utils::makeSurface(canvas, info, nullptr);
     auto img = make_lazy_image(surf.get());
     if (!img) {
-        skiagm::GM::DrawFailureMessage(canvas, "Failed to make lazy image.");
-        return;
+        *errorMsg = "Failed to make lazy image.";
+        return skiagm::DrawResult::kFail;
     }
 
     canvas->drawImage(img, 10, 10, nullptr);
@@ -410,4 +412,5 @@ DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
     canvas->drawImage(sub, 220, 10);
     sub = serial_deserial(sub.get());
     canvas->drawImage(sub, 220+110, 10);
+    return skiagm::DrawResult::kOk;
 }

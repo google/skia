@@ -49,8 +49,9 @@ protected:
         fImage = SkImage::MakeFromEncoded(std::move(jpegData));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->drawImage(fImage, 0, 0);
+        return DrawResult::kOk;
     }
 
 private:

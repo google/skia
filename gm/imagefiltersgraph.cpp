@@ -42,7 +42,7 @@ protected:
             sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e"));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorBLACK);
         {
             sk_sp<SkImageFilter> bitmapSource(SkImageSource::Make(fImage));
@@ -162,6 +162,7 @@ protected:
             canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
+        return DrawResult::kOk;
     }
 
 private:

@@ -59,7 +59,7 @@ protected:
         return SkISize::Make(1200, 900);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPath one, two;
         int yPos = 0;
         for (int oneFill = 0; oneFill <= 1; ++oneFill) {
@@ -97,6 +97,7 @@ protected:
                 yPos += 150;
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

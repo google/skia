@@ -37,7 +37,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(10, 10);
 
         SkPaint paint;
@@ -47,6 +47,7 @@ protected:
 
         paint.setColor(0xFF00FFFF);
         canvas->drawRegion(fRegion, paint);
+        return DrawResult::kOk;
     }
 
     SkRegion fRegion;

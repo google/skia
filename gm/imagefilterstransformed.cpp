@@ -62,7 +62,7 @@ protected:
         fGradientCircle = make_gradient_circle(64, 64);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
         sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
         sk_sp<SkImageFilter> filters[] = {
@@ -106,6 +106,7 @@ protected:
             canvas->restore();
             canvas->translate(0, size + margin);
         }
+        return DrawResult::kOk;
     }
 
 private:

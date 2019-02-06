@@ -177,8 +177,8 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         SkScalar y = 0;
         constexpr SkScalar kDX = 12.f;
         for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);
@@ -262,6 +262,7 @@ protected:
 
             y += SkScalarCeilToScalar(iter.get()->height() + 20.f);
         }
+        return DrawResult::kOk;
     }
 
 private:

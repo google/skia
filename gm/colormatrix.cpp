@@ -73,7 +73,7 @@ protected:
         return SkImage::MakeFromBitmap(bm);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         SkColorMatrix matrix;
 
@@ -136,6 +136,7 @@ protected:
             ///////////////////////////////////////////////
             canvas->translate(0, 240);
         }
+        return DrawResult::kOk;
     }
 
 private:

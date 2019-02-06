@@ -28,7 +28,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const char text[] = "Hamburgefons";
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 20);
@@ -57,6 +57,7 @@ protected:
         c->clear(0x00ffffff);
         c->drawTextBlob(blob, 10, 150, SkPaint());
         surface->draw(canvas, 0, 0, nullptr);
+        return DrawResult::kOk;
     }
 
 private:

@@ -104,7 +104,7 @@ protected:
         return SkISize::Make(imageWidth * 2, imageHeight * 15);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkColorType colorTypes[] = {
             kN32_SkColorType, kRGBA_F16_SkColorType, kGray_8_SkColorType, kRGB_565_SkColorType,
         };
@@ -129,6 +129,7 @@ protected:
                 canvas->translate(0.0f, (float) imageHeight);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

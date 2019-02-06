@@ -38,11 +38,12 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1000, 400); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         this->drawAll(canvas, 2.5f);
         canvas->translate(0, 250);
         canvas->scale(0.5, 0.5);
         this->drawAll(canvas, 1);
+        return DrawResult::kOk;
     }
 
 private:

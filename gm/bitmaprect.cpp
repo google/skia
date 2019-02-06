@@ -45,7 +45,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->drawColor(0xFFCCCCCC);
 
         const SkIRect src[] = {
@@ -81,6 +81,7 @@ protected:
 
             canvas->translate(160, 0);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -135,7 +136,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 
         SkBitmap bitmap;
         make_3x3_bitmap(&bitmap);
@@ -144,6 +145,7 @@ protected:
         SkRect dstR = { 100, 100, 300, 200 };
 
         canvas->drawBitmapRect(bitmap, srcR, dstR, nullptr, SkCanvas::kStrict_SrcRectConstraint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -198,7 +200,7 @@ protected:
         make_big_bitmap(&fBigBitmap);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAlpha(128);
         paint.setBlendMode(SkBlendMode::kXor);
@@ -218,6 +220,7 @@ protected:
             canvas->drawBitmapRect(fBigBitmap, srcR1.roundOut(), dstR1, &paint);
             canvas->drawBitmapRect(fBigBitmap, srcR2.roundOut(), dstR2, &paint);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -251,7 +254,7 @@ protected:
     // If it does, we may see a red-line at the bottom, instead of the bitmap exactly matching
     // the clip (in which case we should see all blue).
     // The correct image should be all blue.
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setColor(SK_ColorRED);
 
@@ -261,6 +264,7 @@ protected:
         // the drawRect shows the same problem as clipRect(r) followed by drawcolor(red)
         canvas->drawRect(r, paint);
         canvas->drawBitmapRect(fBM, r, nullptr);
+        return DrawResult::kOk;
     }
 
 private:

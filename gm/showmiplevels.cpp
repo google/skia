@@ -175,7 +175,7 @@ protected:
         fBM[3] = make_bitmap3(fN, fN);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(4, 4);
         for (const auto& bm : fBM) {
             this->drawSet(canvas, bm);
@@ -184,6 +184,7 @@ protected:
             // since we draw the bitmaps using nearest-neighbor
             canvas->translate(0, SkScalarRoundToScalar(bm.height() * 0.85f));
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -289,7 +290,7 @@ protected:
         fBM[3] = make_bitmap3(fW, fH);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->translate(4, 4);
         for (const auto& bm : fBM) {
             this->drawSet(canvas, bm);
@@ -298,6 +299,7 @@ protected:
             // since we draw the bitmaps using nearest-neighbor
             canvas->translate(0, SkScalarRoundToScalar(bm.height() * 0.85f));
         }
+        return DrawResult::kOk;
     }
 
 private:

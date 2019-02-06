@@ -180,7 +180,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -210,6 +210,7 @@ protected:
             canvas->restore();
             canvas->translate(SkIntToScalar(120), 0);
         }
+        return DrawResult::kOk;
     }
 
 protected:
@@ -236,7 +237,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
         SkPoint pts[2] ={
             { 0, 0 },
@@ -266,6 +267,7 @@ protected:
             canvas->restore();
             canvas->translate(SkIntToScalar(120), 0);
         }
+        return DrawResult::kOk;
     }
 
 protected:
@@ -294,7 +296,7 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 815); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
         SkPoint pts[2] = {
             { 0, 0 },
@@ -323,6 +325,7 @@ protected:
             canvas->restore();
             canvas->translate(SkIntToScalar(120), 0);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -347,13 +350,13 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(840, 500); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         SkMatrix perspective;
         perspective.setIdentity();
         perspective.setPerspY(0.001f);
         perspective.setSkewX(SkIntToScalar(8) / 25);
         canvas->concat(perspective);
-        INHERITED::onDraw(canvas);
+        return INHERITED::onDraw(canvas, errorMsg);
     }
 
 private:
@@ -393,7 +396,7 @@ protected:
         canvas->drawColor(SK_ColorBLUE);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         this->drawBG(canvas);
 
         SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
@@ -410,6 +413,7 @@ protected:
                                                               SkShader::kClamp_TileMode));
         paint.setDither(fDither);
         canvas->drawPaint(paint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -473,7 +477,7 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
         this->drawBG(canvas);
 
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(300) };
@@ -489,6 +493,7 @@ protected:
             SkIntToScalar(200), gColors, nullptr, 5,
             SkShader::kClamp_TileMode));
         canvas->drawRect(r, paint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -513,7 +518,7 @@ protected:
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFF000000);
     }
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkISize dim = this->getISize();
 
         this->drawBG(canvas);
@@ -534,6 +539,7 @@ protected:
             0, 0, SkIntToScalar(dim.width()), SkIntToScalar(dim.height())
         };
         canvas->drawRect(r, paint);
+        return DrawResult::kOk;
     }
 private:
     typedef GM INHERITED;
@@ -556,7 +562,7 @@ protected:
     }
 
     // Reproduces the example given in bug 7671058.
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint1, paint2, paint3;
         paint1.setStyle(SkPaint::kFill_Style);
         paint2.setStyle(SkPaint::kFill_Style);
@@ -597,6 +603,7 @@ protected:
 
             canvas->translate(400, 0);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -629,11 +636,12 @@ protected:
                                                SkShader::kClamp_TileMode);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setShader(fShader);
         paint.setDither(fDither);
         canvas->drawRect(SkRect::MakeWH(500, 500), paint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -666,12 +674,13 @@ protected:
                                                SK_ARRAY_COUNT(gColors), SkShader::kClamp_TileMode);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setDither(fDither);
         paint.setShader(fShader);
         canvas->drawRect(SkRect::MakeWH(500, 500), paint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -715,7 +724,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setDither(fDither);
@@ -724,6 +733,7 @@ protected:
             canvas->drawRect(SkRect::MakeLTRB(0, index * kHeight, kMinWidth + index * kWidthBump,
                     (index + 1) * kHeight), paint);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -752,7 +762,7 @@ protected:
         return SkISize::Make(600, 500);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         const SkScalar kRectSize = 100;
         const unsigned kStopCount = 3;
         const SkColor colors[kStopCount] = { SK_ColorGREEN, SK_ColorRED, SK_ColorGREEN };
@@ -787,6 +797,7 @@ protected:
 
             canvas->drawRect(SkRect::MakeWH(kRectSize, kRectSize), paint);
         }
+        return DrawResult::kOk;
     }
 
 private:

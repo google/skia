@@ -34,7 +34,7 @@ class ClockwiseGM : public GpuGM {
 private:
     SkString onShortName() final { return SkString("clockwise"); }
     SkISize onISize() override { return SkISize::Make(300, 200); }
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) override;
+    DrawResult onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*, SkString* errorMsg) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
+DrawResult ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+                               SkString* errorMsg) {
     rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Draw the test directly to the frame buffer.
@@ -176,6 +177,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
                          nullptr);
     }
+    return DrawResult::kOk;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
