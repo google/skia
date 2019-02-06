@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88af54ef_cdb879b5",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-06T21:46:03Z",
+      "side": 1,
+      "message": "s/above/below/, but the sentence in general could do with some word-smithing.",
+      "revId": "f8f5855f79ffcb83a2be6e09b466445c42b0186e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
