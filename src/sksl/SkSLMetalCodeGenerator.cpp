@@ -844,7 +844,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation++;
     writeFields(structType->fields(), structType->fOffset, &intf);
-    if (fProgram.fKind == Program::kFragment_Kind) {
+    if (fProgram.fInputs.fRTHeight) {
         this->writeLine("float u_skRTHeight;");
     }
     fIndentation--;
@@ -1261,7 +1261,7 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
             wroteInterfaceBlock = true;
         }
     }
-    if (!wroteInterfaceBlock && (fProgram.fKind == Program::kFragment_Kind)) {
+    if (!wroteInterfaceBlock && (fProgram.fInputs.fRTHeight)) {
         // FIXME - Possibly have a different way of passing in u_skRTHeight or flip y axis
         // in a different way altogether.
         this->writeLine("struct sksl_synthetic_uniforms {");
