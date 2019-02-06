@@ -132,7 +132,6 @@ public:
 
     bool        isEmpty() const { return 0 == fRec->fLength; }
     size_t      size() const { return (size_t) fRec->fLength; }
-    const char* data() const { return fRec->data(); }
     const char* c_str() const { return fRec->data(); }
     char operator[](size_t n) const { return this->c_str()[n]; }
 
