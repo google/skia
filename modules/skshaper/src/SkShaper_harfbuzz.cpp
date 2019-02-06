@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmaskEnum.h"
 #include "SkFont.h"
 #include "SkFontArguments.h"
 #include "SkFontMetrics.h"
@@ -43,6 +44,10 @@
 #if defined(SK_USING_THIRD_PARTY_ICU)
 #include "SkLoadICU.h"
 #endif
+
+namespace skstd {
+template <> struct is_bitmask_enum<hb_buffer_flags_t> : std::true_type {};
+}
 
 namespace {
 template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
@@ -1105,7 +1110,7 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
 
 
 ShapedRun SkShaper::Impl::shape(const char* utf8,
-                                size_t utf8Bytes,
+                                const size_t utf8Bytes,
                                 const char* utf8Start,
                                 const char* utf8End,
                                 const BiDiRunIterator* bidi,
@@ -1119,6 +1124,9 @@ ShapedRun SkShaper::Impl::shape(const char* utf8,
     SkAutoTCallVProc<hb_buffer_t, hb_buffer_clear_contents> autoClearBuffer(buffer);
     hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
     hb_buffer_set_cluster_level(buffer, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
+
+    // See 763e5466c0a03a7c27020e1e2598e488612529a7 for documentation.
+    hb_buffer_set_flags(buffer, HB_BUFFER_FLAG_BOT | HB_BUFFER_FLAG_EOT);
 
     // Add precontext.
     hb_buffer_add_utf8(buffer, utf8, utf8Start - utf8, utf8Start - utf8, 0);
