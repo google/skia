@@ -59,7 +59,7 @@ protected:
     GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
-    virtual GrContext* asDirectContext() { return nullptr; }
+    virtual GrDirectContext* asDirectContext() { return nullptr; }
 
     virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
 
