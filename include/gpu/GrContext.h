@@ -345,4 +345,6 @@ private:
     typedef GrRecordingContext INHERITED;
 };
 
+typedef GrContext GrDirectContext;
+
 #endif
