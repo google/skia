@@ -169,9 +169,11 @@ SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
         dst.setColorFilter(this->apply(cf));
     }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     if (auto looper = src.getDrawLooper()) {
         dst.setDrawLooper(looper->makeColorSpace(this));
     }
+#endif
 
     if (auto imageFilter = src.getImageFilter()) {
         dst.setImageFilter(this->apply(imageFilter));

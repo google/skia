@@ -88,7 +88,9 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(shadowLoopers); ++i) {
             SkAutoCanvasRestore acr(canvas, true);
 
+#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
             paint.setLooper(shadowLoopers[i]);
+#endif
 
             canvas->translate(SkIntToScalar((unsigned int)i*40), SkIntToScalar(0));
             setup(&paint, gRec[0].fColor, gRec[0].fStrokeWidth);
