@@ -227,3 +227,45 @@ DEF_TEST(PathMeasure_nextctr, reporter) {
     // only expect 1 contour, even if we didn't explicitly call getLength() ourselves
     REPORTER_ASSERT(reporter, !meas.nextContour());
 }
+
+#include "SkContourMeasure.h"
+
+static void test_90_degrees(sk_sp<SkContourMeasure> cm, SkScalar radius,
+                            skiatest::Reporter* reporter) {
+    SkPoint pos;
+    SkVector tan;
+    SkScalar distance = cm->length() / 4;
+    bool success = cm->getPosTan(distance, &pos, &tan);
+
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pos.fX, 0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pos.fY, radius));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tan.fX, -1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tan.fY, 0));
+}
+
+DEF_TEST(contour_measure, reporter) {
+    SkPath path;
+    path.addCircle(0, 0, 100);
+    path.addCircle(0, 0, 10);
+
+    SkContourMeasureFactory fact(path, false);
+    path.reset();   // we should not need the path avert we created the factory
+
+    auto cm0 = fact.nextContour();
+    auto cm1 = fact.nextContour();
+
+    REPORTER_ASSERT(reporter, cm0->isClosed());
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm0->length(), 200 * SK_ScalarPI, 1.5f));
+
+    test_90_degrees(cm0, 100, reporter);
+
+    REPORTER_ASSERT(reporter, cm1->isClosed());
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm1->length(), 20 * SK_ScalarPI, 0.5f));
+
+    test_90_degrees(cm1, 10, reporter);
+
+    auto cm2 = fact.nextContour();
+    REPORTER_ASSERT(reporter, !cm2);
+}
+
