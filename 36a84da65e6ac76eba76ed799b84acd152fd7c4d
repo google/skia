@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a923e10_e83b100c",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-07T19:05:14Z",
+      "side": 1,
+      "message": "I\u0027m assuming you dropped the ALWAYS_INLINE because you didn\u0027t want the interaction with the recursion.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "36a84da65e6ac76eba76ed799b84acd152fd7c4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
