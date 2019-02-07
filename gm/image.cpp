@@ -263,7 +263,13 @@ DEF_GM( return new ScalePixelsGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
+DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+        skiagm::GM::DrawGpuOnlyMessage(canvas);
+        return;
+    }
+
     auto render_image = [](SkCanvas* canvas) {
         canvas->clear(SK_ColorBLUE);
         SkPaint paint;

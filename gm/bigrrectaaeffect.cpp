@@ -19,7 +19,7 @@ namespace skiagm {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class BigRRectAAEffectGM : public GpuGM {
+class BigRRectAAEffectGM : public GM {
 public:
     BigRRectAAEffectGM(const SkRRect& rrect, const char* name)
         : fRRect(rrect)
@@ -48,8 +48,19 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
         SkPaint paint;
 
         int y = kPad;

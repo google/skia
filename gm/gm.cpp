@@ -6,16 +6,14 @@
  */
 
 #include "gm.h"
-
-#include "GrContext.h"
 #include "sk_tool_utils.h"
 #include "SkShader.h"
 #include "SkTraceEvent.h"
 using namespace skiagm;
 
-GM::GM(SkColor bgColor) {
+GM::GM() {
     fMode = kGM_Mode;
-    fBGColor = bgColor;
+    fBGColor = SK_ColorWHITE;
     fCanvasIsDeferred = false;
     fHaveCalledOnceBeforeDraw = false;
 }
@@ -115,18 +113,16 @@ void GM::DrawFailureMessage(SkCanvas* canvas, const char format[], ...)  {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-void GpuGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-    if (!ctx || !rtc) {
-        skiagm::GM::DrawGpuOnlyMessage(canvas);
-        return;
-    }
-    if (ctx->abandoned()) {
-        skiagm::GM::DrawFailureMessage(canvas, "GrContext abandoned.");
-        return;
-    }
-    this->onDraw(ctx, rtc, canvas);
+void skiagm::SimpleGM::onDraw(SkCanvas* canvas) {
+    fDrawProc(canvas);
+}
+
+SkISize skiagm::SimpleGM::onISize() {
+    return fSize;
+}
+
+SkString skiagm::SimpleGM::onShortName() {
+    return fName;
 }
 
 template <typename Fn>

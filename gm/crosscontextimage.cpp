@@ -11,7 +11,13 @@
 #include "GrContext.h"
 #include "SkImage.h"
 
-DEF_SIMPLE_GPU_GM(cross_context_image, context, rtc, canvas, 512 * 3 + 60, 512 + 128 + 30) {
+DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+        skiagm::GM::DrawGpuOnlyMessage(canvas);
+        return;
+    }
+
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_512.png");
     if (!encodedData) {
         skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_512.png. "
