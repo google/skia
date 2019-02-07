@@ -20,6 +20,8 @@ public:
     // from GrContext_Base
     uint32_t contextID() const { return fProxy->contextID(); }
 
+    bool matches(GrContext_Base* candidate) const { return fProxy->matches(candidate); }
+
     const GrContextOptions& options() const { return fProxy->options(); }
 
     const GrCaps* caps() const { return fProxy->caps(); }

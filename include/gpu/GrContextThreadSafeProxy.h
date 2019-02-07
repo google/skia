@@ -8,14 +8,10 @@
 #ifndef GrContextThreadSafeProxy_DEFINED
 #define GrContextThreadSafeProxy_DEFINED
 
-#include "GrContextOptions.h"
-#include "SkRefCnt.h"
 #include "../private/GrContext_Base.h"
 
 class GrBackendFormat;
-class GrCaps;
 class GrContextThreadSafeProxyPriv;
-class GrSkSLFPFactoryCache;
 struct SkImageInfo;
 class SkSurfaceCharacterization;
 
@@ -26,8 +22,6 @@ class SkSurfaceCharacterization;
 class SK_API GrContextThreadSafeProxy : public GrContext_Base {
 public:
     ~GrContextThreadSafeProxy() override;
-
-    bool matches(GrContext_Base* context) const;
 
     /**
      *  Create a surface characterization for a DDL that will be replayed into the GrContext
