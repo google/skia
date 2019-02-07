@@ -285,6 +285,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitmap& bitmap) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     if (!SkImageInfoIsValid(bitmap.info())) {
         return nullptr;
     }
