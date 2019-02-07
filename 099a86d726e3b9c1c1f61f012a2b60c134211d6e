@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28aef5d4_4f9d5c50",
+        "filename": "src/gpu/GrBufferAllocPool.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T15:38:33Z",
+      "side": 1,
+      "message": "Move higher ?",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcf8671c_c7f2b418",
+        "filename": "src/gpu/GrBufferAllocPool.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T15:38:33Z",
+      "side": 1,
+      "message": "Do we need this ?",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c11b3ac5_33e66851",
+        "filename": "src/gpu/GrGpuBuffer.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T15:38:33Z",
+      "side": 1,
+      "message": "2019 ?",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2361053e_a2afeb11",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T15:38:33Z",
+      "side": 1,
+      "message": "Move up ?",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07feff0e_5e986e9a",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T15:38:33Z",
+      "side": 1,
+      "message": "This seems misplaced",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f32db2ea_e8127f97",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T15:38:33Z",
+      "side": 1,
+      "message": "Why not remove this one too ?",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
