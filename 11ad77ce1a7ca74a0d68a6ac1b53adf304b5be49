@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2490d67f_3cd7ee84",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T19:20:06Z",
+      "side": 1,
+      "message": "// This cache is used by both the vertex and index pools ... It reuses memory across multiple flushes ...\n\n?",
+      "revId": "11ad77ce1a7ca74a0d68a6ac1b53adf304b5be49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
