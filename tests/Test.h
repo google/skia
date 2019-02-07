@@ -37,20 +37,8 @@ public:
     virtual bool verbose() const;
     virtual void* stats() const { return nullptr; }
 
-    void reportFailedWithContext(const skiatest::Failure& f) {
-        SkString fullMessage = f.message;
-        if (!fContextStack.empty()) {
-            fullMessage.append(" [");
-            for (int i = 0; i < fContextStack.count(); ++i) {
-                if (i > 0) {
-                    fullMessage.append(", ");
-                }
-                fullMessage.append(fContextStack[i]);
-            }
-            fullMessage.append("]");
-        }
-        this->reportFailed(skiatest::Failure(f.fileName, f.lineNo, f.condition, fullMessage));
-    }
+    void reportFailedWithContext(const skiatest::Failure&);
+
     void push(const SkString& message) {
         fContextStack.push_back(message);
     }
