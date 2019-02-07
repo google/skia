@@ -429,7 +429,7 @@ optional("fontmgr_fuchsia") {
   enabled = skia_enable_fontmgr_fuchsia
 
   deps = [
-    "//garnet/public/fidl/fuchsia.fonts",
+    "//sdk/fidl/fuchsia.fonts",
   ]
   sources = [
     "src/ports/SkFontMgr_fuchsia.cpp",
