@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4374116a_bdc402c5",
+        "filename": "gm/crosscontextimage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T18:14:47Z",
+      "side": 1,
+      "message": "Just a note that this won\u0027t test out the case where the texture is non-power-of-two and the device doesn\u0027t support mipmapping such textures.\n\nThere probably isn\u0027t anything to do.",
+      "revId": "25aec9f9940581ad2107f302878779e28cc2c864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3825b851_3ca843e6",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T18:14:47Z",
+      "side": 1,
+      "message": "// If non-power-of-two mipmapping isn\u0027t supported, we will not ...\n\n?",
+      "revId": "25aec9f9940581ad2107f302878779e28cc2c864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89fb5591_33fc49ed",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T18:14:47Z",
+      "side": 1,
+      "message": "// Given that we disable mipmaps if non-power-of-two mipmapping isn\u0027t supported, we always expect the created texture to be unscaled.\n\n?",
+      "revId": "25aec9f9940581ad2107f302878779e28cc2c864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71601a7a_d1602f0f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-07T18:14:47Z",
+      "side": 1,
+      "message": "// here too ?",
+      "revId": "25aec9f9940581ad2107f302878779e28cc2c864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
