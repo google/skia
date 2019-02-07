@@ -1807,6 +1807,7 @@ public:
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
         SkRect fDstRect;
+        int fDstClipCount;  // Currently should be 0 or 4
         float fAlpha;
         unsigned fAAFlags;  // QuadAAFlags
     };
@@ -1818,6 +1819,9 @@ public:
      * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
      * current implementation only antialiases if all edges are flagged, however.
      * Results are undefined if an image's src rect is not within the image's bounds.
+     *
+     * Ignores fDstClipCount in the image set entries.
+     * <!deprecated in favor of experimental_DrawEdgeAAImageSet
      */
     void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
@@ -1828,9 +1832,53 @@ public:
      * over each edge's AA status, to allow perfect seaming for tile sets.
      *
      * When not fully supported, the implementation only antialiases if all edges are flagged.
+     * <!deprecated in favor of experimental_DrawEdgeAAQuad
      */
     void experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
                                        SkBlendMode mode);
+
+    /**
+     * This is an experimental API for the SkiaRenderer Chromium project, and its API will surely
+     * evolve if it is not removed outright.
+     *
+     * This behaves very similarly to drawRect() combined with a clipPath() formed by clip
+     * quadrilateral. 'rect' and 'clip' are in the same coordinate space. If 'clip' is null, then it
+     * is as if the rectangle was not clipped (or, alternatively, clipped to itself). Currently,
+     * only quadrilateral clips are supported, so clipCount must be 4, or 0 if no clip is used.
+     *
+     * In addition to combining the draw and clipping into one operation, this function adds the
+     * additional capability of controlling each of the rectangle's edges anti-aliasing
+     * independently.  The edges of the clip will respect the per-edge AA flags. It is required that
+     * 'cli'p be contained inside 'rect'. In terms of mapping to edge labels, the 'clip' points
+     * should be ordered top-left, top-right, bottom-right, bottom-left so that the edge between [0]
+     * and [1] is "top", [1] and [2] is "right", [2] and [3] is "bottom", and [3] and [0] is "left".
+     * This ordering matches SkRect::toQuad().
+     *
+     * This API only draws solid color, filled rectangles so it does not accept a full SkPaint.
+     */
+    void experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
+                                     QuadAAFlags aaFlags, SkColor color, SkBlendMode mode);
+    /**
+     * This is an bulk variant of experimental_DrawEdgeAAQuad() that renders 'cnt' textured quads.
+     * For each entry, 'fDstRect' is rendered with its clip (determined by entry's 'fDstClipCount'
+     * and current index in 'dstClip'). The entry's fImage is applied to the destination rectangle
+     * by sampling from 'fSrcRect' sub-image.  The corners of 'fSrcRect' map to the corners of
+     * 'fDstRect', just like in drawImageRect(), and they will be properly interpolated when
+     * applying a clip.
+     *
+     * Like experimental_DrawEdgeAAQuad(), each entry can specify edge AA flags that apply to both
+     * the destination rect and its clip.
+     *
+     * If provided, the 'dstClips' array must have length equal to the sum of 'fDstClipCount' in the
+     * provided entries. If 'dstClips' is null, every entry must have 'fDstClipCount' set to 0. The
+     * destination clip coordinates will be read consecutively with the image set entries, advancing
+     * based on each entry's 'fDstClipCount' parameter.
+     *
+     * An optional paint may be provided, which supports the same subset of features usable with
+     * drawImageRect (i.e. assumed to be filled and no path effects).
+     */
+    void experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
+                                         const SkPoint dstClips[], const SkPaint* paint = nullptr);
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
