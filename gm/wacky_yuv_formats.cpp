@@ -608,16 +608,6 @@ private:
 
 };
 
-static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
-                                         SkYUVColorSpace yuvColorSpace,
-                                         SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                                         SkBitmap bitmaps[]) {
-    std::unique_ptr<SkImageGenerator> gen(new YUVGenerator(ii, yuvColorSpace,
-                                                           yuvaIndices, bitmaps));
-
-    return SkImage::MakeFromGenerator(std::move(gen));
-}
-
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
     static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
@@ -718,7 +708,7 @@ namespace skiagm {
 // NV21
 // I420
 // YV12
-class WackyYUVFormatsGM : public GM {
+class WackyYUVFormatsGM : public GpuGM {
 public:
     WackyYUVFormatsGM(bool useTargetColorSpace) : fUseTargetColorSpace(useTargetColorSpace) {
         this->setBGColor(0xFFCCCCCC);
@@ -781,73 +771,61 @@ protected:
                         continue;
                     }
 
-                    if (context) {
-                        if (context->abandoned()) {
-                            return;
-                        }
-
-                        GrGpu* gpu = context->priv().getGpu();
-                        if (!gpu) {
-                            return;
-                        }
-
-                        GrBackendTexture yuvaTextures[4];
-                        SkPixmap yuvaPixmaps[4];
-
-                        for (int i = 0; i < numTextures; ++i) {
-                            yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i],
-                                                                  yuvaIndices, i);
-                            if (yuvaTextures[i].isValid()) {
-                                fBackendTextures.push_back(yuvaTextures[i]);
-                            }
-                            yuvaPixmaps[i] = resultBMs[i].pixmap();
-                        }
-
-                        int counterMod = counter % 3;
-                        switch (counterMod) {
-                        case 0:
-                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
-                                context,
-                                (SkYUVColorSpace)cs,
-                                yuvaTextures,
-                                yuvaIndices,
-                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                kTopLeft_GrSurfaceOrigin);
-                            break;
-                        case 1:
-                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
-                                context,
-                                (SkYUVColorSpace)cs,
-                                yuvaTextures,
-                                yuvaIndices,
-                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                kTopLeft_GrSurfaceOrigin);
-                            break;
-                        case 2:
-                        default:
-                            fImages[opaque][cs][format] = SkImage::MakeFromYUVAPixmaps(
-                                context,
-                                (SkYUVColorSpace)cs,
-                                yuvaPixmaps,
-                                yuvaIndices,
-                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
-                                kTopLeft_GrSurfaceOrigin, true);
-                            break;
-                        }
-                        ++counter;
-                    } else {
-                        fImages[opaque][cs][format] = make_yuv_gen_image(
-                                                                fOriginalBMs[opaque].info(),
-                                                                (SkYUVColorSpace) cs,
-                                                                yuvaIndices,
-                                                                resultBMs);
+                    GrGpu* gpu = context->priv().getGpu();
+                    if (!gpu) {
+                        return;
                     }
+
+                    GrBackendTexture yuvaTextures[4];
+                    SkPixmap yuvaPixmaps[4];
+
+                    for (int i = 0; i < numTextures; ++i) {
+                        yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i],
+                                                              yuvaIndices, i);
+                        if (yuvaTextures[i].isValid()) {
+                            fBackendTextures.push_back(yuvaTextures[i]);
+                        }
+                        yuvaPixmaps[i] = resultBMs[i].pixmap();
+                    }
+
+                    int counterMod = counter % 3;
+                    switch (counterMod) {
+                    case 0:
+                        fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
+                            context,
+                            (SkYUVColorSpace)cs,
+                            yuvaTextures,
+                            yuvaIndices,
+                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                            kTopLeft_GrSurfaceOrigin);
+                        break;
+                    case 1:
+                        fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
+                            context,
+                            (SkYUVColorSpace)cs,
+                            yuvaTextures,
+                            yuvaIndices,
+                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                            kTopLeft_GrSurfaceOrigin);
+                        break;
+                    case 2:
+                    default:
+                        fImages[opaque][cs][format] = SkImage::MakeFromYUVAPixmaps(
+                            context,
+                            (SkYUVColorSpace)cs,
+                            yuvaPixmaps,
+                            yuvaIndices,
+                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                            kTopLeft_GrSurfaceOrigin, true);
+                        break;
+                    }
+                    ++counter;
                 }
             }
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->createImages(canvas->getGrContext());
 
         int x = kLabelWidth;
@@ -875,19 +853,15 @@ protected:
                 x += kTileWidthHeight + kPad;
             }
         }
-        if (auto context = canvas->getGrContext()) {
-            if (!context->abandoned()) {
-                context->flush();
-                GrGpu* gpu = context->priv().getGpu();
-                SkASSERT(gpu);
-                gpu->testingOnly_flushGpuAndSync();
-                for (const auto& tex : fBackendTextures) {
-                    gpu->deleteTestingOnlyBackendTexture(tex);
-                }
-                fBackendTextures.reset();
-            }
+
+        context->flush();
+        GrGpu* gpu = context->priv().getGpu();
+        SkASSERT(gpu);
+        gpu->testingOnly_flushGpuAndSync();
+        for (const auto& tex : fBackendTextures) {
+            gpu->deleteTestingOnlyBackendTexture(tex);
         }
-        SkASSERT(!fBackendTextures.count());
+        fBackendTextures.reset();
     }
 
 private:
@@ -905,7 +879,7 @@ private:
 DEF_GM(return new WackyYUVFormatsGM(false);)
 DEF_GM(return new WackyYUVFormatsGM(true);)
 
-class YUVMakeColorSpaceGM : public GM {
+class YUVMakeColorSpaceGM : public GpuGM {
 public:
     YUVMakeColorSpaceGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -989,12 +963,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
-        if (!context || context->abandoned()) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->createImages(context);
 
         int x = kPad;
