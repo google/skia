@@ -46,6 +46,10 @@ protected:
      */
     uint32_t contextID() const { return fContextID; }
 
+    bool matches(GrContext_Base* candidate) const {
+        return candidate->contextID() == this->contextID();
+    }
+
     /*
      * The options in effect for this context
      */
