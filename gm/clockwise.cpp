@@ -30,11 +30,11 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
  * triangles (sk_Clockwise), in terms of to Skia device space, in all backends and with all render
  * target origins. We draw clockwise triangles green and counter-clockwise red.
  */
-class ClockwiseGM : public GM {
+class ClockwiseGM : public GpuGM {
 private:
     SkString onShortName() final { return SkString("clockwise"); }
     SkISize onISize() override { return SkISize::Make(300, 200); }
-    void onDraw(SkCanvas*) override;
+    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,14 +137,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-    if (!ctx || !rtc) {
-        DrawGpuOnlyMessage(canvas);
-        return;
-    }
-
+void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
     rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Draw the test directly to the frame buffer.

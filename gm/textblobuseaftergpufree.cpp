@@ -15,7 +15,7 @@
 
 // This tests that we correctly regenerate textblobs after freeing all gpu resources crbug/491350
 namespace skiagm {
-class TextBlobUseAfterGpuFree : public GM {
+class TextBlobUseAfterGpuFree : public GpuGM {
 public:
     TextBlobUseAfterGpuFree() { }
 
@@ -28,13 +28,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        // This GM exists to test a specific feature of the GPU backend.
-        if (nullptr == canvas->getGrContext()) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         const char text[] = "Hamburgefons";
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 20);
@@ -48,7 +42,7 @@ protected:
         canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
         // This text should look fine
-        canvas->getGrContext()->freeGpuResources();
+        context->freeGpuResources();
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
     }
 
