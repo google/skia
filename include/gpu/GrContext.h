@@ -13,7 +13,6 @@
 #include "SkTypes.h"
 #include "../private/GrAuditTrail.h"
 #include "../private/GrRecordingContext.h"
-#include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
 
 // We shouldn't need this but currently Android is relying on this being include transitively.
@@ -33,7 +32,6 @@ class GrGpu;
 struct GrMockOptions;
 class GrOpMemoryPool;
 class GrPath;
-class GrProxyProvider;
 class GrRenderTargetContext;
 class GrResourceCache;
 class GrResourceProvider;
@@ -297,7 +295,6 @@ private:
     sk_sp<GrGpu>                            fGpu;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
-    GrProxyProvider*                        fProxyProvider;
 
     // All the GrOp-derived classes use this pool.
     sk_sp<GrOpMemoryPool>                   fOpMemoryPool;
@@ -308,11 +305,6 @@ private:
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;
-
-    // In debug builds we guard against improper thread handling
-    // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
-    mutable GrSingleOwner                   fSingleOwner;
 
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
