@@ -473,9 +473,7 @@ public:
         @param info   contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @param flags  kZeroPixels_AllocFlag, or zero
     */
-    void allocPixelsFlags(const SkImageInfo& info, uint32_t flags) {
-        SkASSERT_RELEASE(this->tryAllocPixelsFlags(info, flags));
-    }
+    void allocPixelsFlags(const SkImageInfo& info, uint32_t flags);
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
         memory. rowBytes must equal or exceed info.width() times info.bytesPerPixel(),
@@ -511,9 +509,7 @@ public:
         @param info      contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @param rowBytes  size of pixel row or larger; may be zero
     */
-    void allocPixels(const SkImageInfo& info, size_t rowBytes) {
-        SkASSERT_RELEASE(this->tryAllocPixels(info, rowBytes));
-    }
+    void allocPixels(const SkImageInfo& info, size_t rowBytes);
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
         memory.
@@ -547,9 +543,7 @@ public:
 
         @param info  contains width, height, SkAlphaType, SkColorType, SkColorSpace
     */
-    void allocPixels(const SkImageInfo& info) {
-        this->allocPixels(info, info.minRowBytes());
-    }
+    void allocPixels(const SkImageInfo& info);
 
     /** Sets SkImageInfo to width, height, and native color type; and allocates
         pixel memory. If isOpaque is true, sets SkImageInfo to kOpaque_SkAlphaType;
@@ -568,11 +562,7 @@ public:
         @param isOpaque  true if pixels do not have transparency
         @return          true if pixel storage is allocated
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false) {
-        SkImageInfo info = SkImageInfo::MakeN32(width, height,
-                                            isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-        return this->tryAllocPixels(info);
-    }
+    bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false);
 
     /** Sets SkImageInfo to width, height, and the native color type; and allocates
         pixel memory. If isOpaque is true, sets SkImageInfo to kPremul_SkAlphaType;
@@ -589,11 +579,7 @@ public:
         @param height    pixel row count; must be zero or greater
         @param isOpaque  true if pixels do not have transparency
     */
-    void allocN32Pixels(int width, int height, bool isOpaque = false) {
-        SkImageInfo info = SkImageInfo::MakeN32(width, height,
-                                            isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-        this->allocPixels(info);
-    }
+    void allocN32Pixels(int width, int height, bool isOpaque = false);
 
     /** Sets SkImageInfo to info following the rules in setInfo(), and creates SkPixelRef
         containing pixels and rowBytes. releaseProc, if not nullptr, is called
@@ -689,9 +675,7 @@ public:
         Abort steps may be provided by the user at compile
         time by defining SK_ABORT.
     */
-    void allocPixels() {
-        this->allocPixels((Allocator*)nullptr);
-    }
+    void allocPixels();
 
     /** Allocates pixel memory with allocator, and replaces existing SkPixelRef.
         The allocation size is determined by SkImageInfo width, height, and SkColorType.
@@ -713,9 +697,7 @@ public:
 
         @param allocator  instance of SkBitmap::Allocator instantiation
     */
-    void allocPixels(Allocator* allocator) {
-        SkASSERT_RELEASE(this->tryAllocPixels(allocator));
-    }
+    void allocPixels(Allocator* allocator);
 
     /** Returns SkPixelRef, which contains: pixel base address; its dimensions; and
         rowBytes(), the interval from one row to the next. Does not change SkPixelRef

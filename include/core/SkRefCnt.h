@@ -36,13 +36,7 @@ public:
 
     /** Destruct, asserting that the reference count is 1.
     */
-    virtual ~SkRefCntBase() {
-    #ifdef SK_DEBUG
-        SkASSERTF(this->getRefCnt() == 1, "fRefCnt was %d", this->getRefCnt());
-        // illegal value, to catch us if we reuse after delete
-        fRefCnt.store(0, std::memory_order_relaxed);
-    #endif
-    }
+    virtual ~SkRefCntBase();
 
     /** May return true if the caller is the only owner.
      *  Ensures that all previous owner's actions are complete.
@@ -69,15 +63,7 @@ public:
         decrement, then delete the object. Note that if this is the case, then
         the object needs to have been allocated via new, and not on the stack.
     */
-    void unref() const {
-        SkASSERT(this->getRefCnt() > 0);
-        // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
-            // Like unique(), the acquire is only needed on success, to make sure
-            // code in internal_dispose() doesn't happen before the decrement.
-            this->internal_dispose();
-        }
-    }
+    void unref() const;
 
 private:
 
@@ -91,13 +77,7 @@ private:
     /**
      *  Called when the ref count goes to 0.
      */
-    virtual void internal_dispose() const {
-    #ifdef SK_DEBUG
-        SkASSERT(0 == this->getRefCnt());
-        fRefCnt.store(1, std::memory_order_relaxed);
-    #endif
-        delete this;
-    }
+    virtual void internal_dispose() const;
 
     // The following friends are those which override internal_dispose()
     // and conditionally call SkRefCnt::internal_dispose().
