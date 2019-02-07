@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bef4c3d1_30354cf4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-07T21:52:37Z",
+      "side": 1,
+      "message": "This is harmless, but is this actually triggering anywhere? If the frame_rect is empty then the dirty_rect should always be empty, since the d_r is a sub-rect of the f_r.",
+      "revId": "60f180de3b3a5aa7e5bb25ec771923771b00e25a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
