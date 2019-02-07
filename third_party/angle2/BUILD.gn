@@ -90,7 +90,7 @@ shared_library("libGLESv2") {
               angle_translator_hlsl_sources + libangle_sources +
               libangle_common_sources + libangle_image_util_sources +
               libglesv2_sources + libangle_gl_sources +
-              angle_system_utils_sources,
+              angle_system_utils_sources + xxhash_sources,
           ".",
           angle_root)
   if (is_win) {
