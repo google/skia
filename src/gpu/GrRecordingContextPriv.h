@@ -23,13 +23,17 @@ public:
     const GrContextOptions& options() const { return fContext->options(); }
 
     const GrCaps* caps() const { return fContext->caps(); }
-    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+    sk_sp<const GrCaps> refCaps() const;
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache(); // { return fContext->getFPFactoryCache(); }
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
 
     // from GrImageContext
 
     // from GrRecordingContext
+    sk_sp<GrOpMemoryPool> refOpMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+
+    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
