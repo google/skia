@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36a3f388_e8f1092a",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-07T14:53:11Z",
+      "side": 1,
+      "message": "This might be fixed now, but I\u0027m happy to follow up on this after this CL lands.",
+      "revId": "96372f8c5a4e5b6faa65cd41b4017e1e1c951024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79702f33_4845377f",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-07T14:53:11Z",
+      "side": 1,
+      "message": "Is xxhash really only a dependency on Windows?  It\u0027s probably harmless to add it all the time?\n\nI believe there was a list that contained these sources?  Using that will be easier to keep in sync with Angle\u0027s upstream if they change things.  I think you just add xxhash_sources to the big pile up on lines 87-93?",
+      "revId": "96372f8c5a4e5b6faa65cd41b4017e1e1c951024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
