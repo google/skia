@@ -55,11 +55,20 @@ static void shrink_irect_by_2(SkIRect* rect, bool xAxis, bool yAxis) {
     }
 }
 
-static float adjust_sigma(float sigma, int maxTextureSize, int *scaleFactor, int *radius) {
+static float adjust_sigma(float sigma, int scaleFactorLimit, int maxTextureSize, int *scaleFactor, int *radius) {
     *scaleFactor = 1;
     while (sigma > MAX_BLUR_SIGMA) {
         *scaleFactor *= 2;
         sigma *= 0.5f;
+
+        // make sure that the scale factor is staying within the given limit
+        if (*scaleFactor >= scaleFactorLimit) {
+            *scaleFactor /= 2;
+            if (sigma > MAX_BLUR_SIGMA) {
+                sigma = MAX_BLUR_SIGMA;
+            }
+        }
+
         if (*scaleFactor > maxTextureSize) {
             *scaleFactor = maxTextureSize;
             sigma = MAX_BLUR_SIGMA;
@@ -270,19 +279,13 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
                                       const SkImageInfo& dstII) {
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
     SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
+    SkASSERT(srcOffset->x() % scaleFactorX == 0 && srcOffset->y() % scaleFactorY == 0);
+    SkASSERT(contentRect->width() % scaleFactorX == 0 && contentRect->height() % scaleFactorY == 0);
 
     GrPixelConfig config = get_blur_config(src.get());
 
-    SkIRect srcRect;
-    if (GrTextureDomain::kIgnore_Mode == mode) {
-        srcRect = dstII.bounds();
-    } else {
-        srcRect = *contentRect;
-        srcRect.offset(*srcOffset);
-    }
-
-    scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
-    scale_irect(&srcRect, scaleFactorX, scaleFactorY);
+    SkIRect srcRect(*contentRect);
+    srcRect.offset(*srcOffset);
 
     SkIRect dstRect(srcRect);
 
@@ -375,6 +378,8 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
 // Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'.
 static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
                                              sk_sp<GrRenderTargetContext> srcRenderTargetContext,
+                                             SkIPoint* offsetAdjustment,
+                                             SkIRect* rectAdjustment,
                                              const SkIRect& localSrcBounds,
                                              int scaleFactorX, int scaleFactorY,
                                              GrTextureDomain::Mode mode,
@@ -440,6 +445,9 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
     // TODO: using dstII as dstRect results in some image diffs - why?
     SkIRect dstRect(srcRect);
     scale_irect(&dstRect, scaleFactorX, scaleFactorY);
+    dstRect.adjust(rectAdjustment->left(), rectAdjustment->top(),
+                   rectAdjustment->right(), rectAdjustment->bottom());
+    dstRect.offset(offsetAdjustment->x(), offsetAdjustment->y());
 
     dstRenderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                            SkRect::Make(dstRect), SkRect::Make(srcRect));
@@ -470,12 +478,21 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     const SkImageInfo finalDestII = SkImageInfo::Make(dstBounds.width(), dstBounds.height(),
                                                       ct, at, std::move(colorSpace));
 
-    int scaleFactorX, radiusX;
-    int scaleFactorY, radiusY;
+    // Rects are adjusted later on to be evenly divisible by scaleFactor.
+    // To calculate the needed adjustment we do (value % scaleFactor).
+    // If scaleFactor is larger than value, our adjustment is equal to value.
+    // This causes us to have an adjusted value of 0 which causes problems
+    // later on. To prevent this we make sure to limit how big the scaleFactor can be.
+    int scaleFactorX, radiusX, scaleFactorXLimit = srcBounds.right();
+    int scaleFactorY, radiusY, scaleFactorYLimit = srcBounds.bottom();
     int maxTextureSize = context->priv().caps()->maxTextureSize();
-    sigmaX = adjust_sigma(sigmaX, maxTextureSize, &scaleFactorX, &radiusX);
-    sigmaY = adjust_sigma(sigmaY, maxTextureSize, &scaleFactorY, &radiusY);
+    sigmaX = adjust_sigma(sigmaX, scaleFactorXLimit, maxTextureSize, &scaleFactorX, &radiusX);
+    sigmaY = adjust_sigma(sigmaY, scaleFactorYLimit, maxTextureSize, &scaleFactorY, &radiusY);
+
     SkASSERT(sigmaX || sigmaY);
+    // Makes sure that if a limit exists, the scale is under the limit.
+    SkASSERT((scaleFactorXLimit == 0 || scaleFactorX <= scaleFactorXLimit) &&
+             (scaleFactorYLimit == 0 || scaleFactorY <= scaleFactorYLimit));
 
     SkIPoint srcOffset = SkIPoint::Make(-dstBounds.x(), -dstBounds.y());
 
@@ -500,20 +517,52 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     }
 
     SkIRect localSrcBounds = srcBounds;
+    SkIPoint offsetAdjustment = SkIPoint::Make(srcOffset.x(), srcOffset.y());
+    SkIRect rectAdjustment = SkIRect::MakeLTRB(0, 0, 0, 0);
+    SkIRect srcRect = finalDestII.bounds();
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {
+        if (GrTextureDomain::kIgnore_Mode == mode) {
+            localSrcBounds = srcRect;
+        }
+
+        // Make sure before we start scaling that we adjust offset and localSrcBounds so that
+        // they will always be whole numbers after shrinking down. This adjustment prevents
+        // rounding error that can occur during scale down and scale up. These adjustments
+        // will be reapplied after we scale back up.
+        offsetAdjustment.set(srcOffset.x() % scaleFactorX, srcOffset.y() % scaleFactorY);
+        srcOffset -= {offsetAdjustment.x(), offsetAdjustment.y()};
+        SkASSERT(srcOffset.x() % scaleFactorX == 0 && srcOffset.y() % scaleFactorY == 0);
+
+        rectAdjustment.set(localSrcBounds.left() % scaleFactorX,
+                           localSrcBounds.top() % scaleFactorY,
+                           localSrcBounds.right() % scaleFactorX,
+                           localSrcBounds.bottom() % scaleFactorY);
+        SkASSERT(rectAdjustment.left() < localSrcBounds.left() || (rectAdjustment.left() == 0 && localSrcBounds.left() == 0));
+        SkASSERT(rectAdjustment.top() < localSrcBounds.top() || (rectAdjustment.top() == 0 && localSrcBounds.top() == 0));
+        SkASSERT(rectAdjustment.right() < localSrcBounds.right());
+        SkASSERT(rectAdjustment.bottom() < localSrcBounds.bottom());
+
+        localSrcBounds.adjust(-rectAdjustment.left(),
+                              -rectAdjustment.top(),
+                              -rectAdjustment.right(),
+                              -rectAdjustment.bottom());
+        SkASSERT(localSrcBounds.left() % scaleFactorX == 0 &&
+                 localSrcBounds.top() % scaleFactorY == 0 &&
+                 localSrcBounds.right() % scaleFactorX == 0 &&
+                 localSrcBounds.bottom() % scaleFactorY == 0);
+
         srcProxy = decimate(context, std::move(srcProxy), &srcOffset, &localSrcBounds,
                             scaleFactorX, scaleFactorY, sigmaX > 0.0f, sigmaY > 0.0f,
                             radiusX, radiusY, mode, finalDestII);
+
+        scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
         if (!srcProxy) {
             return nullptr;
         }
     }
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
-
-    SkIRect srcRect = finalDestII.bounds();
-    scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     if (sigmaX > 0.0f) {
         dstRenderTargetContext = convolve_gaussian(context, std::move(srcProxy), srcRect, srcOffset,
                                                    Direction::kX, radiusX, sigmaX, &localSrcBounds,
@@ -561,6 +610,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
     if (scaleFactorX > 1 || scaleFactorY > 1) {
         dstRenderTargetContext = reexpand(context, std::move(dstRenderTargetContext),
+                                          &offsetAdjustment, &rectAdjustment,
                                           localSrcBounds, scaleFactorX, scaleFactorY,
                                           mode, finalDestII, fit);
     }
