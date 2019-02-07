@@ -486,6 +486,8 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyp
         fGlyphMap.set(glyphPtr);
         this->ensureScalerContext();
         fContext->getMetrics(glyphPtr);
+        fCachedGlyphImages.add(glyphID);
+        fPendingGlyphImages.push_back(glyphID);
     }
 
     return *glyphPtr;
@@ -528,7 +530,16 @@ bool SkStrikeServer::SkGlyphCacheState::hasImage(const SkGlyph& glyph) {
 }
 
 bool SkStrikeServer::SkGlyphCacheState::hasPath(const SkGlyph& glyph) {
-    return const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc) != nullptr;
+    if (glyph.fPathData == nullptr) {
+        auto path = const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc);
+        if (path != nullptr) {
+            fCachedGlyphPaths.add(glyph.getPackedID());
+            fPendingGlyphPaths.push_back(glyph.getPackedID());
+            return true;
+        }
+    }
+
+    return glyph.path() != nullptr;
 }
 
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
