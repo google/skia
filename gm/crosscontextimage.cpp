@@ -11,42 +11,49 @@
 #include "GrContext.h"
 #include "SkImage.h"
 
-DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
+DEF_SIMPLE_GM(cross_context_image, canvas, 5 * 256 + 60, 256 + 128 + 30) {
     GrContext* context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;
     }
 
-    sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_512.png");
+    sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_256.png");
     if (!encodedData) {
-        skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_512.png. "
+        skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_256.png. "
                                                "Did you forget to set the resourcePath?");
         return;
     }
 
-    sk_sp<SkImage> encodedImage = SkImage::MakeFromEncoded(encodedData);
-    canvas->drawImage(encodedImage, 10, 10);
-
-    sk_sp<SkImage> crossContextImage = SkImage::MakeCrossContextFromEncoded(
-            context, encodedData, false, canvas->imageInfo().colorSpace());
-    canvas->drawImage(crossContextImage, 512 + 30, 10);
+    sk_sp<SkImage> images[5];
+    images[0] = SkImage::MakeFromEncoded(encodedData);
 
     SkBitmap bmp;
     SkPixmap pixmap;
-    SkAssertResult(encodedImage->asLegacyBitmap(&bmp) &&
+    SkAssertResult(images[0]->asLegacyBitmap(&bmp) &&
                    bmp.peekPixels(&pixmap));
 
-    sk_sp<SkImage> crossContextRaster = SkImage::MakeCrossContextFromPixmap(
-            context, pixmap, false, canvas->imageInfo().colorSpace());
-    canvas->drawImage(crossContextRaster, 512 + 512 + 60, 10);
+    images[1] = SkImage::MakeCrossContextFromEncoded(context, encodedData, false, nullptr);
+    images[2] = SkImage::MakeCrossContextFromEncoded(context, encodedData, true, nullptr);
+    images[3] = SkImage::MakeCrossContextFromPixmap(context, pixmap, false, nullptr);
+    images[4] = SkImage::MakeCrossContextFromPixmap(context, pixmap, true, nullptr);
 
-    SkIRect subset = SkIRect::MakeXYWH(256 - 64, 256 - 64, 128, 128);
-    sk_sp<SkImage> encodedSubset = encodedImage->makeSubset(subset);
-    sk_sp<SkImage> crossContextSubset = crossContextImage->makeSubset(subset);
-    sk_sp<SkImage> crossContextRasterSubset = crossContextRaster->makeSubset(subset);
+    canvas->translate(10, 10);
 
-    canvas->drawImage(encodedSubset, 10, 512 + 30);
-    canvas->drawImage(crossContextSubset, 512 + 30, 512 + 30);
-    canvas->drawImage(crossContextRasterSubset, 512 + 512 + 60, 512 + 30);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(images); ++i) {
+        canvas->save();
+
+        canvas->drawImage(images[i], 0, 0);
+        canvas->translate(0, 256 + 10);
+
+        canvas->drawImage(images[i]->makeSubset(SkIRect::MakeXYWH(64, 64, 128, 128)), 0, 0);
+        canvas->translate(128, 0);
+
+        SkPaint paint;
+        paint.setFilterQuality(kMedium_SkFilterQuality);
+        canvas->drawImageRect(images[i], SkRect::MakeWH(128, 128), &paint);
+
+        canvas->restore();
+        canvas->translate(256 + 10, 0);
+    }
 }
