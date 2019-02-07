@@ -27,7 +27,7 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
     return x + font.measureText(text.c_str(), text.size(), kUTF8_SkTextEncoding);
 }
 
-class FontCacheGM : public skiagm::GM {
+class FontCacheGM : public skiagm::GpuGM {
 public:
     FontCacheGM(GrContextOptions::Enable allowMultipleTextures)
         : fAllowMultipleTextures(allowMultipleTextures) {
@@ -60,14 +60,7 @@ protected:
         fTypefaces[5] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrRenderTargetContext* renderTargetContext =
-            canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
+    void onDraw(GrContext*, GrRenderTargetContext* renderTargetContext, SkCanvas* canvas) override {
         this->drawText(canvas);
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
