@@ -65,29 +65,6 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
-        const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit, SkBudgeted budgeted) {
-    sk_sp<GrTexture> tex;
-
-    if (SkBackingFit::kApprox == fit) {
-        tex = fResourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNone);
-    } else {
-        tex = fResourceProvider->createTexture(desc, budgeted, GrResourceProvider::Flags::kNone);
-    }
-    if (!tex) {
-        return nullptr;
-    }
-
-    return this->createWrapped(std::move(tex), origin);
-}
-
-sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createWrapped(sk_sp<GrTexture> tex,
-                                                                 GrSurfaceOrigin origin) {
-    return this->createWrapped(std::move(tex), origin);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
