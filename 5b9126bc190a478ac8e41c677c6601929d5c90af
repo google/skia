@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d66646b_ce765069",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-07T22:16:00Z",
+      "side": 0,
+      "message": "Eek! Good change :-)",
+      "revId": "5b9126bc190a478ac8e41c677c6601929d5c90af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
