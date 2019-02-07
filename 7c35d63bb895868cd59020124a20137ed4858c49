@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "750be343_b16c79f8",
+        "filename": "tools/viewer/ParticlesSlide.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-07T14:16:33Z",
+      "side": 1,
+      "message": "This might already be planned, but would it make sense to move a bulk of these classes to files in experimental/particles or something?",
+      "revId": "7c35d63bb895868cd59020124a20137ed4858c49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
