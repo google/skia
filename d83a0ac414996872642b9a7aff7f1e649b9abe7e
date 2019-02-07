@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53b588e0_ac865ab6",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-02-07T22:02:45Z",
+      "side": 1,
+      "message": "his would only be an issue if we had any case where we query the glyph metrics but don\u0027t actually send the image, which I think doesn\u0027t happen in practice.",
+      "range": {
+        "startLine": 494,
+        "startChar": 8,
+        "endLine": 496,
+        "endChar": 47
+      },
+      "revId": "d83a0ac414996872642b9a7aff7f1e649b9abe7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fe98d80_2e854fb5",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-02-07T22:02:45Z",
+      "side": 1,
+      "message": "I realize that the existing code is already like that but this means we\u0027re caching paths on the renderer side as well when we really don\u0027t need to. IIRC we used to only generate the glyph image/path at the time of serialization but never cache it, only make a note of what is cached GPU side.\n\nAlso seems kinda inconsistent now since hasImage doesn\u0027t cache the image but hasPath will? I\u0027m most likely missing the big picture here because the existing code which caches stuff in the same callbacks where the gpu code draws them seems a better fit to me. Mind giving me a slight idea on what\u0027s planned for followup patches?",
+      "range": {
+        "startLine": 544,
+        "startChar": 20,
+        "endLine": 544,
+        "endChar": 81
+      },
+      "revId": "d83a0ac414996872642b9a7aff7f1e649b9abe7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
