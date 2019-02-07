@@ -77,7 +77,7 @@ void GrCCConicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
     f->codeAppendf("%s *= half(%s.w);", outputCoverage, fKLM_fWind.fsIn()); // Wind.
 
     if (kFloat4_GrSLType == fGrad_fCorner.type()) {
-        f->codeAppendf("%s = fma(half(%s.z), half(%s.w), %s);", // Attenuated corner coverage.
+        f->codeAppendf("%s = 0;/*fma(half(%s.z), half(%s.w), %s);*/", // Attenuated corner coverage.
                        outputCoverage, fGrad_fCorner.fsIn(), fGrad_fCorner.fsIn(),
                        outputCoverage);
     }
