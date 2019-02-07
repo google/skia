@@ -33,15 +33,16 @@ protected:
         return SkISize::Make(100, 100);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         SkISize size = this->getISize();
         size.fWidth /= 10;
         size.fHeight /= 10;
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
         auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         if (nullptr == surface) {
-            DrawFailureMessage(canvas, "Could not create render target.");
-            return;
+            *errorMsg = "Could not create render target.";
+            return DrawResult::kFail;
         }
 
         canvas->clear(SK_ColorBLACK);
@@ -70,6 +71,7 @@ protected:
         }
 
         surface->getCanvas()->discard();
+        return DrawResult::kOk;
     }
 
 private:

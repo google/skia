@@ -62,8 +62,7 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, fETC1Data,
                                                            kTexWidth, kTexHeight,
                                                            SkImage::kETC1_CompressionType);

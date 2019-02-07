@@ -112,10 +112,10 @@ private:
         return true;
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (!this->initCodec()) {
-            DrawFailureMessage(canvas, "Could not create codec from %s", FLAGS_animatedGif[0]);
-            return;
+            errorMsg->printf("Could not create codec from %s", FLAGS_animatedGif[0]);
+            return DrawResult::kFail;
         }
 
         canvas->save();
@@ -128,6 +128,7 @@ private:
         SkAutoCanvasRestore acr(canvas, true);
         canvas->translate(0, SkIntToScalar(fCodec->getInfo().height()));
         this->drawFrame(canvas, fFrame);
+        return DrawResult::kOk;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
