@@ -136,7 +136,7 @@ void GrTextureOpList::endFlush() {
 
 // This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
 // stores extra data with the op
-bool GrTextureOpList::copySurface(GrContext* context,
+bool GrTextureOpList::copySurface(GrRecordingContext* context,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,

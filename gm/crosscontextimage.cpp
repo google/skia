@@ -9,12 +9,19 @@
 #include "Resources.h"
 
 #include "GrContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkImage.h"
 
 DEF_SIMPLE_GM(cross_context_image, canvas, 5 * 256 + 60, 256 + 128 + 30) {
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
+        return;
+    }
+
+    // The MakeCrossContextFromEncoded* calls require the full context
+    GrContext* direct = context->priv().asDirectContext();
+    if (!direct) {
         return;
     }
 

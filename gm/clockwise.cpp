@@ -91,7 +91,7 @@ class ClockwiseTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context, bool readSkFragCoord, int y = 0) {
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context, bool readSkFragCoord, int y = 0) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<ClockwiseTestOp>(readSkFragCoord, y);
     }
@@ -138,7 +138,7 @@ private:
 // Test.
 
 void ClockwiseGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         DrawGpuOnlyMessage(canvas);

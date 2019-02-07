@@ -27,19 +27,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
                                                     const DDLPromiseImageHelper& helper) {
     SkASSERT(!fReconstitutedPicture);
 
-    // This is bending the DDLRecorder contract! The promise images in the SKP should be
-    // created by the same recorder used to create the matching DDL.
-    SkDeferredDisplayListRecorder recorder(fCharacterization);
-
-    fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
-
-    std::unique_ptr<SkDeferredDisplayList> ddl = recorder.detach();
-    if (ddl->priv().numOpLists()) {
-        // TODO: remove this once skbug.com/8424 is fixed. If the DDL resulting from the
-        // reinflation of the SKPs contains opLists that means some image subset operation
-        // created a draw.
-        fReconstitutedPicture.reset();
-    }
+    fReconstitutedPicture = helper.reinflateSKP(compressedPictureData, &fPromiseImages);
 }
 
 void DDLTileHelper::TileData::createDDL() {
@@ -59,7 +47,7 @@ void DDLTileHelper::TileData::createDDL() {
 
         if (fPromiseImages[i]->isTextureBacked()) {
             SkImage_GpuBase* gpuImage = (SkImage_GpuBase*) fPromiseImages[i].get();
-            gpuImage->resetContext(sk_ref_sp(newContext));
+            gpuImage->resetContext17(sk_ref_sp(newContext));
         }
     }
 

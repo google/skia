@@ -31,9 +31,7 @@ struct GrGLInterface;
 class GrStrikeCache;
 class GrGpu;
 struct GrMockOptions;
-class GrOpMemoryPool;
 class GrPath;
-class GrProxyProvider;
 class GrRenderTargetContext;
 class GrResourceCache;
 class GrResourceProvider;
@@ -51,8 +49,11 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
+
 class SK_API GrContext : public GrRecordingContext {
 public:
+    GrContext* asDirectContext() override { return this; }
+
     /**
      * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
      * GrGLMakeNativeInterface() is used if it succeeds.
@@ -93,6 +94,7 @@ public:
      */
     void resetContext(uint32_t state = kAll_GrBackendState);
 
+#if 0
     /**
      * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
@@ -110,6 +112,7 @@ public:
      * Returns true if the context was abandoned.
      */
     bool abandoned() const;
+#endif
 
     /**
      * This is similar to abandonContext() however the underlying 3D context is not yet lost and
@@ -288,7 +291,9 @@ protected:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-private:
+    bool abandoned1() const override;
+    void abandon1() override;
+//private:
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
@@ -297,26 +302,15 @@ private:
     sk_sp<GrGpu>                            fGpu;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
-    GrProxyProvider*                        fProxyProvider;
 
-    // All the GrOp-derived classes use this pool.
-    sk_sp<GrOpMemoryPool>                   fOpMemoryPool;
-
-    GrStrikeCache*                           fGlyphCache;
+    GrStrikeCache*                          fGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;
 
-    // In debug builds we guard against improper thread handling
-    // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
-    mutable GrSingleOwner                   fSingleOwner;
-
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
-
-    GrAuditTrail                            fAuditTrail;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 

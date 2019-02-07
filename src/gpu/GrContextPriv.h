@@ -28,7 +28,6 @@ class SkDeferredDisplayList;
     data members or virtual methods. */
 class GrContextPriv {
 public:
-
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
@@ -40,22 +39,68 @@ public:
     sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
 
     // from GrImageContext
+    bool abandoned1() const { return fContext->abandoned1(); }
+    void abandon1() { return fContext->abandon1(); }
+
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    GrSingleOwner* singleOwner() const { return fContext->singleOwner(); }
 
     // from GrRecordingContext
-
-    /**
-     * Create a GrContext without a resource cache
-     */
-    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
-
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
-    GrOpMemoryPool* opMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
+    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
+                                                      sk_sp<SkColorSpace> cs = nullptr,
+                                                      const SkSurfaceProps* props = nullptr) {
+        return fContext->makeWrappedSurfaceContext(std::move(proxy), std::move(cs), props);
+    }
+
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+                                                 const GrBackendFormat& format,
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 1,
+                                                 GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted budgeted = SkBudgeted::kYes);
+#if 0
+    {
+        return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
+                                                         std::move(colorSpace), sampleCnt, mipMapped,
+                                                         origin, surfaceProps, budgeted);
+    }
+#endif
+
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+                                                 const GrBackendFormat& format,
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 1,
+                                                 GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted budgeted = SkBudgeted::kYes);
+#if 0
+    {
+        return fContext->makeDeferredRenderTargetContextWithFallback(format, fit, width, height,
+                                                                     config, std::move(colorSpace),
+                                                                     sampleCnt, mipMapped, origin,
+                                                                     surfaceProps, budgeted);
+    }
+#endif
+
+    //----
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
-                                                      sk_sp<SkColorSpace> = nullptr,
-                                                      const SkSurfaceProps* = nullptr);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
                                                        const GrSurfaceDesc&,
@@ -100,6 +145,15 @@ public:
 
     sk_sp<GrRenderTargetContext> makeVulkanSecondaryCBRenderTargetContext(
             const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
+
+
+    /**
+     * Create a GrContext without a resource cache
+     */
+    static sk_sp<GrRecordingContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+
+    static sk_sp<GrImageContext> MakeImageContext(const sk_sp<GrContextThreadSafeProxy>&);
+
 
     /**
      * Call to ensure all drawing to the context has been issued to the
@@ -200,9 +254,6 @@ public:
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
-    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
-    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
-
     GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
 
@@ -269,6 +320,13 @@ public:
 #endif
 
 #if GR_TEST_UTILS
+    /**
+     * Purge all the unlocked resources from the cache.
+     * This entry point is mainly meant for timing texture uploads
+     * and is not defined in normal builds of Skia.
+     */
+    void purgeAllUnlockedResources_ForTesting();
+
     /** Reset GPU stats */
     void resetGpuStats() const ;
 
@@ -297,6 +355,7 @@ public:
      * and is not defined in normal builds of Skia.
      */
     void testingOnly_purgeAllUnlockedResources();
+    GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif

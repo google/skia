@@ -17,12 +17,12 @@ class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrClearOp> Make(GrContext* context,
+    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
                                            const GrFixedClip& clip,
                                            const SkPMColor4f& color,
                                            GrSurfaceProxy* dstProxy);
 
-    static std::unique_ptr<GrClearOp> Make(GrContext* context,
+    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
                                            const SkIRect& rect,
                                            const SkPMColor4f& color,
                                            bool fullScreen);

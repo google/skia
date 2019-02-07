@@ -51,6 +51,8 @@ protected:
      */
     const GrContextOptions& options() const { return fOptions; }
 
+    bool matches(GrContext_Base* context) const;
+
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
@@ -61,9 +63,9 @@ protected:
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
 
+private:
     virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
 
-private:
     const GrBackendApi          fBackend;
     const GrContextOptions      fOptions;
     const uint32_t              fContextID;
