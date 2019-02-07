@@ -11,6 +11,7 @@
 #include "SkImage.h"
 #include "SkPixmap.h"
 #include "SkSwizzle.h"
+#include "SkTime.h"
 #include "SkVertices.h"
 
 #include "imgui.h"
@@ -95,7 +96,12 @@ void ImGuiLayer::skiaWidget(const ImVec2& size, SkiaWidgetFunc func) {
 void ImGuiLayer::onPrePaint() {
     // Update ImGui input
     ImGuiIO& io = ImGui::GetIO();
-    io.DeltaTime = 1.0f / 60.0f;
+
+    static double previousTime = 0.0;
+    double currentTime = SkTime::GetSecs();
+    io.DeltaTime = static_cast<float>(currentTime - previousTime);
+    previousTime = currentTime;
+
     io.DisplaySize.x = static_cast<float>(fWindow->width());
     io.DisplaySize.y = static_cast<float>(fWindow->height());
 
