@@ -432,12 +432,30 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kInternalError;
     }
 
+    SkCodec::Result result = SkCodec::kSuccess;
+    const char*     status = this->decodeFrame();
+    const bool      independent = independent_frame(this, options().fFrameIndex);
+    if (status != nullptr) {
+        if (status == wuffs_base__suspension__short_read) {
+            result = SkCodec::kIncompleteInput;
+        } else {
+            SkCodecPrintf("decodeFrame: %s", status);
+            result = SkCodec::kErrorInInput;
+        }
+
+        if (!independent) {
+            // For a dependent frame, we cannot blend the partial result, since
+            // that will overwrite the contribution from prior frames.
+            return result;
+        }
+    }
+
     // In Wuffs, a paletted image is always 1 byte per pixel.
     static constexpr size_t src_bpp = 1;
     wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
     int scaledHeight = dstInfo().height();
-    const bool independent = independent_frame(this, options().fFrameIndex);
     wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
+    wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!fSwizzler) {
         auto bounds = SkIRect::MakeLTRB(frame_rect.min_incl_x, frame_rect.min_incl_y,
                                         frame_rect.max_excl_x, frame_rect.max_excl_y);
@@ -457,7 +475,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
 
         // If the frame rect does not fill the output, ensure that those pixels are not
         // left uninitialized either.
-        if (independent && bounds != this->bounds()) {
+        if (independent && (bounds != this->bounds() || dirty_rect.is_empty())) {
             auto fillInfo = dstInfo().makeWH(fSwizzler->fillWidth(), scaledHeight);
             SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
         }
@@ -484,26 +502,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         *rowsDecoded = scaledHeight;
     }
 
-    SkCodec::Result result = SkCodec::kSuccess;
-    const char*     status = this->decodeFrame();
-    if (status != nullptr) {
-        if (status == wuffs_base__suspension__short_read) {
-            result = SkCodec::kIncompleteInput;
-        } else {
-            SkCodecPrintf("decodeFrame: %s", status);
-            result = SkCodec::kErrorInInput;
-        }
-
-        if (!independent) {
-            // For a dependent frame, we cannot blend the partial result, since
-            // that will overwrite the contribution from prior frames with all
-            // zeroes that were written to |pixels| above.
-            return result;
-        }
-    }
-
     // If the frame's dirty rect is empty, no need to swizzle.
-    wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!dirty_rect.is_empty()) {
         if (!fColorTableFilled) {
             fColorTableFilled = true;
