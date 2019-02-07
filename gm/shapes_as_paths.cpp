@@ -15,7 +15,7 @@
 
 namespace skiagm {
 
-static void draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB) {
+skiagm::DrawResult draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB, SkString* errorMsg) {
     SkASSERT(imgA->dimensions() == imgB->dimensions());
 
     int w = imgA->width(), h = imgA->height();
@@ -34,8 +34,8 @@ static void draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB) {
     pmapA.alloc(info);
     pmapB.alloc(info);
     if (!imgA->readPixels(pmapA, 0, 0) || !imgB->readPixels(pmapB, 0, 0)) {
-        skiagm::GM::DrawFailureMessage(canvas, "Failed to read pixels.");
-        return;
+        *errorMsg = "Failed to read pixels.";
+        return skiagm::DrawResult::kFail;
     }
 
     int maxDiffX = 0, maxDiffY = 0, maxDiff = 0;
@@ -95,6 +95,7 @@ static void draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB) {
 
     // Draw outline of whole test region
     canvas->drawRect(SkRect::MakeWH(3 * w, h), outline);
+    return skiagm::DrawResult::kOk;
 }
 
 namespace {
@@ -106,7 +107,8 @@ typedef std::function<void(SkCanvas*, const SkRect&, const SkPaint&)> ShapeDrawF
  *  user-supplied draw callbacks. Produces a grid clearly showing if the two callbacks produce the
  *  same visual results in all cases.
  */
-static void draw_rect_geom_diff_grid(SkCanvas* canvas, ShapeDrawFunc f1, ShapeDrawFunc f2) {
+static skiagm::DrawResult draw_rect_geom_diff_grid(SkCanvas* canvas, ShapeDrawFunc f1,
+                                                   ShapeDrawFunc f2, SkString* errorMsg) {
     // Variables:
     // - Fill, hairline, wide stroke
     // - Axis aligned, rotated, scaled, scaled negative, perspective
@@ -182,13 +184,17 @@ static void draw_rect_geom_diff_grid(SkCanvas* canvas, ShapeDrawFunc f1, ShapeDr
                 surface->getCanvas()->restore();
                 auto imgB = surface->makeImageSnapshot();
 
-                draw_diff(canvas, imgA.get(), imgB.get());
+                skiagm::DrawResult drawResult = draw_diff(canvas, imgA.get(), imgB.get(), errorMsg);
+                if (skiagm::DrawResult::kOk != drawResult) {
+                    return drawResult;
+                }
                 canvas->translate(160, 0);
             }
             canvas->restore();
             canvas->translate(0, 60);
         }
     }
+    return skiagm::DrawResult::kOk;
 }
 
 static const int kNumRows = 9;
@@ -196,7 +202,8 @@ static const int kNumColumns = 7;
 static const int kTotalWidth = kNumColumns * 160 + 10;
 static const int kTotalHeight = kNumRows * 60 + 10;
 
-DEF_SIMPLE_GM_BG(rects_as_paths, canvas, kTotalWidth, kTotalHeight, SK_ColorBLACK) {
+DEF_SIMPLE_GM_BG_CAN_FAIL(rects_as_paths, canvas, errorMsg, kTotalWidth, kTotalHeight,
+                          SK_ColorBLACK) {
     // Drawing a rect vs. adding it to a path and drawing the path, should produce same results.
     auto rectDrawFunc = [](SkCanvas* canvas, const SkRect& rect, const SkPaint& paint) {
         canvas->drawRect(rect, paint);
@@ -207,10 +214,11 @@ DEF_SIMPLE_GM_BG(rects_as_paths, canvas, kTotalWidth, kTotalHeight, SK_ColorBLAC
         canvas->drawPath(path, paint);
     };
 
-    draw_rect_geom_diff_grid(canvas, rectDrawFunc, pathDrawFunc);
+    return draw_rect_geom_diff_grid(canvas, rectDrawFunc, pathDrawFunc, errorMsg);
 }
 
-DEF_SIMPLE_GM_BG(ovals_as_paths, canvas, kTotalWidth, kTotalHeight, SK_ColorBLACK) {
+DEF_SIMPLE_GM_BG_CAN_FAIL(ovals_as_paths, canvas, errorMsg, kTotalWidth, kTotalHeight,
+                          SK_ColorBLACK) {
     // Drawing an oval vs. adding it to a path and drawing the path, should produce same results.
     auto ovalDrawFunc = [](SkCanvas* canvas, const SkRect& rect, const SkPaint& paint) {
         canvas->drawOval(rect, paint);
@@ -221,10 +229,11 @@ DEF_SIMPLE_GM_BG(ovals_as_paths, canvas, kTotalWidth, kTotalHeight, SK_ColorBLAC
         canvas->drawPath(path, paint);
     };
 
-    draw_rect_geom_diff_grid(canvas, ovalDrawFunc, pathDrawFunc);
+    return draw_rect_geom_diff_grid(canvas, ovalDrawFunc, pathDrawFunc, errorMsg);
 }
 
-DEF_SIMPLE_GM_BG(arcs_as_paths, canvas, kTotalWidth, kTotalHeight, SK_ColorBLACK) {
+DEF_SIMPLE_GM_BG_CAN_FAIL(arcs_as_paths, canvas, errorMsg, kTotalWidth, kTotalHeight,
+                          SK_ColorBLACK) {
     // Drawing an arc vs. adding it to a path and drawing the path, should produce same results.
     auto arcDrawFunc = [](SkCanvas* canvas, const SkRect& rect, const SkPaint& paint) {
         canvas->drawArc(rect, 10, 200, false, paint);
@@ -235,7 +244,7 @@ DEF_SIMPLE_GM_BG(arcs_as_paths, canvas, kTotalWidth, kTotalHeight, SK_ColorBLACK
         canvas->drawPath(path, paint);
     };
 
-    draw_rect_geom_diff_grid(canvas, arcDrawFunc, pathDrawFunc);
+    return draw_rect_geom_diff_grid(canvas, arcDrawFunc, pathDrawFunc, errorMsg);
 }
 
 }

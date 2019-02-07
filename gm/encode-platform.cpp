@@ -81,19 +81,19 @@ protected:
         return SkISize::Make(256 * SK_ARRAY_COUNT(kTypes), 256 * 3);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap opaqueBm, premulBm, unpremulBm;
 
         if (!GetResourceAsBitmap("images/mandrill_256.png", &opaqueBm)) {
-            DrawFailureMessage(canvas, "Could not load images/mandrill_256.png.png. "
-                                       "Did you forget to set the resourcePath?");
-            return;
+            *errorMsg = "Could not load images/mandrill_256.png.png. "
+                        "Did you forget to set the resourcePath?";
+            return DrawResult::kFail;
         }
         SkBitmap tmp;
         if (!GetResourceAsBitmap("images/yellow_rose.png", &tmp)) {
-            DrawFailureMessage(canvas, "Could not load images/yellow_rose.png. "
-                                       "Did you forget to set the resourcePath?");
-            return;
+            *errorMsg = "Could not load images/yellow_rose.png. "
+                        "Did you forget to set the resourcePath?";
+            return DrawResult::kFail;
         }
         tmp.extractSubset(&premulBm, SkIRect::MakeWH(256, 256));
         tmp.reset();
@@ -111,6 +111,7 @@ protected:
 
             canvas->translate(256.0f, 0.0f);
         }
+        return DrawResult::kOk;
     }
 
 private:

@@ -76,7 +76,7 @@ protected:
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext* renderTargetContext, SkCanvas* canvas) override {
+    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);

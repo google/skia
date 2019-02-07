@@ -72,8 +72,8 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[3];
 
@@ -81,8 +81,8 @@ protected:
             proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
-                DrawFailureMessage(canvas, "Failed to create proxy");
-                return;
+                *errorMsg = "Failed to create proxy";
+                return DrawResult::kFail;
             }
         }
 
@@ -126,6 +126,7 @@ protected:
                 x += renderRect.width() + kTestPad;
             }
         }
+        return DrawResult::kOk;
      }
 
 private:
@@ -189,8 +190,8 @@ protected:
         }
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[2];
 
@@ -198,8 +199,8 @@ protected:
             proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
                                                            SkBudgeted::kYes, SkBackingFit::kExact);
             if (!proxies[i]) {
-                DrawFailureMessage(canvas, "Failed to create proxy");
-                return;
+                *errorMsg = "Failed to create proxy";
+                return DrawResult::kFail;
             }
         }
 
@@ -236,6 +237,7 @@ protected:
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

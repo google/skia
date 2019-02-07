@@ -91,7 +91,11 @@ GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
-    gm->draw(canvas);
+    SkString errorMsg;
+    skiagm::DrawResult drawResult = gm->draw(canvas, &errorMsg);
+    if (skiagm::DrawResult::kSkip == drawResult) {
+        return Error::Nonfatal(std::move(errorMsg));  // Cause this test to be skipped.
+    }
     return "";
 }
 

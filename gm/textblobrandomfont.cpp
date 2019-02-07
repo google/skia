@@ -93,7 +93,8 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
         // This GM exists to test a specific feature of the GPU backend.
         // This GM uses sk_tool_utils::makeSurface which doesn't work well with vias.
         // This GM uses SkRandomTypeface which doesn't work well with serialization.
@@ -105,8 +106,8 @@ protected:
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
         auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
         if (!surface) {
-            DrawFailureMessage(canvas, "This test requires a surface");
-            return;
+            *errorMsg = "This test requires a surface";
+            return DrawResult::kFail;
         }
 
         SkPaint paint;
@@ -139,6 +140,7 @@ protected:
         canvas->rotate(-0.05f);
         canvas->drawTextBlob(fBlob, 10, yOffset, paint);
         yOffset += stride;
+        return DrawResult::kOk;
     }
 
 private:
