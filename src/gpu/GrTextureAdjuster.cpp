@@ -66,7 +66,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
                 proxyProvider->removeUniqueKeyFromProxy(cachedCopy.get());
             }
             proxyProvider->assignUniqueKeyToProxy(key, copy.get());
-            this->didCacheCopy(key, proxyProvider->contextUniqueID());
+            this->didCacheCopy(key, proxyProvider->contextID());
         }
     }
     return copy;

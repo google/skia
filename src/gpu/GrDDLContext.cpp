@@ -40,6 +40,10 @@ public:
     }
 
 protected:
+    // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
+    // GrRecordingContext!
+    GrContext* asDirectContext() override { return nullptr; }
+
     bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) override {
         SkASSERT(caps && FPFactoryCache);
         SkASSERT(fThreadSafeProxy); // should've been set in the ctor

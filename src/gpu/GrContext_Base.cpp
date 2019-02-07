@@ -7,6 +7,7 @@
 
 #include "GrContext_Base.h"
 
+#include "GrBaseContextPriv.h"
 #include "GrCaps.h"
 #include "GrSkSLFPFactoryCache.h"
 
@@ -42,3 +43,11 @@ bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> 
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {
+    return fContext->refCaps();
+}
+
+sk_sp<GrSkSLFPFactoryCache> GrBaseContextPriv::fpFactoryCache() {
+    return fContext->fpFactoryCache();
+}
