@@ -13,6 +13,7 @@
 
 #if SK_SUPPORT_GPU
 
+class GrRecordingContext;
 class SkGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
@@ -21,7 +22,7 @@ public:
     ~SkSurface_Gpu() override;
 
     // This is an internal-only factory
-    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrContext*, sk_sp<GrRenderTargetContext>);
+    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrRecordingContext*, sk_sp<GrRenderTargetContext>);
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
     GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;

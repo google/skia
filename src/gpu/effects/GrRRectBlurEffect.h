@@ -27,7 +27,7 @@
 #include "GrCoordTransform.h"
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
+    static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrRecordingContext* context,
                                                                 const SkRRect& rrectToDraw,
                                                                 const SkISize& size,
                                                                 float xformedSigma) {
