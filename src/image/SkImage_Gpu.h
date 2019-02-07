@@ -35,7 +35,7 @@ public:
         return fProxy;
     }
 
-    virtual bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
+    bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const final;
 

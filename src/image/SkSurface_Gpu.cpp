@@ -10,6 +10,7 @@
 #include "GrBackendSurface.h"
 #include "GrCaps.h"
 #include "GrContextPriv.h"
+#include "GrContextThreadSafeProxyPriv.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxyPriv.h"
@@ -240,7 +241,7 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
         return false;
     }
 
-    return characterization.contextInfo() && characterization.contextInfo()->matches(ctx) &&
+    return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
            characterization.config() == rtc->colorSpaceInfo().config() &&

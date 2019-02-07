@@ -33,7 +33,7 @@ SkImage_GpuBase::~SkImage_GpuBase() {}
 
 #if GR_TEST_UTILS
 void SkImage_GpuBase::resetContext(sk_sp<GrContext> newContext) {
-    SkASSERT(fContext->priv().contextID() == newContext->priv().contextID());
+    SkASSERT(fContext->priv().matches(newContext.get()));
     fContext = newContext;
 }
 #endif
@@ -59,10 +59,6 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-
-uint32_t SkImage_GpuBase::contextID() const {
-    return fContext->priv().contextID();
-}
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     if (!fContext->priv().resourceProvider()) {
@@ -211,7 +207,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,
                                                          const GrSamplerState& params,
                                                          SkScalar scaleAdjust[2]) const {
-    if (context->priv().contextID() != fContext->priv().contextID()) {
+    if (!fContext->priv().matches(context)) {
         SkASSERT(0);
         return nullptr;
     }

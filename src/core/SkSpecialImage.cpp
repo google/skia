@@ -192,7 +192,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrContext* context,
 
 #if SK_SUPPORT_GPU
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef()) {
-        if (as_IB(image)->contextID() != context->priv().contextID()) {
+        if (!as_IB(image)->context()->priv().matches(context)) {
             return nullptr;
         }
 

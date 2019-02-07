@@ -32,6 +32,8 @@ public:
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
+    bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
+
     const GrContextOptions& options() const { return fContext->options(); }
 
     const GrCaps* caps() const { return fContext->caps(); }

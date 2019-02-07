@@ -28,10 +28,6 @@ bool GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
     return INHERITED::init(std::move(caps), std::move(FPFactoryCache));
 }
 
-bool GrContextThreadSafeProxy::matches(GrContext_Base* context) const {
-    return context->priv().contextID() == this->contextID();
-}
-
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      size_t cacheMaxResourceBytes,
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,
