@@ -24,6 +24,7 @@ source_set("skottie") {
     deps = [
       "../..:skia",
       "../sksg",
+      "../skshaper",
     ]
   }
 }

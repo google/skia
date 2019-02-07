@@ -21,6 +21,7 @@
 #include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
+#include "SkShaper.h"
 #include "SkTextBlob.h"
 #include "SkTextUtils.h"
 #include "SkTo.h"
@@ -296,41 +297,116 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     font.setSubpixel(true);
     font.setEdging(SkFont::Edging::kAntiAlias);
 
-    const auto align_fract = [](SkTextUtils::Align align) {
-        switch (align) {
-        case SkTextUtils::kLeft_Align:   return  0.0f;
-        case SkTextUtils::kCenter_Align: return -0.5f;
-        case SkTextUtils::kRight_Align:  return -1.0f;
-        }
-        return 0.0f; // go home, msvc...
-    }(fText.fAlign);
+    // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
+    // per-line position adjustments (for external line breaking, horizontal alignment, etc).
+    class BlobMaker final : public SkShaper::RunHandler {
+    public:
+        BlobMaker(SkTextUtils::Align align)
+            : fAlignFactor(AlignFactor(align)) {}
 
-    const auto line_spacing = font.getSpacing();
-    float y_off             = 0;
-    SkSTArray<256, SkGlyphID, true> line_glyph_buffer;
-    SkTextBlobBuilder builder;
-
-    const auto& push_line = [&](const char* start, const char* end) {
-        if (end > start) {
-            const auto len   = SkToSizeT(end - start);
-            line_glyph_buffer.reset(font.countText(start, len, kUTF8_SkTextEncoding));
-            SkAssertResult(font.textToGlyphs(start, len, kUTF8_SkTextEncoding, line_glyph_buffer.data(),
-                    line_glyph_buffer.count())
-                           == line_glyph_buffer.count());
-
-            const auto x_off = align_fract != 0
-                    ? align_fract * font.measureText(start, len, kUTF8_SkTextEncoding)
-                    : 0;
-            const auto& buf  = builder.allocRun(font, line_glyph_buffer.count(), x_off, y_off);
-            if (!buf.glyphs) {
-                return;
+        Buffer newRunBuffer(const RunInfo& info, const SkFont& font, int glyphCount,
+                            int utf8textCount) override {
+            if (!fPendingLineRuns.empty() &&
+                fPendingLineRuns.back().fInfo.fLineIndex != info.fLineIndex) {
+                // SkShaper-triggered new line.
+                this->commitLine();
             }
 
-            memcpy(buf.glyphs, line_glyph_buffer.data(),
-                   SkToSizeT(line_glyph_buffer.count()) * sizeof(SkGlyphID));
+            fPendingLineAdvance += info.fAdvance;
 
-            y_off += line_spacing;
+            auto& run = fPendingLineRuns.emplace_back(font, info, glyphCount);
+
+            return {
+                run.fGlyphs   .data(),
+                run.fPositions.data(),
+                nullptr,
+                nullptr,
+            };
         }
+
+        void commitLine() {
+            SkScalar line_spacing = 0;
+
+            for (const auto& run : fPendingLineRuns) {
+                const auto runSize = run.size();
+                const auto& blobBuffer = fBuilder.allocRunPos(run.fFont, SkToInt(runSize));
+
+                sk_careful_memcpy(blobBuffer.glyphs,
+                                  run.fGlyphs.data(),
+                                  runSize * sizeof(SkGlyphID));
+
+                // For each buffered line, perform the following position adjustments:
+                //   1) horizontal alignment
+                //   2) vertical advance (based on line number/offset)
+                //   3) baseline/ascent adjustment
+                const auto offset = SkVector::Make(fAlignFactor * fPendingLineAdvance.x(),
+                                                   fPendingLineVOffset + run.fInfo.fAscent);
+                for (size_t i = 0; i < runSize; ++i) {
+                    blobBuffer.points()[i] = run.fPositions[SkToInt(i)] + offset;
+                }
+
+                line_spacing = SkTMax(line_spacing,
+                                      run.fInfo.fDescent - run.fInfo.fAscent + run.fInfo.fLeading);
+            }
+
+            fPendingLineRuns.reset();
+            fPendingLineVOffset += line_spacing;
+            fPendingLineAdvance  = { 0, 0 };
+        }
+
+        sk_sp<SkTextBlob> makeBlob() {
+            return fBuilder.make();
+        }
+
+    private:
+        static float AlignFactor(SkTextUtils::Align align) {
+            switch (align) {
+            case SkTextUtils::kLeft_Align:   return  0.0f;
+            case SkTextUtils::kCenter_Align: return -0.5f;
+            case SkTextUtils::kRight_Align:  return -1.0f;
+            }
+            return 0.0f; // go home, msvc...
+        }
+
+        struct Run {
+            SkFont                          fFont;
+            SkShaper::RunHandler::RunInfo   fInfo;
+            SkSTArray<128, SkGlyphID, true> fGlyphs;
+            SkSTArray<128, SkPoint  , true> fPositions;
+
+            Run(const SkFont& font, const SkShaper::RunHandler::RunInfo& info, int count)
+                : fFont(font)
+                , fInfo(info)
+                , fGlyphs   (count)
+                , fPositions(count) {
+                fGlyphs   .push_back_n(count);
+                fPositions.push_back_n(count);
+            }
+
+            size_t size() const {
+                SkASSERT(fGlyphs.size() == fPositions.size());
+                return fGlyphs.size();
+            }
+        };
+
+        const float fAlignFactor;
+
+        SkTextBlobBuilder        fBuilder;
+        SkSTArray<2, Run, false> fPendingLineRuns;
+        SkScalar                 fPendingLineVOffset = 0;
+        SkVector                 fPendingLineAdvance = { 0, 0 };
+    };
+
+    BlobMaker blobMaker(fText.fAlign);
+
+    const auto& push_line = [&](const char* start, const char* end) {
+        SkShaper shaper(font.refTypeface());
+        if (!shaper.good()) {
+            return;
+        }
+
+        shaper.shape(&blobMaker, font, start, SkToSizeT(end - start), true, { 0, 0 }, SK_ScalarMax);
+        blobMaker.commitLine();
     };
 
     const auto& is_line_break = [](SkUnichar uch) {
@@ -350,7 +426,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     }
     push_line(line_start, ptr);
 
-    return builder.make();
+    return blobMaker.makeBlob();
 }
 
 void TextAdapter::apply() {
