@@ -7,6 +7,7 @@
 
 @header {
     #include "GrProxyProvider.h"
+    #include "GrShaderCaps.h"
     #include "SkBlurMask.h"
     #include "SkScalar.h"
 }

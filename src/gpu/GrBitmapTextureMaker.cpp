@@ -61,7 +61,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
                 if (fOriginalKey.isValid()) {
                     GrInstallBitmapUniqueKeyInvalidator(
-                            fOriginalKey, proxyProvider->contextUniqueID(), fBitmap.pixelRef());
+                            fOriginalKey, proxyProvider->contextID(), fBitmap.pixelRef());
                 }
                 return proxy;
             }
@@ -86,7 +86,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 SkASSERT(proxy->getUniqueKey() == fOriginalKey);
                 proxyProvider->removeUniqueKeyFromProxy(proxy.get());
                 proxyProvider->assignUniqueKeyToProxy(fOriginalKey, mippedProxy.get());
-                GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, proxyProvider->contextUniqueID(),
+                GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, proxyProvider->contextID(),
                                                     fBitmap.pixelRef());
             }
             return mippedProxy;
