@@ -178,28 +178,20 @@ public:
 
     class UniqueID {
     public:
-        static UniqueID InvalidID() {
-            return UniqueID(uint32_t(SK_InvalidUniqueID));
-        }
-
-        UniqueID() {}
+        UniqueID() = default;
 
         explicit UniqueID(uint32_t id) : fID(id) {}
 
         uint32_t asUInt() const { return fID; }
 
-        bool operator==(const UniqueID& other) const {
-            return fID == other.fID;
-        }
-        bool operator!=(const UniqueID& other) const {
-            return !(*this == other);
-        }
+        bool operator==(const UniqueID& other) const { return fID == other.fID; }
+        bool operator!=(const UniqueID& other) const { return !(*this == other); }
 
         void makeInvalid() { fID = SK_InvalidUniqueID; }
-        bool isInvalid() const { return SK_InvalidUniqueID == fID; }
+        bool isInvalid() const { return  fID == SK_InvalidUniqueID; }
 
     protected:
-        uint32_t fID;
+        uint32_t fID = SK_InvalidUniqueID;
     };
 
     /**
