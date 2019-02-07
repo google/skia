@@ -52,9 +52,7 @@ protected:
             SkScalar translate = 2.0f * size;
 
             SkPaint paint;
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
             paint.setLooper(this->createLooper(-translate, blurSigma));
-#endif
             paint.setColor(0xff000000 | Random.nextU());
             paint.setAntiAlias(true);
 

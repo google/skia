@@ -69,9 +69,7 @@ public:
         SkPaint paint;
         canvas->drawRect(fRRect.rect(), paint);
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint.setLooper(looperBuilder.detach());
-#endif
         paint.setColor(SK_ColorCYAN);
         paint.setAntiAlias(true);
 

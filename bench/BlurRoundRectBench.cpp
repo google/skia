@@ -62,9 +62,7 @@ public:
         dullPaint.setAntiAlias(true);
 
         SkPaint loopedPaint;
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         loopedPaint.setLooper(looperBuilder.detach());
-#endif
         loopedPaint.setAntiAlias(true);
         loopedPaint.setColor(SK_ColorCYAN);
 
