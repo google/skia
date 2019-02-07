@@ -25,8 +25,6 @@
 #include "SkGr.h"
 #include "SkMathPriv.h"
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
-
 const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 
 #ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
@@ -55,9 +53,6 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     }
 
     fCaps = sk_ref_sp(fGpu->caps());
-
-    GR_DEFINE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
-    fQuadIndexBufferKey = gQuadIndexBufferKey;
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -306,7 +301,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(const ui
                                                                         int patternSize,
                                                                         int reps,
                                                                         int vertCount,
-                                                                        const GrUniqueKey& key) {
+                                                                        const GrUniqueKey* key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
@@ -335,7 +330,10 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(const ui
     } else {
         buffer->unmap();
     }
-    this->assignUniqueKeyToResource(key, buffer.get());
+    if (key) {
+        SkASSERT(key->isValid());
+        this->assignUniqueKeyToResource(*key, buffer.get());
+    }
     return std::move(buffer);
 }
 
@@ -344,7 +342,7 @@ static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
 sk_sp<const GrGpuBuffer> GrResourceProvider::createQuadIndexBuffer() {
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 2, 1, 3 };
-    return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
+    return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, nullptr);
 }
 
 int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
