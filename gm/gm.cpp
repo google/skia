@@ -96,6 +96,12 @@ void GM::drawBackground(SkCanvas* canvas) {
     canvas->drawColor(fBGColor, SkBlendMode::kSrc);
 }
 
+DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
+    this->onDraw(canvas);
+    return DrawResult::kOk;
+}
+void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
+
 const char* GM::getName() {
     if (fShortName.size() == 0) {
         fShortName = this->onShortName();
@@ -110,6 +116,16 @@ void GM::setBGColor(SkColor color) {
 bool GM::animate(const SkAnimTimer& timer) {
     return this->onAnimate(timer);
 }
+
+bool GM::runAsBench() const { return false; }
+void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+void GM::onOnceBeforeDraw() {}
+
+bool GM::onAnimate(const SkAnimTimer&) { return false; }
+bool GM::onHandleKey(SkUnichar uni) { return false; }
+bool GM::onGetControls(SkMetaData*) { return false; }
+void GM::onSetControls(const SkMetaData&) {}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 

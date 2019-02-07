@@ -122,7 +122,7 @@ namespace skiagm {
         SkISize getISize() { return this->onISize(); }
         const char* getName();
 
-        virtual bool runAsBench() const { return false; }
+        virtual bool runAsBench() const;
 
         SkScalar width() {
             return SkIntToScalar(this->getISize().width());
@@ -150,22 +150,20 @@ namespace skiagm {
         bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
 
-        virtual void modifyGrContextOptions(GrContextOptions* options) {}
+        virtual void modifyGrContextOptions(GrContextOptions* options);
 
     protected:
-        virtual void onOnceBeforeDraw() {}
-        virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
-            this->onDraw(canvas);
-            return DrawResult::kOk;
-        }
-        virtual void onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
+        virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg);
+        virtual void onDraw(SkCanvas*);
+
+        virtual void onOnceBeforeDraw();
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
-        virtual bool onAnimate(const SkAnimTimer&) { return false; }
-        virtual bool onHandleKey(SkUnichar uni) { return false; }
-        virtual bool onGetControls(SkMetaData*) { return false; }
-        virtual void onSetControls(const SkMetaData&) {}
+        virtual bool onAnimate(const SkAnimTimer&);
+        virtual bool onHandleKey(SkUnichar uni);
+        virtual bool onGetControls(SkMetaData*);
+        virtual void onSetControls(const SkMetaData&);
 
     private:
         Mode     fMode;
