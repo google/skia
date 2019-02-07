@@ -486,18 +486,6 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     this->resetScalerContext();
 }
 
-const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyphID) {
-    SkGlyph* glyphPtr = fGlyphMap.findOrNull(glyphID);
-    if (glyphPtr == nullptr) {
-        glyphPtr = fAlloc.make<SkGlyph>(glyphID);
-        fGlyphMap.set(glyphPtr);
-        this->ensureScalerContext();
-        fContext->getMetrics(glyphPtr);
-    }
-
-    return *glyphPtr;
-}
-
 void SkStrikeServer::SkGlyphCacheState::ensureScalerContext() {
     if (fContext == nullptr) {
         fContext = fTypeface->createScalerContext(fEffects, fDescriptor.getDesc());
@@ -519,13 +507,34 @@ SkVector SkStrikeServer::SkGlyphCacheState::rounding() const {
     return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignmentForHText);
 }
 
+// Note: In the split Renderer/GPU architecture, if getGlyphMetrics is called in the Renderer
+// process, then it will be called on the GPU process because they share the rendering code. Any
+// data that is created in the Renderer process needs to be found in the GPU process. By
+// implication, any cache-miss/glyph-creation data needs to be sent to the GPU.
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
         SkGlyphID glyphID, SkPoint position) {
     SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, position);
     SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
                                                 : SkPackedGlyphID{glyphID};
 
-    return this->findGlyph(packedGlyphID);
+    // Check the cache for the glyph.
+    SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
+
+    // Has this glyph ever been seen before?
+    if (glyphPtr == nullptr) {
+
+        // Never seen before. Make a new glyph.
+        glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+        fGlyphMap.set(glyphPtr);
+        this->ensureScalerContext();
+        fContext->getMetrics(glyphPtr);
+
+        // Make sure to send the glyph to the GPU because we always send the image for a glyph.
+        fCachedGlyphImages.add(packedGlyphID);
+        fPendingGlyphImages.push_back(packedGlyphID);
+    }
+
+    return *glyphPtr;
 }
 
 bool SkStrikeServer::SkGlyphCacheState::hasImage(const SkGlyph& glyph) {
@@ -534,7 +543,22 @@ bool SkStrikeServer::SkGlyphCacheState::hasImage(const SkGlyph& glyph) {
 }
 
 bool SkStrikeServer::SkGlyphCacheState::hasPath(const SkGlyph& glyph) {
-    return const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc) != nullptr;
+
+    // Check to see if we have processed this glyph for a path before.
+    if (glyph.fPathData == nullptr) {
+
+        // Never checked for a path before. Add the path now.
+        auto path = const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc);
+        if (path != nullptr) {
+
+            // A path was added make sure to send it to the GPU.
+            fCachedGlyphPaths.add(glyph.getPackedID());
+            fPendingGlyphPaths.push_back(glyph.getPackedID());
+            return true;
+        }
+    }
+
+    return glyph.path() != nullptr;
 }
 
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
