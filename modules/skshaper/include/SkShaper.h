@@ -32,7 +32,6 @@ public:
         virtual ~RunHandler() = default;
 
         struct RunInfo {
-            size_t   fLineIndex;
             SkVector fAdvance;
             SkScalar fAscent,
                      fDescent,
@@ -46,8 +45,12 @@ public:
             uint32_t*  clusters;  // optional
         };
 
+        // Callback per glyph run.
         virtual Buffer newRunBuffer(const RunInfo&, const SkFont&, int glyphCount,
                                     int utf8textCount) = 0;
+
+        // Callback per line.
+        virtual void commitLine() = 0;
     };
 
     bool good() const;
@@ -75,6 +78,8 @@ public:
     sk_sp<SkTextBlob> makeBlob();
 
     SkShaper::RunHandler::Buffer newRunBuffer(const RunInfo&, const SkFont&, int, int) override;
+
+    void commitLine() override {}
 
 private:
     SkTextBlobBuilder fBuilder;
