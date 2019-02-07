@@ -8,13 +8,13 @@
 #ifndef GrBufferAllocPool_DEFINED
 #define GrBufferAllocPool_DEFINED
 
-#include "GrGpuBuffer.h"
+#include "GrCpuBuffer.h"
+#include "GrNonAtomicRef.h"
 #include "GrTypesPriv.h"
 #include "SkNoncopyable.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
-
 
 class GrGpu;
 
@@ -33,6 +33,28 @@ class GrGpu;
 class GrBufferAllocPool : SkNoncopyable {
 public:
     static constexpr size_t kDefaultBufferSize = 1 << 15;
+
+    /**
+     * A cache object that can be shared by multiple GrBufferAllocPool instances. It caches
+     * cpu buffer allocations to avoid reallocating them.
+     */
+    class CpuBufferCache : public GrNonAtomicRef<CpuBufferCache> {
+    public:
+        static sk_sp<CpuBufferCache> Make(int maxBuffersToCache);
+
+        sk_sp<GrCpuBuffer> makeBuffer(size_t size, bool mustBeInitialized);
+        void releaseAll();
+
+    private:
+        CpuBufferCache(int maxBuffersToCache);
+
+        struct Buffer {
+            sk_sp<GrCpuBuffer> fBuffer;
+            bool fCleared = false;
+        };
+        std::unique_ptr<Buffer[]> fBuffers;
+        int fMaxBuffersToCache = 0;
+    };
 
     /**
      * Ensures all buffers are unmapped and have all data written to them.
@@ -60,7 +82,7 @@ protected:
      *                              This parameter can be used to avoid malloc/free when all
      *                              usages can be satisfied with default-sized buffers.
      */
-    GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, void* initialBuffer);
+    GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, sk_sp<CpuBufferCache>);
 
     virtual ~GrBufferAllocPool();
 
@@ -129,18 +151,17 @@ private:
     void destroyBlock();
     void deleteBlocks();
     void flushCpuData(const BufferBlock& block, size_t flushSize);
-    void* resetCpuData(size_t newSize);
+    void resetCpuData(size_t newSize);
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
     size_t fBytesInUse = 0;
 
     SkTArray<BufferBlock> fBlocks;
+    sk_sp<CpuBufferCache> fCpuBufferCache;
+    sk_sp<GrCpuBuffer> fCpuStagingBuffer;
     GrGpu* fGpu;
     GrGpuBufferType fBufferType;
-    void* fInitialCpuData = nullptr;
-    void* fCpuData = nullptr;
-    size_t fCpuDataSize = 0;
     void* fBufferPtr = nullptr;
 };
 
@@ -157,7 +178,7 @@ public:
      *                              This parameter can be used to avoid malloc/free when all
      *                              usages can be satisfied with default-sized buffers.
      */
-    GrVertexBufferAllocPool(GrGpu* gpu, void* initialBuffer);
+    GrVertexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache>);
 
     /**
      * Returns a block of memory to hold vertices. A buffer designated to hold
@@ -236,7 +257,7 @@ public:
      *                              This parameter can be used to avoid malloc/free when all
      *                              usages can be satisfied with default-sized buffers.
      */
-    GrIndexBufferAllocPool(GrGpu* gpu, void* initialBuffer);
+    GrIndexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache>);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold
