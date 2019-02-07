@@ -122,7 +122,7 @@ namespace skiagm {
         SkISize getISize() { return this->onISize(); }
         const char* getName();
 
-        virtual bool runAsBench() const { return false; }
+        virtual bool runAsBench() const;
 
         SkScalar width() {
             return SkIntToScalar(this->getISize().width());
@@ -150,22 +150,20 @@ namespace skiagm {
         bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
 
-        virtual void modifyGrContextOptions(GrContextOptions* options) {}
+        virtual void modifyGrContextOptions(GrContextOptions* options);
 
     protected:
-        virtual void onOnceBeforeDraw() {}
-        virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) {
-            this->onDraw(canvas);
-            return DrawResult::kOk;
-        }
-        virtual void onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
+        virtual void onOnceBeforeDraw();
+        virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg);
+        virtual void onDraw(SkCanvas*);
+
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
-        virtual bool onAnimate(const SkAnimTimer&) { return false; }
-        virtual bool onHandleKey(SkUnichar uni) { return false; }
-        virtual bool onGetControls(SkMetaData*) { return false; }
-        virtual void onSetControls(const SkMetaData&) {}
+        virtual bool onAnimate(const SkAnimTimer&);
+        virtual bool onHandleKey(SkUnichar uni);
+        virtual bool onGetControls(SkMetaData*);
+        virtual void onSetControls(const SkMetaData&);
 
     private:
         Mode     fMode;
@@ -187,14 +185,10 @@ namespace skiagm {
     private:
         using GM::onDraw;
         DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;
+
         virtual DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
-                                  SkString* errorMsg) {
-            this->onDraw(ctx, rtc, canvas);
-            return DrawResult::kOk;
-        }
-        virtual void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) {
-            SK_ABORT("Not implemented.");
-        }
+                                  SkString* errorMsg);
+        virtual void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*);
     };
 
     // SimpleGM is intended for basic GMs that can define their entire implementation inside a
@@ -206,11 +200,9 @@ namespace skiagm {
                 : GM(bgColor), fName(name), fSize(size), fDrawProc(drawProc) {}
 
     private:
-        SkISize onISize() override { return fSize; }
-        SkString onShortName() override { return fName; }
-        DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-            return fDrawProc(canvas, errorMsg);
-        }
+        SkISize onISize() override;
+        SkString onShortName() override;
+        DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override;
 
         const SkString fName;
         const SkISize fSize;
@@ -224,12 +216,10 @@ namespace skiagm {
                 : GpuGM(bgColor), fName(name), fSize(size), fDrawProc(drawProc) {}
 
     private:
-        SkISize onISize() override { return fSize; }
-        SkString onShortName() override { return fName; }
+        SkISize onISize() override;
+        SkString onShortName() override;
         DrawResult onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
-                          SkString* errorMsg) override {
-            return fDrawProc(ctx, rtc, canvas, errorMsg);
-        }
+                          SkString* errorMsg) override;
 
         const SkString fName;
         const SkISize fSize;

@@ -1225,12 +1225,7 @@ public:
         @param src    SkPoint to transform
         @param count  number of SkPoint to transform
     */
-    void mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
-        SkASSERT((dst && src && count > 0) || 0 == count);
-        // no partial overlap
-        SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
-        this->getMapPtsProc()(*this, dst, src, count);
-    }
+    void mapPoints(SkPoint dst[], const SkPoint src[], int count) const;
 
     /** Maps pts SkPoint array of length count in place. SkPoint are mapped by multiplying
         each SkPoint by SkMatrix. Given:
@@ -1294,10 +1289,7 @@ public:
         @param y       y-axis value of SkPoint to map
         @param result  storage for mapped SkPoint
     */
-    void mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
-        SkASSERT(result);
-        this->getMapXYProc()(*this, x, y, result);
-    }
+    void mapXY(SkScalar x, SkScalar y, SkPoint* result) const;
 
     /** Returns SkPoint (x, y) multiplied by SkMatrix. Given:
 
@@ -1317,7 +1309,7 @@ public:
     */
     SkPoint mapXY(SkScalar x, SkScalar y) const {
         SkPoint result;
-        this->getMapXYProc()(*this, x, y, &result);
+        this->mapXY(x,y, &result);
         return result;
     }
 

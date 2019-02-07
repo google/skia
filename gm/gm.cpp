@@ -96,6 +96,26 @@ void GM::drawBackground(SkCanvas* canvas) {
     canvas->drawColor(fBGColor, SkBlendMode::kSrc);
 }
 
+DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
+    this->onDraw(canvas);
+    return DrawResult::kOk;
+}
+void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
+
+
+SkISize SimpleGM::onISize() { return fSize; }
+SkString SimpleGM::onShortName() { return fName; }
+DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
+    return fDrawProc(canvas, errorMsg);
+}
+
+SkISize SimpleGpuGM::onISize() { return fSize; }
+SkString SimpleGpuGM::onShortName() { return fName; }
+DrawResult SimpleGpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+                               SkString* errorMsg) {
+    return fDrawProc(ctx, rtc, canvas, errorMsg);
+}
+
 const char* GM::getName() {
     if (fShortName.size() == 0) {
         fShortName = this->onShortName();
@@ -111,6 +131,16 @@ bool GM::animate(const SkAnimTimer& timer) {
     return this->onAnimate(timer);
 }
 
+bool GM::runAsBench() const { return false; }
+void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+void GM::onOnceBeforeDraw() {}
+
+bool GM::onAnimate(const SkAnimTimer&) { return false; }
+bool GM::onHandleKey(SkUnichar uni) { return false; }
+bool GM::onGetControls(SkMetaData*) { return false; }
+void GM::onSetControls(const SkMetaData&) {}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
@@ -124,6 +154,15 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
+
+DrawResult GpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+                          SkString* errorMsg) {
+    this->onDraw(ctx, rtc, canvas);
+    return DrawResult::kOk;
+}
+void GpuGM::onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) {
+    SK_ABORT("Not implemented.");
+}
 
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     GrContext* ctx = canvas->getGrContext();

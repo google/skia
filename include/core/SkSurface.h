@@ -167,9 +167,7 @@ public:
         @return              SkSurface if all parameters are valid; otherwise, nullptr
     */
     static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
-                                                const SkSurfaceProps* surfaceProps = nullptr) {
-        return MakeRaster(SkImageInfo::MakeN32Premul(width, height), surfaceProps);
-    }
+                                                const SkSurfaceProps* surfaceProps = nullptr);
 
     /** Caller data passed to RenderTarget/TextureReleaseProc; may be nullptr. */
     typedef void* ReleaseContext;
