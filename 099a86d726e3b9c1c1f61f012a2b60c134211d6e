@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "64156e5c_49fedfff",
+        "filename": "src/gpu/GrBufferAllocPool.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-07T17:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28aef5d4_4f9d5c50",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fcf8671c_c7f2b418",
         "filename": "src/gpu/GrBufferAllocPool.h",
         "patchSetId": 15
@@ -33,6 +51,24 @@
       "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25a204d5_2e9f58c1",
+        "filename": "src/gpu/GrBufferAllocPool.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-07T17:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcf8671c_c7f2b418",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "111ebedd_67f99281",
+        "filename": "src/gpu/GrGpuBuffer.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-07T17:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c11b3ac5_33e66851",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2361053e_a2afeb11",
         "filename": "src/gpu/GrMesh.h",
         "patchSetId": 15
@@ -67,6 +121,24 @@
       "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fe24ff1_f341d0f3",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-07T17:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2361053e_a2afeb11",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "afde8967_97656154",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-07T17:15:55Z",
+      "side": 1,
+      "message": "I think \".\" sorts before letters.. the old location between G and S definitely can\u0027t be right. The other option could be last. I can modify our .clang-format to sort that way if its preferred.\n\nSurveying our existing code, we\u0027re not consistent but sorting \".\" before letters seems to be more common practice.",
+      "parentUuid": "07feff0e_5e986e9a",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f32db2ea_e8127f97",
         "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
         "patchSetId": 15
@@ -101,6 +191,24 @@
       "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a6daa55_c2c52142",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-07T17:15:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f32db2ea_e8127f97",
+      "revId": "099a86d726e3b9c1c1f61f012a2b60c134211d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
