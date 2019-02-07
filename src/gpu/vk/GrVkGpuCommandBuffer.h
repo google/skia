@@ -96,9 +96,9 @@ private:
     GrGpu* gpu() override;
 
     // Bind vertex and index buffers
-    void bindGeometry(const GrBuffer* indexBuffer,
-                      const GrBuffer* vertexBuffer,
-                      const GrBuffer* instanceBuffer);
+    void bindGeometry(const GrGpuBuffer* indexBuffer,
+                      const GrGpuBuffer* vertexBuffer,
+                      const GrGpuBuffer* instanceBuffer);
 
     GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
                                         const GrPipeline&,

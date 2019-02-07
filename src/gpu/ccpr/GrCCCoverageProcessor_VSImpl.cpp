@@ -528,7 +528,7 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     }
 }
 
-void GrCCCoverageProcessor::appendVSMesh(sk_sp<const GrBuffer> instanceBuffer, int instanceCount,
+void GrCCCoverageProcessor::appendVSMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
                                          int baseInstance, SkTArray<GrMesh>* out) const {
     SkASSERT(Impl::kVertexShader == fImpl);
     GrMesh& mesh = out->emplace_back(fVSTriangleType);

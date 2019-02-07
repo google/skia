@@ -374,7 +374,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 static const int kVertsPerAAFillRect = 8;
 static const int kIndicesPerAAFillRect = 30;
 
-static sk_sp<const GrBuffer> get_index_buffer(GrResourceProvider* resourceProvider) {
+static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
     // clang-format off
@@ -467,7 +467,7 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
                           int quadCount) {
     if (spec.usesCoverageAA()) {
         // AA quads use 8 vertices, basically nested rectangles
-        sk_sp<const GrBuffer> ibuffer = get_index_buffer(target->resourceProvider());
+        sk_sp<const GrGpuBuffer> ibuffer = get_index_buffer(target->resourceProvider());
         if (!ibuffer) {
             return false;
         }
@@ -478,7 +478,7 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
     } else {
         // Non-AA quads use 4 vertices, and regular triangle strip layout
         if (quadCount > 1) {
-            sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+            sk_sp<const GrGpuBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
             if (!ibuffer) {
                 return false;
             }

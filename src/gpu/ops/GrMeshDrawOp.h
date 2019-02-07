@@ -34,8 +34,9 @@ protected:
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class PatternHelper {
     public:
-        PatternHelper(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer>,
-                      int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
+        PatternHelper(Target*, GrPrimitiveType, size_t vertexStride,
+                      sk_sp<const GrBuffer> indexBuffer, int verticesPerRepetition,
+                      int indicesPerRepetition, int repeatCount);
 
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, sk_sp<const GrGeometryProcessor>, const GrPipeline*,
@@ -45,7 +46,7 @@ protected:
 
     protected:
         PatternHelper() = default;
-        void init(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer>,
+        void init(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                   int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
 
     private:

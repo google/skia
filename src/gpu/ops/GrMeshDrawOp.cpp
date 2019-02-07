@@ -45,10 +45,10 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
         return;
     }
     SkASSERT(vertexBuffer);
-    size_t ibSize = indexBuffer->gpuMemorySize();
+    size_t ibSize = indexBuffer->size();
     int maxRepetitions = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerRepetition));
     fMesh = target->allocMesh(primitiveType);
-    fMesh->setIndexedPatterned(indexBuffer, indicesPerRepetition, verticesPerRepetition,
+    fMesh->setIndexedPatterned(std::move(indexBuffer), indicesPerRepetition, verticesPerRepetition,
                                repeatCount, maxRepetitions);
     fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
 }
@@ -62,7 +62,7 @@ void GrMeshDrawOp::PatternHelper::recordDraw(
 //////////////////////////////////////////////////////////////////////////////
 
 GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int quadsToDraw) {
-    sk_sp<const GrBuffer> quadIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+    sk_sp<const GrGpuBuffer> quadIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return;

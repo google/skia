@@ -8,12 +8,12 @@
 #ifndef GrVkVertexBuffer_DEFINED
 #define GrVkVertexBuffer_DEFINED
 
-#include "GrBuffer.h"
+#include "GrGpuBuffer.h"
 #include "GrVkBuffer.h"
 
 class GrVkGpu;
 
-class GrVkVertexBuffer : public GrBuffer, public GrVkBuffer {
+class GrVkVertexBuffer : public GrGpuBuffer, public GrVkBuffer {
 public:
     static sk_sp<GrVkVertexBuffer> Make(GrVkGpu* gpu, size_t size, bool dynamic);
 
@@ -31,7 +31,7 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
-    typedef GrBuffer INHERITED;
+    typedef GrGpuBuffer INHERITED;
 };
 
 #endif

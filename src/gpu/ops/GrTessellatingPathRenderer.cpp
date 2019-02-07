@@ -53,7 +53,7 @@ private:
     }
 };
 
-bool cache_match(GrBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
+bool cache_match(GrGpuBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
     if (!vertexBuffer) {
         return false;
     }
@@ -78,8 +78,7 @@ public:
     void* lock(int vertexCount) override {
         size_t size = vertexCount * stride();
         fVertexBuffer = fResourceProvider->createBuffer(size, GrGpuBufferType::kVertex,
-                                                        kStatic_GrAccessPattern,
-                                                        GrResourceProvider::Flags::kNone);
+                                                        kStatic_GrAccessPattern);
         if (!fVertexBuffer.get()) {
             return nullptr;
         }
@@ -99,10 +98,10 @@ public:
         }
         fVertices = nullptr;
     }
-    sk_sp<GrBuffer> detachVertexBuffer() { return std::move(fVertexBuffer); }
+    sk_sp<GrGpuBuffer> detachVertexBuffer() { return std::move(fVertexBuffer); }
 
 private:
-    sk_sp<GrBuffer> fVertexBuffer;
+    sk_sp<GrGpuBuffer> fVertexBuffer;
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     void* fVertices;
@@ -261,7 +260,7 @@ private:
             memset(&builder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
         }
         builder.finish();
-        sk_sp<GrBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrBuffer>(key));
+        sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
         int actualCount;
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
@@ -286,7 +285,7 @@ private:
         if (count == 0) {
             return;
         }
-        sk_sp<GrBuffer> vb = allocator.detachVertexBuffer();
+        sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;

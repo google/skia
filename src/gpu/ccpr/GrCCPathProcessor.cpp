@@ -34,7 +34,7 @@ static constexpr float kOctoEdgeNorms[8 * 4] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
-sk_sp<const GrBuffer> GrCCPathProcessor::FindVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
+sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
     return onFlushRP->findOrMakeStaticBuffer(GrGpuBufferType::kVertex, sizeof(kOctoEdgeNorms),
                                              kOctoEdgeNorms, gVertexBufferKey);
@@ -64,7 +64,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 constexpr GrPrimitiveProcessor::Attribute GrCCPathProcessor::kInstanceAttribs[];
 constexpr GrPrimitiveProcessor::Attribute GrCCPathProcessor::kEdgeNormsAttrib;
 
-sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
+sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
     if (onFlushRP->caps()->usePrimitiveRestart()) {
         return onFlushRP->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,

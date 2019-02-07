@@ -55,8 +55,8 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fFragmentProcessorCnt(fragmentProcessorCnt)
-        , fDataManager(uniforms, fGeometryUniformBuffer->sizeInBytes(),
-                       fFragmentUniformBuffer->sizeInBytes()) {
+        , fDataManager(uniforms, fGeometryUniformBuffer->size(),
+                       fFragmentUniformBuffer->size()) {
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 

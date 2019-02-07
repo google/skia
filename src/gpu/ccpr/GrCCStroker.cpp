@@ -497,7 +497,7 @@ public:
         }
     }
 
-    sk_sp<GrBuffer> finish() {
+    sk_sp<GrGpuBuffer> finish() {
         SkASSERT(this->isMapped());
         SkASSERT(!memcmp(fNextInstances, fEndInstances, sizeof(fNextInstances)));
         fInstanceBuffer->unmap();
@@ -543,7 +543,7 @@ private:
     InstanceTallies* fCurrNextInstances;
     SkDEBUGCODE(const InstanceTallies* fCurrEndInstances);
 
-    sk_sp<GrBuffer> fInstanceBuffer;
+    sk_sp<GrGpuBuffer> fInstanceBuffer;
     void* fInstanceBufferData = nullptr;
     InstanceTallies fNextInstances[2];
     SkDEBUGCODE(InstanceTallies fEndInstances[2]);

@@ -8,13 +8,13 @@
 #ifndef GrGLBuffer_DEFINED
 #define GrGLBuffer_DEFINED
 
-#include "GrBuffer.h"
+#include "GrGpuBuffer.h"
 #include "gl/GrGLTypes.h"
 
 class GrGLGpu;
 class GrGLCaps;
 
-class GrGLBuffer : public GrBuffer {
+class GrGLBuffer : public GrGpuBuffer {
 public:
     static sk_sp<GrGLBuffer> Make(GrGLGpu*, size_t size, GrGpuBufferType intendedType,
                                   GrAccessPattern, const void* data = nullptr);
@@ -28,7 +28,7 @@ public:
 
     /**
      * Returns the actual size of the underlying GL buffer object. In certain cases we may make this
-     * smaller than the size reported by GrBuffer.
+     * smaller than the size reported by GrGpuBuffer.
      */
     size_t glSizeInBytes() const { return fGLSizeInBytes; }
 
@@ -62,7 +62,7 @@ private:
     size_t          fGLSizeInBytes;
     bool            fHasAttachedToTexture;
 
-    typedef GrBuffer INHERITED;
+    typedef GrGpuBuffer INHERITED;
 };
 
 #endif

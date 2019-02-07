@@ -73,20 +73,18 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
     return proxy->instantiate(resourceProvider);
 }
 
-sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,
-                                                      const void* data) {
+sk_sp<GrGpuBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,
+                                                         const void* data) {
     auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
-    return sk_sp<GrBuffer>(resourceProvider->createBuffer(size, intendedType,
-                                                          kDynamic_GrAccessPattern,
-                                                          GrResourceProvider::Flags::kNone,
-                                                          data));
+    return sk_sp<GrGpuBuffer>(
+            resourceProvider->createBuffer(size, intendedType, kDynamic_GrAccessPattern, data));
 }
 
-sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
+sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
         GrGpuBufferType intendedType, size_t size, const void* data, const GrUniqueKey& key) {
     auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
-    sk_sp<const GrBuffer> buffer = resourceProvider->findOrMakeStaticBuffer(intendedType, size,
-                                                                            data, key);
+    sk_sp<const GrGpuBuffer> buffer =
+            resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
     // Static buffers should never have pending IO.
     SkASSERT(!buffer || !buffer->resourcePriv().hasPendingIO_debugOnly());
     return buffer;
