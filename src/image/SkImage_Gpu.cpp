@@ -350,10 +350,12 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
     if (!context) {
         return nullptr;
     }
-    if (uint32_t incumbentID = as_IB(this)->contextID()) {
-        if (incumbentID != context->priv().contextID()) {
+
+    if (this->isTextureBacked()) {
+        if (!as_IB(this)->context()->priv().matches(context)) {
             return nullptr;
         }
+
         sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
         SkASSERT(proxy);
         if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
