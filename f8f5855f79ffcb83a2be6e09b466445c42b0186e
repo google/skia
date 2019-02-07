@@ -16,6 +16,24 @@
       "revId": "f8f5855f79ffcb83a2be6e09b466445c42b0186e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "146ee53f_50ae06a9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-07T14:26:16Z",
+      "side": 1,
+      "message": "I think it sounds fine if we drop \"with all zeroes that were written to |pixels| above.\" I\u0027m open to suggestions, though.",
+      "parentUuid": "88af54ef_cdb879b5",
+      "revId": "f8f5855f79ffcb83a2be6e09b466445c42b0186e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
