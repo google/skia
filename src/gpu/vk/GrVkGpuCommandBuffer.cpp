@@ -593,9 +593,9 @@ void GrVkGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin, con
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
-                                          const GrBuffer* vertexBuffer,
-                                          const GrBuffer* instanceBuffer) {
+void GrVkGpuRTCommandBuffer::bindGeometry(const GrGpuBuffer* indexBuffer,
+                                          const GrGpuBuffer* vertexBuffer,
+                                          const GrGpuBuffer* instanceBuffer) {
     GrVkSecondaryCommandBuffer* currCmdBuf = fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf();
     // There is no need to put any memory barriers to make sure host writes have finished here.
     // When a command buffer is submitted to a queue, there is an implicit memory barrier that
@@ -608,7 +608,6 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
 
     if (vertexBuffer) {
         SkASSERT(vertexBuffer);
-        SkASSERT(!vertexBuffer->isCPUBacked());
         SkASSERT(!vertexBuffer->isMapped());
 
         currCmdBuf->bindInputBuffer(fGpu, binding++,
@@ -617,7 +616,6 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
 
     if (instanceBuffer) {
         SkASSERT(instanceBuffer);
-        SkASSERT(!instanceBuffer->isCPUBacked());
         SkASSERT(!instanceBuffer->isMapped());
 
         currCmdBuf->bindInputBuffer(fGpu, binding++,
@@ -626,7 +624,6 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrBuffer* indexBuffer,
     if (indexBuffer) {
         SkASSERT(indexBuffer);
         SkASSERT(!indexBuffer->isMapped());
-        SkASSERT(!indexBuffer->isCPUBacked());
 
         currCmdBuf->bindIndexBuffer(fGpu, static_cast<const GrVkIndexBuffer*>(indexBuffer));
     }
@@ -807,7 +804,11 @@ void GrVkGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType,
                                                     int instanceCount,
                                                     int baseInstance) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    this->bindGeometry(nullptr, vertexBuffer, instanceBuffer);
+    SkASSERT(!vertexBuffer || !vertexBuffer->isCpuBuffer());
+    SkASSERT(!instanceBuffer || !instanceBuffer->isCpuBuffer());
+    auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer);
+    auto gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(instanceBuffer);
+    this->bindGeometry(nullptr, gpuVertexBuffer, gpuInstanceBuffer);
     cbInfo.currentCmdBuf()->draw(fGpu, vertexCount, instanceCount, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
@@ -824,7 +825,13 @@ void GrVkGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
                                                            GrPrimitiveRestart restart) {
     SkASSERT(restart == GrPrimitiveRestart::kNo);
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    this->bindGeometry(indexBuffer, vertexBuffer, instanceBuffer);
+    SkASSERT(!vertexBuffer || !vertexBuffer->isCpuBuffer());
+    SkASSERT(!instanceBuffer || !instanceBuffer->isCpuBuffer());
+    SkASSERT(!indexBuffer->isCpuBuffer());
+    auto gpuIndexxBuffer = static_cast<const GrGpuBuffer*>(indexBuffer);
+    auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer);
+    auto gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(instanceBuffer);
+    this->bindGeometry(gpuIndexxBuffer, gpuVertexBuffer, gpuInstanceBuffer);
     cbInfo.currentCmdBuf()->drawIndexed(fGpu, indexCount, instanceCount,
                                         baseIndex, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();

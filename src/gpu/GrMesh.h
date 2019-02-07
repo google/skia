@@ -10,6 +10,7 @@
 
 #include "GrBuffer.h"
 #include "GrPendingIOResource.h"
+#include "GrGpuBuffer.h"
 
 class GrPrimitiveProcessor;
 
@@ -42,8 +43,9 @@ public:
 
     void setInstanced(sk_sp<const GrBuffer> instanceBuffer, int instanceCount, int baseInstance,
                       int vertexCount);
-    void setIndexedInstanced(sk_sp<const GrBuffer>, int indexCount, sk_sp<const GrBuffer>,
-                             int instanceCount, int baseInstance, GrPrimitiveRestart);
+    void setIndexedInstanced(sk_sp<const GrBuffer> indexBuffer, int indexCount,
+                             sk_sp<const GrBuffer> instanceBuffer, int instanceCount,
+                             int baseInstance, GrPrimitiveRestart);
 
     void setVertexData(sk_sp<const GrBuffer> vertexBuffer, int baseVertex = 0);
 
@@ -127,8 +129,8 @@ private:
 };
 
 inline void GrMesh::setNonIndexedNonInstanced(int vertexCount) {
-    fIndexBuffer.reset(nullptr);
-    fInstanceBuffer.reset(nullptr);
+    fIndexBuffer.reset();
+    fInstanceBuffer.reset();
     fNonIndexNonInstanceData.fVertexCount = vertexCount;
     fPrimitiveRestart = GrPrimitiveRestart::kNo;
 }
