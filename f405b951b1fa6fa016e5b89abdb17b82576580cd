@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "291d4a20_1c145d35",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-07T18:04:42Z",
+      "side": 1,
+      "message": "Done, thanks!",
+      "parentUuid": "395bf9c2_415a3b4b",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 16
+      },
+      "revId": "f405b951b1fa6fa016e5b89abdb17b82576580cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4eee7634_0eaed54f",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "f405b951b1fa6fa016e5b89abdb17b82576580cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50c315a1_79563fd8",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-07T18:04:42Z",
+      "side": 1,
+      "message": "Done in ag/6294395",
+      "parentUuid": "4eee7634_0eaed54f",
+      "range": {
+        "startLine": 165,
+        "startChar": 7,
+        "endLine": 165,
+        "endChar": 49
+      },
+      "revId": "f405b951b1fa6fa016e5b89abdb17b82576580cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
