@@ -9,6 +9,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrClip.h"
 #include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrPathUtils.h"
@@ -17,13 +18,14 @@
 #include "GrResourceProvider.h"
 #include "Sample.h"
 #include "SkCanvas.h"
+#include "SkMakeUnique.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRectPriv.h"
 #include "ccpr/GrCCCoverageProcessor.h"
 #include "ccpr/GrCCFillGeometry.h"
 #include "ccpr/GrCCStroker.h"
-#include "gl/GrGLGpu.cpp"
+#include "gl/GrGLGpu.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "ops/GrDrawOp.h"
 
