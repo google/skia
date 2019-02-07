@@ -304,6 +304,16 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
     return mtlColorAttachment;
 }
 
+uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
+    // Metal expects the buffer to be padded at the end according to the alignment
+    // of the largest element in the buffer.
+    uint32_t offsetDiff = offset & maxAlignment;
+    if (offsetDiff != 0) {
+        offsetDiff = maxAlignment - offsetDiff + 1;
+    }
+    return offset + offsetDiff;
+}
+
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcessor& primProc,
                                                         const GrPipeline& pipeline,
                                                         GrProgramDesc* desc) {
@@ -359,17 +369,21 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         return nullptr;
     }
+    uint32_t geomBufferSize = buffer_size(fUniformHandler.fCurrentGeometryUBOOffset,
+                                          fUniformHandler.fCurrentGeometryUBOMaxAlignment);
+    uint32_t fragBufferSize = buffer_size(fUniformHandler.fCurrentFragmentUBOOffset,
+                                          fUniformHandler.fCurrentFragmentUBOMaxAlignment);
     return new GrMtlPipelineState(fGpu,
                                   pipelineState,
                                   pipelineDescriptor.colorAttachments[0].pixelFormat,
                                   fUniformHandles,
                                   fUniformHandler.fUniforms,
                                   GrMtlBuffer::Make(fGpu,
-                                                    fUniformHandler.fCurrentGeometryUBOOffset,
+                                                    geomBufferSize,
                                                     GrGpuBufferType::kVertex,
                                                     kStatic_GrAccessPattern),
                                   GrMtlBuffer::Make(fGpu,
-                                                    fUniformHandler.fCurrentFragmentUBOOffset,
+                                                    fragBufferSize,
                                                     GrGpuBufferType::kVertex,
                                                     kStatic_GrAccessPattern),
                                   (uint32_t)fUniformHandler.numSamplers(),

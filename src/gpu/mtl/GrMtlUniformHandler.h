@@ -48,7 +48,9 @@ private:
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
         , fCurrentGeometryUBOOffset(0)
-        , fCurrentFragmentUBOOffset(0) {
+        , fCurrentGeometryUBOMaxAlignment(0x0)
+        , fCurrentFragmentUBOOffset(0)
+        , fCurrentFragmentUBOMaxAlignment(0x0) {
     }
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
@@ -80,18 +82,18 @@ private:
     bool hasGeometryUniforms() const { return fCurrentGeometryUBOOffset > 0; }
     bool hasFragmentUniforms() const { return fCurrentFragmentUBOOffset > 0; }
 
-
     const UniformInfo& getUniformInfo(UniformHandle u) const {
         return fUniforms[u.toIndex()];
     }
-
 
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
 
     uint32_t            fCurrentGeometryUBOOffset;
+    uint32_t            fCurrentGeometryUBOMaxAlignment;
     uint32_t            fCurrentFragmentUBOOffset;
+    uint32_t            fCurrentFragmentUBOMaxAlignment;
 
     friend class GrMtlPipelineStateBuilder;
 
