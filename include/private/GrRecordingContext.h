@@ -8,8 +8,10 @@
 #ifndef GrRecordingContext_DEFINED
 #define GrRecordingContext_DEFINED
 
+#include "GrAuditTrail.h"
 #include "GrImageContext.h"
 
+class GrOpMemoryPool;
 class GrRecordingContextPriv;
 
 class SK_API GrRecordingContext : public GrImageContext {
@@ -23,11 +25,20 @@ public:
 protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
-    GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t uniqueID);
+    GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
+
+    sk_sp<GrOpMemoryPool> refOpMemoryPool();
+    GrOpMemoryPool* opMemoryPool();
+
+    GrAuditTrail* auditTrail() { return &fAuditTrail; }
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
 private:
+    // All the GrOp-derived classes use this pool.
+    sk_sp<GrOpMemoryPool> fOpMemoryPool;
+    GrAuditTrail          fAuditTrail;
+
     typedef GrImageContext INHERITED;
 };
 

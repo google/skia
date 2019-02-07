@@ -11,7 +11,6 @@
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
-#include "../private/GrAuditTrail.h"
 #include "../private/GrRecordingContext.h"
 #include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
@@ -31,7 +30,6 @@ struct GrGLInterface;
 class GrStrikeCache;
 class GrGpu;
 struct GrMockOptions;
-class GrOpMemoryPool;
 class GrPath;
 class GrProxyProvider;
 class GrRenderTargetContext;
@@ -299,10 +297,7 @@ private:
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
 
-    // All the GrOp-derived classes use this pool.
-    sk_sp<GrOpMemoryPool>                   fOpMemoryPool;
-
-    GrStrikeCache*                           fGlyphCache;
+    GrStrikeCache*                          fGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
@@ -315,8 +310,6 @@ private:
     mutable GrSingleOwner                   fSingleOwner;
 
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
-
-    GrAuditTrail                            fAuditTrail;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 
