@@ -93,6 +93,30 @@
       "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86377741_c6689f05",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-07T19:18:00Z",
+      "side": 1,
+      "message": "Chris, are you suggesting that a change needs to be made here? (Tushar, is this effectively clearing out the entire table because we know not to look at the rest of it?)",
+      "parentUuid": "69176501_6bed4dbd",
+      "range": {
+        "startLine": 949,
+        "startChar": 8,
+        "endLine": 949,
+        "endChar": 25
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
