@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "176daea7_8a620c7d",
+        "filename": "gm/gm.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-07T21:14:22Z",
+      "side": 1,
+      "message": "make these 3 static methods of the GM class.",
+      "revId": "850fbf29afb3cc7470c30a1d5cd37de0f8ee4161",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
