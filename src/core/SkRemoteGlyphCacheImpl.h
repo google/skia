@@ -33,8 +33,6 @@ public:
         return *fDescriptor.getDesc();
     }
 
-    const SkGlyph& findGlyph(SkPackedGlyphID);
-
     void setTypefaceAndEffects(const SkTypeface* typeface, SkScalerContextEffects effects);
 
     SkVector rounding() const override;
