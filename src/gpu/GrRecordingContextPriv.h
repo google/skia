@@ -23,11 +23,20 @@ public:
     const GrContextOptions& options() const { return fContext->options(); }
 
     const GrCaps* caps() const { return fContext->caps(); }
-    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+    sk_sp<const GrCaps> refCaps() const;
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache(); // { return fContext->getFPFactoryCache(); }
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
+
+    GrImageContext* asImageContext() { return fContext->asImageContext(); }
+    GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
+    GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    /** This is only useful for debug purposes */
+    SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
 

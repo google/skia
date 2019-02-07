@@ -27,9 +27,13 @@
 #define ASSERT_OWNED_PROXY_PRIV(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
 #define ASSERT_SINGLE_OWNER_PRIV \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fContext->fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->singleOwner());)
 #define RETURN_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return false; }
+
+sk_sp<const GrCaps> GrContextPriv::refCaps() const {
+    return fContext->refCaps();
+}
 
 sk_sp<GrSkSLFPFactoryCache> GrContextPriv::fpFactoryCache() {
     return fContext->fpFactoryCache();
@@ -702,9 +706,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = fContext->fProxyProvider->createProxy(format, desc, origin, fit, budgeted);
+        rtp = fContext->proxyProvider()->createProxy(format, desc, origin, fit, budgeted);
     } else {
-        rtp = fContext->fProxyProvider->createMipMapProxy(format, desc, origin, budgeted);
+        rtp = fContext->proxyProvider()->createMipMapProxy(format, desc, origin, budgeted);
     }
     if (!rtp) {
         return nullptr;

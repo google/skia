@@ -35,7 +35,7 @@ public:
 protected:
     friend class GrBaseContextPriv; // for hidden functions
 
-    GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID);
+    GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t contextID);
 
     /**
      * An identifier for this context. The id is used by all compatible contexts. For example,
@@ -60,7 +60,6 @@ protected:
 
     sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
 
-    GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }

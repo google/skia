@@ -56,7 +56,7 @@
 #include "text/GrTextTarget.h"
 
 #define ASSERT_SINGLE_OWNER \
-SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->priv().debugSingleOwner());)
+SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->priv().singleOwner());)
 
 
 ///////////////////////////////////////////////////////////////////////////////

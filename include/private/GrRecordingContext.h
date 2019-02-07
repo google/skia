@@ -23,7 +23,7 @@ public:
 protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
-    GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t uniqueID);
+    GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
