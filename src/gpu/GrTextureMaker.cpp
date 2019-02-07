@@ -98,7 +98,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
             proxyProvider->removeUniqueKeyFromProxy(cachedProxy.get());
         }
         proxyProvider->assignUniqueKeyToProxy(copyKey, result.get());
-        this->didCacheCopy(copyKey, proxyProvider->contextUniqueID());
+        this->didCacheCopy(copyKey, proxyProvider->contextID());
     }
     return result;
 }

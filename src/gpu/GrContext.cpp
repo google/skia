@@ -38,24 +38,24 @@
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t id)
-        : INHERITED(backend, options, id) {
+GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t contextID)
+        : INHERITED(backend, options, contextID) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
-    fProxyProvider = nullptr;
     fGlyphCache = nullptr;
 }
 
 bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
     ASSERT_SINGLE_OWNER
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
+    SkASSERT(this->proxyProvider());
 
     if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
         return false;
@@ -64,17 +64,13 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     SkASSERT(this->caps());
 
     if (fGpu) {
-        fResourceCache = new GrResourceCache(this->caps(), &fSingleOwner, this->contextID());
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
+        fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
+        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner(),
                                                    this->options().fExplicitlyAllocateGPUResources);
-        fProxyProvider = new GrProxyProvider(fResourceProvider, fResourceCache,
-                                             this->refCaps(), &fSingleOwner);
-    } else {
-        fProxyProvider = new GrProxyProvider(this->contextID(), this->refCaps(), &fSingleOwner);
     }
 
     if (fResourceCache) {
-        fResourceCache->setProxyProvider(fProxyProvider);
+        fResourceCache->setProxyProvider(this->proxyProvider());
     }
 
     fDidTestPMConversions = false;
@@ -113,7 +109,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
                                             ? fResourceProvider->explicitlyAllocateGPUResources()
                                             : false;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
-                                               &fSingleOwner, explicitlyAllocatingResources,
+                                               this->singleOwner(), explicitlyAllocatingResources,
                                                this->options().fSortRenderTargets,
                                                this->options().fReduceOpListSplitting));
 
@@ -140,7 +136,6 @@ GrContext::~GrContext() {
     }
     delete fResourceProvider;
     delete fResourceCache;
-    delete fProxyProvider;
     delete fGlyphCache;
 }
 
@@ -153,7 +148,7 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
-    fProxyProvider->abandon();
+    this->proxyProvider()->abandon();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -182,7 +177,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
     if (this->abandoned()) {
         return;
     }
-    fProxyProvider->abandon();
+    this->proxyProvider()->abandon();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -229,7 +224,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 
     if (auto ccpr = fDrawingManager->getCoverageCountingPathRenderer()) {
-        ccpr->purgeCacheEntriesOlderThan(fProxyProvider, purgeTime);
+        ccpr->purgeCacheEntriesOlderThan(this->proxyProvider(), purgeTime);
     }
 
     fTextBlobCache->purgeStaleBlobs();
