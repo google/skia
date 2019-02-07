@@ -28,6 +28,22 @@ using long2 = skvx::Vec<2,int64_t>;
 using long4 = skvx::Vec<4,int64_t>;
 using long8 = skvx::Vec<8,int64_t>;
 
+// These are unused, and just here so I can look at the disassembly.
+float2 Sqrt(float2 x) { return sqrt(x); }
+float4 Sqrt(float4 x) { return sqrt(x); }
+float8 Sqrt(float8 x) { return sqrt(x); }
+
+float4 RSqrt(float4 x) { return rsqrt(x); }
+float4   Rcp(float4 x) { return   rcp(x); }
+float4  Ceil(float4 x) { return  ceil(x); }
+float4 Floor(float4 x) { return floor(x); }
+float4 Trunc(float4 x) { return trunc(x); }
+float4 Round(float4 x) { return round(x); }
+float4   Abs(float4 x) { return   abs(x); }
+
+float4 Min(float4 x, float4 y) { return min(x,y); }
+float4 Max(float4 x, float4 y) { return max(x,y); }
+
 DEF_TEST(SkVx, r) {
     static_assert(sizeof(float2) ==  8, "");
     static_assert(sizeof(float4) == 16, "");
@@ -92,22 +108,17 @@ DEF_TEST(SkVx, r) {
 
     REPORTER_ASSERT(r, all(cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
 
-    float buf[4] = {1,2,3,4};
+    float buf[] = {1,2,3,4,5,6};
     REPORTER_ASSERT(r, all(float4::Load(buf) == float4{1,2,3,4}));
     float4{2,3,4,5}.store(buf);
-    REPORTER_ASSERT(r, all(float4::Load(buf) == float4{2,3,4,5}));
-
-    {
-        int4 iota = {0,1,2,3};
-        int i = 0;
-        for (int val : iota) {
-            REPORTER_ASSERT(r, val == i++);
-        }
-        for (int& val : iota) {
-            val = 42;
-        }
-        REPORTER_ASSERT(r, all(iota == 42));
-    }
+    REPORTER_ASSERT(r, buf[0] == 2
+                    && buf[1] == 3
+                    && buf[2] == 4
+                    && buf[3] == 5
+                    && buf[4] == 5
+                    && buf[5] == 6);
+    REPORTER_ASSERT(r, all(float4::Load(buf+0) == float4{2,3,4,5}));
+    REPORTER_ASSERT(r, all(float4::Load(buf+2) == float4{4,5,5,6}));
 
     REPORTER_ASSERT(r, all(mad(float4{1,2,3,4}, 2.0f, 3.0f) == float4{5,7,9,11}));
 
