@@ -32,7 +32,6 @@ cc_library_shared {
     sdk_version: "26",
     stl: "libc++_static",
     compile_multilib: "both",
-    tags: ["tests", "optional"],
 
     cflags: [
         $cflags
@@ -49,6 +48,7 @@ cc_library_shared {
     ],
 
     srcs: [
+        "third_party/vulkanmemoryallocator/GrVulkanMemoryAllocator.cpp",
         $srcs
     ],
 
@@ -122,10 +122,10 @@ gn_args = {
   'is_debug':   'false',
   'ndk_api':    '26',
   'skia_skqp_global_error_tolerance': '8',
+  'skia_tools_require_resources':     'true',
 
   # setup vulkan
   'skia_use_vulkan':    'true',
-  'skia_vulkan_header': '"Skia_Vulkan_Android.h"',
 
   # enable/disable skia subsystems
   'skia_enable_fontmgr_empty': 'true',
@@ -140,7 +140,6 @@ gn_args = {
   # specify that the Android.bp will supply the necessary components
   'skia_use_system_expat':         'true', # removed this when gn is fixed
   'skia_use_system_libpng':        'true',
-  'skia_use_system_jsoncpp':       'true',
   'skia_use_system_libwebp':       'true',
   'skia_use_system_libjpeg_turbo': 'true',
   'skia_use_system_zlib':          'true',
@@ -156,6 +155,9 @@ cflags          = strip_slashes(js['targets']['//:libskqp_app']['cflags'])
 cflags_cc       = strip_slashes(js['targets']['//:libskqp_app']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:libskqp_app']['include_dirs'])
 defines      = {str(d) for d in js['targets']['//:libskqp_app']['defines']}
+
+defines.update(["SK_ENABLE_DUMP_GPU", "SK_BUILD_FOR_SKQP"])
+cflags_cc.update(['-Wno-extra-semi-stmt'])
 
 gn_to_bp_utils.GrabDependentValues(js, '//:libskqp_app', 'sources', srcs, None)
 gn_to_bp_utils.GrabDependentValues(js, '//:libskqp_app', 'include_dirs',
@@ -205,6 +207,7 @@ with open('Android.bp', 'w') as f:
                                 defs['ssse3'] +
                                 defs['sse41'] +
                                 defs['sse42'] +
-                                defs['avx'  ]),
+                                defs['avx'] +
+                                defs['hsw']),
   })
 
