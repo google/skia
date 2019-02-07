@@ -22,6 +22,30 @@
       "revId": "36a84da65e6ac76eba76ed799b84acd152fd7c4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "210bd749_3c36448f",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-07T19:42:05Z",
+      "side": 1,
+      "message": "Yeah, that and I was starting to get the feeling that I wasn\u0027t putting it everywhere consistently.  If we do have to force inline these things, I\u0027m certainly happy to put it back, but a lot of that is leftover ODR violation paranoia from back when these operators were all defined inline in the types (and so we couldn\u0027t mark them static, forcing us to put the types in an anonymous namespace, etc...).  I don\u0027t think there\u0027s any reason here these _must_ be force inlined, and so far I\u0027ve never seen Clang make an inappropriate inlining choice about them.",
+      "parentUuid": "9a923e10_e83b100c",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "36a84da65e6ac76eba76ed799b84acd152fd7c4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
