@@ -107,7 +107,7 @@ private:
 /**
  * This GM directly exercises a GrProcessor that draws convex polygons.
  */
-class ConvexPolyEffect : public GpuGM {
+class ConvexPolyEffect : public GM {
 public:
     ConvexPolyEffect() {
         this->setBGColor(0xFFFFFFFF);
@@ -177,8 +177,19 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
         SkScalar y = 0;
         constexpr SkScalar kDX = 12.f;
         for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);

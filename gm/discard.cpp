@@ -18,7 +18,7 @@ namespace skiagm {
  * This GM exercises SkCanvas::discard() by creating an offscreen SkSurface and repeatedly
  * discarding it, drawing to it, and then drawing it to the main canvas.
  */
-class DiscardGM : public GpuGM {
+class DiscardGM : public GM {
 
 public:
     DiscardGM() {
@@ -33,7 +33,12 @@ protected:
         return SkISize::Make(100, 100);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
+        GrContext* context = canvas->getGrContext();
+        if (nullptr == context) {
+            return;
+        }
+
         SkISize size = this->getISize();
         size.fWidth /= 10;
         size.fHeight /= 10;

@@ -22,7 +22,7 @@ namespace skiagm {
 /**
  * This GM directly exercises GrConstColorProcessor.
  */
-class ConstColorProcessor : public GpuGM {
+class ConstColorProcessor : public GM {
 public:
     ConstColorProcessor() {
         this->setBGColor(0xFFDDDDDD);
@@ -44,8 +44,19 @@ protected:
                                                SkShader::kClamp_TileMode);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
+        GrContext* context = canvas->getGrContext();
+        if (!context) {
+            return;
+        }
+
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,
             0xFFFF00FF,

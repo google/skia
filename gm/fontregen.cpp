@@ -36,7 +36,7 @@ static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     return SkTextBlob::MakeFromPosTextH(text.c_str(), len, pos.get(), 0, font);
 }
 
-class FontRegenGM : public skiagm::GpuGM {
+class FontRegenGM : public skiagm::GM {
 public:
     FontRegenGM() {
         this->setBGColor(SK_ColorLTGRAY);
@@ -76,7 +76,14 @@ protected:
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext* renderTargetContext, SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
