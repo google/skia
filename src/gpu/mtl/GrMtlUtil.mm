@@ -16,7 +16,7 @@
 
 #import <Metal/Metal.h>
 
-#define PRINT_MSL 0 // print out the MSL code generated
+#define PRINT_MSL 1 // print out the MSL code generated
 
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     MTLPixelFormat dontCare;
