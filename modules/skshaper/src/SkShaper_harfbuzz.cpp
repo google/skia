@@ -505,7 +505,7 @@ static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::Ru
 }
 
 static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
-                 SkPoint point, SkPoint& currentPoint, size_t& lineIndex)
+                 SkPoint point, SkPoint& currentPoint)
 {
     // Reorder the runs and glyphs per line and write them out.
     SkScalar maxAscent = 0;
@@ -534,7 +534,6 @@ static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
 
         const auto& run = line.runs[logicalIndex];
         const SkShaper::RunHandler::RunInfo info = {
-            lineIndex,
             run.fAdvance,
             maxAscent,
             maxDescent,
@@ -546,7 +545,7 @@ static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
     currentPoint.fY += maxDescent + maxLeading;
     currentPoint.fX = point.fX;
 
-    lineIndex++;
+    handler->commitLine();
 }
 
 struct ShapedRunGlyphIterator {
@@ -740,7 +739,6 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
                                      const FontRunIterator* font) const
 {
     ShapedLine line;
-    size_t lineIndex = 0;
     SkPoint currentPoint = point;
 
     const char* utf8Start = nullptr;
@@ -852,7 +850,7 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
 
             // If nothing fit (best score is negative) and the line is not empty
             if (width < line.fAdvance.fX + best.fAdvance.fX && !line.runs.empty()) {
-                emit(line, handler, point, currentPoint, lineIndex);
+                emit(line, handler, point, currentPoint);
                 line.runs.reset();
                 line.fAdvance = {0, 0};
             } else {
@@ -872,14 +870,14 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
 
                 // If item broken, emit line (prevent remainder from accidentally fitting)
                 if (utf8Start != utf8End) {
-                    emit(line, handler, point, currentPoint, lineIndex);
+                    emit(line, handler, point, currentPoint);
                     line.runs.reset();
                     line.fAdvance = {0, 0};
                 }
             }
         }
     }
-    emit(line, handler, point, currentPoint, lineIndex);
+    emit(line, handler, point, currentPoint);
     return currentPoint;
 }
 
@@ -1040,7 +1038,6 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
     SkScalar maxDescent = 0;
     SkScalar maxLeading = 0;
     int previousRunIndex = -1;
-    size_t lineIndex = 0;
     while (glyphIterator.current()) {
         int runIndex = glyphIterator.fRunIndex;
         int glyphIndex = glyphIterator.fGlyphIndex;
@@ -1085,7 +1082,6 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
 
             const auto& run = runs[logicalIndex];
             const RunHandler::RunInfo info = {
-                lineIndex,
                 run.fAdvance,
                 maxAscent,
                 maxDescent,
@@ -1094,13 +1090,14 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
             append(handler, info, run, startGlyphIndex, endGlyphIndex, &currentPoint);
         }
 
+        handler->commitLine();
+
         currentPoint.fY += maxDescent + maxLeading;
         currentPoint.fX = point.fX;
         maxAscent = 0;
         maxDescent = 0;
         maxLeading = 0;
         previousRunIndex = -1;
-        ++lineIndex;
         previousBreak = glyphIterator;
     }
 }

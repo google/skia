@@ -53,7 +53,6 @@ SkPoint SkShaper::shape(RunHandler* handler,
     point.fY -= metrics.fAscent;
 
     const RunHandler::RunInfo info = {
-        0,
         { font.measureText(utf8text, textBytes, SkTextEncoding::kUTF8), 0 },
         metrics.fAscent,
         metrics.fDescent,
@@ -77,6 +76,8 @@ SkPoint SkShaper::shape(RunHandler* handler,
             SkASSERT(txtPtr <= utf8text + textBytes);
         }
     }
+
+    handler->commitLine();
 
     return point + SkVector::Make(0, metrics.fDescent + metrics.fLeading);
 }

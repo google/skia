@@ -306,12 +306,6 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
 
         Buffer newRunBuffer(const RunInfo& info, const SkFont& font, int glyphCount,
                             int utf8textCount) override {
-            if (!fPendingLineRuns.empty() &&
-                fPendingLineRuns.back().fInfo.fLineIndex != info.fLineIndex) {
-                // SkShaper-triggered new line.
-                this->commitLine();
-            }
-
             fPendingLineAdvance += info.fAdvance;
 
             auto& run = fPendingLineRuns.emplace_back(font, info, glyphCount);
@@ -324,7 +318,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
             };
         }
 
-        void commitLine() {
+        void commitLine() override {
             SkScalar line_spacing = 0;
 
             for (const auto& run : fPendingLineRuns) {
@@ -406,7 +400,6 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
         }
 
         shaper.shape(&blobMaker, font, start, SkToSizeT(end - start), true, { 0, 0 }, SK_ScalarMax);
-        blobMaker.commitLine();
     };
 
     const auto& is_line_break = [](SkUnichar uch) {
