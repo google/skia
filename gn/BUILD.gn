@@ -428,10 +428,7 @@ config("debug_symbols") {
   } else if (is_win) {
     cflags = [ "/Z7" ]
     if (is_clang) {
-      cflags += [
-        "-mllvm",
-        "-emit-codeview-ghash-section",
-      ]
+      cflags += [ "-gcodeview-ghash" ]
       ldflags = [ "/DEBUG:GHASH" ]
     } else {
       ldflags = [ "/DEBUG:FASTLINK" ]
