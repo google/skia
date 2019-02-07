@@ -117,6 +117,30 @@
       "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92f85f9f_58842cdd",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2019-02-07T19:41:19Z",
+      "side": 1,
+      "message": "Looking at this again, I think no change is needed. Although, I would favor a style change.\n\nMy original concern is I thought we weren\u0027t clearing out all of the contents. But I see now that we memset() each subarray. So we are clearing it.\n\nHowever, memset() always feels a tad dangerous to me.\nWhat do you all think about using std::fill()? And while we\u0027re at it, we could also use std::array.\n\nThose could happen in a separate patch. I\u0027m happy to do that if you all like the idea.",
+      "parentUuid": "86377741_c6689f05",
+      "range": {
+        "startLine": 949,
+        "startChar": 8,
+        "endLine": 949,
+        "endChar": 25
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
