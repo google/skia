@@ -16,9 +16,10 @@
 //////////////////////////////////////////////////////////////////////////////
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
-                               GrTokenTracker* tokenTracker, void* vertexSpace, void* indexSpace)
-        : fVertexPool(gpu, vertexSpace)
-        , fIndexPool(gpu, indexSpace)
+                               GrTokenTracker* tokenTracker,
+                               sk_sp<GrBufferAllocPool::CpuBufferCache> cpuBufferCache)
+        : fVertexPool(gpu, cpuBufferCache)
+        , fIndexPool(gpu, std::move(cpuBufferCache))
         , fGpu(gpu)
         , fResourceProvider(resourceProvider)
         , fTokenTracker(tokenTracker) {}

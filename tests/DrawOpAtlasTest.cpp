@@ -211,8 +211,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     TestingUploadTarget uploadTarget;
 
-    GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker(), nullptr,
-                              nullptr);
+    GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
     GrOpFlushState::OpArgs opArgs = {
         op.get(),
         rtc->asRenderTargetProxy(),

@@ -29,8 +29,8 @@ public:
     // vertexSpace and indexSpace may either be null or an alloation of size
     // GrBufferAllocPool::kDefaultBufferSize. If the latter, then CPU memory is only allocated for
     // vertices/indices when a buffer larger than kDefaultBufferSize is required.
-    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*, void* vertexSpace,
-                   void* indexSpace);
+    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*,
+                   sk_sp<GrBufferAllocPool::CpuBufferCache> = nullptr);
 
     ~GrOpFlushState() final { this->reset(); }
 
