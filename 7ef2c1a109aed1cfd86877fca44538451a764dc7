@@ -141,6 +141,30 @@
       "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cfbcb0a7_e3367d68",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-07T19:45:57Z",
+      "side": 1,
+      "message": "It\u0027s pretty idiomatic in Skia to use memset() / memcpy(), or really here sk_bzero(), but I don\u0027t think anyone will mind if you want to switch places that make sense to std::fill, std::copy, etc.  I can\u0027t imagine it ends up any different when compiling with optimization.\n\n(We do use memset() / memcpy() in some situations to operate on raw bytes or do things like bit-casts that you just can\u0027t do with strongly-typed std::fill / std::copy.  So I don\u0027t think we can replace _everything_.)",
+      "parentUuid": "92f85f9f_58842cdd",
+      "range": {
+        "startLine": 949,
+        "startChar": 8,
+        "endLine": 949,
+        "endChar": 25
+      },
+      "revId": "7ef2c1a109aed1cfd86877fca44538451a764dc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
