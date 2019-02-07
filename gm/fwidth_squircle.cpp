@@ -154,15 +154,16 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-DEF_SIMPLE_GPU_GM(fwidth_squircle, ctx, rtc, canvas, 200, 200) {
+DEF_SIMPLE_GPU_GM_CAN_FAIL(fwidth_squircle, ctx, rtc, canvas, errorMsg, 200, 200) {
     if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
-        skiagm::GM::DrawFailureMessage(canvas, "Shader derivatives not supported.");
-        return;
+        *errorMsg = "Shader derivatives not supported.";
+        return DrawResult::kSkip;
     }
 
     // Draw the test directly to the frame buffer.
     canvas->clear(SK_ColorWHITE);
     rtc->priv().testingOnly_addDrawOp(FwidthSquircleTestOp::Make(ctx, canvas->getTotalMatrix()));
+    return skiagm::DrawResult::kOk;
 }
 
 }
