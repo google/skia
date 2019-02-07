@@ -61,6 +61,16 @@ bool GM::animate(const SkAnimTimer& timer) {
     return this->onAnimate(timer);
 }
 
+bool GM::runAsBench() const { return false; }
+void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+void GM::onOnceBeforeDraw() {}
+
+bool GM::onAnimate(const SkAnimTimer&) { return false; }
+bool GM::onHandleKey(SkUnichar uni) { return false; }
+bool GM::onGetControls(SkMetaData*) { return false; }
+void GM::onSetControls(const SkMetaData&) {}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {

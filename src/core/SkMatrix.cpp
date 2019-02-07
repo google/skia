@@ -796,6 +796,18 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
     return true;
 }
 
+void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
+    SkASSERT((dst && src && count > 0) || 0 == count);
+    // no partial overlap
+    SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
+    this->getMapPtsProc()(*this, dst, src, count);
+}
+
+void SkMatrix::mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
+    SkASSERT(result);
+    this->getMapXYProc()(*this, x, y, result);
+}
+
 void SkMatrix::ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp) {
     SkASSERT(src != dst);
     SkASSERT(src && dst);
