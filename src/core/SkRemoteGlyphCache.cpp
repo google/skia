@@ -481,11 +481,19 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyphID) {
     SkGlyph* glyphPtr = fGlyphMap.findOrNull(glyphID);
+
+    // Has this glyph ever been seen before?
     if (glyphPtr == nullptr) {
+
+        // Never seen before. Make a new glyph.
         glyphPtr = fAlloc.make<SkGlyph>(glyphID);
         fGlyphMap.set(glyphPtr);
         this->ensureScalerContext();
         fContext->getMetrics(glyphPtr);
+
+        // Make sure to send the glyph to the GPU because we always send the image for a glyph.
+        fCachedGlyphImages.add(glyphID);
+        fPendingGlyphImages.push_back(glyphID);
     }
 
     return *glyphPtr;
@@ -528,7 +536,22 @@ bool SkStrikeServer::SkGlyphCacheState::hasImage(const SkGlyph& glyph) {
 }
 
 bool SkStrikeServer::SkGlyphCacheState::hasPath(const SkGlyph& glyph) {
-    return const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc) != nullptr;
+
+    // Check to see if we have processed this glyph for a path before.
+    if (glyph.fPathData == nullptr) {
+
+        // Never checked for a path before. Add the path now.
+        auto path = const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc);
+        if (path != nullptr) {
+
+            // A path was added make sure to send it to the GPU.
+            fCachedGlyphPaths.add(glyph.getPackedID());
+            fPendingGlyphPaths.push_back(glyph.getPackedID());
+            return true;
+        }
+    }
+
+    return glyph.path() != nullptr;
 }
 
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
