@@ -163,10 +163,10 @@ public:
                                                               int reps,
                                                               int vertCount,
                                                               const GrUniqueKey& key) {
-        if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
-            return std::move(buffer);
+        if (auto buffer = this->findByUniqueKey<const GrGpuBuffer>(key)) {
+            return buffer;
         }
-        return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, key);
+        return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, &key);
     }
 
     /**
@@ -177,10 +177,10 @@ public:
      * @ return the quad index buffer
      */
     sk_sp<const GrGpuBuffer> refQuadIndexBuffer() {
-        if (auto buffer = this->findByUniqueKey<const GrGpuBuffer>(fQuadIndexBufferKey)) {
-            return buffer;
+        if (!fQuadIndexBuffer) {
+            fQuadIndexBuffer = this->createQuadIndexBuffer();
         }
-        return this->createQuadIndexBuffer();
+        return fQuadIndexBuffer;
     }
 
     static int QuadCountOfQuadBuffer();
@@ -287,15 +287,15 @@ private:
                                                         int patternSize,
                                                         int reps,
                                                         int vertCount,
-                                                        const GrUniqueKey& key);
+                                                        const GrUniqueKey* key);
 
     sk_sp<const GrGpuBuffer> createQuadIndexBuffer();
 
-    GrResourceCache*    fCache;
-    GrGpu*              fGpu;
+    GrResourceCache* fCache;
+    GrGpu* fGpu;
     sk_sp<const GrCaps> fCaps;
-    GrUniqueKey         fQuadIndexBufferKey;
-    bool                fExplicitlyAllocateGPUResources;
+    sk_sp<const GrGpuBuffer> fQuadIndexBuffer;
+    bool fExplicitlyAllocateGPUResources;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
