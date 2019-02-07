@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6db3af88_f921f4ce",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-07T22:19:46Z",
+      "side": 1,
+      "message": "The image is always sent. If getGlyphMetrics and hence findGlyph is called, then this glyph must be sent because the GPU is going to make the same getGlyphMetrics call on the GPU. This is caused by the shared code between Renderer and GPU.",
+      "parentUuid": "53b588e0_ac865ab6",
+      "range": {
+        "startLine": 494,
+        "startChar": 8,
+        "endLine": 496,
+        "endChar": 47
+      },
+      "revId": "d83a0ac414996872642b9a7aff7f1e649b9abe7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3fe98d80_2e854fb5",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-07T22:02:45Z",
       "side": 1,
       "message": "I realize that the existing code is already like that but this means we\u0027re caching paths on the renderer side as well when we really don\u0027t need to. IIRC we used to only generate the glyph image/path at the time of serialization but never cache it, only make a note of what is cached GPU side.\n\nAlso seems kinda inconsistent now since hasImage doesn\u0027t cache the image but hasPath will? I\u0027m most likely missing the big picture here because the existing code which caches stuff in the same callbacks where the gpu code draws them seems a better fit to me. Mind giving me a slight idea on what\u0027s planned for followup patches?",
+      "range": {
+        "startLine": 544,
+        "startChar": 20,
+        "endLine": 544,
+        "endChar": 81
+      },
+      "revId": "d83a0ac414996872642b9a7aff7f1e649b9abe7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36d6b8b5_f2c7a87a",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-07T22:19:46Z",
+      "side": 1,
+      "message": "Image handling is different than path handling. In general glyphs always have mask, but may not have a path. A bitmap font is an example of this situation. If the glyph is not empty (has a width and height \u003e 0), then it will always have an image (even thought some of the code is written like it wont). The code needs to cache the image and path information to handle the corner case when the code process glyphs as masks, but one of the glyphs is too large to fit in the atlas. This corner case force the code to have a functioning getGlyphMetrics. Also, a functioning getGlyphMetrics is needed to share code. This is why hasImage is not similar to hasPath. Also, I think that hasPath and hasImage may need to be renamed to be clearer. hasImage does not need to calculate the image because serialize will call findImage which is guaranteed to produce an image if w \u003e 0 \u0026\u0026 h\u003e 0.\n\nThe big picture is to have SkRemoteGlyphCache and GPU use the same strike lookup code. This change simplifies combining the two code paths. \n\nhttps://skia-review.googlesource.com/c/skia/+/184803 is a working prototype of the combined code for the Mask case.\n\nI\u0027m trying to break up that prototype into small careful CLs.",
+      "parentUuid": "3fe98d80_2e854fb5",
       "range": {
         "startLine": 544,
         "startChar": 20,
