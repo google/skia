@@ -91,7 +91,6 @@ if (skia_use_icu) {
       "$_src/hb-ot-hmtx-table.hh",
       "$_src/hb-ot-kern-table.hh",
       "$_src/hb-ot-layout-base-table.hh",
-      "$_src/hb-ot-layout-base-table.hh",
       "$_src/hb-ot-layout-common.hh",
       "$_src/hb-ot-layout-gdef-table.hh",
       "$_src/hb-ot-layout-gpos-table.hh",
