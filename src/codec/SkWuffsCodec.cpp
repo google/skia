@@ -503,7 +503,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     }
 
     // If the frame's dirty rect is empty, no need to swizzle.
-    if (!dirty_rect.is_empty()) {
+    if (!dirty_rect.is_empty() && !frame_rect.is_empty()) {
         if (!fColorTableFilled) {
             fColorTableFilled = true;
             wuffs_base__slice_u8 palette = fPixelBuffer.palette();
