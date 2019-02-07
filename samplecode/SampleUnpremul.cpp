@@ -81,9 +81,7 @@ protected:
         auto looper(
             SkBlurDrawLooper::Make(SK_ColorBLUE, SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
                                    0, 0));
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint.setLooper(looper);
-#endif
         SkScalar height = font.getMetrics(nullptr);
         if (!fDecodeSucceeded) {
             SkString failure;

@@ -561,7 +561,6 @@ public:
     */
     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     /** Sets SkDrawLooper to drawLooper, decreasing SkRefCnt of the previous
         drawLooper.  Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on
         drawing unaltered.
@@ -576,7 +575,6 @@ public:
         (see skbug.com/6259)
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
-#endif
 
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.

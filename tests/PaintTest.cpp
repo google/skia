@@ -135,9 +135,7 @@ DEF_TEST(Paint_copy, reporter) {
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
     SkLayerDrawLooper::Builder looperBuilder;
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     paint.setLooper(looperBuilder.detach());
-#endif
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                SkBlurMask::ConvertRadiusToSigma(1)));
 
@@ -265,9 +263,7 @@ DEF_TEST(Paint_MoreFlattening, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
     paint.setBlendMode(SkBlendMode::kModulate);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     paint.setLooper(nullptr);  // Default value, ignored.
-#endif
 
     SkBinaryWriteBuffer writer;
     SkPaintPriv::Flatten(paint, writer);

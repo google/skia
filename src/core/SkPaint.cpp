@@ -243,14 +243,9 @@ MOVE_FIELD(Shader)
 MOVE_FIELD(ColorFilter)
 MOVE_FIELD(PathEffect)
 MOVE_FIELD(MaskFilter)
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 MOVE_FIELD(DrawLooper)
-#endif
 #undef MOVE_FIELD
-
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
 void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(looper); }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -454,20 +449,14 @@ SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& bu
         paint->setMaskFilter(buffer.readMaskFilter());
         paint->setColorFilter(buffer.readColorFilter());
         (void)buffer.read32();  // use to be SkRasterizer
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint->setLooper(buffer.readDrawLooper());
-#else
-        (void)buffer.readDrawLooper();
-#endif
         paint->setImageFilter(buffer.readImageFilter());
     } else {
         paint->setPathEffect(nullptr);
         paint->setShader(nullptr);
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint->setLooper(nullptr);
-#endif
         paint->setImageFilter(nullptr);
     }
 
@@ -500,20 +489,14 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setShader(buffer.readShader());
         paint->setMaskFilter(buffer.readMaskFilter());
         paint->setColorFilter(buffer.readColorFilter());
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint->setLooper(buffer.readDrawLooper());
-#else
-        (void)buffer.readDrawLooper();
-#endif
         paint->setImageFilter(buffer.readImageFilter());
     } else {
         paint->setPathEffect(nullptr);
         paint->setShader(nullptr);
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
         paint->setLooper(nullptr);
-#endif
         paint->setImageFilter(nullptr);
     }
 
