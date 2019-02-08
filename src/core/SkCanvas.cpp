@@ -2301,7 +2301,11 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
                                       SkScalarRoundToInt(pt.fY), pnt,
                                       nullptr, SkMatrix::I());
         } else {
-            iter.fDevice->drawImage(image, x, y, pnt);
+            // Historically, when drawImage() was directly exposed on SkDevice, it was implemented
+            // as if it had the fast constraint.
+            iter.fDevice->drawImageRect(image, nullptr,
+                                        SkRect::MakeXYWH(x, y, image->width(), image->height()),
+                                        pnt, kFast_SrcRectConstraint);
         }
     }
 
@@ -2377,7 +2381,12 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
                                       SkScalarRoundToInt(pt.fY), pnt,
                                       nullptr, SkMatrix::I());
         } else {
-            iter.fDevice->drawBitmap(bitmap, x, y, looper.paint());
+            // Historically, when SkDevice exposed drawBitmap directly, it was implemented as if
+            // it had the strict constraint
+            SkRect fullImage = SkRect::MakeWH(bitmap.width(), bitmap.height());
+            iter.fDevice->drawBitmapRect(bitmap, &fullImage,
+                                         SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()),
+                                         looper.paint(), kStrict_SrcRectConstraint);
         }
     }
 
