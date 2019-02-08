@@ -172,8 +172,8 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
                                                          drawCmd->ElemCount,
                                                          drawList->IdxBuffer.begin() + indexOffset);
                     canvas->drawVertices(vertices, SkBlendMode::kModulate, *paint);
-                    indexOffset += drawCmd->ElemCount;
                 }
+                indexOffset += drawCmd->ElemCount;
             }
         }
     }
