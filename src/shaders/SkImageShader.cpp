@@ -265,6 +265,20 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                tmx, tmy, localMatrix);
 }
 
+sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
+                                           SkShader::TileMode tmx, SkShader::TileMode tmy,
+                                           const SkMatrix* localMatrix, SkCopyPixelsMode mode) {
+    auto s = SkMakeBitmapShader(src, tmx, tmy, localMatrix, mode);
+    if (!s) {
+        return nullptr;
+    }
+    if (src.colorType() == kAlpha_8_SkColorType && paint.getShader()) {
+        // Compose the image shader with the paint's shader
+        s = SkShader::MakeCompose(paint.refShader(), std::move(s), SkBlendMode::kDstIn);
+    }
+    return s;
+}
+
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
 bool SkImageShader::onAppendStages(const StageRec& rec) const {
