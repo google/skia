@@ -538,9 +538,14 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
         return;
     }
 
+    if (bitmapPtr->colorType() == kAlpha_8_SkColorType && paint.getShader()) {
+        // Must compose the two since the original shader affects alpha images
+        s = SkShader::MakeCompose(paint.refShader(), std::move(s), SkBlendMode::kDstIn);
+    }
+
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);
-    paintWithShader.setShader(s);
+    paintWithShader.setShader(std::move(s));
 
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.
