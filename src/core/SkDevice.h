@@ -189,10 +189,6 @@ protected:
     virtual void drawPath(const SkPath& path,
                           const SkPaint& paint,
                           bool pathIsMutable = false) = 0;
-    virtual void drawBitmap(const SkBitmap& bitmap,
-                            SkScalar x,
-                            SkScalar y,
-                            const SkPaint& paint) = 0;
     virtual void drawSprite(const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint) = 0;
 
@@ -209,7 +205,6 @@ protected:
     virtual void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                                    const SkRect& dst, const SkPaint&);
 
-    virtual void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkPaint&);
     virtual void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                                const SkPaint&, SkCanvas::SrcRectConstraint);
     virtual void drawImageNine(const SkImage*, const SkIRect& center,
@@ -420,7 +415,6 @@ protected:
     void drawOval(const SkRect&, const SkPaint&) override {}
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
-    void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override {}
     void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
                         SkCanvas::SrcRectConstraint) override {}
