@@ -30,6 +30,9 @@ inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&
 WindowContext* NewGLForMac(const MacWindowInfo&, const DisplayParams&);
 
 WindowContext* NewRasterForMac(const MacWindowInfo&, const DisplayParams&);
+#ifdef SK_METAL
+WindowContext* NewMetalForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
 
 }  // namespace window_context_factory
 

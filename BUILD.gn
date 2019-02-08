@@ -2162,6 +2162,14 @@ if (skia_enable_tools) {
       }
     }
 
+    if (skia_use_metal) {
+      sources += [ "tools/sk_app/MetalWindowContext.mm" ]
+      if (is_mac) {
+        sources += [ "tools/sk_app/mac/MetalWindowContext_mac.mm" ]
+      }
+      libs += [ "MetalKit.framework" ]
+    }
+
     deps = [
       ":gpu_tool_utils",
       ":skia",
