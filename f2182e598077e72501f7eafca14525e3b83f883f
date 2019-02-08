@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b5de107_26630f0b",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-08T22:26:28Z",
+      "side": 1,
+      "message": "This update has to be done after checking if we can use texture coords as local coords, since the MF fragment processor also depends on the local coords.",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 0
+      },
+      "revId": "f2182e598077e72501f7eafca14525e3b83f883f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
