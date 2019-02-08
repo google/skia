@@ -6,7 +6,6 @@
  */
 
 #include "GrDefaultPathRenderer.h"
-#include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrFillRectOp.h"
@@ -14,6 +13,8 @@
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrShape.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "GrStyle.h"
@@ -339,7 +340,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkPath& path,
                                           SkScalar tolerance,
@@ -496,7 +497,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
                                              bool stencilOnly) {
-    GrContext* context = renderTargetContext->surfPriv().getContext();
+    auto context = renderTargetContext->surfPriv().getContext();
 
     SkASSERT(GrAAType::kCoverage != aaType);
     SkPath path;

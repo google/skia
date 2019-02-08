@@ -9,12 +9,13 @@
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrClip.h"
-#include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrShape.h"
 #include "GrSimpleMeshDrawOpHelper.h"
@@ -781,7 +782,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,

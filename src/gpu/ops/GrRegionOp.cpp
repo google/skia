@@ -10,6 +10,8 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "GrVertexWriter.h"
@@ -38,7 +40,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkRegion& region,
@@ -168,7 +170,7 @@ private:
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrDrawOp> Make(GrContext* context,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrPaint&& paint,
                                const SkMatrix& viewMatrix,
                                const SkRegion& region,

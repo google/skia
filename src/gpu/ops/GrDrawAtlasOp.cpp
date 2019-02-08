@@ -8,6 +8,8 @@
 #include "GrDrawAtlasOp.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 #include "SkRSXform.h"
 #include "SkRandom.h"

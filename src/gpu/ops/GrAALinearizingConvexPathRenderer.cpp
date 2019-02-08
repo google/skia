@@ -7,13 +7,14 @@
 
 #include "GrAALinearizingConvexPathRenderer.h"
 #include "GrAAConvexTessellator.h"
-#include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrStyle.h"
@@ -120,7 +121,7 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,

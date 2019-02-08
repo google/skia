@@ -10,13 +10,15 @@
 
 #include "GrOp.h"
 
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrSemaphore.h"
 #include "SkRefCnt.h"
 
 class GrSemaphoreOp : public GrOp {
 public:
-    static std::unique_ptr<GrOp> MakeWait(GrContext*,
+    static std::unique_ptr<GrOp> MakeWait(GrRecordingContext*,
                                           sk_sp<GrSemaphore>,
                                           GrRenderTargetProxy*);
 

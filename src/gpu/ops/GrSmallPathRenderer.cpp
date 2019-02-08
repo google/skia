@@ -8,10 +8,11 @@
 
 #include "GrSmallPathRenderer.h"
 #include "GrBuffer.h"
-#include "GrContext.h"
 #include "GrDistanceFieldGenFromVector.h"
 #include "GrDrawOpTest.h"
 #include "GrQuad.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
@@ -229,7 +230,7 @@ public:
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const GrShape& shape,
                                           const SkMatrix& viewMatrix,
@@ -940,7 +941,7 @@ struct GrSmallPathRenderer::PathTestStruct {
 };
 
 std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
-                                                        GrContext* context,
+                                                        GrRecordingContext* context,
                                                         GrPaint&& paint,
                                                         const GrShape& shape,
                                                         const SkMatrix& viewMatrix,

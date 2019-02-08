@@ -13,6 +13,8 @@
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "GrVertexWriter.h"
 #include "SkBitmap.h"
@@ -133,7 +135,7 @@ public:
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrTextureProxy> proxy,
@@ -329,7 +331,7 @@ private:
 }  // anonymous namespace
 
 namespace GrLatticeOp {
-std::unique_ptr<GrDrawOp> MakeNonAA(GrContext* context,
+std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
                                     GrPaint&& paint,
                                     const SkMatrix& viewMatrix,
                                     sk_sp<GrTextureProxy> proxy,
@@ -343,7 +345,7 @@ std::unique_ptr<GrDrawOp> MakeNonAA(GrContext* context,
 };
 
 #if GR_TEST_UTILS
-#include "GrContextPriv.h"
+#include "GrRecordingContextPriv.h"
 #include "GrProxyProvider.h"
 
 /** Randomly divides subset into count divs. */
