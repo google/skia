@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "135eed54_4a5eacfc",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-02-08T22:29:47Z",
+      "side": 1,
+      "message": "bikeshed: decideCouldDrawFromPath might be better. The decision for whether we should use a path is made elsewhere, this is just telling whether the caller could use a path if it wanted/needed to.",
+      "range": {
+        "startLine": 27,
+        "startChar": 17,
+        "endLine": 27,
+        "endChar": 41
+      },
+      "revId": "3c4b781d7a6b5223e7bf8dea2e81f9c3265b91a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
