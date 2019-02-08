@@ -145,6 +145,14 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+bool GrContext::abandoned1() const {
+    return INHERITED::abandon1();
+}
+
+void GrContext::abandon1() {
+    INHERITED::abandon1();
+}
+
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 

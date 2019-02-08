@@ -18,6 +18,8 @@ class SK_API GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
 
+    bool abandoned1() const override;
+
     // Provides access to functions that aren't part of the public API.
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;
@@ -26,6 +28,8 @@ protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
+
+    void abandon1() override;
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
