@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "013c767b_e5800f7e",
+        "filename": "site/dev/sheriffing/trooper.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-02-08T15:01:57Z",
+      "side": 1,
+      "message": "Nit, Can we add one line:\nThe trooper handles problems with Skia\u0027s build and test infrastructure.",
+      "revId": "233af9ed2146e56c81e886d2d67b6a95fdff5e42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
