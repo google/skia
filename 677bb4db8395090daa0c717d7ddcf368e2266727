@@ -1,0 +1,158 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff1ca202_55a45965",
+        "filename": "modules/skparagraph/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 16
+      },
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "106919ae_c9dd99f9",
+        "filename": "modules/skparagraph/include/SkFontCollection.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "see https://skia.org/dev/contrib/style\n\nf instead of _",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e4ca92d_ce86a5ec",
+        "filename": "modules/skparagraph/include/SkFontCollection.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "group method declarations together and start with lower case method names",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "129b2429_39860590",
+        "filename": "modules/skparagraph/include/SkParagraphStyle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "doesn\u0027t look like this include is used.",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "814b134b_5215db50",
+        "filename": "modules/skparagraph/include/SkShaped.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "how does this relate to SkParagraph?",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc0fa8b9_2e04f273",
+        "filename": "modules/skparagraph/skparagraph.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 16
+      },
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faba606a_6bfa6dd8",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "can you separate all the skshaper changes into their own CL so that we can review that independently?",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee2c4e63_e116f700",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-02-08T17:54:25Z",
+      "side": 1,
+      "message": "where is this vector used?",
+      "range": {
+        "startLine": 227,
+        "startChar": 29,
+        "endLine": 227,
+        "endChar": 34
+      },
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
