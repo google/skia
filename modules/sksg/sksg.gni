@@ -26,6 +26,7 @@ skia_sksg_sources = [
   "$_src/SkSGPath.cpp",
   "$_src/SkSGPlane.cpp",
   "$_src/SkSGRect.cpp",
+  "$_src/SkSGRenderEffect.cpp",
   "$_src/SkSGRenderNode.cpp",
   "$_src/SkSGRoundEffect.cpp",
   "$_src/SkSGScene.cpp",
