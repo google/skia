@@ -103,7 +103,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // that suffices. Additionally we should assert that the upstream code only lets us get here if
     // either float or half provides the required number of bits.
 
-    GrShaderVar edgeAlpha("edgeAlpha", kHalf_GrSLType, 0);
+    GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0);
     GrShaderVar dklmdx("dklmdx", kFloat3_GrSLType, 0);
     GrShaderVar dklmdy("dklmdy", kFloat3_GrSLType, 0);
     GrShaderVar dfdx("dfdx", kFloat_GrSLType, 0);
@@ -142,7 +142,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             fragBuilder->codeAppendf("%s = %s.x*%s.x - %s.y*%s.z;",
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("%s = abs(%s);", func.c_str(), func.c_str());
-            fragBuilder->codeAppendf("%s = half(%s / %s);",
+            fragBuilder->codeAppendf("%s = %s / %s;",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
             fragBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
@@ -171,7 +171,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                      gFM.c_str(), gF.c_str(), gF.c_str());
             fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("%s = half(%s / %s);",
+            fragBuilder->codeAppendf("%s = %s / %s;",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
             fragBuilder->codeAppendf("%s = saturate(0.5 - %s);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
@@ -197,10 +197,10 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kFloat_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = half4(half(%s) * %s);",
+        fragBuilder->codeAppendf("%s = half4(half(%s * %s));",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
-        fragBuilder->codeAppendf("%s = half4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
+        fragBuilder->codeAppendf("%s = half4(half(%s));", args.fOutputCoverage, edgeAlpha.c_str());
     }
 }
 
