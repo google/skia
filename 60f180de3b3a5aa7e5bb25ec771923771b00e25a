@@ -34,6 +34,24 @@
       "revId": "60f180de3b3a5aa7e5bb25ec771923771b00e25a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61af3ed3_7048422b",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-08T18:42:01Z",
+      "side": 1,
+      "message": "Ah, looks like you\u0027ve looked at the bug now. Thanks!",
+      "parentUuid": "d60b7f81_0beafdf1",
+      "revId": "60f180de3b3a5aa7e5bb25ec771923771b00e25a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
