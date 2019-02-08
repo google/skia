@@ -39,6 +39,10 @@ public:
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
+    sk_sp<GrOpMemoryPool> refOpMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+
+    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}

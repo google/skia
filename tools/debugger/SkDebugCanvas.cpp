@@ -218,7 +218,7 @@ GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at = nullptr;
     GrContext* ctx = canvas->getGrContext();
     if (ctx) {
-        at = ctx->priv().getAuditTrail();
+        at = ctx->priv().auditTrail();
     }
     return at;
 }
