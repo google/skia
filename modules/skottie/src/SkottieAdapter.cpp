@@ -18,6 +18,7 @@
 #include "SkSGGroup.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGRenderEffect.h"
 #include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
@@ -261,6 +262,26 @@ void TrimEffectAdapter::apply() {
     fTrimEffect->setStart(startT);
     fTrimEffect->setStop(stopT);
     fTrimEffect->setMode(mode);
+}
+
+DropShadowEffectAdapter::DropShadowEffectAdapter(sk_sp<sksg::DropShadowImageFilter> dropShadow)
+    : fDropShadow(std::move(dropShadow)) {
+    SkASSERT(fDropShadow);
+}
+
+DropShadowEffectAdapter::~DropShadowEffectAdapter() = default;
+
+void DropShadowEffectAdapter::apply() {
+    fDropShadow->setColor(SkColorSetA(fColor, SkTPin(SkScalarRoundToInt(fOpacity), 0, 255)));
+
+    SkScalar sinV, cosV;
+    sinV = SkScalarSinCos(SkDegreesToRadians(90 - fDirection), &cosV);
+
+    const auto sigma = fSoftness / 3;
+    fDropShadow->setSigma(SkVector::Make(sigma, sigma));
+    fDropShadow->setOffset(SkVector::Make(fDistance * cosV, -fDistance * sinV));
+    fDropShadow->setMode(fShadowOnly ? sksg::DropShadowImageFilter::Mode::kShadowOnly
+                                     : sksg::DropShadowImageFilter::Mode::kShadowAndForeground);
 }
 
 TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
