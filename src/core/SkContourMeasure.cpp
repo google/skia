@@ -169,9 +169,6 @@ static bool cubic_too_curvy(const SkPoint pts[4], SkScalar tolerance) {
 
 SkScalar SkContourMeasureIter::compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                                  int mint, int maxt, unsigned ptIndex) {
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
-    --fSubdivisionsMax;
-#endif
     if (tspan_big_enough(maxt - mint) && quad_too_curvy(pts, fTolerance)) {
         SkPoint tmp[5];
         int     halft = (mint + maxt) >> 1;
@@ -198,9 +195,6 @@ SkScalar SkContourMeasureIter::compute_conic_segs(const SkConic& conic, SkScalar
                                                   int mint, const SkPoint& minPt,
                                                   int maxt, const SkPoint& maxPt,
                                                   unsigned ptIndex) {
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
-    --fSubdivisionsMax;
-#endif
     int halft = (mint + maxt) >> 1;
     SkPoint halfPt = conic.evalAt(tValue2Scalar(halft));
     if (!halfPt.isFinite()) {
@@ -226,9 +220,6 @@ SkScalar SkContourMeasureIter::compute_conic_segs(const SkConic& conic, SkScalar
 
 SkScalar SkContourMeasureIter::compute_cubic_segs(const SkPoint pts[4], SkScalar distance,
                                                   int mint, int maxt, unsigned ptIndex) {
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
-    --fSubdivisionsMax;
-#endif
     if (tspan_big_enough(maxt - mint) && cubic_too_curvy(pts, fTolerance)) {
         SkPoint tmp[7];
         int     halft = (mint + maxt) >> 1;
@@ -268,9 +259,6 @@ SkContourMeasure* SkContourMeasureIter::buildSegments() {
      */
     fSegments.reset();
     bool done = false;
- #if defined(IS_FUZZING_WITH_LIBFUZZER)
-    fSubdivisionsMax = 10000000;
-#endif
     do {
         if (!firstMoveTo && fIter.peekVerb() == SkPath::kMove_Verb) {
             break;
@@ -340,11 +328,6 @@ SkContourMeasure* SkContourMeasureIter::buildSegments() {
                 done = true;
                 break;
         }
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
-        if (fSubdivisionsMax < 0) {
-            return nullptr;
-        }
-#endif
 
     } while (!done);
 
@@ -354,11 +337,6 @@ SkContourMeasure* SkContourMeasureIter::buildSegments() {
     if (fSegments.count() == 0) {
         return nullptr;
     }
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
-    if (fSubdivisionsMax < 0) {
-        return nullptr;
-    }
-#endif
 
 #ifdef SK_DEBUG
     {
