@@ -8,8 +8,6 @@
 #include "GrProxyProvider.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrImageContext.h"
 #include "GrImageContextPriv.h"
 #include "GrRenderTarget.h"
@@ -48,10 +46,15 @@ GrProxyProvider::~GrProxyProvider() {
     }
 }
 
+uint32_t GrProxyProvider::contextUniqueID() const { return fContext73->uniqueID(); }
+const GrCaps* GrProxyProvider::caps1() const { return fContext73->priv().caps(); }
+sk_sp<const GrCaps> GrProxyProvider::refCaps1() const { return fContext73->priv().refCaps(); }
+bool GrProxyProvider::isAbandoned17() const { return fContext73->priv().abandoned1(); }
+
 bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
-    if (this->isAbandoned() || !proxy) {
+    if (this->isAbandoned17() || !proxy) {
         return false;
     }
 
@@ -90,7 +93,7 @@ void GrProxyProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
     SkASSERT(proxy);
     SkASSERT(proxy->getUniqueKey().isValid());
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return;
     }
 
@@ -101,7 +104,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
                                                             GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -161,7 +164,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
                                                                     GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -201,7 +204,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     ASSERT_SINGLE_OWNER
     SkASSERT(srcImage);
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -217,7 +220,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps1()->isConfigTexturable(config)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
             !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
@@ -229,7 +232,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
+        sampleCnt = this->caps1()->getRenderTargetSampleCount(sampleCnt, config);
         if (!sampleCnt) {
             return nullptr;
         }
@@ -294,7 +297,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
                                                          SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -338,7 +341,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
     }
 
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps1()->isConfigTexturable(desc.fConfig)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
             !bitmap.readPixels(copy8888.pixmap())) {
@@ -418,19 +421,19 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         }
     }
 
-    if (!this->caps()->validateSurfaceDesc(desc, mipMapped)) {
+    if (!this->caps1()->validateSurfaceDesc(desc, mipMapped)) {
         return nullptr;
     }
     GrSurfaceDesc copyDesc = desc;
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
         copyDesc.fSampleCnt =
-                this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
+                this->caps1()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
     }
 
     if (copyDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*this->caps(), format, copyDesc,
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*this->caps1(), format, copyDesc,
                                                                     origin, mipMapped,
                                                                     fit, budgeted, surfaceFlags));
     }
@@ -440,7 +443,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrSurfaceDesc& desc) {
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps1()->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
 
@@ -486,7 +489,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
                                                           ReleaseProc releaseProc,
                                                           ReleaseContext releaseCtx) {
     SkASSERT(ioType != kWrite_GrIOType);
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -522,7 +525,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
         GrWrapOwnership ownership, GrWrapCacheable cacheable, ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -562,7 +565,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         const GrBackendRenderTarget& backendRT, GrSurfaceOrigin origin, ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -596,7 +599,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 
@@ -623,7 +626,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
 
 sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
         const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned17()) {
         return nullptr;
     }
 

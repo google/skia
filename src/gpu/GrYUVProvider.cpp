@@ -101,7 +101,7 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
     cachedData->unref();
 }
 
-sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
+sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
                                                        const GrBackendFormat& format,
                                                        const GrSurfaceDesc& desc,
                                                        SkColorSpace* srcColorSpace,

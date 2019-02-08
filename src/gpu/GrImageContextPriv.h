@@ -16,6 +16,8 @@
 class GrImageContextPriv {
 public:
     // from GrContext_Base
+    GrBackendApi backend() const { return fContext->backend(); }
+
     uint32_t contextID() const { return fContext->contextID(); }
 
     bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
@@ -32,6 +34,9 @@ public:
     GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
+    bool abandoned1() const { return fContext->abandoned1(); }
+    void abandon1() { return fContext->abandon1(); }
+
     GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
     const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
 

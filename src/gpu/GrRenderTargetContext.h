@@ -392,10 +392,10 @@ public:
 
     void setNeedsStencil() { fRenderTargetProxy->setNeedsStencil(); }
 
-    GrRenderTarget* accessRenderTarget() {
+    GrRenderTarget* accessRenderTarget(GrContext* context) {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
-        if (!fRenderTargetProxy->instantiate(fContext->priv().resourceProvider())) {
+        if (!fRenderTargetProxy->instantiate(context->priv().resourceProvider())) {
             return nullptr;
         }
         return fRenderTargetProxy->peekRenderTarget();
@@ -423,7 +423,7 @@ public:
     bool isWrapped_ForTesting() const;
 
 protected:
-    GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
+    GrRenderTargetContext(GrRecordingContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
                           GrSingleOwner*, bool managedOpList = true);
 

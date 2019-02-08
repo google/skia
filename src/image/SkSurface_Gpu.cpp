@@ -81,7 +81,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
+    return SkSurface::MakeRenderTarget(fDevice->context12(), kBudgeted, info, sampleCount,
                                        origin, &this->props());
 }
 
@@ -91,7 +91,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         return nullptr;
     }
 
-    GrContext* ctx = fDevice->context();
+    GrRecordingContext* ctx = fDevice->context12();
 
     if (!rtc->asSurfaceProxy()) {
         return nullptr;
@@ -284,7 +284,7 @@ bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace
     }
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
     if (!context || !c.isValid()) {
@@ -341,7 +341,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
 }
 
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                              bool shouldCreateWithMips) {
@@ -367,7 +367,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
+sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrRecordingContext* context,
                                                         sk_sp<GrRenderTargetContext> rtc) {
     if (!context) {
         return nullptr;

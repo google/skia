@@ -30,6 +30,12 @@ protected:
     GrProxyProvider* proxyProvider() { return fProxyProvider.get(); }
     const GrProxyProvider* proxyProvider() const { return fProxyProvider.get(); }
 
+    virtual bool abandoned1() const {
+        //SkASSERT(fAbandoned == fProxyProvider1->isAbandoned17());
+        return fAbandoned;
+    }
+    virtual void abandon1() { fAbandoned = true; /* fProxyProvider1->abandon1();*/ }
+
     /** This is only useful for debug purposes */
     GrSingleOwner* singleOwner() const { return &fSingleOwner; }
 
@@ -42,6 +48,8 @@ private:
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner           fSingleOwner;
+
+    bool                            fAbandoned = false;
 
     typedef GrContext_Base INHERITED;
 };

@@ -108,7 +108,7 @@ class FwidthSquircleTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* ctx, const SkMatrix& viewMatrix) {
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* ctx, const SkMatrix& viewMatrix) {
         GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
         return pool->allocate<FwidthSquircleTestOp>(viewMatrix);
     }

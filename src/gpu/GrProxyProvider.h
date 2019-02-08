@@ -222,6 +222,25 @@ public:
 
     bool isAbandoned() const { return fAbandoned; }
 
+#if 0
+    void abandon1() {
+        fResourceCache1 = nullptr;
+        fResourceProvider1 = nullptr;
+        fAbandoned = true;
+    }
+
+    bool isAbandoned17() const {
+#ifdef SK_DEBUG
+        if (fAbandoned) {
+            SkASSERT(!fResourceCache1 && !fResourceProvider1);
+        }
+#endif
+        return fAbandoned;
+    }
+#else
+    bool isAbandoned17() const;
+#endif
+
     int numUniqueKeyProxies_TestOnly() const;
 
     // This is called on a DDL's proxyprovider when the DDL is finished. The uniquely keyed
@@ -249,6 +268,8 @@ public:
 private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
+    friend class GrContext; // for bam1
+    friend class GrDirectContext; // for bam1 ?????!
 
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
 

@@ -10,6 +10,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrImageContext.h"
+#include "../private/GrAuditTrail.h"
 
 class GrOpMemoryPool;
 class GrRecordingContextPriv;
@@ -33,6 +34,51 @@ protected:
     GrAuditTrail* auditTrail() { return &fAuditTrail; }
 
     GrRecordingContext* asRecordingContext() override { return this; }
+
+    bool abandoned1() const override;
+    void abandon1() override;
+
+    sk_sp<GrOpMemoryPool> refOpMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fOpMemoryPool.get(); }
+
+    GrAuditTrail* auditTrail() { return &fAuditTrail; }
+
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
+
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
+                                                       const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
+                                                       SkBackingFit,
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
+
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+                                                 const GrBackendFormat& format,
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 1,
+                                                 GrMipMapped = GrMipMapped::kNo,
+                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted = SkBudgeted::kYes);
+
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+                                                                 const GrBackendFormat& format,
+                                                                 SkBackingFit fit,
+                                                                 int width, int height,
+                                                                 GrPixelConfig config,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 int sampleCnt,
+                                                                 GrMipMapped mipMapped,
+                                                                 GrSurfaceOrigin origin,
+                                                                 const SkSurfaceProps* surfaceProps,
+                                                                 SkBudgeted budgeted);
 
 private:
     // All the GrOp-derived classes use this pool.

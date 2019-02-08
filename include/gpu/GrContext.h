@@ -47,6 +47,7 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
+
 class SK_API GrContext : public GrRecordingContext {
 public:
     /**
@@ -89,6 +90,7 @@ public:
      */
     void resetContext(uint32_t state = kAll_GrBackendState);
 
+#if 0
     /**
      * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
@@ -106,6 +108,7 @@ public:
      * Returns true if the context was abandoned.
      */
     bool abandoned() const;
+#endif
 
     /**
      * This is similar to abandonContext() however the underlying 3D context is not yet lost and
@@ -286,7 +289,9 @@ protected:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-private:
+    bool abandoned1() const override;
+    void abandon1() override;
+//private:
     // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
     // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
     // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
