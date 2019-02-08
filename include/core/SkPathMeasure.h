@@ -16,22 +16,18 @@
 class SK_API SkPathMeasure : SkNoncopyable {
 public:
     SkPathMeasure();
-    /** Initialize the pathmeasure with the specified path. The path must remain valid
-        for the lifetime of the measure object, or until setPath() is called with
-        a different path (or null), since the measure object keeps a pointer to the
-        path object (does not copy its data).
-
-        resScale controls the precision of the measure. values > 1 increase the
-        precision (and possible slow down the computation).
-    */
+    /** Initialize the pathmeasure with the specified path. The parts of the path that are needed
+     *  are copied, so the client is free to modify/delete the path after this call.
+     *
+     *  resScale controls the precision of the measure. values > 1 increase the
+     *  precision (and possible slow down the computation).
+     */
     SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();
 
-    /** Reset the pathmeasure with the specified path. The path must remain valid
-        for the lifetime of the measure object, or until setPath() is called with
-        a different path (or null), since the measure object keeps a pointer to the
-        path object (does not copy its data).
-    */
+    /** Reset the pathmeasure with the specified path. The parts of the path that are needed
+     *  are copied, so the client is free to modify/delete the path after this call..
+     */
     void setPath(const SkPath*, bool forceClosed);
 
     /** Return the total length of the current contour, or 0 if no path
