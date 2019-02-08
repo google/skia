@@ -92,9 +92,19 @@ private:
 class SK_API SkContourMeasureIter : SkNoncopyable {
 public:
     SkContourMeasureIter();
+    /**
+     *  Initialize the Iter with a path.
+     *  The parts of the path that are needed are copied, so the client is free to modify/delete
+     *  the path after this call.
+     */
     SkContourMeasureIter(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkContourMeasureIter();
 
+    /**
+     *  Reset the Iter with a path.
+     *  The parts of the path that are needed are copied, so the client is free to modify/delete
+     *  the path after this call.
+     */
     void reset(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
 
     /**
