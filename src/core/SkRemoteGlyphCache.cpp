@@ -537,12 +537,14 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
     return *glyphPtr;
 }
 
-bool SkStrikeServer::SkGlyphCacheState::hasImage(const SkGlyph& glyph) {
-    // If a glyph has width and height, it must have an image available to it.
-    return !glyph.isEmpty();
-}
-
-bool SkStrikeServer::SkGlyphCacheState::hasPath(const SkGlyph& glyph) {
+// Because the strike calls between the Renderer and the GPU are mirror images of each other, the
+// information needed to make the call in the Renderer needs to be sent to the GPU so it can also
+// make the call. If there is a path then it should be sent, and the path is queued to be sent and
+// true returned. Otherwise, false is returned signaling an empty glyph.
+//
+// A key reason for no path is the fact that the glyph is a color image or is a bitmap only
+// font.
+bool SkStrikeServer::SkGlyphCacheState::decideCouldDrawFromPath(const SkGlyph& glyph) {
 
     // Check to see if we have processed this glyph for a path before.
     if (glyph.fPathData == nullptr) {

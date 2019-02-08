@@ -39,9 +39,7 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
-    bool hasImage(const SkGlyph& glyph) override;
-
-    bool hasPath(const SkGlyph& glyph) override;
+    bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
 private:
     bool hasPendingGlyphs() const {

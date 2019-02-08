@@ -24,8 +24,7 @@ public:
     virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
-    virtual bool hasImage(const SkGlyph& glyph) = 0;
-    virtual bool hasPath(const SkGlyph& glyph) = 0;
+    virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
 };
 
 class SkStrikeCommon {
