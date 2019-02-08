@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df33818f_0b284152",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-08T15:02:50Z",
+      "side": 0,
+      "message": "You don\u0027t need paint, font, matrix, props, flags past these first few lines right?  Might make sense to break this into two routines, one that takes all those args to make desc, then another that just takes the desc, typeface, effects?",
+      "revId": "3d482995e5957b1b1fdc3cf41d8b65af42ee9ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
