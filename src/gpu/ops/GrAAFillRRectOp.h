@@ -10,12 +10,14 @@
 
 #include "GrDrawOp.h"
 
+class GrRecordingContext;
+
 class GrAAFillRRectOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrAAFillRRectOp> Make(GrContext*, const SkMatrix&, const SkRRect&,
-                                                 const GrCaps&, GrPaint&&);
+    static std::unique_ptr<GrAAFillRRectOp> Make(GrRecordingContext*, const SkMatrix&,
+                                                 const SkRRect&, const GrCaps&, GrPaint&&);
 
     const char* name() const override { return "GrAAFillRRectOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }

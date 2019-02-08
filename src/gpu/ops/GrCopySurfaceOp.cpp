@@ -7,8 +7,8 @@
 
 #include "GrCopySurfaceOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 
@@ -63,7 +63,7 @@ static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrContext* context,
+std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
                                             GrSurfaceProxy* dstProxy,
                                             GrSurfaceProxy* srcProxy,
                                             const SkIRect& srcRect,
