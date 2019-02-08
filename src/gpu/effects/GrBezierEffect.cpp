@@ -103,7 +103,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // that suffices. Additionally we should assert that the upstream code only lets us get here if
     // either float or half provides the required number of bits.
 
-    GrShaderVar edgeAlpha("edgeAlpha", kHalf_GrSLType, 0);
+    GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0);
     GrShaderVar dklmdx("dklmdx", kFloat3_GrSLType, 0);
     GrShaderVar dklmdy("dklmdy", kFloat3_GrSLType, 0);
     GrShaderVar dfdx("dfdx", kFloat_GrSLType, 0);
@@ -123,66 +123,66 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     switch (fEdgeType) {
         case GrClipEdgeType::kHairlineAA: {
-            fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
-            fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
-            fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+            fragBuilder->codeAppendf("%s = dFdx(%s.xyz);\n", dklmdx.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = dFdy(%s.xyz);\n", dklmdy.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;\n",
                                      dfdx.c_str(),
                                      v.fsIn(), dklmdx.c_str(),
                                      v.fsIn(), dklmdx.c_str(),
                                      v.fsIn(), dklmdx.c_str());
-            fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+            fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;\n",
                                      dfdy.c_str(),
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str());
-            fragBuilder->codeAppendf("%s = float2(%s, %s);", gF.c_str(), dfdx.c_str(),
+            fragBuilder->codeAppendf("%s = float2(%s, %s);\n", gF.c_str(), dfdx.c_str(),
                                      dfdy.c_str());
-            fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
+            fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));\n",
                                      gFM.c_str(), gF.c_str(), gF.c_str());
-            fragBuilder->codeAppendf("%s = %s.x*%s.x - %s.y*%s.z;",
+            fragBuilder->codeAppendf("%s = %s.x*%s.x - %s.y*%s.z;\n",
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("%s = abs(%s);", func.c_str(), func.c_str());
-            fragBuilder->codeAppendf("%s = half(%s / %s);",
+            fragBuilder->codeAppendf("%s = abs(%s);\n", func.c_str(), func.c_str());
+            fragBuilder->codeAppendf("%s = %s / %s;\n",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
-            fragBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);",
+            fragBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);\n",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
         case GrClipEdgeType::kFillAA: {
-            fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
-            fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = dFdx(%s.xyz);\n", dklmdx.c_str(), v.fsIn());
+            fragBuilder->codeAppendf("%s = dFdy(%s.xyz);\n", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s ="
-                                     "2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                     "2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;\n",
                                      dfdx.c_str(),
                                      v.fsIn(), dklmdx.c_str(),
                                      v.fsIn(), dklmdx.c_str(),
                                      v.fsIn(), dklmdx.c_str());
             fragBuilder->codeAppendf("%s ="
-                                     "2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
+                                     "2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;\n",
                                      dfdy.c_str(),
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str());
-            fragBuilder->codeAppendf("%s = float2(%s, %s);", gF.c_str(), dfdx.c_str(),
+            fragBuilder->codeAppendf("%s = float2(%s, %s);\n", gF.c_str(), dfdx.c_str(),
                                      dfdy.c_str());
-            fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
+            fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));\n",
                                      gFM.c_str(), gF.c_str(), gF.c_str());
-            fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
+            fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;\n",
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("%s = half(%s / %s);",
+            fragBuilder->codeAppendf("%s = %s / %s;\n",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
-            fragBuilder->codeAppendf("%s = saturate(0.5 - %s);",
+            fragBuilder->codeAppendf("%s = saturate(0.5 - %s);\n",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
             // Add line below for smooth cubic ramp
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
         case GrClipEdgeType::kFillBW: {
-            fragBuilder->codeAppendf("%s = half(%s.x * %s.x - %s.y * %s.z);",
+            fragBuilder->codeAppendf("%s = half(%s.x * %s.x - %s.y * %s.z);\n",
                                      edgeAlpha.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("%s = half(%s < 0.0);",
+            fragBuilder->codeAppendf("%s = half(%s < 0.0);\n",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
             break;
         }
@@ -197,10 +197,10 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kFloat_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = half4(half(%s) * %s);",
+        fragBuilder->codeAppendf("%s = half4(half(%s) * %s);\n",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
-        fragBuilder->codeAppendf("%s = half4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
+        fragBuilder->codeAppendf("%s = half4(half(%s));\n", args.fOutputCoverage, edgeAlpha.c_str());
     }
 }
 
