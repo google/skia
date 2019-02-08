@@ -16,6 +16,24 @@
       "revId": "233af9ed2146e56c81e886d2d67b6a95fdff5e42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15d31b72_f9f3a836",
+        "filename": "site/dev/sheriffing/trooper.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-02-08T15:05:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "013c767b_e5800f7e",
+      "revId": "233af9ed2146e56c81e886d2d67b6a95fdff5e42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
