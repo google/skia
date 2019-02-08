@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkShaper.h"
+#include "SkShaperPriv.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -669,9 +670,7 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
 SkShaper::~SkShaper() {}
 
 bool SkShaper::good() const {
-    return fImpl->fBuffer &&
-           fImpl->fLineBreakIterator &&
-           fImpl->fGraphemeBreakIterator;
+    return true;
 }
 
 SkPoint SkShaper::shape(RunHandler* handler,
@@ -683,6 +682,10 @@ SkPoint SkShaper::shape(RunHandler* handler,
                         SkScalar width) const
 {
     SkASSERT(handler);
+    if (!fImpl->fBuffer || !fImpl->fLineBreakIterator || !fImpl->fGraphemeBreakIterator) {
+        return ShapePrimitive(handler, srcFont, utf8, utf8Bytes, leftToRight, point, width);
+    }
+
     sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
 
