@@ -58,14 +58,11 @@ SkPoint SkShaper::shape(RunHandler* handler,
         metrics.fDescent,
         metrics.fLeading,
     };
-    const auto buffer = handler->newRunBuffer(info, font, glyphCount, textBytes);
+    const auto buffer = handler->newRunBuffer(info, font, glyphCount,
+                                              SkSpan<const char>(utf8text, textBytes));
     SkAssertResult(font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8, buffer.glyphs,
                                      glyphCount) == glyphCount);
     font.getPos(buffer.glyphs, glyphCount, buffer.positions, point);
-
-    if (buffer.utf8text) {
-        memcpy(buffer.utf8text, utf8text, textBytes);
-    }
 
     if (buffer.clusters) {
         const char* txtPtr = utf8text;
