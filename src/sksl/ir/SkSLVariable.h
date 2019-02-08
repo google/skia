@@ -53,9 +53,11 @@ struct Variable : public Symbol {
     }
 
     bool dead() const {
-        return !fWriteCount || (!fReadCount && !(fModifiers.fFlags & (Modifiers::kOut_Flag |
-                                                                      Modifiers::kPLS_Flag |
-                                                                      Modifiers::kPLSOut_Flag)));
+        return (!fWriteCount && !(fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                                       Modifiers::kUniform_Flag))) ||
+               (!fReadCount && !(fModifiers.fFlags & (Modifiers::kOut_Flag |
+                                                      Modifiers::kPLS_Flag |
+                                                      Modifiers::kPLSOut_Flag)));
     }
 
     mutable Modifiers fModifiers;
