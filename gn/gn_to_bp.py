@@ -207,7 +207,6 @@ cc_defaults {
         "skia_pgo_no_profile_use"
     ],
     static_libs: [
-        "libjsoncpp",
         "libskia",
     ],
     cflags: [
