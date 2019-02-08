@@ -885,23 +885,10 @@ void SkPDFDevice::drawBitmapRect(const SkBitmap& bm,
     this->internalDrawImageRect(SkKeyedImage(bm), src, dst, paint, this->ctm());
 }
 
-void SkPDFDevice::drawBitmap(const SkBitmap& bm, SkScalar x, SkScalar y, const SkPaint& paint) {
-    SkASSERT(!bm.drawsNothing());
-    auto r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
-    this->internalDrawImageRect(SkKeyedImage(bm), nullptr, r, paint, this->ctm());
-}
-
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {
     SkASSERT(!bm.drawsNothing());
     auto r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
     this->internalDrawImageRect(SkKeyedImage(bm), nullptr, r, paint, SkMatrix::I());
-}
-
-void SkPDFDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint& paint) {
-    SkASSERT(image);
-    auto r = SkRect::MakeXYWH(x, y, image->width(), image->height());
-    this->internalDrawImageRect(SkKeyedImage(sk_ref_sp(const_cast<SkImage*>(image))),
-                                nullptr, r, paint, this->ctm());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
