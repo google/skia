@@ -40,19 +40,7 @@ sk_sp<GrSkSLFPFactoryCache> GrContextPriv::fpFactoryCache() {
 }
 
 sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
-    if (!fContext->fOpMemoryPool) {
-        // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
-        // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
-        // memory.
-        fContext->fOpMemoryPool = sk_sp<GrOpMemoryPool>(new GrOpMemoryPool(16384, 16384));
-    }
-
-    SkASSERT(fContext->fOpMemoryPool);
-    return fContext->fOpMemoryPool;
-}
-
-GrOpMemoryPool* GrContextPriv::opMemoryPool() {
-    return this->refOpMemoryPool().get();
+    return fContext->refOpMemoryPool();
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,

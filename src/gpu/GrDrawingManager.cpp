@@ -598,7 +598,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
                                                         resourceProvider,
                                                         fContext->priv().refOpMemoryPool(),
                                                         rtp,
-                                                        fContext->priv().getAuditTrail()));
+                                                        fContext->priv().auditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
     if (managedOpList) {
@@ -638,7 +638,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().resourceProvider(),
                                                       fContext->priv().refOpMemoryPool(),
                                                       textureProxy,
-                                                      fContext->priv().getAuditTrail()));
+                                                      fContext->priv().auditTrail()));
 
     SkASSERT(textureProxy->getLastOpList() == opList.get());
 
@@ -731,7 +731,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                         fContext, this, std::move(rtp),
                                                         std::move(colorSpace),
                                                         surfaceProps,
-                                                        fContext->priv().getAuditTrail(),
+                                                        fContext->priv().auditTrail(),
                                                         fSingleOwner, managedOpList));
 }
 
@@ -755,6 +755,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
                                                         std::move(colorSpace),
-                                                        fContext->priv().getAuditTrail(),
+                                                        fContext->priv().auditTrail(),
                                                         fSingleOwner));
 }
