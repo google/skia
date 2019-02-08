@@ -21,18 +21,6 @@ using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;
 using sk_app::GLWindowContext;
 
-@interface RasterView : NSOpenGLView
-@end
-
-@implementation RasterView
-
-- (void)drawRect:(NSRect)dirtyRect {
-    // not sure why the parent isn't getting this, but we'll pass it up
-    [[self superview] drawRect:dirtyRect];
-}
-
-@end
-
 namespace {
 
 // TODO: This still uses GL to handle the update rather than using a purely raster backend,
@@ -53,7 +41,7 @@ public:
 
 private:
     NSView*              fMainView;
-    RasterView*          fRasterView;
+    NSOpenGLView*        fRasterView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
     sk_sp<SkSurface>     fBackbufferSurface;
@@ -122,7 +110,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
 
     // create view
     NSRect rect = fMainView.bounds;
-    fRasterView = [[RasterView alloc] initWithFrame:rect];
+    fRasterView = [[NSOpenGLView alloc] initWithFrame:rect];
     if (nil == fRasterView) {
         [fGLContext release];
         fGLContext = nil;
