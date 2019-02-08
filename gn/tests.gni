@@ -263,6 +263,7 @@ tests_sources = [
   "$_tests/TableColorFilterTest.cpp",
   "$_tests/TemplatesTest.cpp",
   "$_tests/TessellatingPathRendererTests.cpp",
+  "$_tests/TextureBindingsResetTest.cpp",
   "$_tests/Test.cpp",
   "$_tests/TestTest.cpp",
   "$_tests/TestUtils.h",

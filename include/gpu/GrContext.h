@@ -90,6 +90,17 @@ public:
     void resetContext(uint32_t state = kAll_GrBackendState);
 
     /**
+     * If the backend is GrBackendApi::kOpenGL, then all texture unit/target combinations for which
+     * the GrContext has modified the bound texture will have texture id 0 bound. This does not
+     * flush the GrContext. Calling resetContext() does not change the set that will be bound
+     * to texture id 0 on the next call to resetGLTextureBindings(). After this is called
+     * all unit/target combinations are considered to have unmodified bindings until the GrContext
+     * subsequently modifies them (meaning if this is called twice in a row with no intervening
+     * GrContext usage then the second call is a no-op.)
+     */
+    void resetGLTextureBindings();
+
+    /**
      * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the

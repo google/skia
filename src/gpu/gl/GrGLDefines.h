@@ -1038,9 +1038,11 @@
 
 /* GL_OES_EGL_image_external */
 #define GR_GL_TEXTURE_EXTERNAL                              0x8D65
+#define GR_GL_TEXTURE_BINDING_EXTERNAL                      0x8D67
 
 /* GL_ARB_texture_rectangle or GL_ANGLE_texture_rectangle */
 #define GR_GL_TEXTURE_RECTANGLE                             0x84F5
+#define GR_GL_TEXTURE_BINDING_RECTANGLE                     0x84F6
 
 /* GL_EXT_window_rectangles */
 #define GR_GL_MAX_WINDOW_RECTANGLES                         0x8f14

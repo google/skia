@@ -193,6 +193,13 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fTextBlobCache->freeAll();
 }
 
+void GrContext::resetGLTextureBindings() {
+    if (this->abandoned() || this->backend() != GrBackendApi::kOpenGL) {
+        return;
+    }
+    fGpu->resetTextureBindings();
+}
+
 void GrContext::resetContext(uint32_t state) {
     ASSERT_SINGLE_OWNER
     fGpu->markContextDirty(state);

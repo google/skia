@@ -154,6 +154,11 @@ public:
     bool regenerateMipMapLevels(GrTexture*);
 
     /**
+     * If the backend API has stateful texture bindings, this resets them back to defaults.
+     */
+    void resetTextureBindings();
+
+    /**
      * Reads a rectangle of pixels from a render target. No sRGB/linear conversions are performed.
      *
      * @param surface       The surface to read from
@@ -452,6 +457,9 @@ private:
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
     virtual void onResetContext(uint32_t resetBits) = 0;
+
+    // Implementation of resetTextureBindings.
+    virtual void onResetTextureBindings() {}
 
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
