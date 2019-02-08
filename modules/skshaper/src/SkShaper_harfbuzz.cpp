@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkShaper.h"
+#include "SkSpan.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -455,18 +456,17 @@ struct ShapedGlyph {
     bool fUnsafeToBreak;
 };
 struct ShapedRun {
-    ShapedRun(const char* utf8Start, const char* utf8End, int numGlyphs, const SkFont& font,
-              UBiDiLevel level, std::unique_ptr<ShapedGlyph[]> glyphs)
-        : fUtf8Start(utf8Start), fUtf8End(utf8End), fNumGlyphs(numGlyphs), fFont(font)
-        , fLevel(level), fGlyphs(std::move(glyphs))
+    ShapedRun(SkSpan<const char> utf8, const SkFont& font, UBiDiLevel level,
+              std::unique_ptr<ShapedGlyph[]> glyphs, int numGlyphs)
+        : fUtf8(utf8), fFont(font), fLevel(level)
+        , fGlyphs(std::move(glyphs)), fNumGlyphs(numGlyphs)
     {}
 
-    const char* fUtf8Start;
-    const char* fUtf8End;
-    int fNumGlyphs;
+    SkSpan<const char> fUtf8;
     SkFont fFont;
     UBiDiLevel fLevel;
     std::unique_ptr<ShapedGlyph[]> fGlyphs;
+    int fNumGlyphs;
     SkVector fAdvance = { 0, 0 };
 };
 struct ShapedLine {
@@ -481,15 +481,11 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& runInfo,
                    const ShapedRun& run, int start, int end,
                    SkPoint* p) {
-    unsigned len = end - start;
+    const unsigned len = end - start;
 
-    const auto buffer = handler->newRunBuffer(runInfo, run.fFont, len, run.fUtf8End - run.fUtf8Start);
+    const auto buffer = handler->newRunBuffer(runInfo, run.fFont, len, run.fUtf8);
     SkASSERT(buffer.glyphs);
     SkASSERT(buffer.positions);
-
-    if (buffer.utf8text) {
-        memcpy(buffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
-    }
 
     for (unsigned i = 0; i < len; i++) {
         // Glyphs are in logical order, but output ltr since PDF readers seem to expect that.
@@ -502,6 +498,7 @@ static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::Ru
         p->fX += glyph.fAdvance.fX;
         p->fY += glyph.fAdvance.fY;
     }
+    handler->commitRun();
 }
 
 static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
@@ -747,7 +744,7 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
         utf8Start = utf8End;
         utf8End = runSegmenter.endOfCurrentRun();
 
-        ShapedRun model(nullptr, nullptr, 0, SkFont(), 0, nullptr);
+        ShapedRun model(SkSpan<const char>(), SkFont(), 0, nullptr, 0);
         bool modelNeedsRegenerated = true;
         int modelOffset = 0;
 
@@ -805,7 +802,7 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
                 }
             }
 
-            ShapedRun best(nullptr, nullptr, 0, SkFont(), 0, nullptr);
+            ShapedRun best(SkSpan<const char>(), SkFont(), 0, nullptr, 0);
             best.fAdvance = { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity };
             SkScalar widthLeft = width - line.fAdvance.fX;
 
@@ -817,15 +814,14 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
 
                 // TODO: adjust breakIteratorCurrent by ignorable whitespace
                 ShapedRun candidate = modelText[breakIteratorCurrent + modelTextOffset].glyphLen
-                                    ? ShapedRun(utf8Start, utf8Start + breakIteratorCurrent,
-                                                modelText[breakIteratorCurrent + modelTextOffset].glyphLen - modelOffset,
-                                                *font->currentFont(),
-                                                bidi->currentLevel(),
-                                                std::unique_ptr<ShapedGlyph[]>())
+                                    ? ShapedRun(SkSpan<const char>(utf8Start, breakIteratorCurrent),
+                                                *font->currentFont(), bidi->currentLevel(),
+                                                std::unique_ptr<ShapedGlyph[]>(),
+                                                modelText[breakIteratorCurrent + modelTextOffset].glyphLen - modelOffset)
                                     : shape(utf8, utf8Bytes,
                                             utf8Start, utf8Start + breakIteratorCurrent,
                                             bidi, language, script, font);
-                if (!candidate.fUtf8Start) {
+                if (!candidate.fUtf8.data()) {
                     //report error
                     return point;
                 }
@@ -834,10 +830,10 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
                 }
                 auto score = [widthLeft](const ShapedRun& run) -> SkScalar {
                     if (run.fAdvance.fX < widthLeft) {
-                        if (run.fUtf8Start == nullptr) {
+                        if (run.fUtf8.data() == nullptr) {
                             return SK_ScalarNegativeInfinity;
                         } else {
-                            return run.fUtf8End - run.fUtf8Start;
+                            return run.fUtf8.size();
                         }
                     } else {
                         return widthLeft - run.fAdvance.fX;
@@ -859,12 +855,12 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
                     memcpy(best.fGlyphs.get(), model.fGlyphs.get() + modelOffset,
                            best.fNumGlyphs * sizeof(ShapedGlyph));
                     modelOffset += best.fNumGlyphs;
-                    modelTextOffset += best.fUtf8End - best.fUtf8Start;
+                    modelTextOffset += best.fUtf8.size();
                     modelTextAdvanceOffset += best.fAdvance;
                 } else {
                     modelNeedsRegenerated = true;
                 }
-                utf8Start = best.fUtf8End;
+                utf8Start = best.fUtf8.end();
                 line.fAdvance += best.fAdvance;
                 line.runs.emplace_back(std::move(best));
 
@@ -1115,7 +1111,7 @@ ShapedRun SkShaper::Impl::shape(const char* utf8,
                                 const ScriptRunIterator* script,
                                 const FontRunIterator* font) const
 {
-    ShapedRun run(nullptr, nullptr, 0, SkFont(), 0, nullptr);
+    ShapedRun run(SkSpan<const char>(), SkFont(), 0, nullptr, 0);
 
     hb_buffer_t* buffer = fBuffer.get();
     SkAutoTCallVProc<hb_buffer_t, hb_buffer_clear_contents> autoClearBuffer(buffer);
@@ -1173,9 +1169,9 @@ ShapedRun SkShaper::Impl::shape(const char* utf8,
         return run;
     }
 
-    run = ShapedRun(utf8Start, utf8End, len, *font->currentFont(),
-                    bidi->currentLevel(),
-                    std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]));
+    run = ShapedRun(SkSpan<const char>(utf8Start, utf8runLength),
+                    *font->currentFont(), bidi->currentLevel(),
+                    std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]), len);
     int scaleX, scaleY;
     hb_font_get_scale(font->currentHBFont(), &scaleX, &scaleY);
     double textSizeY = run.fFont.getSize() / scaleY;

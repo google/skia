@@ -35,12 +35,12 @@ public:
     Cluster next();
 
 private:
-    const uint32_t* fClusters;
-    const char* fUtf8Text;
-    uint32_t fGlyphCount;
-    uint32_t fTextByteLength;
+    uint32_t const * const fClusters;
+    char const * const fUtf8Text;
+    uint32_t const fGlyphCount;
+    uint32_t const fTextByteLength;
+    bool const fReversedChars;
     uint32_t fCurrentGlyphIndex = 0;
-    bool fReversedChars = false;
 };
 
 
