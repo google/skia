@@ -77,6 +77,9 @@ public:
 
     ~GrContext() override;
 
+    bool abandoned1() const override;
+    void abandon1() override;
+
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     /**
@@ -89,6 +92,7 @@ public:
      */
     void resetContext(uint32_t state = kAll_GrBackendState);
 
+#if 0
     /**
      * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
@@ -106,6 +110,7 @@ public:
      * Returns true if the context was abandoned.
      */
     bool abandoned() const;
+#endif
 
     /**
      * This is similar to abandonContext() however the underlying 3D context is not yet lost and

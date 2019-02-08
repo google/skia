@@ -20,6 +20,14 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
 
 GrRecordingContext::~GrRecordingContext() { }
 
+bool GrRecordingContext::abandoned1() const {
+    return INHERITED::abandon1();
+}
+
+void GrRecordingContext::abandon1() {
+    INHERITED::abandon1();
+}
+
 sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
     if (!fOpMemoryPool) {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
