@@ -860,6 +860,8 @@ void GrVkGpuRTCommandBuffer::executeDrawable(std::unique_ptr<SkDrawable::GpuDraw
 
     // After we draw into the command buffer via the drawable, cached state we have may be invalid.
     cbInfo.currentCmdBuf()->invalidateState();
+    // Also assume that the drawable produced output.
+    cbInfo.fIsEmpty = false;
 
     drawable->draw(info);
     fGpu->addDrawable(std::move(drawable));
