@@ -132,6 +132,10 @@ public:
                                         SkScalerContextFlags flags,
                                         SkScalerContextEffects* effects);
 
+    SkGlyphCacheState* getOrCreateCache(const SkDescriptor& desc,
+                                        const SkTypeface& typeface,
+                                        SkScalerContextEffects effects);
+
     void setMaxEntriesInDescriptorMapForTesting(size_t count) {
         fMaxEntriesInDescriptorMap = count;
     }
