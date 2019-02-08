@@ -22,6 +22,30 @@
       "revId": "810d73e2b530a8c0d5ca6c4e7596e2b97888e575",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae6671dc_c2703265",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-08T17:55:54Z",
+      "side": 1,
+      "message": "either works for me.",
+      "parentUuid": "84018c4c_76ab3ee0",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 0
+      },
+      "revId": "810d73e2b530a8c0d5ca6c4e7596e2b97888e575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
