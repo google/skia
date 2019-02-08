@@ -141,6 +141,30 @@
       "revId": "d83a0ac414996872642b9a7aff7f1e649b9abe7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89f50312_cc49be15",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-08T18:41:40Z",
+      "side": 1,
+      "message": "I\u0027m going to do the hasPath/hasImage change in a different CL because I would like to keep this CL focused on the RemoteGlyphCache.",
+      "parentUuid": "3cb74f6f_e59942fc",
+      "range": {
+        "startLine": 544,
+        "startChar": 20,
+        "endLine": 544,
+        "endChar": 81
+      },
+      "revId": "d83a0ac414996872642b9a7aff7f1e649b9abe7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
