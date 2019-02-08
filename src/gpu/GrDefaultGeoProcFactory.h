@@ -12,8 +12,6 @@
 #include "GrGeometryProcessor.h"
 #include "GrShaderCaps.h"
 
-constexpr int kMaxBones = 80; // Supports up to 80 bones per mesh.
-
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
  * view matrix and wire through color, coverage, UV coords if requested.
@@ -78,15 +76,6 @@ namespace GrDefaultGeoProcFactory {
         const SkMatrix* fMatrix;
     };
 
-    struct Bones {
-        Bones(const float bones[], int boneCount)
-            : fBones(bones)
-            , fBoneCount(boneCount) {}
-
-        const float* fBones;
-        int fBoneCount;
-    };
-
     sk_sp<GrGeometryProcessor> Make(const GrShaderCaps*,
                                     const Color&,
                                     const Coverage&,
@@ -103,18 +92,6 @@ namespace GrDefaultGeoProcFactory {
                                                   const Coverage&,
                                                   const LocalCoords&,
                                                   const SkMatrix& viewMatrix);
-
-    /*
-     * Use this factory to create a GrGeometryProcessor that supports skeletal animation through
-     * deformation of vertices using matrices that are passed in. This should only be called from
-     * GrDrawVerticesOp.
-     */
-    sk_sp<GrGeometryProcessor> MakeWithBones(const GrShaderCaps*,
-                                             const Color&,
-                                             const Coverage&,
-                                             const LocalCoords&,
-                                             const Bones&,
-                                             const SkMatrix& viewMatrix);
 };
 
 #endif

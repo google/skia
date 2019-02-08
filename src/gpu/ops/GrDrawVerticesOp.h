@@ -76,7 +76,6 @@ private:
 
     void fillBuffers(bool hasColorAttribute,
                      bool hasLocalCoordsAttribute,
-                     bool hasBoneAttribute,
                      size_t vertexStride,
                      void* verts,
                      uint16_t* indices) const;
@@ -90,8 +89,7 @@ private:
 
     sk_sp<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,
                                       bool* hasColorAttribute,
-                                      bool* hasLocalCoordAttribute,
-                                      bool* hasBoneAttribute) const;
+                                      bool* hasLocalCoordAttribute) const;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -108,7 +106,6 @@ private:
         SkMatrix fViewMatrix;
         bool fIgnoreTexCoords;
         bool fIgnoreColors;
-        bool fIgnoreBones;
 
         bool hasExplicitLocalCoords() const {
             return fVertices->hasTexCoords() && !fIgnoreTexCoords;
@@ -116,10 +113,6 @@ private:
 
         bool hasPerVertexColors() const {
             return fVertices->hasColors() && !fIgnoreColors;
-        }
-
-        bool hasBones() const {
-            return fVertices->hasBones() && !fIgnoreBones;
         }
     };
 
@@ -140,20 +133,14 @@ private:
         return SkToBool(kHasMultipleViewMatrices_Flag & fFlags);
     }
 
-    bool hasBones() const {
-        return SkToBool(kHasBones_Flag & fFlags);
-    }
-
     enum Flags {
         kRequiresPerVertexColors_Flag       = 0x1,
         kAnyMeshHasExplicitLocalCoords_Flag = 0x2,
         kHasMultipleViewMatrices_Flag       = 0x4,
-        kHasBones_Flag                      = 0x8,
     };
 
     Helper fHelper;
     SkSTArray<1, Mesh, true> fMeshes;
-    std::vector<SkVertices::Bone> fBones; // Bone transformation matrices.
     // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
     // the SkVertices mode (though fPrimitiveType may have been inferred from it).
     GrPrimitiveType fPrimitiveType;
