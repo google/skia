@@ -182,6 +182,8 @@ private:
     // GrGpu overrides
     void onResetContext(uint32_t resetBits) override;
 
+    void onResetTextureBindings() override;
+
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -603,12 +605,17 @@ private:
         TextureUnitBindings& operator=(const TextureUnitBindings&) = delete;
 
         GrGpuResource::UniqueID boundID(GrGLenum target) const;
+        bool hasBeenModified(GrGLenum target) const;
         void setBoundID(GrGLenum target, GrGpuResource::UniqueID);
-        void invalidate(GrGLenum target);
-        void invalidateAllTargets();
+        void invalidateForScratchUse(GrGLenum target);
+        void invalidateAllTargets(bool markUnmodified);
 
     private:
-        GrGpuResource::UniqueID fBoundResourceIDs[3];
+        struct TargetBinding {
+            GrGpuResource::UniqueID fBoundResourceID;
+            bool fHasBeenModified = false;
+        };
+        TargetBinding fTargetBindings[3];
     };
     SkAutoTArray<TextureUnitBindings> fHWTextureUnitBindings;
 

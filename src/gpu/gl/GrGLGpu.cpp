@@ -199,20 +199,29 @@ static int gl_target_to_binding_index(GrGLenum target) {
 }
 
 GrGpuResource::UniqueID GrGLGpu::TextureUnitBindings::boundID(GrGLenum target) const {
-    return fBoundResourceIDs[gl_target_to_binding_index(target)];
+    return fTargetBindings[gl_target_to_binding_index(target)].fBoundResourceID;
+}
+
+bool GrGLGpu::TextureUnitBindings::hasBeenModified(GrGLenum target) const {
+    return fTargetBindings[gl_target_to_binding_index(target)].fHasBeenModified;
 }
 
 void GrGLGpu::TextureUnitBindings::setBoundID(GrGLenum target, GrGpuResource::UniqueID resourceID) {
-    fBoundResourceIDs[gl_target_to_binding_index(target)] = resourceID;
+    int targetIndex = gl_target_to_binding_index(target);
+    fTargetBindings[targetIndex].fBoundResourceID = resourceID;
+    fTargetBindings[targetIndex].fHasBeenModified = true;
 }
 
-void GrGLGpu::TextureUnitBindings::invalidate(GrGLenum target) {
-    fBoundResourceIDs[gl_target_to_binding_index(target)].makeInvalid();
+void GrGLGpu::TextureUnitBindings::invalidateForScratchUse(GrGLenum target) {
+    this->setBoundID(target, GrGpuResource::UniqueID());
 }
 
-void GrGLGpu::TextureUnitBindings::invalidateAllTargets() {
-    for (auto& resourceID : fBoundResourceIDs) {
-        resourceID.makeInvalid();
+void GrGLGpu::TextureUnitBindings::invalidateAllTargets(bool markUnmodified) {
+    for (auto& targetBinding : fTargetBindings) {
+        targetBinding.fBoundResourceID.makeInvalid();
+        if (markUnmodified) {
+            targetBinding.fHasBeenModified = false;
+        }
     }
 }
 
@@ -586,7 +595,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     if (resetBits & kTextureBinding_GrGLBackendState) {
         for (int s = 0; s < this->numTextureUnits(); ++s) {
-            fHWTextureUnitBindings[s].invalidateAllTargets();
+            fHWTextureUnitBindings[s].invalidateAllTargets(false);
         }
         if (fSamplerObjectCache) {
             fSamplerObjectCache->invalidateBindings();
@@ -3107,6 +3116,20 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
     texture->setCachedParams(samplerParamsToRecord, newNonSamplerParams, this->getResetTimestamp());
 }
 
+void GrGLGpu::onResetTextureBindings() {
+    static constexpr GrGLenum kTargets[] = {GR_GL_TEXTURE_2D, GR_GL_TEXTURE_RECTANGLE,
+                                            GR_GL_TEXTURE_EXTERNAL};
+    for (int i = 0; i < this->numTextureUnits(); ++i) {
+        this->setTextureUnit(i);
+        for (auto target : kTargets) {
+            if (fHWTextureUnitBindings[i].hasBeenModified(target)) {
+                GL_CALL(BindTexture(target, 0));
+            }
+        }
+        fHWTextureUnitBindings[i].invalidateAllTargets(true);
+    }
+}
+
 void GrGLGpu::flushColorWrite(bool writeColor) {
     if (!writeColor) {
         if (kNo_TriState != fHWWriteToColor) {
@@ -3150,7 +3173,7 @@ void GrGLGpu::bindTextureToScratchUnit(GrGLenum target, GrGLint textureID) {
     }
     // Clear out the this field so that if a GrGLProgram does use this unit it will rebind the
     // correct texture.
-    fHWTextureUnitBindings[lastUnitIdx].invalidate(target);
+    fHWTextureUnitBindings[lastUnitIdx].invalidateForScratchUse(target);
     GL_CALL(BindTexture(target, textureID));
 }
 
@@ -3980,10 +4003,8 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(const void* pixels, in
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fID = 0;
     GL_CALL(GenTextures(1, &info.fID));
-    GL_CALL(ActiveTexture(GR_GL_TEXTURE0));
+    this->bindTextureToScratchUnit(info.fTarget, info.fID);
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-    GL_CALL(BindTexture(info.fTarget, info.fID));
-    fHWTextureUnitBindings[0].invalidate(info.fTarget);
     GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MAG_FILTER, GR_GL_NEAREST));
     GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_MIN_FILTER, GR_GL_NEAREST));
     GL_CALL(TexParameteri(info.fTarget, GR_GL_TEXTURE_WRAP_S, GR_GL_CLAMP_TO_EDGE));
