@@ -17,18 +17,6 @@ using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;
 using sk_app::GLWindowContext;
 
-@interface GLView : NSOpenGLView
-@end
-
-@implementation GLView
-
-- (void)drawRect:(NSRect)dirtyRect {
-    // not sure why the parent isn't getting this, but we'll pass it up
-    [[self superview] drawRect:dirtyRect];
-}
-
-@end
-
 namespace {
 
 class GLWindowContext_mac : public GLWindowContext {
@@ -44,7 +32,7 @@ public:
 
 private:
     NSView*              fMainView;
-    GLView*              fGLView;
+    NSOpenGLView*        fGLView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
 
@@ -111,7 +99,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
 
     // create view
     NSRect rect = fMainView.bounds;
-    fGLView = [[GLView alloc] initWithFrame:rect];
+    fGLView = [[NSOpenGLView alloc] initWithFrame:rect];
     if (nil == fGLView) {
         [fGLContext release];
         fGLContext = nil;

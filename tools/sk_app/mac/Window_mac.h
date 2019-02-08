@@ -16,6 +16,8 @@ namespace sk_app {
 
 class Window_mac : public Window {
 public:
+    static SkTDArray<Window_mac*> gActiveWindows;
+
     Window_mac()
             : INHERITED()
             , fWindow(nil)
@@ -31,7 +33,8 @@ public:
 
     bool attach(BackendType) override;
 
-    void onInval() override;
+    void onInval() override {}
+    bool needsPaint() { return this->fIsContentInvalidated; }
 
     NSView* view() { return [fWindow contentView]; }
     void closeWindow();

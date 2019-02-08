@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "../Application.h"
+#include "Window_mac.h"
 
 @interface AppDelegate : NSObject<NSApplicationDelegate, NSWindowDelegate>
 
@@ -39,6 +40,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 using sk_app::Application;
+using sk_app::Window_mac;
 
 int main(int argc, char * argv[]) {
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1070
@@ -79,6 +81,15 @@ int main(int argc, char * argv[]) {
 
     // Now we process the events
     while (![appDelegate done]) {
+        // Rather than depending on a Mac event to drive this, we treat our window
+        // invalidation flag as a separate event stream. Window::onPaint() will clear
+        // the invalidation flag, effectively removing it from the stream.
+        for (int i = 0; i < Window_mac::gActiveWindows.count(); ++i) {
+            if (Window_mac::gActiveWindows[i]->needsPaint()) {
+                Window_mac::gActiveWindows[i]->onPaint();
+            }
+        }
+
         NSEvent* event;
         do {
             event = [NSApp nextEventMatchingMask:NSAnyEventMask

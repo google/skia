@@ -27,7 +27,7 @@ using sk_app::Window;
 
 namespace sk_app {
 
-static int gWindowCount = 0;
+SkTDArray<Window_mac*> Window_mac::gActiveWindows;
 
 Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
@@ -36,7 +36,7 @@ Window* Window::CreateNativeWindow(void*) {
         return nullptr;
     }
 
-    ++gWindowCount;
+    Window_mac::gActiveWindows.push_back(window);
     return window;
 }
 
@@ -105,7 +105,11 @@ bool Window_mac::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
-
+#ifdef SK_METAL
+        case kMetal_BackendType:
+            fWindowContext = NewMetalForMac(info, fRequestedDisplayParams);
+            break;
+#endif
         case kNativeGL_BackendType:
         default:
             fWindowContext = NewGLForMac(info, fRequestedDisplayParams);
@@ -114,14 +118,6 @@ bool Window_mac::attach(BackendType attachType) {
     this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
-}
-
-void Window_mac::onInval() {
-    [[fWindow contentView] setNeedsDisplay:YES];
-    // MacOS already queues a single drawRect event for multiple invalidations
-    // so we don't need to use our invalidation method (and it can mess things up
-    // if for some reason MacOS skips a drawRect when we need one).
-    this->markInvalProcessed();
 }
 
 }   // namespace sk_app
@@ -146,8 +142,10 @@ void Window_mac::onInval() {
 }
 
 - (BOOL)windowShouldClose:(NSWindow*)sender {
-    --sk_app::gWindowCount;
-    if (sk_app::gWindowCount < 1) {
+    sk_app::Window_mac* macWindow = reinterpret_cast<sk_app::Window_mac*>(fWindow);
+    int windowIndex = sk_app::Window_mac::gActiveWindows.find(macWindow);
+    sk_app::Window_mac::gActiveWindows.remove(windowIndex);
+    if (sk_app::Window_mac::gActiveWindows.count() < 1) {
         [NSApp terminate:self];
     }
 
