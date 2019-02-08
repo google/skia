@@ -39,10 +39,16 @@
 
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
+    auto s = SkMakeBitmapShader(bitmap, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                matrix, kNever_SkCopyPixelsMode);
+    if (bitmap.colorType() == kAlpha_8_SkColorType && origPaint.getShader()) {
+        // Must compose the two shaders instead of overwriting, since the original still
+        // affects the output when it's an alpha image.
+        s = SkShader::MakeCompose(origPaint.refShader(), std::move(s), SkBlendMode::kDstIn);
+        // s = SkShader::MakeCompose(std::move(s), origPaint.refShader(), SkBlendMode::kSrcIn);
+    }
     SkPaint paint(origPaint);
-    paint.setShader(SkMakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                       SkShader::kClamp_TileMode, matrix,
-                                       kNever_SkCopyPixelsMode));
+    paint.setShader(std::move(s));
     return paint;
 }
 
@@ -1114,7 +1120,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter()) {
+    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter() &&
+        !paint->getShader()) {
         draw.drawBitmapAsMask(bitmap, *paint);
     } else {
         SkPaint paintWithShader = make_paint_with_image(*paint, bitmap);
