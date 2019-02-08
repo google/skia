@@ -347,9 +347,11 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         if (glyph.isEmpty()) {
             perEmpty(glyph, glyphPos);
         } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-            if (pathCache->hasPath(glyph)) {
+            if (pathCache->decideCouldDrawFromPath(glyph)) {
                 perPath(glyph, glyphPos);
             } else {
+                // This happens when a bitmap-only font has a very large glyph compared to the
+                // rest of the glyphs. This doesn't happen in practice.
                 perEmpty(glyph, glyphPos);
             }
         } else {
@@ -399,7 +401,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
             if (glyph.isEmpty()) {
                 emptyGlyphs.push_back(&glyph);
             } else if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
-                if (cache->hasPath(glyph)) {
+                if (cache->decideCouldDrawFromPath(glyph)) {
                     fPaths.push_back({&glyph, mappedPt});
                 } else {
                     // This happens when a bitmap-only font is forced to scale very large. This
@@ -407,12 +409,8 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
                     emptyGlyphs.push_back(&glyph);
                 }
             } else {
-                if (cache->hasImage(glyph)) {
-                    fMasks[glyphCount++] = {&glyph, mappedPt};
-                } else {
-                    // In practice, this never happens.
-                    emptyGlyphs.push_back(&glyph);
-                }
+                // If the glyph is not empty, then it will have a pointer to mask data.
+                fMasks[glyphCount++] = {&glyph, mappedPt};
             }
         }
     }
@@ -446,14 +444,10 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
             perEmpty(glyph, glyphPos);
         } else if (glyph.fMaskFormat == SkMask::kSDF_Format) {
             if (!SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
-                // TODO: this check is probably not needed. Remove when proven.
-                if (cache->hasImage(glyph)) {
-                    perSDF(glyph, glyphPos);
-                } else {
-                    perEmpty(glyph, glyphPos);
-                }
+                // If the glyph is not empty, then it will have a pointer to SDF data.
+                perSDF(glyph, glyphPos);
             } else {
-                if (cache->hasPath(glyph)) {
+                if (cache->decideCouldDrawFromPath(glyph)) {
                     perPath(glyph, glyphPos);
                 } else {
                     perEmpty(glyph, glyphPos);

@@ -127,9 +127,7 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
-    bool hasImage(const SkGlyph& glyph) override;
-
-    bool hasPath(const SkGlyph& glyph) override;
+    bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }
