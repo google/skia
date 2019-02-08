@@ -346,6 +346,11 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     return false;
 }
 
+void GrGpu::resetTextureBindings() {
+    this->handleDirtyContext();
+    this->onResetTextureBindings();
+}
+
 void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();

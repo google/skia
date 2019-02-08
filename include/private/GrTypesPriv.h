@@ -241,8 +241,8 @@ enum class GrScissorTest : bool {
 };
 
 struct GrMipLevel {
-    const void* fPixels;
-    size_t fRowBytes;
+    const void* fPixels = nullptr;
+    size_t fRowBytes = 0;
 };
 
 /**
