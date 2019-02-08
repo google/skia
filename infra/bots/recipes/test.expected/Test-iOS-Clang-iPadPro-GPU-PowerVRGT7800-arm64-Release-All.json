@@ -649,6 +649,8 @@
       "iPadPro",
       "os",
       "iOS",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "tmp/uninteresting_hashes.txt",
       "--writePath",

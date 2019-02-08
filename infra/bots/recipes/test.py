@@ -948,6 +948,11 @@ def test_steps(api):
 
   if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
     keys.extend(['renderer', 'skottie'])
+  if 'DDL' in api.vars.builder_cfg.get('extra_config', ''):
+    # 'DDL' style means "--skpViewportSize 2048 --pr ~small"
+    keys.extend(['style', 'DDL'])
+  else:
+    keys.extend(['style', 'default'])
 
   args.extend(keys)
 

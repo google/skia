@@ -197,6 +197,8 @@
       "Ubuntu17",
       "renderer",
       "skottie",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",

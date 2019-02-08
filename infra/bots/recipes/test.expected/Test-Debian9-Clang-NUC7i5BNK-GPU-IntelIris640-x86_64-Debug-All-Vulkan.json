@@ -249,6 +249,8 @@
       "NUC7i5BNK",
       "os",
       "Debian9",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",

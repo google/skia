@@ -467,6 +467,8 @@
       "Chorizo",
       "os",
       "Chromecast",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "/cache/skia/uninteresting_hashes.txt",
       "--writePath",
