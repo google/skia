@@ -36,12 +36,8 @@ public:
         return fCache.getGlyphMetrics(glyphID, position);
     }
 
-    bool hasImage(const SkGlyph& glyph) override {
-        return fCache.hasImage(glyph);
-    }
-
-    bool hasPath(const SkGlyph& glyph) override {
-        return fCache.hasPath(glyph);
+    bool decideShouldDrawFromPath(const SkGlyph& glyph) override {
+        return fCache.decideShouldDrawFromPath(glyph);
     }
 
     SkStrikeCache* const            fStrikeCache;
