@@ -305,7 +305,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
             : fAlignFactor(AlignFactor(align)) {}
 
         Buffer newRunBuffer(const RunInfo& info, const SkFont& font, int glyphCount,
-                            int utf8textCount) override {
+                            SkSpan<const char> utf8) override {
             fPendingLineAdvance += info.fAdvance;
 
             auto& run = fPendingLineRuns.emplace_back(font, info, glyphCount);
@@ -314,9 +314,10 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
                 run.fGlyphs   .data(),
                 run.fPositions.data(),
                 nullptr,
-                nullptr,
             };
         }
+
+        void commitRun() override { }
 
         void commitLine() override {
             SkScalar line_spacing = 0;

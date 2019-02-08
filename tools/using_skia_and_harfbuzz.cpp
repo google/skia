@@ -139,7 +139,7 @@ public:
     }
 
     void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
-        SkTextBlobBuilderRunHandler textBlobBuilder;
+        SkTextBlobBuilderRunHandler textBlobBuilder(text);
         SkPoint endPoint = shaper.shape(&textBlobBuilder, font, text, textBytes, true,
                                         SkPoint{0, 0},
                                         config->page_width.value - 2*config->left_margin.value);

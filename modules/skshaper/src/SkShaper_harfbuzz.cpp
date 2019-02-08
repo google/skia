@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkShaper.h"
+#include "SkSpan.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -481,15 +482,16 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& runInfo,
                    const ShapedRun& run, int start, int end,
                    SkPoint* p) {
-    unsigned len = end - start;
+    const unsigned len = end - start;
+    const uint32_t runStartCluster = run.fGlyphs[0].fCluster;
+    const uint32_t startCluster = run.fGlyphs[start].fCluster;
+    const uint32_t endCluster = end < run.fNumGlyphs ? run.fGlyphs[end].fCluster
+                                                     : runStartCluster + (run.fUtf8End - run.fUtf8Start);
 
-    const auto buffer = handler->newRunBuffer(runInfo, run.fFont, len, run.fUtf8End - run.fUtf8Start);
+    const auto buffer = handler->newRunBuffer(runInfo, run.fFont, len,
+                                              SkSpan<const char>(run.fUtf8Start - runStartCluster + startCluster, endCluster - startCluster));
     SkASSERT(buffer.glyphs);
     SkASSERT(buffer.positions);
-
-    if (buffer.utf8text) {
-        memcpy(buffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
-    }
 
     for (unsigned i = 0; i < len; i++) {
         // Glyphs are in logical order, but output ltr since PDF readers seem to expect that.
@@ -502,6 +504,7 @@ static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::Ru
         p->fX += glyph.fAdvance.fX;
         p->fY += glyph.fAdvance.fY;
     }
+    handler->commitRun();
 }
 
 static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
