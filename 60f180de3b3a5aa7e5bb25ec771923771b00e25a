@@ -16,6 +16,24 @@
       "revId": "60f180de3b3a5aa7e5bb25ec771923771b00e25a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d60b7f81_0beafdf1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-08T13:46:08Z",
+      "side": 1,
+      "message": "\u003e This is harmless, but is this actually triggering anywhere?\n\nYes. More information in the associated bug. Are you able to view it? (I cc\u0027ed you on it, so I think you should be able to.)\n\n\u003e If the frame_rect is empty then the dirty_rect should always be empty, since the d_r is a sub-rect of the f_r.\n\nThat was my expectation as well.",
+      "parentUuid": "bef4c3d1_30354cf4",
+      "revId": "60f180de3b3a5aa7e5bb25ec771923771b00e25a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
