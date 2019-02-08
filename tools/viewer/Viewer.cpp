@@ -1425,7 +1425,7 @@ static ImVec2 ImGui_DragPoint(const char* label, SkPoint* p,
 
     // Return screen coordinates for the caller. We could just return center here, but we'd have
     // one frame of lag during drag.
-    return ImVec2(pos.x + p->fX * size.x, pos.y + p->fY * size.y);
+    return ImVec2(p->fX * size.x, p->fY * size.y);
 }
 
 static bool ImGui_DragLocation(SkPoint* pt) {
@@ -1451,37 +1451,32 @@ static bool ImGui_DragLocation(SkPoint* pt) {
 }
 
 static bool ImGui_DragQuad(SkPoint* pts) {
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImGui::DragCanvas dc;
 
-    // Fit our image/canvas to the available width, and scale the height to maintain aspect ratio.
-    float canvasWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 50.0f);
-    ImVec2 size = ImVec2(canvasWidth, canvasWidth);
-    ImVec2 pos = ImGui::GetCursorScreenPos();
+    SkPoint p[4];
+    for (int i = 0; i < 4; ++i) {
+        p[i] = dc.dragPoint(pts + i);
+    }
 
-    // Background rectangle
-    drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(0, 0, 0, 128));
+    dc.resetCursor();
 
-    // Corner markers
-    bool dragging = false;
-    ImVec2 tl = ImGui_DragPoint("TL", pts + 0, pos, size, &dragging);
-    ImVec2 tr = ImGui_DragPoint("TR", pts + 1, pos, size, &dragging);
-    ImVec2 bl = ImGui_DragPoint("BL", pts + 2, pos, size, &dragging);
-    ImVec2 br = ImGui_DragPoint("BR", pts + 3, pos, size, &dragging);
+    ImGui::SkiaWidget(dc.fSize, [=](SkCanvas* canvas) {
+        canvas->drawColor(0x40000000);
 
-    // Draw markers and quad
-    drawList->AddCircle(tl, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(tr, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(bl, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(br, 5.0f, 0xFFFFFFFF);
-    drawList->AddLine(tl, tr, 0xFFFFFFFF);
-    drawList->AddLine(tr, br, 0xFFFFFFFF);
-    drawList->AddLine(br, bl, 0xFFFFFFFF);
-    drawList->AddLine(bl, tl, 0xFFFFFFFF);
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(SK_ColorWHITE);
+        paint.setAntiAlias(true);
+        for (int i = 0; i < 4; ++i) {
+            canvas->drawCircle(p[i], 5.0f, paint);
+        }
+        canvas->drawLine(p[0], p[1], paint);
+        canvas->drawLine(p[1], p[3], paint);
+        canvas->drawLine(p[3], p[2], paint);
+        canvas->drawLine(p[2], p[0], paint);
+    });
 
-    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
-    ImGui::Spacing();
-
-    return dragging;
+    return dc.fDragging;
 }
 
 void Viewer::drawImGui() {
@@ -1965,7 +1960,7 @@ void Viewer::drawImGui() {
                             SkGetPackedB32(pixel), SkGetPackedA32(pixel));
             }
 
-            fImGuiLayer.skiaWidget(avail, [=](SkCanvas* c) {
+            ImGui::SkiaWidget(avail, [=](SkCanvas* c) {
                 // Translate so the region of the image that's under the mouse cursor is centered
                 // in the zoom canvas:
                 c->scale(zoomFactor, zoomFactor);
