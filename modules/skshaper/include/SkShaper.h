@@ -16,6 +16,23 @@
 
 class SkFont;
 
+class RunIterator {
+ public:
+  virtual ~RunIterator() {}
+  virtual void consume() = 0;
+  // Pointer one past the last (utf8) element in the current run.
+  virtual const char* endOfCurrentRun() const = 0;
+  virtual bool atEnd() const = 0;
+  bool operator<(const RunIterator& that) const {
+    return this->endOfCurrentRun() < that.endOfCurrentRun();
+  }
+};
+
+class FontRunIterator : public RunIterator {
+ public:
+  virtual const SkFont* currentFont() const = 0;
+};
+
 /**
    Shapes text using HarfBuzz and places the shaped text into a
    client-managed buffer.
@@ -25,6 +42,7 @@ class SkFont;
 class SkShaper {
 public:
     SkShaper(sk_sp<SkTypeface> face);
+    SkShaper();
     ~SkShaper();
 
     class RunHandler {
@@ -51,10 +69,21 @@ public:
 
         // Callback per line.
         virtual void commitLine() = 0;
+        virtual void addWord(const char* start, const char* end, SkPoint point, SkVector advance, SkScalar baseline) { }
+        virtual void addLine(const char* start, const char* end, SkPoint point, SkVector advance, size_t lineIndex, bool lastLine) { }
     };
 
     bool good() const;
-    SkPoint shape(RunHandler* handler,
+
+  SkPoint shape(RunHandler* handler,
+                FontRunIterator* font,
+                const char* utf8text,
+                size_t textBytes,
+                bool leftToRight, // TODO: take from the font iterator
+                SkPoint point,
+                SkScalar width) const;
+
+  SkPoint shape(RunHandler* handler,
                   const SkFont& srcFont,
                   const char* utf8text,
                   size_t textBytes,
@@ -83,6 +112,20 @@ public:
 
 private:
     SkTextBlobBuilder fBuilder;
+};
+
+class SkPrinterRunHandler final : public SkShaper::RunHandler {
+ public:
+
+  sk_sp<SkTextBlob> makeBlob();
+  SkShaper::RunHandler::Buffer newRunBuffer(const RunInfo&, const SkFont&, int, int) override;
+
+  void commitLine() override { }
+  void addWord(const char* start, const char* end, SkPoint point, SkVector advance, SkScalar baseline) override;
+  void addLine(const char* start, const char* end, SkPoint point, SkVector advance, size_t lineIndex, bool lastLine) override;
+
+ private:
+  SkTextBlobBuilder fBuilder;
 };
 
 #endif  // SkShaper_DEFINED

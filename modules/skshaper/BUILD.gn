@@ -11,7 +11,14 @@ import("../../gn/skia.gni")
 
 config("public_config") {
   if (skia_enable_skshaper) {
-    include_dirs = [ "include" ]
+    include_dirs = [ "include",
+            "../../third_party/icu",
+            "../../third_party/externals/harfbuzz/src",
+            "../../third_party/externals/icu/source/common",
+            "../../src/utils",
+            "../../src/core",
+            "../../include/private",
+      ]
   }
 }
 
@@ -23,6 +30,8 @@ source_set("skshaper") {
     deps = [
       "../..:skia",
     ]
+    defines = [ ]
+    defines += [ "SK_USING_THIRD_PARTY_ICU" ]
     if (target_cpu == "wasm" || !skia_use_icu) {
       sources = skia_shaper_primitive_sources
     } else {

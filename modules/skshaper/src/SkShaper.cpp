@@ -24,3 +24,30 @@ SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::newRunBuffer(const Run
 sk_sp<SkTextBlob> SkTextBlobBuilderRunHandler::makeBlob() {
     return fBuilder.make();
 }
+
+SkShaper::RunHandler::Buffer SkPrinterRunHandler::newRunBuffer(const RunInfo&,
+                                                               const SkFont& font,
+                                                               int glyphCount,
+                                                               int textCount) {
+  const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, font, glyphCount,
+                                                                 textCount, SkString());
+  return { runBuffer.glyphs,
+           runBuffer.points(),
+           runBuffer.utf8text,
+           runBuffer.clusters };
+}
+
+void SkPrinterRunHandler::addWord(const char* start, const char* end, SkPoint point, SkVector advance, SkScalar baseline) {
+  SkString word(start, end - start);
+  SkDebugf("Word: '%s'\n", word.c_str());
+}
+
+void SkPrinterRunHandler::addLine(const char* start, const char* end, SkPoint point, SkVector advance, size_t lineIndex, bool lastLine) {
+
+  SkString line(start, end - start);
+  SkDebugf("Line #%d: '%s'\n", lineIndex, line.c_str());
+}
+
+sk_sp<SkTextBlob> SkPrinterRunHandler::makeBlob() {
+  return fBuilder.make();
+}

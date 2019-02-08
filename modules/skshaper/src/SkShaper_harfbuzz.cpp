@@ -50,6 +50,22 @@ template <> struct is_bitmask_enum<hb_buffer_flags_t> : std::true_type {};
 }
 
 namespace {
+enum hb_buffer_scratch_flags_t {
+  HB_BUFFER_SCRATCH_FLAG_DEFAULT			= 0x00000000u,
+  HB_BUFFER_SCRATCH_FLAG_HAS_NON_ASCII			= 0x00000001u,
+  HB_BUFFER_SCRATCH_FLAG_HAS_DEFAULT_IGNORABLES		= 0x00000002u,
+  HB_BUFFER_SCRATCH_FLAG_HAS_SPACE_FALLBACK		= 0x00000004u,
+  HB_BUFFER_SCRATCH_FLAG_HAS_GPOS_ATTACHMENT		= 0x00000008u,
+  HB_BUFFER_SCRATCH_FLAG_HAS_UNSAFE_TO_BREAK		= 0x00000010u,
+  HB_BUFFER_SCRATCH_FLAG_HAS_CGJ			= 0x00000020u,
+
+  /* Reserved for complex shapers' internal use. */
+      HB_BUFFER_SCRATCH_FLAG_COMPLEX0			= 0x01000000u,
+  HB_BUFFER_SCRATCH_FLAG_COMPLEX1			= 0x02000000u,
+  HB_BUFFER_SCRATCH_FLAG_COMPLEX2			= 0x04000000u,
+  HB_BUFFER_SCRATCH_FLAG_COMPLEX3			= 0x08000000u,
+};
+
 template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
 using HBBlob   = resource<hb_blob_t     , hb_blob_destroy  >;
 using HBFace   = resource<hb_face_t     , hb_face_destroy  >;
@@ -124,18 +140,6 @@ static inline SkUnichar utf8_next(const char** ptr, const char* end) {
     }
     return val;
 }
-
-class RunIterator {
-public:
-    virtual ~RunIterator() {}
-    virtual void consume() = 0;
-    // Pointer one past the last (utf8) element in the current run.
-    virtual const char* endOfCurrentRun() const = 0;
-    virtual bool atEnd() const = 0;
-    bool operator<(const RunIterator& that) const {
-        return this->endOfCurrentRun() < that.endOfCurrentRun();
-    }
-};
 
 class BiDiRunIterator : public RunIterator {
 public:
@@ -275,95 +279,97 @@ private:
     hb_script_t fCurrentScript;
 };
 
-class FontRunIterator : public RunIterator {
-public:
-    static SkTLazy<FontRunIterator> Make(const char* utf8, size_t utf8Bytes,
-                                         SkFont font,
-                                         sk_sp<SkFontMgr> fallbackMgr)
-    {
-        SkTLazy<FontRunIterator> ret;
-        font.setTypeface(font.refTypefaceOrDefault());
-        HBFont hbFont = create_hb_font(font.getTypeface());
-        if (!hbFont) {
-            SkDebugf("create_hb_font failed!\n");
-            return ret;
-        }
-        ret.init(utf8, utf8Bytes, std::move(font), std::move(hbFont), std::move(fallbackMgr));
-        return ret;
-    }
-    FontRunIterator(const char* utf8, size_t utf8Bytes, SkFont font,
-                    HBFont hbFont, sk_sp<SkFontMgr> fallbackMgr)
-        : fCurrent(utf8), fEnd(fCurrent + utf8Bytes)
-        , fFallbackMgr(std::move(fallbackMgr))
-        , fHBFont(std::move(hbFont)), fFont(std::move(font))
-        , fFallbackHBFont(nullptr), fFallbackFont(fFont)
-        , fCurrentHBFont(fHBFont.get()), fCurrentFont(&fFont)
-    {
-        fFallbackFont.setTypeface(nullptr);
-    }
-    void consume() override {
-        SkASSERT(fCurrent < fEnd);
-        SkUnichar u = utf8_next(&fCurrent, fEnd);
-        // If the starting typeface can handle this character, use it.
-        if (fFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
-            fCurrentFont = &fFont;
-            fCurrentHBFont = fHBFont.get();
-        // If the current fallback can handle this character, use it.
-        } else if (fFallbackFont.getTypeface() &&
-                   fFallbackFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
-        {
-            fCurrentFont = &fFallbackFont;
-            fCurrentHBFont = fFallbackHBFont.get();
-        // If not, try to find a fallback typeface
-        } else {
-            fFallbackFont.setTypeface(sk_ref_sp(fFallbackMgr->matchFamilyStyleCharacter(
-                nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u)));
-            fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
-            fCurrentFont = &fFallbackFont;
-            fCurrentHBFont = fFallbackHBFont.get();
-        }
+class SingleFontRunIterator final : public FontRunIterator {
+ public:
+  static SkTLazy<SingleFontRunIterator> Make(const char* utf8, size_t utf8Bytes,
+                                             SkFont font,
+                                             sk_sp<SkFontMgr> fallbackMgr)
+  {
+      SkTLazy<SingleFontRunIterator> ret;
+      font.setTypeface(font.refTypefaceOrDefault());
+      //HBFont hbFont = create_hb_font(font.getTypeface());
+      //if (!hbFont) {
+      //    SkDebugf("create_hb_font failed!\n");
+      //    return ret;
+      //}
+      ret.init(utf8, utf8Bytes, std::move(font), /*std::move(hbFont)*/nullptr, std::move(fallbackMgr));
+      return ret;
+  }
 
-        while (fCurrent < fEnd) {
-            const char* prev = fCurrent;
-            u = utf8_next(&fCurrent, fEnd);
+  SingleFontRunIterator(const char* utf8, size_t utf8Bytes, SkFont font,
+                        HBFont hbFont, sk_sp<SkFontMgr> fallbackMgr)
+      : fCurrent(utf8), fEnd(fCurrent + utf8Bytes)
+      , fFallbackMgr(std::move(fallbackMgr))
+      //, fHBFont(std::move(hbFont))
+      , fFont(std::move(font))
+      //, fFallbackHBFont(nullptr)
+      , fFallbackFont(fFont)
+      //, fCurrentHBFont(fHBFont.get())
+      , fCurrentFont(&fFont)
+  {
+      fFallbackFont.setTypeface(nullptr);
+  }
+  void consume() override {
+      SkASSERT(fCurrent < fEnd);
+      SkUnichar u = utf8_next(&fCurrent, fEnd);
+      // If the starting typeface can handle this character, use it.
+      if (fFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
+          fCurrentFont = &fFont;
+          //fCurrentHBFont = fHBFont.get();
+          // If the current fallback can handle this character, use it.
+      } else if (fFallbackFont.getTypeface() &&
+          fFallbackFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
+      {
+          fCurrentFont = &fFallbackFont;
+          //fCurrentHBFont = fFallbackHBFont.get();
+          // If not, try to find a fallback typeface
+      } else {
+          fFallbackFont.setTypeface(sk_ref_sp(fFallbackMgr->matchFamilyStyleCharacter(
+              nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u)));
+          //fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
+          fCurrentFont = &fFallbackFont;
+          //fCurrentHBFont = fFallbackHBFont.get();
+      }
 
-            // If not using initial typeface and initial typeface has this character, stop fallback.
-            if (fCurrentFont->getTypeface() != fFont.getTypeface() &&
-                fFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
-            {
-                fCurrent = prev;
-                return;
-            }
-            // If the current typeface cannot handle this character, stop using it.
-            if (!fCurrentFont->getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
-                fCurrent = prev;
-                return;
-            }
-        }
-    }
-    const char* endOfCurrentRun() const override {
-        return fCurrent;
-    }
-    bool atEnd() const override {
-        return fCurrent == fEnd;
-    }
+      while (fCurrent < fEnd) {
+          const char* prev = fCurrent;
+          u = utf8_next(&fCurrent, fEnd);
 
-    SkFont* currentFont() const {
-        return fCurrentFont;
-    }
-    hb_font_t* currentHBFont() const {
-        return fCurrentHBFont;
-    }
-private:
-    const char* fCurrent;
-    const char* fEnd;
-    sk_sp<SkFontMgr> fFallbackMgr;
-    HBFont fHBFont;
-    SkFont fFont;
-    HBFont fFallbackHBFont;
-    SkFont fFallbackFont;
-    hb_font_t* fCurrentHBFont;
-    SkFont* fCurrentFont;
+          // If not using initial typeface and initial typeface has this character, stop fallback.
+          if (fCurrentFont->getTypeface() != fFont.getTypeface() &&
+              fFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
+          {
+              fCurrent = prev;
+              return;
+          }
+          // If the current typeface cannot handle this character, stop using it.
+          if (!fCurrentFont->getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
+              fCurrent = prev;
+              return;
+          }
+      }
+  }
+  const char* endOfCurrentRun() const override {
+      return fCurrent;
+  }
+  bool atEnd() const override {
+      return fCurrent == fEnd;
+  }
+
+  SkFont* currentFont() const override {
+      return fCurrentFont;
+  }
+
+ private:
+  const char* fCurrent;
+  const char* fEnd;
+  sk_sp<SkFontMgr> fFallbackMgr;
+  //HBFont fHBFont;
+  SkFont fFont;
+  //HBFont fFallbackHBFont;
+  SkFont fFallbackFont;
+  //hb_font_t* fCurrentHBFont;
+  SkFont* fCurrentFont;
 };
 
 class LanguageRunIterator : public RunIterator {
@@ -663,7 +669,27 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
         SkDebugf("Could not create grapheme break iterator: %s", u_errorName(status));
         SK_ABORT("");
     }
+}
 
+SkShaper::SkShaper() : fImpl(new Impl) {
+  SkOnce once;
+  once([] { SkLoadICU(); });
+
+  fImpl->fBuffer.reset(hb_buffer_create());
+  SkASSERT(fImpl->fBuffer);
+
+  UErrorCode status = U_ZERO_ERROR;
+  fImpl->fLineBreakIterator.reset(ubrk_open(UBRK_LINE, "th", nullptr, 0, &status));
+  if (U_FAILURE(status)) {
+    SkDebugf("Could not create line break iterator: %s", u_errorName(status));
+    SK_ABORT("");
+  }
+
+  fImpl->fGraphemeBreakIterator.reset(ubrk_open(UBRK_CHARACTER, "th", nullptr, 0, &status));
+  if (U_FAILURE(status)) {
+    SkDebugf("Could not create grapheme break iterator: %s", u_errorName(status));
+    SK_ABORT("");
+  }
 }
 
 SkShaper::~SkShaper() {}
@@ -676,6 +702,23 @@ bool SkShaper::good() const {
 
 SkPoint SkShaper::shape(RunHandler* handler,
                         const SkFont& srcFont,
+                        const char* utf8,
+                        size_t utf8Bytes,
+                        bool leftToRight,
+                        SkPoint point,
+                        SkScalar width) const
+{
+  sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+  SkTLazy<SingleFontRunIterator> maybeFont(SingleFontRunIterator::Make(utf8, utf8Bytes,
+                                                                       srcFont,
+                                                                       std::move(fontMgr)));
+  FontRunIterator* font = maybeFont.getMaybeNull();
+
+  return shape(handler, font, utf8, utf8Bytes, leftToRight, point, width);
+}
+
+SkPoint SkShaper::shape(RunHandler* handler,
+                        FontRunIterator* font,
                         const char* utf8,
                         size_t utf8Bytes,
                         bool leftToRight,
@@ -710,20 +753,12 @@ SkPoint SkShaper::shape(RunHandler* handler,
     }
     runSegmenter.insert(script);
 
-    SkTLazy<FontRunIterator> maybeFont(FontRunIterator::Make(utf8, utf8Bytes,
-                                                             srcFont, std::move(fontMgr)));
-    FontRunIterator* font = maybeFont.getMaybeNull();
-    if (!font) {
-        return point;
-    }
     runSegmenter.insert(font);
 
-    if (true) {
-        return fImpl->shapeCorrect(handler, utf8, utf8Bytes, point, width,
-                                   runSegmenter, bidi, language, script, font);
+    if (false) {
+      return fImpl->shapeCorrect(handler, utf8, utf8Bytes, point, width, runSegmenter, bidi, language, script, font);
     } else {
-        return fImpl->shapeOk(handler, utf8, utf8Bytes, point, width,
-                              runSegmenter, bidi, language, script, font);
+      return fImpl->shapeOk(handler, utf8, utf8Bytes, point, width, runSegmenter, bidi, language, script, font);
     }
 }
 
@@ -960,18 +995,18 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
 
 // Iterate over the glyphs in logical order to find potential line lengths.
 {
-    /** The position of the beginning of the line. */
+    // The position of the beginning of the line.
     ShapedRunGlyphIterator beginning(runs);
 
-    /** The position of the candidate line break. */
+    // The position of the candidate line break.
     ShapedRunGlyphIterator candidateLineBreak(runs);
     SkScalar candidateLineBreakWidth = 0;
 
-    /** The position of the candidate grapheme break. */
+    // The position of the candidate grapheme break.
     ShapedRunGlyphIterator candidateGraphemeBreak(runs);
     SkScalar candidateGraphemeBreakWidth = 0;
 
-    /** The position of the current location. */
+    // The position of the current location.
     ShapedRunGlyphIterator current(runs);
     SkScalar currentWidth = 0;
     while (ShapedGlyph* glyph = current.current()) {
@@ -1030,81 +1065,105 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
 }
 
 // Reorder the runs and glyphs per line and write them out.
-    SkPoint currentPoint = point;
-{
+  SkPoint currentPoint = point;
+  {
     ShapedRunGlyphIterator previousBreak(runs);
     ShapedRunGlyphIterator glyphIterator(runs);
+    int lineIndex = 0;
     SkScalar maxAscent = 0;
     SkScalar maxDescent = 0;
     SkScalar maxLeading = 0;
     int previousRunIndex = -1;
     while (glyphIterator.current()) {
-        int runIndex = glyphIterator.fRunIndex;
-        int glyphIndex = glyphIterator.fGlyphIndex;
-        ShapedGlyph* nextGlyph = glyphIterator.next();
+      int runIndex = glyphIterator.fRunIndex;
+      int glyphIndex = glyphIterator.fGlyphIndex;
+      ShapedGlyph* nextGlyph = glyphIterator.next();
 
-        if (previousRunIndex != runIndex) {
-            SkFontMetrics metrics;
-            runs[runIndex].fFont.getMetrics(&metrics);
-            maxAscent = SkTMin(maxAscent, metrics.fAscent);
-            maxDescent = SkTMax(maxDescent, metrics.fDescent);
-            maxLeading = SkTMax(maxLeading, metrics.fLeading);
-            previousRunIndex = runIndex;
-        }
+      if (previousRunIndex != runIndex) {
+        SkFontMetrics metrics;
+        runs[runIndex].fFont.getMetrics(&metrics);
+        maxAscent = SkTMin(maxAscent, metrics.fAscent);
+        maxDescent = SkTMax(maxDescent, metrics.fDescent);
+        maxLeading = SkTMax(maxLeading, metrics.fLeading);
+        previousRunIndex = runIndex;
+      }
 
-        // Nothing can be written until the baseline is known.
-        if (!(nextGlyph == nullptr || nextGlyph->fMustLineBreakBefore)) {
+      // Nothing can be written until the baseline is known.
+      if (!(nextGlyph == nullptr || nextGlyph->fMustLineBreakBefore)) {
+        continue;
+      }
+
+      currentPoint.fX = point.fX;
+      SkPoint lineStart = currentPoint;
+      currentPoint.fY -= maxAscent;
+
+      int numRuns = runIndex - previousBreak.fRunIndex + 1;
+      SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
+      for (int i = 0; i < numRuns; ++i) {
+        runLevels[i] = runs[previousBreak.fRunIndex + i].fLevel;
+      }
+      SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
+      ubidi_reorderVisual(runLevels, numRuns, logicalFromVisual);
+
+      // step through the runs in reverse visual order and the glyphs in reverse logical order
+      // until a visible glyph is found and force them to the end of the visual line.
+
+      int startLineIndex = 0;
+      int endLineIndex = utf8Bytes;
+      for (int i = 0; i < numRuns; ++i) {
+        int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
+
+        int startGlyphIndex = (logicalIndex == previousBreak.fRunIndex) ? previousBreak.fGlyphIndex : 0;
+        int endGlyphIndex = (logicalIndex == runIndex) ? glyphIndex + 1 : runs[logicalIndex].fNumGlyphs;
+
+        startLineIndex = SkTMax(startLineIndex, startGlyphIndex);
+        endLineIndex = SkTMin(endLineIndex, endGlyphIndex);
+
+        const auto& run = runs[logicalIndex];
+        const RunHandler::RunInfo info = { run.fAdvance, maxAscent, maxDescent, maxLeading };
+
+        // Break the run into words keeping in mind that
+        // there glyphs are not characters and we need to keep track of both
+        int startGlyphWord = startGlyphIndex;
+        int startCharWord = run.fGlyphs[0].fCluster;
+        for (int glyph = startGlyphIndex + 1; glyph < endGlyphIndex; ++glyph) {
+          if (!run.fGlyphs[glyph].fMayLineBreakBefore) {
             continue;
+          }
+          // Found a word
+          SkPoint start = SkPoint::Make(currentPoint.fX, lineStart.fY);
+          append(handler, info, run, startGlyphWord, glyph, &currentPoint);
+          SkPoint end = SkPoint::Make(currentPoint.fX, currentPoint.fY + maxDescent + maxLeading);
+          int endCharWord = run.fGlyphs[glyph].fCluster;
+          handler->addWord(run.fUtf8Start + startCharWord, run.fUtf8Start + endCharWord, start, end - start, - maxAscent);
+          // Continue
+          startGlyphWord = glyph;
+          startCharWord = endCharWord;
         }
-
-        currentPoint.fY -= maxAscent;
-
-        int numRuns = runIndex - previousBreak.fRunIndex + 1;
-        SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
-        for (int i = 0; i < numRuns; ++i) {
-            runLevels[i] = runs[previousBreak.fRunIndex + i].fLevel;
+        if (startGlyphWord != endGlyphIndex) {
+          SkPoint start = SkPoint::Make(currentPoint.fX, lineStart.fY);
+          append(handler, info, run, startGlyphWord, endGlyphIndex, &currentPoint);
+          SkPoint end = SkPoint::Make(currentPoint.fX, currentPoint.fY + maxDescent + maxLeading);
+          int endCharWord = nextGlyph == nullptr
+                            ? run.fUtf8End - run.fUtf8Start
+                            : run.fGlyphs[endGlyphIndex - 1].fCluster;
+          handler->addWord(run.fUtf8Start + startCharWord, run.fUtf8Start + endCharWord, start, end - start, - maxAscent);
         }
-        SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
-        ubidi_reorderVisual(runLevels, numRuns, logicalFromVisual);
+      }
 
-        // step through the runs in reverse visual order and the glyphs in reverse logical order
-        // until a visible glyph is found and force them to the end of the visual line.
-
-        for (int i = 0; i < numRuns; ++i) {
-            int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
-
-            int startGlyphIndex = (logicalIndex == previousBreak.fRunIndex)
-                                ? previousBreak.fGlyphIndex
-                                : 0;
-            int endGlyphIndex = (logicalIndex == runIndex)
-                              ? glyphIndex + 1
-                              : runs[logicalIndex].fNumGlyphs;
-
-            const auto& run = runs[logicalIndex];
-            const RunHandler::RunInfo info = {
-                run.fAdvance,
-                maxAscent,
-                maxDescent,
-                maxLeading,
-            };
-            append(handler, info, run, startGlyphIndex, endGlyphIndex, &currentPoint);
-        }
-
-        handler->commitLine();
-
-        currentPoint.fY += maxDescent + maxLeading;
-        currentPoint.fX = point.fX;
-        maxAscent = 0;
-        maxDescent = 0;
-        maxLeading = 0;
-        previousRunIndex = -1;
-        previousBreak = glyphIterator;
+      ++lineIndex;
+      currentPoint.fY += maxDescent + maxLeading;
+      handler->addLine(utf8 + startLineIndex, utf8 + endLineIndex, lineStart, currentPoint - point, lineIndex, nextGlyph == nullptr);
+      maxAscent = 0;
+      maxDescent = 0;
+      maxLeading = 0;
+      previousRunIndex = -1;
+      previousBreak = glyphIterator;
     }
-}
+  }
 
-    return currentPoint;
+  return currentPoint;
 }
-
 
 ShapedRun SkShaper::Impl::shape(const char* utf8,
                                 const size_t utf8Bytes,
@@ -1149,11 +1208,16 @@ ShapedRun SkShaper::Impl::shape(const char* utf8,
     hb_buffer_set_script(buffer, script->currentScript());
     hb_buffer_set_language(buffer, language->currentLanguage());
     hb_buffer_guess_segment_properties(buffer);
-    // TODO: features
-    if (!font->currentHBFont()) {
+
+    HBFont hbFont = create_hb_font(font->currentFont()->getTypeface());
+    if (!hbFont) {
         return run;
     }
-    hb_shape(font->currentHBFont(), buffer, nullptr, 0);
+    hb_font_t* currentHBFont = hbFont.get();
+    if (!currentHBFont) {
+        return run;
+    }
+    hb_shape(currentHBFont, buffer, nullptr, 0);
     unsigned len = hb_buffer_get_length(buffer);
     if (len == 0) {
         // TODO: this isn't an error, make it look different
@@ -1177,7 +1241,7 @@ ShapedRun SkShaper::Impl::shape(const char* utf8,
                     bidi->currentLevel(),
                     std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]));
     int scaleX, scaleY;
-    hb_font_get_scale(font->currentHBFont(), &scaleX, &scaleY);
+    hb_font_get_scale(currentHBFont, &scaleX, &scaleY);
     double textSizeY = run.fFont.getSize() / scaleY;
     double textSizeX = run.fFont.getSize() / scaleX * run.fFont.getScaleX();
     SkVector runAdvance = { 0, 0 };

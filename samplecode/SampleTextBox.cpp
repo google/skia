@@ -79,12 +79,13 @@ protected:
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
-            SkTextBlobBuilderRunHandler builder;
+            //SkTextBlobBuilderRunHandler builder;
+            SkPrinterRunHandler builder;
             SkFont font(nullptr, SkIntToScalar(i));
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
             SkPoint end = shaper.shape(&builder, font, gText, strlen(gText), true,
-                                       { margin, margin }, w - margin);
+                                       { margin, margin }, w - margin * 2);
             canvas->drawTextBlob(builder.makeBlob(), 0, 0, paint);
 
             canvas->translate(0, end.y());
