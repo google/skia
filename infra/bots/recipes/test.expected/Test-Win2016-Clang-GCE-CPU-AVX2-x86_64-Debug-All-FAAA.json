@@ -244,6 +244,8 @@
       "GCE",
       "os",
       "Win2016",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "[START_DIR]\\tmp\\uninteresting_hashes.txt",
       "--writePath",

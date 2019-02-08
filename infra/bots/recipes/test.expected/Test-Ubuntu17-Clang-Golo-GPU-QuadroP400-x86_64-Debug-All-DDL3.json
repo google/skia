@@ -249,6 +249,8 @@
       "Golo",
       "os",
       "Ubuntu17",
+      "style",
+      "DDL",
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",

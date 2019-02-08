@@ -854,6 +854,8 @@
       "AcerChromebookR13Convertible",
       "os",
       "ChromeOS",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "/home/chronos/user/uninteresting_hashes.txt",
       "--writePath",

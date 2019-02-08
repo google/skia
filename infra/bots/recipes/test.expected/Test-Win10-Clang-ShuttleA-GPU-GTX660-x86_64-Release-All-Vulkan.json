@@ -244,6 +244,8 @@
       "ShuttleA",
       "os",
       "Win10",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "[START_DIR]\\tmp\\uninteresting_hashes.txt",
       "--writePath",

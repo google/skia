@@ -173,6 +173,8 @@
       "GCE",
       "os",
       "Debian9",
+      "style",
+      "default",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",

@@ -248,6 +248,8 @@
       "Golo",
       "os",
       "Win8",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",

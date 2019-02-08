@@ -168,6 +168,8 @@
       "GCE",
       "os",
       "Win2016",
+      "style",
+      "default",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",

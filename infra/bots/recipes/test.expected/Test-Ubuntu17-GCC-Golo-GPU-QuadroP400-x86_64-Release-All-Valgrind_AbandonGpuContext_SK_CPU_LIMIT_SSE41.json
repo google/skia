@@ -175,6 +175,8 @@
       "Golo",
       "os",
       "Ubuntu17",
+      "style",
+      "default",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",

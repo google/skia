@@ -244,6 +244,8 @@
       "MacBookPro11.5",
       "os",
       "Mac",
+      "style",
+      "default",
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
