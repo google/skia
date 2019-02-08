@@ -314,9 +314,9 @@ void GLTestContext::finish() {
     }
 }
 
-GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
-                                          GrGLenum externalFormat, GrGLenum externalType,
-                                          GrGLvoid* data) {
+GrGLuint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
+                                               GrGLenum externalFormat, GrGLenum externalType,
+                                               GrGLvoid* data) {
     // Should match GrGLCaps check for fRectangleTextureSupport.
     if (kGL_GrGLStandard != fGL->fStandard ||
         (GrGLGetVersion(fGL.get()) < GR_GL_VER(3, 1) &&
