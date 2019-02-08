@@ -72,6 +72,7 @@ protected:
 
             // draw the shader with a bitmap mask
             canvas->drawBitmap(fMask, 0, 0, &paint);
+            // no blue circle expected (the bitmap shader's coordinates are aligned to CTM still)
             canvas->drawBitmap(fMask, 30, 0, &paint);
 
             canvas->translate(0, 25);
