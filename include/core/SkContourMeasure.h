@@ -115,7 +115,9 @@ private:
     SkPath          fPath;
     SkScalar        fTolerance;
     bool            fForceClosed;
-
+#if defined(IS_FUZZING_WITH_LIBFUZZER)
+    int             fSubdivisionsMax;
+#endif
     // temporary
     SkTDArray<SkContourMeasure::Segment>  fSegments;
     SkTDArray<SkPoint>  fPts; // Points used to define the segments
