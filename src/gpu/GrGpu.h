@@ -154,6 +154,11 @@ public:
     bool regenerateMipMapLevels(GrTexture*);
 
     /**
+     * Resets all modified texture bindings to texture ID 0 (GL only).
+     */
+    virtual void resetTextureBindings() {}
+
+    /**
      * Reads a rectangle of pixels from a render target. No sRGB/linear conversions are performed.
      *
      * @param surface       The surface to read from

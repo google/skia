@@ -58,6 +58,8 @@ public:
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture* texture);
 
+    virtual void resetTextureBindings() override;
+
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
     void bindVertexArray(GrGLuint id) {
@@ -603,12 +605,17 @@ private:
         TextureUnitBindings& operator=(const TextureUnitBindings&) = delete;
 
         GrGpuResource::UniqueID boundID(GrGLenum target) const;
+        bool hasBeenModified(GrGLenum target) const;
         void setBoundID(GrGLenum target, GrGpuResource::UniqueID);
-        void invalidate(GrGLenum target);
-        void invalidateAllTargets();
+        void invalidateForScratchUse(GrGLenum target);
+        void invalidateAllTargets(bool markUnmodified);
 
     private:
-        GrGpuResource::UniqueID fBoundResourceIDs[3];
+        struct TargetBinding {
+            GrGpuResource::UniqueID fBoundResourceID;
+            bool fHasBeenModified = false;
+        };
+        TargetBinding fTargetBindings[3];
     };
     SkAutoTArray<TextureUnitBindings> fHWTextureUnitBindings;
 
