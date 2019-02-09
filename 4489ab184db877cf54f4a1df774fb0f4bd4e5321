@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f20978d7_65d60f5c",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-09T04:14:56Z",
+      "side": 1,
+      "message": "This doesn\u0027t actually work yet, because I only pushed to Github a few minutes ago, and the skia.googlesource.com mirror hasn\u0027t caught up yet.\n\nNot sure if this is the intended workflow. Perhaps halcanary@ has thoughts, given https://skia-review.googlesource.com/c/186876 \"DEPS: use our mirror for wuffs\".\n\nAlso, jsimmons@ will need to do something similar for Flutter. Again, I\u0027m not sure what the intended workflow is for that, although Flutter should be able to update its Wuffs version first, before Skia lands this CL, as the Wuffs upgrade should be a back-compat change.",
+      "revId": "4489ab184db877cf54f4a1df774fb0f4bd4e5321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
