@@ -17,7 +17,6 @@ namespace sksg {
 
 class Color;
 class Draw;
-class DropShadowImageFilter;
 class Gradient;
 class Group;
 class LinearGradient;
@@ -220,24 +219,6 @@ private:
     void apply();
 
     sk_sp<sksg::TrimEffect> fTrimEffect;
-};
-
-class DropShadowEffectAdapter final : public SkNVRefCnt<DropShadowEffectAdapter> {
-public:
-    explicit DropShadowEffectAdapter(sk_sp<sksg::DropShadowImageFilter>);
-    ~DropShadowEffectAdapter();
-
-    ADAPTER_PROPERTY(Color     , SkColor , SK_ColorBLACK)
-    ADAPTER_PROPERTY(Opacity   , SkScalar,           255)
-    ADAPTER_PROPERTY(Direction , SkScalar,             0)
-    ADAPTER_PROPERTY(Distance  , SkScalar,             0)
-    ADAPTER_PROPERTY(Softness  , SkScalar,             0)
-    ADAPTER_PROPERTY(ShadowOnly, bool    ,         false)
-
-private:
-    void apply();
-
-    const sk_sp<sksg::DropShadowImageFilter> fDropShadow;
 };
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {

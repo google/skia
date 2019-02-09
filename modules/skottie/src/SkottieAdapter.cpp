@@ -18,7 +18,6 @@
 #include "SkSGGroup.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
-#include "SkSGRenderEffect.h"
 #include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
@@ -262,31 +261,6 @@ void TrimEffectAdapter::apply() {
     fTrimEffect->setStart(startT);
     fTrimEffect->setStop(stopT);
     fTrimEffect->setMode(mode);
-}
-
-DropShadowEffectAdapter::DropShadowEffectAdapter(sk_sp<sksg::DropShadowImageFilter> dropShadow)
-    : fDropShadow(std::move(dropShadow)) {
-    SkASSERT(fDropShadow);
-}
-
-DropShadowEffectAdapter::~DropShadowEffectAdapter() = default;
-
-void DropShadowEffectAdapter::apply() {
-    // fColor -> RGB, fOpacity -> A
-    fDropShadow->setColor(SkColorSetA(fColor, SkTPin(SkScalarRoundToInt(fOpacity), 0, 255)));
-
-    // The offset is specified in terms of a bearing angle + distance.
-    SkScalar sinV, cosV;
-    sinV = SkScalarSinCos(SkDegreesToRadians(90 - fDirection), &cosV);
-    fDropShadow->setOffset(SkVector::Make(fDistance * cosV, -fDistance * sinV));
-
-    // Close enough to AE.
-    static constexpr SkScalar kSoftnessToSigmaFactor = 0.3f;
-    const auto sigma = fSoftness * kSoftnessToSigmaFactor;
-    fDropShadow->setSigma(SkVector::Make(sigma, sigma));
-
-    fDropShadow->setMode(fShadowOnly ? sksg::DropShadowImageFilter::Mode::kShadowOnly
-                                     : sksg::DropShadowImageFilter::Mode::kShadowAndForeground);
 }
 
 TextAdapter::TextAdapter(sk_sp<sksg::Group> root)

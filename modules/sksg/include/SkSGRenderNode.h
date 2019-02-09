@@ -13,7 +13,6 @@
 #include "SkColorFilter.h"
 
 class SkCanvas;
-class SkImageFilter;
 class SkPaint;
 
 namespace sksg {
@@ -73,10 +72,6 @@ protected:
         // overrides via a layer.
         ScopedRenderContext&& setIsolation(const SkRect& bounds, bool do_isolate);
 
-        // Similarly, force content isolation by applying the RenderContext overrides and
-        // an image filter via a single layer.
-        ScopedRenderContext&& setFilterIsolation(const SkRect& bounds, sk_sp<SkImageFilter>);
-
     private:
         // stack-only
         void* operator new(size_t)        = delete;
@@ -92,8 +87,6 @@ protected:
     };
 
 private:
-    friend class ImageFilterEffect;
-
     typedef Node INHERITED;
 };
 
