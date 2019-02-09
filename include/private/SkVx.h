@@ -113,10 +113,10 @@ static inline D bit_pun(S s) {
 #define SIT  template <typename T> static inline
 
 // Translate from a value type T to its corresponding Mask, the result of a comparison.
-template <typename T> struct MaskHelper { using type = T; };
-template <> struct MaskHelper<float > { using type = int32_t; };
-template <> struct MaskHelper<double> { using type = int64_t; };
-template <typename T> using Mask = typename MaskHelper<T>::type;
+template <typename T> struct Mask { using type = T; };
+template <> struct Mask<float > { using type = int32_t; };
+template <> struct Mask<double> { using type = int64_t; };
+template <typename T> using M = typename Mask<T>::type;
 
 // Join two Vec<N,T> into one Vec<2N,T>.
 SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
@@ -172,12 +172,12 @@ SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
     SINT Vec<N,T> operator<<(Vec<N,T> x, int bits) { return to_vec(to_vext(x) << bits); }
     SINT Vec<N,T> operator>>(Vec<N,T> x, int bits) { return to_vec(to_vext(x) >> bits); }
 
-    SINT Vec<N, Mask<T>> operator==(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,Mask<T>>>(to_vext(x) == to_vext(y)); }
-    SINT Vec<N, Mask<T>> operator!=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,Mask<T>>>(to_vext(x) != to_vext(y)); }
-    SINT Vec<N, Mask<T>> operator<=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,Mask<T>>>(to_vext(x) <= to_vext(y)); }
-    SINT Vec<N, Mask<T>> operator>=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,Mask<T>>>(to_vext(x) >= to_vext(y)); }
-    SINT Vec<N, Mask<T>> operator< (Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,Mask<T>>>(to_vext(x) <  to_vext(y)); }
-    SINT Vec<N, Mask<T>> operator> (Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,Mask<T>>>(to_vext(x) >  to_vext(y)); }
+    SINT Vec<N,M<T>> operator==(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) == to_vext(y)); }
+    SINT Vec<N,M<T>> operator!=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) != to_vext(y)); }
+    SINT Vec<N,M<T>> operator<=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) <= to_vext(y)); }
+    SINT Vec<N,M<T>> operator>=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) >= to_vext(y)); }
+    SINT Vec<N,M<T>> operator< (Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) <  to_vext(y)); }
+    SINT Vec<N,M<T>> operator> (Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) >  to_vext(y)); }
 
 #else
 
@@ -201,12 +201,12 @@ SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
     SIT Vec<1,T> operator<<(Vec<1,T> x, int bits) { return x.val << bits; }
     SIT Vec<1,T> operator>>(Vec<1,T> x, int bits) { return x.val >> bits; }
 
-    SIT Vec<1, Mask<T>> operator==(Vec<1,T> x, Vec<1,T> y) { return x.val == y.val ? ~0 : 0; }
-    SIT Vec<1, Mask<T>> operator!=(Vec<1,T> x, Vec<1,T> y) { return x.val != y.val ? ~0 : 0; }
-    SIT Vec<1, Mask<T>> operator<=(Vec<1,T> x, Vec<1,T> y) { return x.val <= y.val ? ~0 : 0; }
-    SIT Vec<1, Mask<T>> operator>=(Vec<1,T> x, Vec<1,T> y) { return x.val >= y.val ? ~0 : 0; }
-    SIT Vec<1, Mask<T>> operator< (Vec<1,T> x, Vec<1,T> y) { return x.val <  y.val ? ~0 : 0; }
-    SIT Vec<1, Mask<T>> operator> (Vec<1,T> x, Vec<1,T> y) { return x.val >  y.val ? ~0 : 0; }
+    SIT Vec<1,M<T>> operator==(Vec<1,T> x, Vec<1,T> y) { return x.val == y.val ? ~0 : 0; }
+    SIT Vec<1,M<T>> operator!=(Vec<1,T> x, Vec<1,T> y) { return x.val != y.val ? ~0 : 0; }
+    SIT Vec<1,M<T>> operator<=(Vec<1,T> x, Vec<1,T> y) { return x.val <= y.val ? ~0 : 0; }
+    SIT Vec<1,M<T>> operator>=(Vec<1,T> x, Vec<1,T> y) { return x.val >= y.val ? ~0 : 0; }
+    SIT Vec<1,M<T>> operator< (Vec<1,T> x, Vec<1,T> y) { return x.val <  y.val ? ~0 : 0; }
+    SIT Vec<1,M<T>> operator> (Vec<1,T> x, Vec<1,T> y) { return x.val >  y.val ? ~0 : 0; }
 
     // All default N != 1 implementations just recurse on lo and hi halves.
     SINT Vec<N,T> operator+(Vec<N,T> x, Vec<N,T> y) { return join(x.lo + y.lo, x.hi + y.hi); }
@@ -225,21 +225,21 @@ SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
     SINT Vec<N,T> operator<<(Vec<N,T> x, int bits) { return join(x.lo << bits, x.hi << bits); }
     SINT Vec<N,T> operator>>(Vec<N,T> x, int bits) { return join(x.lo >> bits, x.hi >> bits); }
 
-    SINT Vec<N, Mask<T>> operator==(Vec<N,T> x, Vec<N,T> y) { return join(x.lo == y.lo, x.hi == y.hi); }
-    SINT Vec<N, Mask<T>> operator!=(Vec<N,T> x, Vec<N,T> y) { return join(x.lo != y.lo, x.hi != y.hi); }
-    SINT Vec<N, Mask<T>> operator<=(Vec<N,T> x, Vec<N,T> y) { return join(x.lo <= y.lo, x.hi <= y.hi); }
-    SINT Vec<N, Mask<T>> operator>=(Vec<N,T> x, Vec<N,T> y) { return join(x.lo >= y.lo, x.hi >= y.hi); }
-    SINT Vec<N, Mask<T>> operator< (Vec<N,T> x, Vec<N,T> y) { return join(x.lo <  y.lo, x.hi <  y.hi); }
-    SINT Vec<N, Mask<T>> operator> (Vec<N,T> x, Vec<N,T> y) { return join(x.lo >  y.lo, x.hi >  y.hi); }
+    SINT Vec<N,M<T>> operator==(Vec<N,T> x, Vec<N,T> y) { return join(x.lo == y.lo, x.hi == y.hi); }
+    SINT Vec<N,M<T>> operator!=(Vec<N,T> x, Vec<N,T> y) { return join(x.lo != y.lo, x.hi != y.hi); }
+    SINT Vec<N,M<T>> operator<=(Vec<N,T> x, Vec<N,T> y) { return join(x.lo <= y.lo, x.hi <= y.hi); }
+    SINT Vec<N,M<T>> operator>=(Vec<N,T> x, Vec<N,T> y) { return join(x.lo >= y.lo, x.hi >= y.hi); }
+    SINT Vec<N,M<T>> operator< (Vec<N,T> x, Vec<N,T> y) { return join(x.lo <  y.lo, x.hi <  y.hi); }
+    SINT Vec<N,M<T>> operator> (Vec<N,T> x, Vec<N,T> y) { return join(x.lo >  y.lo, x.hi >  y.hi); }
 #endif
 
 // Some operations we want are not expressible with Clang/GCC vector
 // extensions, so we implement them using the recursive approach.
 
 // N == 1 scalar implementations.
-SIT Vec<1,T> if_then_else(Vec<1,Mask<T>> cond, Vec<1,T> t, Vec<1,T> e) {
-    auto t_bits = bit_pun<Mask<T>>(t),
-         e_bits = bit_pun<Mask<T>>(e);
+SIT Vec<1,T> if_then_else(Vec<1,M<T>> cond, Vec<1,T> t, Vec<1,T> e) {
+    auto t_bits = bit_pun<M<T>>(t),
+         e_bits = bit_pun<M<T>>(e);
     return bit_pun<T>( (cond.val & t_bits) | (~cond.val & e_bits) );
 }
 
@@ -266,7 +266,7 @@ SIT Vec<1,T>   mad(Vec<1,T> f,
                    Vec<1,T> a) { return f*m+a; }
 
 // All default N != 1 implementations just recurse on lo and hi halves.
-SINT Vec<N,T> if_then_else(Vec<N,Mask<T>> cond, Vec<N,T> t, Vec<N,T> e) {
+SINT Vec<N,T> if_then_else(Vec<N,M<T>> cond, Vec<N,T> t, Vec<N,T> e) {
     return join(if_then_else(cond.lo, t.lo, e.lo),
                 if_then_else(cond.hi, t.hi, e.hi));
 }
@@ -295,38 +295,38 @@ SINT Vec<N,T>   mad(Vec<N,T> f,
 
 
 // Scalar/vector operations just splat the scalar to a vector...
-SINT Vec<N,T>       operator+ (T x, Vec<N,T> y) { return Vec<N,T>(x) +  y; }
-SINT Vec<N,T>       operator- (T x, Vec<N,T> y) { return Vec<N,T>(x) -  y; }
-SINT Vec<N,T>       operator* (T x, Vec<N,T> y) { return Vec<N,T>(x) *  y; }
-SINT Vec<N,T>       operator/ (T x, Vec<N,T> y) { return Vec<N,T>(x) /  y; }
-SINT Vec<N,T>       operator^ (T x, Vec<N,T> y) { return Vec<N,T>(x) ^  y; }
-SINT Vec<N,T>       operator& (T x, Vec<N,T> y) { return Vec<N,T>(x) &  y; }
-SINT Vec<N,T>       operator| (T x, Vec<N,T> y) { return Vec<N,T>(x) |  y; }
-SINT Vec<N,Mask<T>> operator==(T x, Vec<N,T> y) { return Vec<N,T>(x) == y; }
-SINT Vec<N,Mask<T>> operator!=(T x, Vec<N,T> y) { return Vec<N,T>(x) != y; }
-SINT Vec<N,Mask<T>> operator<=(T x, Vec<N,T> y) { return Vec<N,T>(x) <= y; }
-SINT Vec<N,Mask<T>> operator>=(T x, Vec<N,T> y) { return Vec<N,T>(x) >= y; }
-SINT Vec<N,Mask<T>> operator< (T x, Vec<N,T> y) { return Vec<N,T>(x) <  y; }
-SINT Vec<N,Mask<T>> operator> (T x, Vec<N,T> y) { return Vec<N,T>(x) >  y; }
-SINT Vec<N,T>              min(T x, Vec<N,T> y) { return min(Vec<N,T>(x), y); }
-SINT Vec<N,T>              max(T x, Vec<N,T> y) { return max(Vec<N,T>(x), y); }
+SINT Vec<N,T>    operator+ (T x, Vec<N,T> y) { return Vec<N,T>(x) +  y; }
+SINT Vec<N,T>    operator- (T x, Vec<N,T> y) { return Vec<N,T>(x) -  y; }
+SINT Vec<N,T>    operator* (T x, Vec<N,T> y) { return Vec<N,T>(x) *  y; }
+SINT Vec<N,T>    operator/ (T x, Vec<N,T> y) { return Vec<N,T>(x) /  y; }
+SINT Vec<N,T>    operator^ (T x, Vec<N,T> y) { return Vec<N,T>(x) ^  y; }
+SINT Vec<N,T>    operator& (T x, Vec<N,T> y) { return Vec<N,T>(x) &  y; }
+SINT Vec<N,T>    operator| (T x, Vec<N,T> y) { return Vec<N,T>(x) |  y; }
+SINT Vec<N,M<T>> operator==(T x, Vec<N,T> y) { return Vec<N,T>(x) == y; }
+SINT Vec<N,M<T>> operator!=(T x, Vec<N,T> y) { return Vec<N,T>(x) != y; }
+SINT Vec<N,M<T>> operator<=(T x, Vec<N,T> y) { return Vec<N,T>(x) <= y; }
+SINT Vec<N,M<T>> operator>=(T x, Vec<N,T> y) { return Vec<N,T>(x) >= y; }
+SINT Vec<N,M<T>> operator< (T x, Vec<N,T> y) { return Vec<N,T>(x) <  y; }
+SINT Vec<N,M<T>> operator> (T x, Vec<N,T> y) { return Vec<N,T>(x) >  y; }
+SINT Vec<N,T>           min(T x, Vec<N,T> y) { return min(Vec<N,T>(x), y); }
+SINT Vec<N,T>           max(T x, Vec<N,T> y) { return max(Vec<N,T>(x), y); }
 
 // ... and same deal for vector/scalar operations.
-SINT Vec<N,T>       operator+ (Vec<N,T> x, T y) { return x +  Vec<N,T>(y); }
-SINT Vec<N,T>       operator- (Vec<N,T> x, T y) { return x -  Vec<N,T>(y); }
-SINT Vec<N,T>       operator* (Vec<N,T> x, T y) { return x *  Vec<N,T>(y); }
-SINT Vec<N,T>       operator/ (Vec<N,T> x, T y) { return x /  Vec<N,T>(y); }
-SINT Vec<N,T>       operator^ (Vec<N,T> x, T y) { return x ^  Vec<N,T>(y); }
-SINT Vec<N,T>       operator& (Vec<N,T> x, T y) { return x &  Vec<N,T>(y); }
-SINT Vec<N,T>       operator| (Vec<N,T> x, T y) { return x |  Vec<N,T>(y); }
-SINT Vec<N,Mask<T>> operator==(Vec<N,T> x, T y) { return x == Vec<N,T>(y); }
-SINT Vec<N,Mask<T>> operator!=(Vec<N,T> x, T y) { return x != Vec<N,T>(y); }
-SINT Vec<N,Mask<T>> operator<=(Vec<N,T> x, T y) { return x <= Vec<N,T>(y); }
-SINT Vec<N,Mask<T>> operator>=(Vec<N,T> x, T y) { return x >= Vec<N,T>(y); }
-SINT Vec<N,Mask<T>> operator< (Vec<N,T> x, T y) { return x <  Vec<N,T>(y); }
-SINT Vec<N,Mask<T>> operator> (Vec<N,T> x, T y) { return x >  Vec<N,T>(y); }
-SINT Vec<N,T>              min(Vec<N,T> x, T y) { return min(x, Vec<N,T>(y)); }
-SINT Vec<N,T>              max(Vec<N,T> x, T y) { return max(x, Vec<N,T>(y)); }
+SINT Vec<N,T>    operator+ (Vec<N,T> x, T y) { return x +  Vec<N,T>(y); }
+SINT Vec<N,T>    operator- (Vec<N,T> x, T y) { return x -  Vec<N,T>(y); }
+SINT Vec<N,T>    operator* (Vec<N,T> x, T y) { return x *  Vec<N,T>(y); }
+SINT Vec<N,T>    operator/ (Vec<N,T> x, T y) { return x /  Vec<N,T>(y); }
+SINT Vec<N,T>    operator^ (Vec<N,T> x, T y) { return x ^  Vec<N,T>(y); }
+SINT Vec<N,T>    operator& (Vec<N,T> x, T y) { return x &  Vec<N,T>(y); }
+SINT Vec<N,T>    operator| (Vec<N,T> x, T y) { return x |  Vec<N,T>(y); }
+SINT Vec<N,M<T>> operator==(Vec<N,T> x, T y) { return x == Vec<N,T>(y); }
+SINT Vec<N,M<T>> operator!=(Vec<N,T> x, T y) { return x != Vec<N,T>(y); }
+SINT Vec<N,M<T>> operator<=(Vec<N,T> x, T y) { return x <= Vec<N,T>(y); }
+SINT Vec<N,M<T>> operator>=(Vec<N,T> x, T y) { return x >= Vec<N,T>(y); }
+SINT Vec<N,M<T>> operator< (Vec<N,T> x, T y) { return x <  Vec<N,T>(y); }
+SINT Vec<N,M<T>> operator> (Vec<N,T> x, T y) { return x >  Vec<N,T>(y); }
+SINT Vec<N,T>           min(Vec<N,T> x, T y) { return min(x, Vec<N,T>(y)); }
+SINT Vec<N,T>           max(Vec<N,T> x, T y) { return max(x, Vec<N,T>(y)); }
 
 // All vector/scalar combinations for mad() with at least one vector.
 SINT Vec<N,T> mad(T f, Vec<N,T> m, Vec<N,T> a) { return Vec<N,T>(f)*m + a; }
