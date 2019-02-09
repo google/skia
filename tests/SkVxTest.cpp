@@ -34,7 +34,11 @@ float4 Sqrt(float4 x) { return sqrt(x); }
 float8 Sqrt(float8 x) { return sqrt(x); }
 
 float4 RSqrt(float4 x) { return rsqrt(x); }
+float8 RSqrt(float8 x) { return rsqrt(x); }
+
 float4   Rcp(float4 x) { return   rcp(x); }
+float8   Rcp(float8 x) { return   rcp(x); }
+
 float4  Ceil(float4 x) { return  ceil(x); }
 float4 Floor(float4 x) { return floor(x); }
 float4 Trunc(float4 x) { return trunc(x); }
