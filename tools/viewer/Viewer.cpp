@@ -1355,143 +1355,45 @@ bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers)
     return true;
 }
 
-static ImVec2 ImGui_DragPrimary(const char* label, float* x, float* y,
-                                const ImVec2& pos, const ImVec2& size) {
-    // Transform primaries ([0, 0] - [0.8, 0.9]) to screen coords (including Y-flip)
-    ImVec2 center(pos.x + (*x / 0.8f) * size.x, pos.y + (1.0f - (*y / 0.9f)) * size.y);
-
-    // Invisible 10x10 button
-    ImGui::SetCursorScreenPos(ImVec2(center.x - 5, center.y - 5));
-    ImGui::InvisibleButton(label, ImVec2(10, 10));
-
-    if (ImGui::IsItemActive() && ImGui::IsMouseDragging()) {
-        ImGuiIO& io = ImGui::GetIO();
-        // Normalized mouse position, relative to our gamut box
-        ImVec2 mousePosXY((io.MousePos.x - pos.x) / size.x, (io.MousePos.y - pos.y) / size.y);
-        // Clamp to edge of box, convert back to primary scale
-        *x = SkTPin(mousePosXY.x, 0.0f, 1.0f) * 0.8f;
-        *y = SkTPin(1 - mousePosXY.y, 0.0f, 1.0f) * 0.9f;
-    }
-
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("x: %.3f\ny: %.3f", *x, *y);
-    }
-
-    // Return screen coordinates for the caller. We could just return center here, but we'd have
-    // one frame of lag during drag.
-    return ImVec2(pos.x + (*x / 0.8f) * size.x, pos.y + (1.0f - (*y / 0.9f)) * size.y);
-}
-
 static void ImGui_Primaries(SkColorSpacePrimaries* primaries, SkPaint* gamutPaint) {
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    // The gamut image covers a (0.8 x 0.9) shaped region, so fit our image/canvas to the available
-    // width, and scale the height to maintain aspect ratio.
-    float canvasWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 50.0f);
-    ImVec2 size = ImVec2(canvasWidth, canvasWidth * (0.9f / 0.8f));
-    ImVec2 pos = ImGui::GetCursorScreenPos();
+    // The gamut image covers a (0.8 x 0.9) shaped region
+    ImGui::DragCanvas dc(primaries, { 0.0f, 0.9f }, { 0.8f, 0.0f });
 
     // Background image. Only draw a subset of the image, to avoid the regions less than zero.
     // Simplifes re-mapping math, clipping behavior, and increases resolution in the useful area.
     // Magic numbers are pixel locations of the origin and upper-right corner.
-    drawList->AddImage(gamutPaint, pos, ImVec2(pos.x + size.x, pos.y + size.y),
-                       ImVec2(242, 61), ImVec2(1897, 1922));
+    dc.fDrawList->AddImage(gamutPaint, dc.fPos,
+                           ImVec2(dc.fPos.x + dc.fSize.x, dc.fPos.y + dc.fSize.y),
+                           ImVec2(242, 61), ImVec2(1897, 1922));
 
-    // Primary markers
-    ImVec2 r = ImGui_DragPrimary("R", &primaries->fRX, &primaries->fRY, pos, size);
-    ImVec2 g = ImGui_DragPrimary("G", &primaries->fGX, &primaries->fGY, pos, size);
-    ImVec2 b = ImGui_DragPrimary("B", &primaries->fBX, &primaries->fBY, pos, size);
-    ImVec2 w = ImGui_DragPrimary("W", &primaries->fWX, &primaries->fWY, pos, size);
-
-    // Gamut triangle
-    drawList->AddCircle(r, 5.0f, 0xFF000040);
-    drawList->AddCircle(g, 5.0f, 0xFF004000);
-    drawList->AddCircle(b, 5.0f, 0xFF400000);
-    drawList->AddCircle(w, 5.0f, 0xFFFFFFFF);
-    drawList->AddTriangle(r, g, b, 0xFFFFFFFF);
-
-    // Re-position cursor immediate after the diagram for subsequent controls
-    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
-}
-
-static ImVec2 ImGui_DragPoint(const char* label, SkPoint* p,
-                              const ImVec2& pos, const ImVec2& size, bool* dragging) {
-    // Transform points ([0, 0] - [1.0, 1.0]) to screen coords
-    ImVec2 center(pos.x + p->fX * size.x, pos.y + p->fY * size.y);
-
-    // Invisible 10x10 button
-    ImGui::SetCursorScreenPos(ImVec2(center.x - 5, center.y - 5));
-    ImGui::InvisibleButton(label, ImVec2(10, 10));
-
-    if (ImGui::IsItemActive() && ImGui::IsMouseDragging()) {
-        ImGuiIO& io = ImGui::GetIO();
-        // Normalized mouse position, relative to our gamut box
-        ImVec2 mousePosXY((io.MousePos.x - pos.x) / size.x, (io.MousePos.y - pos.y) / size.y);
-        // Clamp to edge of box
-        p->fX = SkTPin(mousePosXY.x, 0.0f, 1.0f);
-        p->fY = SkTPin(mousePosXY.y, 0.0f, 1.0f);
-        *dragging = true;
-    }
-
-    // Return screen coordinates for the caller. We could just return center here, but we'd have
-    // one frame of lag during drag.
-    return ImVec2(pos.x + p->fX * size.x, pos.y + p->fY * size.y);
+    dc.dragPoint((SkPoint*)(&primaries->fRX), true, 0xFF000040);
+    dc.dragPoint((SkPoint*)(&primaries->fGX), true, 0xFF004000);
+    dc.dragPoint((SkPoint*)(&primaries->fBX), true, 0xFF400000);
+    dc.dragPoint((SkPoint*)(&primaries->fWX), true);
+    dc.fDrawList->AddPolyline(dc.fScreenPoints.begin(), 3, 0xFFFFFFFF, true, 1.5f);
 }
 
 static bool ImGui_DragLocation(SkPoint* pt) {
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    // Fit our image/canvas to the available width, and scale the height to maintain aspect ratio.
-    float canvasWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 50.0f);
-    ImVec2 size = ImVec2(canvasWidth, canvasWidth);
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-
-    // Background rectangle
-    drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(0, 0, 0, 128));
-
-    // Location marker
-    bool dragging = false;
-    ImVec2 tl = ImGui_DragPoint("SL", pt + 0, pos, size, &dragging);
-    drawList->AddCircle(tl, 5.0f, 0xFFFFFFFF);
-
-    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
-    ImGui::Spacing();
-
-    return dragging;
+    ImGui::DragCanvas dc(pt);
+    dc.fillColor(IM_COL32(0, 0, 0, 128));
+    dc.dragPoint(pt);
+    return dc.fDragging;
 }
 
 static bool ImGui_DragQuad(SkPoint* pts) {
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImGui::DragCanvas dc(pts);
+    dc.fillColor(IM_COL32(0, 0, 0, 128));
 
-    // Fit our image/canvas to the available width, and scale the height to maintain aspect ratio.
-    float canvasWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 50.0f);
-    ImVec2 size = ImVec2(canvasWidth, canvasWidth);
-    ImVec2 pos = ImGui::GetCursorScreenPos();
+    for (int i = 0; i < 4; ++i) {
+        dc.dragPoint(pts + i);
+    }
 
-    // Background rectangle
-    drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(0, 0, 0, 128));
+    dc.fDrawList->AddLine(dc.fScreenPoints[0], dc.fScreenPoints[1], 0xFFFFFFFF);
+    dc.fDrawList->AddLine(dc.fScreenPoints[1], dc.fScreenPoints[3], 0xFFFFFFFF);
+    dc.fDrawList->AddLine(dc.fScreenPoints[3], dc.fScreenPoints[2], 0xFFFFFFFF);
+    dc.fDrawList->AddLine(dc.fScreenPoints[2], dc.fScreenPoints[0], 0xFFFFFFFF);
 
-    // Corner markers
-    bool dragging = false;
-    ImVec2 tl = ImGui_DragPoint("TL", pts + 0, pos, size, &dragging);
-    ImVec2 tr = ImGui_DragPoint("TR", pts + 1, pos, size, &dragging);
-    ImVec2 bl = ImGui_DragPoint("BL", pts + 2, pos, size, &dragging);
-    ImVec2 br = ImGui_DragPoint("BR", pts + 3, pos, size, &dragging);
-
-    // Draw markers and quad
-    drawList->AddCircle(tl, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(tr, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(bl, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(br, 5.0f, 0xFFFFFFFF);
-    drawList->AddLine(tl, tr, 0xFFFFFFFF);
-    drawList->AddLine(tr, br, 0xFFFFFFFF);
-    drawList->AddLine(br, bl, 0xFFFFFFFF);
-    drawList->AddLine(bl, tl, 0xFFFFFFFF);
-
-    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
-    ImGui::Spacing();
-
-    return dragging;
+    return dc.fDragging;
 }
 
 void Viewer::drawImGui() {
