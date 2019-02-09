@@ -27,8 +27,6 @@ protected:
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
-    const sk_sp<RenderNode>& getChild() const { return fChild; }
-
 private:
     sk_sp<RenderNode> fChild;
 
