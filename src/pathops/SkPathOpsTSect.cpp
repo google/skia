@@ -885,16 +885,16 @@ bool SkTSect::extractCoincident(
     SkOPASSERT(oppStartT < oppEndT);
     SkASSERT(coinStart == first->fStartT);
     SkASSERT(coinEnd == last->fEndT);
-    SkOPASSERT(oppStartT == oppFirst->fStartT);
-    SkOPASSERT(oppEndT == oppLast->fEndT);
     if (!oppFirst) {
         *result = nullptr;
         return true;
     }
+    SkOPASSERT(oppStartT == oppFirst->fStartT);
     if (!oppLast) {
         *result = nullptr;
         return true;
     }
+    SkOPASSERT(oppEndT == oppLast->fEndT);
     // reduce coincident runs to single entries
     this->validate();
     sect2->validate();
