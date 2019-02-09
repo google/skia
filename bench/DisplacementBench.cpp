@@ -32,7 +32,7 @@ protected:
 
     void makeBitmap() {
         const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
-        const int h = this->isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
+        const int h = this->isSmall() ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
         fBitmap.allocN32Pixels(w, h);
         SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
@@ -46,7 +46,7 @@ protected:
 
     void makeCheckerboard() {
         const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
-        const int h = this->isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
+        const int h = this->isSmall() ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
         auto surface(SkSurface::MakeRasterN32Premul(w, h));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
