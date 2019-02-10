@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c6e3a763_cf2590fd",
+        "filename": "modules/sksg/include/SkSGDraw.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-10T03:39:29Z",
+      "side": 1,
+      "message": "This makes sense, but I was actually preparing to move most inline factories to the .cpp files to hopefully help with minimizing the code size.  I think that would also fix your issue (as would consolidating the gazillion SG headers :)",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "24b7f245_211ddd58",
         "filename": "samplecode/SampleSG.cpp",
         "patchSetId": 1
@@ -36,6 +59,24 @@
       "writtenOn": "2019-02-10T03:27:53Z",
       "side": 1,
       "message": "Before calling render, you need to call revalidate() to update the DAG layout (and get inval rects, etc).",
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00d0f1cb_1c8adaa4",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-10T03:39:29Z",
+      "side": 1,
+      "message": "You may want to use the higher-level SkSGScene to avoid having to deal with these internals.  That also manages arbitrary animators you can attach to the scene.\n\nSlideDir.cpp is a (fairly complex) example of how to set it all up.  But it shouldn\u0027t take much more than what you already have.",
+      "parentUuid": "b1c1a5b6_7965d95e",
       "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
