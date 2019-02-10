@@ -16,6 +16,7 @@
 #include "SkSGGroup.h"
 #include "SkSGInvalidationController.h"
 #include "SkSGRect.h"
+#include "SkSGRenderEffect.h"
 #include "SkSGTransform.h"
 #include "SkTo.h"
 
@@ -192,6 +193,49 @@ static void inval_test2(skiatest::Reporter* reporter) {
     }
 }
 
+static void inval_test3(skiatest::Reporter* reporter) {
+    auto color1 = sksg::Color::Make(0xff000000),
+         color2 = sksg::Color::Make(0xff000000);
+    auto group  = sksg::Group::Make();
+
+    group->addChild(sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeWH(100, 100)),
+                                     color1));
+    group->addChild(sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeXYWH(200, 0, 100, 100)),
+                                     color2));
+    auto filter = sksg::DropShadowImageFilter::Make();
+    filter->setOffset({50, 75});
+    auto root = sksg::ImageFilterEffect::Make(group, filter);
+
+    {
+        // Initial revalidation.
+        check_inval(reporter, root,
+                    SkRect::MakeXYWH(0, 0, 350, 175),
+                    SkRectPriv::MakeLargeS32(),
+                    nullptr);
+    }
+
+    {
+        // Shadow-only.
+        filter->setMode(sksg::DropShadowImageFilter::Mode::kShadowOnly);
+        std::vector<SkRect> damage = { {0, 0, 350, 175}, { 50, 75, 350, 175} };
+        check_inval(reporter, root,
+                    SkRect::MakeLTRB(50, 75, 350, 175),
+                    SkRect::MakeLTRB(0, 0, 350, 175),
+                    &damage);
+    }
+
+    {
+        // Content change -> single/full filter bounds inval.
+        color1->setColor(0xffff0000);
+        std::vector<SkRect> damage = { { 50, 75, 350, 175} };
+        check_inval(reporter, root,
+                    SkRect::MakeLTRB(50, 75, 350, 175),
+                    SkRect::MakeLTRB(50, 75, 350, 175),
+                    &damage);
+    }
+
+}
+
 static void inval_group_remove(skiatest::Reporter* reporter) {
     auto draw = sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeWH(100, 100)),
                                  sksg::Color::Make(SK_ColorBLACK));
@@ -206,6 +250,7 @@ static void inval_group_remove(skiatest::Reporter* reporter) {
 DEF_TEST(SGInvalidation, reporter) {
     inval_test1(reporter);
     inval_test2(reporter);
+    inval_test3(reporter);
     inval_group_remove(reporter);
 }
 

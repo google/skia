@@ -20,7 +20,7 @@ namespace sksg {
  */
 class EffectNode : public RenderNode {
 protected:
-    explicit EffectNode(sk_sp<RenderNode>);
+    explicit EffectNode(sk_sp<RenderNode>, uint32_t inval_traits = 0);
     ~EffectNode() override;
 
     void onRender(SkCanvas*, const RenderContext*) const override;

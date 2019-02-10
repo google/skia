@@ -39,7 +39,10 @@ protected:
     enum InvalTraits {
         // Nodes with this trait never generate direct damage -- instead,
         // the damage bubbles up to ancestors.
-        kBubbleDamage_Trait = 1 << 0,
+        kBubbleDamage_Trait   = 1 << 0,
+
+        // Nodes with this trait obscure the descendants' damage and always override it.
+        kOverrideDamage_Trait = 1 << 1,
     };
 
     explicit Node(uint32_t invalTraits);

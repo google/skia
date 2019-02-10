@@ -19,7 +19,8 @@ sk_sp<RenderNode> ImageFilterEffect::Make(sk_sp<RenderNode> child, sk_sp<ImageFi
 }
 
 ImageFilterEffect::ImageFilterEffect(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter)
-    : INHERITED(std::move(child))
+    // filters always override descendent damage
+    : INHERITED(std::move(child), kOverrideDamage_Trait)
     , fImageFilter(std::move(filter)) {
     this->observeInval(fImageFilter);
 }
