@@ -9,8 +9,9 @@
 
 namespace sksg {
 
-EffectNode::EffectNode(sk_sp<RenderNode> child)
-    : fChild(std::move(child)) {
+EffectNode::EffectNode(sk_sp<RenderNode> child, uint32_t inval_traits)
+    : INHERITED(inval_traits)
+    , fChild(std::move(child)) {
     this->observeInval(fChild);
 }
 

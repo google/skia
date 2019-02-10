@@ -42,8 +42,10 @@ Scene::Scene(sk_sp<RenderNode> root, AnimatorList&& animators)
 Scene::~Scene() = default;
 
 void Scene::render(SkCanvas* canvas) const {
+    // TODO: externalize the inval controller.
+    // TODO: relocate the revalidation to tick()?
     InvalidationController ic;
-    fRoot->revalidate(&ic, SkMatrix::I());
+    fRoot->revalidate(fShowInval ? &ic : nullptr, SkMatrix::I());
     fRoot->render(canvas);
 
     if (fShowInval) {

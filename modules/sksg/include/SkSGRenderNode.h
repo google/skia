@@ -30,7 +30,7 @@ public:
     void render(SkCanvas*, const RenderContext* = nullptr) const;
 
 protected:
-    RenderNode();
+    explicit RenderNode(uint32_t inval_traits = 0);
 
     virtual void onRender(SkCanvas*, const RenderContext*) const = 0;
 
