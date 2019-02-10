@@ -135,16 +135,20 @@ const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) 
         return fBounds;
     }
 
-    SkRect prevBounds;
-    if (fFlags & kDamage_Flag) {
-        prevBounds = fBounds;
-    }
+    const auto generate_damage =
+            ic && ((fFlags & kDamage_Flag) || (fInvalTraits & kOverrideDamage_Trait));
+    if (!generate_damage) {
+        // Trivial transitive revalidation.
+        fBounds = this->onRevalidate(ic, ctm);
+    } else {
+        // Revalidate and emit damage for old-bounds, new-bounds.
+        const auto prev_bounds = fBounds;
 
-    fBounds = this->onRevalidate(ic, ctm);
+        auto* ic_override = (fInvalTraits & kOverrideDamage_Trait) ? nullptr : ic;
+        fBounds = this->onRevalidate(ic_override, ctm);
 
-    if (fFlags & kDamage_Flag) {
-        ic->inval(prevBounds, ctm);
-        if (fBounds != prevBounds) {
+        ic->inval(prev_bounds, ctm);
+        if (fBounds != prev_bounds) {
             ic->inval(fBounds, ctm);
         }
     }
