@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24b7f245_211ddd58",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-10T03:27:53Z",
+      "side": 1,
+      "message": "Yeah, this is super annoying, I\u0027m planning to consolidate :)\n\nAlso, do you actually need the relative path?  I think the header name should be enough if the gn deps are set up correctly.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c1a5b6_7965d95e",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-10T03:27:53Z",
+      "side": 1,
+      "message": "Before calling render, you need to call revalidate() to update the DAG layout (and get inval rects, etc).",
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
