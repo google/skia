@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "9b8b010b_412c3980",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2019-02-10T19:37:59Z",
+      "side": 1,
+      "message": "Ah, it\u0027s because this is the first sample using sksg.  You need to add \"modules/sksg\" to the samples deps in BUILD.gn.",
+      "parentUuid": "654fed7f_ae03bac0",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1c1a5b6_7965d95e",
         "filename": "samplecode/SampleSG.cpp",
         "patchSetId": 1
