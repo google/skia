@@ -395,16 +395,27 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     fColorTableFilled = false;
 
     const char* status = this->decodeFrameConfig();
-    if (status == nullptr) {
-        fIncrDecDst = static_cast<uint8_t*>(dst);
-        fIncrDecRowBytes = rowBytes;
-        return SkCodec::kSuccess;
-    } else if (status == wuffs_base__suspension__short_read) {
+    if (status == wuffs_base__suspension__short_read) {
         return SkCodec::kIncompleteInput;
-    } else {
+    } else if (status != nullptr) {
         SkCodecPrintf("decodeFrameConfig: %s", status);
         return SkCodec::kErrorInInput;
     }
+
+    // In Wuffs, a paletted image is always 1 byte per pixel.
+    static constexpr size_t src_bpp = 1;
+
+    // Zero-initialize Wuffs' buffer covering the frame rect.
+    wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
+    wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
+    for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
+        sk_bzero(pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bpp),
+                 frame_rect.width() * src_bpp);
+    }
+
+    fIncrDecDst = static_cast<uint8_t*>(dst);
+    fIncrDecRowBytes = rowBytes;
+    return SkCodec::kSuccess;
 }
 
 static bool independent_frame(SkCodec* codec, int frameIndex) {
@@ -465,16 +476,8 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fSwizzler->setSampleY(fSpySampler.sampleY());
         scaledHeight = get_scaled_dimension(dstInfo().height(), fSpySampler.sampleY());
 
-        // Zero-initialize wuffs' buffer covering the frame rect. This will later be used to
-        // determine how we write to the output, even if the image was incomplete. This ensures
-        // that we do not swizzle uninitialized memory.
-        for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
-            uint8_t* s = pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bpp);
-            sk_bzero(s, frame_rect.width() * src_bpp);
-        }
-
         // If the frame rect does not fill the output, ensure that those pixels are not
-        // left uninitialized either.
+        // left uninitialized.
         if (independent && (bounds != this->bounds() || dirty_rect.is_empty())) {
             auto fillInfo = dstInfo().makeWH(fSwizzler->fillWidth(), scaledHeight);
             SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
