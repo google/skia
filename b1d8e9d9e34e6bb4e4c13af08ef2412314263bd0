@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c4606b6f_8d7f24fe",
+        "filename": "modules/sksg/include/SkSGDraw.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-10T19:08:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c6e3a763_cf2590fd",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24b7f245_211ddd58",
         "filename": "samplecode/SampleSG.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "654fed7f_ae03bac0",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-10T19:08:38Z",
+      "side": 1,
+      "message": "still seem to need the long paths",
+      "parentUuid": "24b7f245_211ddd58",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -80,6 +128,24 @@
       "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bed4dcf_b485d9e7",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-10T19:08:38Z",
+      "side": 1,
+      "message": "switched to scene",
+      "parentUuid": "00d0f1cb_1c8adaa4",
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
