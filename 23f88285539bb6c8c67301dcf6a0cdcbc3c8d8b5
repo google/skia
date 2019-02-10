@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3b38f68_dad2ee1d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-10T01:32:52Z",
+      "side": 1,
+      "message": "This fSwizzler stuff could possibly move to onStartIncrementalDecode too. I haven\u0027t moved it yet, because what\u0027s here now is the minimum needed to get the tests passing again.\n\nIIRC, previously, it was in oID (onIncrementalDecode) because the assumption was that oSID (onStartIncrementalDecode) was only called once, so couldn\u0027t guarantee that we\u0027d decoded enough input bytes to determine the frame_rect. But that\u0027s no longer true.\n\nDo we expect fSpySampler to be tickled in between oSID and oID calls? If so, that might make it tricker to move this code from oID to oSID.",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "429ed2d8_fa0ff1f8",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-10T01:32:52Z",
+      "side": 1,
+      "message": "While I\u0027m here... scaledHeight gets adjusted here the first time we are in oID for a frame, but not on subsequent times (because fSwizzler is non-null). Does that introduce an inconsistency?\n\nIf so, the fix can be a follow-up commit.",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e52cdd97_acd53d2e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-10T01:32:52Z",
+      "side": 1,
+      "message": "While I\u0027m here too... the dirty_rect could be non-empty but still have \u0027holes\u0027. With interlaced GIFs, we could have seen enough input bytes to decode rows 0 and 4 (and therefore have the dirty rect contain those rows) without having decoded rows 1, 2 or 3.\n\nWould that be problematic, in terms of reading uninitialized memory? Does this \"if\" condition need changing? If it becomes unconditional, should it move to oSID too? Hmm...",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
