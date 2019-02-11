@@ -216,11 +216,7 @@ public:
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
-    void abandon() {
-        fAbandoned = true;
-    }
-
-    bool isAbandoned() const { return fAbandoned; }
+    bool isAbandoned1() const;
 
     int numUniqueKeyProxies_TestOnly() const;
 
@@ -264,7 +260,6 @@ private:
     UniquelyKeyedProxyHash fUniquelyKeyedProxies;
 
     GrImageContext*        fImageContext;
-    bool                   fAbandoned;
 };
 
 #endif
