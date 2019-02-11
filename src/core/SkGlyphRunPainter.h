@@ -87,10 +87,10 @@ public:
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
 
-    template <typename EmptiesT, typename MasksT, typename PathsT>
+    template <typename StrikeCreatorT, typename EmptiesT, typename MasksT, typename PathsT>
     void drawGlyphRunAsBMPWithPathFallback(
-            SkScopedStrike&& strike, const SkGlyphRun& glyphRun,
-            SkPoint origin, const SkMatrix& deviceMatrix,
+            const SkPaint& paint, const SkFont& font, StrikeCreatorT&& strikeCreator,
+            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
             EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths);
 
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
