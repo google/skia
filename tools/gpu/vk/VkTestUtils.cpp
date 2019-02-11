@@ -14,6 +14,10 @@
 #include "vk/GrVkExtensions.h"
 #include "../ports/SkOSLibrary.h"
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+#include <sanitizer/lsan_interface.h>
+#endif
+
 namespace sk_gpu_test {
 
 bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
@@ -661,7 +665,13 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         pointerToFeatures ? nullptr : deviceFeatures // ppEnabledFeatures
     };
 
-    err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);
+    {
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8712
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
+        err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);
+    }
     if (err) {
         SkDebugf("CreateDevice failed: %d\n", err);
         destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
