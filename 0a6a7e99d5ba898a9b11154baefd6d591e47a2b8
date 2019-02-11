@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5039ec41_48c524cb",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-11T19:36:35Z",
+      "side": 1,
+      "message": "SkScopedStrike strike{glyphCacheState};  ?",
+      "range": {
+        "startLine": 954,
+        "startChar": 3,
+        "endLine": 954,
+        "endChar": 60
+      },
+      "revId": "0a6a7e99d5ba898a9b11154baefd6d591e47a2b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8f0a18e_9090cd9a",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-11T19:36:35Z",
+      "side": 1,
+      "message": "We\u0027re not quite out-of-scope yet when this is called right?  Maybe rename like whenLeavingScope()?  onAboutToExitScope()?",
+      "range": {
+        "startLine": 29,
+        "startChar": 17,
+        "endLine": 29,
+        "endChar": 29
+      },
+      "revId": "0a6a7e99d5ba898a9b11154baefd6d591e47a2b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "127e63f8_e16311b1",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-11T19:36:35Z",
+      "side": 1,
+      "message": "We never want to return it back to some non-global SkStrikeCache, e.g. when testing?  Isn\u0027t there a risk that we detach it from one SkStrikeCache and reattach to the global one?",
+      "range": {
+        "startLine": 47,
+        "startChar": 3,
+        "endLine": 49,
+        "endChar": 5
+      },
+      "revId": "0a6a7e99d5ba898a9b11154baefd6d591e47a2b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
