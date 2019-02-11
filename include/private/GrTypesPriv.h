@@ -413,7 +413,7 @@ enum GrShaderFlags {
     kGeometry_GrShaderFlag = 1 << kGeometry_GrShaderType,
     kFragment_GrShaderFlag = 1 << kFragment_GrShaderType
 };
-GR_MAKE_BITFIELD_OPS(GrShaderFlags);
+GR_MAKE_BITFIELD_OPS(GrShaderFlags)
 
 /**
  * Precisions of shader language variables. Not all shading languages support precisions or actually
