@@ -19,11 +19,11 @@
 // create_grcontext implementation for EGL.
 sk_sp<GrContext> create_grcontext(std::ostringstream& driverinfo,
                                   std::unique_ptr<sk_gpu_test::GLTestContext>* glContext) {
-    // We are leaking tc, but that's OK because fiddle is a short lived proces.
-    glContext->reset(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard));
     if (!glContext) {
         return nullptr;
     }
+    // We are leaking tc, but that's OK because fiddle is a short lived proces.
+    glContext->reset(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard));
     (*glContext)->makeCurrent();
     sk_sp<GrContext> result = (*glContext)->makeGrContext(GrContextOptions());
     if (!result) {
