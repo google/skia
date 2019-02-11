@@ -16,6 +16,7 @@
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
+#include "GrMemoryPool.h"
 #include "GrOpList.h"
 #include "GrPathRenderer.h"
 #include "GrQuad.h"
@@ -1075,8 +1076,9 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
-                                                       aaType, spriteCount, xform, texRect, colors);
+    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(fContext, std::move(paint),
+                                                       viewMatrix, aaType, spriteCount,
+                                                       xform, texRect, colors);
     this->addDrawOp(clip, std::move(op));
 }
 
