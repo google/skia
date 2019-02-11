@@ -1384,7 +1384,7 @@ if (skia_enable_tools) {
       if (is_ios) {
         moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
       } else {
-        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
+        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS/framework"
       }
       cflags = [ "-F$moltenvk_framework_path" ]
       ldflags = [ "-F$moltenvk_framework_path" ]
@@ -2159,6 +2159,12 @@ if (skia_enable_tools) {
         libs += [ "X11-xcb" ]
       } else if (is_win) {
         sources += [ "tools/sk_app/win/VulkanWindowContext_win.cpp" ]
+      } else if (is_mac) {
+        sources += [ "tools/sk_app/mac/VulkanWindowContext_mac.mm" ]
+        libs += [
+          "MetalKit.framework",
+          "MoltenVK.framework",
+        ]
       }
     }
 
