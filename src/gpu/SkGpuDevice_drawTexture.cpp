@@ -93,8 +93,7 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
  */
 static bool can_use_draw_texture(const SkPaint& paint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
-            paint.getBlendMode() == SkBlendMode::kSrcOver);
+            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality);
 }
 
 static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
@@ -135,8 +134,8 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         color = { paintAlpha, paintAlpha, paintAlpha, paintAlpha };
     }
     GrQuadAAFlags aaFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aaFlags, constraint,
-                     ctm, std::move(textureXform));
+    rtc->drawTexture(clip, std::move(proxy), filter, paint.getBlendMode(), color, srcRect, dstRect,
+                     aaFlags, constraint, ctm, std::move(textureXform));
 }
 
 //////////////////////////////////////////////////////////////////////////////
