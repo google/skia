@@ -129,10 +129,10 @@ const SkMasks::MaskInfo process_mask(uint32_t mask, uint32_t bpp) {
 SkMasks* SkMasks::CreateMasks(InputMasks masks, uint32_t bitsPerPixel) {
     // Trim the input masks according to bitsPerPixel
     if (bitsPerPixel < 32) {
-        masks.red &= (1 << bitsPerPixel) - 1;
-        masks.green &= (1 << bitsPerPixel) - 1;
-        masks.blue &= (1 << bitsPerPixel) - 1;
-        masks.alpha &= (1 << bitsPerPixel) - 1;
+        masks.red &= (1U << bitsPerPixel) - 1;
+        masks.green &= (1U << bitsPerPixel) - 1;
+        masks.blue &= (1U << bitsPerPixel) - 1;
+        masks.alpha &= (1U << bitsPerPixel) - 1;
     }
 
     // Check that masks do not overlap
