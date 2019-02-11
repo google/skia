@@ -110,6 +110,7 @@ void HCodeGenerator::writef(const char* s, va_list va) {
         vsprintf(heap.get(), s, copy);
         fOut->write(heap.get(), length);
     }
+    va_end(copy);
 }
 
 void HCodeGenerator::writef(const char* s, ...) {
