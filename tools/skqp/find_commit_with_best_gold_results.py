@@ -91,11 +91,25 @@ def find_best_commit(commits):
             return h
     return None
 
-def generate_commit_list(commit_count, starting_commit):
-    for i in range(commit_count):
-        yield starting_commit + '~%d' % i
 
-if __name__ == '__main__':
+def generate_commit_list(args):
+    return subprocess.check_output(['git', 'log', '--format=%H'] + args).splitlines()
+
+
+def main(args):
     os.chdir(skia_directory)
     subprocess.check_call(['git', 'fetch', 'origin'])
-    print find_best_commit(generate_commit_list(65, 'origin/master'))
+    sys.stderr.write('%s\n' % ' '.join(args))
+    commits = generate_commit_list(args)
+    sys.stderr.write('%d\n' % len(commits))
+    sys.stdout.write(find_best_commit(commits))
+
+
+if __name__ == '__main__':
+    assert len(sys.args) > 1
+    '''
+    example usage:
+        python tools/skqp/find_commit_with_best_gold_results.py \
+                origin/master ^origin/skqp/dev < /dev/null > BEST.txt 2>&1 & disown
+    '''
+    main(sys.argv[1:])
