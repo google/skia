@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f211cb6_dc93dc2a",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-11T18:39:51Z",
+      "side": 1,
+      "message": "Pretty sure this isn\u0027t numerically stable, but I\u0027m guessing we don\u0027t care about that.",
+      "range": {
+        "startLine": 330,
+        "startChar": 82,
+        "endLine": 330,
+        "endChar": 85
+      },
+      "revId": "d3970becbb132a1427a5194fa1b947569d2b95fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
