@@ -254,6 +254,9 @@ def compile_fn(api, checkout_root, out_dir):
     assert sanitize == ''
     sanitize = 'MSVC'
 
+  if 'Wuffs' in extra_tokens:
+    args['skia_use_wuffs'] = 'true'
+
   for (k,v) in {
     'cc':  cc,
     'cxx': cxx,
