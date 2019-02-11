@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8ce11f6a_21a25efb",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1502,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T16:10:51Z",
+      "side": 1,
+      "message": "src rect comment removed.",
+      "parentUuid": "54d65791_e288cbe2",
+      "range": {
+        "startLine": 1502,
+        "startChar": 23,
+        "endLine": 1502,
+        "endChar": 77
+      },
+      "revId": "ed456c504fe0111a1d0463634082724da8174f76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6d0b717_3a038194",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "ed456c504fe0111a1d0463634082724da8174f76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ff67b16_c2f582a8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2305,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T16:10:51Z",
+      "side": 1,
+      "message": "Cleaned up onDrawImage and onDrawBitmap to both use kStrict_SrcRectConstraint for consistency with the default args to drawImageRect in SkCanvas. Internally, when the src rect is null, the strict constraint is dropped down to fast right away.",
+      "parentUuid": "f6d0b717_3a038194",
+      "range": {
+        "startLine": 2305,
+        "startChar": 32,
+        "endLine": 2305,
+        "endChar": 47
+      },
+      "revId": "ed456c504fe0111a1d0463634082724da8174f76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
