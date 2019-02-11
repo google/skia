@@ -1162,7 +1162,7 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         localeNameLen = getUserDefaultLocaleNameProc(localeNameStorage, LOCALE_NAME_MAX_LENGTH);
         if (localeNameLen) {
             localeName = localeNameStorage;
-        };
+        }
     }
 
     return sk_make_sp<SkFontMgr_DirectWrite>(factory, collection, fallback,

@@ -32,8 +32,8 @@ assert_cl(cl_int       const code,
 //
 //
 
-#define cl(...)    assert_cl((cl##__VA_ARGS__), __FILE__, __LINE__, true);
-#define cl_ok(err) assert_cl(err,               __FILE__, __LINE__, true);
+#define cl(...)    assert_cl((cl##__VA_ARGS__), __FILE__, __LINE__, true)
+#define cl_ok(err) assert_cl(err,               __FILE__, __LINE__, true)
 
 //
 //
