@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f84797ff_161a34b2",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-11T19:59:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "517ea07e_305f455d",
+      "revId": "ab902bcc8efc577260da112a9fb6ffe3a1d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e5a8ac5_ad0aa92f",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-11T19:59:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3b87509_c5f06e37",
+      "revId": "ab902bcc8efc577260da112a9fb6ffe3a1d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
