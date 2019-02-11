@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7b3f88e_6b16c8ef",
+        "filename": "tools/sk_shaper_utils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-11T21:57:41Z",
+      "side": 1,
+      "message": "nit: can you add some comments re. why we need to check openStream() here?  Is this something that should be pushed to SkShaper?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 20
+      },
+      "revId": "b5bcbee61906fb04bd88b446376942bce96be25b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
