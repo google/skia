@@ -34,10 +34,7 @@
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fImageContext->priv().singleOwner());)
 
-GrProxyProvider::GrProxyProvider(GrImageContext* imageContext)
-        : fImageContext(imageContext)
-        , fAbandoned(false) {
-}
+GrProxyProvider::GrProxyProvider(GrImageContext* imageContext) : fImageContext(imageContext) {}
 
 GrProxyProvider::~GrProxyProvider() {
     if (this->renderingDirectly()) {
@@ -51,7 +48,7 @@ GrProxyProvider::~GrProxyProvider() {
 bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
-    if (this->isAbandoned() || !proxy) {
+    if (this->isAbandoned1() || !proxy) {
         return false;
     }
 
@@ -90,7 +87,7 @@ void GrProxyProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
     SkASSERT(proxy);
     SkASSERT(proxy->getUniqueKey().isValid());
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return;
     }
 
@@ -101,7 +98,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
                                                             GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -161,7 +158,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
                                                                     GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -201,7 +198,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     ASSERT_SINGLE_OWNER
     SkASSERT(srcImage);
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -294,7 +291,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
                                                          SkBudgeted budgeted) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -305,7 +302,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitmap& bitmap) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -486,7 +483,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
                                                           ReleaseProc releaseProc,
                                                           ReleaseContext releaseCtx) {
     SkASSERT(ioType != kWrite_GrIOType);
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -522,7 +519,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
         GrWrapOwnership ownership, GrWrapCacheable cacheable, ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -562,7 +559,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         const GrBackendRenderTarget& backendRT, GrSurfaceOrigin origin, ReleaseProc releaseProc,
         ReleaseContext releaseCtx) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -596,7 +593,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -623,7 +620,7 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
 
 sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
         const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
-    if (this->isAbandoned()) {
+    if (this->isAbandoned1()) {
         return nullptr;
     }
 
@@ -835,6 +832,10 @@ const GrCaps* GrProxyProvider::caps() const {
 
 sk_sp<const GrCaps> GrProxyProvider::refCaps() const {
     return fImageContext->priv().refCaps();
+}
+
+bool GrProxyProvider::isAbandoned1() const {
+    return fImageContext->priv().abandoned();
 }
 
 void GrProxyProvider::orphanAllUniqueKeys() {
