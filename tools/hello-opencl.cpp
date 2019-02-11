@@ -7,43 +7,103 @@
 
 // This is a simple OpenCL Hello World that tests you have a functioning OpenCL setup.
 
-#include <CL/cl.hpp>
+#include "cl.hpp"
 #include <initializer_list>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
-extern "C" {
-    #include "cl/assert_cl.h"   // for cl(), cl_ok() macros
-    #include "cl/find_cl.h"     // for clFindIdsByName
+static inline void assert_cl(cl_int rc, const char* file, int line) {
+    if (rc != CL_SUCCESS) {
+        fprintf(stderr, "%s:%d, got OpenCL error code %d\n", file,line,rc);
+        exit(1);
+    }
 }
+
+// cl(Foo(...)) calls clFoo(...) and asserts that it succeeds.  Handy for calling OpenCL C APIs.
+#define cl(...)    assert_cl((cl##__VA_ARGS__), __FILE__, __LINE__)
+
+// Just assert the result of an OpenCL call.  Handy for the OpenCL C++ wrapper APIs.
+#define cl_ok(err) assert_cl(err,               __FILE__, __LINE__)
 
 int main(int argc, char** argv) {
     // Find any OpenCL platform+device with these substrings.
     const char* platform_match = argc > 1 ? argv[1] : "";
     const char* device_match   = argc > 2 ? argv[2] : "";
 
-    cl_platform_id platform_id;
-    cl_device_id   device_id;
+    // TODO: port these platform and device searches to the C++ wrapper APIs.
 
-    char device_name[256];
-    size_t device_name_len;
+    cl_platform_id platform_id{};
+    {
+        cl_uint n;
+        cl(GetPlatformIDs(0, nullptr, &n));
 
-    // clFindIdsByName will narrate what it's doing when this is set.
-    bool verbose = true;
+        std::vector<cl_platform_id> ids(n);
+        cl(GetPlatformIDs(n, ids.data(), nullptr));
 
-    // The cl() macro prepends cl to its argument, calls it, and asserts that it succeeded,
-    // printing out the file, line, and somewhat readable version of the error code on failure.
-    //
-    // It's generally used to call OpenCL APIs, but here we've written clFindIdsByName to match
-    // the convention, as its error conditions are just going to be passed along from OpenCL.
-    cl(FindIdsByName(platform_match,  device_match,
-                     &platform_id,    &device_id,
-                     sizeof(device_name), device_name, &device_name_len,
-                     verbose));
+        bool found = false;
+        for (cl_platform_id id : ids) {
+            size_t len;
+            cl(GetPlatformInfo(id, CL_PLATFORM_NAME,
+                               0, nullptr, &len));
 
-    printf("picked %.*s\n", (int)device_name_len, device_name);
+            std::string name(len, ' ');
+            cl(GetPlatformInfo(id, CL_PLATFORM_NAME,
+                               len, &name.front(), nullptr));
 
-    // Allan's code is all C using OpenCL's C API,
-    // but we can mix that freely with the C++ API found in cl.hpp.
-    // cl_ok() comes in handy here, which is cl() without the extra cl- prefix.
+            fprintf(stdout, "Available platform: %s\n", name.c_str());
+
+            if (name.find(platform_match) != std::string::npos) {
+                platform_id = id;
+                found = true;
+            }
+        }
+        if (!found) {
+            fprintf(stderr, "No platform containing '%s' found.\n", platform_match);
+            exit(1);
+        }
+    }
+
+    cl_device_id device_id{};
+    {
+        cl_uint n;
+        cl(GetDeviceIDs(platform_id, CL_DEVICE_TYPE_ALL,
+                        0, nullptr, &n));
+
+        std::vector<cl_device_id> ids(n);
+        cl(GetDeviceIDs(platform_id, CL_DEVICE_TYPE_ALL,
+                        n, ids.data(), nullptr));
+
+        bool found = false;
+        for (cl_device_id id : ids) {
+            size_t len;
+            cl(GetDeviceInfo(id, CL_DEVICE_NAME,
+                             0, nullptr, &len));
+
+            std::string name(len, ' ');
+            cl(GetDeviceInfo(id, CL_DEVICE_NAME,
+                             len, &name.front(), nullptr));
+
+            cl(GetDeviceInfo(id, CL_DRIVER_VERSION,
+                             0, nullptr, &len));
+
+            std::string version(len, ' ');
+            cl(GetDeviceInfo(id, CL_DRIVER_VERSION,
+                             len, &version.front(), nullptr));
+
+            fprintf(stdout, "Available device %s, version %s\n", name.c_str(), version.c_str());
+
+            if (name.find(device_match) != std::string::npos) {
+                device_id = id;
+                found = true;
+            }
+        }
+        if (!found) {
+            fprintf(stderr, "No device containing '%s' found.\n", device_match);
+            exit(2);
+        }
+    }
 
     cl::Device device(device_id);
 
@@ -54,8 +114,8 @@ int main(int argc, char** argv) {
     cl_ok(device.getInfo(CL_DEVICE_VENDOR,     &vendor));
     cl_ok(device.getInfo(CL_DEVICE_EXTENSIONS, &extensions));
 
-    printf("name %s, vendor %s, extensions:\n%s\n",
-           name.c_str(), vendor.c_str(), extensions.c_str());
+    fprintf(stdout, "Picked name %s, vendor %s, extensions:\n%s\n",
+            name.c_str(), vendor.c_str(), extensions.c_str());
 
     std::vector<cl::Device> devices = { device };
 
@@ -113,6 +173,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("OpenCL sez: %g x %g = %g\n", a[42], b[42], p[42]);
+    fprintf(stdout, "OpenCL sez: %g x %g = %g\n", a[42], b[42], p[42]);
     return 0;
 }
