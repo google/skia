@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c87b0ca_c2c92bab",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-11T19:38:42Z",
+      "side": 1,
+      "message": "fStrikeCache-\u003eattachNode(this); ?",
+      "revId": "b30befe6d5c037269938aa7a39012cf7d5edec69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
