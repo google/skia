@@ -1409,8 +1409,6 @@ bool GrGLGpu::uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int
     return allocate_and_populate_compressed_texture(texConfig, *interface, caps, target,
                                                     internalFormat, texels, mipLevelCount,
                                                     texWidth, texHeight);
-
-    return true;
 }
 
 static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
