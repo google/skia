@@ -11,7 +11,7 @@ template("third_party") {
       if (defined(invoker.public_defines)) {
         defines = invoker.public_defines
       }
-      if (is_win) {
+      if (is_win && !is_clang) {
         include_dirs = invoker.public_include_dirs
       } else {
         foreach(dir, invoker.public_include_dirs) {
