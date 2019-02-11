@@ -16,6 +16,24 @@
       "revId": "f14e4f02113e4ad52660a3cd3e441531b3ad762f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5722cee8_d2246719",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-11T21:49:00Z",
+      "side": 1,
+      "message": "This interface is still being debated. In our use case we expect users to have a flat bit of text to shape. However, most editors will use something other than a flat buffer, so an interface which looks more like a TextProvider with an \"SkSpan\u003cconst char\u003e getText(size_t offset)\" method would probably be better. It isn\u0027t clear if SkSpan is actually a good idea for this CL either, we may want an (offset, length) pair instead of a pointer.",
+      "parentUuid": "971f50bf_91b6ab00",
+      "revId": "f14e4f02113e4ad52660a3cd3e441531b3ad762f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
