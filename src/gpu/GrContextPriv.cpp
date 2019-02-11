@@ -28,8 +28,8 @@
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->singleOwner());)
-#define RETURN_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return false; }
+#define RETURN_IF_ABANDONED_PRIV if (fContext->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV if (fContext->abandoned()) { return false; }
 
 sk_sp<const GrCaps> GrContextPriv::refCaps() const {
     return fContext->refCaps();
