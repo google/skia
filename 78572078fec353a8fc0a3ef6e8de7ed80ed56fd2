@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "158f7a7f_b3a0f633",
+        "filename": "modules/sksg/include/SkSGRenderNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-11T20:43:30Z",
+      "side": 1,
+      "message": "It was not immediately obvious to me whether this should return a const*.  In the end I convinced myself that it should, because\n\na) nodeAt() itself is const\n\nb) clients cannot manipulate abstract RenderNodes directly, nor are they safe to downcast without external derived type knowledge \u003d\u003e clients must maintain an external mapping anyway, and this should only be used as a (const) lookup key",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 9
+      },
+      "revId": "78572078fec353a8fc0a3ef6e8de7ed80ed56fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
