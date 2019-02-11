@@ -216,12 +216,6 @@ public:
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
-    void abandon() {
-        fAbandoned = true;
-    }
-
-    bool isAbandoned() const { return fAbandoned; }
-
     int numUniqueKeyProxies_TestOnly() const;
 
     // This is called on a DDL's proxyprovider when the DDL is finished. The uniquely keyed
@@ -250,6 +244,8 @@ private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
 
+    bool isAbandoned() const;
+
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
 
     struct UniquelyKeyedProxyHashTraits {
@@ -264,7 +260,6 @@ private:
     UniquelyKeyedProxyHash fUniquelyKeyedProxies;
 
     GrImageContext*        fImageContext;
-    bool                   fAbandoned;
 };
 
 #endif

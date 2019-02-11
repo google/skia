@@ -106,11 +106,11 @@ private:
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
-#define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
-#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (this->drawingManager()->wasAbandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
+#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fContext->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->fContext->abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (fContext->abandoned()) { return nullptr; }
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -149,10 +149,6 @@ public:
 private:
     GrDrawingManager* fDrawingManager;
 };
-
-bool GrRenderTargetContext::wasAbandoned() const {
-    return this->drawingManager()->wasAbandoned();
-}
 
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
@@ -1153,7 +1149,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                            const SkPath& path,
                                            const SkDrawShadowRec& rec) {
     ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) {
+    if (fContext->abandoned()) {
         return true;
     }
     SkDEBUGCODE(this->validate();)
@@ -1623,7 +1619,9 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
 GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
         int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
     ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) { return GrSemaphoresSubmitted::kNo; }
+    if (fContext->abandoned()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "prepareForExternalIO", fContext);
 
@@ -1807,7 +1805,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
 SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
     ASSERT_SINGLE_OWNER_PRIV
 
-    if (fRenderTargetContext->wasAbandoned()) {
+    if (fRenderTargetContext->fContext->abandoned()) {
         return SkBudgeted::kNo;
     }
 
@@ -1933,7 +1931,7 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
 void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) {
+    if (fContext->abandoned()) {
         fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
