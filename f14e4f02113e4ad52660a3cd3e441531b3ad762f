@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "971f50bf_91b6ab00",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T20:42:57Z",
+      "side": 1,
+      "message": "make this a SkSpan\u003cconst char\u003e too?",
+      "revId": "f14e4f02113e4ad52660a3cd3e441531b3ad762f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
