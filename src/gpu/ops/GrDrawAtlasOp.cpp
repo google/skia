@@ -6,12 +6,70 @@
  */
 
 #include "GrDrawAtlasOp.h"
+
+#include "GrCaps.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGr.h"
 #include "SkRSXform.h"
 #include "SkRandom.h"
 #include "SkRectPriv.h"
+
+namespace {
+
+class DrawAtlasOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
+public:
+    DEFINE_OP_CLASS_ID
+
+    DrawAtlasOp(const Helper::MakeArgs&, const SkPMColor4f& color,
+                const SkMatrix& viewMatrix, GrAAType, int spriteCount, const SkRSXform* xforms,
+                const SkRect* rects, const SkColor* colors);
+
+    const char* name() const override { return "DrawAtlasOp"; }
+
+    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+        fHelper.visitProxies(func);
+    }
+
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
+
+    FixedFunctionFlags fixedFunctionFlags() const override;
+
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override;
+
+private:
+    void onPrepareDraws(Target*) override;
+
+    const SkPMColor4f& color() const { return fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    bool hasColors() const { return fHasColors; }
+    int quadCount() const { return fQuadCount; }
+
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
+
+    struct Geometry {
+        SkPMColor4f fColor;
+        SkTArray<uint8_t, true> fVerts;
+    };
+
+    SkSTArray<1, Geometry, true> fGeoData;
+    Helper fHelper;
+    SkMatrix fViewMatrix;
+    SkPMColor4f fColor;
+    int fQuadCount;
+    bool fHasColors;
+
+    typedef GrMeshDrawOp INHERITED;
+};
 
 static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
                                           bool hasColors,
@@ -27,9 +85,9 @@ static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
-GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
-                             const SkMatrix& viewMatrix, GrAAType aaType, int spriteCount,
-                             const SkRSXform* xforms, const SkRect* rects, const SkColor* colors)
+DrawAtlasOp::DrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+                         const SkMatrix& viewMatrix, GrAAType aaType, int spriteCount,
+                         const SkRSXform* xforms, const SkRect* rects, const SkColor* colors)
         : INHERITED(ClassID()), fHelper(helperArgs, aaType), fColor(color) {
     SkASSERT(xforms);
     SkASSERT(rects);
@@ -110,7 +168,7 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor
 }
 
 #ifdef SK_DEBUG
-SkString GrDrawAtlasOp::dumpInfo() const {
+SkString DrawAtlasOp::dumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
         string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor.toBytes_RGBA(),
@@ -122,7 +180,7 @@ SkString GrDrawAtlasOp::dumpInfo() const {
 }
 #endif
 
-void GrDrawAtlasOp::onPrepareDraws(Target* target) {
+void DrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor
     sk_sp<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
                                           this->hasColors(),
@@ -152,8 +210,8 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
-GrOp::CombineResult GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
-    GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
+GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+    DrawAtlasOp* that = t->cast<DrawAtlasOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
         return CombineResult::kCannotCombine;
@@ -178,11 +236,11 @@ GrOp::CombineResult GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     return CombineResult::kMerged;
 }
 
-GrDrawOp::FixedFunctionFlags GrDrawAtlasOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags DrawAtlasOp::fixedFunctionFlags() const {
     return fHelper.fixedFunctionFlags();
 }
 
-GrProcessorSet::Analysis GrDrawAtlasOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
+GrProcessorSet::Analysis DrawAtlasOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
     GrProcessorAnalysisColor gpColor;
     if (this->hasColors()) {
         gpColor.setToUnknown();
@@ -195,6 +253,22 @@ GrProcessorSet::Analysis GrDrawAtlasOp::finalize(const GrCaps& caps, const GrApp
         fHasColors = false;
     }
     return result;
+}
+
+} // anonymous namespace
+
+std::unique_ptr<GrDrawOp> GrDrawAtlasOp::Make(GrContext* context,
+                                              GrPaint&& paint,
+                                              const SkMatrix& viewMatrix,
+                                              GrAAType aaType,
+                                              int spriteCount,
+                                              const SkRSXform* xforms,
+                                              const SkRect* rects,
+                                              const SkColor* colors) {
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawAtlasOp>(context, std::move(paint),
+                                                                viewMatrix, aaType,
+                                                                spriteCount, xforms,
+                                                                rects, colors);
 }
 
 #if GR_TEST_UTILS
@@ -240,7 +314,7 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
     }
 }
 
-GR_DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
+GR_DRAW_OP_TEST_DEFINE(DrawAtlasOp) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
 
     SkTArray<SkRSXform> xforms(spriteCount);

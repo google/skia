@@ -16,6 +16,7 @@
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
+#include "GrMemoryPool.h"
 #include "GrOpList.h"
 #include "GrPathRenderer.h"
 #include "GrQuad.h"
