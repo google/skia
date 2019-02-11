@@ -8,6 +8,7 @@
 #include "GrRecordingContext.h"
 
 #include "GrCaps.h"
+#include "GrDrawingManager.h"
 #include "GrMemoryPool.h"
 #include "GrRecordingContextPriv.h"
 #include "GrSkSLFPFactoryCache.h"
@@ -22,6 +23,10 @@ GrRecordingContext::~GrRecordingContext() { }
 
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
+}
+
+GrDrawingManager* GrRecordingContext::drawingManager() {
+    return fDrawingManager.get();
 }
 
 sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
@@ -40,6 +45,53 @@ GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     return this->refOpMemoryPool().get();
 }
 
+bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
+
+    if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
+        return false;
+    }
+
+    GrPathRendererChain::Options prcOptions;
+    prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
+#if GR_TEST_UTILS
+    prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
+#endif
+    if (this->options().fDisableCoverageCountingPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
+    }
+    if (this->options().fDisableDistanceFieldPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+    }
+
+#if 0
+    if (!fResourceCache) {
+        // DDL TODO: remove this crippling of the path renderer chain
+        // Disable the small path renderer bc of the proxies in the atlas. They need to be
+        // unified when the opLists are added back to the destination drawing manager.
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kStencilAndCover;
+    }
+#endif
+
+    GrTextContext::Options textContextOptions;
+    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
+    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
+    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
+#if SK_SUPPORT_ATLAS_TEXT
+    if (GrContextOptions::Enable::kYes == this->options().fDistanceFieldGlyphVerticesAlwaysHaveW) {
+        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
+    }
+#endif
+
+    fDrawingManager.reset(new GrDrawingManager(this,
+                                               prcOptions,
+                                               textContextOptions,
+                                               this->singleOwner(),
+                                               this->explicitlyAllocateGPUResources(),
+                                               this->options().fSortRenderTargets,
+                                               this->options().fReduceOpListSplitting));
+    return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
