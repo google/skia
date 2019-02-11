@@ -29,7 +29,7 @@ public:
     bool isSubpixel() const { return fIsSubpixel; }
     SkAxisAlignment axisAlignmentForHText() const { return fAxisAlignmentForHText; }
 
-    const SkDescriptor& getDescriptor() {
+    const SkDescriptor& getDescriptor() const override {
         return *fDescriptor.getDesc();
     }
 

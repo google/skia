@@ -23,6 +23,7 @@ class SkStrikeInterface {
 public:
     virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
+    virtual const SkDescriptor& getDescriptor() const = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
 };
