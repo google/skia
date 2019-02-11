@@ -156,5 +156,5 @@ def print_skia_lines_symbol_file(lines):
     print '%-10s: %-80s in %s' % (bytes_or_kb(filesize), symbol, this_file)
 
 
-if '__main__' == __name__:
+if __name__ == '__main__':
   main()
