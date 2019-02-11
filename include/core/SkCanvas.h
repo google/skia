@@ -1297,12 +1297,8 @@ public:
     /** Draws SkImage image, with its top-left corner at (left, top),
         using clip, SkMatrix, and optional SkPaint paint.
 
-        If paint is supplied, apply SkColorFilter, alpha, SkImageFilter, SkBlendMode,
-        and SkDrawLooper. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If generated
-        mask extends beyond image bounds, replicate image edge colors, just as SkShader
-        made from SkImage::makeShader with SkShader::kClamp_TileMode set replicates the
-        image edge color when it samples outside of its bounds.
+        This is equivalent to drawImageRect() using a dst rect at (x,y) with the
+        same width and height of the image.
 
         @param image  uncompressed rectangular map of pixels
         @param left   left side of image
@@ -1316,12 +1312,8 @@ public:
     /** Draws SkImage image, with its top-left corner at (left, top),
         using clip, SkMatrix, and optional SkPaint paint.
 
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter,
-        SkBlendMode, and SkDrawLooper. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If generated
-        mask extends beyond image bounds, replicate image edge colors, just as SkShader
-        made from SkImage::makeShader with SkShader::kClamp_TileMode set replicates the
-        image edge color when it samples outside of its bounds.
+        This is equivalent to drawImageRect() using a dst rect at (x,y) with the
+        same width and height of the image.
 
         @param image  uncompressed rectangular map of pixels
         @param left   left side of image
@@ -1360,6 +1352,10 @@ public:
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
 
+        When using a shader or shader mask filter, its coordinate system is based on the
+        current CTM, so will reflect the dst rect geometry and is equivalent to
+        drawRect(dst). The src rect is only used to access the provided image.
+
         constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
         sample within src; set to kFast_SrcRectConstraint allows sampling outside to
         improve performance.
@@ -1388,6 +1384,10 @@ public:
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
 
+        When using a shader or shader mask filter, its coordinate system is based on the
+        current CTM, so will reflect the dst rect geometry and is equivalent to
+        drawRect(dst). The src rect is only used to access the provided image.
+
         constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
         sample within isrc; set to kFast_SrcRectConstraint allows sampling outside to
         improve performance.
@@ -1414,6 +1414,10 @@ public:
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
 
+        When using a shader or shader mask filter, its coordinate system is based on the
+        current CTM, so will reflect the dst rect geometry and is equivalent to
+        drawRect(dst).
+
         @param image       SkImage containing pixels, dimensions, and format
         @param dst         destination SkRect of image to draw to
         @param paint       SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
@@ -1431,6 +1435,10 @@ public:
         If generated mask extends beyond image bounds, replicate image edge colors, just
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
+
+        When using a shader or shader mask filter, its coordinate system is based on the
+        current CTM, so will reflect the dst rect geometry and is equivalent to
+        drawRect(dst). The src rect is only used to access the provided image.
 
         @param image       SkImage containing pixels, dimensions, and format
         @param src         source SkRect of image to draw from
@@ -1456,6 +1464,10 @@ public:
         If generated mask extends beyond image bounds, replicate image edge colors, just
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
+
+        When using a shader or shader mask filter, its coordinate system is based on the
+        current CTM, so will reflect the dst rect geometry and is equivalent to
+        drawRect(dst). The src rect is only used to access the provided image.
 
         constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
         sample within image; set to kFast_SrcRectConstraint allows sampling outside to
@@ -1484,6 +1496,10 @@ public:
         If generated mask extends beyond image bounds, replicate image edge colors, just
         as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
         replicates the image edge color when it samples outside of its bounds.
+
+        When using a shader or shader mask filter, its coordinate system is based on the
+        current CTM, so will reflect the dst rect geometry and is equivalent to
+        drawRect(dst).
 
         constraint set to kStrict_SrcRectConstraint limits SkPaint SkFilterQuality to
         sample within image; set to kFast_SrcRectConstraint allows sampling outside to

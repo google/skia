@@ -29,7 +29,6 @@ protected:
                   const SkPaint& paint,
                   bool pathIsMutable = false) override;
 
-    void drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint& paint) override;
     void drawSprite(const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override;
     void drawBitmapRect(const SkBitmap&,

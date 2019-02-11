@@ -19,10 +19,13 @@ static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x
                               const SkImage* mask, sk_sp<SkMaskFilter> outer, SkBlendMode mode) {
     SkMatrix matrix = SkMatrix::MakeScale(SkIntToScalar(image->width()) / mask->width(),
                                           SkIntToScalar(image->height() / mask->height()));
+    // The geometry of the drawImage is also translated by (x,y) so make the mask filter's
+    // coordinate system align with the rendered rectangle.
+    matrix.postTranslate(x, y);
     SkPaint paint;
     auto mf = SkShaderMaskFilter::Make(mask->makeShader(&matrix));
     if (outer) {
-        mf = SkMaskFilter::MakeCompose(outer, mf);
+        mf = SkMaskFilter::MakeCompose(outer->makeWithMatrix(matrix), mf);
     }
     paint.setMaskFilter(mf);
     paint.setAntiAlias(true);
