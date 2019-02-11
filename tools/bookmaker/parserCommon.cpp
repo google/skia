@@ -346,7 +346,6 @@ char* ParserCommon::ReadToBuffer(string filename, int* size) {
     memset(buffer, ' ', *size);
     SkAssertResult(*size == (int)fread(buffer, 1, *size, file));
     fclose(file);
-    fflush(file);
     return buffer;
 }
 
