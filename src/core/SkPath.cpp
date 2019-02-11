@@ -3865,7 +3865,7 @@ static int compute_conic_extremas(const SkPoint src[3], SkScalar w, SkPoint extr
     return n + 1;
 }
 
-static int compute_cubic_extremas(const SkPoint src[3], SkPoint extremas[5]) {
+static int compute_cubic_extremas(const SkPoint src[4], SkPoint extremas[5]) {
     SkScalar ts[4];
     int n  = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX, src[3].fX, ts);
         n += SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY, src[3].fY, &ts[n]);
