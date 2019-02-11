@@ -75,6 +75,16 @@ def RunSteps(api):
     analyzed += len(files)
     if len(files):
       analyze_cpp_lib(api, checkout_root, out_dir, files)
+
+    files = api.file.glob_paths(
+        'find skottie_tool',
+        bin_dir,
+        'skottie_tool',
+        test_data=['skottie_tool'])
+    analyzed += len(files)
+    if len(files):
+      make_treemap(api, checkout_root, out_dir, files)
+
   if not analyzed: # pragma: nocover
     raise Exception('No files were analyzed!')
 
@@ -184,6 +194,19 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_short'] = sections[1].split('\n')
         logs['bloaty_symbol_full']  = sections[2].split('\n')
         logs['perf_json']           = sections[3].split('\n')
+
+
+# make a zip file containing an HTML treemap of the files
+def make_treemap(api, checkout_root, out_dir, files):
+  for f in files:
+
+    skia_dir = checkout_root.join('skia')
+    with api.context(cwd=skia_dir):
+      script = skia_dir.join('infra', 'bots', 'buildstats',
+                             'make_treemap.py')
+      step_data = api.run(api.python, 'Make code size treemap', script=script,
+                         args=[f, out_dir],
+                         stdout=api.raw_io.output())
 
 
 def GenTests(api):
