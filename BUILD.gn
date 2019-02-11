@@ -2404,16 +2404,11 @@ if (skia_enable_tools) {
   if (skia_use_opencl) {
     test_app("hello-opencl") {
       sources = [
-        "src/compute/common/cl/assert_cl.c",
-        "src/compute/common/cl/find_cl.c",
         "tools/hello-opencl.cpp",
       ]
-      include_dirs = [ "src/compute/common" ]
-      if (is_linux) {
-        libs = [ "OpenCL" ]
-      } else if (is_win) {
-        libs = [ "OpenCL.lib" ]
-      }
+      deps = [
+        "//third_party/opencl",
+      ]
     }
   }
 }

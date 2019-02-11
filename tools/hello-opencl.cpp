@@ -7,45 +7,76 @@
 
 // This is a simple OpenCL Hello World that tests you have a functioning OpenCL setup.
 
-#include <CL/cl.hpp>
+#include "cl.hpp"
 #include <initializer_list>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
-extern "C" {
-    #include "cl/assert_cl.h"   // for cl(), cl_ok() macros
-    #include "cl/find_cl.h"     // for clFindIdsByName
+static inline void assert_cl(cl_int rc, const char* file, int line) {
+    if (rc != CL_SUCCESS) {
+        fprintf(stderr, "%s:%d, got OpenCL error code %d\n", file,line,rc);
+        exit(1);
+    }
 }
+#define cl_ok(err) assert_cl(err, __FILE__, __LINE__)
 
 int main(int argc, char** argv) {
     // Find any OpenCL platform+device with these substrings.
     const char* platform_match = argc > 1 ? argv[1] : "";
     const char* device_match   = argc > 2 ? argv[2] : "";
 
-    cl_platform_id platform_id;
-    cl_device_id   device_id;
+    cl::Platform platform;
+    {
+        std::vector<cl::Platform> platforms;
+        cl_ok(cl::Platform::get(&platforms));
 
-    char device_name[256];
-    size_t device_name_len;
+        bool found = false;
+        for (cl::Platform p : platforms) {
+            std::string name;
+            cl_ok(p.getInfo(CL_PLATFORM_NAME, &name));
 
-    // clFindIdsByName will narrate what it's doing when this is set.
-    bool verbose = true;
+            fprintf(stdout, "Available platform %s\n", name.c_str());
 
-    // The cl() macro prepends cl to its argument, calls it, and asserts that it succeeded,
-    // printing out the file, line, and somewhat readable version of the error code on failure.
-    //
-    // It's generally used to call OpenCL APIs, but here we've written clFindIdsByName to match
-    // the convention, as its error conditions are just going to be passed along from OpenCL.
-    cl(FindIdsByName(platform_match,  device_match,
-                     &platform_id,    &device_id,
-                     sizeof(device_name), device_name, &device_name_len,
-                     verbose));
+            if (name.find(platform_match) != std::string::npos) {
+                platform = p;
+                found = true;
+            }
+        }
+        if (!found) {
+            fprintf(stderr, "No platform containing '%s' found.\n", platform_match);
+            exit(1);
+        }
+    }
 
-    printf("picked %.*s\n", (int)device_name_len, device_name);
+    cl::Device device;
+    {
+        std::vector<cl::Device> devices;
+        cl_ok(platform.getDevices(CL_DEVICE_TYPE_ALL, &devices));
 
-    // Allan's code is all C using OpenCL's C API,
-    // but we can mix that freely with the C++ API found in cl.hpp.
-    // cl_ok() comes in handy here, which is cl() without the extra cl- prefix.
+        bool found = false;
+        for (cl::Device d : devices) {
+            std::string name,
+                        version,
+                        driver;
+            cl_ok(d.getInfo(CL_DEVICE_NAME,    &name));
+            cl_ok(d.getInfo(CL_DEVICE_VERSION, &version));
+            cl_ok(d.getInfo(CL_DRIVER_VERSION, &driver));
 
-    cl::Device device(device_id);
+            fprintf(stdout, "Available device %s%s, driver version %s\n"
+                          , version.c_str(), name.c_str(), driver.c_str());
+
+            if (name.find(device_match) != std::string::npos) {
+                device = d;
+                found = true;
+            }
+        }
+        if (!found) {
+            fprintf(stderr, "No device containing '%s' found.\n", device_match);
+            exit(2);
+        }
+    }
 
     std::string name,
                 vendor,
@@ -54,8 +85,8 @@ int main(int argc, char** argv) {
     cl_ok(device.getInfo(CL_DEVICE_VENDOR,     &vendor));
     cl_ok(device.getInfo(CL_DEVICE_EXTENSIONS, &extensions));
 
-    printf("name %s, vendor %s, extensions:\n%s\n",
-           name.c_str(), vendor.c_str(), extensions.c_str());
+    fprintf(stdout, "Using %s, vendor %s, extensions:\n%s\n",
+            name.c_str(), vendor.c_str(), extensions.c_str());
 
     std::vector<cl::Device> devices = { device };
 
@@ -113,6 +144,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("OpenCL sez: %g x %g = %g\n", a[42], b[42], p[42]);
+    fprintf(stdout, "OpenCL sez: %g x %g = %g\n", a[42], b[42], p[42]);
     return 0;
 }
