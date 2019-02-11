@@ -44,7 +44,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_WIN
+#if defined(SK_BUILD_FOR_WIN) && !defined(__clang__)
     #if !defined(SK_RESTRICT)
         #define SK_RESTRICT __restrict
     #endif
