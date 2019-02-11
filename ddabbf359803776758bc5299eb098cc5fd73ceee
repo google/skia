@@ -1,0 +1,320 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4882d8a5_3df5a172",
+        "filename": "modules/particles/include/SkParticleAffector.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Should add public factory functions for the affectors if this code is meant to be used by anyone outside of the slide, since reflection-only is really mostly useful for the auto-building widgets.",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 37
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc9e2274_9173c900",
+        "filename": "modules/particles/include/SkParticleData.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "What distinguishes these structs from those in SkParticleEffect? Could these live in that header too?",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 92
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6122ee29_92144474",
+        "filename": "modules/particles/include/SkParticleData.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Something like fRightHand/fLocalXAxis/fHorizontalAxis, might make it clearer that this is the orientation of the particle. What about rotating it semantically by 90 degrees and calling it fHeading/fVerticalAxis? (makes less difference if choosing between fHorizontal or fVertical, unless the math is particularly easier with one vector vs. the other)",
+      "range": {
+        "startLine": 21,
+        "startChar": 13,
+        "endLine": 21,
+        "endChar": 19
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35fb942b_b050c268",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "To be replaced with SkCurve fLifetime \u003d 1.0f?",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 45
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7117b820_67b46cf7",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Would it be better to provide the SkRandom seed at construction, and then not allow the random to be changed from update to update, and/or used by external code?",
+      "range": {
+        "startLine": 77,
+        "startChar": 15,
+        "endLine": 77,
+        "endChar": 32
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40fff018_2432a9ae",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Since this is used for the stable random passed to affectors, could this be named fStableRandom?",
+      "range": {
+        "startLine": 99,
+        "startChar": 17,
+        "endLine": 99,
+        "endChar": 24
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "236f3640_58a9ac02",
+        "filename": "modules/particles/include/SkParticleEmitter.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Having the emit() edit the pos feels a little weird given that pose is a non-const reference. Returning SkParticlePose, or operating on a pointer seems better to me (habit from Google\u0027s styleguide, not worrying about null is nice here).",
+      "range": {
+        "startLine": 20,
+        "startChar": 33,
+        "endLine": 20,
+        "endChar": 52
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5d71620_677cf39f",
+        "filename": "modules/particles/include/SkParticleEmitter.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "The reflected factories are handy for the ui and builder, but it\u0027d be good to add some public factories for the emitter types provided in the CPP file.",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eefc4d6_1886c385",
+        "filename": "modules/particles/include/SkReflected.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Is this separate from the templated version so that SkCurve does not have to extend from SkReflected?",
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "806f51bb_26478d50",
+        "filename": "modules/particles/src/SkCurve.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Since nextF() is called every time, does it mean that as the curve is evaluated over time, a given \"particle\" will bounce between the min and max value at x? vs. each \"particle\" getting a random [0, 1] at spawn and then following that fixed interpolated curve between min and max? \n\nIf those two situations are clear enough, do you have experience as to which is most intuitive or useful for simulating particle effects?",
+      "range": {
+        "startLine": 17,
+        "startChar": 38,
+        "endLine": 17,
+        "endChar": 52
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37db6fc3_487d4a94",
+        "filename": "modules/particles/src/SkParticleAffector.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Would be nice to abstract this integration, since the velocity update rule is largely shared by the difference force affectors. It doesn\u0027t need to go so far as having an interface that lets integrators get swapped around, but something UpdateVelocity(force, dt, \u0026linearVel) or linearVel +\u003d IntegrateForce(force, dt)?",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 59
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91de9cff_dbc23ed3",
+        "filename": "modules/particles/src/SkParticleAffector.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "From earlier comment, if fRight were fHeading/fVertical, this would be much simpler.",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 42
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2cd1928_7a144b02",
+        "filename": "modules/particles/src/SkParticleEmitter.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "More use of up_to_right, although it looks like the line emitter uses fRight directly",
+      "range": {
+        "startLine": 17,
+        "startChar": 16,
+        "endLine": 17,
+        "endChar": 27
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbb0dfc5_cec22280",
+        "filename": "tools/viewer/ParticlesSlide.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-11T22:55:29Z",
+      "side": 1,
+      "message": "Would a Sample be better? or do those not get the imgui widgets?",
+      "range": {
+        "startLine": 18,
+        "startChar": 30,
+        "endLine": 18,
+        "endChar": 35
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
