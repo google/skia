@@ -23,6 +23,10 @@ void EffectNode::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     fChild->render(canvas, ctx);
 }
 
+const RenderNode* EffectNode::onNodeAt(const SkPoint& p) const {
+    return fChild->nodeAt(p);
+}
+
 SkRect EffectNode::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 

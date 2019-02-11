@@ -20,6 +20,8 @@ void Plane::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPaint(paint);
 }
 
+bool Plane::onContains(const SkPoint&) const { return true; }
+
 SkRect Plane::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
 
