@@ -16,6 +16,9 @@
 
 namespace ImGui {
 
+typedef std::function<void(SkCanvas*)> SkiaWidgetFunc;
+void SkiaWidget(const ImVec2& size, SkiaWidgetFunc func);
+
 // Helper object for drawing in a widget region, with draggable points
 struct DragCanvas {
     DragCanvas(const void* id, SkPoint tl = { 0.0f, 0.0f }, SkPoint br = { 1.0f, 1.0f },
@@ -117,8 +120,6 @@ public:
     ImGuiLayer();
     ~ImGuiLayer() override;
 
-    typedef std::function<void(SkCanvas*)> SkiaWidgetFunc;
-    void skiaWidget(const ImVec2& size, SkiaWidgetFunc func);
 
     void onAttach(sk_app::Window* window) override;
     void onPrePaint() override;
@@ -131,7 +132,6 @@ public:
 private:
     sk_app::Window* fWindow;
     SkPaint fFontPaint;
-    SkTArray<SkiaWidgetFunc> fSkiaWidgetFuncs;
 };
 
 #endif

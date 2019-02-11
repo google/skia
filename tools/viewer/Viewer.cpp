@@ -1881,7 +1881,7 @@ void Viewer::drawImGui() {
                             SkGetPackedB32(pixel), SkGetPackedA32(pixel));
             }
 
-            fImGuiLayer.skiaWidget(avail, [=](SkCanvas* c) {
+            ImGui::SkiaWidget(avail, [=](SkCanvas* c) {
                 // Translate so the region of the image that's under the mouse cursor is centered
                 // in the zoom canvas:
                 c->scale(zoomFactor, zoomFactor);

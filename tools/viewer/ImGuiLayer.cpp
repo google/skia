@@ -21,6 +21,18 @@
 
 using namespace sk_app;
 
+static SkTArray<ImGui::SkiaWidgetFunc> gSkiaWidgetFuncs;
+
+namespace ImGui {
+
+void SkiaWidget(const ImVec2& size, SkiaWidgetFunc func) {
+    intptr_t funcIndex = gSkiaWidgetFuncs.count();
+    gSkiaWidgetFuncs.push_back(func);
+    ImGui::Image((ImTextureID)funcIndex, size);
+}
+
+}
+
 ImGuiLayer::ImGuiLayer() {
     // ImGui initialization:
     ImGui::CreateContext();
@@ -87,12 +99,6 @@ bool ImGuiLayer::onMouseWheel(float delta, uint32_t modifiers) {
     return true;
 }
 
-void ImGuiLayer::skiaWidget(const ImVec2& size, SkiaWidgetFunc func) {
-    intptr_t funcIndex = fSkiaWidgetFuncs.count();
-    fSkiaWidgetFuncs.push_back(func);
-    ImGui::Image((ImTextureID)funcIndex, size);
-}
-
 void ImGuiLayer::onPrePaint() {
     // Update ImGui input
     ImGuiIO& io = ImGui::GetIO();
@@ -149,8 +155,11 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
             if (drawCmd->UserCallback) {
                 drawCmd->UserCallback(drawList, drawCmd);
             } else {
+                canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
+                                                  drawCmd->ClipRect.z, drawCmd->ClipRect.w));
+
                 intptr_t idIndex = (intptr_t)drawCmd->TextureId;
-                if (idIndex < fSkiaWidgetFuncs.count()) {
+                if (idIndex < gSkiaWidgetFuncs.count()) {
                     // Small image IDs are actually indices into a list of callbacks. We directly
                     // examing the vertex data to deduce the image rectangle, then reconfigure the
                     // canvas to be clipped and translated so that the callback code gets to use
@@ -159,13 +168,11 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
                     SkPoint tl = pos[rectIndex], br = pos[rectIndex + 2];
                     canvas->clipRect(SkRect::MakeLTRB(tl.fX, tl.fY, br.fX, br.fY));
                     canvas->translate(tl.fX, tl.fY);
-                    fSkiaWidgetFuncs[idIndex](canvas);
+                    gSkiaWidgetFuncs[idIndex](canvas);
                 } else {
                     SkPaint* paint = static_cast<SkPaint*>(drawCmd->TextureId);
                     SkASSERT(paint);
 
-                    canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
-                                                      drawCmd->ClipRect.z, drawCmd->ClipRect.w));
                     auto vertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
                                                          drawList->VtxBuffer.size(),
                                                          pos.begin(), uv.begin(), color.begin(),
@@ -178,7 +185,7 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
         }
     }
 
-    fSkiaWidgetFuncs.reset();
+    gSkiaWidgetFuncs.reset();
 }
 
 bool ImGuiLayer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) {
