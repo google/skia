@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "712caf4a_a14ef8eb",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-11T21:48:54Z",
+      "side": 1,
+      "message": "Yes, in fact part of the purpose of the separation between the two is to modify the sampler in between.",
+      "parentUuid": "e3b38f68_dad2ee1d",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "429ed2d8_fa0ff1f8",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "bbda87ce_bd60a944",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-11T21:48:54Z",
+      "side": 1,
+      "message": "Yes, that would be a problem when we compare dstY to scaledHeight. Follow up CL sounds fine to me.",
+      "parentUuid": "429ed2d8_fa0ff1f8",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e52cdd97_acd53d2e",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -50,6 +86,24 @@
       "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc25c9d0_baf61c16",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-11T21:48:54Z",
+      "side": 1,
+      "message": "Yes, that would be a problem. But we don\u0027t know the scaled height in oSID, so we cannot fill yet.\n\nPerhaps this should just be\n\n  if (independent)",
+      "parentUuid": "e52cdd97_acd53d2e",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
