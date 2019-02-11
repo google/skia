@@ -141,22 +141,20 @@ private:
 
     // A typed pointer to some bytes in fAlloc.  visit() and mutate() allow polymorphic dispatch.
     struct Record {
-        // On 32-bit machines we store type in 4 bytes, followed by a pointer.  Simple.
-        // On 64-bit machines we store a pointer with the type slotted into two top (unused) bytes.
-        // FWIW, SkRecords::Type is tiny.  It can easily fit in one byte.
-        uint64_t fTypeAndPtr;
-        static const int kTypeShift = sizeof(void*) == 4 ? 32 : 48;
+        SkRecords::Type fType;
+        void*           fPtr;
 
         // Point this record to its data in fAlloc.  Returns ptr for convenience.
         template <typename T>
         T* set(T* ptr) {
-            fTypeAndPtr = ((uint64_t)T::kType) << kTypeShift | (uintptr_t)ptr;
+            fType = T::kType;
+            fPtr  = ptr;
             SkASSERT(this->ptr() == ptr && this->type() == T::kType);
             return ptr;
         }
 
-        SkRecords::Type type() const { return (SkRecords::Type)(fTypeAndPtr >> kTypeShift); }
-        void* ptr() const { return (void*)(fTypeAndPtr & ((1ull<<kTypeShift)-1)); }
+        SkRecords::Type type() const { return fType; }
+        void* ptr() const { return fPtr; }
 
         // Visit this record with functor F (see public API above).
         template <typename F>
