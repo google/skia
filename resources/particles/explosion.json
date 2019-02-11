@@ -1,0 +1,51 @@
+{
+   "MaxCount": 32,
+   "Rate": 8,
+   "Life": {
+      "min": 1,
+      "max": 3
+   },
+   "StartColor": [ 1, 1, 1, 1 ],
+   "EndColor": [ 1, 1, 1, 0.25098 ],
+   "Size": {
+      "Ranged": false,
+      "A0": 1,
+      "B0": 1,
+      "C0": 1,
+      "D0": 1,
+      "A1": 1,
+      "B1": 1,
+      "C1": 1,
+      "D1": 1
+   },
+   "Velocity": {
+      "Angle": 0,
+      "Spread": 6.28319,
+      "Strength": {
+         "min": 0,
+         "max": 20
+      },
+      "Bidirectional": false,
+      "Spin": {
+         "min": 0,
+         "max": 0
+      },
+      "BidirectionalSpin": false
+   },
+   "Image": "images/explosion_sprites.png",
+   "ImageCols": 4,
+   "ImageRows": 4,
+   "Emitter": {
+      "Type": "SkCircleEmitter",
+      "Center": { "x": 200, "y": 200 },
+      "Radius": 60
+   },
+   "Affectors": [
+      {
+         "Type": "SkPointForceAffector",
+         "Point": { "x": 200, "y": 200 },
+         "Constant": 0,
+         "InvSquare": -50
+      }
+   ]
+}

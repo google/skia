@@ -1,0 +1,49 @@
+{
+   "MaxCount": 4096,
+   "Rate": 2000,
+   "Life": {
+      "min": 1,
+      "max": 3
+   },
+   "StartColor": [ 1, 0.35, 0, 1 ],
+   "EndColor": [ 1, 0.978085, 0.627451, 1 ],
+   "Size": {
+      "Ranged": false,
+      "A0": 1,
+      "B0": 1,
+      "C0": 1,
+      "D0": 1,
+      "A1": 1,
+      "B1": 1,
+      "C1": 1,
+      "D1": 1
+   },
+   "Velocity": {
+      "Angle": 4.71239,
+      "Spread": 0.523599,
+      "Strength": {
+         "min": 10,
+         "max": 30
+      },
+      "Bidirectional": false,
+      "Spin": {
+         "min": 0,
+         "max": 0
+      },
+      "BidirectionalSpin": false
+   },
+   "Image": "images/half-transparent-white-pixel.png",
+   "ImageCols": 1,
+   "ImageRows": 1,
+   "Emitter": {
+      "Type": "SkTextEmitter",
+      "Text": "SKIA",
+      "FontSize": 96
+   },
+   "Affectors": [
+      {
+         "Type": "SkDirectionalForceAffector",
+         "Force": { "x": 0, "y": 0 }
+      }
+   ]
+}
