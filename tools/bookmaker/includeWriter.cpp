@@ -2066,7 +2066,6 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         this->lfcr();
         this->writePending();
         fclose(fOut);
-        fflush(fOut);
         size_t slash = fFileName.find_last_of('/');
         if (string::npos == slash) {
             slash = 0;
