@@ -53,6 +53,8 @@ public:
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
+    GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
+
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
@@ -62,8 +64,6 @@ public:
      * Create a GrContext without a resource cache
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
-
-    GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
                                                       sk_sp<SkColorSpace> = nullptr,
