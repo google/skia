@@ -41,6 +41,8 @@ public:
 
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
+    void onAboutToExitScope() override {}
+
 private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();

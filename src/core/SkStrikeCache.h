@@ -114,6 +114,10 @@ public:
                                    SkStrike* targetCache);
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
+    SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
+                                            const SkScalerContextEffects& effects,
+                                            const SkTypeface& typeface);
+
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
             const SkFont& font,
             const SkPaint& paint,

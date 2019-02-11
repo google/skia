@@ -372,7 +372,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
 template <typename EmptiesT, typename MasksT, typename PathsT>
 void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
-        SkStrikeInterface* strike, const SkGlyphRun& glyphRun,
+        SkScopedStrike&& strike, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths) {
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
@@ -420,7 +420,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     }
     if (glyphCount > 0) {
         mapping.mapPoints(fPositions, glyphCount);
-        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)}, strike);
+        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)}, strike.get());
     }
     if (!fPaths.empty()) {
         processPaths(SkSpan<const GlyphAndPos>{fPaths});
@@ -826,9 +826,18 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
             // Ensure the blob is set for bitmaptext
             this->setHasBitmap();
 
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    runFont, runPaint, props, scalerContextFlags, viewMatrix);
-            run->setupFont(runPaint, runFont, cache->getDescriptor());
+            SkScalerContextEffects effects;
+            SkAutoDescriptor ad;
+
+            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(runFont, runPaint,props,
+                    scalerContextFlags,viewMatrix, &ad, &effects);
+
+            SkTypeface* typeface = runFont.getTypefaceOrDefault();
+
+            auto strikeCache = SkStrikeCache::GlobalStrikeCache();
+            auto strike = strikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
+
+            run->setupFont(runPaint, runFont, strike->getDescriptor());
 
             auto processEmpties = [](SkSpan<const SkGlyph*>glyphs) {};
 
@@ -858,7 +867,7 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                 };
 
             glyphPainter->drawGlyphRunAsBMPWithPathFallback(
-                    cache.get(), glyphRun, origin, viewMatrix,
+                    std::move(strike), glyphRun, origin, viewMatrix,
                     std::move(processEmpties), std::move(processMasks), std::move(processPaths));
         }
     }
@@ -942,6 +951,8 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
     SkASSERT(glyphCacheState);
 
+    SkScopedStrike strike{glyphCacheState};
+
     auto processEmpties = [] (SkSpan<const SkGlyph*>glyphs) { };
 
     auto processMasks = [] (
@@ -950,7 +961,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
     auto processPaths = [] (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths) { };
 
     fPainter.drawGlyphRunAsBMPWithPathFallback(
-            glyphCacheState, glyphRun, origin, runMatrix,
+            std::move(strike), glyphRun, origin, runMatrix,
             std::move(processEmpties), std::move(processMasks), std::move(processPaths));
 }
 
