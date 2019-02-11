@@ -23,7 +23,7 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'linux-blink-rel',
         'linux_chromium_compile_dbg_ng',
         'linux_chromium_dbg_ng',
-        'linux_chromium_rel_ng',
+        'linux-rel',
         'linux_optional_gpu_tests_rel',
         'mac10.10-blink-rel',
         'mac10.11-blink-rel',
@@ -33,7 +33,7 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'mac_chromium_compile_dbg_ng',
         'mac_chromium_compile_rel_ng',
         'mac_chromium_dbg_ng',
-        'mac_chromium_rel_ng',
+        'mac-rel',
         'mac_optional_gpu_tests_rel',
         'win10-blink-rel',
         'win7-blink-rel',
@@ -46,7 +46,7 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
     ]),
     ('master.tryserver.chromium.win', [
         'win_chromium_compile_rel_ng',
-        'win7_chromium_rel_ng',
+        'win7-rel',
         'win10_chromium_x64_rel_ng',
     ]),
     ('master.tryserver.chromium.android', [
