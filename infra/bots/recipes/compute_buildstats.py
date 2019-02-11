@@ -6,6 +6,7 @@
 
 DEPS = [
   'checkout',
+  'env',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -37,7 +38,7 @@ def RunSteps(api):
         '*.wasm',
         test_data=['pathkit.wasm'])
     analyzed += len(files)
-    if len(files):
+    if files:
       analyze_wasm_file(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
@@ -46,7 +47,7 @@ def RunSteps(api):
         '*.js',
         test_data=['pathkit.js'])
     analyzed += len(files)
-    if len(files):
+    if files:
       analyze_web_file(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
@@ -55,7 +56,7 @@ def RunSteps(api):
         '*.js.mem',
         test_data=['pathkit.js.mem'])
     analyzed += len(files)
-    if len(files):
+    if files:
       analyze_web_file(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
@@ -64,7 +65,7 @@ def RunSteps(api):
         'libflutter.so',
         test_data=['libflutter.so'])
     analyzed += len(files)
-    if len(files):
+    if files:
       analyze_flutter_lib(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
@@ -73,8 +74,18 @@ def RunSteps(api):
         'libskia.so',
         test_data=['libskia.so'])
     analyzed += len(files)
-    if len(files):
+    if files:
       analyze_cpp_lib(api, checkout_root, out_dir, files)
+
+    files = api.file.glob_paths(
+        'find skottie_tool',
+        bin_dir,
+        'skottie_tool',
+        test_data=['skottie_tool'])
+    analyzed += len(files)
+    if files:
+      make_treemap(api, checkout_root, out_dir, files)
+
   if not analyzed: # pragma: nocover
     raise Exception('No files were analyzed!')
 
@@ -172,8 +183,8 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_wasm.py')
       step_data = api.run(api.python, 'Analyze wasm', script=script,
-                         args=[f, out_dir, keystr, propstr, bloaty_exe],
-                         stdout=api.raw_io.output())
+                          args=[f, out_dir, keystr, propstr, bloaty_exe],
+                          stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         magic_seperator = '#$%^&*'
         sections = step_data.stdout.split(magic_seperator)
@@ -184,6 +195,21 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
         logs['bloaty_symbol_short'] = sections[1].split('\n')
         logs['bloaty_symbol_full']  = sections[2].split('\n')
         logs['perf_json']           = sections[3].split('\n')
+
+
+# make a zip file containing an HTML treemap of the files
+def make_treemap(api, checkout_root, out_dir, files):
+  for f in files:
+    env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
+    with api.env(env):
+      skia_dir = checkout_root.join('skia')
+      with api.context(cwd=skia_dir):
+        script = skia_dir.join('infra', 'bots', 'buildstats',
+                               'make_treemap.py')
+        api.run(api.python, 'Make code size treemap',
+                             script=script,
+                             args=[f, out_dir],
+                             stdout=api.raw_io.output())
 
 
 def GenTests(api):
