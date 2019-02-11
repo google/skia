@@ -15,6 +15,7 @@
 #include <vector>
 
 class SkCanvas;
+struct SkPoint;
 
 namespace sksg {
 
@@ -67,6 +68,7 @@ public:
 
     void render(SkCanvas*) const;
     void animate(float t);
+    const RenderNode* nodeAt(const SkPoint&) const;
 
     void setShowInval(bool show) { fShowInval = show; }
 
