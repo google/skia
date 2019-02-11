@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9cc0972_87656b53",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-11T21:36:45Z",
+      "side": 1,
+      "message": "Maybe note the math?  I always have to look blend modes up from scratch.  Something like\n\n// DstIn (d*sa) will multiply the source bitmap\u0027s alpha through the paint\u0027s shader output,\n// logically setting alpha to the product of the source bitmap\u0027s and shader\u0027s alphas.",
+      "revId": "d97d89624058cd97c5a416a36fe65bc509ef0b22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
