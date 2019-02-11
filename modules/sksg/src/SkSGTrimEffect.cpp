@@ -32,6 +32,10 @@ void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fTrimmedPath, paint);
 }
 
+bool TrimEffect::onContains(const SkPoint& p) const {
+    return fTrimmedPath.contains(p.x(), p.y());
+}
+
 SkPath TrimEffect::onAsPath() const {
     return fTrimmedPath;
 }

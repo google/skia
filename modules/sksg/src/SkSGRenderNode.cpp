@@ -20,6 +20,10 @@ void RenderNode::render(SkCanvas* canvas, const RenderContext* ctx) const {
     this->onRender(canvas, ctx);
 }
 
+const RenderNode* RenderNode::nodeAt(const SkPoint& p) const {
+    return this->bounds().contains(p.x(), p.y()) ? this->onNodeAt(p) : nullptr;
+}
+
 bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
     const auto initial_alpha = paint->getAlpha(),
                        alpha = SkToU8(sk_float_round2int(initial_alpha * fOpacity));

@@ -27,6 +27,7 @@ protected:
     explicit ColorFilter(sk_sp<RenderNode>);
 
     void onRender(SkCanvas*, const RenderContext*) const final;
+    const RenderNode* onNodeAt(const SkPoint&)     const final;
 
     sk_sp<SkColorFilter> fColorFilter;
 
