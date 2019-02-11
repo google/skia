@@ -27,6 +27,8 @@ public:
     void clip(SkCanvas*, bool antiAlias) const;
     void draw(SkCanvas*, const SkPaint&) const;
 
+    bool contains(const SkPoint&) const;
+
     SkPath asPath() const;
 
 protected:
@@ -35,6 +37,8 @@ protected:
     virtual void onClip(SkCanvas*, bool antiAlias) const = 0;
 
     virtual void onDraw(SkCanvas*, const SkPaint&) const = 0;
+
+    virtual bool onContains(const SkPoint&) const = 0;
 
     virtual SkPath onAsPath() const = 0;
 

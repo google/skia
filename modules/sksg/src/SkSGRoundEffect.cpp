@@ -32,6 +32,10 @@ void RoundEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fRoundedPath, paint);
 }
 
+bool RoundEffect::onContains(const SkPoint& p) const {
+    return fRoundedPath.contains(p.x(), p.y());
+}
+
 SkPath RoundEffect::onAsPath() const {
     return fRoundedPath;
 }

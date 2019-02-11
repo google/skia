@@ -73,6 +73,10 @@ void Text::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawTextBlob(fBlob, aligned_pos.x(), aligned_pos.y(), paint);
 }
 
+bool Text::onContains(const SkPoint& p) const {
+    return this->asPath().contains(p.x(), p.y());
+}
+
 SkPath Text::onAsPath() const {
     // TODO
     return SkPath();
@@ -97,6 +101,10 @@ SkRect TextBlob::onRevalidate(InvalidationController*, const SkMatrix&) {
 
 void TextBlob::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawTextBlob(fBlob, fPosition.x(), fPosition.y(), paint);
+}
+
+bool TextBlob::onContains(const SkPoint& p) const {
+    return this->asPath().contains(p.x(), p.y());
 }
 
 SkPath TextBlob::onAsPath() const {

@@ -96,6 +96,15 @@ void TransformEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const
     this->INHERITED::onRender(canvas, ctx);
 }
 
+const RenderNode* TransformEffect::onNodeAt(const SkPoint& p) const {
+    const auto m = TransformPriv::As<SkMatrix>(fTransform);
+
+    SkPoint mapped_p;
+    m.mapPoints(&mapped_p, &p, 1);
+
+    return this->INHERITED::onNodeAt(mapped_p);
+}
+
 SkRect TransformEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
