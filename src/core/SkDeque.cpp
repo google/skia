@@ -157,10 +157,10 @@ void SkDeque::pop_front() {
 
     if (first->fBegin == nullptr) {  // we were marked empty from before
         first = first->fNext;
+        SkASSERT(first != nullptr);    // else we popped too far
         first->fPrev = nullptr;
         this->freeBlock(fFrontBlock);
         fFrontBlock = first;
-        SkASSERT(first != nullptr);    // else we popped too far
     }
 
     char* begin = first->fBegin + fElemSize;
@@ -191,10 +191,10 @@ void SkDeque::pop_back() {
 
     if (last->fEnd == nullptr) {  // we were marked empty from before
         last = last->fPrev;
+        SkASSERT(last != nullptr);  // else we popped too far
         last->fNext = nullptr;
         this->freeBlock(fBackBlock);
         fBackBlock = last;
-        SkASSERT(last != nullptr);  // else we popped too far
     }
 
     char* end = last->fEnd - fElemSize;
