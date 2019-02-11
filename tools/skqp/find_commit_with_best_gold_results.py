@@ -56,11 +56,13 @@ def gold_export_url(job, config, first_commit, last_commit):
 
 def get_results_for_commit(commit, jobs):
     sys.stderr.write('%s\n' % commit)
+    sys.stderr.flush()
     CONFIGS = ['gles', 'vk']
     passing_tests_for_all_jobs = []
     def process(url):
         testResults = json.load(urllib2.urlopen(url))
         sys.stderr.write('.')
+        sys.stderr.flush()
         passing_tests = 0
         for t in testResults:
             assert t['digests']
@@ -75,6 +77,7 @@ def get_results_for_commit(commit, jobs):
         t.join()
     result = sum(passing_tests_for_all_jobs)
     sys.stderr.write('\n%d\n' % result)
+    sys.stderr.flush()
     return result
 
 
@@ -91,11 +94,29 @@ def find_best_commit(commits):
             return h
     return None
 
-def generate_commit_list(commit_count, starting_commit):
-    for i in range(commit_count):
-        yield starting_commit + '~%d' % i
 
-if __name__ == '__main__':
+def generate_commit_list(args):
+    return subprocess.check_output(['git', 'log', '--format=%H'] + args).splitlines()
+
+
+def main(args):
     os.chdir(skia_directory)
     subprocess.check_call(['git', 'fetch', 'origin'])
-    print find_best_commit(generate_commit_list(65, 'origin/master'))
+    sys.stderr.write('%s\n' % ' '.join(args))
+    commits = generate_commit_list(args)
+    sys.stderr.write('%d\n' % len(commits))
+    best = find_best_commit(commits)
+    sys.stderr.write('DONE:\n')
+    sys.stderr.flush()
+    sys.stdout.write('%s\n' % best)
+
+
+usage = '''Example usage:
+    python %s origin/master ^origin/skqp/dev < /dev/null > LOG 2>&1 & disown
+'''
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        sys.stderr.write(usage % sys.argv[0])
+        sys.exit(1)
+    main(sys.argv[1:])
