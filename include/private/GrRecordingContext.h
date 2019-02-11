@@ -10,7 +10,9 @@
 
 #include "GrAuditTrail.h"
 #include "GrImageContext.h"
+#include "SkRefCnt.h"
 
+class GrDrawingManager;
 class GrOpMemoryPool;
 class GrRecordingContextPriv;
 
@@ -27,6 +29,8 @@ protected:
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
 
+    GrDrawingManager* drawingManager();
+
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
 
@@ -34,10 +38,13 @@ protected:
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
+    bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
+
 private:
+    std::unique_ptr<GrDrawingManager> fDrawingManager;
     // All the GrOp-derived classes use this pool.
-    sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrAuditTrail          fAuditTrail;
+    sk_sp<GrOpMemoryPool>             fOpMemoryPool;
+    GrAuditTrail                      fAuditTrail;
 
     typedef GrImageContext INHERITED;
 };

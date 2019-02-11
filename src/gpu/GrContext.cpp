@@ -39,9 +39,9 @@
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-#define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED if (this->drawingManager()->wasAbandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED if (this->drawingManager()->wasAbandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED if (this->drawingManager()->wasAbandoned()) { return nullptr; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,12 +61,13 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
         return false;
     }
 
+    SkASSERT(this->drawingManager());
     SkASSERT(this->caps());
 
     if (fGpu) {
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner(),
-                                                   this->options().fExplicitlyAllocateGPUResources);
+                                                   this->explicitlyAllocateGPUResources());
     }
 
     if (fResourceCache) {
@@ -74,44 +75,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 
     fDidTestPMConversions = false;
-
-    GrPathRendererChain::Options prcOptions;
-    prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
-#if GR_TEST_UTILS
-    prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
-#endif
-    if (this->options().fDisableCoverageCountingPaths) {
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
-    }
-    if (this->options().fDisableDistanceFieldPaths) {
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-    }
-
-    if (!fResourceCache) {
-        // DDL TODO: remove this crippling of the path renderer chain
-        // Disable the small path renderer bc of the proxies in the atlas. They need to be
-        // unified when the opLists are added back to the destination drawing manager.
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kStencilAndCover;
-    }
-
-    GrTextContext::Options textContextOptions;
-    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
-    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
-    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
-#if SK_SUPPORT_ATLAS_TEXT
-    if (GrContextOptions::Enable::kYes == this->options().fDistanceFieldGlyphVerticesAlwaysHaveW) {
-        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
-    }
-#endif
-
-    bool explicitlyAllocatingResources = fResourceProvider
-                                            ? fResourceProvider->explicitlyAllocateGPUResources()
-                                            : false;
-    fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
-                                               this->singleOwner(), explicitlyAllocatingResources,
-                                               this->options().fSortRenderTargets,
-                                               this->options().fReduceOpListSplitting));
 
     fGlyphCache = new GrStrikeCache(this->caps(), this->options().fGlyphCacheTextureMaximumBytes);
 
@@ -131,8 +94,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
 GrContext::~GrContext() {
     ASSERT_SINGLE_OWNER
 
-    if (fDrawingManager) {
-        fDrawingManager->cleanup();
+    if (this->drawingManager()) {
+        this->drawingManager()->cleanup();
     }
     delete fResourceProvider;
     delete fResourceCache;
@@ -153,7 +116,7 @@ void GrContext::abandonContext() {
 
     // Need to abandon the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
-    fDrawingManager->abandon();
+    this->drawingManager()->abandon();
 
     // abandon first to so destructors
     // don't try to free the resources in the API.
@@ -168,7 +131,7 @@ void GrContext::abandonContext() {
 bool GrContext::abandoned() const {
     ASSERT_SINGLE_OWNER
     // If called from ~GrContext(), the drawing manager may already be gone.
-    return !fDrawingManager || fDrawingManager->wasAbandoned();
+    return !this->drawingManager() || this->drawingManager()->wasAbandoned();
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {
@@ -182,7 +145,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
 
     // Need to abandon the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
-    fDrawingManager->abandon();
+    this->drawingManager()->abandon();
 
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();
@@ -210,7 +173,7 @@ void GrContext::freeGpuResources() {
 
     fGlyphCache->freeAll();
 
-    fDrawingManager->freeGpuResources();
+    this->drawingManager()->freeGpuResources();
 
     fResourceCache->purgeAllUnlocked();
 }
@@ -230,7 +193,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     fResourceCache->purgeAsNeeded();
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 
-    if (auto ccpr = fDrawingManager->getCoverageCountingPathRenderer()) {
+    if (auto ccpr = this->drawingManager()->getCoverageCountingPathRenderer()) {
         ccpr->purgeCacheEntriesOlderThan(this->proxyProvider(), purgeTime);
     }
 
@@ -292,15 +255,17 @@ void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
 
-    fDrawingManager->flush(nullptr);
+    this->drawingManager()->flush(nullptr);
 }
 
 GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
                                                           GrBackendSemaphore signalSemaphores[]) {
     ASSERT_SINGLE_OWNER
-    if (fDrawingManager->wasAbandoned()) { return GrSemaphoresSubmitted::kNo; }
+    if (this->drawingManager()->wasAbandoned()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
 
-    return fDrawingManager->flush(nullptr, numSemaphores, signalSemaphores);
+    return this->drawingManager()->flush(nullptr, numSemaphores, signalSemaphores);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
