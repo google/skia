@@ -82,7 +82,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
         std::unique_ptr<GrDrawOp> op,
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
-    if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
+    if (fRenderTargetContext->fContext->abandoned()) {
         fRenderTargetContext->fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }

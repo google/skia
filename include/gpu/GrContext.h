@@ -111,12 +111,12 @@ public:
      * The typical use case for this function is that the underlying 3D context was lost and further
      * API calls may crash.
      */
-    virtual void abandonContext();
+    void abandonContext() override;
 
     /**
      * Returns true if the context was abandoned.
      */
-    bool abandoned() const;
+    using GrImageContext::abandoned;
 
     /**
      * This is similar to abandonContext() however the underlying 3D context is not yet lost and

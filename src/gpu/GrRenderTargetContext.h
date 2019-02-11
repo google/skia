@@ -388,8 +388,6 @@ public:
     bool wrapsVkSecondaryCB() const { return fRenderTargetProxy->wrapsVkSecondaryCB(); }
     GrMipMapped mipMapped() const;
 
-    bool wasAbandoned() const;
-
     void setNeedsStencil() { fRenderTargetProxy->setNeedsStencil(); }
 
     GrRenderTarget* accessRenderTarget() {

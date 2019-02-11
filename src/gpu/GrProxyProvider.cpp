@@ -34,10 +34,7 @@
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fImageContext->priv().singleOwner());)
 
-GrProxyProvider::GrProxyProvider(GrImageContext* imageContext)
-        : fImageContext(imageContext)
-        , fAbandoned(false) {
-}
+GrProxyProvider::GrProxyProvider(GrImageContext* imageContext) : fImageContext(imageContext) {}
 
 GrProxyProvider::~GrProxyProvider() {
     if (this->renderingDirectly()) {
@@ -835,6 +832,10 @@ const GrCaps* GrProxyProvider::caps() const {
 
 sk_sp<const GrCaps> GrProxyProvider::refCaps() const {
     return fImageContext->priv().refCaps();
+}
+
+bool GrProxyProvider::isAbandoned() const {
+    return fImageContext->priv().abandoned();
 }
 
 void GrProxyProvider::orphanAllUniqueKeys() {

@@ -87,7 +87,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
                                      sk_sp<GrRenderTargetContext> renderTargetContext,
                                      int width, int height,
                                      InitContents init) {
-    if (!renderTargetContext || renderTargetContext->wasAbandoned()) {
+    if (!renderTargetContext || context->abandoned()) {
         return nullptr;
     }
     unsigned flags;
@@ -268,7 +268,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     SkASSERT(newRTC->asSurfaceProxy()->priv().isExact());
 
     if (shouldRetainContent) {
-        if (fRenderTargetContext->wasAbandoned()) {
+        if (this->context()->abandoned()) {
             return;
         }
         newRTC->copy(fRenderTargetContext->asSurfaceProxy());

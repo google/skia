@@ -12,6 +12,10 @@
 #include "GrProxyProvider.h"
 #include "GrSkSLFPFactoryCache.h"
 
+#define ASSERT_SINGLE_OWNER \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 GrImageContext::GrImageContext(GrBackendApi backend,
                                const GrContextOptions& options,
                                uint32_t contextID)
@@ -20,6 +24,18 @@ GrImageContext::GrImageContext(GrBackendApi backend,
 }
 
 GrImageContext::~GrImageContext() {}
+
+void GrImageContext::abandonContext() {
+    ASSERT_SINGLE_OWNER
+
+    fAbandoned = true;
+}
+
+bool GrImageContext::abandoned() const {
+    ASSERT_SINGLE_OWNER
+
+    return fAbandoned;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrImageContextPriv::refCaps() const {

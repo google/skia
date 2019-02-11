@@ -38,7 +38,6 @@ class GrDrawingManager {
 public:
     ~GrDrawingManager();
 
-    bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
@@ -140,7 +139,8 @@ private:
                      bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets,
                      GrContextOptions::Enable reduceOpListSplitting);
 
-    void abandon();
+    bool wasAbandoned() const;
+
     void cleanup();
 
     // return true if any opLists were actually executed; false otherwise
@@ -168,7 +168,6 @@ private:
     // In debug builds we guard against improper thread handling
     GrSingleOwner*                    fSingleOwner;
 
-    bool                              fAbandoned;
     OpListDAG                         fDAG;
     GrOpList*                         fActiveOpList = nullptr;
     // These are the IDs of the opLists currently being flushed (in internalFlush)

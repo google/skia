@@ -39,9 +39,9 @@
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-#define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return nullptr; }
+#define RETURN_IF_ABANDONED if (this->abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED if (this->abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED if (this->abandoned()) { return nullptr; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -146,14 +146,17 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 //////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {
-    ASSERT_SINGLE_OWNER
+    if (this->abandoned()) {
+        return;
+    }
 
-    this->proxyProvider()->abandon();
+    INHERITED::abandonContext();
+
     fResourceProvider->abandon();
 
-    // Need to abandon the drawing manager first so all the render targets
+    // Need to cleanup the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
-    fDrawingManager->abandon();
+    fDrawingManager->cleanup();
 
     // abandon first to so destructors
     // don't try to free the resources in the API.
@@ -163,26 +166,21 @@ void GrContext::abandonContext() {
 
     fGlyphCache->freeAll();
     fTextBlobCache->freeAll();
-}
 
-bool GrContext::abandoned() const {
-    ASSERT_SINGLE_OWNER
-    // If called from ~GrContext(), the drawing manager may already be gone.
-    return !fDrawingManager || fDrawingManager->wasAbandoned();
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {
-    ASSERT_SINGLE_OWNER
-
     if (this->abandoned()) {
         return;
     }
-    this->proxyProvider()->abandon();
+
+    INHERITED::abandonContext();
+
     fResourceProvider->abandon();
 
-    // Need to abandon the drawing manager first so all the render targets
+    // Need to cleanup the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
-    fDrawingManager->abandon();
+    fDrawingManager->cleanup();
 
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();
@@ -298,7 +296,9 @@ void GrContext::flush() {
 GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
                                                           GrBackendSemaphore signalSemaphores[]) {
     ASSERT_SINGLE_OWNER
-    if (fDrawingManager->wasAbandoned()) { return GrSemaphoresSubmitted::kNo; }
+    if (this->abandoned()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
 
     return fDrawingManager->flush(nullptr, numSemaphores, signalSemaphores);
 }

@@ -156,7 +156,6 @@ GrDrawingManager::GrDrawingManager(GrContext* context,
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fOptionsForTextContext(optionsForTextContext)
         , fSingleOwner(singleOwner)
-        , fAbandoned(false)
         , fDAG(explicitlyAllocating, sortOpLists)
         , fTextContext(nullptr)
         , fPathRendererChain(nullptr)
@@ -186,9 +185,8 @@ GrDrawingManager::~GrDrawingManager() {
     this->cleanup();
 }
 
-void GrDrawingManager::abandon() {
-    fAbandoned = true;
-    this->cleanup();
+bool GrDrawingManager::wasAbandoned() const {
+    return fContext->abandoned();
 }
 
 void GrDrawingManager::freeGpuResources() {

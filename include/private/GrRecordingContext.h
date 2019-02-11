@@ -27,6 +27,8 @@ protected:
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
 
+    void abandonContext() override;
+
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
 
