@@ -25,6 +25,46 @@
     },
     {
       "key": {
+        "uuid": "851c0813_53fdf200",
+        "filename": "modules/skparagraph/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T15:01:43Z",
+      "side": 1,
+      "message": "LLC",
+      "range": {
+        "startLine": 1,
+        "startChar": 24,
+        "endLine": 1,
+        "endChar": 27
+      },
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69dc1aec_e3f6ae8c",
+        "filename": "modules/skparagraph/include/SkDartTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T15:01:43Z",
+      "side": 1,
+      "message": "Nit:  for new files, this is okay:\n\n// Copyright 2019 Google LLC.\n// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "106919ae_c9dd99f9",
         "filename": "modules/skparagraph/include/SkFontCollection.h",
         "patchSetId": 1
@@ -53,6 +93,23 @@
       "writtenOn": "2019-02-08T17:54:25Z",
       "side": 1,
       "message": "group method declarations together and start with lower case method names",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3145b097_086a5f26",
+        "filename": "modules/skparagraph/include/SkParagraph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T15:01:43Z",
+      "side": 1,
+      "message": "Why are we using double for things Skia normally uses single-precision floats for?",
       "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
