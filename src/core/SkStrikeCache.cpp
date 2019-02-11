@@ -40,6 +40,10 @@ public:
         return fCache.decideCouldDrawFromPath(glyph);
     }
 
+    const SkDescriptor& getDescriptor() const override {
+        return fCache.getDescriptor();
+    }
+
     SkStrikeCache* const            fStrikeCache;
     Node*                           fNext{nullptr};
     Node*                           fPrev{nullptr};

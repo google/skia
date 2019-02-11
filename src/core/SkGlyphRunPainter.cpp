@@ -372,7 +372,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
 template <typename EmptiesT, typename MasksT, typename PathsT>
 void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
-        SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
+        SkStrikeInterface* strike, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths) {
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
@@ -383,7 +383,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
 
     SkMatrix mapping = deviceMatrix;
     mapping.preTranslate(origin.x(), origin.y());
-    SkVector rounding = cache->rounding();
+    SkVector rounding = strike->rounding();
     mapping.postTranslate(rounding.x(), rounding.y());
     mapping.mapPoints(fPositions,  glyphRun.positions().data(), glyphRun.runSize());
 
@@ -397,11 +397,11 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         }
 
         if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
-            const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, mappedPt);
             if (glyph.isEmpty()) {
                 emptyGlyphs.push_back(&glyph);
             } else if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
-                if (cache->decideCouldDrawFromPath(glyph)) {
+                if (strike->decideCouldDrawFromPath(glyph)) {
                     fPaths.push_back({&glyph, mappedPt});
                 } else {
                     // This happens when a bitmap-only font is forced to scale very large. This
@@ -420,7 +420,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     }
     if (glyphCount > 0) {
         mapping.mapPoints(fPositions, glyphCount);
-        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)});
+        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)}, strike);
     }
     if (!fPaths.empty()) {
         processPaths(SkSpan<const GlyphAndPos>{fPaths});
@@ -833,9 +833,10 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
             auto processEmpties = [](SkSpan<const SkGlyph*>glyphs) {};
 
             auto processMasks =
-                [run, cache{cache.get()}, glyphCache]
-                (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks) {
-                    sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache->getDescriptor());
+                [run, glyphCache]
+                (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+                        SkStrikeInterface* strike) {
+                    sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(strike->getDescriptor());
                     for (const auto& mask : masks) {
                         SkPoint pt{SkScalarFloorToScalar(mask.position.fX),
                                    SkScalarFloorToScalar(mask.position.fY)};
@@ -943,7 +944,8 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
 
     auto processEmpties = [] (SkSpan<const SkGlyph*>glyphs) { };
 
-    auto processMasks = [] (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks) { };
+    auto processMasks = [] (
+            SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks, SkStrikeInterface*) { };
 
     auto processPaths = [] (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths) { };
 
