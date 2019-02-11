@@ -44,6 +44,10 @@ public:
         return fCache.getDescriptor();
     }
 
+    void onAboutToExitScope() override {
+        fStrikeCache->attachNode(this);
+    }
+
     SkStrikeCache* const            fStrikeCache;
     Node*                           fNext{nullptr};
     Node*                           fPrev{nullptr};
@@ -163,6 +167,17 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
         node = this->createStrike(desc, std::move(scaler));
     }
     return node;
+}
+
+SkScopedStrike SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                       const SkScalerContextEffects& effects,
+                                                       const SkTypeface& typeface) {
+    Node* node = this->findAndDetachStrike(desc);
+    if (node == nullptr) {
+        auto scaler = CreateScalerContext(desc, effects, typeface);
+        node = this->createStrike(desc, std::move(scaler));
+    }
+    return SkScopedStrike{node};
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(

@@ -129,6 +129,7 @@ public:
 
     const SkDescriptor& getDescriptor() const override;
 
+    void onAboutToExitScope() override;
 
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }

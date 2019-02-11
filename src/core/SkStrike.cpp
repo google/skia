@@ -423,6 +423,8 @@ bool SkStrike::decideCouldDrawFromPath(const SkGlyph& glyph) {
     return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
 }
 
+void SkStrike::onAboutToExitScope() { }
+
 #ifdef SK_DEBUG
 void SkStrike::forceValidate() const {
     size_t memoryUsed = sizeof(*this);
