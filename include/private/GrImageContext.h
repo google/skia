@@ -27,6 +27,9 @@ protected:
 
     GrImageContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
 
+    virtual void abandonContext();
+    bool abandoned() const;
+
     GrProxyProvider* proxyProvider() { return fProxyProvider.get(); }
     const GrProxyProvider* proxyProvider() const { return fProxyProvider.get(); }
 
@@ -37,11 +40,12 @@ protected:
 
 private:
     std::unique_ptr<GrProxyProvider> fProxyProvider;
+    bool                             fAbandoned = false;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
-    mutable GrSingleOwner           fSingleOwner;
+    mutable GrSingleOwner            fSingleOwner;
 
     typedef GrContext_Base INHERITED;
 };

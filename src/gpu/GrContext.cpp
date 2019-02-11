@@ -146,9 +146,12 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 //////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {
-    ASSERT_SINGLE_OWNER
+    if (this->abandoned()) {
+        return;
+    }
 
-    this->proxyProvider()->abandon();
+    INHERITED::abandonContext();
+
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -163,21 +166,16 @@ void GrContext::abandonContext() {
 
     fGlyphCache->freeAll();
     fTextBlobCache->freeAll();
-}
 
-bool GrContext::abandoned() const {
-    ASSERT_SINGLE_OWNER
-    // If called from ~GrContext(), the drawing manager may already be gone.
-    return !fDrawingManager || fDrawingManager->wasAbandoned();
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {
-    ASSERT_SINGLE_OWNER
-
     if (this->abandoned()) {
         return;
     }
-    this->proxyProvider()->abandon();
+
+    INHERITED::abandonContext();
+
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
