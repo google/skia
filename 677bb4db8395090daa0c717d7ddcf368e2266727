@@ -150,6 +150,63 @@
     },
     {
       "key": {
+        "uuid": "e353a864_3a4c7797",
+        "filename": "modules/skparagraph/include/SkTextStyle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T15:59:19Z",
+      "side": 1,
+      "message": "can\u0027t we use SK_ColorTRANSPARENT to represent hasBackground\u003d\u003dfalse ?",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e851832_74796a87",
+        "filename": "modules/skparagraph/include/SkTextStyle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T15:59:19Z",
+      "side": 1,
+      "message": "Should we use the higher-precision SkColor4f for the API for forwards compatibility to higher-bit-depth screens?",
+      "range": {
+        "startLine": 121,
+        "startChar": 2,
+        "endLine": 121,
+        "endChar": 9
+      },
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26ec241d_3d8836bb",
+        "filename": "modules/skparagraph/include/SkTextStyle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-11T15:59:19Z",
+      "side": 1,
+      "message": "doesn\u0027t paint already have a color field?\n\nEasy enough to see if a paint has extra effects on it:\n\n    static bool is_just_color(const SkPaint\u0026 p) {\n        SkPaint tmp;\n        tmp.setColor4f(p.getColor4f(), nullptr);\n        return tmp \u003d\u003d p;\n    }",
+      "revId": "677bb4db8395090daa0c717d7ddcf368e2266727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc0fa8b9_2e04f273",
         "filename": "modules/skparagraph/skparagraph.gni",
         "patchSetId": 1
