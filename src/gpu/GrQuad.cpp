@@ -91,6 +91,22 @@ static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
     return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
 }
 
+// Rearranges (top-left, top-right, bottom-right, bottom-left) ordered skQuadPts into grQuadPts
+// ordered (top-left, bottom-left, top-right, bottom-right)
+static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], SkPoint grQuadPts[4]) {
+    grQuadPts[0] = skQuadPts[0];
+    grQuadPts[1] = skQuadPts[3];
+    grQuadPts[2] = skQuadPts[1];
+    grQuadPts[3] = skQuadPts[2];
+}
+// As above, but outputs to SkPoint3 for Gr ordering with ws = 1
+static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], SkPoint3 grQuadPts[4]) {
+    grQuadPts[0] = {skQuadPts[0].fX, skQuadPts[0].fY, 1.f};
+    grQuadPts[1] = {skQuadPts[3].fX, skQuadPts[3].fY, 1.f};
+    grQuadPts[2] = {skQuadPts[1].fX, skQuadPts[1].fY, 1.f};
+    grQuadPts[3] = {skQuadPts[2].fX, skQuadPts[2].fY, 1.f};
+}
+
 template <typename Q>
 void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
                             const Q& quad, GrQuadType knownType,
@@ -183,6 +199,13 @@ GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
     }
 }
 
+GrQuad GrQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
+    SkPoint grPts[4];
+    rearrange_sk_to_gr_points(pts, grPts);
+    matrix.mapPoints(grPts, 4);
+    return GrQuad(grPts);
+}
+
 bool GrQuad::aaHasEffectOnRect() const {
     SkASSERT(this->quadType() == GrQuadType::kRect);
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
@@ -230,6 +253,22 @@ GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws) {
     memcpy(fX, xs, 4 * sizeof(float));
     memcpy(fY, ys, 4 * sizeof(float));
     memcpy(fW, ws, 4 * sizeof(float));
+}
+
+GrPerspQuad GrPerspQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
+    if (matrix.hasPerspective()) {
+        // Go into SkPoint3 and do not perform the perspective division yet
+        SkPoint3 grPts[4];
+        rearrange_sk_to_gr_points(pts, grPts);
+        matrix.mapHomogeneousPoints(grPts, grPts, 4);
+        return GrPerspQuad(grPts);
+    } else {
+        // Can keep everything in 2D and not bother with homogeneous coordinates
+        SkPoint grPts[4];
+        rearrange_sk_to_gr_points(pts, grPts);
+        matrix.mapPoints(grPts, 4);
+        return GrPerspQuad(grPts);
+    }
 }
 
 bool GrPerspQuad::aaHasEffectOnRect() const {
