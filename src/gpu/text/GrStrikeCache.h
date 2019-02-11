@@ -112,10 +112,10 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> getStrike(const SkStrike* cache) {
-        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(cache->getDescriptor()));
+    sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
+        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(desc));
         if (!strike) {
-            strike = this->generateStrike(cache);
+            strike = this->generateStrike(desc);
         }
         return strike;
     }
@@ -127,9 +127,9 @@ public:
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
 private:
-    sk_sp<GrTextStrike> generateStrike(const SkStrike* cache) {
+    sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
         // 'fCache' get the construction ref
-        sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(cache->getDescriptor()));
+        sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(desc));
         fCache.add(strike.get());
         return strike;
     }
