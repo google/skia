@@ -35,7 +35,7 @@ private:
         kHasLocalCoords = 1 << 1
     };
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags)
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
 
     class Processor;
 

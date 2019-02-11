@@ -121,7 +121,7 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
     friend constexpr GrTFlagsMask<X> operator ~(X); \
     friend constexpr X operator |(X, X); \
     friend X& operator |=(X&, X); \
-    friend constexpr bool operator &(X, X);
+    friend constexpr bool operator &(X, X)
 
 ////////////////////////////////////////////////////////////////////////////////
 
