@@ -71,6 +71,29 @@
     },
     {
       "key": {
+        "uuid": "d395fbe1_049cf086",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-12T15:02:08Z",
+      "side": 1,
+      "message": "nit: do we care about packing/size for this? If so, maybe move all bools to the bottom?",
+      "range": {
+        "startLine": 34,
+        "startChar": 9,
+        "endLine": 34,
+        "endChar": 23
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35fb942b_b050c268",
         "filename": "modules/particles/include/SkParticleEffect.h",
         "patchSetId": 45
@@ -105,6 +128,30 @@
       "writtenOn": "2019-02-11T22:55:29Z",
       "side": 1,
       "message": "Would it be better to provide the SkRandom seed at construction, and then not allow the random to be changed from update to update, and/or used by external code?",
+      "range": {
+        "startLine": 77,
+        "startChar": 15,
+        "endLine": 77,
+        "endChar": 32
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ee0925b_ee241463",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-12T15:02:08Z",
+      "side": 1,
+      "message": "thought: two versions of update.\n1. takes explicit random from caller, to be used instead of internal one\n2. only takes timer, so it uses the internal one (set in constructor)",
+      "parentUuid": "7117b820_67b46cf7",
       "range": {
         "startLine": 77,
         "startChar": 15,
@@ -179,6 +226,29 @@
         "startChar": 16,
         "endLine": 22,
         "endChar": 36
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33fd8377_79c7c386",
+        "filename": "modules/particles/include/SkReflected.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-12T15:02:08Z",
+      "side": 1,
+      "message": "style question: does it make sense to have default args in pure-virtual?",
+      "range": {
+        "startLine": 114,
+        "startChar": 44,
+        "endLine": 114,
+        "endChar": 51
       },
       "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
