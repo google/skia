@@ -1,0 +1,30 @@
+# Copyright 2019 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_enable_particles = true
+}
+
+import("../../gn/skia.gni")
+
+config("public_config") {
+  if (skia_enable_particles) {
+    include_dirs = [ "include" ]
+  }
+}
+
+source_set("particles") {
+  if (skia_enable_particles) {
+    testonly = true
+    import("particles.gni")
+    public_configs = [ ":public_config" ]
+    deps = [
+      "../..:skia",
+      "../..:tool_utils",
+    ]
+    sources = skia_particle_sources
+    configs += [ "../../:skia_private" ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+   "MaxCount": 4096,
+   "Rate": 90,
+   "Life": {
+      "min": 30,
+      "max": 30
+   },
+   "StartColor": [ 1, 0.999994, 0.99999, 1 ],
+   "EndColor": [ 0.99999, 0.999992, 1, 1 ],
+   "Size": {
+      "Ranged": false,
+      "A0": 2,
+      "B0": 2,
+      "C0": 2,
+      "D0": 2,
+      "A1": 1,
+      "B1": 1,
+      "C1": 1,
+      "D1": 1
+   },
+   "Velocity": {
+      "Angle": 1.5708,
+      "Spread": 6.28319,
+      "Strength": {
+         "min": 0,
+         "max": 0
+      },
+      "Bidirectional": false,
+      "Spin": {
+         "min": 0,
+         "max": 0
+      },
+      "BidirectionalSpin": false
+   },
+   "Image": "images/half-transparent-white-pixel.png",
+   "ImageCols": 1,
+   "ImageRows": 1,
+   "Emitter": {
+      "Type": "SkCircleEmitter",
+      "Center": { "x": 380.8, "y": 273.92 },
+      "Radius": 43
+   },
+   "Affectors": [
+      {
+         "Type": "SkPointForceAffector",
+         "Point": { "x": 375, "y": 273 },
+         "Constant": -10,
+         "InvSquare": 0
+      }
+   ]
+}
