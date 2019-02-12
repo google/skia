@@ -82,8 +82,9 @@ void JsonWriter::DumpJson() {
             writer.endObject(); // key
 
             writer.beginObject("options");
-            writer.appendString("ext"          , gBitmapResults[i].ext.c_str());
-            writer.appendString("gamma_correct", gBitmapResults[i].gammaCorrect ? "yes" : "no");
+            writer.appendString("ext"  ,       gBitmapResults[i].ext.c_str());
+            writer.appendString("gamut",       gBitmapResults[i].gamut.c_str());
+            writer.appendString("transfer_fn", gBitmapResults[i].transferFn.c_str());
             writer.endObject(); // options
 
             writer.appendString("md5", gBitmapResults[i].md5.c_str());
@@ -144,7 +145,8 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
         br.config       = key["config"].as<StringValue>().begin();
         br.sourceType   = key["source_type"].as<StringValue>().begin();
         br.ext          = options["ext"].as<StringValue>().begin();
-        br.gammaCorrect = 0 == strcmp("yes", options["gamma_correct"].as<StringValue>().begin());
+        br.gamut        = options["gamut"].as<StringValue>().begin();
+        br.transferFn   = options["transfer_fn"].as<StringValue>().begin();
         br.md5          = (*r)["md5"].as<StringValue>().begin();
 
         if (const StringValue* so = key["source_options"]) {

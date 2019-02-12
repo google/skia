@@ -29,7 +29,8 @@ public:
         SkString sourceOptions;   //      "image", "codec", "subset", "scanline"
         SkString md5;             // In ASCII, so 32 bytes long.
         SkString ext;             // Extension of file we wrote: "png", "pdf", ...
-        bool gammaCorrect;        // Old configs are not gamma correct, some new ones are.
+        SkString gamut;
+        SkString transferFn;
     };
 
     /**
