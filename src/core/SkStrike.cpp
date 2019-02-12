@@ -93,7 +93,6 @@ SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsT
 
     if (nullptr == glyphPtr) {
         glyphPtr = this->allocateNewGlyph(packedGlyphID, type);
-        fGlyphMap.set(glyphPtr);
     } else {
         if (type == kFull_MetricsType && glyphPtr->isJustAdvance()) {
             fScalerContext->getMetrics(glyphPtr);
