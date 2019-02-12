@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6e6d954_e2f0d439",
+        "filename": "src/gpu/ops/GrStencilPathOp.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-12T20:10:59Z",
+      "side": 1,
+      "message": "lots of \\n added here.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 0
+      },
+      "revId": "7a77b4afcb2872570d9e16cd64930fbd42e6145d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
