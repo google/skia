@@ -680,6 +680,7 @@ private:
             unsigned    fStyle : 2;
             unsigned    fFilterQuality : 2;
             unsigned    fBlendMode : 8; // only need 5-6?
+            unsigned    fPadding : 14;  // 14==32-1-1-2-2-2-2-8
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
