@@ -91,6 +91,37 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     return renderTargetContext;
 }
 
+sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContextWithFallback(
+                                                                 const GrBackendFormat& format,
+                                                                 SkBackingFit fit,
+                                                                 int width, int height,
+                                                                 GrPixelConfig config,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 int sampleCnt,
+                                                                 GrMipMapped mipMapped,
+                                                                 GrSurfaceOrigin origin,
+                                                                 const SkSurfaceProps* surfaceProps,
+                                                                 SkBudgeted budgeted) {
+    GrBackendFormat localFormat = format;
+    SkASSERT(sampleCnt > 0);
+    if (0 == this->caps()->getRenderTargetSampleCount(sampleCnt, config)) {
+        config = GrPixelConfigFallback(config);
+        // TODO: First we should be checking the getRenderTargetSampleCount from the GrBackendFormat
+        // and not GrPixelConfig. Besides that, we should implement the fallback in the caps, but
+        // for now we just convert the fallback pixel config to an SkColorType and then get the
+        // GrBackendFormat from that.
+        SkColorType colorType;
+        if (!GrPixelConfigToColorType(config, &colorType)) {
+            return nullptr;
+        }
+        localFormat = fContext->caps()->getBackendFormatFromColorType(colorType);
+    }
+
+    return this->makeDeferredRenderTargetContext(localFormat, fit, width, height, config,
+                                                 std::move(colorSpace), sampleCnt, mipMapped,
+                                                 origin, surfaceProps, budgeted);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
     return fContext->refCaps();
@@ -118,4 +149,21 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
     return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
                                                      origin, surfaceProps, budgeted);
+}
+
+sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContextWithFallback(
+                                        const GrBackendFormat& format,
+                                        SkBackingFit fit,
+                                        int width, int height,
+                                        GrPixelConfig config,
+                                        sk_sp<SkColorSpace> colorSpace,
+                                        int sampleCnt,
+                                        GrMipMapped,
+                                        GrSurfaceOrigin origin,
+                                        const SkSurfaceProps* surfaceProps,
+                                        SkBudgeted budgeted) {
+    return fContext->makeDeferredRenderTargetContextWithFallback(format, fit, width, height, config,
+                                                                 std::move(colorSpace), sampleCnt,
+                                                                 mipMapped, origin, surfaceProps,
+                                                                 budgeted);
 }
