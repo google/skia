@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbcfcb27_c89483bb",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-12T20:39:31Z",
+      "side": 1,
+      "message": "I considered this, but:\n- We do have a couple of GMs that use GIFs\n- We already remove \u0027svg\u0027 and \u0027skp\u0027 above\n\nI don\u0027t have a strong preference for whether we remove any of these.",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 27
+      },
+      "revId": "b192b718a2bf76b36068bed0ca99bb8b7c90571e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
