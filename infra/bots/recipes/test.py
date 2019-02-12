@@ -328,6 +328,14 @@ def dm_flags(api, bot):
   else:
     remove_from_args('lottie')
 
+  if 'Wuffs' in api.vars.extra_tokens:
+    # The only thing interesting/unique about the Wuffs bot is that it decodes
+    # GIFs using wuffs. There is no need to run these other tests on it.
+    remove_from_args('gm')
+    remove_from_args('colorImage')
+    remove_from_args('svg')
+    remove_from_args('skp')
+
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('glsrgb image _ _')
@@ -777,6 +785,12 @@ def dm_flags(api, bot):
       match.append('~^RGB565TextureTest$')
       match.append('~^RGBA4444TextureTest$')
 
+  if 'Wuffs' in api.vars.extra_tokens:
+    # skia:8750
+    blacklist(['_', 'tests', '_', 'Codec_partial'])
+    # skia:8762
+    blacklist(['_', 'tests', '_', 'Codec_gif'])
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
@@ -1026,6 +1040,7 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
