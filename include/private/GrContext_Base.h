@@ -64,9 +64,9 @@ protected:
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
 
+private:
     virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
 
-private:
     const GrBackendApi          fBackend;
     const GrContextOptions      fOptions;
     const uint32_t              fContextID;

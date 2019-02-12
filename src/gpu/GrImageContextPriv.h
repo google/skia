@@ -32,6 +32,9 @@ public:
     GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
+    bool abandoned1() const { return fContext->abandoned1(); }
+    void abandon1() { return fContext->abandon1(); }
+
     GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
     const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
 

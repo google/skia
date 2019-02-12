@@ -56,7 +56,7 @@ class CopyAtlasOp : public AtlasOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           sk_sp<GrTextureProxy> copyProxy, int baseInstance,
                                           int endInstance, const SkISize& drawBounds) {
@@ -101,7 +101,7 @@ class RenderAtlasOp : public AtlasOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           FillBatchID fillBatchID, StrokeBatchID strokeBatchID,
                                           const SkISize& drawBounds) {

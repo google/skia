@@ -18,7 +18,7 @@ class SkImage_GpuYUVA;
     is kAllow the image's ID is used for the cache key. */
 class GrImageTextureMaker : public GrTextureMaker {
 public:
-    GrImageTextureMaker(GrContext* context, const SkImage* client, SkImage::CachingHint chint);
+    GrImageTextureMaker(GrRecordingContext*, const SkImage* client, SkImage::CachingHint);
 
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
@@ -44,7 +44,7 @@ private:
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
 class GrYUVAImageTextureMaker : public GrTextureMaker {
 public:
-    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client);
+    GrYUVAImageTextureMaker(GrRecordingContext*, const SkImage* client);
 
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be

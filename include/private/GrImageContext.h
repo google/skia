@@ -33,6 +33,11 @@ protected:
     GrProxyProvider* proxyProvider() { return fProxyProvider.get(); }
     const GrProxyProvider* proxyProvider() const { return fProxyProvider.get(); }
 
+    virtual bool abandoned1() const {
+        return fAbandoned;
+    }
+    virtual void abandon1() { fAbandoned = true; /* fProxyProvider1->abandon1();*/ }
+
     /** This is only useful for debug purposes */
     GrSingleOwner* singleOwner() const { return &fSingleOwner; }
 
