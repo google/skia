@@ -21,18 +21,18 @@
 #include "../private/SkTo.h"
 #include "SkBlendMode.h"
 #include "SkColor.h"
+#include "SkColorFilter.h"
+#include "SkDrawLooper.h"
 #include "SkFilterQuality.h"
+#include "SkImageFilter.h"
+#include "SkMaskFilter.h"
+#include "SkPathEffect.h"
 #include "SkRefCnt.h"
+#include "SkShader.h"
 
-class SkColorFilter;
 class SkColorSpace;
-class SkDrawLooper;
 struct SkRect;
-class SkImageFilter;
-class SkMaskFilter;
 class SkPath;
-class SkPathEffect;
-class SkShader;
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
@@ -65,7 +65,7 @@ public:
         @param paint  original to copy
         @return       shallow copy of paint
     */
-    SkPaint(const SkPaint& paint);
+    SkPaint(const SkPaint& paint) = default;
 
     /** Implements a move constructor to avoid increasing the reference counts
         of objects referenced by the paint.
@@ -75,13 +75,13 @@ public:
         @param paint  original to move
         @return       content of paint
     */
-    SkPaint(SkPaint&& paint);
+    SkPaint(SkPaint&& paint) = default;
 
     /** Decreases SkPaint SkRefCnt of owned objects: SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter. If the
         objects containing SkRefCnt go to zero, they are deleted.
     */
-    ~SkPaint();
+    ~SkPaint() = default;
 
     /** Makes a shallow copy of SkPaint. SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkDrawLooper, and SkImageFilter are shared
@@ -93,7 +93,7 @@ public:
         @param paint  original to copy
         @return       content of paint
     */
-    SkPaint& operator=(const SkPaint& paint);
+    SkPaint& operator=(const SkPaint& paint) = default;
 
     /** Moves the paint to avoid increasing the reference counts
         of objects referenced by the paint parameter. Objects containing SkRefCnt in the
@@ -105,7 +105,7 @@ public:
         @param paint  original to move
         @return       content of paint
     */
-    SkPaint& operator=(SkPaint&& paint);
+    SkPaint& operator=(SkPaint&& paint) = default;
 
     /** Compares a and b, and returns true if a and b are equivalent. May return false
         if SkPathEffect, SkShader, SkMaskFilter, SkColorFilter,
@@ -685,5 +685,25 @@ private:
         uint32_t fBitfieldsUInt;
     };
 };
+
+inline SkPaint::SkPaint()
+    : fColor4f{0, 0, 0, 1}  // opaque black
+    , fWidth{0}
+#ifdef SkPaintDefaults_MiterLimit
+    , fMiterLimit{SkPaintDefaults_MiterLimit}
+#else
+    , fMiterLimit{4}
+#endif
+    , fBitfields{0,                                // fAntiAlias
+                 0,                                // fDither
+                 kDefault_Cap,                     // fCapType
+                 kDefault_Join,                    // fJoinType
+                 kFill_Style,                      // fStyle
+                 0,                                // fFilterQuality
+                 (unsigned)SkBlendMode::kSrcOver,  // fBlendMode
+                 0}                                // fPadding
+{
+    static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
+}
 
 #endif

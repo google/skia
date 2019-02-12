@@ -39,33 +39,6 @@
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
 
-
-SkPaint::SkPaint()
-    : fColor4f{0, 0, 0, 1}  // opaque black
-    , fWidth{0}
-    , fMiterLimit{SkPaintDefaults_MiterLimit}
-    , fBitfields{0,                                   // fAntiAlias
-                 0,                                   // fDither
-                 kDefault_Cap,                        // fCapType
-                 kDefault_Join,                       // fJoinType
-                 kFill_Style,                         // fStyle
-                 0,                                   // fFilterQuality
-                 (unsigned)SkBlendMode::kSrcOver,     // fBlendMode
-                 0}                                   // fPadding
-{
-    static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
-}
-
-SkPaint::SkPaint(const SkPaint& src) = default;
-
-SkPaint::SkPaint(SkPaint&& src) = default;
-
-SkPaint::~SkPaint() = default;
-
-SkPaint& SkPaint::operator=(const SkPaint& src) = default;
-
-SkPaint& SkPaint::operator=(SkPaint&& src) = default;
-
 bool operator==(const SkPaint& a, const SkPaint& b) {
 #define EQUAL(field) (a.field == b.field)
     return EQUAL(fPathEffect)
