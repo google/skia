@@ -1945,6 +1945,12 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     std::vector<int> swizzleComponents;
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
+            case '0':
+                swizzleComponents.push_back(SKSL_SWIZZLE_0);
+                break;
+            case '1':
+                swizzleComponents.push_back(SKSL_SWIZZLE_1);
+                break;
             case 'x': // fall through
             case 'r': // fall through
             case 's':

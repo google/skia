@@ -2251,3 +2251,23 @@ DEF_TEST(SkSLWorkaroundRemovePowWithConstantExponent, r) {
          SkSL::Program::kFragment_Kind
          );
 }
+
+DEF_TEST(SkSLSwizzleConstants, r) {
+    test(r,
+         "void main() {"
+         "    half4 v = half4(half(sqrt(1)));"
+         "    sk_FragColor = v.rgb1;"
+         "    half4 c = half4(1);"
+         "    sk_FragColor = c.rgb0;"
+         "}",
+         *SkSL::ShaderCapsFactory::RemovePowWithConstantExponent(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    vec4 v = vec4(sqrt(1.0));\n"
+         "    sk_FragColor = vec4(v.xyz, 1);\n"
+         "    sk_FragColor = vec4(vec4(1.0).xyz, 0);\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}
