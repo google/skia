@@ -98,8 +98,8 @@ static void inval_test1(skiatest::Reporter* reporter) {
                           {{   0,  -1 }, nullptr },
                           {{ 100,   0 }, nullptr },
                           {{   0, 100 }, nullptr },
-                          {{   0,   0 },      d1 },
-                          {{  99,  99 },      d1 },
+                          {{   0,   0 },      d2 },
+                          {{  99,  99 },      d2 },
                       });
     }
 

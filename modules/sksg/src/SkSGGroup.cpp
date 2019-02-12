@@ -67,8 +67,8 @@ void Group::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
 }
 
 const RenderNode* Group::onNodeAt(const SkPoint& p) const {
-    for (const auto& child : fChildren) {
-        if (const auto* node = child->nodeAt(p)) {
+    for (auto it = fChildren.crbegin(); it != fChildren.crend(); ++it) {
+        if (const auto* node = (*it)->nodeAt(p)) {
             return node;
         }
     }
