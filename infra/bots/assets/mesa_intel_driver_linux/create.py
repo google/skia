@@ -13,9 +13,13 @@
 import argparse
 import subprocess
 
-DOCKER_IMAGE='gcr.io/skia-public/mesa-driver-builder:v1'
-BUILD_SCRIPT='/opt/build_mesa.sh'
-MESA_VERSION='18.1.7'
+# TODO(dogben): In the future, it might be simpler to build the docker image as
+# part of this script so that we don't need to push it to the container repo.
+# Doing so would make this script more repeatable, since someone could
+# accidentally change the Docker image that "v2" points to.
+DOCKER_IMAGE = 'gcr.io/skia-public/mesa-driver-builder:v2'
+BUILD_SCRIPT = '/opt/build_mesa.sh'
+MESA_VERSION = '18.3.3'
 
 
 def create_asset(target_dir):
