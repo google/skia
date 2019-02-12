@@ -777,6 +777,12 @@ def dm_flags(api, bot):
       match.append('~^RGB565TextureTest$')
       match.append('~^RGBA4444TextureTest$')
 
+  if 'Wuffs' in api.vars.extra_tokens:
+    # skia:8750
+    blacklist(['_', 'tests', '_', 'Codec_partial'])
+    # skia:8762
+    blacklist(['_', 'tests', '_', 'Codec_gif'])
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
@@ -1026,6 +1032,7 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
