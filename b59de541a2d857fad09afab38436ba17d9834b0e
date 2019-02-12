@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ff8aea5_71b1cd9c",
+        "filename": "modules/skshaper/src/SkShaper_primitive.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-12T16:51:06Z",
+      "side": 1,
+      "message": "is_breaking_whitespace()",
+      "revId": "b59de541a2d857fad09afab38436ba17d9834b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
