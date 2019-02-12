@@ -1138,7 +1138,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		timeout(task, 9*time.Hour)
 		task.Expiration = 48 * time.Hour
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
-		task.Dimensions = append(task.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		timeout(task, 9*time.Hour)
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
@@ -1190,7 +1189,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		timeout(task, 9*time.Hour)
 		task.Expiration = 48 * time.Hour
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
-		task.Dimensions = append(task.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		timeout(task, 9*time.Hour)
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
@@ -1402,6 +1400,14 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// Calmbench bots.
 	if parts["role"] == "Calmbench" {
 		deps = append(deps, calmbench(b, name, parts, compileTaskName, compileParentName))
+	}
+
+	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
+	if strings.Contains(name, "Valgrind") {
+		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the
+		// same score as other tasks with a blamelist of 1 commit, when we have insufficient bot
+		// capacity to run more frequently.
+		priority = 0.085
 	}
 
 	// BuildStats bots. This computes things like binary size.
