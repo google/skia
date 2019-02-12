@@ -32,7 +32,6 @@ class SkImageFilter;
 class SkMaskFilter;
 class SkPath;
 class SkPathEffect;
-struct SkPoint;
 class SkShader;
 
 /** \class SkPaint

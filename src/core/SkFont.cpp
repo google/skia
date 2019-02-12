@@ -413,20 +413,6 @@ sk_sp<SkTypeface> SkFont::refTypefaceOrDefault() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-int SkFontPriv::ValidCountText(const void* text, size_t length, SkTextEncoding encoding) {
-    switch (encoding) {
-        case kUTF8_SkTextEncoding: return SkUTF::CountUTF8((const char*)text, length);
-        case kUTF16_SkTextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
-        case kUTF32_SkTextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
-        case kGlyphID_SkTextEncoding:
-            if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(length)) {
-                return -1;
-            }
-            return length >> 1;
-    }
-    return -1;
-}
-
 void SkFontPriv::ScaleFontMetrics(SkFontMetrics* metrics, SkScalar scale) {
     metrics->fTop *= scale;
     metrics->fAscent *= scale;
