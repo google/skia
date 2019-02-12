@@ -18,6 +18,7 @@
 #endif
 
 class GrDrawOp;
+class GrRecordingContext;
 class GrTextBlobCache;
 class SkGlyph;
 class GrTextBlob;
@@ -47,7 +48,7 @@ public:
     void drawGlyphRunList(GrContext*, GrTextTarget*, const GrClip&,
                           const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkGlyphRunList&);
 
-    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
+    std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
                                                    GrTextContext*,
                                                    GrRenderTargetContext*,
                                                    const SkPaint&, const SkFont&,
