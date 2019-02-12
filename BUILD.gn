@@ -1725,6 +1725,7 @@ if (skia_enable_tools) {
         ":xml",
         "modules/sksg",
         "modules/skshaper",
+        "//third_party/imgui",
       ]
 
       # NIMA does not build on Windows clang
