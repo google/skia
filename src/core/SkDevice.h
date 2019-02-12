@@ -176,10 +176,13 @@ protected:
                             const SkRRect& inner, const SkPaint&);
 
     // Default impl always calls drawRect() with a solid-color paint, setting it to anti-aliased
-    // only when all edge flags are set.
-    virtual void drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkColor color,
-                                SkBlendMode mode);
-
+    // only when all edge flags are set. If there's a clip region, it draws that using drawPath,
+    // or uses clipPath().
+    virtual void drawEdgeAAQuad(const SkRect& r, const SkPoint clip[], int clipCount,
+                                SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode);
+    virtual void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
+                                    const SkPoint dstClips[], const SkPaint&,
+                                    SkCanvas::SrcRectConstraint);
     /**
      *  If pathIsMutable, then the implementation is allowed to cast path to a
      *  non-const pointer and modify it in place (as an optimization). Canvas
@@ -216,9 +219,6 @@ protected:
                                const SkRect& dst, const SkPaint&);
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, const SkPaint&);
-
-    virtual void drawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
-                              SkBlendMode);
 
     virtual void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode, const SkPaint&) = 0;

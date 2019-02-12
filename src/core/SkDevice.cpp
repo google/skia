@@ -128,14 +128,57 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
     this->drawPath(path, paint, true);
 }
 
-void SkBaseDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkColor color,
-                                  SkBlendMode mode) {
+void SkBaseDevice::drawEdgeAARect(const SkRect& r, const SkPoint clip[], int clipCount,
+                                  SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+    SkASSERT(clipCount == 0 || clipCount == 4);
+
     SkPaint paint;
     paint.setColor(color);
     paint.setBlendMode(mode);
     paint.setAntiAlias(aa == SkCanvas::kAll_QuadAAFlags);
 
-    this->drawRect(r, paint);
+    if (clipCount > 0) {
+        // Draw the clip directly as a quad since it's a filled color with no local coords
+        SkPath clipPath;
+        clipPath.addPoly(clip, clipCount, true);
+        this->drawPath(clipPath, paint);
+    } else {
+        this->drawRect(r, paint);
+    }
+}
+
+void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], int count,
+                                      const SkPoint dstClips[], const SkPaint& paint,
+                                      SkCanvas::SrcRectConstraint constraint) {
+    SkASSERT(paint.getStyle() == SkPaint::kFill_Style);
+    SkASSERT(!paint.getPathEffect());
+
+    SkPaint entryPaint = paint;
+
+    bool respectAAFlags = paint.isAntiAlias();
+    int clipIndex = 0;
+    for (int i = 0; i < count; ++i) {
+        // TODO: Handle per-edge AA. Right now this mirrors the SkiaRenderer component of Chrome
+        // which turns off antialiasing unless all four edges should be antialiased. This avoids
+        // seaming in tiled composited layers.
+        entryPaint.setAntiAlias(respectAAFlags && images[i].fAAFlags == SkCanvas::kAll_QuadAAFlags);
+        entryPaint.setAlpha(SkToUInt(SkTClamp(SkScalarRoundToInt(images[i].fAlpha * 255), 0, 255)));
+
+        if (images[i].fDstClipCount > 0) {
+            // Since drawImageRect requires a srcRect, the dst clip is implemented as a true clip
+            this->save();
+            SkPath clipPath;
+            clipPath.addPoly(dstClips + clipIndex, images[i].fDstClipCount, true);
+            this->clipPath(clipPath, SkClipOp::kIntersect, entryPaint.isAntiAlias());
+            clipIndex += images[i].fDstClipCount;
+        }
+        this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect, paint,
+                            constraint);
+        if (images[i].fDstClipCount > 0) {
+            // Undo the clip we added
+            this->restore();
+        }
+    }
 }
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
@@ -209,22 +252,6 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
         } else {
             this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
         }
-    }
-}
-
-void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int count,
-                                SkFilterQuality filterQuality, SkBlendMode mode) {
-    SkPaint paint;
-    paint.setFilterQuality(SkTPin(filterQuality, kNone_SkFilterQuality, kLow_SkFilterQuality));
-    paint.setBlendMode(mode);
-    for (int i = 0; i < count; ++i) {
-        // TODO: Handle per-edge AA. Right now this mirrors the SkiaRenderer component of Chrome
-        // which turns off antialiasing unless all four edges should be antialiased. This avoids
-        // seaming in tiled composited layers.
-        paint.setAntiAlias(images[i].fAAFlags == SkCanvas::kAll_QuadAAFlags);
-        paint.setAlpha(SkToUInt(SkTClamp(SkScalarRoundToInt(images[i].fAlpha * 255), 0, 255)));
-        this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect, paint,
-                            SkCanvas::kFast_SrcRectConstraint);
     }
 }
 
