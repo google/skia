@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb0b143c_18fe9cae",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-12T18:23:23Z",
+      "side": 1,
+      "message": "rm this?",
+      "range": {
+        "startLine": 841,
+        "startChar": 0,
+        "endLine": 843,
+        "endChar": 9
+      },
+      "revId": "d1a19de66e15daccc7172b41c6a22119738d70c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
