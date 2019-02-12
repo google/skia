@@ -7,11 +7,11 @@
 
 #include "GrShadowRRectOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkRRectPriv.h"
 #include "effects/GrShadowGeoProc.h"
 
@@ -620,7 +620,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrDrawOp> Make(GrContext* context,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,

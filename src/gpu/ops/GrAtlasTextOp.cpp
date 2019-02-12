@@ -8,10 +8,10 @@
 #include "GrAtlasTextOp.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrResourceProvider.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
@@ -24,7 +24,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrContext* context,
+std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
                                                          GrPaint&& paint,
                                                          GrMaskFormat maskFormat,
                                                          int glyphCount,
@@ -52,7 +52,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrContext* context,
     }
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
-                                            GrContext* context,
+                                            GrRecordingContext* context,
                                             GrPaint&& paint,
                                             int glyphCount,
                                             const GrDistanceFieldAdjustTable* distanceAdjustTable,

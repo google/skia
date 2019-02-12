@@ -17,7 +17,7 @@
 #include "SkOpts.h"
 #include "SkTDynamicHash.h"
 
-class GrContext;
+class GrRecordingContext;
 
 class ShapeData;
 class ShapeDataKey;
@@ -50,7 +50,7 @@ public:
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
 
-    static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
+    static std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrRecordingContext*,
                                                           GrPaint&&,
                                                           const GrShape&,
                                                           const SkMatrix& viewMatrix,

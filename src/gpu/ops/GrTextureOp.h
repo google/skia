@@ -27,7 +27,7 @@ namespace GrTextureOp {
  * space. 'viewMatrix' must be affine. If GrAAType is kCoverage then AA is applied to the edges
  * indicated by GrQuadAAFlags. Otherwise, GrQuadAAFlags is ignored.
  */
-std::unique_ptr<GrDrawOp> Make(GrContext*,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                sk_sp<GrTextureProxy>,
                                GrSamplerState::Filter,
                                const SkPMColor4f&,
@@ -39,7 +39,7 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureXform);
 
-std::unique_ptr<GrDrawOp> Make(GrContext*,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                const GrRenderTargetContext::TextureSetEntry[],
                                int cnt,
                                GrSamplerState::Filter,

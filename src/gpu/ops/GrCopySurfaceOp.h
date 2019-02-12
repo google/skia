@@ -11,11 +11,13 @@
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 
+class GrRecordingContext;
+
 class GrCopySurfaceOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrContext*,
+    static std::unique_ptr<GrOp> Make(GrRecordingContext*,
                                       GrSurfaceProxy* dst,
                                       GrSurfaceProxy* src,
                                       const SkIRect& srcRect,

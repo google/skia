@@ -7,17 +7,17 @@
 
 #include "GrSemaphoreOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
 class GrWaitSemaphoreOp final : public GrSemaphoreOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrOp> Make(GrContext* context,
+    static std::unique_ptr<GrOp> Make(GrRecordingContext* context,
                                       sk_sp<GrSemaphore> semaphore,
                                       GrRenderTargetProxy* proxy) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
@@ -42,7 +42,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrOp> GrSemaphoreOp::MakeWait(GrContext* context,
+std::unique_ptr<GrOp> GrSemaphoreOp::MakeWait(GrRecordingContext* context,
                                               sk_sp<GrSemaphore> semaphore,
                                               GrRenderTargetProxy* proxy) {
     return GrWaitSemaphoreOp::Make(context, std::move(semaphore), proxy);

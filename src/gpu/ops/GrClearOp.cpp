@@ -11,8 +11,10 @@
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
-std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
+std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
                                            const GrFixedClip& clip,
                                            const SkPMColor4f& color,
                                            GrSurfaceProxy* dstProxy) {
@@ -26,7 +28,7 @@ std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
     return pool->allocate<GrClearOp>(clip, color, dstProxy);
 }
 
-std::unique_ptr<GrClearOp> GrClearOp::Make(GrContext* context,
+std::unique_ptr<GrClearOp> GrClearOp::Make(GrRecordingContext* context,
                                            const SkIRect& rect,
                                            const SkPMColor4f& color,
                                            bool fullScreen) {

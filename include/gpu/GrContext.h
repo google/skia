@@ -295,6 +295,9 @@ protected:
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
+    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
+    GrDrawingManager* drawingManager() override;
+
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:

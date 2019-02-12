@@ -143,6 +143,10 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
 }
 
+GrDrawingManager* GrContext::drawingManager() {
+    return fDrawingManager.get();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {

@@ -11,6 +11,7 @@
 #include "GrAuditTrail.h"
 #include "GrImageContext.h"
 
+class GrDrawingManager;
 class GrOpMemoryPool;
 class GrRecordingContextPriv;
 
@@ -29,8 +30,28 @@ protected:
 
     void abandonContext() override;
 
+    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
+    virtual GrDrawingManager* drawingManager() = 0;
+
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
+
+    /*
+     * Create a new render target context backed by a deferred-style
+     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
+     * renderTargetContexts created via this entry point.
+     */
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+                                            const GrBackendFormat& format,
+                                            SkBackingFit fit,
+                                            int width, int height,
+                                            GrPixelConfig config,
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            int sampleCnt = 1,
+                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                            const SkSurfaceProps* surfaceProps = nullptr,
+                                            SkBudgeted = SkBudgeted::kYes);
 
     GrAuditTrail* auditTrail() { return &fAuditTrail; }
 

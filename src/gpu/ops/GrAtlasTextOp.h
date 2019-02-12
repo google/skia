@@ -12,8 +12,8 @@
 #include "text/GrTextBlob.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
+class GrRecordingContext;
 class SkAtlasTextTarget;
-class GrContext;
 
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -40,20 +40,20 @@ public:
         SkPMColor4f fColor;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrContext* context,
-                                                     GrPaint&& paint,
-                                                     GrMaskFormat maskFormat,
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrRecordingContext*,
+                                                     GrPaint&&,
+                                                     GrMaskFormat,
                                                      int glyphCount,
                                                      bool needsTransform);
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            GrContext* context,
-            GrPaint&& paint,
+            GrRecordingContext*,
+            GrPaint&&,
             int glyphCount,
-            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            const GrDistanceFieldAdjustTable*,
             bool useGammaCorrectDistanceTable,
             SkColor luminanceColor,
-            const SkSurfaceProps& props,
+            const SkSurfaceProps&,
             bool isAntiAliased,
             bool useLCD);
 

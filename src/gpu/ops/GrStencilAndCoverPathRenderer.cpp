@@ -7,11 +7,11 @@
 
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
-#include "GrContext.h"
 #include "GrDrawPathOp.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPath.h"
+#include "GrRecordingContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrShape.h"

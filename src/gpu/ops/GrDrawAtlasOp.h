@@ -11,13 +11,13 @@
 #include "GrTypesPriv.h"
 #include "SkRefCnt.h"
 
-class GrContext;
 class GrDrawOp;
 class GrPaint;
+class GrRecordingContext;
 class SkMatrix;
 
 namespace GrDrawAtlasOp {
-    std::unique_ptr<GrDrawOp> Make(GrContext*,
+    std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                    GrPaint&&,
                                    const SkMatrix& viewMatrix,
                                    GrAAType,
