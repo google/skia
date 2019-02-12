@@ -10,71 +10,191 @@
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
+#include "SkUTF.h"
 
-struct SkShaper::Impl {
-    sk_sp<SkTypeface> fTypeface;
-};
-
-SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
-    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
-}
+struct SkShaper::Impl {};
+SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl()) {}
 
 SkShaper::~SkShaper() {}
 
 bool SkShaper::good() const { return true; }
 
-// This example only uses public API, so we don't use SkUTF8_NextUnichar.
-unsigned utf8_lead_byte_to_count(const char* ptr) {
-    uint8_t c = *(const uint8_t*)ptr;
-    SkASSERT(c <= 0xF7);
-    SkASSERT((c & 0xC0) != 0x80);
-    return (((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1;
+static inline bool is_breaking_whitespace(SkUnichar c) {
+    switch (c) {
+        case 0x0020: // SPACE
+        //case 0x00A0: // NO-BREAK SPACE
+        case 0x1680: // OGHAM SPACE MARK
+        case 0x180E: // MONGOLIAN VOWEL SEPARATOR
+        case 0x2000: // EN QUAD
+        case 0x2001: // EM QUAD
+        case 0x2002: // EN SPACE (nut)
+        case 0x2003: // EM SPACE (mutton)
+        case 0x2004: // THREE-PER-EM SPACE (thick space)
+        case 0x2005: // FOUR-PER-EM SPACE (mid space)
+        case 0x2006: // SIX-PER-EM SPACE
+        case 0x2007: // FIGURE SPACE
+        case 0x2008: // PUNCTUATION SPACE
+        case 0x2009: // THIN SPACE
+        case 0x200A: // HAIR SPACE
+        case 0x200B: // ZERO WIDTH SPACE
+        case 0x202F: // NARROW NO-BREAK SPACE
+        case 0x205F: // MEDIUM MATHEMATICAL SPACE
+        case 0x3000: // IDEOGRAPHIC SPACE
+        //case 0xFEFF: // ZERO WIDTH NO-BREAK SPACE
+            return true;
+        default:
+            return false;
+    }
+}
+
+static size_t linebreak(const char text[], const char stop[],
+                        const SkFont& font, SkScalar width,
+                        SkScalar* advance,
+                        size_t* trailing)
+{
+    SkScalar accumulatedWidth = 0;
+    int glyphIndex = 0;
+    const char* start = text;
+    const char* word_start = text;
+    bool prevWS = true;
+    *trailing = 0;
+
+    while (text < stop) {
+        const char* prevText = text;
+        SkUnichar uni = SkUTF::NextUTF8(&text, stop);
+        accumulatedWidth += advance[glyphIndex++];
+        bool currWS = is_breaking_whitespace(uni);
+
+        if (!currWS && prevWS) {
+            word_start = prevText;
+        }
+        prevWS = currWS;
+
+        if (width < accumulatedWidth) {
+            if (currWS) {
+                // eat the rest of the whitespace
+                const char* next = text;
+                while (next < stop && is_breaking_whitespace(SkUTF::NextUTF8(&next, stop))) {
+                    text = next;
+                }
+                if (trailing) {
+                    *trailing = text - prevText;
+                }
+            } else {
+                // backup until a whitespace (or 1 char)
+                if (word_start == start) {
+                    if (prevText > start) {
+                        text = prevText;
+                    }
+                } else {
+                    text = word_start;
+                }
+            }
+            break;
+        }
+
+        if ('\n' == uni) {
+            size_t ret = text - start;
+            size_t lineBreakSize = 1;
+            if (text < stop) {
+                uni = SkUTF::NextUTF8(&text, stop);
+                if ('\r' == uni) {
+                    ret = text - start;
+                    ++lineBreakSize;
+                }
+            }
+            if (trailing) {
+                *trailing = lineBreakSize;
+            }
+            return ret;
+        }
+
+        if ('\r' == uni) {
+            size_t ret = text - start;
+            size_t lineBreakSize = 1;
+            if (text < stop) {
+                uni = SkUTF::NextUTF8(&text, stop);
+                if ('\n' == uni) {
+                    ret = text - start;
+                    ++lineBreakSize;
+                }
+            }
+            if (trailing) {
+                *trailing = lineBreakSize;
+            }
+            return ret;
+        }
+    }
+
+    return text - start;
 }
 
 SkPoint SkShaper::shape(RunHandler* handler,
-                        const SkFont& srcFont,
+                        const SkFont& font,
                         const char* utf8text,
                         size_t textBytes,
                         bool leftToRight,
                         SkPoint point,
                         SkScalar width) const {
     sk_ignore_unused_variable(leftToRight);
-    sk_ignore_unused_variable(width);
 
-    SkFont font(srcFont);
-    font.setTypeface(fImpl->fTypeface);
     int glyphCount = font.countText(utf8text, textBytes, SkTextEncoding::kUTF8);
     if (glyphCount <= 0) {
         return point;
     }
 
+    std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[glyphCount]);
+    font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
+
+    std::unique_ptr<SkScalar[]> advances(new SkScalar[glyphCount]);
+    font.getWidthsBounds(glyphs.get(), glyphCount, advances.get(), nullptr, nullptr);
+
     SkFontMetrics metrics;
     font.getMetrics(&metrics);
-    point.fY -= metrics.fAscent;
 
-    const RunHandler::RunInfo info = {
-        { font.measureText(utf8text, textBytes, SkTextEncoding::kUTF8), 0 },
-        metrics.fAscent,
-        metrics.fDescent,
-        metrics.fLeading,
-    };
-    const auto buffer = handler->newRunBuffer(info, font, glyphCount,
-                                              SkSpan<const char>(utf8text, textBytes));
-    SkAssertResult(font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8, buffer.glyphs,
-                                     glyphCount) == glyphCount);
-    font.getPos(buffer.glyphs, glyphCount, buffer.positions, point);
+    size_t glyphOffset = 0;
+    size_t utf8Offset = 0;
+    while (0 < textBytes) {
+        point.fY -= metrics.fAscent;
 
-    if (buffer.clusters) {
-        const char* txtPtr = utf8text;
-        for (int i = 0; i < glyphCount; ++i) {
-            // Each charater maps to exactly one glyph via SkGlyphCache::unicharToGlyph().
-            buffer.clusters[i] = SkToU32(txtPtr - utf8text);
-            txtPtr += utf8_lead_byte_to_count(txtPtr);
-            SkASSERT(txtPtr <= utf8text + textBytes);
+        size_t bytesCollapsed;
+        size_t bytesConsumed = linebreak(utf8text, utf8text + textBytes, font, width,
+                                         advances.get() + glyphOffset, &bytesCollapsed);
+        size_t bytesVisible = bytesConsumed - bytesCollapsed;
+
+        int numGlyphs = SkUTF::CountUTF8(utf8text, bytesVisible);
+        const RunHandler::RunInfo info = {
+            { font.measureText(utf8text, bytesVisible, SkTextEncoding::kUTF8), 0 },
+            metrics.fAscent,
+            metrics.fDescent,
+            metrics.fLeading,
+        };
+        const auto buffer = handler->newRunBuffer(info, font, numGlyphs,
+                                                  SkSpan<const char>(utf8text, bytesVisible));
+
+        memcpy(buffer.glyphs, glyphs.get() + glyphOffset, numGlyphs * sizeof(SkGlyphID));
+        SkScalar position = point.fX;
+        for (int i = 0; i < numGlyphs; ++i) {
+            buffer.positions[i] = { position, point.fY };
+            position += advances[i + glyphOffset];
         }
-    }
-    handler->commitRun();
-    handler->commitLine();
+        if (buffer.clusters) {
+            const char* txtPtr = utf8text;
+            for (int i = 0; i < numGlyphs; ++i) {
+                // Each character maps to exactly one glyph.
+                buffer.clusters[i] = SkToU32(txtPtr - utf8text + utf8Offset);
+                SkUTF::NextUTF8(&txtPtr, utf8text + textBytes);
+            }
+        }
+        handler->commitRun();
+        handler->commitLine();
 
-    return point + SkVector::Make(0, metrics.fDescent + metrics.fLeading);
+        glyphOffset += SkUTF::CountUTF8(utf8text, bytesConsumed);
+        utf8Offset += bytesConsumed;
+        utf8text += bytesConsumed;
+        textBytes -= bytesConsumed;
+        point.fY += metrics.fDescent + metrics.fLeading;
+    }
+
+    return point;
 }
