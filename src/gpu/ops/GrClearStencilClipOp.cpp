@@ -9,8 +9,10 @@
 
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
-std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrContext* context,
+std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrRecordingContext* context,
                                                  const GrFixedClip& clip,
                                                  bool insideStencilMask,
                                                  GrRenderTargetProxy* proxy) {

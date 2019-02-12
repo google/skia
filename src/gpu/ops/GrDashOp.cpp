@@ -8,8 +8,6 @@
 #include "GrDashOp.h"
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrCoordTransform.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
@@ -18,6 +16,8 @@
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrQuad.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrStyle.h"
 #include "GrVertexWriter.h"
 #include "SkGr.h"
@@ -209,7 +209,7 @@ public:
         SkScalar fPerpendicularScale;
     };
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const LineData& geometry,
                                           SkPaint::Cap cap,
@@ -679,7 +679,7 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrContext* context,
+std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrRecordingContext* context,
                                                    GrPaint&& paint,
                                                    const SkMatrix& viewMatrix,
                                                    const SkPoint pts[2],
