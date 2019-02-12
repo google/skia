@@ -16,6 +16,24 @@
       "revId": "30595ea7c7825fb170d546cf77602e37b2ec8bd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b04280da_2f573a72",
+        "filename": "infra/bots/assets/mesa_intel_driver_linux/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-02-12T15:37:11Z",
+      "side": 0,
+      "message": "These files don\u0027t exist. I assumed this was left over from a previous version of the script without the above options to configure.",
+      "parentUuid": "dfd69ee2_5f82285a",
+      "revId": "30595ea7c7825fb170d546cf77602e37b2ec8bd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
