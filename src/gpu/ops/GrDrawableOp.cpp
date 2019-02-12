@@ -7,15 +7,15 @@
 
 #include "GrDrawableOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkDrawable.h"
 
 std::unique_ptr<GrDrawableOp> GrDrawableOp::Make(
-        GrContext* context, std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
+        GrRecordingContext* context, std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
         const SkRect& bounds) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
     return pool->allocate<GrDrawableOp>(std::move(drawable), bounds);

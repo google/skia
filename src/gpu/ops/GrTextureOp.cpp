@@ -9,8 +9,6 @@
 #include <new>
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
@@ -19,6 +17,8 @@
 #include "GrOpFlushState.h"
 #include "GrQuad.h"
 #include "GrQuadPerEdgeAA.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
 #include "GrShaderCaps.h"
@@ -96,7 +96,7 @@ static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const SkRect& srcRec
  */
 class TextureOp final : public GrMeshDrawOp {
 public:
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<GrTextureProxy> proxy,
                                           GrSamplerState::Filter filter,
                                           const SkPMColor4f& color,
@@ -113,7 +113,7 @@ public:
                 std::move(proxy), filter, color, srcRect, dstRect, aaType, aaFlags, constraint,
                 viewMatrix, std::move(textureColorSpaceXform));
     }
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt, GrSamplerState::Filter filter, GrAAType aaType,
                                           const SkMatrix& viewMatrix,
@@ -535,7 +535,7 @@ private:
 
 namespace GrTextureOp {
 
-std::unique_ptr<GrDrawOp> Make(GrContext* context,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                sk_sp<GrTextureProxy> proxy,
                                GrSamplerState::Filter filter,
                                const SkPMColor4f& color,
@@ -550,7 +550,7 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
                            aaFlags, constraint, viewMatrix, std::move(textureColorSpaceXform));
 }
 
-std::unique_ptr<GrDrawOp> Make(GrContext* context,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                const GrRenderTargetContext::TextureSetEntry set[],
                                int cnt,
                                GrSamplerState::Filter filter,
@@ -587,9 +587,9 @@ bool GetFilterHasEffect(const SkMatrix& viewMatrix, const SkRect& srcRect, const
 }  // namespace GrTextureOp
 
 #if GR_TEST_UTILS
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
 GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrSurfaceDesc desc;

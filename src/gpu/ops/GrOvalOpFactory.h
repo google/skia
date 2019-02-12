@@ -11,9 +11,9 @@
 #include "GrColor.h"
 #include "SkRefCnt.h"
 
-class GrContext;
 class GrDrawOp;
 class GrPaint;
+class GrRecordingContext;
 class GrShaderCaps;
 class GrStyle;
 class SkMatrix;
@@ -26,21 +26,21 @@ class SkStrokeRec;
  */
 class GrOvalOpFactory {
 public:
-    static std::unique_ptr<GrDrawOp> MakeOvalOp(GrContext*,
+    static std::unique_ptr<GrDrawOp> MakeOvalOp(GrRecordingContext*,
                                                 GrPaint&&,
                                                 const SkMatrix&,
                                                 const SkRect& oval,
                                                 const GrStyle& style,
                                                 const GrShaderCaps*);
 
-    static std::unique_ptr<GrDrawOp> MakeRRectOp(GrContext*,
+    static std::unique_ptr<GrDrawOp> MakeRRectOp(GrRecordingContext*,
                                                  GrPaint&&,
                                                  const SkMatrix&,
                                                  const SkRRect&,
                                                  const SkStrokeRec&,
                                                  const GrShaderCaps*);
 
-    static std::unique_ptr<GrDrawOp> MakeArcOp(GrContext*,
+    static std::unique_ptr<GrDrawOp> MakeArcOp(GrRecordingContext*,
                                                GrPaint&&,
                                                const SkMatrix&,
                                                const SkRect& oval,

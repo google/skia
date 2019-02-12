@@ -17,6 +17,7 @@
 #include "GrStencilSettings.h"
 
 class GrPaint;
+class GrRecordingContext;
 
 class GrDrawPathOpBase : public GrDrawOp {
 protected:
@@ -73,7 +74,7 @@ class GrDrawPathOp final : public GrDrawPathOpBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext*,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                           const SkMatrix& viewMatrix,
                                           GrPaint&&,
                                           GrAAType,
