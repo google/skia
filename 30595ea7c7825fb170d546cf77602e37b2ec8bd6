@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfd69ee2_5f82285a",
+        "filename": "infra/bots/assets/mesa_intel_driver_linux/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-12T15:34:41Z",
+      "side": 0,
+      "message": "Why remove this?",
+      "revId": "30595ea7c7825fb170d546cf77602e37b2ec8bd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
