@@ -43,6 +43,22 @@ sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
     return fContext->refOpMemoryPool();
 }
 
+sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
+                                                    const GrBackendFormat& format,
+                                                    SkBackingFit fit,
+                                                    int width, int height,
+                                                    GrPixelConfig config,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    int sampleCnt,
+                                                    GrMipMapped mipMapped,
+                                                    GrSurfaceOrigin origin,
+                                                    const SkSurfaceProps* surfaceProps,
+                                                    SkBudgeted budgeted) {
+    return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
+                                                     std::move(colorSpace), sampleCnt, mipMapped,
+                                                     origin, surfaceProps, budgeted);
+}
+
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* props) {
@@ -667,52 +683,6 @@ void GrContextPriv::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
 void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
                                        GrRenderTargetProxy* newDest) {
     fContext->fDrawingManager->copyOpListsFromDDL(ddl, newDest);
-}
-
-sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
-                                                        const GrBackendFormat& format,
-                                                        SkBackingFit fit,
-                                                        int width, int height,
-                                                        GrPixelConfig config,
-                                                        sk_sp<SkColorSpace> colorSpace,
-                                                        int sampleCnt,
-                                                        GrMipMapped mipMapped,
-                                                        GrSurfaceOrigin origin,
-                                                        const SkSurfaceProps* surfaceProps,
-                                                        SkBudgeted budgeted) {
-    SkASSERT(sampleCnt > 0);
-    if (fContext->abandoned()) {
-        return nullptr;
-    }
-
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-    desc.fSampleCnt = sampleCnt;
-
-    sk_sp<GrTextureProxy> rtp;
-    if (GrMipMapped::kNo == mipMapped) {
-        rtp = fContext->proxyProvider()->createProxy(format, desc, origin, fit, budgeted);
-    } else {
-        rtp = fContext->proxyProvider()->createMipMapProxy(format, desc, origin, budgeted);
-    }
-    if (!rtp) {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->fDrawingManager->makeRenderTargetContext(std::move(rtp),
-                                                           std::move(colorSpace),
-                                                           surfaceProps));
-    if (!renderTargetContext) {
-        return nullptr;
-    }
-
-    renderTargetContext->discard();
-
-    return renderTargetContext;
 }
 
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {

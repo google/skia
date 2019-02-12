@@ -13,9 +13,9 @@
 #include "SkVertices.h"
 
 class GrColorSpaceXform;
-class GrContext;
 class GrDrawOp;
 class GrPaint;
+class GrRecordingContext;
 
 namespace GrDrawVerticesOp {
 
@@ -25,7 +25,7 @@ namespace GrDrawVerticesOp {
      * primitive type drawn is derived from the SkVertices object, unless overridePrimType is
      * specified.
      */
-    std::unique_ptr<GrDrawOp> Make(GrContext*,
+    std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                    GrPaint&&,
                                    sk_sp<SkVertices>,
                                    const SkVertices::Bone bones[],

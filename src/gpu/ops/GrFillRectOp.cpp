@@ -56,7 +56,7 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           GrAAType aaType,
                                           GrQuadAAFlags edgeAA,
@@ -164,10 +164,12 @@ public:
 
 private:
     // For GrFillRectOp::MakeSet's use of addQuad
-    friend std::unique_ptr<GrDrawOp> GrFillRectOp::MakeSet(GrContext* context, GrPaint&& paint,
-            GrAAType aaType, const SkMatrix& viewMatrix,
+    friend std::unique_ptr<GrDrawOp> GrFillRectOp::MakeSet(
+            GrRecordingContext*,
+            GrPaint&&,
+            GrAAType, const SkMatrix& viewMatrix,
             const GrRenderTargetContext::QuadSetEntry quads[], int quadCount,
-            const GrUserStencilSettings* stencilSettings);
+            const GrUserStencilSettings*);
 
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
@@ -331,7 +333,7 @@ private:
 
 namespace GrFillRectOp {
 
-std::unique_ptr<GrDrawOp> MakePerEdge(GrContext* context,
+std::unique_ptr<GrDrawOp> MakePerEdge(GrRecordingContext* context,
                                       GrPaint&& paint,
                                       GrAAType aaType,
                                       GrQuadAAFlags edgeAA,
@@ -343,7 +345,7 @@ std::unique_ptr<GrDrawOp> MakePerEdge(GrContext* context,
                             GrPerspQuad(rect, SkMatrix::I()), GrQuadType::kRect);
 }
 
-std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalMatrix(GrContext* context,
+std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalMatrix(GrRecordingContext* context,
                                                      GrPaint&& paint,
                                                      GrAAType aaType,
                                                      GrQuadAAFlags edgeAA,
@@ -357,7 +359,7 @@ std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalMatrix(GrContext* context,
                             GrPerspQuad(rect, localMatrix), localQuadType);
 }
 
-std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalRect(GrContext* context,
+std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalRect(GrRecordingContext* context,
                                                    GrPaint&& paint,
                                                    GrAAType aaType,
                                                    GrQuadAAFlags edgeAA,
@@ -370,7 +372,7 @@ std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalRect(GrContext* context,
                             GrPerspQuad(localRect, SkMatrix::I()), GrQuadType::kRect);
 }
 
-std::unique_ptr<GrDrawOp> MakeSet(GrContext* context,
+std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   GrPaint&& paint,
                                   GrAAType aaType,
                                   const SkMatrix& viewMatrix,
@@ -405,7 +407,7 @@ std::unique_ptr<GrDrawOp> MakeSet(GrContext* context,
     return op;
 }
 
-std::unique_ptr<GrDrawOp> Make(GrContext* context,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrPaint&& paint,
                                GrAAType aaType,
                                const SkMatrix& viewMatrix,
@@ -416,7 +418,7 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
             viewMatrix, rect, stencil);
 }
 
-std::unique_ptr<GrDrawOp> MakeWithLocalMatrix(GrContext* context,
+std::unique_ptr<GrDrawOp> MakeWithLocalMatrix(GrRecordingContext* context,
                                               GrPaint&& paint,
                                               GrAAType aaType,
                                               const SkMatrix& viewMatrix,
@@ -428,7 +430,7 @@ std::unique_ptr<GrDrawOp> MakeWithLocalMatrix(GrContext* context,
             viewMatrix, localMatrix, rect, stencil);
 }
 
-std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrContext* context,
+std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrRecordingContext* context,
                                             GrPaint&& paint,
                                             GrAAType aaType,
                                             const SkMatrix& viewMatrix,
