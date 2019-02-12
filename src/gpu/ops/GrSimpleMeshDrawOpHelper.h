@@ -8,12 +8,12 @@
 #ifndef GrSimpleMeshDrawOpHelper_DEFINED
 #define GrSimpleMeshDrawOpHelper_DEFINED
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrMemoryPool.h" // only here bc of the templated FactoryHelper
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include <new>
 
 struct SkRect;
@@ -36,7 +36,7 @@ public:
      * which is public or made accessible via 'friend'.
      */
     template <typename Op, typename... OpArgs>
-    static std::unique_ptr<GrDrawOp> FactoryHelper(GrContext*, GrPaint&& paint, OpArgs... opArgs);
+    static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs...);
 
     enum class Flags : uint32_t {
         kNone = 0x0,
@@ -158,7 +158,7 @@ public:
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>
-    static std::unique_ptr<GrDrawOp> FactoryHelper(GrContext* context, GrPaint&& paint,
+    static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext* context, GrPaint&& paint,
                                                    OpArgs... opArgs) {
         return GrSimpleMeshDrawOpHelper::FactoryHelper<Op, OpArgs...>(
                 context, std::move(paint), std::forward<OpArgs>(opArgs)...);
@@ -193,7 +193,7 @@ private:
 };
 
 template <typename Op, typename... OpArgs>
-std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* context,
+std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
                                                                   GrPaint&& paint,
                                                                   OpArgs... opArgs) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();

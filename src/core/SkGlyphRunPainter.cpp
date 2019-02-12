@@ -882,8 +882,9 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
 #if GR_TEST_UTILS
 
 #include "GrRenderTargetContext.h"
+#include "GrRecordingContextPriv.h"
 
-std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context,
+std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext* context,
                                                               GrTextContext* textContext,
                                                               GrRenderTargetContext* rtc,
                                                               const SkPaint& skPaint,
@@ -892,7 +893,12 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
                                                               const char* text,
                                                               int x,
                                                               int y) {
-    auto glyphCache = context->priv().getGlyphCache();
+    auto direct = context->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    auto glyphCache = direct->priv().getGlyphCache();
 
     static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
@@ -908,7 +914,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
-        blob = context->priv().getTextBlobCache()->makeBlob(glyphRunList, color);
+        blob = direct->priv().getTextBlobCache()->makeBlob(glyphRunList, color);
         // Use the text and textLen below, because we don't want to mess with the paint.
         SkScalerContextFlags scalerContextFlags =
                 ComputeScalerContextFlags(rtc->colorSpaceInfo());
