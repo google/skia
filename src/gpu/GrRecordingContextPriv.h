@@ -41,6 +41,10 @@ public:
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
+
+    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
+    GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
+
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
@@ -60,6 +64,24 @@ public:
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted = SkBudgeted::kYes);
+
+    /*
+     * This method will attempt to create a renderTargetContext that has, at least, the number of
+     * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
+     * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
+     * SRGB-ness will be preserved.
+     */
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+                                            const GrBackendFormat& format,
+                                            SkBackingFit fit,
+                                            int width, int height,
+                                            GrPixelConfig config,
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            int sampleCnt = 1,
+                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                            const SkSurfaceProps* surfaceProps = nullptr,
+                                            SkBudgeted budgeted = SkBudgeted::kYes);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
