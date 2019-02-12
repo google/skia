@@ -17,6 +17,8 @@
 #include "ops/GrStencilAndCoverPathRenderer.h"
 #include "ops/GrStencilPathOp.h"
 
+class GrRecordingContext;
+
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
     return nullptr;
@@ -49,7 +51,7 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget*, GrSurfaceOrigin,
 
 void GrGLPathRendering::onStencilPath(const StencilPathArgs&, const GrPath*) {}
 
-std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext*,
+std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext*,
                                             const SkMatrix&,
                                             bool,
                                             GrPathRendering::FillType,

@@ -5,16 +5,18 @@
  * found in the LICENSE file.
  */
 
+
 #include "GrStencilPathOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetPriv.h"
 
-std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext* context,
+std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext* context,
                                             const SkMatrix& viewMatrix,
                                             bool useHWAA,
                                             GrPathRendering::FillType fillType,
