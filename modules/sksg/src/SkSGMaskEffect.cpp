@@ -7,7 +7,8 @@
 
 #include "SkSGMaskEffect.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
+#include "SkPaint.h"
 
 namespace sksg {
 
@@ -22,11 +23,11 @@ MaskEffect::~MaskEffect() {
     this->unobserveInval(fMaskNode);
 }
 
-void MaskEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void MaskEffect::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     if (this->bounds().isEmpty())
         return;
 
-    SkAutoCanvasRestore acr(canvas, false);
+    SGAutoCanvasRestore acr(canvas, false);
 
     canvas->saveLayer(this->bounds(), nullptr);
     // Note: the paint overrides in ctx don't apply to the mask.

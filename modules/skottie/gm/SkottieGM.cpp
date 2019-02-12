@@ -68,7 +68,7 @@ protected:
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
-        fAnimation->render(canvas, &dest);
+        fAnimation->render((SGCanvas*)canvas, &dest);
         return DrawResult::kOk;
     }
 
@@ -121,8 +121,12 @@ protected:
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
+<<<<<<< HEAD
         fAnimation->render(canvas, &dest);
         return DrawResult::kOk;
+=======
+        fAnimation->render((SGCanvas*)canvas, &dest);
+>>>>>>> WIP -- virtualize SkSG drawing backend
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -194,8 +198,12 @@ protected:
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
+<<<<<<< HEAD
         fAnimation->render(canvas, &dest);
         return DrawResult::kOk;
+=======
+        fAnimation->render((SGCanvas*)canvas, &dest);
+>>>>>>> WIP -- virtualize SkSG drawing backend
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

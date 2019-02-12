@@ -16,7 +16,7 @@
 #include "SkTextBlob.h"
 #include "SkTextUtils.h"
 
-class SkCanvas;
+class SGCanvas;
 class SkPaint;
 class SkTypeface;
 
@@ -43,8 +43,8 @@ public:
     // TODO: add shaping functionality.
 
 protected:
-    void onClip(SkCanvas*, bool antiAlias) const override;
-    void onDraw(SkCanvas*, const SkPaint&) const override;
+    void onClip(SGCanvas*, bool antiAlias) const override;
+    void onDraw(SGCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;

@@ -12,8 +12,8 @@
 
 #include "SkColorFilter.h"
 
-class SkCanvas;
 class SkImageFilter;
+class SGCanvas;
 class SkPaint;
 
 namespace sksg {
@@ -27,12 +27,12 @@ protected:
 
 public:
     // Render the node and its descendants to the canvas.
-    void render(SkCanvas*, const RenderContext* = nullptr) const;
+    void render(SGCanvas*, const RenderContext* = nullptr) const;
 
 protected:
     explicit RenderNode(uint32_t inval_traits = 0);
 
-    virtual void onRender(SkCanvas*, const RenderContext*) const = 0;
+    virtual void onRender(SGCanvas*, const RenderContext*) const = 0;
 
     // Paint property overrides.
     // These are deferred until we can determine whether they can be applied to the individual
@@ -47,7 +47,7 @@ protected:
 
     class ScopedRenderContext final {
     public:
-        ScopedRenderContext(SkCanvas*, const RenderContext*);
+        ScopedRenderContext(SGCanvas*, const RenderContext*);
         ~ScopedRenderContext();
 
         ScopedRenderContext(ScopedRenderContext&& that) { *this = std::move(that); }
@@ -86,7 +86,7 @@ protected:
         ScopedRenderContext(const ScopedRenderContext&)            = delete;
         ScopedRenderContext& operator=(const ScopedRenderContext&) = delete;
 
-        SkCanvas*     fCanvas;
+        SGCanvas*     fCanvas;
         RenderContext fCtx;
         int           fRestoreCount;
     };

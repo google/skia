@@ -26,7 +26,7 @@ Draw::~Draw() {
     this->unobserveInval(fPaint);
 }
 
-void Draw::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void Draw::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     auto paint = fPaint->makePaint();
     if (ctx) {
         ctx->modulatePaint(&paint);

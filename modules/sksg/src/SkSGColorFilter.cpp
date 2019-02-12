@@ -15,7 +15,7 @@ namespace sksg {
 ColorFilter::ColorFilter(sk_sp<RenderNode> child)
     : INHERITED(std::move(child)) {}
 
-void ColorFilter::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void ColorFilter::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     if (this->bounds().isEmpty())
         return;
 

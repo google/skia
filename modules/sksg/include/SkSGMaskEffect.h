@@ -35,7 +35,7 @@ public:
 protected:
     MaskEffect(sk_sp<RenderNode>, sk_sp<RenderNode> mask, Mode);
 
-    void onRender(SkCanvas*, const RenderContext*) const override;
+    void onRender(SGCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

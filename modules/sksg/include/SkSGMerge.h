@@ -14,7 +14,7 @@
 
 #include <vector>
 
-class SkCanvas;
+class SGCanvas;
 class SkPaint;
 
 namespace sksg {
@@ -48,8 +48,8 @@ public:
     ~Merge() override;
 
 protected:
-    void onClip(SkCanvas*, bool antiAlias) const override;
-    void onDraw(SkCanvas*, const SkPaint&) const override;
+    void onClip(SGCanvas*, bool antiAlias) const override;
+    void onDraw(SGCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;

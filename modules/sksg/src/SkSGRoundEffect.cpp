@@ -7,7 +7,7 @@
 
 #include "SkSGRoundEffect.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkCornerPathEffect.h"
 #include "SkStrokeRec.h"
 
@@ -22,11 +22,11 @@ RoundEffect::~RoundEffect() {
     this->unobserveInval(fChild);
 }
 
-void RoundEffect::onClip(SkCanvas* canvas, bool antiAlias) const {
+void RoundEffect::onClip(SGCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(fRoundedPath, SkClipOp::kIntersect, antiAlias);
 }
 
-void RoundEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void RoundEffect::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     SkASSERT(!paint.getPathEffect());
 
     canvas->drawPath(fRoundedPath, paint);

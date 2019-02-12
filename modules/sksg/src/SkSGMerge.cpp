@@ -7,7 +7,7 @@
 
 #include "SkSGMerge.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkPathOps.h"
 
 namespace sksg {
@@ -25,11 +25,11 @@ Merge::~Merge() {
     }
 }
 
-void Merge::onClip(SkCanvas* canvas, bool antiAlias) const {
+void Merge::onClip(SGCanvas* canvas, bool antiAlias) const {
     canvas->clipPath(fMerged, SkClipOp::kIntersect, antiAlias);
 }
 
-void Merge::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+void Merge::onDraw(SGCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fMerged, paint);
 }
 

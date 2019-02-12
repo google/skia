@@ -7,7 +7,7 @@
 
 #include "SkSGTransform.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkSGTransformPriv.h"
 
 namespace sksg {
@@ -89,9 +89,9 @@ TransformEffect::~TransformEffect() {
     this->unobserveInval(fTransform);
 }
 
-void TransformEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void TransformEffect::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     const auto m = TransformPriv::As<SkMatrix>(fTransform);
-    SkAutoCanvasRestore acr(canvas, !m.isIdentity());
+    SGAutoCanvasRestore acr(canvas, !m.isIdentity());
     canvas->concat(m);
     this->INHERITED::onRender(canvas, ctx);
 }

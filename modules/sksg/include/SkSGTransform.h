@@ -96,7 +96,7 @@ public:
     const sk_sp<Transform>& getTransform() const { return fTransform; }
 
 protected:
-    void onRender(SkCanvas*, const RenderContext*) const override;
+    void onRender(SGCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

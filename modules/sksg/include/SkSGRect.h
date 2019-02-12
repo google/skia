@@ -14,7 +14,7 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 
-class SkCanvas;
+class SGCanvas;
 class SkPaint;
 
 namespace sksg {
@@ -36,8 +36,8 @@ public:
     SG_MAPPED_ATTRIBUTE(InitialPointIndex, uint8_t          , fAttrContaier)
 
 protected:
-    void onClip(SkCanvas*, bool antiAlias) const override;
-    void onDraw(SkCanvas*, const SkPaint&) const override;
+    void onClip(SGCanvas*, bool antiAlias) const override;
+    void onDraw(SGCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;
@@ -78,8 +78,8 @@ public:
     SG_MAPPED_ATTRIBUTE(InitialPointIndex, uint8_t          , fAttrContaier)
 
 protected:
-    void onClip(SkCanvas*, bool antiAlias) const override;
-    void onDraw(SkCanvas*, const SkPaint&) const override;
+    void onClip(SGCanvas*, bool antiAlias) const override;
+    void onDraw(SGCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;

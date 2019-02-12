@@ -7,7 +7,7 @@
 
 #include "SkSGClipEffect.h"
 
-#include "SkCanvas.h"
+#include "SGCanvas.h"
 #include "SkPath.h"
 #include "SkSGGeometryNode.h"
 
@@ -24,11 +24,11 @@ ClipEffect::~ClipEffect() {
     this->unobserveInval(fClipNode);
 }
 
-void ClipEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+void ClipEffect::onRender(SGCanvas* canvas, const RenderContext* ctx) const {
     if (this->bounds().isEmpty())
         return;
 
-    SkAutoCanvasRestore acr(canvas, !fNoop);
+    SGAutoCanvasRestore acr(canvas, !fNoop);
     if (!fNoop) {
         fClipNode->clip(canvas, fAntiAlias);
     }
