@@ -22,6 +22,30 @@
       "revId": "e55b10bc8b0cdef9be8b4851b6671c19eeba7678",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd34fe59_02ebe0d7",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 20890,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-12T23:44:58Z",
+      "side": 1,
+      "message": "You\u0027ll want to go get -u go.skia.org/infra/... first, then rerun things again.",
+      "parentUuid": "8292e2cb_351c3822",
+      "range": {
+        "startLine": 20890,
+        "startChar": 0,
+        "endLine": 20890,
+        "endChar": 22
+      },
+      "revId": "e55b10bc8b0cdef9be8b4851b6671c19eeba7678",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
