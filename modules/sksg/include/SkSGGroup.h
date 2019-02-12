@@ -39,6 +39,8 @@ protected:
     ~Group() override;
 
     void onRender(SkCanvas*, const RenderContext*) const override;
+    const RenderNode* onNodeAt(const SkPoint&)     const override;
+
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
