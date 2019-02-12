@@ -8,12 +8,12 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
 #include "GrClip.h"
-#include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSWMaskHelper.h"
 #include "GrShape.h"
 #include "GrSurfaceContextPriv.h"
@@ -172,7 +172,8 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                   dstRect, invert);
 }
 
-static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context, SkBackingFit fit,
+static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext* context,
+                                                              SkBackingFit fit,
                                                               int width, int height) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 

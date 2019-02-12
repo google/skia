@@ -8,10 +8,10 @@
 #include "Test.h"
 
 #include "GrClip.h"
-#include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSurfaceProxy.h"
@@ -174,8 +174,8 @@ public:
                 , fAtlas(atlas) {}
 
     private:
-        bool apply(GrContext* context, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
-                   SkRect* bounds) const override {
+        bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
+                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(skstd::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
             return true;
