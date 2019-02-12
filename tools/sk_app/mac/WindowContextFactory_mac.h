@@ -19,7 +19,7 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct MacWindowInfo {
-    NSView*   fMainView;
+    NSWindow*   fNSWindow;
 };
 
 inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
