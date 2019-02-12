@@ -44,6 +44,7 @@ void InitialVelocityParams::visitFields(SkFieldVisitor* v) {
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);
+    v->visit("Duration", fEffectDuration);
     v->visit("Rate", fRate);
     v->visit("Life", fLifetime);
     v->visit("StartColor", fStartColor);
@@ -58,13 +59,17 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
 
     v->visit("Emitter", fEmitter);
 
-    v->visit("Affectors", fAffectors);
+    v->visit("Spawn", fSpawnAffectors);
+    v->visit("Update", fUpdateAffectors);
 }
 
-SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params)
+SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
         : fParams(std::move(params))
+        , fRandom(random)
+        , fLooping(false)
+        , fSpawnTime(-1.0)
         , fCount(0)
-        , fLastTime(-1.0f)
+        , fLastTime(-1.0)
         , fSpawnRemainder(0.0f) {
     this->setCapacity(fParams->fMaxCount);
 
@@ -82,8 +87,15 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params)
     fImageRect = SkRect::MakeIWH(w / fParams->fImageCols, h / fParams->fImageRows);
 }
 
-void SkParticleEffect::update(SkRandom& random, const SkAnimTimer& timer) {
-    if (!timer.isRunning()) {
+void SkParticleEffect::start(const SkAnimTimer& timer, bool looping) {
+    fCount = 0;
+    fLastTime = fSpawnTime = timer.secs();
+    fSpawnRemainder = 0.0f;
+    fLooping = looping;
+}
+
+void SkParticleEffect::update(const SkAnimTimer& timer) {
+    if (!timer.isRunning() || !this->isAlive()) {
         return;
     }
 
@@ -93,12 +105,6 @@ void SkParticleEffect::update(SkRandom& random, const SkAnimTimer& timer) {
     }
 
     double now = timer.secs();
-
-    if (fLastTime < 0) {
-        // Hack: kick us off with 1/30th of a second on first update
-        fLastTime = now - (1.0 / 30);
-    }
-
     float deltaTime = static_cast<float>(now - fLastTime);
     fLastTime = now;
 
@@ -107,20 +113,56 @@ void SkParticleEffect::update(SkRandom& random, const SkAnimTimer& timer) {
 
     SkParticleUpdateParams updateParams;
     updateParams.fDeltaTime = deltaTime;
-    updateParams.fRandom = &random;
+    updateParams.fRandom = &fRandom;
 
-    // Age/update old particles
+    // Remove particles that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
         if (now > fParticles[i].fTimeOfDeath) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
-            fParticles[i] = fParticles[fCount - 1];
+            fParticles[i]   = fParticles[fCount - 1];
             fSpriteRects[i] = fSpriteRects[fCount - 1];
-            fColors[i] = fColors[fCount - 1];
+            fColors[i]      = fColors[fCount - 1];
             --i;
             --fCount;
-            continue;
+        }
+    }
+
+    // Spawn new particles
+    float desired = fParams->fRate * deltaTime + fSpawnRemainder;
+    int numToSpawn = sk_float_round2int(desired);
+    fSpawnRemainder = desired - numToSpawn;
+    numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
+    if (fParams->fEmitter) {
+        for (int i = 0; i < numToSpawn; ++i) {
+            fParticles[fCount].fTimeOfBirth = now;
+            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(fRandom);
+            fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(fRandom);
+            fParticles[fCount].fPV.fVelocity = fParams->fVelocity.eval(fRandom);
+            fParticles[fCount].fStableRandom = fRandom;
+            fSpriteRects[fCount] = this->spriteRect(0);
+            fCount++;
         }
 
+        // No, this isn't "stable", but spawn affectors are only run once anyway.
+        // Would it ever make sense to give the same random to all particles spawned on a given
+        // frame? Having a hard time thinking when that would be useful.
+        updateParams.fStableRandom = &fRandom;
+        // ... and this isn't "particle" t, it's effect t.
+        double t = (now - fSpawnTime) / fParams->fEffectDuration;
+        updateParams.fParticleT = static_cast<float>(fLooping ? fmod(t, 1.0) : SkTPin(t, 0.0, 1.0));
+
+        // Apply spawn affectors
+        for (int i = fCount - numToSpawn; i < fCount; ++i) {
+            for (auto affector : fParams->fSpawnAffectors) {
+                if (affector) {
+                    affector->apply(updateParams, fParticles[i].fPV);
+                }
+            }
+        }
+    }
+
+    // Apply update rules
+    for (int i = 0; i < fCount; ++i) {
         // Compute fraction of lifetime that's elapsed
         float t = static_cast<float>((now - fParticles[i].fTimeOfBirth) /
             (fParticles[i].fTimeOfDeath - fParticles[i].fTimeOfBirth));
@@ -136,7 +178,7 @@ void SkParticleEffect::update(SkRandom& random, const SkAnimTimer& timer) {
 
         // Set color by lifetime
         fColors[i] = Sk4f_toL32(swizzle_rb(startColor + (colorScale * t)));
-        for (auto affector : fParams->fAffectors) {
+        for (auto affector : fParams->fUpdateAffectors) {
             if (affector) {
                 affector->apply(updateParams, fParticles[i].fPV);
             }
@@ -154,35 +196,25 @@ void SkParticleEffect::update(SkRandom& random, const SkAnimTimer& timer) {
                                              oldHeading.fX * s + oldHeading.fY * c };
     }
 
-    // Spawn new particles
-    float desired = fParams->fRate * deltaTime + fSpawnRemainder;
-    int numToSpawn = sk_float_round2int(desired);
-    fSpawnRemainder = desired - numToSpawn;
-    numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
-    if (fParams->fEmitter) {
-        for (int i = 0; i < numToSpawn; ++i) {
-            fParticles[fCount].fTimeOfBirth = now;
-            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(random);
-            fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(random);
-            fParticles[fCount].fPV.fVelocity = fParams->fVelocity.eval(random);
-            fParticles[fCount].fStableRandom = random;
-            fSpriteRects[fCount] = this->spriteRect(0);
-            fCount++;
-        }
-    }
-
     // Re-generate all xforms
     SkPoint ofs = this->spriteCenter();
     for (int i = 0; i < fCount; ++i) {
         fXforms[i] = fParticles[i].fPV.fPose.asRSXform(ofs);
     }
+
+    // Mark effect as dead if we've reached the end (and are not looping)
+    if (!fLooping && (now - fSpawnTime) > fParams->fEffectDuration) {
+        fSpawnTime = -1.0;
+    }
 }
 
 void SkParticleEffect::draw(SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-    canvas->drawAtlas(fImage, fXforms.get(), fSpriteRects.get(), fColors.get(), fCount,
-                        SkBlendMode::kModulate, nullptr, &paint);
+    if (this->isAlive()) {
+        SkPaint paint;
+        paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+        canvas->drawAtlas(fImage, fXforms.get(), fSpriteRects.get(), fColors.get(), fCount,
+                          SkBlendMode::kModulate, nullptr, &paint);
+    }
 }
 
 void SkParticleEffect::setCapacity(int capacity) {

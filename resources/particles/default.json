@@ -40,7 +40,7 @@
       "Text": "SKIA",
       "FontSize": 96
    },
-   "Affectors": [
+   "Update": [
       {
          "Type": "SkDirectionalForceAffector",
          "Force": { "x": 0, "y": 0 }

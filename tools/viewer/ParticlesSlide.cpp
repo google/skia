@@ -236,19 +236,27 @@ ParticlesSlide::ParticlesSlide() {
     SkParticleEmitter::RegisterEmitterTypes();
 
     fName = "Particles";
-    fEffect.reset(new SkParticleEffect(LoadEffectParams("resources/particles/default.json")));
+    fEffect.reset(new SkParticleEffect(LoadEffectParams("resources/particles/default.json"),
+                                       fRandom));
 }
+
+const SkAnimTimer* gTimer = nullptr;
 
 void ParticlesSlide::draw(SkCanvas* canvas) {
     canvas->clear(0);
 
     gDragPoints.reset();
     if (ImGui::Begin("Particles")) {
+        static bool looped = true;
+        ImGui::Checkbox("Looped", &looped);
+        if (gTimer && ImGui::Button("Play")) {
+            fEffect->start(*gTimer, looped);
+        }
         static char filename[64] = "resources/particles/default.json";
         ImGui::InputText("Filename", filename, sizeof(filename));
         if (ImGui::Button("Load")) {
             if (auto newParams = LoadEffectParams(filename)) {
-                fEffect.reset(new SkParticleEffect(std::move(newParams)));
+                fEffect.reset(new SkParticleEffect(std::move(newParams), fRandom));
             }
         }
         ImGui::SameLine();
@@ -291,7 +299,8 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
 }
 
 bool ParticlesSlide::animate(const SkAnimTimer& timer) {
-    fEffect->update(fRandom, timer);
+    gTimer = &timer;
+    fEffect->update(timer);
     return true;
 }
 
