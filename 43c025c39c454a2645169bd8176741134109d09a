@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a8fd5e9_c43fcf97",
+        "filename": "infra/bots/buildstats/make_treemap.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-12T13:18:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "537b8438_80a20ab2",
+      "revId": "43c025c39c454a2645169bd8176741134109d09a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
