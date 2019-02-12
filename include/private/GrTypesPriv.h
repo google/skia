@@ -37,7 +37,11 @@ using GrStdSteadyClock = std::chrono::steady_clock;
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,
     kAlpha_8_GrPixelConfig,
+    kAlpha_8_as_Alpha_GrPixelConfig,
+    kAlpha_8_as_Red_GrPixelConfig,
     kGray_8_GrPixelConfig,
+    kGray_8_as_Lum_GrPixelConfig,
+    kGray_8_as_Red_GrPixelConfig,
     kRGB_565_GrPixelConfig,
     kRGBA_4444_GrPixelConfig,
     kRGBA_8888_GrPixelConfig,
@@ -50,17 +54,11 @@ enum GrPixelConfig {
     kRGBA_float_GrPixelConfig,
     kRG_float_GrPixelConfig,
     kAlpha_half_GrPixelConfig,
+    kAlpha_half_as_Red_GrPixelConfig,
     kRGBA_half_GrPixelConfig,
     kRGB_ETC1_GrPixelConfig,
 
-    /** For internal usage. */
-    kPrivateConfig1_GrPixelConfig,
-    kPrivateConfig2_GrPixelConfig,
-    kPrivateConfig3_GrPixelConfig,
-    kPrivateConfig4_GrPixelConfig,
-    kPrivateConfig5_GrPixelConfig,
-
-    kLast_GrPixelConfig = kPrivateConfig5_GrPixelConfig
+    kLast_GrPixelConfig = kRGB_ETC1_GrPixelConfig
 };
 static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
@@ -932,16 +930,6 @@ enum class  GrMipMapsStatus {
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
-
-/**
- * We want to extend the GrPixelConfig enum to add cases for dealing with alpha_8 which is
- * internally either alpha8 or red8. Also for Gray_8 which can be luminance_8 or red_8.
- */
-static constexpr GrPixelConfig kAlpha_8_as_Alpha_GrPixelConfig = kPrivateConfig1_GrPixelConfig;
-static constexpr GrPixelConfig kAlpha_8_as_Red_GrPixelConfig = kPrivateConfig2_GrPixelConfig;
-static constexpr GrPixelConfig kAlpha_half_as_Red_GrPixelConfig = kPrivateConfig3_GrPixelConfig;
-static constexpr GrPixelConfig kGray_8_as_Lum_GrPixelConfig = kPrivateConfig4_GrPixelConfig;
-static constexpr GrPixelConfig kGray_8_as_Red_GrPixelConfig = kPrivateConfig5_GrPixelConfig;
 
 /**
  * Refers to the encoding of a GPU buffer as it will be interpreted by the GPU when sampling and
