@@ -27,23 +27,19 @@
 
 const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-static const bool kDefaultExplicitlyAllocateGPUResources = false;
-#else
-static const bool kDefaultExplicitlyAllocateGPUResources = true;
-#endif
-
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
 GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner,
-                                       GrContextOptions::Enable explicitlyAllocateGPUResources)
+                                       bool explicitlyAllocateGPUResources)
         : fCache(cache)
         , fGpu(gpu)
 #ifdef SK_DEBUG
         , fSingleOwner(owner)
 #endif
 {
+#if 0
+    fExplicitlyAllocateGPUResources = options.fExplicitlyAllocateGPUResources
     if (GrContextOptions::Enable::kNo == explicitlyAllocateGPUResources) {
         fExplicitlyAllocateGPUResources = false;
     } else if (GrContextOptions::Enable::kYes == explicitlyAllocateGPUResources) {
@@ -51,6 +47,9 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     } else {
         fExplicitlyAllocateGPUResources = kDefaultExplicitlyAllocateGPUResources;
     }
+#else
+    fExplicitlyAllocateGPUResources = explicitlyAllocateGPUResources;
+#endif
 
     fCaps = sk_ref_sp(fGpu->caps());
 }

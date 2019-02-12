@@ -23,7 +23,6 @@ class GrBackendSemaphore;
 class GrCaps;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
-class GrDrawingManager;
 class GrFragmentProcessor;
 struct GrGLInterface;
 class GrStrikeCache;
@@ -313,8 +312,6 @@ private:
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;
-
-    std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 

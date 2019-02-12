@@ -181,11 +181,11 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     RETURN_IF_ABANDONED_PRIV
     ASSERT_OWNED_PROXY_PRIV(proxy);
 
-    fContext->fDrawingManager->flush(proxy);
+    fContext->drawingManager()->flush(proxy);
 }
 
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
-    fContext->fDrawingManager->addOnFlushCallbackObject(onFlushCBObject);
+    fContext->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
 }
 
 void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
@@ -213,7 +213,7 @@ void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     RETURN_IF_ABANDONED_PRIV
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
-    fContext->fDrawingManager->prepareSurfaceForExternalIO(proxy, 0, nullptr);
+    fContext->drawingManager()->prepareSurfaceForExternalIO(proxy, 0, nullptr);
 }
 
 static bool valid_premul_color_type(GrColorType ct) {
@@ -661,12 +661,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
 }
 
 void GrContextPriv::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
-    fContext->fDrawingManager->moveOpListsToDDL(ddl);
+    fContext->drawingManager()->moveOpListsToDDL(ddl);
 }
 
 void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
                                        GrRenderTargetProxy* newDest) {
-    fContext->fDrawingManager->copyOpListsFromDDL(ddl, newDest);
+    fContext->drawingManager()->copyOpListsFromDDL(ddl, newDest);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
@@ -703,9 +703,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->fDrawingManager->makeRenderTargetContext(std::move(rtp),
-                                                           std::move(colorSpace),
-                                                           surfaceProps));
+        fContext->drawingManager()->makeRenderTargetContext(std::move(rtp),
+                                                            std::move(colorSpace),
+                                                            surfaceProps));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -884,7 +884,7 @@ void GrContextPriv::testingOnly_purgeAllUnlockedResources() {
 
 void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
     fContext->flush();
-    fContext->fDrawingManager->testingOnly_removeOnFlushCallbackObject(cb);
+    fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
 
