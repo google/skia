@@ -7,12 +7,12 @@
 
 #include "GrClipStackClip.h"
 #include "GrAppliedClip.h"
-#include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSWMaskHelper.h"
 #include "GrShape.h"
@@ -87,7 +87,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTexturePr
 // Does the path in 'element' require SW rendering? If so, return true (and,
 // optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
 // 'prOut' to the non-SW path renderer that will do the job).
-bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
+bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
                                           const SkIRect& scissorRect,
                                           bool hasUserStencilSettings,
                                           const GrRenderTargetContext* renderTargetContext,
@@ -146,7 +146,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
  * will be used on any element. If so, it returns true to indicate that the
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
-bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
+bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
                                     bool hasUserStencilSettings,
                                     const GrRenderTargetContext* renderTargetContext,
                                     const GrReducedClip& reducedClip) {
@@ -189,7 +189,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
-bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
+bool GrClipStackClip::apply(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                             bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
                             SkRect* bounds) const {
     SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
@@ -249,7 +249,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     return true;
 }
 
-bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* renderTargetContext,
+bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
+                                    GrRenderTargetContext* renderTargetContext,
                                     const GrReducedClip& reducedClip, bool hasUserStencilSettings,
                                     GrAppliedClip* out) const {
 #ifdef SK_DEBUG
@@ -322,7 +323,7 @@ static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int 
     builder[3] = numAnalyticFPs;
 }
 
-static void add_invalidate_on_pop_message(GrContext* context,
+static void add_invalidate_on_pop_message(GrRecordingContext* context,
                                           const SkClipStack& stack, uint32_t clipGenID,
                                           const GrUniqueKey& clipMaskKey) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -337,7 +338,7 @@ static void add_invalidate_on_pop_message(GrContext* context,
     SkDEBUGFAIL("Gen ID was not found in stack.");
 }
 
-sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
+sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrRecordingContext* context,
                                                            const GrReducedClip& reducedClip) const {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrUniqueKey key;
@@ -457,7 +458,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 }
 
 sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
-        GrContext* context, const GrReducedClip& reducedClip,
+        GrRecordingContext* context, const GrReducedClip& reducedClip,
         GrRenderTargetContext* renderTargetContext) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
@@ -475,7 +476,11 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     // left corner of the resulting rect to the top left of the texture.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(reducedClip.width(), reducedClip.height());
 
-    SkTaskGroup* taskGroup = context->priv().getTaskGroup();
+    SkTaskGroup* taskGroup = nullptr;
+    if (auto direct = context->priv().asDirectContext()) {
+        taskGroup = direct->priv().getTaskGroup();
+    }
+
     if (taskGroup && renderTargetContext) {
         // Create our texture proxy
         GrSurfaceDesc desc;
