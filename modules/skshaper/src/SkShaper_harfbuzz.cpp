@@ -306,39 +306,46 @@ public:
         SkASSERT(fCurrent < fEnd);
         SkUnichar u = utf8_next(&fCurrent, fEnd);
         // If the starting typeface can handle this character, use it.
-        if (fFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
+        if (fFont.unicharToGlyph(u)) {
             fCurrentFont = &fFont;
             fCurrentHBFont = fHBFont.get();
         // If the current fallback can handle this character, use it.
-        } else if (fFallbackFont.getTypeface() &&
-                   fFallbackFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
-        {
+        } else if (fFallbackFont.getTypeface() && fFallbackFont.unicharToGlyph(u)) {
             fCurrentFont = &fFallbackFont;
             fCurrentHBFont = fFallbackHBFont.get();
         // If not, try to find a fallback typeface
         } else {
-            fFallbackFont.setTypeface(sk_ref_sp(fFallbackMgr->matchFamilyStyleCharacter(
-                nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u)));
-            fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
-            fCurrentFont = &fFallbackFont;
-            fCurrentHBFont = fFallbackHBFont.get();
+            sk_sp<SkTypeface> candidate(fFallbackMgr->matchFamilyStyleCharacter(
+                nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
+            if (candidate) {
+                fFallbackFont.setTypeface(std::move(candidate));
+                fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
+                fCurrentFont = &fFallbackFont;
+                fCurrentHBFont = fFallbackHBFont.get();
+            } else {
+                fCurrentFont = &fFont;
+                fCurrentHBFont = fHBFont.get();
+            }
         }
 
         while (fCurrent < fEnd) {
             const char* prev = fCurrent;
             u = utf8_next(&fCurrent, fEnd);
 
-            // If not using initial typeface and initial typeface has this character, stop fallback.
-            if (fCurrentFont->getTypeface() != fFont.getTypeface() &&
-                fFont.getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
-            {
+            // End run if not using initial typeface and initial typeface has this character.
+            if (fCurrentFont->getTypeface() != fFont.getTypeface() && fFont.unicharToGlyph(u)) {
                 fCurrent = prev;
                 return;
             }
-            // If the current typeface cannot handle this character, stop using it.
-            if (!fCurrentFont->getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
-                fCurrent = prev;
-                return;
+
+            // End run if current typeface does not have this character and some other font does.
+            if (!fCurrentFont->unicharToGlyph(u)) {
+                sk_sp<SkTypeface> candidate(fFallbackMgr->matchFamilyStyleCharacter(
+                    nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
+                if (candidate) {
+                    fCurrent = prev;
+                    return;
+                }
             }
         }
     }
