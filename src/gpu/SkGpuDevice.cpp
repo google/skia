@@ -1563,6 +1563,9 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fAlpha = set[i].fAlpha;
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
+        // Not enabled yet at this API level
+        textures[i].fDstClip = nullptr;
+        textures[i].fDstClipCount = 0;
         if (n > 0 &&
             (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(textures[i].fProxy.get(),
                                                                  textures[base].fProxy.get()) ||
