@@ -124,15 +124,6 @@ struct SkPackedGlyphID : public SkPackedID {
     }
 };
 
-struct SkPackedUnicharID : public SkPackedID {
-    SkPackedUnicharID(SkUnichar code) : SkPackedID(code) { }
-    SkPackedUnicharID(SkUnichar code, SkFixed x, SkFixed y) : SkPackedID(code, x, y) { }
-    constexpr SkPackedUnicharID() = default;
-    SkUnichar code() const {
-        return SkTo<SkUnichar>(SkPackedID::code());
-    }
-};
-
 class SkGlyph {
     struct PathData;
 
