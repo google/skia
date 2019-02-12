@@ -52,6 +52,17 @@ std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalRect(GrContext* context,
                                                    const SkRect& localRect,
                                                    const GrUserStencilSettings* stencil = nullptr);
 
+// Generalization that accepts 2D convex quads instead of just rectangles. If 'localQuad' is not
+// null, this is equivalent to the "WithLocalRect" versions. Quad arrays match SkRect::toQuad order.
+std::unique_ptr<GrDrawOp> MakePerEdgeQuad(GrContext* context,
+                                          GrPaint&& paint,
+                                          GrAAType aaType,
+                                          GrQuadAAFlags edgeAA,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPoint quad[4],
+                                          const SkPoint localQuad[4],
+                                          const GrUserStencilSettings* stencil = nullptr);
+
 // Bulk API for drawing quads with a single op
 // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
 std::unique_ptr<GrDrawOp> MakeSet(GrContext* context,
