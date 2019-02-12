@@ -91,32 +91,33 @@ void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[])
 SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
     SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
 
-    if (nullptr == glyphPtr) {
-        glyphPtr = this->allocateNewGlyph(packedGlyphID, type);
+    if (glyphPtr == nullptr) {
+        // Glyph is not present in the stirke. Make a new glyph and fill it in.
+
+        fMemoryUsed += sizeof(SkGlyph);
+        glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+        fGlyphMap.set(glyphPtr);
+
+        switch (type) {
+            // * Nothing - is only used for raw glyphs. It is assumed that the advances, etc. are
+            // filled in by external code. This is used by the remote glyph cache to fill in glyphs.
+            case kNothing_MetricsType:
+                break;
+            case kJustAdvance_MetricsType:
+                fScalerContext->getAdvance(glyphPtr);
+                break;
+            case kFull_MetricsType:
+                fScalerContext->getMetrics(glyphPtr);
+                break;
+        }
     } else {
+        // Glyph is present in strike. Make sure the glyph has the right data.
+
         if (type == kFull_MetricsType && glyphPtr->isJustAdvance()) {
             fScalerContext->getMetrics(glyphPtr);
         }
     }
-    return glyphPtr;
-}
 
-SkGlyph* SkStrike::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsType mtype) {
-    fMemoryUsed += sizeof(SkGlyph);
-
-    SkGlyph* glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
-    fGlyphMap.set(glyphPtr);
-
-    if (kNothing_MetricsType == mtype) {
-        return glyphPtr;
-    } else if (kJustAdvance_MetricsType == mtype) {
-        fScalerContext->getAdvance(glyphPtr);
-    } else {
-        SkASSERT(kFull_MetricsType == mtype);
-        fScalerContext->getMetrics(glyphPtr);
-    }
-
-    SkASSERT(glyphPtr->fID != SkPackedGlyphID());
     return glyphPtr;
 }
 
