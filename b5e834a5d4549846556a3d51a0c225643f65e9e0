@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "017ebe77_336446b8",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-12T17:17:42Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/skia/+/191287 (Move DrawingManager to RecordingContext) is waiting in the wings but there is a chicken \u0026 egg problem between this CL and that one.",
+      "revId": "b5e834a5d4549846556a3d51a0c225643f65e9e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
