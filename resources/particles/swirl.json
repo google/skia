@@ -1,0 +1,71 @@
+{
+   "MaxCount": 4096,
+   "Rate": 400,
+   "Life": {
+      "min": 1,
+      "max": 3
+   },
+   "StartColor": [ 0.334527, 0, 0.598039, 1 ],
+   "EndColor": [ 0, 1, 0.880952, 1 ],
+   "Size": {
+      "Ranged": false,
+      "A0": 6,
+      "B0": 5,
+      "C0": 4,
+      "D0": 3,
+      "A1": 1,
+      "B1": 1,
+      "C1": 1,
+      "D1": 1
+   },
+   "Velocity": {
+      "Angle": 4.71239,
+      "Spread": 0.174533,
+      "Strength": {
+         "min": 60,
+         "max": 50
+      },
+      "Bidirectional": false,
+      "Spin": {
+         "min": 0,
+         "max": 0
+      },
+      "BidirectionalSpin": false
+   },
+   "Image": "images/half-transparent-white-pixel.png",
+   "ImageCols": 1,
+   "ImageRows": 1,
+   "Emitter": {
+      "Type": "SkLineEmitter",
+      "P1": { "x": 200, "y": 200 },
+      "P2": { "x": 250, "y": 200 }
+   },
+   "Affectors": [
+      {
+         "Type": "SkRangedForceAffector",
+         "Angle": {
+            "Ranged": false,
+            "A0": 0,
+            "B0": 0,
+            "C0": 0,
+            "D0": 0,
+            "A1": 0,
+            "B1": 0,
+            "C1": 0,
+            "D1": 0
+         },
+         "Strength": {
+            "Ranged": false,
+            "A0": 180,
+            "B0": -90,
+            "C0": -120,
+            "D0": -200,
+            "A1": 0,
+            "B1": 0,
+            "C1": 0,
+            "D1": 0
+         },
+         "Bidirectional": true
+      }
+   ]
+}
