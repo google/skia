@@ -21,7 +21,11 @@ public:
     template <typename U>
     constexpr explicit SkSpan(std::vector<U>& v) : fPtr{v.data()}, fSize{v.size()} {}
     constexpr SkSpan(const SkSpan& o) = default;
-    constexpr SkSpan& operator=( const SkSpan& other ) = default;
+    constexpr SkSpan& operator=(const SkSpan& that) {
+        fPtr = that.fPtr;
+        fSize = that.fSize;
+        return *this;
+    }
     constexpr T& operator [] (size_t i) const { return fPtr[i]; }
     constexpr T* begin() const { return fPtr; }
     constexpr T* end() const { return fPtr + fSize; }
