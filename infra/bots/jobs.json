@@ -120,6 +120,7 @@
   "Build-Win-MSVC-x86_64-Release",
   "Build-Win-MSVC-x86_64-Release-Vulkan",
   "BuildStats-Debian9-Clang-arm-Release-Flutter_Android",
+  "BuildStats-Debian9-Clang-x86_64-Release",
   "BuildStats-Debian9-EMCC-asmjs-Release-PathKit",
   "BuildStats-Debian9-EMCC-wasm-Debug-CanvasKit",
   "BuildStats-Debian9-EMCC-wasm-Debug-CanvasKit_CPU",
