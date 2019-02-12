@@ -62,6 +62,21 @@ std::unique_ptr<GrDrawOp> MakeSet(GrContext*,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureXform);
 
+// Generalizes the above subrect drawing operation to draw a subquad of an image, where srcQuad
+// and dstQuad correspond to srcRect and dstRect. If domain is not null, this behaves as if it
+// had a strict constraint relying on the given domain.
+std::unique_ptr<GrDrawOp> MakeQuad(GrContext* context,
+                                  sk_sp<GrTextureProxy>,
+                                  GrSamplerState::Filter,
+                                  const SkPMColor4f&,
+                                  const SkPoint srcQuad[4],
+                                  const SkPoint dstQuad[4],
+                                  GrAAType,
+                                  GrQuadAAFlags,
+                                  const SkRect* domain,
+                                  const SkMatrix& viewMatrix,
+                                  sk_sp<GrColorSpaceXform> textureXform);
+
 /**
  * Returns true if bilerp texture filtering matters when rendering the src rect
  * texels to dst rect, with the given view matrix.

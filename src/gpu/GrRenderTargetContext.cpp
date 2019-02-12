@@ -941,6 +941,22 @@ void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& pai
                                                     viewMatrix, croppedRect));
 }
 
+void GrRenderTargetContext::fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint,
+                                               GrQuadAAFlags edgeAA, const SkMatrix& viewMatrix,
+                                               const SkPoint quad[4]) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillQuadWithEdgeAA", fContext);
+
+    // To prevent seaming when using MSAA, keep MSAA enabled even if aaFlags == kNone
+    GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
+
+    AutoCheckFlush acf(this->drawingManager());
+    this->addDrawOp(clip, GrFillRectOp::MakePerEdgeQuad(fContext, std::move(paint), aaType, edgeAA,
+                                                        viewMatrix, quad, nullptr));
+}
+
 // Creates a paint for GrFillRectOp that matches behavior of GrTextureOp
 static void draw_texture_to_grpaint(sk_sp<GrTextureProxy> proxy, const SkRect* domain,
                                     GrSamplerState::Filter filter, SkBlendMode mode,
@@ -977,6 +993,11 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
 
+    // FIXME: drawTexture operates in both regular and tiling contexts, but depending on this
+    // context we want different behavior for aaType. When aaFlags == kNone and there's MSAA,
+    // the regular mode should turn off MSAA. In the tiling mode, we need to keep MSAA on in order
+    // for interior non-aa tiles to seam properly with edge tiles. This won't be a real issue if
+    // every tiling compositor avoids the use of MSAA.
     GrAAType aaType =
             this->chooseAAType(GrAA(aaFlags != GrQuadAAFlags::kNone), GrAllowMixedSamples::kNo);
     SkRect clippedDstRect = dstRect;
@@ -1012,6 +1033,44 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     this->addDrawOp(clip, std::move(op));
 }
 
+void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
+                                            GrSamplerState::Filter filter, SkBlendMode mode,
+                                            const SkPMColor4f& color, const SkPoint srcQuad[4],
+                                            const SkPoint dstQuad[4], GrQuadAAFlags aaFlags,
+                                            const SkRect* domain, const SkMatrix& viewMatrix,
+                                            sk_sp<GrColorSpaceXform> texXform) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureQuad", fContext);
+    if (domain && domain->contains(proxy->getWorstCaseBoundsRect())) {
+        domain = nullptr;
+    }
+
+    // To prevent seaming when using MSAA, keep MSAA enabled even if aaFlags == kNone
+    GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
+
+    // Unlike drawTexture(), don't bother cropping or optimizing the filter type since we're
+    // sampling an arbitrary quad of the texture.
+    AutoCheckFlush acf(this->drawingManager());
+    std::unique_ptr<GrDrawOp> op;
+    if (mode != SkBlendMode::kSrcOver) {
+        // Emulation mode, but don't bother converting to kNearest filter since it's an arbitrary
+        // quad that is being drawn, which makes the tests too expensive here
+        GrPaint paint;
+        draw_texture_to_grpaint(
+                std::move(proxy), domain, filter, mode, color, std::move(texXform), &paint);
+        op = GrFillRectOp::MakePerEdgeQuad(fContext, std::move(paint), aaType, aaFlags, viewMatrix,
+                                           dstQuad, srcQuad);
+    } else {
+        // Use lighter weight GrTextureOp
+        op = GrTextureOp::MakeQuad(fContext, std::move(proxy), filter, color, srcQuad, dstQuad,
+                                   aaType, aaFlags, domain, viewMatrix, std::move(texXform));
+    }
+
+    this->addDrawOp(clip, std::move(op));
+}
+
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
                                            GrSamplerState::Filter filter, SkBlendMode mode,
                                            const SkMatrix& viewMatrix,
@@ -1028,10 +1087,28 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
         !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
         // Draw one at a time with GrFillRectOp and a GrPaint that emulates what GrTextureOp does
         for (int i = 0; i < cnt; ++i) {
+            SkASSERT(set[i].fDstClipCount == 0 || set[i].fDstClipCount == 4);
+
             float alpha = set[i].fAlpha;
-            this->drawTexture(clip, set[i].fProxy, filter, mode, {alpha, alpha, alpha, alpha},
-                              set[i].fSrcRect, set[i].fDstRect, set[i].fAAFlags,
-                              SkCanvas::kFast_SrcRectConstraint, viewMatrix, texXform);
+            if (set[i].fDstClipCount == 0) {
+                // Stick with original rectangles, which allows the ops to know more about what's
+                // being drawn.
+                this->drawTexture(clip, set[i].fProxy, filter, mode, {alpha, alpha, alpha, alpha},
+                                  set[i].fSrcRect, set[i].fDstRect, set[i].fAAFlags,
+                                  SkCanvas::kFast_SrcRectConstraint, viewMatrix, texXform);
+            } else {
+                SkASSERT(set[i].fDstClipCount == 4);
+                // Generate interpolated texture coordinates to match the dst clip
+                SkPoint srcQuad[4];
+
+                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClip, srcQuad, 4);
+                // Don't send srcRect as the domain, since the normal case doesn't use a constraint
+                // with the entire srcRect, so sampling into dstRect outside of dstClip will just
+                // keep seams looking more correct.
+                this->drawTextureQuad(clip, set[i].fProxy, filter, mode,
+                                      {alpha, alpha, alpha, alpha}, srcQuad, set[i].fDstClip,
+                                      set[i].fAAFlags, nullptr, viewMatrix, texXform);
+            }
         }
     } else {
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
