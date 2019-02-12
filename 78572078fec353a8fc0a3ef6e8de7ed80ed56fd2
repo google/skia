@@ -22,6 +22,52 @@
       "revId": "78572078fec353a8fc0a3ef6e8de7ed80ed56fd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "830c263e_fa3b8401",
+        "filename": "modules/sksg/src/SkSGRect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-12T00:51:44Z",
+      "side": 1,
+      "message": "rrect.contains(rect)\n\nanother reason why a rect might be a good thing to pass around\n(or you could make a 1x1 rect around the pt for now)",
+      "range": {
+        "startLine": 61,
+        "startChar": 25,
+        "endLine": 61,
+        "endChar": 33
+      },
+      "revId": "78572078fec353a8fc0a3ef6e8de7ed80ed56fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57bd2222_4e47cd67",
+        "filename": "modules/sksg/src/SkSGText.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-12T00:51:44Z",
+      "side": 1,
+      "message": "expensive to convert to path (afaik)",
+      "range": {
+        "startLine": 77,
+        "startChar": 17,
+        "endLine": 77,
+        "endChar": 23
+      },
+      "revId": "78572078fec353a8fc0a3ef6e8de7ed80ed56fd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
