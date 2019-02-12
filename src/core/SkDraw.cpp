@@ -40,9 +40,8 @@
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
-    paint.setShader(SkMakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                       SkShader::kClamp_TileMode, matrix,
-                                       kNever_SkCopyPixelsMode));
+    paint.setShader(SkMakeBitmapShaderForPaint(origPaint, bitmap, SkShader::kClamp_TileMode,
+            SkShader::kClamp_TileMode, matrix, kNever_SkCopyPixelsMode));
     return paint;
 }
 
@@ -1113,7 +1112,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter()) {
+    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter() &&
+        !paint->getShader()) {
         draw.drawBitmapAsMask(bitmap, *paint);
     } else {
         SkPaint paintWithShader = make_paint_with_image(*paint, bitmap);
