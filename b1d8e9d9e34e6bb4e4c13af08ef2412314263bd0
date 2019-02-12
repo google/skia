@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "02cf0197_7f78a660",
+        "filename": "samplecode/SampleSG.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-12T16:33:08Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "9b8b010b_412c3980",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "b1d8e9d9e34e6bb4e4c13af08ef2412314263bd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1c1a5b6_7965d95e",
         "filename": "samplecode/SampleSG.cpp",
         "patchSetId": 1
