@@ -12,6 +12,7 @@ import("../../gn/skia.gni")
 config("public_config") {
   if (skia_enable_skshaper) {
     include_dirs = [ "include" ]
+    defines = [ "SK_USING_SKSHAPER" ]
   }
 }
 
