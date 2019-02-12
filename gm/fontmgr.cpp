@@ -236,7 +236,7 @@ public:
         metricsPaint.setStyle(SkPaint::kFill_Style);
         metricsPaint.setAlpha(0x40);
         if ((fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) &&
-            (fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag))
+            (fm.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag))
         {
             SkRect underline{ fontBounds.fLeft,  fm.fUnderlinePosition+y,
                               fontBounds.fRight, fm.fUnderlinePosition+y + fm.fUnderlineThickness };
@@ -244,7 +244,7 @@ public:
         }
 
         if ((fm.fFlags & SkFontMetrics::kStrikeoutPositionIsValid_Flag) &&
-            (fm.fFlags & SkFontMetrics::kStrikeoutPositionIsValid_Flag))
+            (fm.fFlags & SkFontMetrics::kStrikeoutThicknessIsValid_Flag))
         {
             SkRect strikeout{ fontBounds.fLeft,  fm.fStrikeoutPosition+y - fm.fStrikeoutThickness,
                               fontBounds.fRight, fm.fStrikeoutPosition+y };
