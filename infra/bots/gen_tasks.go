@@ -636,8 +636,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return dockerGceDimensions()
 			}
 			if parts["role"] == "BuildStats" {
-				// Doesn't require a lot of resources
-				return linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+				// Doesn't require a lot of resources, but some steps require docker
+				return dockerGceDimensions()
 			}
 			// Use many-core machines for Build tasks.
 			return linuxGceDimensions(MACHINE_TYPE_LARGE)

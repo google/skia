@@ -25,6 +25,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   '*.dylib',
   'skia_launcher',
   'skiaserve',
+  'skottie_tool',
   'lib/*.so',
   'run_testlab',
   'skqp-universal-debug.apk',
