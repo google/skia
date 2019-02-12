@@ -66,6 +66,16 @@ void Group::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     }
 }
 
+const RenderNode* Group::onNodeAt(const SkPoint& p) const {
+    for (const auto& child : fChildren) {
+        if (const auto* node = child->nodeAt(p)) {
+            return node;
+        }
+    }
+
+    return nullptr;
+}
+
 SkRect Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 

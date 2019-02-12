@@ -32,7 +32,6 @@ void MaskEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     // Note: the paint overrides in ctx don't apply to the mask.
     fMaskNode->render(canvas);
 
-
     SkPaint p;
     p.setBlendMode(fMaskMode == Mode::kNormal ? SkBlendMode::kSrcIn : SkBlendMode::kSrcOut);
     canvas->saveLayer(this->bounds(), &p);
@@ -40,6 +39,11 @@ void MaskEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     this->INHERITED::onRender(canvas, ctx);
 }
 
+const RenderNode* MaskEffect::onNodeAt(const SkPoint& p) const {
+    const auto mask_hit = (!!fMaskNode->nodeAt(p) == (fMaskMode == Mode::kNormal));
+
+    return mask_hit ? this->INHERITED::onNodeAt(p) : nullptr;
+}
 
 SkRect MaskEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());

@@ -33,6 +33,10 @@ void Merge::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fMerged, paint);
 }
 
+bool Merge::onContains(const SkPoint& p) const {
+    return fMerged.contains(p.x(), p.y());
+}
+
 SkPath Merge::onAsPath() const {
     return fMerged;
 }

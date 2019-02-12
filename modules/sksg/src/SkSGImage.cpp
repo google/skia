@@ -30,6 +30,11 @@ void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     canvas->drawImage(fImage, 0, 0, &paint);
 }
 
+const RenderNode* Image::onNodeAt(const SkPoint& p) const {
+    SkASSERT(this->bounds().contains(p.x(), p.y()));
+    return this;
+}
+
 SkRect Image::onRevalidate(InvalidationController*, const SkMatrix& ctm) {
     return fImage ? SkRect::Make(fImage->bounds()) : SkRect::MakeEmpty();
 }

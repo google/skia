@@ -36,6 +36,10 @@ void ClipEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     this->INHERITED::onRender(canvas, ctx);
 }
 
+const RenderNode* ClipEffect::onNodeAt(const SkPoint& p) const {
+    return fClipNode->contains(p) ? this->INHERITED::onNodeAt(p) : nullptr;
+}
+
 SkRect ClipEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 

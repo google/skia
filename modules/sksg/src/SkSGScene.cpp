@@ -69,4 +69,8 @@ void Scene::animate(float t) {
     }
 }
 
+const RenderNode* Scene::nodeAt(const SkPoint& p) const {
+    return fRoot->nodeAt(p);
+}
+
 } // namespace sksg

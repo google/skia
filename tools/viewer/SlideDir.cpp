@@ -80,6 +80,8 @@ protected:
         fSlide->draw(canvas);
     }
 
+    const RenderNode* onNodeAt(const SkPoint&) const override { return nullptr; }
+
 private:
     void tick(SkMSec t) {
         fSlide->animate(SkAnimTimer(t * 1e6));

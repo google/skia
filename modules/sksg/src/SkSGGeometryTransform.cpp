@@ -33,6 +33,10 @@ void GeometryTransform::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fTransformedPath, paint);
 }
 
+bool GeometryTransform::onContains(const SkPoint& p) const {
+    return fTransformedPath.contains(p.x(), p.y());
+}
+
 SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 

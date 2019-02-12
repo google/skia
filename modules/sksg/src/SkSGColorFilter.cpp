@@ -24,6 +24,11 @@ void ColorFilter::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     this->INHERITED::onRender(canvas, local_ctx);
 }
 
+const RenderNode* ColorFilter::onNodeAt(const SkPoint& p) const {
+    // TODO: we likely need to do something more sophisticated than delegate to descendants here.
+    return this->INHERITED::onNodeAt(p);
+}
+
 ColorModeFilter::ColorModeFilter(sk_sp<RenderNode> child, sk_sp<Color> color, SkBlendMode mode)
     : INHERITED(std::move(child))
     , fColor(std::move(color))

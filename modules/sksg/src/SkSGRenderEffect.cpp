@@ -39,6 +39,13 @@ SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatri
     return filter->computeFastBounds(this->INHERITED::onRevalidate(ic, ctm));
 }
 
+const RenderNode* ImageFilterEffect::onNodeAt(const SkPoint& p) const {
+    // TODO: map p through the filter DAG and dispatch to descendants?
+    // For now, image filters occlude hit-testing.
+    SkASSERT(this->bounds().contains(p.x(), p.y()));
+    return this;
+}
+
 void ImageFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     // TODO: hoist these checks to RenderNode?
     if (this->bounds().isEmpty())

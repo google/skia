@@ -56,6 +56,23 @@ static void check_inval(skiatest::Reporter* reporter, const sk_sp<sksg::Node>& r
     }
 }
 
+struct HitTest {
+    const SkPoint           pt;
+    sk_sp<sksg::RenderNode> node;
+};
+
+static void check_hittest(skiatest::Reporter* reporter, const sk_sp<sksg::RenderNode>& root,
+                          const std::vector<HitTest>& tests) {
+    for (const auto& tst : tests) {
+        const auto* node = root->nodeAt(tst.pt);
+        if (node != tst.node.get()) {
+            SkDebugf("*** nodeAt(%f, %f) - expected %p, got %p\n",
+                     tst.pt.x(), tst.pt.y(), tst.node.get(), node);
+        }
+        REPORTER_ASSERT(reporter, tst.node.get() == node);
+    }
+}
+
 static void inval_test1(skiatest::Reporter* reporter) {
     auto color  = sksg::Color::Make(0xff000000);
     auto r1     = sksg::Rect::Make(SkRect::MakeWH(100, 100)),
@@ -63,9 +80,11 @@ static void inval_test1(skiatest::Reporter* reporter) {
     auto grp    = sksg::Group::Make();
     auto matrix = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
     auto root   = sksg::TransformEffect::Make(grp, matrix);
+    auto d1     = sksg::Draw::Make(r1, color),
+         d2     = sksg::Draw::Make(r2, color);
 
-    grp->addChild(sksg::Draw::Make(r1, color));
-    grp->addChild(sksg::Draw::Make(r2, color));
+    grp->addChild(d1);
+    grp->addChild(d2);
 
     {
         // Initial revalidation.
@@ -73,6 +92,15 @@ static void inval_test1(skiatest::Reporter* reporter) {
                     SkRect::MakeWH(100, 100),
                     SkRectPriv::MakeLargeS32(),
                     nullptr);
+
+        check_hittest(reporter, root, {
+                          {{  -1,   0 }, nullptr },
+                          {{   0,  -1 }, nullptr },
+                          {{ 100,   0 }, nullptr },
+                          {{   0, 100 }, nullptr },
+                          {{   0,   0 },      d1 },
+                          {{  99,  99 },      d1 },
+                      });
     }
 
     {
@@ -83,6 +111,22 @@ static void inval_test1(skiatest::Reporter* reporter) {
                     SkRect::MakeWH(300, 200),
                     SkRect::MakeWH(300, 200),
                     &damage);
+
+        check_hittest(reporter, root, {
+                          {{  -1,   0 }, nullptr },
+                          {{   0,  -1 }, nullptr },
+                          {{ 100,   0 }, nullptr },
+                          {{   0, 100 }, nullptr },
+                          {{   0,   0 },      d1 },
+                          {{  99,  99 },      d1 },
+
+                          {{ 199, 100 }, nullptr },
+                          {{ 200,  99 }, nullptr },
+                          {{ 300, 100 }, nullptr },
+                          {{ 200, 200 }, nullptr },
+                          {{ 200, 100 },      d2 },
+                          {{ 299, 199 },      d2 },
+                      });
     }
 
     {
@@ -103,6 +147,22 @@ static void inval_test1(skiatest::Reporter* reporter) {
                     SkRect::MakeWH(300, 200),
                     SkRect::MakeWH(100, 100),
                     &damage);
+
+        check_hittest(reporter, root, {
+                          {{  -1,   0 }, nullptr },
+                          {{   0,  -1 }, nullptr },
+                          {{  50,   0 }, nullptr },
+                          {{   0, 100 }, nullptr },
+                          {{   0,   0 },      d1 },
+                          {{  49,  99 },      d1 },
+
+                          {{ 199, 100 }, nullptr },
+                          {{ 200,  99 }, nullptr },
+                          {{ 300, 100 }, nullptr },
+                          {{ 200, 200 }, nullptr },
+                          {{ 200, 100 },      d2 },
+                          {{ 299, 199 },      d2 },
+                      });
     }
 
     {
@@ -113,6 +173,22 @@ static void inval_test1(skiatest::Reporter* reporter) {
                     SkRect::MakeWH(600, 400),
                     SkRect::MakeWH(600, 400),
                     &damage);
+
+        check_hittest(reporter, root, {
+                          {{  -1,   0 }, nullptr },
+                          {{   0,  -1 }, nullptr },
+                          {{  25,   0 }, nullptr },
+                          {{   0,  50 }, nullptr },
+                          {{   0,   0 },      d1 },
+                          {{  24,  49 },      d1 },
+
+                          {{  99,  50 }, nullptr },
+                          {{ 100,  49 }, nullptr },
+                          {{ 150,  50 }, nullptr },
+                          {{ 100, 100 }, nullptr },
+                          {{ 100,  50 },      d2 },
+                          {{ 149,  99 },      d2 },
+                      });
     }
 
     {
@@ -123,6 +199,22 @@ static void inval_test1(skiatest::Reporter* reporter) {
                     SkRect::MakeWH(500, 400),
                     SkRect::MakeLTRB(400, 200, 600, 400),
                     &damage);
+
+        check_hittest(reporter, root, {
+                          {{  -1,   0 }, nullptr },
+                          {{   0,  -1 }, nullptr },
+                          {{  25,   0 }, nullptr },
+                          {{   0,  50 }, nullptr },
+                          {{   0,   0 },      d1 },
+                          {{  24,  49 },      d1 },
+
+                          {{  99,  50 }, nullptr },
+                          {{ 100,  49 }, nullptr },
+                          {{ 125,  50 }, nullptr },
+                          {{ 100, 100 }, nullptr },
+                          {{ 100,  50 },      d2 },
+                          {{ 124,  99 },      d2 },
+                      });
     }
 }
 
