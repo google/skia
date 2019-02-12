@@ -54,9 +54,6 @@ public:
 
     static void ScaleFontMetrics(SkFontMetrics*, SkScalar);
 
-    // returns -1 if buffer is invalid for specified encoding
-    static int ValidCountText(const void* text, size_t length, SkTextEncoding);
-
     /**
         Returns the union of bounds of all glyphs.
         Returned dimensions are computed by font manager from font data,
