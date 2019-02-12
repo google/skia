@@ -80,6 +80,7 @@ struct DragCanvas {
 
             // Update local coordinates for the caller
             *p = fScreenToLocal.mapXY(center.fX, center.fY);
+ //           SkDebugf("Dragging\n");
             fDragging = true;
         }
 

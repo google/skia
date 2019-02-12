@@ -29,14 +29,14 @@ public:
     void onDestroyContext() override;
 
 private:
-    NSView*              fMainView;
+    NSWindow*              fNSWindow;
 
     typedef MetalWindowContext INHERITED;
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
     : INHERITED(params)
-    , fMainView(info.fMainView) {
+    , fNSWindow(info.fNSWindow) {
 
     // any config code here (particularly for msaa)?
 
@@ -48,11 +48,10 @@ MetalWindowContext_mac::~MetalWindowContext_mac() {
 }
 
 bool MetalWindowContext_mac::onInitializeContext() {
-    SkASSERT(nil != fMainView);
+    SkASSERT(nil != fNSWindow);
 
     // create mtkview
-    NSRect rect = fMainView.bounds;
-    fMTKView = [[MTKView alloc] initWithFrame:rect device:fDevice];
+    fMTKView = [[MTKView alloc] initWithFrame:NSMakeRect(0, 0, 1, 1) device:fDevice];
     if (nil == fMTKView) {
         return false;
     }
@@ -66,23 +65,8 @@ bool MetalWindowContext_mac::onInitializeContext() {
     }
     fMTKView.sampleCount = fDisplayParams.fMSAASampleCount;
 
-    // attach Metal view to main view
-    [fMTKView setTranslatesAutoresizingMaskIntoConstraints:NO];
-
-    [fMainView addSubview:fMTKView];
-    NSDictionary *views = NSDictionaryOfVariableBindings(fMTKView);
-
-    [fMainView addConstraints:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[fMTKView]|"
-                                             options:0
-                                             metrics:nil
-                                               views:views]];
-
-    [fMainView addConstraints:
-     [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[fMTKView]|"
-                                             options:0
-                                             metrics:nil
-                                               views:views]];
+    // attach view to window
+    [fNSWindow setContentView:fMTKView];
 
     fSampleCount = [fMTKView sampleCount];
     fStencilBits = 8;
@@ -95,7 +79,7 @@ bool MetalWindowContext_mac::onInitializeContext() {
 }
 
 void MetalWindowContext_mac::onDestroyContext() {
-    [fMTKView removeFromSuperview];
+    [fNSWindow setContentView:nil];
     [fMTKView release];
     fMTKView = nil;
 }
