@@ -1945,6 +1945,20 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     std::vector<int> swizzleComponents;
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
+            case '0':
+                if (i != fields.fLength - 1) {
+                    fErrors.error(base->fOffset,
+                                  "only the last swizzle component can be a constant");
+                }
+                swizzleComponents.push_back(SKSL_SWIZZLE_0);
+                break;
+            case '1':
+                if (i != fields.fLength - 1) {
+                    fErrors.error(base->fOffset,
+                                  "only the last swizzle component can be a constant");
+                }
+                swizzleComponents.push_back(SKSL_SWIZZLE_1);
+                break;
             case 'x': // fall through
             case 'r': // fall through
             case 's':

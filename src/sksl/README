@@ -55,6 +55,9 @@ Differences from GLSL
 * creating a smaller vector from a larger vector (e.g. float2(float3(1))) is
   intentionally disallowed, as it is just a wordier way of performing a swizzle.
   Use swizzles instead.
+* The last swizzle component, in addition to the normal rgba / xyzw components,
+  can also be the constants '0' or '1'. foo.rgb1 is equivalent to
+  float4(foo.rgb, 1).
 * Use texture() instead of textureProj(), e.g. texture(sampler2D, float3) is
   equivalent to GLSL's textureProj(sampler2D, float3)
 * Render target width and height are available via sk_Width and sk_Height
