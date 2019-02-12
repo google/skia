@@ -636,8 +636,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return dockerGceDimensions()
 			}
 			if parts["role"] == "BuildStats" {
-				// Doesn't require a lot of resources
-				return linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+				// Doesn't require a lot of resources, but some steps require docker
+				return dockerGceDimensions()
 			}
 			// Use many-core machines for Build tasks.
 			return linuxGceDimensions(MACHINE_TYPE_LARGE)
@@ -998,6 +998,8 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+var BUILD_STATS_NO_UPLOAD = []string{"BuildStats-Debian9-Clang-x86_64-Release"}
+
 func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string) string {
 	task := kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
@@ -1005,8 +1007,8 @@ func buildstats(b *specs.TasksCfgBuilder, name string, parts map[string]string, 
 	b.MustAddTask(name, task)
 
 	// Upload release results (for tracking in perf)
-	// We have some jobs that are FYI (e.g. Debug-CanvasKit)
-	if strings.Contains(name, "Release") {
+	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
+	if strings.Contains(name, "Release") && !util.In(name, BUILD_STATS_NO_UPLOAD) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		extraProps := map[string]string{
 			"gs_bucket": CONFIG.GsBucketNano,
