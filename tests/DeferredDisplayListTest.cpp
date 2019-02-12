@@ -46,213 +46,6 @@
 #include <vulkan/vulkan_core.h>
 #endif
 
-// Try to create a backend format from the provided colorType and config. Return an invalid
-// backend format if the combination is infeasible.
-static GrBackendFormat create_backend_format(GrContext* context,
-                                             SkColorType ct,
-                                             GrPixelConfig config) {
-    const GrCaps* caps = context->priv().caps();
-
-    switch (context->backend()) {
-#ifdef SK_METAL
-    case GrBackendApi::kMetal:
-        return caps->getBackendFormatFromColorType(ct);
-#endif
-    case GrBackendApi::kOpenGL: {
-        const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
-        GrGLStandard standard = glCaps->standard();
-
-        switch (ct) {
-            case kUnknown_SkColorType:
-                return GrBackendFormat();
-            case kAlpha_8_SkColorType:
-                if (kAlpha_8_as_Alpha_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_ALPHA8, GR_GL_TEXTURE_2D);
-                } else if (kAlpha_8_GrPixelConfig == config ||
-                           kAlpha_8_as_Red_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kRGB_565_SkColorType:
-                if (kRGB_565_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_RGB565, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kARGB_4444_SkColorType:
-                if (kRGBA_4444_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_RGBA4, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kRGBA_8888_SkColorType:
-                if (kRGBA_8888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kRGB_888x_SkColorType:
-                if (kRGB_888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kBGRA_8888_SkColorType:
-                if (kBGRA_8888_GrPixelConfig == config) {
-                    if (kGL_GrGLStandard == standard) {
-                        return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
-                    } else if (kGLES_GrGLStandard == standard) {
-                        return GrBackendFormat::MakeGL(GR_GL_BGRA8, GR_GL_TEXTURE_2D);
-                    }
-                }
-                break;
-            case kRGBA_1010102_SkColorType:
-                if (kRGBA_1010102_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kRGB_101010x_SkColorType:
-                return GrBackendFormat();
-            case kGray_8_SkColorType:
-                if (kGray_8_as_Lum_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_LUMINANCE8, GR_GL_TEXTURE_2D);
-                } else if (kGray_8_GrPixelConfig == config ||
-                           kGray_8_as_Red_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_R8, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kRGBA_F16_SkColorType:
-                if (kRGBA_half_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D);
-                }
-                break;
-            case kRGBA_F32_SkColorType:
-                return GrBackendFormat();
-        }
-    }
-    break;
-#ifdef SK_VULKAN
-    case GrBackendApi::kVulkan:
-        switch (ct) {
-            case kUnknown_SkColorType:
-                return GrBackendFormat();
-            case kAlpha_8_SkColorType:
-                // TODO: what about kAlpha_8_GrPixelConfig and kAlpha_8_as_Alpha_GrPixelConfig
-                if (kAlpha_8_as_Red_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM);
-                }
-                break;
-            case kRGB_565_SkColorType:
-                if (kRGB_565_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16);
-                }
-                break;
-            case kARGB_4444_SkColorType:
-                if (kRGBA_4444_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeVk(VK_FORMAT_B4G4R4A4_UNORM_PACK16);
-                }
-                break;
-            case kRGBA_8888_SkColorType:
-                if (kRGBA_8888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
-                }
-                break;
-            case kRGB_888x_SkColorType:
-                if (kRGB_888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
-                }
-                break;
-            case kBGRA_8888_SkColorType:
-                if (kBGRA_8888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeVk(VK_FORMAT_B8G8R8A8_UNORM);
-                }
-                break;
-            case kRGBA_1010102_SkColorType:
-                if (kRGBA_1010102_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
-                }
-                break;
-            case kRGB_101010x_SkColorType:
-                return GrBackendFormat();
-            case kGray_8_SkColorType:
-                // TODO: what about kAlpha_8_GrPixelConfig and kGray_8_as_Lum_GrPixelConfig?
-                if (kGray_8_as_Red_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM);
-                }
-                break;
-            case kRGBA_F16_SkColorType:
-                if (kRGBA_half_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
-                }
-                break;
-            case kRGBA_F32_SkColorType:
-                return GrBackendFormat();
-        }
-        break;
-#endif
-    case GrBackendApi::kMock:
-        switch (ct) {
-            case kUnknown_SkColorType:
-                return GrBackendFormat();
-            case kAlpha_8_SkColorType:
-                if (kAlpha_8_GrPixelConfig == config ||
-                    kAlpha_8_as_Alpha_GrPixelConfig == config ||
-                    kAlpha_8_as_Red_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGB_565_SkColorType:
-                if (kRGB_565_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kARGB_4444_SkColorType:
-                if (kRGBA_4444_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGBA_8888_SkColorType:
-                if (kRGBA_8888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGB_888x_SkColorType:
-                if (kRGB_888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kBGRA_8888_SkColorType:
-                if (kBGRA_8888_GrPixelConfig == config) {
-                    return GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGBA_1010102_SkColorType:
-                if (kRGBA_1010102_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGB_101010x_SkColorType:
-                return GrBackendFormat();
-            case kGray_8_SkColorType:
-                if (kGray_8_GrPixelConfig == config ||
-                    kGray_8_as_Lum_GrPixelConfig == config ||
-                    kGray_8_as_Red_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGBA_F16_SkColorType:
-                if (kRGBA_half_GrPixelConfig == config) {
-                    return  GrBackendFormat::MakeMock(config);
-                }
-                break;
-            case kRGBA_F32_SkColorType:
-                return GrBackendFormat();
-        }
-        break;
-    default:
-        return GrBackendFormat(); // return an invalid format
-    }
-
-    return GrBackendFormat(); // return an invalid format
-}
-
-
 class SurfaceParameters {
 public:
     static const int kNumParams   = 11;
@@ -266,7 +59,6 @@ public:
             , fHeight(64)
             , fOrigin(kTopLeft_GrSurfaceOrigin)
             , fColorType(kRGBA_8888_SkColorType)
-            , fConfig(kRGBA_8888_GrPixelConfig)
             , fColorSpace(SkColorSpace::MakeSRGB())
             , fSampleCount(1)
             , fSurfaceProps(0x0, kUnknown_SkPixelGeometry)
@@ -279,7 +71,6 @@ public:
 
     void setColorType(SkColorType ct) { fColorType = ct; }
     void setColorSpace(sk_sp<SkColorSpace> cs) { fColorSpace = std::move(cs); }
-    void setConfig(GrPixelConfig config) { fConfig = config; }
     void setTextureable(bool isTextureable) { fIsTextureable = isTextureable; }
 
     // Modify the SurfaceParameters in just one way
@@ -295,9 +86,7 @@ public:
             fOrigin = kBottomLeft_GrSurfaceOrigin;
             break;
         case 3:
-            // The color type and config need to be changed together.
             fColorType = kRGBA_F16_SkColorType;
-            fConfig = kRGBA_half_GrPixelConfig;
             break;
         case 4:
             // This just needs to be a colorSpace different from that returned by MakeSRGB().
@@ -338,7 +127,8 @@ public:
         SkImageInfo ii = SkImageInfo::Make(fWidth, fHeight, fColorType,
                                            kPremul_SkAlphaType, fColorSpace);
 
-        GrBackendFormat backendFormat = create_backend_format(context, fColorType, fConfig);
+        const GrCaps* caps = context->priv().caps();
+        GrBackendFormat backendFormat = caps->getBackendFormatFromColorType(fColorType);
         if (!backendFormat.isValid()) {
             return SkSurfaceCharacterization();
         }
@@ -383,7 +173,6 @@ public:
             fboInfo.fFormat = GR_GL_RGBA8;
             static constexpr int kStencilBits = 8;
             GrBackendRenderTarget backendRT(fWidth, fHeight, 1, kStencilBits, fboInfo);
-            backendRT.setPixelConfig(fConfig);
 
             if (!backendRT.isValid()) {
                 return nullptr;
@@ -435,7 +224,6 @@ private:
     int                 fHeight;
     GrSurfaceOrigin     fOrigin;
     SkColorType         fColorType;
-    GrPixelConfig       fConfig;
     sk_sp<SkColorSpace> fColorSpace;
     int                 fSampleCount;
     SkSurfaceProps      fSurfaceProps;
@@ -876,8 +664,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
         REPORTER_ASSERT(reporter, !recorder.detach());
 
-        GrBackendFormat format = create_backend_format(context, kRGBA_8888_SkColorType,
-                                                       kRGBA_8888_GrPixelConfig);
+        const GrCaps* caps = context->priv().caps();
+        GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
         sk_sp<SkImage> image = recorder.makePromiseTexture(
                 format, 32, 32, GrMipMapped::kNo,
                 kTopLeft_GrSurfaceOrigin,
@@ -1021,57 +810,47 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
 
-        for (int config = 0; config < kPrivateConfig1_GrPixelConfig; ++config) {
-            GrPixelConfig pixelConfig = static_cast<GrPixelConfig>(config);
+        SurfaceParameters params(context->backend());
+        params.setColorType(colorType);
+        params.setColorSpace(nullptr);
 
-            SurfaceParameters params(context->backend());
-            params.setColorType(colorType);
-            params.setConfig(pixelConfig);
-            params.setColorSpace(nullptr);
+        SkSurfaceCharacterization c = params.createCharacterization(context);
+        GrBackendTexture backend;
 
-            SkSurfaceCharacterization c = params.createCharacterization(context);
-            GrBackendTexture backend;
+        if (!c.isValid()) {
+            sk_sp<SkSurface> tmp = params.make(context, &backend);
 
-            if (!c.isValid()) {
-                // TODO: this would be cool to enable but there is, currently, too much crossover
-                // allowed internally (e.g., kAlpha_8_SkColorType/kGray_8_as_Red_GrPixelConfig
-                // is permitted on GL).
-#if 0
-                sk_sp<SkSurface> tmp = params.make(context, &backend, false);
-
-                // If we couldn't characterize the surface we shouldn't be able to create it either
-                REPORTER_ASSERT(reporter, !tmp);
-                if (tmp) {
-                    tmp = nullptr;
-                    params.cleanUpBackEnd(context, backend);
-                }
-#endif
-                continue;
-            }
-
-            sk_sp<SkSurface> s = params.make(context, &backend);
-            REPORTER_ASSERT(reporter, s);
-            if (!s) {
-                s = nullptr;
+            // If we couldn't characterize the surface we shouldn't be able to create it either
+            REPORTER_ASSERT(reporter, !tmp);
+            if (tmp) {
+                tmp = nullptr;
                 params.cleanUpBackEnd(context, backend);
-                continue;
             }
+            continue;
+        }
 
-            SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(s.get());
-            REPORTER_ASSERT(reporter, gpuSurface->isCompatible(c));
-
+        sk_sp<SkSurface> s = params.make(context, &backend);
+        REPORTER_ASSERT(reporter, s);
+        if (!s) {
             s = nullptr;
             params.cleanUpBackEnd(context, backend);
-
-            s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
-            REPORTER_ASSERT(reporter, s);
-            if (!s) {
-                continue;
-            }
-
-            gpuSurface = static_cast<SkSurface_Gpu*>(s.get());
-            REPORTER_ASSERT(reporter, gpuSurface->isCompatible(c));
+            continue;
         }
+
+        SkSurface_Gpu* gpuSurface = static_cast<SkSurface_Gpu*>(s.get());
+        REPORTER_ASSERT(reporter, gpuSurface->isCompatible(c));
+
+        s = nullptr;
+        params.cleanUpBackEnd(context, backend);
+
+        s = SkSurface::MakeRenderTarget(context, c, SkBudgeted::kYes);
+        REPORTER_ASSERT(reporter, s);
+        if (!s) {
+            continue;
+        }
+
+        gpuSurface = static_cast<SkSurface_Gpu*>(s.get());
+        REPORTER_ASSERT(reporter, gpuSurface->isCompatible(c));
     }
 
 }
