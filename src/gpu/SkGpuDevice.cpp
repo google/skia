@@ -404,8 +404,18 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
 
 void SkGpuDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkColor color,
                                  SkBlendMode mode) {
+    this->tmp_drawEdgeAAQuad(r, nullptr, 0, aa, color, mode);
+}
+
+void SkGpuDevice::tmp_drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
+                                     SkCanvas::QuadAAFlags aaFlags, SkColor color,
+                                     SkBlendMode mode) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawEdgeAARect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "tmp_drawEdgeAAQuad", fContext.get());
+
+    // Only no clip or a quad clip is currently supported
+    SkAssert(clipCount == 0 || clipCount == 4);
+    SkAssert(clipCount == 0 || clip);
 
     SkPMColor4f dstColor = SkColor4fPrepForDst(SkColor4f::FromColor(color),
                                               fRenderTargetContext->colorSpaceInfo(),
@@ -418,8 +428,16 @@ void SkGpuDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkCo
         grPaint.setXPFactory(SkBlendMode_AsXPFactory(mode));
     }
 
-    fRenderTargetContext->fillRectWithEdgeAA(this->clip(), std::move(grPaint),
-                                             SkToGrQuadAAFlags(aa), this->ctm(), r);
+    GrQuadAAFlags grAA = SkToGrQuadAAFlags(aa);
+    if (clipCount > 0) {
+        // Use fillQuadWithEdgeAA
+        fRenderTargetContext->fillQuadWithEdgeAA(this->clip(), std::move(grPaint), grAA,
+                                                 this->ctm(), clip);
+    } else {
+        // Use fillRectWithEdgeAA to preserve mathematical properties of dst being rectangular
+        fRenderTargetContext->fillRectWithEdgeAA(this->clip(), std::move(grPaint), grAA,
+                                                 this->ctm(), r);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1419,7 +1437,22 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
 
 void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                SkFilterQuality filterQuality, SkBlendMode mode) {
+    SkPaint paint;
+    paint.setBlendMode(mode);
+    paint.setFilterQuality(filterQuality);
+    this->tmp_drawImageSetV2(set[], nullptr, count, paint, SkCanvas::kFast_SrcRectConstraint);
+}
+
+void SkGpuDevice::tmp_drawImageSetV2(const SkCanvas::ImageSetEntry set[], int dstClipCounts[],
+                                     int count, const SkPoint dstClips[], const SkPaint& paint,
+                                     SrcRectConstraint constraint) {
     SkASSERT(count > 0);
+
+    // FIXME analyze the paint to determine if using drawTextureSet is possible. It is allowed if
+    // draw_texture is normally allowed (so this impl should be moved into SkGpuDevice_drawTexture).
+    // Assuming that, we iterate as normal and configure the set entry to use the dst clip.
+    // and we should also handle textures that aren't just pinned texture proxies, by passing them
+    // to the drawTextureProducer
 
     GrSamplerState sampler;
     sampler.setFilterMode(kNone_SkFilterQuality == filterQuality ? GrSamplerState::Filter::kNearest
@@ -1467,6 +1500,9 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fAlpha = set[i].fAlpha;
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
+        // Not enabled yet at this API level
+        textures[i].fDstClip = nullptr;
+        textures[i].fDstClipCount = 0;
         if (n > 0 &&
             (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(textures[i].fProxy.get(),
                                                                  textures[base].fProxy.get()) ||

@@ -101,6 +101,18 @@ static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const GrPerspQuad& s
     }
     return GrPerspQuad(xs, ys);
 }
+// Normalizes logical src coords and corrects for origin
+static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const GrPerspQuad& srcQuad,
+                                    float iw, float ih, float h) {
+    // The src quad should not have any perspective
+    SkASSERT(!srcQuad.hasPerspective());
+    Sk4f xs = srcQuad.x4f() * iw;
+    Sk4f ys = srcQuad.y4f() * ih;
+    if (origin == kBottomLeft_GrSurfaceOrigin) {
+        ys = h - ys;
+    }
+    SkPoint pts[4] = {{xs[0], ys[0]}, {xs[1], ys[1]}, {xs[2], ys[2]}, {xs[3], ys[3]}}
+}
 
 /**
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
@@ -307,9 +319,10 @@ private:
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
-        // All dst rects are transformed by the same view matrix, so their quad types are identical
-        GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
-        fQuads.reserve(cnt, quadType);
+        // All dst rects are transformed by the same view matrix, so their quad types are identical,
+        // unless an entry provides a dstClip that forces quad type to be at least standard.
+        GrQuadType baseQuadType = GrQuadTypeForTransformedRect(viewMatrix);
+        fQuads.reserve(cnt, baseQuadType);
 
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
@@ -319,7 +332,18 @@ private:
             if (!fProxies[p].fProxy->canSkipResourceAllocator()) {
                 fCanSkipAllocatorGather = static_cast<unsigned>(false);
             }
-            auto quad = GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix);
+
+            // Use dstRect unless dstClip is provided (which is currently restricted to be a quad)
+            SkASSERT(set[p].fDstClipCount == 0 || set[p].fDstClipCount == 4);
+            SkASSERT(set[p].fDstClipCount == 0 || set[p].fDstClip);
+            auto quad = set[p].fDstClipCount == 0 ?
+                    GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix) :
+                    GrPerspQuad::MakeFromSkQuad(set[p].fDstClip, viewMatrix);
+            GrQuadType quadType = baseQuadType;
+            if (set[p].fDstClipCount > 0 && baseQuadType != GrQuadType::kPerspective) {
+                quadType = GrQuadType::kStandard;
+            }
+
             bounds.joinPossiblyEmptyRect(quad.bounds(quadType));
             GrQuadAAFlags aaFlags;
             // Don't update the overall aaType, might be inappropriate for some of the quads
@@ -337,9 +361,18 @@ private:
             }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
-            // TODO(michaelludwig) - Once TextureSetEntry is updated to include a dstClip, fSrcQuads
-            // will need to be used similarly to the single-image ctor.
-            fQuads.push_back(quad, quadType, {color, set[p].fSrcRect, -1, Domain::kNo, aaFlags});
+            int srcQuadIndex = -1;
+            if (set[p].fDstClipCount > 0) {
+                // Derive new source coordinates that match dstClip's relative locations in dstRect,
+                // but with respect to srcRect
+                SkPoint srcQuad[4];
+                GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClip, srcQuad, 4);
+                fSrcQuads.push_back(GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
+                                    GrQuadType::kStandard);
+                srcQuadIndex = fSrcQuads.count() - 1;
+            }
+            fQuads.push_back(quad, quadType,
+                             {color, set[p].fSrcRect, srcQuadIndex, Domain::kNo, aaFlags});
         }
         fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {

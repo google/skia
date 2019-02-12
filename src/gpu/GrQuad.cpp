@@ -136,8 +136,6 @@ static void map_rect_general(const SkRect& rect, const SkMatrix& matrix,
     map_quad_general(rx, ry, matrix, xs, ys, ws);
 }
 
-
-
 // Rearranges (top-left, top-right, bottom-right, bottom-left) ordered skQuadPts into xs and ys
 // ordered (top-left, bottom-left, top-right, bottom-right)
 static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], Sk4f* xs, Sk4f* ys) {
@@ -229,7 +227,6 @@ GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws) {
     memcpy(fX, xs, 4 * sizeof(float));
     memcpy(fY, ys, 4 * sizeof(float));
     memcpy(fW, ws, 4 * sizeof(float));
-}
 
 GrPerspQuad GrPerspQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
     Sk4f x, y, w;

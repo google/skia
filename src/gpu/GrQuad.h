@@ -113,6 +113,7 @@ class GrPerspQuad {
 public:
     GrPerspQuad() = default;
 
+<<<<<<< HEAD
     explicit GrPerspQuad(const SkRect& rect)
             : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
             , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom}
@@ -130,6 +131,19 @@ public:
         ws.store(fW);
     }
 
+=======
+    GrPerspQuad(const Sk4f& xs, const Sk4f& ys) {
+        xs.store(fX);
+        ys.store(fY);
+        fW = {1.f, 1.f, 1.f, 1.f};
+    }
+    GrPerspQuad(const Sk4f& xs, const Sk4f& ys, const Sk4f& ws) {
+        xs.store(fX);
+        ys.store(fY);
+        ws.store(fW);
+    }
+
+>>>>>>> Clean up GrQuad ctors
     static GrPerspQuad MakeFromRect(const SkRect&, const SkMatrix&);
 
     // Creates a GrPerspQuad from the quadrilateral 'pts', transformed by the matrix. The input
