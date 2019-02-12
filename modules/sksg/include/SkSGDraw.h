@@ -8,12 +8,11 @@
 #ifndef SkSGDraw_DEFINED
 #define SkSGDraw_DEFINED
 
+#include "SkSGGeometryNode.h"
+#include "SkSGPaintNode.h"
 #include "SkSGRenderNode.h"
 
 namespace sksg {
-
-class GeometryNode;
-class PaintNode;
 
 /**
  * Concrete rendering node.

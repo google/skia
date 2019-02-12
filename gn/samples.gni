@@ -76,6 +76,7 @@ samples_sources = [
   "$_samplecode/SampleRectanizer.cpp",
   "$_samplecode/SampleRegion.cpp",
   "$_samplecode/SampleRepeatTile.cpp",
+  "$_samplecode/SampleSG.cpp",
   "$_samplecode/SampleShaders.cpp",
   "$_samplecode/SampleShadowColor.cpp",
   "$_samplecode/SampleShadowReference.cpp",
