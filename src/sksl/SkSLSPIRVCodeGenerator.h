@@ -336,6 +336,8 @@ private:
     std::unordered_map<uint64_t, SpvId> fUIntConstants;
     std::unordered_map<float, SpvId> fFloatConstants;
     std::unordered_map<double, SpvId> fDoubleConstants;
+    // The constant float2(0, 1), used in swizzling
+    SpvId fConstantZeroOneVector = 0;
     bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
