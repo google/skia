@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b1c2bc1_679f6e8b",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 20781,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-02-12T13:04:38Z",
+      "side": 1,
+      "message": "Nit: I think this was accidental.",
+      "range": {
+        "startLine": 20781,
+        "startChar": 9,
+        "endLine": 20781,
+        "endChar": 22
+      },
+      "revId": "1972067966d8a111a632a20b7f1c0243389951b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
