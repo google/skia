@@ -257,7 +257,7 @@ GrProcessorSet::Analysis DrawAtlasOp::finalize(const GrCaps& caps, const GrAppli
 
 } // anonymous namespace
 
-std::unique_ptr<GrDrawOp> GrDrawAtlasOp::Make(GrContext* context,
+std::unique_ptr<GrDrawOp> GrDrawAtlasOp::Make(GrRecordingContext* context,
                                               GrPaint&& paint,
                                               const SkMatrix& viewMatrix,
                                               GrAAType aaType,

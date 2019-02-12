@@ -8,9 +8,11 @@
 #include "GrAAFillRRectOp.h"
 
 #include "GrCaps.h"
-#include "GrContextPriv.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
+#include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkRRectPriv.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -22,8 +24,8 @@
 static bool can_use_hw_derivatives(const GrShaderCaps&, const SkMatrix&, const SkRRect&);
 
 std::unique_ptr<GrAAFillRRectOp> GrAAFillRRectOp::Make(
-        GrContext* ctx, const SkMatrix& viewMatrix, const SkRRect& rrect, const GrCaps& caps,
-        GrPaint&& paint) {
+        GrRecordingContext* ctx, const SkMatrix& viewMatrix, const SkRRect& rrect,
+        const GrCaps& caps, GrPaint&& paint) {
     if (!caps.instanceAttribSupport()) {
         return nullptr;
     }
