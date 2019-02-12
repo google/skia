@@ -317,11 +317,17 @@ public:
             fCurrentHBFont = fFallbackHBFont.get();
         // If not, try to find a fallback typeface
         } else {
-            fFallbackFont.setTypeface(sk_ref_sp(fFallbackMgr->matchFamilyStyleCharacter(
-                nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u)));
-            fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
-            fCurrentFont = &fFallbackFont;
-            fCurrentHBFont = fFallbackHBFont.get();
+            sk_sp<SkTypeface> candidate(fFallbackMgr->matchFamilyStyleCharacter(
+                nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
+            if (candidate) {
+                fFallbackFont.setTypeface(std::move(candidate));
+                fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
+                fCurrentFont = &fFallbackFont;
+                fCurrentHBFont = fFallbackHBFont.get();
+            } else {
+                fCurrentFont = &fFont;
+                fCurrentHBFont = fHBFont.get();
+            }
         }
 
         while (fCurrent < fEnd) {
@@ -335,10 +341,15 @@ public:
                 fCurrent = prev;
                 return;
             }
-            // If the current typeface cannot handle this character, stop using it.
+
+            // If the current typeface cannot handle this character, stop using it if some font can handle it.
             if (!fCurrentFont->getTypeface()->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
-                fCurrent = prev;
-                return;
+                sk_sp<SkTypeface> candidate(fFallbackMgr->matchFamilyStyleCharacter(
+                    nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
+                if (candidate) {
+                    fCurrent = prev;
+                    return;
+                }
             }
         }
     }
