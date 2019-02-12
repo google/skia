@@ -16,6 +16,48 @@
       "revId": "b59de541a2d857fad09afab38436ba17d9834b0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28c9e671_3dcfcbc9",
+        "filename": "modules/skshaper/src/SkShaper_primitive.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-12T17:32:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ff8aea5_71b1cd9c",
+      "revId": "b59de541a2d857fad09afab38436ba17d9834b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58a5e3d0_095e0495",
+        "filename": "modules/skshaper/src/SkShaper_primitive.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-12T17:32:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c89d439_93ffb45d",
+      "range": {
+        "startLine": 184,
+        "startChar": 24,
+        "endLine": 184,
+        "endChar": 32
+      },
+      "revId": "b59de541a2d857fad09afab38436ba17d9834b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
