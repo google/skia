@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1d2ce5d2_49654dce",
+        "filename": "modules/particles/include/SkParticleAffector.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Aye. I thought about this while I was doing the break-up of the code into modules, but didn\u0027t put them in. Done. (I didn\u0027t include Jitter, as that\u0027s redundant with ranged force and should be removed). In fact, when I do the generalization pass, I want to push the bidirectional flag into SkCurve, and collapse jitter and directional force into rangedForce (probably renaming it to something like LinearForce).",
+      "parentUuid": "4882d8a5_3df5a172",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 37
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc9e2274_9173c900",
         "filename": "modules/particles/include/SkParticleData.h",
         "patchSetId": 45
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-11T22:55:29Z",
       "side": 1,
       "message": "What distinguishes these structs from those in SkParticleEffect? Could these live in that header too?",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 92
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe5b4b8a_bc92182a",
+        "filename": "modules/particles/include/SkParticleData.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Nothing in particular. I may have got overzealous splitting things up for the review. The one distinction here is that these are effectively \"internal\" - they\u0027re not needed for public users of the particle code. The stuff in SkParticleEffect is public API. (This header could actually be something like SkParticlePriv.h in src, even).",
+      "parentUuid": "bc9e2274_9173c900",
       "range": {
         "startLine": 16,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "800c99ef_272c264c",
+        "filename": "modules/particles/include/SkParticleData.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Yeah, I prefer fHeading. I think I started with fRight because SkPathMeasure returns tangent (rather than normal), but I think it\u0027s worth rotating in those spots to keep the mental model of pose simpler.",
+      "parentUuid": "6122ee29_92144474",
+      "range": {
+        "startLine": 21,
+        "startChar": 13,
+        "endLine": 21,
+        "endChar": 19
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d395fbe1_049cf086",
         "filename": "modules/particles/include/SkParticleEffect.h",
         "patchSetId": 45
@@ -82,6 +154,30 @@
       "writtenOn": "2019-02-12T15:02:08Z",
       "side": 1,
       "message": "nit: do we care about packing/size for this? If so, maybe move all bools to the bottom?",
+      "range": {
+        "startLine": 34,
+        "startChar": 9,
+        "endLine": 34,
+        "endChar": 23
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70828a0c_d4a051d4",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Yes, although these will eventually be removed in favor of SkCurve-based affectors in the spawn list.",
+      "parentUuid": "d395fbe1_049cf086",
       "range": {
         "startLine": 34,
         "startChar": 9,
@@ -114,6 +210,30 @@
       "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f7b16dd_b361665b",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Exactly. I\u0027m saving some of those updates until I iron out the curve representation, to avoid lots of churn on the JSON representation.",
+      "parentUuid": "35fb942b_b050c268",
+      "range": {
+        "startLine": 48,
+        "startChar": 4,
+        "endLine": 48,
+        "endChar": 45
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "3015a8b8_7c5eec9c",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "I have to think about this a bit more. I had been planning to add a higher level system to manage multiple running effects, in which case the SkRandom would be owned by that object. That may not be a great fit for Skia (and sksg), though, in which case having the SkRandom stored on the effect sounds good.",
+      "parentUuid": "3ee0925b_ee241463",
+      "range": {
+        "startLine": 77,
+        "startChar": 15,
+        "endLine": 77,
+        "endChar": 32
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "40fff018_2432a9ae",
         "filename": "modules/particles/include/SkParticleEffect.h",
         "patchSetId": 45
@@ -184,6 +328,30 @@
       "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc6445c8_29075cf9",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Good catch. Done.",
+      "parentUuid": "40fff018_2432a9ae",
+      "range": {
+        "startLine": 99,
+        "startChar": 17,
+        "endLine": 99,
+        "endChar": 24
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -210,6 +378,30 @@
     },
     {
       "key": {
+        "uuid": "b925dd47_c7f33753",
+        "filename": "modules/particles/include/SkParticleEmitter.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Yup. This was a wart of evolving API (at one point there were multiple out parameters). Fixed.",
+      "parentUuid": "236f3640_58a9ac02",
+      "range": {
+        "startLine": 20,
+        "startChar": 33,
+        "endLine": 20,
+        "endChar": 52
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5d71620_677cf39f",
         "filename": "modules/particles/include/SkParticleEmitter.h",
         "patchSetId": 45
@@ -233,6 +425,30 @@
     },
     {
       "key": {
+        "uuid": "1b0cbc61_183ab1a3",
+        "filename": "modules/particles/include/SkParticleEmitter.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5d71620_677cf39f",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33fd8377_79c7c386",
         "filename": "modules/particles/include/SkReflected.h",
         "patchSetId": 45
@@ -244,6 +460,30 @@
       "writtenOn": "2019-02-12T15:02:08Z",
       "side": 1,
       "message": "style question: does it make sense to have default args in pure-virtual?",
+      "range": {
+        "startLine": 114,
+        "startChar": 44,
+        "endLine": 114,
+        "endChar": 51
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcdb0d47_5e8f241e",
+        "filename": "modules/particles/include/SkReflected.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "I think it makes sense, but I realize that many people object to this style. I can rearrange this to use default args on non-virtuals, and dispatch to virtual helpers (Skia\u0027s typical pattern).",
+      "parentUuid": "33fd8377_79c7c386",
       "range": {
         "startLine": 114,
         "startChar": 44,
@@ -273,6 +513,24 @@
     },
     {
       "key": {
+        "uuid": "5b17e926_0e975a25",
+        "filename": "modules/particles/include/SkReflected.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "More so that the gui visitor can intercept these to display the custom UI. However, I\u0027m realizing that if this were derived from SkReflected, I could have the template version also feed the Type (for SkReflected derived classes) to the visitors, and the default behavior would work fine. Then things like gui visitor could use the Type sidecar to detect and implement custom behavior. I\u0027ll worry about that in the future. (All of this code went through several revisions...)",
+      "parentUuid": "8eefc4d6_1886c385",
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "806f51bb_26478d50",
         "filename": "modules/particles/src/SkCurve.cpp",
         "patchSetId": 45
@@ -284,6 +542,30 @@
       "writtenOn": "2019-02-11T22:55:29Z",
       "side": 1,
       "message": "Since nextF() is called every time, does it mean that as the curve is evaluated over time, a given \"particle\" will bounce between the min and max value at x? vs. each \"particle\" getting a random [0, 1] at spawn and then following that fixed interpolated curve between min and max? \n\nIf those two situations are clear enough, do you have experience as to which is most intuitive or useful for simulating particle effects?",
+      "range": {
+        "startLine": 17,
+        "startChar": 38,
+        "endLine": 17,
+        "endChar": 52
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "739d524c_a8eb7af6",
+        "filename": "modules/particles/src/SkCurve.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "It depends on which random is passed to the particular curve. In many cases, the random being passed here should be the stable random, so that each particle gets a stable interpolant. For curves evaluated over the emitter (vs particle) lifetime, the distinction doesn\u0027t really matter. In general, I think the stable version is more useful, although the last particle system I worked on also included a second layer of curve behavior that was essentially \"noise\" of different types on top of the authored curves.",
+      "parentUuid": "806f51bb_26478d50",
       "range": {
         "startLine": 17,
         "startChar": 38,
@@ -319,6 +601,30 @@
     },
     {
       "key": {
+        "uuid": "70eaf729_f5adaca7",
+        "filename": "modules/particles/src/SkParticleAffector.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Yeah, that would be nice. As I mentioned elsewhere, I think that three of these are going to collapse into one that just uses SkCurve, which is sufficient to describe all of the different force behaviors (except for point-force). I\u0027ll definitely extract that logic when I do that refactor.",
+      "parentUuid": "37db6fc3_487d4a94",
+      "range": {
+        "startLine": 20,
+        "startChar": 32,
+        "endLine": 20,
+        "endChar": 59
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "91de9cff_dbc23ed3",
         "filename": "modules/particles/src/SkParticleAffector.cpp",
         "patchSetId": 45
@@ -339,6 +645,30 @@
       "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a013df7_3c763cf9",
+        "filename": "modules/particles/src/SkParticleAffector.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91de9cff_dbc23ed3",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 42
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -365,6 +695,30 @@
     },
     {
       "key": {
+        "uuid": "34c7981b_7c957623",
+        "filename": "modules/particles/src/SkParticleEmitter.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2cd1928_7a144b02",
+      "range": {
+        "startLine": 17,
+        "startChar": 16,
+        "endLine": 17,
+        "endChar": 27
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbb0dfc5_cec22280",
         "filename": "tools/viewer/ParticlesSlide.h",
         "patchSetId": 45
@@ -376,6 +730,30 @@
       "writtenOn": "2019-02-11T22:55:29Z",
       "side": 1,
       "message": "Would a Sample be better? or do those not get the imgui widgets?",
+      "range": {
+        "startLine": 18,
+        "startChar": 30,
+        "endLine": 18,
+        "endChar": 35
+      },
+      "revId": "ddabbf359803776758bc5299eb098cc5fd73ceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9eb9949_aaa9237d",
+        "filename": "tools/viewer/ParticlesSlide.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-12T18:29:37Z",
+      "side": 1,
+      "message": "Yes, a sample would be better. (See my comment in Viewer.cpp). Samples can still access the imgui library, but the mouse interface is different. Sadly, I started building it this way, then added the dragging of points interface while it was still a Slide. I want to go back and convert it to a Sample, but I need to rework that code, so I was saving that for later.",
+      "parentUuid": "fbb0dfc5_cec22280",
       "range": {
         "startLine": 18,
         "startChar": 30,
