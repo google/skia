@@ -810,7 +810,11 @@ void SkPathRef::Iter::setPathRef(const SkPathRef& path) {
 
 uint8_t SkPathRef::Iter::next(SkPoint pts[4]) {
     SkASSERT(pts);
+
+    SkDEBUGCODE(unsigned peekResult = this->peek();)
+
     if (fVerbs == fVerbStop) {
+        SkASSERT(peekResult == SkPath::kDone_Verb);
         return (uint8_t) SkPath::kDone_Verb;
     }
 
@@ -851,12 +855,13 @@ uint8_t SkPathRef::Iter::next(SkPoint pts[4]) {
             break;
     }
     fPts = srcPts;
+    SkASSERT(peekResult == verb);
     return (uint8_t) verb;
 }
 
 uint8_t SkPathRef::Iter::peek() const {
-    const uint8_t* next = fVerbs - 1;
-    return next <= fVerbStop ? (uint8_t) SkPath::kDone_Verb : *next;
+    const uint8_t* next = fVerbs;
+    return next <= fVerbStop ? (uint8_t) SkPath::kDone_Verb : next[-1];
 }
 
 
