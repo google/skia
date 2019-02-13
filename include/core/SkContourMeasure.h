@@ -121,7 +121,7 @@ public:
     sk_sp<SkContourMeasure> next();
 
 private:
-    SkPath::Iter    fIter;
+    SkPath::RawIter fIter;
     SkPath          fPath;
     SkScalar        fTolerance;
     bool            fForceClosed;
@@ -132,6 +132,7 @@ private:
 
     SkContourMeasure* buildSegments();
 
+    SkScalar compute_line_seg(SkPoint p0, SkPoint p1, SkScalar distance, unsigned ptIndex);
     SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                int mint, int maxt, unsigned ptIndex);
     SkScalar compute_conic_segs(const SkConic& conic, SkScalar distance,
