@@ -46,6 +46,30 @@
       "revId": "8908862e9dc613fe6ebb3f2d9268acd30bc8e7cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbc98810_30d94b71",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-13T19:39:43Z",
+      "side": 1,
+      "message": "I assumed that the quickReject was only there to skip the expensive color space conversion that occurs in this class before redundant checks in the called function would reject it after the color space conversion.",
+      "parentUuid": "a504e29d_f9a35cf5",
+      "range": {
+        "startLine": 156,
+        "startChar": 12,
+        "endLine": 156,
+        "endChar": 19
+      },
+      "revId": "8908862e9dc613fe6ebb3f2d9268acd30bc8e7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
