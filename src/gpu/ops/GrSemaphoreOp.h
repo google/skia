@@ -19,19 +19,20 @@ class GrRecordingContext;
 class GrSemaphoreOp : public GrOp {
 public:
     static std::unique_ptr<GrOp> MakeWait(GrRecordingContext*,
-                                          sk_sp<GrSemaphore>,
-                                          GrRenderTargetProxy*);
+                                          GrRenderTargetProxy*,
+                                          const GrBackendSemaphore&);
 
 protected:
-    GrSemaphoreOp(uint32_t classId, sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)
-        : INHERITED(classId), fSemaphore(std::move(semaphore)) {
+    GrSemaphoreOp(uint32_t classId, GrRenderTargetProxy* proxy, const GrBackendSemaphore& sema) {
+            : INHERITED(classId)
+            , fSemaphore(sema) {
         this->makeFullScreen(proxy);
     }
 
-    sk_sp<GrSemaphore> fSemaphore;
-
 private:
     void onPrepare(GrOpFlushState*) override {}
+
+    GrBackendSemaphore fSemaphore;
 
     typedef GrOp INHERITED;
 };
