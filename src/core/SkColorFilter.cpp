@@ -201,12 +201,13 @@ public:
     };
     SkSRGBGammaColorFilter(Direction dir) : fDir(dir), fSteps([&]{
         // We handle premul/unpremul separately, so here just always upm->upm.
+        sk_sp<SkColorSpace> linear = SkColorSpace::MakeSRGBLinear();
         if (dir == Direction::kLinearToSRGB) {
-            return SkColorSpaceXformSteps{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
-                                          sk_srgb_singleton(),        kUnpremul_SkAlphaType};
+            return SkColorSpaceXformSteps{linear.get()       , kUnpremul_SkAlphaType,
+                                          sk_srgb_singleton(), kUnpremul_SkAlphaType};
         } else {
-            return SkColorSpaceXformSteps{sk_srgb_singleton(),        kUnpremul_SkAlphaType,
-                                          sk_srgb_linear_singleton(), kUnpremul_SkAlphaType};
+            return SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                          linear.get()       , kUnpremul_SkAlphaType};
         }
     }()) {}
 
