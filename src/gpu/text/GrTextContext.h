@@ -69,7 +69,6 @@ public:
                                         SkScalar* textRatio);
 
     static SkPaint InitDistanceFieldPaint(const SkPaint& paint);
-    static SkScalerContextFlags InitDistanceFieldFlags();
 
     static std::pair<SkScalar, SkScalar> InitDistanceFieldMinMaxScale(SkScalar textSize,
                                                                       const SkMatrix& viewMatrix,
