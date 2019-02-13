@@ -102,13 +102,8 @@ static void test_serialize(skiatest::Reporter* r, sk_sp<SkColorSpace> space, boo
     sk_sp<SkColorSpace> newSpace1 = SkColorSpace::Deserialize(data1->data(), data1->size());
     sk_sp<SkColorSpace> newSpace2 = SkColorSpace::Deserialize(data2->data(), data2->size());
 
-    if (isNamed) {
-        REPORTER_ASSERT(r, space.get() == newSpace1.get());
-        REPORTER_ASSERT(r, space.get() == newSpace2.get());
-    } else {
-        REPORTER_ASSERT(r, SkColorSpace::Equals(space.get(), newSpace1.get()));
-        REPORTER_ASSERT(r, SkColorSpace::Equals(space.get(), newSpace2.get()));
-    }
+    REPORTER_ASSERT(r, SkColorSpace::Equals(space.get(), newSpace1.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(space.get(), newSpace2.get()));
 }
 
 DEF_TEST(ColorSpace_Serialize, r) {
