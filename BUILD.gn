@@ -1565,6 +1565,10 @@ if (skia_enable_tools) {
     public_deps = [
       ":gpu_tool_utils",
     ]
+    if (skia_enable_skshaper) {
+      deps += [ "modules/skshaper" ]
+      defines = [ "SK_USING_SKSHAPER" ]
+    }
   }
 
   import("gn/tests.gni")
@@ -1590,6 +1594,10 @@ if (skia_enable_tools) {
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
+    if (skia_enable_skshaper) {
+      deps += [ "modules/skshaper" ]
+      defines = [ "SK_USING_SKSHAPER" ]
+    }
   }
 
   import("gn/bench.gni")
