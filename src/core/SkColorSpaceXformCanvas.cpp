@@ -7,6 +7,7 @@
 
 #include "SkCanvasVirtualEnforcer.h"
 #include "SkColorFilter.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkDrawShadowInfo.h"
@@ -317,6 +318,13 @@ public:
 
 private:
     sk_sp<SkImage> prepareImage(const SkImage* image) {
+        // TODO(mtklein): make images always have a color space?
+        SkColorSpace* cs = image->colorSpace() ? image->colorSpace()
+                                               : sk_srgb_singleton();
+        if (SkColorSpace::Equals(cs, fTargetCS.get())) {
+            return sk_ref_sp(image);
+        }
+
         GrContext* gr = fTarget->getGrContext();
         // If fTarget is GPU-accelerated, we want to upload to a texture before applying the
         // transform. This way, we can get cache hits in the texture cache and the transform gets
