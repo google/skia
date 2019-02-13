@@ -55,7 +55,7 @@ public:
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkIRect* maskRect) const override;
-    bool directFilterMaskGPU(GrContext*,
+    bool directFilterMaskGPU(GrRecordingContext*,
                              GrRenderTargetContext* renderTargetContext,
                              GrPaint&&,
                              const GrClip&,
@@ -716,7 +716,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 
-bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
+bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
                                                GrRenderTargetContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrClip& clip,

@@ -331,7 +331,7 @@ bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
     return false;
 }
 
-bool SkMaskFilterBase::directFilterMaskGPU(GrContext*,
+bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
                                            GrRenderTargetContext*,
                                            GrPaint&&,
                                            const GrClip&,

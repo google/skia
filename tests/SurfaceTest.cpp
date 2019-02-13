@@ -966,7 +966,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             // Validate that we can attach a stencil buffer to an SkSurface created by either of
             // our surface functions.
             GrRenderTarget* rt = surface->getCanvas()
-                ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
+                ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget1();
             REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
             gpu->deleteTestingOnlyBackendTexture(backendTex);
         }

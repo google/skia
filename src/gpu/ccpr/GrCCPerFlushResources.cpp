@@ -465,7 +465,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
             const CopyPathRange& copyRange = fCopyPathRanges[copyRangeIdx];
             int endCopyInstance = baseCopyInstance + copyRange.fCount;
             if (rtc) {
-                auto op = CopyAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
+                auto op = CopyAtlasOp::Make(rtc->surfPriv().getContext1(), sk_ref_sp(this),
                                             copyRange.fSrcProxy, baseCopyInstance, endCopyInstance,
                                             atlas->drawBounds());
                 rtc->addDrawOp(GrNoClip(), std::move(op));
