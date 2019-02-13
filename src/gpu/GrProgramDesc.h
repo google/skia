@@ -92,7 +92,7 @@ public:
 
     struct KeyHeader {
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
-        uint8_t fOutputSwizzle;
+        uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
@@ -101,7 +101,7 @@ public:
         bool fHasPointSize : 1;
         uint8_t fPad : 4;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
+    GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
