@@ -1723,8 +1723,8 @@ void draw(SkCanvas* canvas) {
     canvas->scale(8, 8);
     canvas->drawImage(image, 0, 0, nullptr);
     SkPaint paint;
-    paint.setTextSize(4);
-    canvas->drawString(lazy, 2, 5, paint);
+    SkFont font(nullptr, 4);
+    canvas->drawString(lazy, 2, 5, font, paint);
 }
 ##
 
