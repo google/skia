@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5e737d31_2a8f554d",
+        "filename": "src/gpu/GrContextPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-13T22:44:10Z",
+      "side": 1,
+      "message": "Removed changes here and updated supportedReadPixelsColorType() to return kRGB_888x",
+      "parentUuid": "eac4c69c_0834037b",
+      "range": {
+        "startLine": 458,
+        "startChar": 0,
+        "endLine": 460,
+        "endChar": 9
+      },
+      "revId": "710062c5948a050115fbe7153a5bbdf21dbac5f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "09ef8ff4_ff913d17",
         "filename": "src/gpu/GrSwizzle.h",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-13T21:07:43Z",
       "side": 1,
       "message": "Are these shifts correct?",
+      "range": {
+        "startLine": 159,
+        "startChar": 20,
+        "endLine": 159,
+        "endChar": 61
+      },
+      "revId": "710062c5948a050115fbe7153a5bbdf21dbac5f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "361c1611_62dcf9a8",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-13T22:44:10Z",
+      "side": 1,
+      "message": "Nope, but fixed with unpacking anyways.",
+      "parentUuid": "09ef8ff4_ff913d17",
       "range": {
         "startLine": 159,
         "startChar": 20,
