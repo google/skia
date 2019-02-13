@@ -217,20 +217,6 @@ The actual output depends on the installed fonts.
         }
         SkDebugf("\n");
     }
-
-    #StdOut
-    -----
-    ---x-
-    ---x-
-    ---x-
-    ---x-
-    ---x-
-    ---x-
-    -----
-    ---x-
-    ---x-
-    -----
-    #StdOut ##
 ##
 
 #SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
@@ -267,20 +253,6 @@ The actual output depends on the installed fonts.
         }
         SkDebugf("\n");
     }
-
-    #StdOut
-    -----
-    ---x-
-    ---x-
-    ---x-
-    ---x-
-    ---x-
-    ---x-
-    -----
-    ---x-
-    ---x-
-    -----
-    #StdOut ##
 ##
 
 #SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
@@ -1353,7 +1325,7 @@ SaveLayerRec contains the state used to create the Layer.
 #Member SaveLayerFlags          fSaveLayerFlags
 #Line # creates with prior Layer contents ##
     fSaveLayerFlags are used to create Layer without transparency,
-    and to create Layer with the ontents of the previous Layer.
+    and to create Layer with the contents of the previous Layer.
 ##
 
 #Example
