@@ -378,7 +378,7 @@ public:
     void insertEventMarker(const SkString&);
 
     GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
-    const GrCaps* caps() const { return fContext->priv().caps(); }
+    const GrCaps* caps() const;
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
     int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
@@ -390,14 +390,7 @@ public:
 
     void setNeedsStencil() { fRenderTargetProxy->setNeedsStencil(); }
 
-    GrRenderTarget* accessRenderTarget() {
-        // TODO: usage of this entry point needs to be reduced and potentially eliminated
-        // since it ends the deferral of the GrRenderTarget's allocation
-        if (!fRenderTargetProxy->instantiate(fContext->priv().resourceProvider())) {
-            return nullptr;
-        }
-        return fRenderTargetProxy->peekRenderTarget();
-    }
+    GrRenderTarget* accessRenderTarget1();
 
     GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }
     const GrSurfaceProxy* asSurfaceProxy() const override { return fRenderTargetProxy.get(); }
@@ -421,7 +414,7 @@ public:
     bool isWrapped_ForTesting() const;
 
 protected:
-    GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
+    GrRenderTargetContext(GrRecordingContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
                           GrSingleOwner*, bool managedOpList = true);
 

@@ -495,7 +495,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
                                              bool stencilOnly) {
-    auto context = renderTargetContext->surfPriv().getContext();
+    auto context = renderTargetContext->surfPriv().getContext1();
 
     SkASSERT(GrAAType::kCoverage != aaType);
     SkPath path;
