@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "086abfd7_344d724e",
+        "filename": "src/svg/SkSVGCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-13T15:08:48Z",
+      "side": 1,
+      "message": "I would rather we don\u0027t expose this internal detail in the public API.  How about we add a private helper, then call it from both Make methods:\n\nstatic std::unique_ptr\u003cSkCanvas\u003e MakeSVGCanvas(const SkRect\u0026 bounds, SkXMLWriter* writer, bool owns_writer) {...}",
+      "range": {
+        "startLine": 13,
+        "startChar": 87,
+        "endLine": 13,
+        "endChar": 103
+      },
+      "revId": "81d70979f0464bf006692287ae045bbc4723e408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66b51b47_887681c6",
+        "filename": "src/svg/SkSVGDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-13T15:08:48Z",
+      "side": 1,
+      "message": "naming nit: fOwnsWriter, per Skia code style",
+      "range": {
+        "startLine": 55,
+        "startChar": 36,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "81d70979f0464bf006692287ae045bbc4723e408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
