@@ -598,7 +598,7 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
         }
         // The clip region in the rect's local space, so the test becomes the local rect containing
         // the quad's points.
-        GrQuad quad(rtRect, invM);
+        GrQuad quad = GrQuad::MakeFromRect(rtRect, invM);
         if (!rect_contains_inclusive(rect, quad.point(0)) ||
             !rect_contains_inclusive(rect, quad.point(1)) ||
             !rect_contains_inclusive(rect, quad.point(2)) ||

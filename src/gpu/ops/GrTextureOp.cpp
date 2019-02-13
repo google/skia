@@ -87,7 +87,7 @@ static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const SkRect& srcRec
         texRect.fTop = h - texRect.fTop;
         texRect.fBottom = h - texRect.fBottom;
     }
-    return GrPerspQuad(texRect, SkMatrix::I());
+    return GrPerspQuad(texRect);
 }
 
 /**
@@ -201,7 +201,7 @@ private:
             , fFilter(static_cast<unsigned>(filter))
             , fFinalized(0) {
         GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
-        auto quad = GrPerspQuad(dstRect, viewMatrix);
+        auto quad = GrPerspQuad::MakeFromRect(dstRect, viewMatrix);
 
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
@@ -264,7 +264,7 @@ private:
             if (!fProxies[p].fProxy->canSkipResourceAllocator()) {
                 fCanSkipAllocatorGather = static_cast<unsigned>(false);
             }
-            auto quad = GrPerspQuad(set[p].fDstRect, viewMatrix);
+            auto quad = GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix);
             bounds.joinPossiblyEmptyRect(quad.bounds(quadType));
             GrQuadAAFlags aaFlags;
             // Don't update the overall aaType, might be inappropriate for some of the quads
