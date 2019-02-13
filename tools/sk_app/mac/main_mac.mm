@@ -84,11 +84,7 @@ int main(int argc, char * argv[]) {
         // Rather than depending on a Mac event to drive this, we treat our window
         // invalidation flag as a separate event stream. Window::onPaint() will clear
         // the invalidation flag, effectively removing it from the stream.
-        for (int i = 0; i < Window_mac::gActiveWindows.count(); ++i) {
-            if (Window_mac::gActiveWindows[i]->needsPaint()) {
-                Window_mac::gActiveWindows[i]->onPaint();
-            }
-        }
+        Window_mac::PaintWindows();
 
         NSEvent* event;
         do {
@@ -96,6 +92,21 @@ int main(int argc, char * argv[]) {
                                        untilDate:[NSDate distantPast]
                                           inMode:NSDefaultRunLoopMode
                                          dequeue:YES];
+            NSEventType type = event.type;
+            switch (type) {
+                case NSEventTypeKeyDown:
+                case NSEventTypeKeyUp:
+                case NSEventTypeLeftMouseDown:
+                case NSEventTypeLeftMouseUp:
+                case NSEventTypeLeftMouseDragged:
+                case NSEventTypeMouseMoved:
+                case NSEventTypeScrollWheel:
+                    Window_mac::HandleWindowEvent(event);
+                    break;
+                default:
+                    break;
+            }
+            // We send all events through the system to catch window close events, drags, etc.
             [NSApp sendEvent:event];
         } while (event != nil);
 

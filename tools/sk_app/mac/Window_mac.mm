@@ -9,16 +9,13 @@
 #include "WindowContextFactory_mac.h"
 #include "Window_mac.h"
 
-@interface MainView : NSView
+@interface WindowDelegate : NSObject<NSWindowDelegate>
 
-- (MainView*)initWithWindow:(sk_app::Window*)initWindow;
+- (WindowDelegate*)initWithWindow:(sk_app::Window_mac*)initWindow;
 
 @end
 
-@interface WindowDelegate : NSObject<NSWindowDelegate>
-
-- (WindowDelegate*)initWithWindow:(sk_app::Window*)initWindow;
-
+@interface MainView : NSView
 @end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +24,7 @@ using sk_app::Window;
 
 namespace sk_app {
 
-SkTDArray<Window_mac*> Window_mac::gActiveWindows;
+SkTDynamicHash<Window_mac, NSInteger> Window_mac::gWindowMap;
 
 Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
@@ -36,7 +33,6 @@ Window* Window::CreateNativeWindow(void*) {
         return nullptr;
     }
 
-    Window_mac::gActiveWindows.push_back(window);
     return window;
 }
 
@@ -62,12 +58,14 @@ bool Window_mac::initWindow() {
     if (nil == fWindow) {
         return false;
     }
+    [fWindow setAcceptsMouseMovedEvents:YES];
+
     WindowDelegate* delegate = [[WindowDelegate alloc] initWithWindow:this];
     [fWindow setDelegate:delegate];
     [delegate release];
 
     // create view
-    MainView* view = [[[MainView alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)] initWithWindow:this];
+    MainView* view = [[MainView alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)] ;
     if (nil == view) {
         [fWindow release];
         fWindow = nil;
@@ -77,12 +75,21 @@ bool Window_mac::initWindow() {
     // attach view to window
     [fWindow setContentView:view];
 
+    fWindowNumber = fWindow.windowNumber;
+    gWindowMap.add(this);
+
     return true;
 }
 
 void Window_mac::closeWindow() {
-    [fWindow release];
-    fWindow = nil;
+    if (nil != fWindow) {
+        gWindowMap.remove(fWindowNumber);
+        if (sk_app::Window_mac::gWindowMap.count() < 1) {
+            [NSApp terminate:fWindow];
+        }
+        [fWindow release];
+        fWindow = nil;
+    }
 }
 
 void Window_mac::setTitle(const char* title) {
@@ -100,7 +107,7 @@ bool Window_mac::attach(BackendType attachType) {
     this->initWindow();
 
     window_context_factory::MacWindowInfo info;
-    info.fMainView = this->view();
+    info.fMainView = [fWindow contentView];
     switch (attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
@@ -118,70 +125,6 @@ bool Window_mac::attach(BackendType attachType) {
     this->onBackendCreated();
 
     return (SkToBool(fWindowContext));
-}
-
-}   // namespace sk_app
-
-///////////////////////////////////////////////////////////////////////////////
-
-@implementation WindowDelegate {
-    sk_app::Window* fWindow;
-}
-
-- (WindowDelegate*)initWithWindow:(sk_app::Window *)initWindow {
-    fWindow = initWindow;
-
-    return self;
-}
-
-- (void)windowDidResize:(NSNotification *)notification {
-    sk_app::Window_mac* macWindow = reinterpret_cast<sk_app::Window_mac*>(fWindow);
-    const NSRect mainRect = [macWindow->view() bounds];
-
-    fWindow->onResize(mainRect.size.width, mainRect.size.height);
-}
-
-- (BOOL)windowShouldClose:(NSWindow*)sender {
-    sk_app::Window_mac* macWindow = reinterpret_cast<sk_app::Window_mac*>(fWindow);
-    int windowIndex = sk_app::Window_mac::gActiveWindows.find(macWindow);
-    sk_app::Window_mac::gActiveWindows.remove(windowIndex);
-    if (sk_app::Window_mac::gActiveWindows.count() < 1) {
-        [NSApp terminate:self];
-    }
-
-    reinterpret_cast<sk_app::Window_mac*>(fWindow)->closeWindow();
-
-    return FALSE;
-}
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////
-
-@implementation MainView {
-    sk_app::Window* fWindow;
-}
-
-- (MainView*)initWithWindow:(sk_app::Window *)initWindow {
-    fWindow = initWindow;
-
-    return self;
-}
-
-- (BOOL)isOpaque {
-    return YES;
-}
-
-- (BOOL)canBecomeKeyView {
-    return YES;
-}
-
-- (BOOL)acceptsFirstResponder {
-    return YES;
-}
-
-- (void)drawRect:(NSRect)dirtyRect {
-    fWindow->onPaint();
 }
 
 static Window::Key get_key(unsigned short vk) {
@@ -248,65 +191,134 @@ static uint32_t get_modifiers(const NSEvent* event) {
     return modifiers;
 }
 
-- (void)keyDown:(NSEvent *)event {
-    Window::Key key = get_key([event keyCode]);
-    if (key != Window::Key::kNONE) {
-        if (!fWindow->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
-            if (Window::Key::kEscape == key) {
-                [NSApp terminate:self];
+void Window_mac::PaintWindows() {
+    SkTDynamicHash<Window_mac, NSInteger>::Iter iter(&gWindowMap);
+    while (!iter.done()) {
+        if ((*iter).fIsContentInvalidated) {
+            (*iter).onPaint();
+        }
+        ++iter;
+    }
+}
+
+void Window_mac::HandleWindowEvent(const NSEvent* event) {
+    Window_mac* win = gWindowMap.find(event.window.windowNumber);
+    if (win) {
+        win->handleEvent(event);
+    }
+}
+
+void Window_mac::handleEvent(const NSEvent* event) {
+    switch (event.type) {
+        case NSEventTypeKeyDown: {
+            Window::Key key = get_key([event keyCode]);
+            if (key != Window::Key::kNONE) {
+                if (!this->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
+                    if (Window::Key::kEscape == key) {
+                        [NSApp terminate:fWindow];
+                    }
+                }
             }
+
+            NSString* characters = [event charactersIgnoringModifiers];
+            NSUInteger len = [characters length];
+            if (len > 0) {
+                unichar* charBuffer = new unichar[len+1];
+                [characters getCharacters:charBuffer range:NSMakeRange(0, len)];
+                for (NSUInteger i = 0; i < len; ++i) {
+                    (void) this->onChar((SkUnichar) charBuffer[i], get_modifiers(event));
+                }
+                delete [] charBuffer;
+            }
+            break;
         }
-    }
-
-    NSString* characters = [event charactersIgnoringModifiers];
-    NSUInteger len = [characters length];
-    if (len > 0) {
-        unichar* charBuffer = new unichar[len+1];
-        [characters getCharacters:charBuffer range:NSMakeRange(0, len)];
-        for (NSUInteger i = 0; i < len; ++i) {
-            (void) fWindow->onChar((SkUnichar) charBuffer[i], get_modifiers(event));
+        case NSEventTypeKeyUp: {
+            Window::Key key = get_key([event keyCode]);
+            if (key != Window::Key::kNONE) {
+                (void) this->onKey(key, Window::kUp_InputState, get_modifiers(event));
+            }
+            break;
         }
-        delete [] charBuffer;
+        case NSEventTypeLeftMouseDown: {
+            const NSPoint pos = [event locationInWindow];
+            const NSRect rect = [fWindow.contentView frame];
+            this->onMouse(pos.x, rect.size.height - pos.y, Window::kDown_InputState,
+                          get_modifiers(event));
+            break;
+        }
+        case NSEventTypeLeftMouseUp: {
+            const NSPoint pos = [event locationInWindow];
+            const NSRect rect = [fWindow.contentView frame];
+            this->onMouse(pos.x, rect.size.height - pos.y, Window::kUp_InputState,
+                          get_modifiers(event));
+            break;
+        }
+        case NSEventTypeMouseMoved:
+        case NSEventTypeLeftMouseDragged: {
+            const NSPoint pos = [event locationInWindow];
+            const NSRect rect = [fWindow.contentView frame];
+            this->onMouse(pos.x, rect.size.height - pos.y, Window::kMove_InputState,
+                          get_modifiers(event));
+            break;
+        }
+        case NSEventTypeScrollWheel:
+            // TODO: support hasPreciseScrollingDeltas?
+            this->onMouseWheel([event scrollingDeltaY], get_modifiers(event));
+            break;
+
+        default:
+            break;
     }
 }
 
-- (void)keyUp:(NSEvent *)event {
-    Window::Key key = get_key([event keyCode]);
-    if (key != Window::Key::kNONE) {
-        (void) fWindow->onKey(key, Window::kUp_InputState, get_modifiers(event));
-    }
+}   // namespace sk_app
+
+///////////////////////////////////////////////////////////////////////////////
+
+@implementation WindowDelegate {
+    sk_app::Window_mac* fWindow;
 }
 
-- (void)mouseDown:(NSEvent *)event {
-    const NSPoint pos = [event locationInWindow];
-    const NSRect rect = [self frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, Window::kDown_InputState,
-                     get_modifiers(event));
+- (WindowDelegate*)initWithWindow:(sk_app::Window_mac *)initWindow {
+    fWindow = initWindow;
+
+    return self;
 }
 
-- (void)mouseDragged:(NSEvent *)event {
-    [self mouseMoved:event];
+- (void)windowDidResize:(NSNotification *)notification {
+    const NSRect mainRect = [fWindow->window().contentView bounds];
+
+    fWindow->onResize(mainRect.size.width, mainRect.size.height);
 }
 
-- (void)mouseUp:(NSEvent *)event {
-    const NSPoint pos = [event locationInWindow];
-    const NSRect rect = [self frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, Window::kUp_InputState,
-                     get_modifiers(event));
-}
+- (BOOL)windowShouldClose:(NSWindow*)sender {
+    fWindow->closeWindow();
 
-- (void)mouseMoved:(NSEvent *)event {
-    const NSPoint pos = [event locationInWindow];
-    const NSRect rect = [self frame];
-    fWindow->onMouse(pos.x, rect.size.height - pos.y, Window::kMove_InputState,
-                     get_modifiers(event));
+    return FALSE;
 }
-
-- (void)scrollWheel:(NSEvent *)event {
-    // TODO: support hasPreciseScrollingDeltas?
-    fWindow->onMouseWheel([event scrollingDeltaY], get_modifiers(event));
-}
-
 
 @end
 
+///////////////////////////////////////////////////////////////////////////////
+
+@implementation MainView
+- (BOOL)isOpaque {
+    return YES;
+}
+
+- (BOOL)canBecomeKeyView {
+    return YES;
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+// We keep these around to prevent beeping when the system can't determine
+// where the focus for key events is.
+- (void)keyDown:(NSEvent *)event {
+}
+
+- (void)keyUp:(NSEvent *)event {
+}
+@end
