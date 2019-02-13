@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9847c915_e6e84b8e",
+        "filename": "src/svg/SkSVGCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-13T15:52:14Z",
+      "side": 1,
+      "message": "Ack.  As long as we don\u0027t expose on the other (public) Make factory, this is fine.",
+      "parentUuid": "4ee400e4_672d5b7c",
+      "range": {
+        "startLine": 13,
+        "startChar": 87,
+        "endLine": 13,
+        "endChar": 103
+      },
+      "revId": "81d70979f0464bf006692287ae045bbc4723e408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66b51b47_887681c6",
         "filename": "src/svg/SkSVGDevice.h",
         "patchSetId": 1
