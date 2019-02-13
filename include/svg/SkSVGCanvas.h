@@ -29,7 +29,7 @@ public:
     static std::unique_ptr<SkCanvas> Make(const SkRect& bounds, SkWStream*);
 
     // Internal only.
-    static std::unique_ptr<SkCanvas> Make(const SkRect& bounds, SkXMLWriter*);
+    static std::unique_ptr<SkCanvas> Make(const SkRect& bounds, SkXMLWriter*, bool ownsWriter=false);
 };
 
 #endif

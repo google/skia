@@ -15,7 +15,7 @@ class SkXMLWriter;
 
 class SkSVGDevice : public SkClipStackDevice {
 public:
-    static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer);
+    static SkBaseDevice* Create(const SkISize& size, SkXMLWriter* writer, bool ownsWriter=false);
 
 protected:
     void drawPaint(const SkPaint& paint) override;
@@ -42,7 +42,7 @@ protected:
                     const SkPaint&) override;
 
 private:
-    SkSVGDevice(const SkISize& size, SkXMLWriter* writer);
+    SkSVGDevice(const SkISize& size, SkXMLWriter* writer, bool ownsWriter=false);
     ~SkSVGDevice() override;
 
     struct MxCp;
@@ -52,6 +52,7 @@ private:
     class ResourceBucket;
 
     SkXMLWriter*                    fWriter;
+    bool                            fOwnsWriter;
     std::unique_ptr<AutoElement>    fRootElement;
     std::unique_ptr<ResourceBucket> fResourceBucket;
 
