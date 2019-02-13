@@ -34,7 +34,8 @@ private:
     enum class Flags {
         kNone = 0,
         kUseHWDerivatives = 1 << 0,
-        kHasLocalCoords = 1 << 1
+        kHasLocalCoords = 1 << 1,
+        kWideColor = 1 << 2
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
