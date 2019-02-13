@@ -449,6 +449,8 @@ private:
                        const SkFont& skFont,
                        const SkDescriptor& skCache);
 
+        void setupFont(const SkStrikeSpec& strikeSpec);
+
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;
         }
