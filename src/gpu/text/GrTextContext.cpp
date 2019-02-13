@@ -216,12 +216,6 @@ SkPaint GrTextContext::InitDistanceFieldPaint(const SkPaint& paint) {
     return dfPaint;
 }
 
-SkScalerContextFlags GrTextContext::InitDistanceFieldFlags() {
-    // We apply the fake-gamma by altering the distance in the shader, so we ignore the
-    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    return SkScalerContextFlags::kNone;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS

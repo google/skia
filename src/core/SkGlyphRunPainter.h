@@ -132,20 +132,25 @@ public:
     // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
     // and the position in fallback vectors. After all the glyphs are processed, pass the
     // fallback glyphIDs and positions to fallbackARGB.
-    template <typename ProcessPathsT, typename CreatorT>
+    template<typename ProcessPathsT, typename CreatorT,
+             typename ProcessDeviceT, typename ProcessSourceT>
     void drawGlyphRunAsPathWithARGBFallback(
             const SkPaint& runPaint, const SkFont& runFont, CreatorT&& strikeCreator,
             const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& viewMatrix,
-            ProcessPathsT&& processPaths, ARGBFallback&& fallbackARGB);
+            ProcessPathsT&& processPaths,
+            ProcessDeviceT&& processDevice, ProcessSourceT&& processSource);
 
 #if SK_SUPPORT_GPU
-    template <typename ProcessMasksT, typename ProcessPathsT, typename  CreatorT>
+    template <typename ProcessMasksT, typename ProcessPathsT, typename  CreatorT,
+              typename ProcessDeviceT, typename ProcessSourceT>
     void drawGlyphRunAsSDFWithARGBFallback(
             const SkPaint& runPaint, const SkFont& runFont, CreatorT&& strikeCreator,
-            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& matrix,
+            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& viewMatrix,
             const GrTextContext::Options& options,
-            ProcessMasksT&& processMasks, ProcessPathsT&& processPaths, ARGBFallback&& perFallback);
+            ProcessMasksT&& perSDF, ProcessPathsT&& perPath,
+            ProcessDeviceT&& processDevice, ProcessSourceT&& processSource);
 #endif
+
     // TODO: Make this the canonical check for Skia.
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
@@ -161,9 +166,15 @@ private:
     // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
 
-    void processARGBFallback(
-            SkScalar maxGlyphDimension, const SkPaint& fallbackPaint, const SkFont& fallbackFont,
-            const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
+    template<typename CreatorT, typename ProcessDeviceT, typename ProcessSourceT>
+    void processARGBFallback(SkScalar maxGlyphDimension,
+                             const SkPaint& runPaint,
+                             const SkFont& runFont,
+                             const SkMatrix& viewMatrix,
+                             SkScalar textScale,
+                             CreatorT&& creator,
+                             ProcessDeviceT&& processDevice,
+                             ProcessSourceT&& processSource);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
