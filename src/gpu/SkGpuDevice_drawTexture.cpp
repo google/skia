@@ -93,8 +93,7 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
  */
 static bool can_use_draw_texture(const SkPaint& paint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
-            paint.getBlendMode() == SkBlendMode::kSrcOver);
+            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality);
 }
 
 static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
@@ -127,6 +126,21 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         case kHigh_SkFilterQuality:
             SK_ABORT("Quality level not allowed.");
     }
+
+    // Must specify the strict constraint when the proxy is not functionally exact and the src
+    // rect would access pixels outside the proxy's content area without the constraint.
+    if (constraint != SkCanvas::kStrict_SrcRectConstraint &&
+        !GrProxyProvider::IsFunctionallyExact(proxy.get())) {
+        // Conservative estimate of how much a coord could be outset from src rect:
+        // 1/2 pixel for AA and 1/2 pixel for bilerp
+        float buffer = 0.5f * (aa == GrAA::kYes) +
+                       0.5f * (filter == GrSamplerState::Filter::kBilerp);
+        SkRect safeBounds = SkRect::MakeWH(proxy->width(), proxy->height());
+        safeBounds.inset(buffer, buffer);
+        if (!safeBounds.contains(srcRect)) {
+            constraint = SkCanvas::kStrict_SrcRectConstraint;
+        }
+    }
     SkPMColor4f color;
     if (GrPixelConfigIsAlphaOnly(proxy->config())) {
         color = SkColor4fPrepForDst(paint.getColor4f(), dstInfo, *rtc->caps()).premul();
@@ -135,8 +149,8 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         color = { paintAlpha, paintAlpha, paintAlpha, paintAlpha };
     }
     GrQuadAAFlags aaFlags = aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aaFlags, constraint,
-                     ctm, std::move(textureXform));
+    rtc->drawTexture(clip, std::move(proxy), filter, paint.getBlendMode(), color, srcRect, dstRect,
+                     aaFlags, constraint, ctm, std::move(textureXform));
 }
 
 //////////////////////////////////////////////////////////////////////////////
