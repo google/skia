@@ -160,7 +160,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = SkTMax(fSampleCount, 1);
 
-    const NSRect viewportRect = [fMainView bounds];
+    const NSRect viewportRect = [fRasterView bounds];
     fWidth = viewportRect.size.width;
     fHeight = viewportRect.size.height;
     glViewport(0, 0, fWidth, fHeight);

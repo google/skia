@@ -8,6 +8,7 @@
 
 #include "../GLWindowContext.h"
 #include "WindowContextFactory_mac.h"
+#include "Window_mac.h"
 #include "gl/GrGLInterface.h"
 
 #include <OpenGL/gl.h>
@@ -149,7 +150,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = SkTMax(fSampleCount, 1);
 
-    const NSRect viewportRect = [fMainView bounds];
+    const NSRect viewportRect = [fGLView bounds];
     fWidth = viewportRect.size.width;
     fHeight = viewportRect.size.height;
     glViewport(0, 0, fWidth, fHeight);
