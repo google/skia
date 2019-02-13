@@ -52,9 +52,6 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const skcms_TransferFunction& transfer
     } else if (is_almost_2dot2(transferFn)) {
         tf = &SkNamedTransferFn::k2Dot2.g;
     } else if (is_almost_linear(transferFn)) {
-        if (xyz_almost_equal(toXYZ, SkNamedGamut::kSRGB)) {
-            return SkColorSpace::MakeSRGBLinear();
-        }
         tf = &SkNamedTransferFn::kLinear.g;
     }
 
@@ -75,18 +72,12 @@ SkColorSpace* sk_srgb_singleton() {
     return cs;
 }
 
-SkColorSpace* sk_srgb_linear_singleton() {
-    static SkColorSpace* cs = SkColorSpaceSingletonFactory::Make(SkNamedTransferFn::kLinear,
-                                                                 SkNamedGamut::kSRGB);
-    return cs;
-}
-
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGB() {
     return sk_ref_sp(sk_srgb_singleton());
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
-    return sk_ref_sp(sk_srgb_linear_singleton());
+    return sk_srgb_singleton()->makeLinearGamma();
 }
 
 void SkColorSpace::computeLazyDstFields() const {
