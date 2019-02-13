@@ -8,6 +8,7 @@
 
 #include "../GLWindowContext.h"
 #include "WindowContextFactory_mac.h"
+#include "Window_mac.h"
 #include "gl/GrGLInterface.h"
 
 #include <OpenGL/gl.h>
@@ -31,7 +32,7 @@ public:
     void onDestroyContext() override;
 
 private:
-    NSView*              fMainView;
+    NSWindow*            fNSWindow;
     NSOpenGLView*        fGLView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
@@ -41,7 +42,7 @@ private:
 
 GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
     : INHERITED(params)
-    , fMainView(info.fMainView) {
+    , fNSWindow(info.fNSWindow) {
 
     // any config code here (particularly for msaa)?
 
@@ -53,7 +54,7 @@ GLWindowContext_mac::~GLWindowContext_mac() {
 }
 
 sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
-    SkASSERT(nil != fMainView);
+    SkASSERT(nil != fNSWindow);
 
     // set up pixel format
     constexpr int kMaxAttributes = 18;
@@ -98,7 +99,8 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     }
 
     // create view
-    NSRect rect = fMainView.bounds;
+    NSView* mainView = [fNSWindow contentView];
+    NSRect rect = [mainView bounds];
     fGLView = [[NSOpenGLView alloc] initWithFrame:rect];
     if (nil == fGLView) {
         [fGLContext release];
@@ -110,16 +112,16 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     [fGLView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     // attach OpenGL view to main view
-    [fMainView addSubview:fGLView];
+    [mainView addSubview:fGLView];
     NSDictionary *views = NSDictionaryOfVariableBindings(fGLView);
 
-    [fMainView addConstraints:
+    [mainView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[fGLView]|"
                                              options:0
                                              metrics:nil
                                                views:views]];
 
-    [fMainView addConstraints:
+    [mainView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[fGLView]|"
                                              options:0
                                              metrics:nil
@@ -149,7 +151,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = SkTMax(fSampleCount, 1);
 
-    const NSRect viewportRect = [fMainView bounds];
+    const NSRect viewportRect = [fGLView bounds];
     fWidth = viewportRect.size.width;
     fHeight = viewportRect.size.height;
     glViewport(0, 0, fWidth, fHeight);
