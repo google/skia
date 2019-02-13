@@ -86,7 +86,7 @@ uint8_t SkMasks::getAlpha(uint32_t pixel) const {
  * Process an input mask to obtain the necessary information
  *
  */
-const SkMasks::MaskInfo process_mask(uint32_t mask, uint32_t bpp) {
+static const SkMasks::MaskInfo process_mask(uint32_t mask) {
     // Determine properties of the mask
     uint32_t tempMask = mask;
     uint32_t shift = 0;
@@ -126,9 +126,11 @@ const SkMasks::MaskInfo process_mask(uint32_t mask, uint32_t bpp) {
  * Create the masks object
  *
  */
-SkMasks* SkMasks::CreateMasks(InputMasks masks, uint32_t bitsPerPixel) {
-    // Trim the input masks according to bitsPerPixel
-    if (bitsPerPixel < 32) {
+SkMasks* SkMasks::CreateMasks(InputMasks masks, int bytesPerPixel) {
+    SkASSERT(0 < bytesPerPixel && bytesPerPixel <= 4);
+    // Trim the input masks if
+    if (bytesPerPixel < 4) {
+        int bitsPerPixel = 8*bytesPerPixel;
         masks.red &= (1 << bitsPerPixel) - 1;
         masks.green &= (1 << bitsPerPixel) - 1;
         masks.blue &= (1 << bitsPerPixel) - 1;
@@ -143,10 +145,10 @@ SkMasks* SkMasks::CreateMasks(InputMasks masks, uint32_t bitsPerPixel) {
     }
 
     // Collect information about the masks
-    const MaskInfo red = process_mask(masks.red, bitsPerPixel);
-    const MaskInfo green = process_mask(masks.green, bitsPerPixel);
-    const MaskInfo blue = process_mask(masks.blue, bitsPerPixel);
-    const MaskInfo alpha = process_mask(masks.alpha, bitsPerPixel);
+    const MaskInfo red = process_mask(masks.red);
+    const MaskInfo green = process_mask(masks.green);
+    const MaskInfo blue = process_mask(masks.blue);
+    const MaskInfo alpha = process_mask(masks.alpha);
 
     return new SkMasks(red, green, blue, alpha);
 }
