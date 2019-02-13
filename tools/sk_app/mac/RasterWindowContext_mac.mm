@@ -40,7 +40,7 @@ public:
     void onDestroyContext() override;
 
 private:
-    NSView*              fMainView;
+    NSWindow*            fNSWindow;
     NSOpenGLView*        fRasterView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
@@ -52,7 +52,7 @@ private:
 RasterWindowContext_mac::RasterWindowContext_mac(const MacWindowInfo& info,
                                                  const DisplayParams& params)
     : INHERITED(params)
-    , fMainView(info.fMainView) {
+    , fNSWindow(info.fNSWindow) {
 
     // any config code here (particularly for msaa)?
 
@@ -64,7 +64,7 @@ RasterWindowContext_mac::~RasterWindowContext_mac() {
 }
 
 sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
-    SkASSERT(nil != fMainView);
+    SkASSERT(nil != fNSWindow);
 
     // set up pixel format
     constexpr int kMaxAttributes = 18;
@@ -109,7 +109,8 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     }
 
     // create view
-    NSRect rect = fMainView.bounds;
+    NSView* mainView = [fNSWindow contentView];
+    NSRect rect = [mainView bounds];
     fRasterView = [[NSOpenGLView alloc] initWithFrame:rect];
     if (nil == fRasterView) {
         [fGLContext release];
@@ -121,16 +122,16 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     [fRasterView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     // attach OpenGL view to main view
-    [fMainView addSubview:fRasterView];
+    [mainView addSubview:fRasterView];
     NSDictionary *views = NSDictionaryOfVariableBindings(fRasterView);
 
-    [fMainView addConstraints:
+    [mainView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[fRasterView]|"
                                              options:0
                                              metrics:nil
                                                views:views]];
 
-    [fMainView addConstraints:
+    [mainView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[fRasterView]|"
                                              options:0
                                              metrics:nil
@@ -160,7 +161,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = SkTMax(fSampleCount, 1);
 
-    const NSRect viewportRect = [fMainView bounds];
+    const NSRect viewportRect = [fRasterView bounds];
     fWidth = viewportRect.size.width;
     fHeight = viewportRect.size.height;
     glViewport(0, 0, fWidth, fHeight);

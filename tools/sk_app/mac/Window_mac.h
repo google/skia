@@ -9,6 +9,7 @@
 #define Window_mac_DEFINED
 
 #include "../Window.h"
+#include "SkTDynamicHash.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -16,8 +17,6 @@ namespace sk_app {
 
 class Window_mac : public Window {
 public:
-    static SkTDArray<Window_mac*> gActiveWindows;
-
     Window_mac()
             : INHERITED()
             , fWindow(nil)
@@ -34,14 +33,31 @@ public:
     bool attach(BackendType) override;
 
     void onInval() override {}
+
+    static void PaintWindows();
+    static void HandleWindowEvent(const NSEvent* event);
+
+    static const NSInteger& GetKey(const Window_mac& w) {
+        return w.fWindowNumber;
+    }
+
+    static uint32_t Hash(const NSInteger& windowNumber) {
+        return windowNumber;
+    }
+
     bool needsPaint() { return this->fIsContentInvalidated; }
 
-    NSView* view() { return [fWindow contentView]; }
+    NSWindow* window() { return fWindow; }
     void closeWindow();
 
 private:
+    void handleEvent(const NSEvent* event);
+
     NSWindow*    fWindow;
+    NSInteger    fWindowNumber;
     int          fMSAASampleCount;
+
+    static SkTDynamicHash<Window_mac, NSInteger> gWindowMap;
 
     typedef Window INHERITED;
 };
