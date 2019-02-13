@@ -25,9 +25,9 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fDrawingMgr->makeRenderTargetContext(std::move(proxy),
-                                             std::move(colorSpace),
-                                             props, false));
+        fContext->priv().drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                                          std::move(colorSpace),
+                                                                          props, false));
 
     if (!renderTargetContext) {
         return nullptr;
@@ -40,29 +40,29 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
 bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
                                                        GrTextureProxy* proxy) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     return proxyProvider->assignUniqueKeyToProxy(key, proxy);
 }
 
 void GrOnFlushResourceProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     proxyProvider->removeUniqueKeyFromProxy(proxy);
 }
 
 void GrOnFlushResourceProvider::processInvalidUniqueKey(const GrUniqueKey& key) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     proxyProvider->processInvalidUniqueKey(key, nullptr,
                                            GrProxyProvider::InvalidateGPUResource::kYes);
 }
 
 sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
         const GrUniqueKey& key, GrSurfaceOrigin origin) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     return proxyProvider->findOrCreateProxyByUniqueKey(key, origin);
 }
 
-bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
-    auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
+bool GrOnFlushResourceProvider::instantiateProxy(GrSurfaceProxy* proxy) {
+    auto resourceProvider = fContext->priv().resourceProvider();
 
     if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
         // DDL TODO: Decide if we ever plan to have these proxies use the GrDeinstantiateTracker
@@ -75,14 +75,14 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
 
 sk_sp<GrGpuBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,
                                                          const void* data) {
-    auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
+    auto resourceProvider = fContext->priv().resourceProvider();
     return sk_sp<GrGpuBuffer>(
             resourceProvider->createBuffer(size, intendedType, kDynamic_GrAccessPattern, data));
 }
 
 sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
         GrGpuBufferType intendedType, size_t size, const void* data, const GrUniqueKey& key) {
-    auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
+    auto resourceProvider = fContext->priv().resourceProvider();
     sk_sp<const GrGpuBuffer> buffer =
             resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
     // Static buffers should never have pending IO.
@@ -91,9 +91,9 @@ sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
 }
 
 uint32_t GrOnFlushResourceProvider::contextID() const {
-    return fDrawingMgr->getContext()->priv().contextID();
+    return fContext->priv().contextID();
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {
-    return fDrawingMgr->getContext()->priv().caps();
+    return fContext->priv().caps();
 }

@@ -41,7 +41,7 @@ class PolyBoundsOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkRect& rect) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();

@@ -91,7 +91,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     return true;
 }
 
-sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
+sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrRecordingContext* context, SkBackingFit fit) {
     SkImageInfo ii = SkImageInfo::MakeA8(fPixels->width(), fPixels->height());
     size_t rowBytes = fPixels->rowBytes();
 
@@ -108,7 +108,7 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBacki
     // TODO: http://skbug.com/8422: Although this fixes http://skbug.com/8351, it seems like these
     // should just participate in the normal allocation process and not need the pending IO flag.
     auto surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (!context->priv().resourceProvider()) {
+    if (!context->priv().asDirectContext()) {
         // In DDL mode, this texture proxy will be instantiated at flush time, therfore it cannot
         // have pending IO.
         surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
