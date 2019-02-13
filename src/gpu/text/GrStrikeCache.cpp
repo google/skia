@@ -17,7 +17,7 @@
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
         , f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
-                    GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8)) { }
+                    GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
 
 GrStrikeCache::~GrStrikeCache() {
     StrikeHash::Iter iter(&fCache);
