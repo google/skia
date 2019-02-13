@@ -708,7 +708,7 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
             SkExclusiveStrikePtr fallbackCache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     fallbackFont, fallbackPaint, fProps, fScalerContextFlags, glyphCacheMatrix);
             sk_sp<GrTextStrike> strike = fGrStrikeCache->getStrike(fallbackCache->getDescriptor());
-            fRun->setupFont(fallbackPaint, fallbackFont, fallbackCache->getDescriptor());
+            fRun->setupFont(fallbackCache->strikeSpec());
 
             SkASSERT(strike != nullptr);
             subRun->setStrike(strike);
@@ -770,10 +770,10 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                     hasWCoord);
 
             {
-                SkExclusiveStrikePtr cache =SkStrikeCache::FindOrCreateStrikeExclusive(
+                SkExclusiveStrikePtr cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                         distanceFieldFont, distanceFieldPaint, props, flags, SkMatrix::I());
                 sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache->getDescriptor());
-                run->setupFont(distanceFieldPaint, distanceFieldFont, cache->getDescriptor());
+                run->setupFont(cache->strikeSpec());
 
                 auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
@@ -846,10 +846,10 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
             auto processEmpties = [](SkSpan<const SkGlyph*>glyphs) {};
 
             auto processMasks =
-                [run, glyphCache, &runFont, &runPaint]
+                [run, glyphCache]
                 (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
                         SkStrikeInterface* strike) {
-                    run->setupFont(runPaint, runFont, strike->getDescriptor());
+                    run->setupFont(strike->strikeSpec());
                     sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(strike->getDescriptor());
                     for (const auto& mask : masks) {
                         SkPoint pt{SkScalarFloorToScalar(mask.position.fX),
