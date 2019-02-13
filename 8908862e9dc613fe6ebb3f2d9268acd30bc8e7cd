@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55b5cfbc_880ac786",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-13T19:35:52Z",
+      "side": 1,
+      "message": "Why does this become part of the requirement for needing to draw the image?",
+      "range": {
+        "startLine": 156,
+        "startChar": 12,
+        "endLine": 156,
+        "endChar": 19
+      },
+      "revId": "8908862e9dc613fe6ebb3f2d9268acd30bc8e7cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
