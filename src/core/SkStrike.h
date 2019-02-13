@@ -129,6 +129,12 @@ public:
 
     const SkDescriptor& getDescriptor() const override;
 
+    SkStrikeSpec strikeSpec() const override {
+        return SkStrikeSpec{this->getDescriptor(),
+                            *this->getScalerContext()->getTypeface(),
+                            this->getScalerContext()->getEffects()};
+    }
+
     void onAboutToExitScope() override;
 
     /** Return the approx RAM usage for this cache. */

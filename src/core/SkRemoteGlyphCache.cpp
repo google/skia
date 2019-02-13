@@ -366,8 +366,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
 
     // Create a new cache state and insert it into the map.
     auto newHandle = fDiscardableHandleManager->createHandle();
-    auto cacheState = skstd::make_unique<SkGlyphCacheState>(
-            desc, std::move(context), newHandle);
+    auto cacheState = skstd::make_unique<SkGlyphCacheState>(desc, std::move(context), newHandle);
 
     auto* cacheStatePtr = cacheState.get();
 
