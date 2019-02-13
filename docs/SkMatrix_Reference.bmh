@@ -83,14 +83,13 @@ for (int i = 0; i < 4; ++i) {
 
 #Example
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
+    SkFont font(nullptr, 64);
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
             SkMatrix m = SkMatrix::MakeAll(sx, 1, 128,    0, sy, 128,   0, 0, 1);
             canvas->concat(m);
-            canvas->drawString("K", 0, 0, p);
+            canvas->drawString("K", 0, 0, font, p);
         }
     }
 ##
@@ -338,9 +337,8 @@ SkString string;
 string.printf("hasPerspective %s", matrix.hasPerspective() ? "true" : "false");
 canvas->drawBitmap(source, 0, 0);
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(48);
-canvas->drawString(string, 0, source.bounds().height() + 48, paint);
+SkFont font(nullptr, 48);
+canvas->drawString(string, 0, source.bounds().height() + 48, font, paint);
 ##
 
 #SeeAlso setAll set9 MakeAll
@@ -467,8 +465,7 @@ each value in Matrix.
 
 #Example
 SkPaint black;
-black.setAntiAlias(true);
-black.setTextSize(48);
+SkFont font(nullptr, 48);
 SkPaint gray = black;
 gray.setColor(0xFF9f9f9f);
 SkScalar offset[] = { 1.5f, 1.5f, 20,   1.5f, 1.5f, 20,   .03f, .01f, 2 };
@@ -480,9 +477,9 @@ for (int i : { SkMatrix::kMScaleX, SkMatrix::kMSkewX,  SkMatrix::kMTransX,
     m.set(i, offset[i]);
     SkAutoCanvasRestore autoRestore(canvas, true);
     canvas->translate(22 + (i % 3) * 88, 44 + (i / 3) * 88);
-    canvas->drawString("&", 0, 0, gray);
+    canvas->drawString("&", 0, 0, font, gray);
     canvas->concat(m);
-    canvas->drawString("&", 0, 0, black);
+    canvas->drawString("&", 0, 0, font, black);
 }
 ##
 
@@ -710,15 +707,14 @@ matrix.getTranslateY() == 24
     SkAutoCanvasRestore autoRestore(canvas, true);
     canvas->translate(22, 144);
     SkPaint black;
-    black.setAntiAlias(true);
-    black.setTextSize(24);
+    SkFont font(nullptr, 24);
     SkPaint gray = black;
     gray.setColor(0xFF9f9f9f);
     SkString string;
     string.appendScalar(m.getPerspX());
-    canvas->drawString(string, 0, -72, gray);
+    canvas->drawString(string, 0, -72, font, gray);
     canvas->concat(m);
-    canvas->drawString(string, 0, 0, black);
+    canvas->drawString(string, 0, 0, font, black);
 ##
 
 #SeeAlso kMPersp0 getPerspY
@@ -739,15 +735,14 @@ matrix.getTranslateY() == 24
     SkAutoCanvasRestore autoRestore(canvas, true);
     canvas->translate(22, 144);
     SkPaint black;
-    black.setAntiAlias(true);
-    black.setTextSize(24);
-    SkPaint gray = black;
+    SkFont font(nullptr, 24);
+    SkPaint gray;
     gray.setColor(0xFF9f9f9f);
     SkString string;
     string.appendScalar(m.getPerspY());
-    canvas->drawString(string, 0, -72, gray);
+    canvas->drawString(string, 0, -72, font, gray);
     canvas->concat(m);
-    canvas->drawString(string, 0, 0, black);
+    canvas->drawString(string, 0, 0, font, black);
 ##
 
 #SeeAlso kMPersp1 getPerspX
@@ -823,14 +818,13 @@ after 2nd skew x mod: x = 66
 #Example
 #Height 64
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 12, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 12, 24, font, paint);
 SkMatrix matrix;
 matrix.setIdentity();
 matrix.setScaleX(3);
 canvas->concat(matrix);
-canvas->drawString("x scale", 0, 48, paint);
+canvas->drawString("x scale", 0, 48, font, paint);
 ##
 
 #SeeAlso set setScale setScaleY
@@ -847,14 +841,13 @@ canvas->drawString("x scale", 0, 48, paint);
 #Example
 #Height 192
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 12, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 12, 24, font, paint);
 SkMatrix matrix;
 matrix.setIdentity();
 matrix.setScaleY(3);
 canvas->concat(matrix);
-canvas->drawString("y scale", 12, 48, paint);
+canvas->drawString("y scale", 12, 48, font, paint);
 ##
 
 #SeeAlso set setScale setScaleX
@@ -871,14 +864,13 @@ canvas->drawString("y scale", 12, 48, paint);
 #Example
 #Height 96
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 12, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 12, 24, font, paint);
 SkMatrix matrix;
 matrix.setIdentity();
 matrix.setSkewY(.3f);
 canvas->concat(matrix);
-canvas->drawString("y skew", 12, 48, paint);
+canvas->drawString("y skew", 12, 48, font, paint);
 ##
 
 #SeeAlso set setSkew setSkewX
@@ -895,14 +887,13 @@ canvas->drawString("y skew", 12, 48, paint);
 #Example
 #Height 64
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 12, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 12, 24, font, paint);
 SkMatrix matrix;
 matrix.setIdentity();
 matrix.setSkewX(-.7f);
 canvas->concat(matrix);
-canvas->drawString("x skew", 36, 48, paint);
+canvas->drawString("x skew", 36, 48, font, paint);
 ##
 
 #SeeAlso set setSkew setSkewX
@@ -919,14 +910,13 @@ canvas->drawString("x skew", 36, 48, paint);
 #Example
 #Height 48
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 8, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 8, 24, font, paint);
 SkMatrix matrix;
 matrix.setIdentity();
 matrix.setTranslateX(96);
 canvas->concat(matrix);
-canvas->drawString("x translate", 8, 24, paint);
+canvas->drawString("x translate", 8, 24, font, paint);
 ##
 
 #SeeAlso set setTranslate setTranslateY
@@ -943,14 +933,13 @@ canvas->drawString("x translate", 8, 24, paint);
 #Example
 #Height 64
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 8, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 8, 24, font, paint);
 SkMatrix matrix;
 matrix.setIdentity();
 matrix.setTranslateY(24);
 canvas->concat(matrix);
-canvas->drawString("y translate", 8, 24, paint);
+canvas->drawString("y translate", 8, 24, font, paint);
 ##
 
 #SeeAlso set setTranslate setTranslateX
@@ -1019,15 +1008,14 @@ for (SkScalar perspX : { -.003f, 0.f, .003f, .012f } ) {
 #Example
 #Height 128
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
+    SkFont font(nullptr, 64);
     SkMatrix m;
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
             m.setAll(sx, 1, 128,    0, sy, 64,   0, 0, 1);
             canvas->concat(m);
-            canvas->drawString("K", 0, 0, p);
+            canvas->drawString("K", 0, 0, font, p);
         }
     }
 ##
@@ -1135,13 +1123,12 @@ m.isIdentity(): true
 #Example
 #Height 64
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 8, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 8, 24, font, paint);
 SkMatrix matrix;
 matrix.setTranslate(96, 24);
 canvas->concat(matrix);
-canvas->drawString("translate", 8, 24, paint);
+canvas->drawString("translate", 8, 24, font, paint);
 ##
 
 #SeeAlso setTranslateX setTranslateY
@@ -1156,13 +1143,12 @@ canvas->drawString("translate", 8, 24, paint);
 #Example
 #Height 64
 SkPaint paint;
-paint.setAntiAlias(true);
-paint.setTextSize(24);
-canvas->drawString("normal", 8, 24, paint);
+SkFont font(nullptr, 24);
+canvas->drawString("normal", 8, 24, font, paint);
 SkMatrix matrix;
 matrix.setTranslate({96, 24});
 canvas->concat(matrix);
-canvas->drawString("translate", 8, 24, paint);
+canvas->drawString("translate", 8, 24, font, paint);
 ##
 
 #SeeAlso setTranslateX setTranslateY MakeTrans
@@ -1180,15 +1166,14 @@ canvas->drawString("translate", 8, 24, paint);
 #Example
 #Height 128
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
+    SkFont font(nullptr, 64);
     SkMatrix m;
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
             m.setScale(sx, sy, 128, 64);
             canvas->concat(m);
-            canvas->drawString("%", 128, 64, p);
+            canvas->drawString("%", 128, 64, font, p);
         }
     }
 ##
@@ -1205,8 +1190,7 @@ canvas->drawString("translate", 8, 24, paint);
 #Example
 #Height 128
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
+    SkFont font(nullptr, 64);
     SkMatrix m;
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
@@ -1214,7 +1198,7 @@ canvas->drawString("translate", 8, 24, paint);
             m.setScale(sx, sy);
             m.postTranslate(128, 64);
             canvas->concat(m);
-            canvas->drawString("@", 0, 0, p);
+            canvas->drawString("@", 0, 0, font, p);
         }
     }
 ##
@@ -1369,15 +1353,14 @@ Canvas needs offset after applying Matrix to pivot about Rect center.
 
 #Example
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(48);
+    SkFont font(nullptr, 48);
     SkMatrix m;
     for (SkScalar sx : { -1, 0, 1 } ) {
         for (SkScalar sy : { -1, 0, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
             m.setSkew(sx, sy, 96 + 64 * sx, 128 + 48 * sy);
             canvas->concat(m);
-            canvas->drawString("K", 96 + 64 * sx, 128 + 48 * sy, p);
+            canvas->drawString("K", 96 + 64 * sx, 128 + 48 * sy, font, p);
         }
     }
 ##
@@ -1393,8 +1376,7 @@ Canvas needs offset after applying Matrix to pivot about Rect center.
 
 #Example
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(48);
+    SkFont font(nullptr, 48);
     SkMatrix m;
     for (SkScalar sx : { -1, 0, 1 } ) {
         for (SkScalar sy : { -1, 0, 1 } ) {
@@ -1402,7 +1384,7 @@ Canvas needs offset after applying Matrix to pivot about Rect center.
             m.setSkew(sx, sy);
             m.postTranslate(96 + 64 * sx, 128 + 48 * sy);
             canvas->concat(m);
-            canvas->drawString("K", 0, 0, p);
+            canvas->drawString("K", 0, 0, font, p);
         }
     }
 ##
@@ -2038,7 +2020,7 @@ src: 1, 2, 3, 4  dst: 5, 6, 8, 9
     const SkPoint dst[] = { {50, 0}, {80, -10}, {90, -30}, {60, -40} };
     SkPaint blackPaint;
     blackPaint.setAntiAlias(true);
-    blackPaint.setTextSize(42);
+    SkFont font(nullptr, 42);
     SkPaint redPaint = blackPaint;
     redPaint.setColor(SK_ColorRED);
     for (int count : { 1, 2, 3, 4 } ) {
@@ -2047,16 +2029,16 @@ src: 1, 2, 3, 4  dst: 5, 6, 8, 9
             canvas->drawCircle(src[index], 3, blackPaint);
             canvas->drawCircle(dst[index], 3, blackPaint);
             if (index > 0) {
-                canvas->drawLine(src[index], src[index - 1], blackPaint);
-                canvas->drawLine(dst[index], dst[index - 1], blackPaint);
+                canvas->drawLine(src[index], src[index - 1], font, blackPaint);
+                canvas->drawLine(dst[index], dst[index - 1], font, blackPaint);
             }
         }
         SkMatrix matrix;
         matrix.setPolyToPoly(src, dst, count);
-        canvas->drawString("A", src[0].fX, src[0].fY, redPaint);
+        canvas->drawString("A", src[0].fX, src[0].fY, font, redPaint);
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(matrix);
-        canvas->drawString("A", src[0].fX, src[0].fY, redPaint);
+        canvas->drawString("A", src[0].fX, src[0].fY, font, redPaint);
     }
 ##
 
@@ -2385,8 +2367,7 @@ canvas->drawBitmap(source, 0, 0);
 #Example
     SkPaint paint;
     paint.setColor(SK_ColorGREEN);
-    paint.setAntiAlias(true);
-    paint.setTextSize(48);
+    SkFont font(nullptr, 48);
     SkMatrix matrix;
     matrix.setRotate(90);
     SkVector offset = { 7, 7 };
@@ -2395,7 +2376,7 @@ canvas->drawBitmap(source, 0, 0);
               SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr));
         matrix.mapVector(offset.fX, offset.fY, &offset);
         canvas->translate(0, 60);
-        canvas->drawString("Text", 50, 0, paint);
+        canvas->drawString("Text", 50, 0, font, paint);
     }
 ##
 
@@ -2411,8 +2392,7 @@ canvas->drawBitmap(source, 0, 0);
 #Example
     SkPaint paint;
     paint.setColor(SK_ColorGREEN);
-    paint.setAntiAlias(true);
-    paint.setTextSize(48);
+    SkFont font(nullptr, 48);
     SkMatrix matrix;
     matrix.setRotate(90);
     SkVector offset = { 7, 7 };
@@ -2421,7 +2401,7 @@ canvas->drawBitmap(source, 0, 0);
               SK_ColorBLUE, SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr));
         offset = matrix.mapVector(offset.fX, offset.fY);
         canvas->translate(0, 60);
-        canvas->drawString("Text", 50, 0, paint);
+        canvas->drawString("Text", 50, 0, font, paint);
     }
 ##
 

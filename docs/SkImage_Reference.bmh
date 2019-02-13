@@ -253,26 +253,6 @@ for (int quality : { 100, 50, 10, 1} ) {
 
 # ------------------------------------------------------------------------------
 
-#Enum CompressionType
-#Line # option for MakeFromCompressed ##
-#Code
-#Populate
-##
-
-Used to inform MakeFromCompressed which compression method was used on the
-input data.
-
-#Const kETC1_CompressionType 0
-#Line # compressed data uses ETC1 compression ##
-##
-
-#NoExample
-##
-
-#SeeAlso MakeFromCompressed
-
-#Enum ##
-
 #Method static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data, int width, int height, CompressionType type)
 #In Constructors
 #Line # creates a GPU-backed Image from compressed data ##
@@ -1723,8 +1703,8 @@ void draw(SkCanvas* canvas) {
     canvas->scale(8, 8);
     canvas->drawImage(image, 0, 0, nullptr);
     SkPaint paint;
-    paint.setTextSize(4);
-    canvas->drawString(lazy, 2, 5, paint);
+    SkFont font(nullptr, 4);
+    canvas->drawString(lazy, 2, 5, font, paint);
 }
 ##
 

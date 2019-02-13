@@ -882,9 +882,7 @@ kRGBA_8888_SkColorType.
     const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
-    paint.setAntiAlias(true);
-    paint.setTextSize(10);
+    SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
     int y = 15;
     canvas->drawString("    colorType  bytes", 10, y, paint);
     for (SkColorType colorType : { #list_of_color_types#
@@ -892,7 +890,7 @@ kRGBA_8888_SkColorType.
         int result = SkColorTypeBytesPerPixel(colorType);
         SkString string;
         string.printf("%13s %4d", colors[(int) colorType], result);
-        canvas->drawString(string, 10, y += 14, paint);
+        canvas->drawString(string, 10, y += 14, font, paint);
     }
 ##
 #SeeAlso SkImageInfo::bytesPerPixel
@@ -910,9 +908,7 @@ kRGBA_8888_SkColorType.
     const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16" };
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
-    paint.setAntiAlias(true);
-    paint.setTextSize(10);
+    SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
     int y = 15;
     canvas->drawString("    colorType  bytes", 10, y, paint);
     for (SkColorType colorType : { #list_of_color_types#
@@ -920,7 +916,7 @@ kRGBA_8888_SkColorType.
         bool result = SkColorTypeIsAlwaysOpaque(colorType);
         SkString string;
         string.printf("%13s %6s", colors[(int) colorType], result ? "true" : "false");
-        canvas->drawString(string, 10, y += 14, paint);
+        canvas->drawString(string, 10, y += 14, font, paint);
     }
 ##
 #SeeAlso SkColorTypeValidateAlphaType
@@ -942,9 +938,7 @@ kRGBA_8888_SkColorType.
     SkAlphaType alphaTypes[] = { #list_of_alpha_types#
                                };
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
-    paint.setAntiAlias(true);
-    paint.setTextSize(10);
+    SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
     int y = 15;
     canvas->drawString("   colorType   alphaType  canonical", 10, y, paint);
     for (SkColorType colorType : { #list_of_color_types#
@@ -1173,9 +1167,8 @@ middle gradient.
     SkCanvas offscreen(bitmap);
     offscreen.clear(SK_ColorWHITE);
     SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setTextSize(15);
-    offscreen.drawString("\xF0\x9F\x98\xB8", 1, 15, paint);
+    SkFont font(nullptr, 15);
+    offscreen.drawString("\xF0\x9F\x98\xB8", 1, 15, font, paint);
     canvas->scale(6, 6);
     canvas->drawBitmap(bitmap, 0, 0);
 ##
@@ -1198,9 +1191,8 @@ middle gradient.
     SkCanvas offscreen(bitmap);
     offscreen.clear(SK_ColorWHITE);
     SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setTextSize(15);
-    offscreen.drawString("\xF0\x9F\x98\xB9", 1, 15, paint);
+    SkFont font(nullptr, 15);
+    offscreen.drawString("\xF0\x9F\x98\xB9", 1, 15, font, paint);
     canvas->scale(6, 6);
     canvas->drawBitmap(bitmap, 0, 0);
 ##

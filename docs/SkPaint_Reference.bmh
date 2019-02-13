@@ -1913,12 +1913,11 @@ implementation.
     void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setTypeface(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
-        paint.setAntiAlias(true);
-        paint.setTextSize(36);
-        canvas->drawString("A Big Hello!", 10, 40, paint);
+        SkFont font(nullptr, 36);
+        canvas->drawString("A Big Hello!", 10, 40, font, paint);
         paint.setTypeface(nullptr);
         paint.setFakeBoldText(true);
-        canvas->drawString("A Big Hello!", 10, 80, paint);
+        canvas->drawString("A Big Hello!", 10, 80, font, paint);
     }
 ##
 
@@ -2024,9 +2023,9 @@ Mask_Filter.
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(SK_ColorWHITE);
-        paint.setTextSize(96);
+        SkFont font(nullptr, 96);
         offscreen.clear(0);
-        offscreen.drawString("e", 20, 70, paint);
+        offscreen.drawString("e", 20, 70, font, paint);
         paint.setImageFilter(
                SkLightingImageFilter::MakePointLitDiffuse(SkPoint3::Make(80, 100, 10),
                SK_ColorWHITE, 1, 2, nullptr, nullptr));
@@ -2148,10 +2147,11 @@ Set SkPaintDefaults_TextSize at compile time to change the default setting.
 #Height 135
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        canvas->drawString("12 point", 10, 20, paint);
-        paint.setTextSize(24);
-        canvas->drawString("24 point", 10, 60, paint);
-        paint.setTextSize(48);
+        SkFont font;
+        canvas->drawString("12 point", 10, 20, font, paint);
+        font.setSize(24);
+        canvas->drawString("24 point", 10, 60, font, paint);
+        font.setSize(48);
         canvas->drawString("48 point", 10, 120, paint);
     }
 ##
@@ -2171,14 +2171,13 @@ Text_Scale_X defaults to 1.
 #Height 128
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(24);
-        paint.setTextScaleX(.8f);
-        canvas->drawString("narrow", 10, 20, paint);
-        paint.setTextScaleX(1);
-        canvas->drawString("normal", 10, 60, paint);
-        paint.setTextScaleX(1.2f);
-        canvas->drawString("wide", 10, 100, paint);
+        SkFont font(nullptr, 24);
+        font.setScaleX(.8f);
+        canvas->drawString("narrow", 10, 20, font, paint);
+        font.setScaleX(1);
+        canvas->drawString("normal", 10, 60, font, paint);
+        font.setScaleX(1.2f);
+        canvas->drawString("wide", 10, 100, font, paint);
     }
 ##
 
@@ -2198,14 +2197,13 @@ Text_Skew_X defaults to 0.
 #Height 128
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(24);
-        paint.setTextSkewX(-.25f);
-        canvas->drawString("right-leaning", 10, 100, paint);
-        paint.setTextSkewX(0);
-        canvas->drawString("normal", 10, 60, paint);
-        paint.setTextSkewX(.25f);
-        canvas->drawString("left-leaning", 10, 20, paint);
+        SkFont font(nullptr, 24);
+        font.setSkewX(-.25f);
+        canvas->drawString("right-leaning", 10, 100, font, paint);
+        font.setSkewX(0);
+        canvas->drawString("normal", 10, 60, font, paint);
+        font.setSkewX(.25f);
+        canvas->drawString("left-leaning", 10, 20, font, paint);
     }
 ##
 
@@ -2228,18 +2226,14 @@ void draw(SkCanvas* canvas) {
     const char hello8[] = "Hello" "\xE2" "\x98" "\xBA";
     const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };
     const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };
-    paint.setTextSize(24);
-    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);
-    paint.setTextEncoding(SkTextEncoding::kUTF16);
-    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);
-    paint.setTextEncoding(SkTextEncoding::kUTF32);
-    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);
+    SkFont font(nullptr, 24);
+    canvas->drawSimpleText(hello8, sizeof(hello8) - 1, SkTextEncoding::kUTF8, 10, 30, font, paint);
+    canvas->drawSimpleText(hello16, sizeof(hello16), SkTextEncoding::kUTF16, 10, 60, font, paint);
+    canvas->drawSimpleText(hello32, sizeof(hello32), SkTextEncoding::kUTF32, 10, 90, font, paint);
     uint16_t glyphs[SK_ARRAY_COUNT(hello32)];
-    SkFont font;
     font.textToGlyphs(hello32, sizeof(hello32), SkTextEncoding::kUTF32,
             glyphs, SK_ARRAY_COUNT(hello32));
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
-    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);
+    canvas->drawSimpleText(glyphs, sizeof(glyphs), kGlyphID_SkTextEncoding, 10, 120, font, paint);
 }
 ##
 

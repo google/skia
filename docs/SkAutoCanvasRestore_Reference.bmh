@@ -18,14 +18,13 @@ state.
 #Example
 #Height 128
     SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
+    SkFont font(nullptr, 64);
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
             SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);
             canvas->concat(m);
-            canvas->drawString("R", 0, 0, p);
+            canvas->drawString("R", 0, 0, font, p);
         }
     }
 ##
