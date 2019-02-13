@@ -7,6 +7,7 @@ import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
+import("modules/skshaper/skshaper_args.gni")
 
 if (is_fuchsia) {
   import("//build/vulkan/config.gni")
@@ -1565,6 +1566,10 @@ if (skia_enable_tools) {
     public_deps = [
       ":gpu_tool_utils",
     ]
+    if (skia_enable_skshaper) {
+      deps += [ "modules/skshaper" ]
+      defines = [ "SK_USING_SKSHAPER" ]
+    }
   }
 
   import("gn/tests.gni")
