@@ -265,6 +265,20 @@ static void test_empty_contours(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !fact.next());
 }
 
+static void test_MLM_contours(skiatest::Reporter* reporter) {
+    SkPath path;
+
+    // This odd sequence (with a trailing moveTo) used to return a 2nd contour, which is
+    // wrong, since the contract for a measure is to only return non-zero length contours.
+    path.moveTo(10, 10).lineTo(20, 20).moveTo(30, 30);
+
+    for (bool forceClosed : {false, true}) {
+        SkContourMeasureIter fact(path, forceClosed);
+        REPORTER_ASSERT(reporter, fact.next());
+        REPORTER_ASSERT(reporter, !fact.next());
+    }
+}
+
 DEF_TEST(contour_measure, reporter) {
     SkPath path;
     path.addCircle(0, 0, 100);
@@ -290,4 +304,5 @@ DEF_TEST(contour_measure, reporter) {
     REPORTER_ASSERT(reporter, !cm2);
 
     test_empty_contours(reporter);
+    test_MLM_contours(reporter);
 }
