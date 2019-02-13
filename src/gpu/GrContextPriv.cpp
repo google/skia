@@ -282,6 +282,7 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig:          return true;
         case kRGBA_8888_GrPixelConfig:          return true;
         case kRGB_888_GrPixelConfig:            return false;
+        case kRGB_888X_GrPixelConfig:           return false;
         case kRG_88_GrPixelConfig:              return false;
         case kBGRA_8888_GrPixelConfig:          return true;
         case kSRGBA_8888_GrPixelConfig:         return true;
@@ -447,10 +448,16 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     }
     convert = convert || !SkColorSpace::Equals(dstColorSpace, src->colorSpaceInfo().colorSpace());
 
+    // Always convert for RGB_888X pixel config so that we fill in 1 for the alpha values.
+    convert = convert || (srcProxy->config() == kRGB_888X_GrPixelConfig);
+
     SkAutoPixmapStorage tempPixmap;
     SkPixmap finalPixmap;
     if (convert) {
         SkColorType srcSkColorType = GrColorTypeToSkColorType(allowedColorType);
+        if (srcProxy->config() == kRGB_888X_GrPixelConfig) {
+            srcSkColorType = kRGB_888x_SkColorType;
+        }
         SkColorType dstSkColorType = GrColorTypeToSkColorType(dstColorType);
         bool srcAlwaysOpaque = SkColorTypeIsAlwaysOpaque(srcSkColorType);
         bool dstAlwaysOpaque = SkColorTypeIsAlwaysOpaque(dstSkColorType);

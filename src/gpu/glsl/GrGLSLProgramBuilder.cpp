@@ -282,7 +282,7 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrTe
 void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
     // Swizzle the fragment shader outputs if necessary.
     GrSwizzle swizzle;
-    swizzle.setFromKey(this->desc()->header().fOutputSwizzle);
+    swizzle.setFromOutputSwizzleKey(this->desc()->header().fOutputSwizzle);
     if (swizzle != GrSwizzle::RGBA()) {
         fFS.codeAppendf("%s = %s.%s;", fFS.getPrimaryColorOutputName(),
                         fFS.getPrimaryColorOutputName(),

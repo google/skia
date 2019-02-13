@@ -304,6 +304,8 @@ void GrMtlCaps::initShaderCaps() {
         } else {
             if (kGray_8_GrPixelConfig == config) {
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRA();
+            } else if (kRGB_888X_GrPixelConfig == config) {
+                shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGB1();
             } else {
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
             }
@@ -381,6 +383,10 @@ void GrMtlCaps::initConfigTable() {
     // RGBA_8888 uses RGBA8Unorm
     info = &fConfigTable[kRGBA_8888_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
+
+    // RGB_888X uses RGBA8Unorm and we will swizzle the 1
+    info = &fConfigTable[kRGB_888X_GrPixelConfig];
+    info->fFlags = ConfigInfo::kTextureable_Flag;
 
     // BGRA_8888 uses BGRA8Unorm
     info = &fConfigTable[kBGRA_8888_GrPixelConfig];
@@ -460,6 +466,9 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
             }
             break;
         case kRGB_888x_SkColorType:
+            if (MTLPixelFormatRGBA8Unorm == format) {
+                return kRGB_888X_GrPixelConfig;
+            }
             break;
         case kBGRA_8888_SkColorType:
             if (MTLPixelFormatBGRA8Unorm == format) {
