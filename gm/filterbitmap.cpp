@@ -214,6 +214,20 @@ private:
     typedef FilterBitmapGM INHERITED;
 };
 
+#include "SkGradientColorFilter.h"
+DEF_SIMPLE_GM(grad_colorfilter, canvas, 500, 500) {
+    auto img = GetResourceAsImage("mandrill_256.png");
+    canvas->drawImage(img, 10, 10, nullptr);
+
+    const SkColor grad[] = { 0xFF000000, 0xFFFFFFFF };
+    const SkColor grad2[] = { SK_ColorRED, SK_ColorBLUE };
+    SkPaint paint;
+    paint.setColorFilter(SkGradientColorFilter::Make(0.25f, 0.6f, 0.15f, grad, nullptr, 2));
+    canvas->drawImage(img, img->width() + 10, 10, &paint);
+    paint.setColorFilter(SkGradientColorFilter::Make(0.25f, 0.6f, 0.15f, grad2, nullptr, 2));
+    canvas->drawImage(img, 10, img->height() + 10, &paint);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new FilterBitmapTextGM(3); )
