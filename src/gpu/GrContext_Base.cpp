@@ -35,11 +35,15 @@ sk_sp<const GrCaps> GrContext_Base::refCaps() const { return fCaps; }
 
 sk_sp<GrSkSLFPFactoryCache> GrContext_Base::fpFactoryCache() { return fFPFactoryCache; }
 
-bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
-    SkASSERT(caps && FPFactoryCache);
+bool GrContext_Base::matches(GrContext_Base* context) const {
+    return context->contextID() == this->contextID();
+}
 
-    fCaps = caps;
-    fFPFactoryCache = FPFactoryCache;
+bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> cache) {
+    SkASSERT(caps && cache);
+
+    fCaps = std::move(caps);
+    fFPFactoryCache = std::move(cache);
     return true;
 }
 

@@ -53,6 +53,31 @@ protected:
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted = SkBudgeted::kYes);
 
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+                                            const GrBackendFormat& format,
+                                            SkBackingFit fit,
+                                            int width, int height,
+                                            GrPixelConfig config,
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            int sampleCnt,
+                                            GrMipMapped mipMapped,
+                                            GrSurfaceOrigin origin,
+                                            const SkSurfaceProps* surfaceProps,
+                                            SkBudgeted budgeted);
+
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
+
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
+                                                       const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
+                                                       SkBackingFit,
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
+
     GrAuditTrail* auditTrail() { return &fAuditTrail; }
 
     GrRecordingContext* asRecordingContext() override { return this; }
