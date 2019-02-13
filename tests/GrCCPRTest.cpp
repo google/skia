@@ -8,12 +8,12 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrClip.h"
 #include "GrDrawingManager.h"
 #include "GrPathRenderer.h"
 #include "GrPaint.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrShape.h"
@@ -36,8 +36,8 @@ public:
     CCPRClip(GrCoverageCountingPathRenderer* ccpr, const SkPath& path) : fCCPR(ccpr), fPath(path) {}
 
 private:
-    bool apply(GrContext* context, GrRenderTargetContext* rtc, bool, bool, GrAppliedClip* out,
-               SkRect* bounds) const override {
+    bool apply(GrRecordingContext* context, GrRenderTargetContext* rtc, bool useHWAA,
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
         out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpListID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     rtc->width(), rtc->height(),

@@ -9,10 +9,10 @@
 #include "GrAppliedClip.h"
 #include "GrClip.h"
 #include "GrColor.h"
-#include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrPathRenderer.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrShape.h"
@@ -809,7 +809,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer.
 
-bool GrReducedClip::drawStencilClipMask(GrContext* context,
+bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
                                         GrRenderTargetContext* renderTargetContext) const {
     // We set the current clip to the bounds so that our recursive draws are scissored to them.
     GrStencilClip stencilClip(fScissor, this->maskGenID());

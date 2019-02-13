@@ -7,8 +7,8 @@
 
 #include "GrPathRenderer.h"
 #include "GrCaps.h"
-#include "GrContextPriv.h"
 #include "GrPaint.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrUserStencilSettings.h"

@@ -8,10 +8,10 @@
 #include "Test.h"
 
 #include "GrClip.h"
-#include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSurfaceProxy.h"
@@ -55,7 +55,7 @@ public:
     public:
         DEFINE_OP_CLASS_ID
 
-        static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+        static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                               GrProxyProvider* proxyProvider,
                                               LazyProxyTest* test,
                                               bool nullTexture) {
@@ -76,7 +76,8 @@ public:
     private:
         friend class GrOpMemoryPool; // for ctor
 
-        Op(GrContext* ctx, GrProxyProvider* proxyProvider, LazyProxyTest* test, bool nullTexture)
+        Op(GrRecordingContext* ctx, GrProxyProvider* proxyProvider,
+           LazyProxyTest* test, bool nullTexture)
                     : GrDrawOp(ClassID()), fTest(test) {
             const GrBackendFormat format =
                     ctx->priv().caps()->getBackendFormatFromColorType(kRGB_565_SkColorType);
@@ -119,7 +120,7 @@ public:
 
     class ClipFP : public GrFragmentProcessor {
     public:
-        ClipFP(GrContext* ctx, GrProxyProvider* proxyProvider, LazyProxyTest* test,
+        ClipFP(GrRecordingContext* ctx, GrProxyProvider* proxyProvider, LazyProxyTest* test,
                GrTextureProxy* atlas)
                 : GrFragmentProcessor(kTestFP_ClassID, kNone_OptimizationFlags)
                 , fContext(ctx)
@@ -158,7 +159,7 @@ public:
         bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
         const TextureSampler& onTextureSampler(int) const override { return fAccess; }
 
-        GrContext* const fContext;
+        GrRecordingContext* const fContext;
         GrProxyProvider* const fProxyProvider;
         LazyProxyTest* const fTest;
         GrTextureProxy* const fAtlas;
@@ -174,8 +175,8 @@ public:
                 , fAtlas(atlas) {}
 
     private:
-        bool apply(GrContext* context, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
-                   SkRect* bounds) const override {
+        bool apply(GrRecordingContext* context, GrRenderTargetContext*, bool useHWAA,
+                   bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(skstd::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
             return true;
