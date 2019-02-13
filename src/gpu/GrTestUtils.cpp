@@ -7,6 +7,7 @@
 
 #include "GrTestUtils.h"
 #include "GrColorSpaceInfo.h"
+#include "GrContext.h"
 #include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
 #include "SkDashPathPriv.h"

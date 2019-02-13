@@ -23,8 +23,8 @@
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrFragmentProcessor.h"
 #include "SkGr.h"
 #endif

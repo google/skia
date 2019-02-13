@@ -7,10 +7,10 @@
 
 #include "GrBitmapTextureMaker.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSurfaceContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -19,7 +19,7 @@
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 
-GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap)
+GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap)
     : INHERITED(context, bitmap.width(), bitmap.height(), bmp_is_alpha_only(bitmap))
     , fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
@@ -36,7 +36,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = this->context1()->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
@@ -74,7 +74,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         // We need a mipped proxy, but we either found a proxy earlier that wasn't mipped or
         // generated a non mipped proxy. Thus we generate a new mipped surface and copy the original
         // proxy into the base layer. We will then let the gpu generate the rest of the mips.
-        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get())) {
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context1(), proxy.get())) {
             SkASSERT(mippedProxy->origin() == kTopLeft_GrSurfaceOrigin);
             if (fOriginalKey.isValid()) {
                 // In this case we are stealing the key from the original proxy which should only
