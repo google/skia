@@ -90,8 +90,16 @@ GrProcessorSet::Analysis GrAAFillRRectOp::finalize(const GrCaps& caps, const GrA
             &overrideColor);
 
     // Finish writing the instance attribs.
-    this->writeInstanceData(
-            (analysis.inputColorIsOverridden() ? overrideColor : fOriginalColor).toBytes_RGBA());
+    SkPMColor4f finalColor = analysis.inputColorIsOverridden() ? overrideColor : fOriginalColor;
+    if (!SkPMColor4fFitsInBytes(finalColor)) {
+        fFlags |= Flags::kWideColor;
+        uint32_t halfColor[2];
+        SkFloatToHalf_finite_ftz(Sk4f::Load(finalColor.vec())).store(&halfColor);
+        this->writeInstanceData(halfColor[0], halfColor[1]);
+    } else {
+        this->writeInstanceData(finalColor.toBytes_RGBA());
+    }
+
     if (analysis.usesLocalCoords()) {
         this->writeInstanceData(fLocalRect);
         fFlags |= Flags::kHasLocalCoords;
@@ -260,7 +268,14 @@ public:
             : GrGeometryProcessor(kGrAAFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
         this->setVertexAttributes(kVertexAttribs, 3);
-        this->setInstanceAttributes(kInstanceAttribs, (flags & Flags::kHasLocalCoords) ? 6 : 5);
+        fInSkew = { "skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType };
+        fInTranslate = { "translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType };
+        fInRadiiX = { "radii_x", kFloat4_GrVertexAttribType, kFloat4_GrSLType };
+        fInRadiiY = { "radii_y", kFloat4_GrVertexAttribType, kFloat4_GrSLType };
+        fInColor = MakeColorAttribute("color", (flags & Flags::kWideColor));
+        fInLocalRect = {"local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+
+        this->setInstanceAttributes(&fInSkew, (flags & Flags::kHasLocalCoords) ? 6 : 5);
         SkASSERT(this->vertexStride() == sizeof(Vertex));
     }
 
@@ -278,15 +293,12 @@ private:
             {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
 
-    static constexpr Attribute kInstanceAttribs[] = {
-            {"skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-            {"translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
-            {"radii_x", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-            {"radii_y", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-            {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType},
-            {"local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};  // Conditional.
-
-    static constexpr int kColorAttribIdx = 4;
+    Attribute fInSkew;
+    Attribute fInTranslate;
+    Attribute fInRadiiX;
+    Attribute fInRadiiY;
+    Attribute fInColor;
+    Attribute fInLocalRect;  // Conditional.
 
     const Flags fFlags;
 
@@ -294,7 +306,6 @@ private:
 };
 
 constexpr GrPrimitiveProcessor::Attribute GrAAFillRRectOp::Processor::kVertexAttribs[];
-constexpr GrPrimitiveProcessor::Attribute GrAAFillRRectOp::Processor::kInstanceAttribs[];
 
 class GrAAFillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
 public:
@@ -304,7 +315,7 @@ public:
 
         GrGLSLVaryingHandler* varyings = args.fVaryingHandler;
         varyings->emitAttributes(proc);
-        varyings->addPassThroughAttribute(proc.kInstanceAttribs[kColorAttribIdx], args.fOutputColor,
+        varyings->addPassThroughAttribute(proc.fInColor, args.fOutputColor,
                                           GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
 
         // Emit the vertex shader.
