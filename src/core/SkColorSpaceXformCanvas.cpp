@@ -121,23 +121,30 @@ public:
     void onDrawImage(const SkImage* img,
                      SkScalar l, SkScalar t,
                      const SkPaint* paint) override {
-        if (!fTarget->quickReject(SkRect::Make(img->bounds()).makeOffset(l,t))) {
+        if (this->skipXform(img)) {
+            fTarget->drawImage(img, l, t, MaybePaint(paint, fXformer.get()));
+        } else if (!fTarget->quickReject(SkRect::Make(img->bounds()).makeOffset(l, t))) {
             fTarget->drawImage(prepareImage(img).get(), l, t, MaybePaint(paint, fXformer.get()));
         }
     }
     void onDrawImageRect(const SkImage* img,
                          const SkRect* src, const SkRect& dst,
                          const SkPaint* paint, SrcRectConstraint constraint) override {
-        if (!fTarget->quickReject(dst)) {
-            fTarget->drawImageRect(prepareImage(img).get(),
-                                   src ? *src : SkRect::MakeIWH(img->width(), img->height()), dst,
+        auto srcRect = src ? *src : SkRect::MakeIWH(img->width(), img->height());
+        if (this->skipXform(img)) {
+            fTarget->drawImageRect(img, srcRect, dst, MaybePaint(paint, fXformer.get()),
+                                   constraint);
+        } else if (!fTarget->quickReject(dst)) {
+            fTarget->drawImageRect(prepareImage(img).get(), srcRect, dst,
                                    MaybePaint(paint, fXformer.get()), constraint);
         }
     }
     void onDrawImageNine(const SkImage* img,
                          const SkIRect& center, const SkRect& dst,
                          const SkPaint* paint) override {
-        if (!fTarget->quickReject(dst)) {
+        if (this->skipXform(img)) {
+            fTarget->drawImageNine(img, center, dst, MaybePaint(paint, fXformer.get()));
+        } else if (!fTarget->quickReject(dst)) {
             fTarget->drawImageNine(prepareImage(img).get(), center, dst,
                                    MaybePaint(paint, fXformer.get()));
         }
@@ -145,13 +152,18 @@ public:
     void onDrawImageLattice(const SkImage* img,
                             const Lattice& lattice, const SkRect& dst,
                             const SkPaint* paint) override {
-        if (!fTarget->quickReject(dst)) {
+        bool skip = this->skipXform(img);
+        if (skip || !fTarget->quickReject(dst)) {
             SkSTArray<16, SkColor> colorBuffer;
             int count = lattice.fRectTypes && lattice.fColors ?
                         (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
             colorBuffer.reset(count);
-            fTarget->drawImageLattice(prepareImage(img).get(),
-                                      fXformer->apply(lattice, colorBuffer.begin(), count),
+            sk_sp<SkImage> tempImg;
+            if (!skip) {
+                tempImg = this->prepareImage(img);
+                img = tempImg.get();
+            }
+            fTarget->drawImageLattice(img, fXformer->apply(lattice, colorBuffer.begin(), count),
                                       dst, MaybePaint(paint, fXformer.get()));
         }
     }
@@ -159,7 +171,8 @@ public:
                         SkFilterQuality filterQuality, SkBlendMode mode) override {
         SkAutoTArray<ImageSetEntry> xformedSet(count);
         for (int i = 0; i < count; ++i) {
-            xformedSet[i].fImage = this->prepareImage(set[i].fImage.get());
+            bool skip = this->skipXform(set[i].fImage.get());
+            xformedSet[i].fImage = skip ? set[i].fImage : this->prepareImage(set[i].fImage.get());
             xformedSet[i].fSrcRect = set[i].fSrcRect;
             xformedSet[i].fDstRect = set[i].fDstRect;
             xformedSet[i].fAlpha = set[i].fAlpha;
@@ -177,7 +190,12 @@ public:
             fXformer->apply(xformed.begin(), colors, count);
             colors = xformed.begin();
         }
-        fTarget->drawAtlas(prepareImage(atlas).get(), xforms, tex, colors, count, mode, cull,
+        sk_sp<SkImage> tempAtlas;
+        if (!this->skipXform(atlas)) {
+            tempAtlas = this->prepareImage(atlas);
+            atlas = tempAtlas.get();
+        }
+        fTarget->drawAtlas(atlas, xforms, tex, colors, count, mode, cull,
                            MaybePaint(paint, fXformer.get()));
     }
 
@@ -331,6 +349,12 @@ private:
         // to xform only the useful part of the image. Sub image could be reduced
         // even further by taking into account dst_rect+ctm+clip
         return fXformer->apply(image);
+    }
+
+    bool skipXform(const SkImage* img) {
+        return (!img->colorSpace() && fTargetCS->isSRGB()) ||
+               (SkColorSpace::Equals(img->colorSpace(), fTargetCS.get())) ||
+               (kAlpha_8_SkColorType == img->colorType());
     }
 
     bool skipXform(const SkBitmap& bitmap) {
