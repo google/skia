@@ -634,18 +634,19 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     }
 }
 
-SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer) {
+SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer, bool ownsWriter) {
     if (!writer) {
         return nullptr;
     }
 
-    return new SkSVGDevice(size, writer);
+    return new SkSVGDevice(size, writer, ownsWriter);
 }
 
-SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
+SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer, bool ownsWriter)
     : INHERITED(SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fWriter(writer)
+    , fOwnsWriter(ownsWriter)
     , fResourceBucket(new ResourceBucket)
 {
     SkASSERT(writer);
@@ -662,6 +663,9 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer)
 }
 
 SkSVGDevice::~SkSVGDevice() {
+    if (fOwnsWriter && fWriter) {
+        delete fWriter;
+    }
 }
 
 void SkSVGDevice::drawPaint(const SkPaint& paint) {
