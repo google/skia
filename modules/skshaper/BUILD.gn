@@ -3,10 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-declare_args() {
-  skia_enable_skshaper = true
-}
-
 import("../../gn/skia.gni")
 
 config("public_config") {
