@@ -78,43 +78,228 @@ HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
     return blob;
 }
 
-HBFont create_hb_font(SkTypeface* tf) {
-    if (!tf) {
+hb_position_t skhb_position(SkScalar value) {
+    // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
+    constexpr int kHbPosition1 = 1 << 16;
+    return SkScalarRoundToInt(value * kHbPosition1);
+}
+
+hb_bool_t skhb_glyph(hb_font_t* hb_font,
+                     void* font_data,
+                     hb_codepoint_t unicode,
+                     hb_codepoint_t variation_selector,
+                     hb_codepoint_t* glyph,
+                     void* user_data) {
+    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
+
+    *glyph = font.unicharToGlyph(unicode);
+    return *glyph != 0;
+}
+
+hb_bool_t skhb_nominal_glyph(hb_font_t* hb_font,
+                             void* font_data,
+                             hb_codepoint_t unicode,
+                             hb_codepoint_t* glyph,
+                             void* user_data) {
+  return skhb_glyph(hb_font, font_data, unicode, 0, glyph, user_data);
+}
+
+unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
+                             unsigned int count,
+                             const hb_codepoint_t *unicodes,
+                             unsigned int unicode_stride,
+                             hb_codepoint_t *glyphs,
+                             unsigned int glyph_stride,
+                             void *user_data) {
+    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
+
+    // Batch call textToGlyphs since entry cost is not cheap.
+    // Copy requred because textToGlyphs is dense and hb is strided.
+    SkAutoSTMalloc<256, SkUnichar> unicode(count);
+    for (unsigned i = 0; i < count; i++) {
+        unicode[i] = *unicodes;
+        unicodes = SkTAddOffset<const hb_codepoint_t>(unicodes, unicode_stride);
+    }
+    SkAutoSTMalloc<256, SkGlyphID> glyph(count);
+    font.textToGlyphs(unicode.get(), count * sizeof(SkUnichar), kUTF32_SkTextEncoding,
+                        glyph.get(), count);
+
+    // Copy the results back to the sparse array.
+    for (unsigned i = 0; i < count; i++) {
+        *glyphs = glyph[i];
+        glyphs = SkTAddOffset<hb_codepoint_t>(glyphs, glyph_stride);
+    }
+    // TODO: supposed to return index of first 0?
+    return count;
+}
+
+hb_position_t skhb_glyph_h_advance(hb_font_t* hb_font,
+                                   void* font_data,
+                                   hb_codepoint_t codepoint,
+                                   void* user_data) {
+    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
+
+    SkScalar advance;
+    SkGlyphID glyph = SkTo<SkGlyphID>(codepoint);
+
+    font.getWidths(&glyph, 1, &advance);
+    if (!font.isSubpixel()) {
+        advance = SkScalarRoundToInt(advance);
+    }
+    return skhb_position(advance);
+}
+
+void skhb_glyph_h_advances(hb_font_t* hb_font,
+                           void* font_data,
+                           unsigned count,
+                           const hb_codepoint_t* glyphs,
+                           unsigned int glyph_stride,
+                           hb_position_t* advances,
+                           unsigned int advance_stride,
+                           void* user_data) {
+    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
+
+    // Batch call getWidths since entry cost is not cheap.
+    // Copy requred because getWidths is dense and hb is strided.
+    SkAutoSTMalloc<256, SkGlyphID> glyph(count);
+    for (unsigned i = 0; i < count; i++) {
+        glyph[i] = *glyphs;
+        glyphs = SkTAddOffset<const hb_codepoint_t>(glyphs, glyph_stride);
+    }
+    SkAutoSTMalloc<256, SkScalar> advance(count);
+    font.getWidths(glyph.get(), count, advance.get());
+
+    if (!font.isSubpixel()) {
+        for (unsigned i = 0; i < count; i++) {
+            advance[i] = SkScalarRoundToInt(advance[i]);
+        }
+    }
+
+    // Copy the results back to the sparse array.
+    for (unsigned i = 0; i < count; i++) {
+        *advances = skhb_position(advance[i]);
+        advances = SkTAddOffset<hb_position_t>(advances, advance_stride);
+    }
+}
+
+// HarfBuzz callback to retrieve glyph extents, mainly used by HarfBuzz for
+// fallback mark positioning, i.e. the situation when the font does not have
+// mark anchors or other mark positioning rules, but instead HarfBuzz is
+// supposed to heuristically place combining marks around base glyphs. HarfBuzz
+// does this by measuring "ink boxes" of glyphs, and placing them according to
+// Unicode mark classes. Above, below, centered or left or right, etc.
+hb_bool_t skhb_glyph_extents(hb_font_t* hb_font,
+                             void* font_data,
+                             hb_codepoint_t codepoint,
+                             hb_glyph_extents_t* extents,
+                             void* user_data) {
+    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
+
+    SkASSERT(codepoint < 0xFFFFu);
+    SkASSERT(extents);
+
+    SkRect sk_bounds;
+    SkGlyphID glyph = codepoint;
+
+    font.getWidths(&glyph, 1, nullptr, &sk_bounds);
+    if (!font.isSubpixel()) {
+        sk_bounds.set(sk_bounds.roundOut());
+    }
+
+    // Skia is y-down but HarfBuzz is y-up.
+    extents->x_bearing = skhb_position(sk_bounds.fLeft);
+    extents->y_bearing = skhb_position(-sk_bounds.fTop);
+    extents->width = skhb_position(sk_bounds.width());
+    extents->height = skhb_position(-sk_bounds.height());
+    return true;
+}
+
+hb_font_funcs_t* skhb_get_font_funcs() {
+    static hb_font_funcs_t* const funcs = []{
+        // HarfBuzz will use the default (parent) implementation if they aren't set.
+        hb_font_funcs_t* const funcs = hb_font_funcs_create();
+        hb_font_funcs_set_variation_glyph_func(funcs, skhb_glyph, nullptr, nullptr);
+        hb_font_funcs_set_nominal_glyph_func(funcs, skhb_nominal_glyph, nullptr, nullptr);
+        hb_font_funcs_set_nominal_glyphs_func(funcs, skhb_nominal_glyphs, nullptr, nullptr);
+        hb_font_funcs_set_glyph_h_advance_func(funcs, skhb_glyph_h_advance, nullptr, nullptr);
+        hb_font_funcs_set_glyph_h_advances_func(funcs, skhb_glyph_h_advances, nullptr, nullptr);
+        hb_font_funcs_set_glyph_extents_func(funcs, skhb_glyph_extents, nullptr, nullptr);
+        hb_font_funcs_make_immutable(funcs);
+        return funcs;
+    }();
+    SkASSERT(funcs);
+    return funcs;
+}
+
+hb_blob_t* skhb_get_table(hb_face_t* face, hb_tag_t tag, void* user_data) {
+    SkTypeface& typeface = *reinterpret_cast<SkTypeface*>(user_data);
+
+    const size_t tableSize = typeface.getTableSize(tag);
+    if (!tableSize) {
         return nullptr;
     }
+
+    void* buffer = sk_malloc_throw(tableSize);
+    if (!buffer) {
+        return nullptr;
+    }
+
+    size_t actualSize = typeface.getTableData(tag, 0, tableSize, buffer);
+    if (tableSize != actualSize) {
+        sk_free(buffer);
+        return nullptr;
+    }
+
+    return hb_blob_create(reinterpret_cast<char*>(buffer), tableSize,
+                          HB_MEMORY_MODE_WRITABLE, buffer, sk_free);
+}
+
+HBFont create_hb_font(const SkFont& font) {
     int index;
-    std::unique_ptr<SkStreamAsset> typefaceAsset(tf->openStream(&index));
+    std::unique_ptr<SkStreamAsset> typefaceAsset(font.getTypeface()->openStream(&index));
+    HBFace face;
     if (!typefaceAsset) {
-        SkString name;
-        tf->getFamilyName(&name);
-        SkDebugf("Typeface '%s' has no data :(\n", name.c_str());
-        return nullptr;
+        face.reset(hb_face_create_for_tables(
+            skhb_get_table,
+            reinterpret_cast<void *>(font.refTypeface().release()),
+            [](void* user_data){ SkSafeUnref(reinterpret_cast<SkTypeface*>(user_data)); }));
+    } else {
+        HBBlob blob(stream_to_blob(std::move(typefaceAsset)));
+        face.reset(hb_face_create(blob.get(), (unsigned)index));
     }
-    HBBlob blob(stream_to_blob(std::move(typefaceAsset)));
-    HBFace face(hb_face_create(blob.get(), (unsigned)index));
     SkASSERT(face);
     if (!face) {
         return nullptr;
     }
     hb_face_set_index(face.get(), (unsigned)index);
-    hb_face_set_upem(face.get(), tf->getUnitsPerEm());
+    hb_face_set_upem(face.get(), font.getTypeface()->getUnitsPerEm());
 
-    HBFont font(hb_font_create(face.get()));
-    SkASSERT(font);
-    if (!font) {
+    HBFont otFont(hb_font_create(face.get()));
+    SkASSERT(otFont);
+    if (!otFont) {
         return nullptr;
     }
-    hb_ot_font_set_funcs(font.get());
-    int axis_count = tf->getVariationDesignPosition(nullptr, 0);
+    hb_ot_font_set_funcs(otFont.get());
+    int axis_count = font.getTypeface()->getVariationDesignPosition(nullptr, 0);
     if (axis_count > 0) {
         SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> axis_values(axis_count);
-        if (tf->getVariationDesignPosition(axis_values, axis_count) == axis_count) {
-            hb_font_set_variations(font.get(),
+        if (font.getTypeface()->getVariationDesignPosition(axis_values, axis_count) == axis_count) {
+            hb_font_set_variations(otFont.get(),
                                    reinterpret_cast<hb_variation_t*>(axis_values.get()),
                                    axis_count);
         }
     }
-    return font;
+
+    // Creating a sub font means that non-available functions
+    // are found from the parent.
+    HBFont skFont(hb_font_create_sub_font(otFont.get()));
+    hb_font_set_funcs(skFont.get(), skhb_get_font_funcs(),
+                      reinterpret_cast<void *>(new SkFont(font)),
+                      [](void* user_data){ delete reinterpret_cast<SkFont*>(user_data); });
+    int scale = skhb_position(font.getSize());
+    hb_font_set_scale(skFont.get(), scale, scale);
+
+    return skFont;
 }
 
 /** this version replaces invalid utf-8 sequences with code point U+FFFD. */
@@ -284,7 +469,7 @@ public:
     {
         SkTLazy<FontRunIterator> ret;
         font.setTypeface(font.refTypefaceOrDefault());
-        HBFont hbFont = create_hb_font(font.getTypeface());
+        HBFont hbFont = create_hb_font(font);
         if (!hbFont) {
             SkDebugf("create_hb_font failed!\n");
             return ret;
@@ -319,7 +504,7 @@ public:
                 nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
             if (candidate) {
                 fFallbackFont.setTypeface(std::move(candidate));
-                fFallbackHBFont = create_hb_font(fFallbackFont.getTypeface());
+                fFallbackHBFont = create_hb_font(fFallbackFont);
                 fCurrentFont = &fFallbackFont;
                 fCurrentHBFont = fFallbackHBFont.get();
             } else {
@@ -647,11 +832,8 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
         return;
     }
 #endif
-    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
-    fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
-    if (!fImpl->fHarfBuzzFont) {
-        SkDebugf("create_hb_font failed!\n");
-    }
+    fImpl->fTypeface = nullptr;
+    fImpl->fHarfBuzzFont = nullptr;
     fImpl->fBuffer.reset(hb_buffer_create());
     SkASSERT(fImpl->fBuffer);
 
