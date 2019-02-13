@@ -18,6 +18,19 @@ of the requested dimensions are zero, then nullptr will be returned.
 
 # ------------------------------------------------------------------------------
 
+#Typedef void* ReleaseContext
+#Line # context for release procs ##
+##
+
+#Typedef void (*RenderTargetReleaseProc)(ReleaseContext releaseContext)
+#Line # context for release procs ##
+##
+
+#Typedef void (*TextureReleaseProc)(ReleaseContext releaseContext)
+#Line # context for release procs ##
+##
+
+
 #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
                                              const SkSurfaceProps* surfaceProps = nullptr)
@@ -231,7 +244,9 @@ void draw(SkCanvas* ) {
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* surfaceProps)
+                                                   const SkSurfaceProps* surfaceProps,
+                                                   TextureReleaseProc textureReleaseProc = nullptr,
+                                                   ReleaseContext releaseContext = nullptr)
 #In Constructors
 #Line # creates Surface from GPU texture ##
 #Populate
@@ -266,7 +281,9 @@ void draw(SkCanvas* ) {
                                                 GrSurfaceOrigin origin,
                                                 SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* surfaceProps)
+                                                const SkSurfaceProps* surfaceProps,
+                                                RenderTargetReleaseProc releaseProc = nullptr,
+                                                ReleaseContext releaseContext = nullptr)
 #In Constructors
 #Line # creates Surface from GPU render target ##
 #Populate
