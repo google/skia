@@ -7,10 +7,10 @@
 
 #include "GrCCDrawPathsOp.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "ccpr/GrCCPathCache.h"
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
@@ -26,8 +26,8 @@ static bool has_coord_transforms(const GrPaint& paint) {
 }
 
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
-        GrContext* context, const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape,
-        GrPaint&& paint) {
+        GrRecordingContext* context, const SkIRect& clipIBounds, const SkMatrix& m,
+        const GrShape& shape, GrPaint&& paint) {
     SkRect conservativeDevBounds;
     m.mapRect(&conservativeDevBounds, shape.bounds());
 
@@ -75,8 +75,9 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
 }
 
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
-        GrContext* context, const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape,
-        float strokeDevWidth, const SkRect& conservativeDevBounds, GrPaint&& paint) {
+        GrRecordingContext* context, const SkIRect& clipIBounds, const SkMatrix& m,
+        const GrShape& shape, float strokeDevWidth, const SkRect& conservativeDevBounds,
+        GrPaint&& paint) {
     // The path itself should have been cropped if larger than kPathCropThreshold. If it had a
     // stroke, that would have further inflated its draw bounds.
     SkASSERT(SkTMax(conservativeDevBounds.height(), conservativeDevBounds.width()) <
