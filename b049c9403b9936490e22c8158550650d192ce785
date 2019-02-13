@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a7fb933_399f19cf",
+        "filename": "tools/viewer/ParticlesSlide.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-13T19:54:58Z",
+      "side": 1,
+      "message": "This is a little odd, but with the current API, I need the timer when I call start, so the effect can know when it was started. I could instead have start not take the time, and just remember that it has a pending start, which is enacted during the next update? That feels even more awkward.",
+      "revId": "b049c9403b9936490e22c8158550650d192ce785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
