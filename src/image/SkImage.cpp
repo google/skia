@@ -85,11 +85,12 @@ SkAlphaType SkImage::alphaType() const {
 }
 
 SkColorSpace* SkImage::colorSpace() const {
-    return as_IB(this)->onImageInfo().colorSpace();
+    auto cs = as_IB(this)->onImageInfo().colorSpace();
+    return cs ? cs : sk_srgb_singleton();
 }
 
 sk_sp<SkColorSpace> SkImage::refColorSpace() const {
-    return as_IB(this)->onImageInfo().refColorSpace();
+    return sk_ref_sp(this->colorSpace());
 }
 
 sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
@@ -309,11 +310,7 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
     // No need to create a new image if:
     // (1) The color spaces are equal.
     // (2) The color type is kAlpha8.
-    SkColorSpace* colorSpace = this->colorSpace();
-    if (!colorSpace) {
-        colorSpace = sk_srgb_singleton();
-    }
-    if (SkColorSpace::Equals(colorSpace, target.get()) || this->isAlphaOnly()) {
+    if (SkColorSpace::Equals(this->colorSpace(), target.get()) || this->isAlphaOnly()) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
@@ -327,12 +324,8 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
     }
 
     SkColorType colorType = this->colorType();
-    SkColorSpace* colorSpace = this->colorSpace();
-    if (!colorSpace) {
-        colorSpace = sk_srgb_singleton();
-    }
     if (colorType == targetColorType &&
-        (SkColorSpace::Equals(colorSpace, targetColorSpace.get()) || this->isAlphaOnly())) {
+        (SkColorSpace::Equals(this->colorSpace(), targetColorSpace.get()) || this->isAlphaOnly())) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
