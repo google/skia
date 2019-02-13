@@ -16,6 +16,7 @@
 #include "GrTextureProxy.h"
 #include "SkTDArray.h"
 
+class GrRecordingContext;
 class GrTexture;
 #endif
 
@@ -54,7 +55,7 @@ public:
 #if SK_SUPPORT_GPU
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&,
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                                     SkScalar scaleAdjust[2]) const = 0;
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;

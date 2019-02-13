@@ -15,8 +15,7 @@
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
 
-class GrContext;
-class GrContextThreadSafeProxy;
+class GrRecordingContext;
 class GrTextureProxy;
 class GrSamplerState;
 class SkBitmap;
@@ -140,7 +139,7 @@ public:
      *  the generator is allowed to return a non mipped proxy, but this will have some additional
      *  overhead in later allocating mips and copying of the base layer.
      */
-    sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
+    sk_sp<GrTextureProxy> generateTexture(GrRecordingContext*, const SkImageInfo& info,
                                           const SkIPoint& origin,
                                           bool willNeedMipMaps);
 #endif
@@ -183,7 +182,8 @@ protected:
     };
 
     virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
-    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
+    virtual sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
+                                                    const SkIPoint&,
                                                     bool willNeedMipMaps);  // returns nullptr
 #endif
 

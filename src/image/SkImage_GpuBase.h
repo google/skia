@@ -37,7 +37,7 @@ public:
         SkASSERT(false);
         return this->INHERITED::asTextureProxyRef();
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const final;
 
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const final {
