@@ -29,14 +29,14 @@ public:
     void onDestroyContext() override;
 
 private:
-    NSView*              fMainView;
+    NSWindow*              fNSWindow;
 
     typedef MetalWindowContext INHERITED;
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
     : INHERITED(params)
-    , fMainView(info.fMainView) {
+    , fNSWindow(info.fNSWindow) {
 
     // any config code here (particularly for msaa)?
 
@@ -48,10 +48,11 @@ MetalWindowContext_mac::~MetalWindowContext_mac() {
 }
 
 bool MetalWindowContext_mac::onInitializeContext() {
-    SkASSERT(nil != fMainView);
+    SkASSERT(nil != fNSWindow);
 
     // create mtkview
-    NSRect rect = fMainView.bounds;
+    NSView* mainView = [fNSWindow contentView];
+    NSRect rect = [mainView bounds];
     fMTKView = [[MTKView alloc] initWithFrame:rect device:fDevice];
     if (nil == fMTKView) {
         return false;
@@ -69,16 +70,16 @@ bool MetalWindowContext_mac::onInitializeContext() {
     // attach Metal view to main view
     [fMTKView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
-    [fMainView addSubview:fMTKView];
+    [mainView addSubview:fMTKView];
     NSDictionary *views = NSDictionaryOfVariableBindings(fMTKView);
 
-    [fMainView addConstraints:
+    [mainView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[fMTKView]|"
                                              options:0
                                              metrics:nil
                                                views:views]];
 
-    [fMainView addConstraints:
+    [mainView addConstraints:
      [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[fMTKView]|"
                                              options:0
                                              metrics:nil
