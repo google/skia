@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4ee400e4_672d5b7c",
+        "filename": "src/svg/SkSVGCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9235
+      },
+      "writtenOn": "2019-02-13T15:48:11Z",
+      "side": 1,
+      "message": "This is an internal API because the class `SkXMLWriter` is not exported. We can only call it in the code of the Skia library.\n\nAlso, I think for the internal uses, exporting this `ownsWriter` argument and giving it a default value is necessary and convenient -- you can decide who is in charge of the lifespan of the writer, or if you don\u0027t care, just leave it to use the default value.\n\nIs it OK?",
+      "parentUuid": "086abfd7_344d724e",
+      "range": {
+        "startLine": 13,
+        "startChar": 87,
+        "endLine": 13,
+        "endChar": 103
+      },
+      "revId": "81d70979f0464bf006692287ae045bbc4723e408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "66b51b47_887681c6",
         "filename": "src/svg/SkSVGDevice.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "81d70979f0464bf006692287ae045bbc4723e408",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc0fdd0_3370dcec",
+        "filename": "src/svg/SkSVGDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9235
+      },
+      "writtenOn": "2019-02-13T15:48:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66b51b47_887681c6",
+      "range": {
+        "startLine": 55,
+        "startChar": 36,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "81d70979f0464bf006692287ae045bbc4723e408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
