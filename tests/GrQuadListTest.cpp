@@ -30,7 +30,7 @@ static bool is_2d_quad(const GrPerspQuad& quad) {
 }
 
 static GrPerspQuad make_2d_persp_quad() {
-    return GrPerspQuad(SkRect::MakeLTRB(5.f, 6.f, 7.f, 8.f), SkMatrix::I());
+    return GrPerspQuad(SkRect::MakeLTRB(5.f, 6.f, 7.f, 8.f));
 }
 static bool is_2d_persp_quad(const GrPerspQuad& quad) {
     return quad.x(0) == 5.f && quad.x(1) == 5.f && quad.x(2) == 7.f && quad.x(3) == 7.f &&
@@ -43,7 +43,7 @@ static GrPerspQuad make_3d_persp_quad() {
     SkMatrix p = SkMatrix::I();
     p[SkMatrix::kMPersp2] = 13.f;
     SkASSERT(p.hasPerspective()); // Sanity check
-    return GrPerspQuad(SkRect::MakeLTRB(9.f, 10.f, 11.f, 12.f), p);
+    return GrPerspQuad::MakeFromRect(SkRect::MakeLTRB(9.f, 10.f, 11.f, 12.f), p);
 }
 static bool is_3d_persp_quad(const GrPerspQuad& quad) {
     return quad.x(0) == 9.f && quad.x(1) == 9.f && quad.x(2) == 11.f && quad.x(3) == 11.f &&

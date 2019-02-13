@@ -760,8 +760,7 @@ private:
         };
 
         if (fUsesDistanceField && !ctm.hasPerspective()) {
-            GrQuad quad(translatedBounds, ctm);
-            vertices.writeQuad(quad,
+            vertices.writeQuad(GrQuad::MakeFromRect(translatedBounds, ctm),
                                color,
                                texCoords);
         } else {

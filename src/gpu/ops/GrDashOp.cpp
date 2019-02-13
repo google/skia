@@ -162,7 +162,7 @@ static void setup_dashed_rect(const SkRect& rect, GrVertexWriter& vertices, cons
         SkScalar radius = SkScalarHalf(strokeWidth) - 0.5f;
         SkScalar centerX = SkScalarHalf(endInterval);
 
-        vertices.writeQuad(GrQuad(rect, matrix),
+        vertices.writeQuad(GrQuad::MakeFromRect(rect, matrix),
                            GrVertexWriter::TriStripFromRect(dashRect),
                            intervalLength,
                            radius,
@@ -175,7 +175,7 @@ static void setup_dashed_rect(const SkRect& rect, GrVertexWriter& vertices, cons
         rectParam.set(halfOffLen                 + 0.5f, -halfStroke + 0.5f,
                       halfOffLen + startInterval - 0.5f,  halfStroke - 0.5f);
 
-        vertices.writeQuad(GrQuad(rect, matrix),
+        vertices.writeQuad(GrQuad::MakeFromRect(rect, matrix),
                            GrVertexWriter::TriStripFromRect(dashRect),
                            intervalLength,
                            rectParam);
@@ -586,7 +586,7 @@ private:
                             draws[i].fLineLength, draws[i].fHalfDevStroke, draws[i].fIntervals[0],
                             draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
                 } else {
-                    vertices.writeQuad(GrQuad(rects[rectIndex], geom.fSrcRotInv));
+                    vertices.writeQuad(GrQuad::MakeFromRect(rects[rectIndex], geom.fSrcRotInv));
                 }
             }
             rectIndex++;
@@ -599,7 +599,7 @@ private:
                             draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
                             draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
                 } else {
-                    vertices.writeQuad(GrQuad(rects[rectIndex], geom.fSrcRotInv));
+                    vertices.writeQuad(GrQuad::MakeFromRect(rects[rectIndex], geom.fSrcRotInv));
                 }
             }
             rectIndex++;
@@ -612,7 +612,7 @@ private:
                             draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
                             draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
                 } else {
-                    vertices.writeQuad(GrQuad(rects[rectIndex], geom.fSrcRotInv));
+                    vertices.writeQuad(GrQuad::MakeFromRect(rects[rectIndex], geom.fSrcRotInv));
                 }
             }
             rectIndex++;
