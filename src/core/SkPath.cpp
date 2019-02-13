@@ -1959,13 +1959,6 @@ bool SkPath::Iter::isClosedContour() const {
     return false;
 }
 
-SkPath::Verb SkPath::Iter::peekVerb() const {
-    if (fVerbs == nullptr || fVerbs == fVerbStop) {
-        return kDone_Verb;
-    }
-    return (Verb)fVerbs[-1];
-}
-
 SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
     SkASSERT(pts);
     if (fLastPt != fMoveTo) {
