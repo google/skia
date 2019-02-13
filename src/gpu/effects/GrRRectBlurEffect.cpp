@@ -10,7 +10,8 @@
  **************************************************************************************************/
 #include "GrRRectBlurEffect.h"
 
-std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context, float sigma,
+std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext* context,
+                                                             float sigma,
                                                              float xformedSigma,
                                                              const SkRRect& srcRRect,
                                                              const SkRRect& devRRect) {
