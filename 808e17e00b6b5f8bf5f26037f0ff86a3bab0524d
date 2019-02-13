@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2c0fb4b_d6f9cee7",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-13T20:52:37Z",
+      "side": 1,
+      "message": "Clearer/simpler to just return new SkColorSpace(SkNamedTransferFn::kLinear, SkNamedGamut::kSRGB); ?",
+      "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

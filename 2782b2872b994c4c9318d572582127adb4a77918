@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a530fd58_1f0744cd",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-13T20:52:37Z",
+      "side": 0,
+      "message": "This is the snapping that\u0027s no longer going to happen. It\u0027s a behavior change - I\u0027m not sure it\u0027s an important one, though.",
+      "revId": "2782b2872b994c4c9318d572582127adb4a77918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
