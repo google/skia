@@ -13,8 +13,8 @@
 #include "SkImageInfo.h"
 #include "SkNoncopyable.h"
 
-class GrContext;
 class GrFragmentProcessor;
+class GrRecordingContext;
 class GrTexture;
 class GrTextureProxy;
 class SkColorSpace;
@@ -113,7 +113,7 @@ public:
 protected:
     friend class GrTextureProducer_TestAccess;
 
-    GrTextureProducer(GrContext* context, int width, int height, bool isAlphaOnly)
+    GrTextureProducer(GrRecordingContext* context, int width, int height, bool isAlphaOnly)
         : fContext(context)
         , fWidth(width)
         , fHeight(height)
@@ -156,7 +156,7 @@ protected:
         kTightCopy_DomainMode
     };
 
-    static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
+    static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*, sk_sp<GrTextureProxy> inputProxy,
                                            const CopyParams& copyParams,
                                            bool dstWillRequireMipMaps);
 
@@ -174,7 +174,7 @@ protected:
             const SkRect& domain,
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
-    GrContext* fContext;
+    GrRecordingContext* fContext;
 
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,

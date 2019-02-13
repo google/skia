@@ -17,8 +17,8 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrCoordTransform.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"

@@ -237,7 +237,7 @@ bool SkImage_Lazy::onIsValid(GrContext* context) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
+sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrRecordingContext* context,
                                                       const GrSamplerState& params,
                                                       SkScalar scaleAdjust[2]) const {
     if (!context) {
