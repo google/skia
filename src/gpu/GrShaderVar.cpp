@@ -70,19 +70,15 @@ void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) cons
     }
     if (this->isArray()) {
         if (this->isUnsizedArray()) {
-            out->appendf("%s %s[]",
-                         GrGLSLTypeString(shaderCaps, effectiveType),
-                         this->getName().c_str());
+            out->appendf("%s %s[]", GrGLSLTypeString(effectiveType), this->getName().c_str());
         } else {
             SkASSERT(this->getArrayCount() > 0);
             out->appendf("%s %s[%d]",
-                         GrGLSLTypeString(shaderCaps, effectiveType),
+                         GrGLSLTypeString(effectiveType),
                          this->getName().c_str(),
                          this->getArrayCount());
         }
     } else {
-        out->appendf("%s %s",
-                     GrGLSLTypeString(shaderCaps, effectiveType),
-                     this->getName().c_str());
+        out->appendf("%s %s", GrGLSLTypeString(effectiveType), this->getName().c_str());
     }
 }

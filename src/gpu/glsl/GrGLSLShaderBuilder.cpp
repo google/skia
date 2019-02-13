@@ -46,7 +46,7 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
                                        const GrShaderVar* args,
                                        const char* body,
                                        SkString* outName) {
-    this->functions().append(GrGLSLTypeString(fProgramBuilder->shaderCaps(), returnType));
+    this->functions().append(GrGLSLTypeString(returnType));
     fProgramBuilder->nameVariable(outName, '\0', name);
     this->functions().appendf(" %s", outName->c_str());
     this->functions().append("(");
