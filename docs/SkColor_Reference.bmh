@@ -459,17 +459,17 @@ void draw(SkCanvas* canvas) {
     };
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(14);
+    SkFont font(nullptr, 14);
     for (auto compare : colorCompare) {
         paint.setStyle(SkPaint::kFill_Style);
         paint.setColor(compare.fSVGColor);
         canvas->drawRect({5, 5, 15, 15}, paint);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawString(compare.fSVGName, 20, 16, paint);
+        canvas->drawString(compare.fSVGName, 20, 16, font, paint);
         paint.setColor(compare.fSkiaColor);
         canvas->drawRect({105, 5, 115, 15}, paint);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawString(compare.fSkiaName, 120, 16, paint);
+        canvas->drawString(compare.fSkiaName, 120, 16, font, paint);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect({5, 5, 15, 15}, paint);
         canvas->drawRect({105, 5, 115, 15}, paint);

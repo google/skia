@@ -3952,7 +3952,6 @@ Paint attributes related to text, like text size, have no effect on paint passed
         run.glyphs[0] = 20;
         sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
         SkPaint paint;
-        paint.setTextSize(10);
         paint.setColor(SK_ColorBLUE);
         canvas->drawTextBlob(blob.get(), 0, 0, paint);
     }
