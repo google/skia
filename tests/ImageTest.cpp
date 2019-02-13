@@ -1179,7 +1179,7 @@ DEF_TEST(Image_ColorSpace, r) {
     sk_sp<SkSurface> surface = SkSurface::MakeRaster(
             SkImageInfo::MakeN32Premul(SkISize::Make(10, 10)));
     image = surface->makeImageSnapshot();
-    REPORTER_ASSERT(r, nullptr == image->colorSpace());
+    REPORTER_ASSERT(r, sk_srgb_singleton() == image->colorSpace());
 
     surface = SkSurface::MakeRaster(info);
     image = surface->makeImageSnapshot();
