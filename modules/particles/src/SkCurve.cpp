@@ -10,6 +10,39 @@
 #include "SkRandom.h"
 #include "SkReflected.h"
 
+static SkScalar eval_cubic(const SkScalar* pts, SkScalar x) {
+    SkScalar ix = (1 - x);
+    return pts[0]*ix*ix*ix + pts[1]*3*ix*ix*x + pts[2]*3*ix*x*x + pts[3]*x*x*x;
+}
+
+SkScalar SkCurveSegment::eval(SkScalar x, SkRandom& random) const {
+    SkScalar result = fConstant ? fMin[0] : eval_cubic(fMin, x);
+    if (fRanged) {
+        result += ((fConstant ? fMax[0] : eval_cubic(fMax, x)) - result) * random.nextF();
+    }
+    if (fBidirectional && random.nextBool()) {
+        result = -result;
+    }
+    return result;
+}
+
+SkScalar SkCurve2::eval(SkScalar x, SkRandom& random) const {
+    SkASSERT(fSegments.count() == fXValues.count() + 1);
+
+    int i = 0;
+    for (; i < fXValues.count(); ++i) {
+        if (x <= fXValues[i]) {
+            break;
+        }
+    }
+
+    SkScalar rangeMin = (i == 0) ? 0.0f : fXValues[i - 1];
+    SkScalar rangeMax = (i == fXValues.count()) ? 1.0f : fXValues[i];
+    SkScalar segmentX = (x - rangeMin) / (rangeMax - rangeMin);
+    SkASSERT(0.0f <= segmentX && segmentX <= 1.0f);
+    return fSegments[i].eval(x, random);
+}
+
 SkScalar SkCurve::eval(float x, SkRandom& random) const {
     float ix = (1 - x);
     float y0 = fMin[0] * ix*ix*ix + fMin[1] * 3 * ix*ix*x + fMin[2] * 3 * ix*x*x + fMin[3] * x*x*x;

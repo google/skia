@@ -9,11 +9,40 @@
 #define SkCurve_DEFINED
 
 #include "SkScalar.h"
+#include "SkTArray.h"
 
 class SkFieldVisitor;
 class SkRandom;
 
 // TODO: Generalize this to a keyframed list of cubics
+
+struct SkCurveSegment {
+    SkScalar eval(SkScalar x, SkRandom& random) const;
+
+    void setConstant(SkScalar c) {
+        fConstant = true;
+        fRanged   = false;
+        fMin[0] = c;
+    }
+
+    SkScalar fMin[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    SkScalar fMax[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    bool fConstant      = true;
+    bool fRanged        = false;
+    bool fBidirectional = false;
+};
+
+struct SkCurve2 {
+    SkCurve2(SkScalar c = 0.0f) {
+        fSegments.push_back().setConstant(c);
+    }
+
+    SkScalar eval(SkScalar x, SkRandom& random) const;
+
+    SkTArray<SkCurveSegment, true> fSegments;
+    SkTArray<SkScalar, true>       fXValues;
+};
 
 struct SkCurve {
     SkCurve(SkScalar c = 0.0f) {
