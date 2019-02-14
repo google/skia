@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 
+class SkAnimTimer;
 class SkParticleEffect;
 
 class ParticlesSlide : public Slide {
@@ -31,6 +32,7 @@ public:
 
 private:
     SkRandom fRandom;
+    const SkAnimTimer* fTimer;
     sk_sp<SkParticleEffect>  fEffect;
 };
 

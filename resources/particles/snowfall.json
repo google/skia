@@ -40,7 +40,7 @@
       "P1": { "x": 61, "y": 34 },
       "P2": { "x": 606, "y": 32 }
    },
-   "Affectors": [
+   "Update": [
       {
          "Type": "SkJitterAffector",
          "X": {
