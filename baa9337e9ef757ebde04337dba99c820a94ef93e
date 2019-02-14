@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6a4c68d_908dfe1c",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-14T20:15:41Z",
+      "side": 1,
+      "message": "Would be another nice-to-have down the road, but what if the desired spawn count could come from the emitter as a curve?",
+      "range": {
+        "startLine": 131,
+        "startChar": 19,
+        "endLine": 131,
+        "endChar": 64
+      },
+      "revId": "baa9337e9ef757ebde04337dba99c820a94ef93e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
