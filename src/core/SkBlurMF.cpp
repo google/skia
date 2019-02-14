@@ -20,9 +20,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
@@ -55,13 +55,13 @@ public:
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkIRect* maskRect) const override;
-    bool directFilterMaskGPU(GrContext*,
+    bool directFilterMaskGPU(GrRecordingContext*,
                              GrRenderTargetContext* renderTargetContext,
                              GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const GrShape& shape) const override;
-    sk_sp<GrTextureProxy> filterMaskGPU(GrContext*,
+    sk_sp<GrTextureProxy> filterMaskGPU(GrRecordingContext*,
                                         sk_sp<GrTextureProxy> srcProxy,
                                         const SkMatrix& ctm,
                                         const SkIRect& maskRect) const override;
@@ -716,7 +716,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 
-bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
+bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
                                                GrRenderTargetContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrClip& clip,
@@ -868,7 +868,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
     return true;
 }
 
-sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
+sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
                                                           sk_sp<GrTextureProxy> srcProxy,
                                                           const SkMatrix& ctm,
                                                           const SkIRect& maskRect) const {
