@@ -19,6 +19,7 @@
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
+#include "SkMakeUnique.h"
 #include "SkParse.h"
 #include "SkShader.h"
 #include "SkStream.h"
@@ -30,8 +31,15 @@
 #ifdef SK_XML
 
 #include "SkDOM.h"
-#include "SkSVGCanvas.h"
+#include "../src/svg/SkSVGDevice.h"
 #include "SkXMLWriter.h"
+
+static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom) {
+    auto svgDevice = SkSVGDevice::Make(SkISize::Make(100, 100),
+                                       skstd::make_unique<SkXMLParserWriter>(dom->beginParsing()));
+    return svgDevice ? skstd::make_unique<SkCanvas>(svgDevice)
+                     : nullptr;
+}
 
 #if 0
 Using the new system where devices only gets glyphs causes this to fail because the font has no
@@ -118,8 +126,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
     SkPoint offset = SkPoint::Make(10, 20);
 
     {
-        SkXMLParserWriter writer(dom.beginParsing());
-        std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
+        auto svgCanvas = MakeDOMCanvas(&dom);
         svgCanvas->drawSimpleText(txt, len, kUTF8_SkTextEncoding, offset.x(), offset.y(),
                                   font, paint);
     }
@@ -131,8 +138,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
             xpos[i] = SkIntToScalar(txt[i]);
         }
 
-        SkXMLParserWriter writer(dom.beginParsing());
-        std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
+        auto svgCanvas = MakeDOMCanvas(&dom);
         auto blob = SkTextBlob::MakeFromPosTextH(txt, len, &xpos[0], offset.y(), font);
         svgCanvas->drawTextBlob(blob, 0, 0, paint);
     }
@@ -231,8 +237,7 @@ void ImageShaderTestSetup(SkDOM* dom, SkPaint* paint, int imageWidth, int imageH
                           int rectWidth, int rectHeight, SkShader::TileMode xTile,
                           SkShader::TileMode yTile) {
     SetImageShader(paint, imageWidth, imageHeight, xTile, yTile);
-    SkXMLParserWriter writer(dom->beginParsing());
-    std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
+    auto svgCanvas = MakeDOMCanvas(dom);
 
     SkRect bounds{0, 0, SkIntToScalar(rectWidth), SkIntToScalar(rectHeight)};
     svgCanvas->drawRect(bounds, *paint);
@@ -357,8 +362,7 @@ DEF_TEST(SVGDevice_ColorFilters, reporter) {
     SkPaint paint;
     paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kSrcIn));
     {
-        SkXMLParserWriter writer(dom.beginParsing());
-        std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
+        auto svgCanvas = MakeDOMCanvas(&dom);
         SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
         svgCanvas->drawRect(bounds, paint);
     }
