@@ -14,7 +14,11 @@
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrSkSLFPFactoryCache.h"
+#include "GrTextureContext.h"
 #include "SkGr.h"
+
+#define ASSERT_SINGLE_OWNER_PRIV \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 
 GrRecordingContext::GrRecordingContext(GrBackendApi backend,
                                        const GrContextOptions& options,
@@ -23,6 +27,15 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
 }
 
 GrRecordingContext::~GrRecordingContext() { }
+
+bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> cache) {
+
+    if (!INHERITED::init(std::move(caps), std::move(cache))) {
+        return false;
+    }
+
+    return true;
+}
 
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
@@ -42,6 +55,52 @@ sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
 
 GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     return this->refOpMemoryPool().get();
+}
+
+sk_sp<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
+                                                                 sk_sp<GrSurfaceProxy> proxy,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 const SkSurfaceProps* props) {
+    ASSERT_SINGLE_OWNER_PRIV
+
+    if (proxy->asRenderTargetProxy()) {
+        return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                               std::move(colorSpace), props);
+    } else {
+        SkASSERT(proxy->asTextureProxy());
+        SkASSERT(!props);
+        return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
+    }
+}
+
+sk_sp<GrSurfaceContext> GrRecordingContext::makeDeferredSurfaceContext(
+                                                                  const GrBackendFormat& format,
+                                                                  const GrSurfaceDesc& dstDesc,
+                                                                  GrSurfaceOrigin origin,
+                                                                  GrMipMapped mipMapped,
+                                                                  SkBackingFit fit,
+                                                                  SkBudgeted isDstBudgeted,
+                                                                  sk_sp<SkColorSpace> colorSpace,
+                                                                  const SkSurfaceProps* props) {
+    sk_sp<GrTextureProxy> proxy;
+    if (GrMipMapped::kNo == mipMapped) {
+        proxy = this->proxyProvider()->createProxy(format, dstDesc, origin, fit, isDstBudgeted);
+    } else {
+        SkASSERT(SkBackingFit::kExact == fit);
+        proxy = this->proxyProvider()->createMipMapProxy(format, dstDesc, origin, isDstBudgeted);
+    }
+    if (!proxy) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceContext> sContext = this->makeWrappedSurfaceContext(std::move(proxy),
+                                                                       std::move(colorSpace),
+                                                                       props);
+    if (sContext && sContext->asRenderTargetContext()) {
+        sContext->asRenderTargetContext()->discard();
+    }
+
+    return sContext;
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
@@ -159,6 +218,26 @@ sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
 
 sk_sp<GrOpMemoryPool> GrRecordingContextPriv::refOpMemoryPool() {
     return fContext->refOpMemoryPool();
+}
+
+sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
+                                                    sk_sp<GrSurfaceProxy> proxy,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkSurfaceProps* props) {
+    return fContext->makeWrappedSurfaceContext(std::move(proxy), std::move(colorSpace), props);
+}
+
+sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeDeferredSurfaceContext(
+                                                    const GrBackendFormat& format,
+                                                    const GrSurfaceDesc& dstDesc,
+                                                    GrSurfaceOrigin origin,
+                                                    GrMipMapped mipMapped,
+                                                    SkBackingFit fit,
+                                                    SkBudgeted isDstBudgeted,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    const SkSurfaceProps* props) {
+    return fContext->makeDeferredSurfaceContext(format, dstDesc, origin, mipMapped, fit,
+                                                isDstBudgeted, std::move(colorSpace), props);
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContext(
