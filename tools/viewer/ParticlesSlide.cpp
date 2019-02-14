@@ -234,8 +234,10 @@ ParticlesSlide::ParticlesSlide() {
     REGISTER_REFLECTED(SkReflected);
     SkParticleAffector::RegisterAffectorTypes();
     SkParticleEmitter::RegisterEmitterTypes();
-
     fName = "Particles";
+}
+
+void ParticlesSlide::load(SkScalar winWidth, SkScalar winHeight) {
     fEffect.reset(new SkParticleEffect(LoadEffectParams("resources/particles/default.json")));
 }
 
