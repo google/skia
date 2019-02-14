@@ -22,10 +22,14 @@ struct MacWindowInfo {
     NSView*   fMainView;
 };
 
+#ifdef SK_VULKAN
+WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&);
+#else
 inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
     // No Vulkan support on Mac.
     return nullptr;
 }
+#endif
 
 WindowContext* NewGLForMac(const MacWindowInfo&, const DisplayParams&);
 
