@@ -190,9 +190,12 @@ public:
         fWriter->startElement(name);
     }
 
-    AutoElement(const char name[], SkXMLWriter* writer, ResourceBucket* bucket,
-                const MxCp& mc, const SkPaint& paint)
-        : fWriter(writer)
+    AutoElement(const char name[], const std::unique_ptr<SkXMLWriter>& writer)
+        : AutoElement(name, writer.get()) {}
+
+    AutoElement(const char name[], const std::unique_ptr<SkXMLWriter>& writer,
+                ResourceBucket* bucket, const MxCp& mc, const SkPaint& paint)
+        : fWriter(writer.get())
         , fResourceBucket(bucket) {
 
         Resources res = this->addResources(mc, paint);
@@ -634,22 +637,18 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     }
 }
 
-SkBaseDevice* SkSVGDevice::Create(const SkISize& size, SkXMLWriter* writer, bool ownsWriter) {
-    if (!writer) {
-        return nullptr;
-    }
-
-    return new SkSVGDevice(size, writer, ownsWriter);
+sk_sp<SkBaseDevice> SkSVGDevice::Make(const SkISize& size, std::unique_ptr<SkXMLWriter> writer) {
+    return writer ? sk_sp<SkBaseDevice>(new SkSVGDevice(size, std::move(writer)))
+                  : nullptr;
 }
 
-SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer, bool ownsWriter)
+SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> writer)
     : INHERITED(SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fWriter(writer)
-    , fOwnsWriter(ownsWriter)
+    , fWriter(std::move(writer))
     , fResourceBucket(new ResourceBucket)
 {
-    SkASSERT(writer);
+    SkASSERT(fWriter);
 
     fWriter->writeHeader();
 
@@ -662,12 +661,7 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer, bool ownsWrit
     fRootElement->addAttribute("height", size.height());
 }
 
-SkSVGDevice::~SkSVGDevice() {
-    if (fOwnsWriter && fWriter) {
-        fRootElement.reset(nullptr);
-        delete fWriter;
-    }
-}
+SkSVGDevice::~SkSVGDevice() = default;
 
 void SkSVGDevice::drawPaint(const SkPaint& paint) {
     AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
