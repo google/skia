@@ -774,11 +774,12 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
 
                 SkVector advance = {0, 0};
                 modelText.reset(new TextProps[utf8runLength + 1]());
+                size_t modelStartCluster = utf8Start - utf8;
                 for (int i = 0; i < model.fNumGlyphs; ++i) {
-                    SkASSERT(model.fGlyphs[i].fCluster < utf8runLength);
+                    SkASSERT(modelStartCluster <= model.fGlyphs[i].fCluster < utf8End - utf8);
                     if (!model.fGlyphs[i].fUnsafeToBreak) {
-                        modelText[model.fGlyphs[i].fCluster].glyphLen = i;
-                        modelText[model.fGlyphs[i].fCluster].advance = advance;
+                        modelText[model.fGlyphs[i].fCluster - modelStartCluster].glyphLen = i;
+                        modelText[model.fGlyphs[i].fCluster - modelStartCluster].advance = advance;
                     }
                     advance += model.fGlyphs[i].fAdvance;
                 }
@@ -932,11 +933,10 @@ SkPoint SkShaper::Impl::shapeOk(RunHandler* handler,
                                 bidi, language, script, font));
         ShapedRun& run = runs.back();
 
-        int32_t clusterOffset = utf8Start - utf8;
         uint32_t previousCluster = 0xFFFFFFFF;
         for (int i = 0; i < run.fNumGlyphs; ++i) {
             ShapedGlyph& glyph = run.fGlyphs[i];
-            int32_t glyphCluster = glyph.fCluster + clusterOffset;
+            int32_t glyphCluster = glyph.fCluster;
 
             int32_t lineBreakIteratorCurrent = ubrk_current(&lineBreakIterator);
             while (lineBreakIteratorCurrent != UBRK_DONE &&
@@ -1134,7 +1134,7 @@ ShapedRun SkShaper::Impl::shape(const char* utf8,
     // Populate the hb_buffer directly with utf8 cluster indexes.
     const char* utf8Current = utf8Start;
     while (utf8Current < utf8End) {
-        unsigned int cluster = utf8Current - utf8Start;
+        unsigned int cluster = utf8Current - utf8;
         hb_codepoint_t u = utf8_next(&utf8Current, utf8End);
         hb_buffer_add(buffer, u, cluster);
     }
