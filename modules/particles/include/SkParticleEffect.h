@@ -43,14 +43,12 @@ struct InitialVelocityParams {
 
 class SkParticleEffectParams : public SkRefCnt {
 public:
-    int           fMaxCount = 128;
-    float         fEffectDuration = 1.0f;
-    float         fRate = 8.0f;
-    SkRangedFloat fLifetime = { 1.0f, 1.0f };
-    SkColor4f     fStartColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    SkColor4f     fEndColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-    SkCurve       fSize = 1.0f;
+    int       fMaxCount = 128;
+    float     fEffectDuration = 1.0f;
+    float     fRate = 8.0f;
+    SkCurve   fLifetime = 1.0f;
+    SkColor4f fStartColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+    SkColor4f fEndColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     // TODO: Add local vs. world copies of these
     // Initial velocity controls

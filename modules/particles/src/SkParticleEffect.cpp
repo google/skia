@@ -50,7 +50,6 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("StartColor", fStartColor);
     v->visit("EndColor", fEndColor);
 
-    v->visit("Size", fSize);
     v->visit("Velocity", fVelocity);
 
     v->visit("Image", fImage);
@@ -133,16 +132,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     fSpawnRemainder = desired - numToSpawn;
     numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
     if (fParams->fEmitter) {
-        for (int i = 0; i < numToSpawn; ++i) {
-            fParticles[fCount].fTimeOfBirth = now;
-            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(fRandom);
-            fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(fRandom);
-            fParticles[fCount].fPV.fVelocity = fParams->fVelocity.eval(fRandom);
-            fParticles[fCount].fStableRandom = fRandom;
-            fSpriteRects[fCount] = this->spriteRect(0);
-            fCount++;
-        }
-
         // No, this isn't "stable", but spawn affectors are only run once anyway.
         // Would it ever make sense to give the same random to all particles spawned on a given
         // frame? Having a hard time thinking when that would be useful.
@@ -150,6 +139,17 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         // ... and this isn't "particle" t, it's effect t.
         double t = (now - fSpawnTime) / fParams->fEffectDuration;
         updateParams.fParticleT = static_cast<float>(fLooping ? fmod(t, 1.0) : SkTPin(t, 0.0, 1.0));
+
+        for (int i = 0; i < numToSpawn; ++i) {
+            fParticles[fCount].fTimeOfBirth = now;
+            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(updateParams.fParticleT,
+                                                                            fRandom);
+            fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(fRandom);
+            fParticles[fCount].fPV.fVelocity = fParams->fVelocity.eval(fRandom);
+            fParticles[fCount].fStableRandom = fRandom;
+            fSpriteRects[fCount] = this->spriteRect(0);
+            fCount++;
+        }
 
         // Apply spawn affectors
         for (int i = fCount - numToSpawn; i < fCount; ++i) {
@@ -178,14 +178,12 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 
         // Set color by lifetime
         fColors[i] = Sk4f_toL32(swizzle_rb(startColor + (colorScale * t)));
+
         for (auto affector : fParams->fUpdateAffectors) {
             if (affector) {
                 affector->apply(updateParams, fParticles[i].fPV);
             }
         }
-
-        // Set size by lifetime
-        fParticles[i].fPV.fPose.fScale = fParams->fSize.eval(t, stableRandom);
 
         // Integrate position / orientation
         fParticles[i].fPV.fPose.fPosition += fParticles[i].fPV.fVelocity.fLinear * deltaTime;
