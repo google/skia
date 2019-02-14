@@ -787,9 +787,7 @@ struct ShapedRunGlyphIterator {
 }  // namespace
 
 struct SkShaper::Impl {
-    HBFont fHarfBuzzFont;
     HBBuffer fBuffer;
-    sk_sp<SkTypeface> fTypeface;
     ICUBrk fLineBreakIterator;
     ICUBrk fGraphemeBreakIterator;
 
@@ -825,15 +823,13 @@ struct SkShaper::Impl {
                     const FontRunIterator* font) const;
 };
 
-SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
+SkShaper::SkShaper() : fImpl(new Impl) {
 #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
         SkDebugf("SkLoadICU() failed!\n");
         return;
     }
 #endif
-    fImpl->fTypeface = nullptr;
-    fImpl->fHarfBuzzFont = nullptr;
     fImpl->fBuffer.reset(hb_buffer_create());
     SkASSERT(fImpl->fBuffer);
 

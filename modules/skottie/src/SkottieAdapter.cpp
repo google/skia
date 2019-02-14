@@ -421,7 +421,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     BlobMaker blobMaker(fText.fAlign);
 
     const auto& push_line = [&](const char* start, const char* end) {
-        SkShaper shaper(font.refTypeface());
+        SkShaper shaper;
         if (!shaper.good()) {
             return;
         }
