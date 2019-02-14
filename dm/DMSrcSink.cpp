@@ -1728,11 +1728,10 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
                                         fPageIndex, pageCount));
         }
     }
-    std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
     return src.draw(fPageIndex,
                     SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
                                                      SkIntToScalar(src.size().height())),
-                                      xmlWriter.get())
+                                      dst)
                             .get());
 #else
     (void)fPageIndex;

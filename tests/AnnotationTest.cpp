@@ -93,9 +93,8 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
 
     DEF_TEST(Annotation_SvgLink, reporter) {
         SkDynamicMemoryWStream outStream;
-        std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
         SkRect bounds = SkRect::MakeIWH(400, 400);
-        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
+        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &outStream);
 
         SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
                                     SkIntToScalar(72));
@@ -112,9 +111,8 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
 
     DEF_TEST(Annotation_SvgLinkNamedDestination, reporter) {
         SkDynamicMemoryWStream outStream;
-        std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
         SkRect bounds = SkRect::MakeIWH(400, 400);
-        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
+        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &outStream);
 
         SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
                                     SkIntToScalar(72));

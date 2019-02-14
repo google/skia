@@ -10,15 +10,12 @@
 #include "SkMakeUnique.h"
 #include "SkXMLWriter.h"
 
-std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkXMLWriter* writer, bool ownsWriter) {
+std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer) {
     // TODO: pass full bounds to the device
     SkISize size = bounds.roundOut().size();
-    sk_sp<SkBaseDevice> device(SkSVGDevice::Create(size, writer, ownsWriter));
 
-    return skstd::make_unique<SkCanvas>(device);
-}
+    auto svgDevice = SkSVGDevice::Make(size, skstd::make_unique<SkXMLStreamWriter>(writer));
 
-std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer) {
-    SkXMLStreamWriter *xmlWriter = new SkXMLStreamWriter(writer);
-    return Make(bounds, xmlWriter, true);
+    return svgDevice ? skstd::make_unique<SkCanvas>(svgDevice)
+                     : nullptr;
 }
