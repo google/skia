@@ -44,8 +44,37 @@
       {
          "Type": "SkJitterAffector",
          "X": {
-            "min": -0.2,
-            "max": 0.2
+            "XValues": [
+               0.2
+            ],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 1,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               },
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": -0.5,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
          }
       }
    ]
