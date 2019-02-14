@@ -73,6 +73,12 @@ public:
     /** Sets the quad to the rect as transformed by the matrix. */
     static GrQuad MakeFromRect(const SkRect&, const SkMatrix&);
 
+    // Creates a GrQuad from the quadrilateral 'pts', transformed by the matrix. Unlike the explicit
+    // constructor, the input points array is arranged as per SkRect::toQuad (top-left, top-right,
+    // bottom-right, bottom-left). The returned instance's point order will still be CCW tri-strip
+    // order.
+    static GrQuad MakeFromSkQuad(const SkPoint pts[4], const SkMatrix&);
+
     GrQuad& operator=(const GrQuad& that) = default;
 
     SkPoint point(int i) const { return {fX[i], fY[i]}; }
@@ -117,6 +123,7 @@ public:
         ys.store(fY);
         fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
     }
+
     GrPerspQuad(const Sk4f& xs, const Sk4f& ys, const Sk4f& ws) {
         xs.store(fX);
         ys.store(fY);
@@ -124,6 +131,11 @@ public:
     }
 
     static GrPerspQuad MakeFromRect(const SkRect&, const SkMatrix&);
+
+    // Creates a GrPerspQuad from the quadrilateral 'pts', transformed by the matrix. The input
+    // points array is arranged as per SkRect::toQuad (top-left, top-right, bottom-right,
+    // bottom-left). The returned instance's point order will still be CCW tri-strip order.
+    static GrPerspQuad MakeFromSkQuad(const SkPoint pts[4], const SkMatrix&);
 
     GrPerspQuad& operator=(const GrPerspQuad&) = default;
 
