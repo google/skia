@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "52ce9aec_298adc24",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-14T18:28:50Z",
+      "side": 1,
+      "message": "No different.",
+      "parentUuid": "cbc89ce8_2f77d43f",
+      "range": {
+        "startLine": 204,
+        "startChar": 4,
+        "endLine": 204,
+        "endChar": 24
+      },
+      "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d97d167c_17474085",
         "filename": "src/gpu/GrQuad.h",
         "patchSetId": 7
@@ -78,6 +102,24 @@
       "side": 1,
       "message": "It was mostly based on matching what is added in the next CL of the chain, where an SkPoint[4] ordered like SkRect::toQuad() + matrix is the input. Both MakeFromRect and MakeFromSkRect apply transformations to the inputs to get the final quad, whereas the constructors perform no manipulations of the data (except to unpack the plain SkRect).\n\nGiven the different work levels I liked making them distinct from the constructors.",
       "parentUuid": "d97d167c_17474085",
+      "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d31125be_3821273f",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-14T18:28:50Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "91f2e86e_e42e800d",
       "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
