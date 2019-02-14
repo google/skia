@@ -23,6 +23,8 @@
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
@@ -181,7 +183,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
     if (src->isTextureBacked() && result && !result->isTextureBacked()) {
         // Keep the result on the GPU - this is still required for some
         // image filters that don't support GPU in all cases
-        GrContext* context = src->getContext();
+        GrRecordingContext* context = src->getContext();
         result = result->makeTextureImage(context);
     }
 #endif
@@ -238,7 +240,7 @@ bool SkImageFilter::canComputeFastBounds() const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
+sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
                                                 std::unique_ptr<GrFragmentProcessor> fp,
                                                 const SkIRect& bounds,
                                                 const OutputProperties& outputProperties) {
