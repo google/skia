@@ -16,6 +16,24 @@
       "revId": "e1b740d54d12983804207cb046b660903d35d5cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73e3c088_5e424570",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-14T20:57:32Z",
+      "side": 0,
+      "message": "Yep. Turns out that the SkGlyphRunListPainter already knows the surface props, and the SkScalerContextFlags, which are integrated into the desc. The matrix is also integrated into the desc. So, it all distills down to desc, effects, and typeface.",
+      "parentUuid": "6eacacc2_5c284c6c",
+      "revId": "e1b740d54d12983804207cb046b660903d35d5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
