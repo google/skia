@@ -12,6 +12,7 @@
 
 #include "SkPoint.h"
 
+struct SkCurve;
 struct SkParticlePoseAndVelocity;
 struct SkParticleUpdateParams;
 
@@ -23,12 +24,14 @@ public:
 
     static void RegisterAffectorTypes();
 
-    static sk_sp<SkParticleAffector> MakeDirectionalForce(SkVector force);
-    static sk_sp<SkParticleAffector> MakeRangedForce(const SkCurve& angle, const SkCurve& strength,
-                                                     bool bidirectional);
+    static sk_sp<SkParticleAffector> MakeLinearVelocity(const SkCurve& angle,
+                                                        const SkCurve& strength,
+                                                        bool force);
     static sk_sp<SkParticleAffector> MakePointForce(SkPoint point, SkScalar constant,
                                                     SkScalar invSquare);
     static sk_sp<SkParticleAffector> MakeOrientAlongVelocity();
+
+    static sk_sp<SkParticleAffector> MakeSizeAffector(const SkCurve& curve);
 };
 
 #endif // SkParticleAffector_DEFINED

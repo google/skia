@@ -38,6 +38,7 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     return 0;
 }
 
+#if 0
 static ImVec2 map_point(float x, float y, ImVec2 pos, ImVec2 size, float yMin, float yMax) {
     // Turn y into 0 - 1 value
     float yNorm = 1.0f - ((y - yMin) / (yMax - yMin));
@@ -84,6 +85,7 @@ static void ImGui_DrawCurve(SkScalar* pts) {
     ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
     ImGui::Spacing();
 }
+#endif
 
 class SkGuiVisitor : public SkFieldVisitor {
 public:
@@ -128,6 +130,7 @@ public:
 
 #undef IF_OPEN
 
+    /*
     void visit(const char* name, SkCurve& c, SkField) override {
         this->enterObject(item(name));
         if (fTreeStack.back()) {
@@ -142,6 +145,7 @@ public:
         }
         this->exitObject();
     }
+    */
 
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         if (fTreeStack.back()) {

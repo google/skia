@@ -18,30 +18,6 @@
 #include "SkReflected.h"
 #include "SkRSXform.h"
 
-SkParticleVelocity InitialVelocityParams::eval(SkRandom& random) const {
-    float angle = fAngle + fAngleSpread * (random.nextF() - 0.5f);
-    SkScalar c, s = SkScalarSinCos(angle, &c);
-    float strength = fStrength.eval(random);
-    if (fBidirectional && random.nextBool()) {
-        strength = -strength;
-    }
-    float spin = SkDegreesToRadians(fSpin.eval(random));
-    if (fBidirectionalSpin && random.nextBool()) {
-        spin = -spin;
-    }
-    return SkParticleVelocity{ SkVector{ c * strength, s * strength }, spin };
-}
-
-void InitialVelocityParams::visitFields(SkFieldVisitor* v) {
-    v->visit("Angle", fAngle, SkField::kAngle_Field);
-    v->visit("Spread", fAngleSpread, SkField::kAngle_Field);
-    v->visit("Strength", fStrength);
-    v->visit("Bidirectional", fBidirectional);
-
-    v->visit("Spin", fSpin);
-    v->visit("BidirectionalSpin", fBidirectionalSpin);
-}
-
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);
     v->visit("Duration", fEffectDuration);
@@ -49,9 +25,6 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("Life", fLifetime);
     v->visit("StartColor", fStartColor);
     v->visit("EndColor", fEndColor);
-
-    v->visit("Size", fSize);
-    v->visit("Velocity", fVelocity);
 
     v->visit("Image", fImage);
     v->visit("ImageCols", fImageCols);
@@ -133,16 +106,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     fSpawnRemainder = desired - numToSpawn;
     numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
     if (fParams->fEmitter) {
-        for (int i = 0; i < numToSpawn; ++i) {
-            fParticles[fCount].fTimeOfBirth = now;
-            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(fRandom);
-            fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(fRandom);
-            fParticles[fCount].fPV.fVelocity = fParams->fVelocity.eval(fRandom);
-            fParticles[fCount].fStableRandom = fRandom;
-            fSpriteRects[fCount] = this->spriteRect(0);
-            fCount++;
-        }
-
         // No, this isn't "stable", but spawn affectors are only run once anyway.
         // Would it ever make sense to give the same random to all particles spawned on a given
         // frame? Having a hard time thinking when that would be useful.
@@ -150,6 +113,19 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         // ... and this isn't "particle" t, it's effect t.
         double t = (now - fSpawnTime) / fParams->fEffectDuration;
         updateParams.fParticleT = static_cast<float>(fLooping ? fmod(t, 1.0) : SkTPin(t, 0.0, 1.0));
+
+        for (int i = 0; i < numToSpawn; ++i) {
+            fParticles[fCount].fTimeOfBirth = now;
+            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(updateParams.fParticleT,
+                                                                            fRandom);
+            fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(fRandom);
+            fParticles[fCount].fPV.fVelocity.fLinear = { 0.0f, 0.0f };
+            fParticles[fCount].fPV.fVelocity.fAngular = 0.0f;
+
+            fParticles[fCount].fStableRandom = fRandom;
+            fSpriteRects[fCount] = this->spriteRect(0);
+            fCount++;
+        }
 
         // Apply spawn affectors
         for (int i = fCount - numToSpawn; i < fCount; ++i) {
@@ -178,14 +154,12 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 
         // Set color by lifetime
         fColors[i] = Sk4f_toL32(swizzle_rb(startColor + (colorScale * t)));
+
         for (auto affector : fParams->fUpdateAffectors) {
             if (affector) {
                 affector->apply(updateParams, fParticles[i].fPV);
             }
         }
-
-        // Set size by lifetime
-        fParticles[i].fPV.fPose.fScale = fParams->fSize.eval(t, stableRandom);
 
         // Integrate position / orientation
         fParticles[i].fPV.fPose.fPosition += fParticles[i].fPV.fVelocity.fLinear * deltaTime;

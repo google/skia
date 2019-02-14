@@ -7,59 +7,43 @@
 
 #include "SkParticleAffector.h"
 
+#include "SkCurve.h"
 #include "SkParticleData.h"
 #include "SkRandom.h"
 
-class SkDirectionalForceAffector : public SkParticleAffector {
+class SkLinearVelocityAffector : public SkParticleAffector {
 public:
-    SkDirectionalForceAffector(SkVector force = { 0.0f, 0.0f }) : fForce(force) {}
+    SkLinearVelocityAffector(const SkCurve& angle = 0.0f,
+                             const SkCurve& strength = 0.0f,
+                             bool force = true)
+        : fAngle(angle)
+        , fStrength(strength)
+        , fForce(force) {}
 
-    REFLECTED(SkDirectionalForceAffector, SkParticleAffector)
+    REFLECTED(SkLinearVelocityAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        pv.fVelocity.fLinear += fForce * params.fDeltaTime;
+        float angle = fAngle.eval(params.fParticleT, *params.fStableRandom);
+        SkScalar c, s = SkScalarSinCos(SkDegreesToRadians(angle), &c);
+        float strength = fStrength.eval(params.fParticleT, *params.fStableRandom);
+        SkVector force = { c * strength, s * strength };
+        if (fForce) {
+            pv.fVelocity.fLinear += force * params.fDeltaTime;
+        } else {
+            pv.fVelocity.fLinear = force;
+        }
     }
 
     void visitFields(SkFieldVisitor* v) override {
         v->visit("Force", fForce);
-    }
-
-private:
-    SkVector fForce;
-};
-
-class SkRangedForceAffector : public SkParticleAffector {
-public:
-    SkRangedForceAffector(const SkCurve& angle = 0.0f,
-                          const SkCurve& strength = 0.0f,
-                          bool bidirectional = false)
-        : fAngle(angle)
-        , fStrength(strength)
-        , fBidirectional(bidirectional) {}
-
-    REFLECTED(SkRangedForceAffector, SkParticleAffector)
-
-    void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        float angle = fAngle.eval(params.fParticleT, *params.fStableRandom);
-        SkScalar c, s = SkScalarSinCos(angle, &c);
-        float strength = fStrength.eval(params.fParticleT, *params.fStableRandom);
-        if (fBidirectional && params.fStableRandom->nextBool()) {
-            strength = -strength;
-        }
-        SkVector force = { c * strength, s * strength };
-        pv.fVelocity.fLinear += force * params.fDeltaTime;
-    }
-
-    void visitFields(SkFieldVisitor* v) override {
         v->visit("Angle", fAngle);
         v->visit("Strength", fStrength);
-        v->visit("Bidirectional", fBidirectional);
     }
 
 private:
     SkCurve fAngle;
     SkCurve fStrength;
-    bool fBidirectional;
+    bool fForce;
 };
 
 class SkPointForceAffector : public SkParticleAffector {
@@ -106,47 +90,47 @@ public:
     void visitFields(SkFieldVisitor*) override {}
 };
 
-class SkJitterAffector : public SkParticleAffector {
+class SkSizeAffector : public SkParticleAffector {
 public:
-    SkJitterAffector() {}
+    SkSizeAffector(const SkCurve& curve = 1.0f) : fCurve(curve) {}
 
-    REFLECTED(SkJitterAffector, SkParticleAffector)
+    REFLECTED(SkSizeAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        pv.fVelocity.fLinear.fX += fX.eval(*params.fRandom);
+        pv.fPose.fScale = fCurve.eval(params.fParticleT, *params.fStableRandom);
     }
 
     void visitFields(SkFieldVisitor* v) override {
-        v->visit("X", fX);
+        v->visit("Curve", fCurve);
     }
 
 private:
-    SkRangedFloat fX;
+    SkCurve fCurve;
 };
 
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
-    REGISTER_REFLECTED(SkDirectionalForceAffector);
-    REGISTER_REFLECTED(SkRangedForceAffector);
+    REGISTER_REFLECTED(SkLinearVelocityAffector);
     REGISTER_REFLECTED(SkPointForceAffector);
     REGISTER_REFLECTED(SkOrientAlongVelocityAffector);
-    REGISTER_REFLECTED(SkJitterAffector);
+    REGISTER_REFLECTED(SkSizeAffector);
 }
 
-sk_sp<SkParticleAffector> SkParticleAffector::MakeDirectionalForce(SkVector force) {
-    return sk_sp<SkParticleAffector>(new SkDirectionalForceAffector(force));
+sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
+                                                                 const SkCurve& strength,
+                                                                 bool force) {
+    return sk_sp<SkParticleAffector>(new SkLinearVelocityAffector(angle, strength, force));
 }
 
-sk_sp<SkParticleAffector> SkParticleAffector::MakeRangedForce(const SkCurve& angle,
-                                                              const SkCurve& strength,
-                                                              bool bidirectional) {
-    return sk_sp<SkParticleAffector>(new SkRangedForceAffector(angle, strength, bidirectional));
-}
-
-sk_sp<SkParticleAffector> MakePointForce(SkPoint point, SkScalar constant, SkScalar invSquare) {
+sk_sp<SkParticleAffector> SkParticleAffector::MakePointForce(SkPoint point, SkScalar constant,
+                                                             SkScalar invSquare) {
     return sk_sp<SkParticleAffector>(new SkPointForceAffector(point, constant, invSquare));
 }
 
-sk_sp<SkParticleAffector> MakeOrientAlongVelocity() {
+sk_sp<SkParticleAffector> SkParticleAffector::MakeOrientAlongVelocity() {
     return sk_sp<SkParticleAffector>(new SkOrientAlongVelocityAffector());
+}
+
+sk_sp<SkParticleAffector> SkParticleAffector::MakeSizeAffector(const SkCurve& curve) {
+    return sk_sp<SkParticleAffector>(new SkSizeAffector(curve));
 }

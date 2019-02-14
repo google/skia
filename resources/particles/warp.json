@@ -1,23 +1,27 @@
 {
    "MaxCount": 4096,
+   "Duration": 1,
    "Rate": 90,
    "Life": {
-      "min": 30,
-      "max": 30
+      "XValues": [],
+      "Segments": [
+         {
+            "Constant": true,
+            "Ranged": false,
+            "Bidirectional": false,
+            "A0": 30,
+            "B0": 0,
+            "C0": 0,
+            "D0": 0,
+            "A1": 0,
+            "B1": 0,
+            "C1": 0,
+            "D1": 0
+         }
+      ]
    },
    "StartColor": [ 1, 0.999994, 0.99999, 1 ],
    "EndColor": [ 0.99999, 0.999992, 1, 1 ],
-   "Size": {
-      "Ranged": false,
-      "A0": 2,
-      "B0": 2,
-      "C0": 2,
-      "D0": 2,
-      "A1": 1,
-      "B1": 1,
-      "C1": 1,
-      "D1": 1
-   },
    "Velocity": {
       "Angle": 1.5708,
       "Spread": 6.28319,
@@ -40,6 +44,29 @@
       "Center": { "x": 380.8, "y": 273.92 },
       "Radius": 43
    },
+   "Spawn": [
+      {
+         "Type": "SkSizeAffector",
+         "Curve": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 2,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      }
+   ],
    "Update": [
       {
          "Type": "SkPointForceAffector",

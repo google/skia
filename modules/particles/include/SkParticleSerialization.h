@@ -105,12 +105,6 @@ public:
         }
     }
 
-    void visit(const char* name, SkCurve& c, SkField field) override {
-        if (get(name).is<skjson::ObjectValue>()) {
-            SkFieldVisitor::visit(name, c, field);
-        }
-    }
-
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         const skjson::StringValue* typeString = get("Type");
         const char* type = typeString ? typeString->begin() : "Null";

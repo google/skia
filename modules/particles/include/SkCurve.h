@@ -9,36 +9,39 @@
 #define SkCurve_DEFINED
 
 #include "SkScalar.h"
+#include "SkTArray.h"
 
 class SkFieldVisitor;
 class SkRandom;
 
-// TODO: Generalize this to a keyframed list of cubics
+struct SkCurveSegment {
+    SkScalar eval(SkScalar x, SkRandom& random) const;
+    void visitFields(SkFieldVisitor* v);
+
+    void setConstant(SkScalar c) {
+        fConstant = true;
+        fRanged   = false;
+        fMin[0] = c;
+    }
+
+    SkScalar fMin[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    SkScalar fMax[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    bool fConstant      = true;
+    bool fRanged        = false;
+    bool fBidirectional = false;
+};
 
 struct SkCurve {
     SkCurve(SkScalar c = 0.0f) {
-        fRanged = false;
-        fMin[0] = fMin[1] = fMin[2] = fMin[3] = c;
-        fMax[0] = fMax[1] = fMax[2] = fMax[3] = c;
+        fSegments.push_back().setConstant(c);
     }
 
-    SkScalar eval(float x, SkRandom& random) const;
+    SkScalar eval(SkScalar x, SkRandom& random) const;
     void visitFields(SkFieldVisitor* v);
 
-    bool fRanged;
-    SkScalar fMin[4];
-    SkScalar fMax[4]; // used if ranged
-};
-
-// Ranged constant. Keeping this here temporarily. Phase this out in favor of SkCurve everywhere.
-struct SkRangedFloat {
-    float eval(SkRandom& random) const;
-    float* vec() { return &fMin; }
-
-    float fMin = 0.0f;
-    float fMax = 0.0f;
-
-    void visitFields(SkFieldVisitor* v);
+    SkTArray<SkScalar, true>       fXValues;
+    SkTArray<SkCurveSegment, true> fSegments;
 };
 
 #endif // SkCurve_DEFINED
