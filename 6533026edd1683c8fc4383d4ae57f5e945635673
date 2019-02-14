@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a86b0f81_ca40a732",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 2176,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-14T19:11:49Z",
+      "side": 1,
+      "message": "We need MetalKit for the MTKView -- it\u0027s not included in Metal.framework. I removed MoltenVK.",
+      "parentUuid": "9f02d163_0d3e77be",
+      "range": {
+        "startLine": 2173,
+        "startChar": 6,
+        "endLine": 2176,
+        "endChar": 9
+      },
+      "revId": "6533026edd1683c8fc4383d4ae57f5e945635673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e0e04457_cc4f40e0",
         "filename": "tools/sk_app/mac/VulkanWindowContext_mac.mm",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "6533026edd1683c8fc4383d4ae57f5e945635673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e6b4f0c_d1ccc749",
+        "filename": "tools/sk_app/mac/VulkanWindowContext_mac.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-14T19:11:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0e04457_cc4f40e0",
+      "range": {
+        "startLine": 3,
+        "startChar": 14,
+        "endLine": 3,
+        "endChar": 17
+      },
+      "revId": "6533026edd1683c8fc4383d4ae57f5e945635673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
