@@ -1480,6 +1480,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kRGB_888_GrPixelConfig].fFlags = 0;
     }
 
+    fConfigTable[kRGB_888X_GrPixelConfig] = fConfigTable[kRGBA_8888_GrPixelConfig];
+    fConfigTable[kRGB_888X_GrPixelConfig].fSwizzle = GrSwizzle::RGB1();
+    // Currently we don't allow RGB_888X to be renderable because we don't have a way to handle
+    // blends that reference the dst alpha when the values in the dst alpha channel are
+    // uninitialized.
+    fConfigTable[kRGB_888X_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+
     // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
     // not explicitly allowed by GL_EXT_texture_storage, particularly those from other extensions.
     bool isCommandBufferES2 = kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
@@ -2850,6 +2857,9 @@ GrColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
     // this as makes sense to increase performance and correctness.
     switch (fConfigTable[config].fFormatType) {
         case kNormalizedFixedPoint_FormatType:
+            if (kRGB_888X_GrPixelConfig == config) {
+                return GrColorType::kRGB_888x;
+            }
             return GrColorType::kRGBA_8888;
         case kFloat_FormatType:
             if ((kAlpha_half_GrPixelConfig == config ||
@@ -2939,6 +2949,8 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
         case kRGB_888x_SkColorType:
             if (GR_GL_RGB8 == format) {
                 return kRGB_888_GrPixelConfig;
+            } else if (GR_GL_RGBA8 == format) {
+                return kRGB_888X_GrPixelConfig;
             }
             break;
         case kBGRA_8888_SkColorType:

@@ -46,6 +46,7 @@ enum GrPixelConfig {
     kRGBA_4444_GrPixelConfig,
     kRGBA_8888_GrPixelConfig,
     kRGB_888_GrPixelConfig,
+    kRGB_888X_GrPixelConfig,
     kRG_88_GrPixelConfig,
     kBGRA_8888_GrPixelConfig,
     kSRGBA_8888_GrPixelConfig,
@@ -966,6 +967,7 @@ static inline GrSRGBEncoded GrPixelConfigIsSRGBEncoded(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -1003,6 +1005,7 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kRGB_888_GrPixelConfig:  // Assuming GPUs store this 4-byte aligned.
+        case kRGB_888X_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
@@ -1026,6 +1029,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kRGB_565_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kGray_8_GrPixelConfig:
         case kGray_8_as_Lum_GrPixelConfig:
@@ -1069,6 +1073,7 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
@@ -1096,6 +1101,7 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -1133,6 +1139,7 @@ static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -1167,6 +1174,7 @@ static inline GrPixelConfig GrMakePixelConfigUncompressed(GrPixelConfig config) 
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -1207,6 +1215,7 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -1242,6 +1251,7 @@ static inline GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kRGB_888_GrPixelConfig:
+        case kRGB_888X_GrPixelConfig:
         case kRG_88_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
@@ -1403,6 +1413,9 @@ static inline GrColorType GrPixelConfigToColorTypeAndEncoding(GrPixelConfig conf
             *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGBA_8888;
         case kRGB_888_GrPixelConfig:
+            *srgbEncoded = GrSRGBEncoded::kNo;
+            return GrColorType::kRGB_888x;
+        case kRGB_888X_GrPixelConfig:
             *srgbEncoded = GrSRGBEncoded::kNo;
             return GrColorType::kRGB_888x;
         case kRG_88_GrPixelConfig:

@@ -33,6 +33,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRGB_888_GrPixelConfig:
             // TODO: MTLPixelFormatRGB8Unorm
             return false;
+        case kRGB_888X_GrPixelConfig:
+            *format = MTLPixelFormatRGBA8Unorm;
+            return true;
         case kRG_88_GrPixelConfig:
             // TODO: MTLPixelFormatRG8Unorm
             return false;
@@ -97,46 +100,6 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     }
     SK_ABORT("Unexpected config");
     return false;
-}
-
-GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
-    switch (format) {
-        case MTLPixelFormatRGBA8Unorm:
-            return kRGBA_8888_GrPixelConfig;
-        case MTLPixelFormatBGRA8Unorm:
-            return kBGRA_8888_GrPixelConfig;
-        case MTLPixelFormatRGBA8Unorm_sRGB:
-            return kSRGBA_8888_GrPixelConfig;
-        case MTLPixelFormatBGRA8Unorm_sRGB:
-            return kSBGRA_8888_GrPixelConfig;
-        case MTLPixelFormatRGB10A2Unorm:
-            return kRGBA_1010102_GrPixelConfig;
-#ifdef SK_BUILD_FOR_IOS
-        case MTLPixelFormatB5G6R5Unorm:
-            return kRGB_565_GrPixelConfig;
-        case MTLPixelFormatABGR4Unorm:
-            return kRGBA_4444_GrPixelConfig;
-#endif
-        case MTLPixelFormatRG8Unorm:
-            return kRG_88_GrPixelConfig;
-        case MTLPixelFormatR8Unorm:
-            // We currently set this to be Alpha_8 and have no way to go to Gray_8
-            return kAlpha_8_GrPixelConfig;
-        case MTLPixelFormatRGBA32Float:
-            return kRGBA_float_GrPixelConfig;
-        case MTLPixelFormatRG32Float:
-            return kRG_float_GrPixelConfig;
-        case MTLPixelFormatRGBA16Float:
-            return kRGBA_half_GrPixelConfig;
-        case MTLPixelFormatR16Float:
-            return kAlpha_half_GrPixelConfig;
-#ifdef SK_BUILD_FOR_IOS
-        case MTLPixelFormatETC2_RGB8:
-            return kRGB_ETC1_GrPixelConfig;
-#endif
-        default:
-            return kUnknown_GrPixelConfig;
-    }
 }
 
 id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwnership) {
