@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "63a8f354_caf8a6ec",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-14T19:31:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86659eb7_99e1688d",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8d1da9c_5c1679a7",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "54cc0d35_920058fc",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-14T19:31:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8d1da9c_5c1679a7",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2d23346_bef5a559",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 1
@@ -50,6 +86,24 @@
       "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14c76a09_6d5f988b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-14T19:31:35Z",
+      "side": 1,
+      "message": "fMask can not have any empty glyphs. But, now that I have figured out that we don\u0027t need to process empty glyphs, maybe there is more simplification to be had.",
+      "parentUuid": "c2d23346_bef5a559",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "149ecadc_8c3d5f7e",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-14T19:31:35Z",
+      "side": 1,
+      "message": "Changed to fGlyphPos",
+      "parentUuid": "0f76d7e6_016b8eb2",
+      "range": {
+        "startLine": 362,
+        "startChar": 16,
+        "endLine": 362,
+        "endChar": 22
+      },
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cd5b14e_bc444e91",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 1
@@ -90,6 +168,24 @@
       "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dab07d4_6eca1db6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-14T19:31:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cd5b14e_bc444e91",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
