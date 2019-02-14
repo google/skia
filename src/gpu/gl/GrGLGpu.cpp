@@ -4319,9 +4319,10 @@ sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrGLGpu::makeSemaphore(bool isOwned) {
 
 sk_sp<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                  GrResourceProvider::SemaphoreWrapType wrapType,
-                                                 GrWrapOwnership ownership) {
+                                                 GrResourceProvider::SemaphoreDoneProc doneProc,
+                                                 GrResourceProvider::SemaphoreContext doneContext) {
     SkASSERT(this->caps()->fenceSyncSupport());
-    return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), ownership);
+    return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), doneProc, doneContext);
 }
 
 void GrGLGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {

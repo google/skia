@@ -369,11 +369,15 @@ public:
     GrSemaphoresSubmitted prepareForExternalIO(int numSemaphores,
                                                GrBackendSemaphore backendSemaphores[]);
 
+    using SemaphoreContext = void*;
+    using SemaphoreDoneProc = void (*)(SemaphoreContext, const GrBackendSemaphore&);
+
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
      */
-    bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                          SemaphoreDoneProc doneProc, SemaphoreContext doneContext);
 
     void insertEventMarker(const SkString&);
 

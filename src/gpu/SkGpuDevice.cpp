@@ -1690,10 +1690,12 @@ GrSemaphoresSubmitted SkGpuDevice::flushAndSignalSemaphores(int numSemaphores,
     return fRenderTargetContext->prepareForExternalIO(numSemaphores, signalSemaphores);
 }
 
-bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                       SemaphoreDoneProc doneProc, SemaphoreContext doneContext) {
     ASSERT_SINGLE_OWNER
 
-    return fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores);
+    return fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores,
+                                                  doneProc, doneContext);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

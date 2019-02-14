@@ -61,9 +61,9 @@ void GrVkSecondaryCBDrawContext::flush() {
     fDevice->flush();
 }
 
-bool GrVkSecondaryCBDrawContext::wait(int numSemaphores,
-                                      const GrBackendSemaphore waitSemaphores[]) {
-    return fDevice->wait(numSemaphores, waitSemaphores);
+bool GrVkSecondaryCBDrawContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                                      SemaphoreDoneProc doneProc, SemaphoreContext doneContext) {
+    return fDevice->wait(numSemaphores, waitSemaphores, doneProc, doneContext);
 }
 
 void GrVkSecondaryCBDrawContext::releaseResources() {

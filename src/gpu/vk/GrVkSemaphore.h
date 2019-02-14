@@ -32,7 +32,9 @@ public:
 
     class Resource : public GrVkResource {
     public:
-        Resource(VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait, bool isOwned)
+        Resource(VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait,
+                 GrResourceProvider::SemaphoreDoneProc doneProc,
+                 GrResourceProvider::SemaphoreContext doneContext)
                 : INHERITED()
                 , fSemaphore(semaphore)
                 , fHasBeenSubmittedToQueueForSignal(prohibitSignal)

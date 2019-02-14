@@ -34,7 +34,8 @@ public:
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(int numSemaphores,
                                   GrBackendSemaphore signalSemaphores[]) override;
-    bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
+    bool onWait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                SemaphoreDoneProc doneProc, SemaphoreContext doneContext) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool isCompatible(const SkSurfaceCharacterization&) const;
     bool onDraw(const SkDeferredDisplayList*) override;

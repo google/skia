@@ -120,7 +120,12 @@ public:
     void flush() override;
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+
+    using SemaphoreContext = void*;
+    using SemaphoreDoneProc = void (*)(SemaphoreContext, const GrBackendSemaphore&);
+
+    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+              SemaphoreDoneProc doneProc, SemaphoreContext doneContext);
 
     bool onAccessPixels(SkPixmap*) override;
 

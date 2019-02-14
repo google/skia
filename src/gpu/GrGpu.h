@@ -275,9 +275,14 @@ public:
     virtual void deleteFence(GrFence) const = 0;
 
     virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) = 0;
-    virtual sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                    GrResourceProvider::SemaphoreWrapType wrapType,
-                                                    GrWrapOwnership ownership) = 0;
+
+    using SemaphoreContext = void*;
+    using SemaphoreDoneProc = void (*)(SemaphoreContext, const GrBackendSemaphore&);
+
+    virtual sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
+                                                    GrResourceProvider::SemaphoreWrapType,
+                                                    GrResourceProvider::SemaphoreDoneProc,
+                                                    GrResourceProvider::SemaphoreContext) = 0;
     virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
     virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
 

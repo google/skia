@@ -100,7 +100,7 @@ public:
      */
     sk_sp<GrTextureProxy> createProxy(sk_sp<SkData>, const GrSurfaceDesc& desc);
 
-    // These match the definitions in SkImage & GrTexture.h, for whence they came
+    // These match the definitions in SkImage & GrTexture.h, from whence they came
     typedef void* ReleaseContext;
     typedef void (*ReleaseProc)(ReleaseContext);
 

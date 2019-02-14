@@ -9,15 +9,20 @@
 
 #include "GrGLGpu.h"
 
-GrGLSemaphore::GrGLSemaphore(GrGLGpu* gpu, bool isOwned)
-        : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {
+GrGLSemaphore::GrGLSemaphore(GrGLGpu* gpu,
+                             GrResourceProvider::SemaphoreDoneProc doneProc,
+                             GrResourceProvider::SemaphoreContext doneContext)
+        : INHERITED(gpu), fSync(0), fIsOwned(isOwned)
+        , fDoneProc(doneProc)
+        , fDoneContext(doneContext) {
     isOwned ? this->registerWithCache(SkBudgeted::kNo)
             : this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 void GrGLSemaphore::onRelease() {
-    if (fSync && fIsOwned) {
-        static_cast<const GrGLGpu*>(this->getGpu())->deleteSync(fSync);
+    if (fSync && fDoneProc) {
+        fDoneProc(fDoneContext, this->backendSemaphore());
+//        static_cast<const GrGLGpu*>(this->getGpu())->deleteSync(fSync);
     }
     fSync = 0;
     INHERITED::onRelease();

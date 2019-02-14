@@ -746,17 +746,24 @@ public:
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
 
+    using SemaphoreContext = void*;
+    using SemaphoreDoneProc = void (*)(SemaphoreContext, const GrBackendSemaphore&);
+
     /** Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
-        executing any more commands on the GPU for this surface. Skia will take ownership of the
-        underlying semaphores and delete them once they have been signaled and waited on.
+        executing any more commands on the GPU for this surface. Skia does not take ownership of the
+        underlying semaphores but will call the doneProc when they can be deleted.
         If this call returns false, then the GPU back-end will not wait on any passed in semaphores,
-        and the client will still own the semaphores.
+        and the client will still own the semaphores (and the doneProc will not be called on any
+        of them).
 
         @param numSemaphores   size of waitSemaphores array
         @param waitSemaphores  array of semaphore containers
-        @return                true if GPU is waiting on semaphores
+        @param doneProc        called on each GrBackendSemaphore when it needs to be deleted
+        @param doneContext     user-defined context passed to each doneProc call
+        @return                true if GPU will wait on semaphores
     */
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+              SemaphoreDoneProc doneProc, SemaphoreContext doneContext);
 
     /** Initializes SkSurfaceCharacterization that can be used to perform GPU back-end
         processing in a separate thread. Typically this is used to divide drawing

@@ -16,15 +16,17 @@ class GrGLGpu;
 
 class GrGLSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrGLSemaphore> Make(GrGLGpu* gpu, bool isOwned) {
-        return sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu, isOwned));
+    static sk_sp<GrGLSemaphore> Make(GrGLGpu* gpu,
+                                     GrResourceProvider::SemaphoreDoneProc doneProc,
+                                     GrResourceProvider::SemaphoreContext doneContext) {
+        return sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu, doneProc, doneContext));
     }
 
     static sk_sp<GrGLSemaphore> MakeWrapped(GrGLGpu* gpu,
                                             GrGLsync sync,
-                                            GrWrapOwnership ownership) {
-        auto sema = sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu,
-                                                           kBorrow_GrWrapOwnership != ownership));
+                                            GrResourceProvider::SemaphoreDoneProc doneProc,
+                                            GrResourceProvider::SemaphoreContext doneContext) {
+        auto sema = sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu, doneProc, doneContext));
         sema->setSync(sync);
         return sema;
     }
@@ -39,13 +41,16 @@ public:
     }
 
 private:
-    GrGLSemaphore(GrGLGpu* gpu, bool isOwned);
+    GrGLSemaphore(GrGLGpu* gpu,
+                  GrResourceProvider::SemaphoreDoneProc doneProc,
+                  GrResourceProvider::SemaphoreContext doneContext);
 
     void onRelease() override;
     void onAbandon() override;
 
     GrGLsync fSync;
-    bool     fIsOwned;
+    GrResourceProvider::SemaphoreDoneProc fDoneProc;
+    GrResourceProvider::SemaphoreContext fDoneContext;
 
     typedef GrSemaphore INHERITED;
 };

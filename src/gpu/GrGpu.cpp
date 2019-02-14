@@ -390,7 +390,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
             if (backendSemaphores[i].isInitialized()) {
                 semaphore = resourceProvider->wrapBackendSemaphore(
                         backendSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillSignal,
-                        kBorrow_GrWrapOwnership);
+                        nullptr, nullptr);
             } else {
                 semaphore = resourceProvider->makeSemaphore(false);
             }

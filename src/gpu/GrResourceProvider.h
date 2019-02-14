@@ -236,9 +236,13 @@ public:
         kWillWait,
     };
 
+    using SemaphoreContext = void*;
+    using SemaphoreDoneProc = void (*)(SemaphoreContext, const GrBackendSemaphore&);
+
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                             SemaphoreWrapType wrapType,
-                                            GrWrapOwnership = kBorrow_GrWrapOwnership);
+                                            SemaphoreDoneProc doneProc,
+                                            SemaphoreContext doneContext);
 
     void abandon() {
         fCache = nullptr;

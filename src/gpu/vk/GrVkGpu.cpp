@@ -2331,8 +2331,10 @@ sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore(bool isOwned) {
 
 sk_sp<GrSemaphore> GrVkGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                  GrResourceProvider::SemaphoreWrapType wrapType,
-                                                 GrWrapOwnership ownership) {
-    return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), wrapType, ownership);
+                                                 GrResourceProvider::SemaphoreDoneProc doneProc,
+                                                 GrResourceProvider::SemaphoreContext doneContext) {
+    return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(),
+                                      wrapType, doneProc, doneContext);
 }
 
 void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {

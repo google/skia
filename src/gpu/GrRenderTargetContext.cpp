@@ -1632,7 +1632,9 @@ GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
-                                             const GrBackendSemaphore* waitSemaphores) {
+                                             const GrBackendSemaphore waitSemaphores[],
+                                             SemaphoreDoneProc doneProc,
+                                             SemaphoreContext doneContext) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1644,15 +1646,11 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
         return false;
     }
 
-    auto resourceProvider = fContext->priv().resourceProvider();
-
     SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
-        sk_sp<GrSemaphore> sema = resourceProvider->wrapBackendSemaphore(
-                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
-                kAdopt_GrWrapOwnership);
-        std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(fContext, sema,
-                                                             fRenderTargetProxy.get()));
+        std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(fContext, fRenderTargetProxy.get(),
+                                                             waitSemaphores[i],
+                                                             doneProc, doneContext));
         this->getRTOpList()->addOp(std::move(waitOp), *this->caps());
     }
     return true;

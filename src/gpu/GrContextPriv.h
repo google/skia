@@ -119,7 +119,7 @@ public:
                                                       GrSurfaceOrigin origin,
                                                       sk_sp<SkColorSpace> colorSpace);
 
-    // These match the definitions in SkSurface & GrSurface.h, for whence they came
+    // These match the definitions in SkSurface & GrSurface.h, from whence they came
     typedef void* ReleaseContext;
     typedef void (*ReleaseProc)(ReleaseContext);
 

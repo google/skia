@@ -252,8 +252,9 @@ GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
     return asSB(this)->onFlush(numSemaphores, signalSemaphores);
 }
 
-bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
-    return asSB(this)->onWait(numSemaphores, waitSemaphores);
+bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                     SemaphoreDoneProc doneProc, SemaphoreContext doneContext) {
+    return asSB(this)->onWait(numSemaphores, waitSemaphores, doneProc, doneContext);
 }
 
 bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const {
