@@ -467,7 +467,6 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     // In Wuffs, a paletted image is always 1 byte per pixel.
     static constexpr size_t src_bpp = 1;
     wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
-    int scaledHeight = dstInfo().height();
     wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
     wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!fSwizzler) {
