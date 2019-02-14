@@ -215,6 +215,7 @@ tests_sources = [
   "$_tests/ShaderOpacityTest.cpp",
   "$_tests/ShaderTest.cpp",
   "$_tests/ShadowTest.cpp",
+  "$_tests/Shaper.cpp",
   "$_tests/SizeTest.cpp",
   "$_tests/SkBase64Test.cpp",
   "$_tests/skbug5221.cpp",
