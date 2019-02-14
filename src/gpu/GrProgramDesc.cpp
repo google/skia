@@ -39,71 +39,59 @@ static inline uint16_t texture_type_key(GrTextureType type) {
     return SkToU16(value);
 }
 
-static uint16_t sampler_key(GrTextureType textureType, GrPixelConfig config,
+static uint32_t sampler_key(GrTextureType textureType, GrPixelConfig config,
                             const GrShaderCaps& caps) {
     int samplerTypeKey = texture_type_key(textureType);
 
-    GR_STATIC_ASSERT(1 == sizeof(caps.configTextureSwizzle(config).asKey()));
-    return SkToU16(samplerTypeKey |
+    GR_STATIC_ASSERT(2 == sizeof(caps.configTextureSwizzle(config).asKey()));
+    return SkToU32(samplerTypeKey |
                    caps.configTextureSwizzle(config).asKey() << kSamplerOrImageTypeKeyBits |
-                   (GrSLSamplerPrecision(config) << (8 + kSamplerOrImageTypeKeyBits)));
+                   (GrSLSamplerPrecision(config) << (16 + kSamplerOrImageTypeKeyBits)));
 }
 
 static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
                              GrGpu* gpu, const GrShaderCaps& caps) {
     int numTextureSamplers = fp.numTextureSamplers();
-    // Need two bytes per key.
-    int word32Count = (numTextureSamplers + 1) / 2;
-    if (0 == word32Count) {
+    if (!numTextureSamplers) {
         return;
     }
-    uint16_t* k16 = reinterpret_cast<uint16_t*>(b->add32n(word32Count));
+    uint32_t* k32 = b->add32n(numTextureSamplers);
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
         const GrTexture* tex = sampler.peekTexture();
-        k16[i] = sampler_key(tex->texturePriv().textureType(), tex->config(), caps);
+        k32[i] = sampler_key(tex->texturePriv().textureType(), tex->config(), caps);
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 sampler.samplerState(), sampler.proxy()->backendFormat());
         if (extraSamplerKey) {
             SkASSERT(sampler.proxy()->textureType() == GrTextureType::kExternal);
             // We first mark the normal sampler key with last bit to flag that it has an extra
             // sampler key. We then add all the extraSamplerKeys to the end of the normal ones.
-            SkASSERT((k16[i] & (1 << 15)) == 0);
-            k16[i] = k16[i] | (1 << 15);
+            SkASSERT((k32[i] & (1 << 31)) == 0);
+            k32[i] = k32[i] | (1 << 31);
             b->add32(extraSamplerKey);
         }
-    }
-    // zero the last 16 bits if the number of uniforms for samplers is odd.
-    if (numTextureSamplers & 0x1) {
-        k16[numTextureSamplers] = 0;
     }
 }
 
 static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
                              const GrShaderCaps& caps) {
     int numTextureSamplers = pp.numTextureSamplers();
-    // Need two bytes per key.
-    int word32Count = (numTextureSamplers + 1) / 2;
-    if (0 == word32Count) {
+    if (!numTextureSamplers) {
         return;
     }
-    uint16_t* k16 = reinterpret_cast<uint16_t*>(b->add32n(word32Count));
+    uint32_t* k32 = b->add32n(numTextureSamplers);
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
-        k16[i] = sampler_key(sampler.textureType(), sampler.config(), caps);
+        k32[i] = sampler_key(sampler.textureType(), sampler.config(), caps);
         uint32_t extraSamplerKey = sampler.extraSamplerKey();
         if (extraSamplerKey) {
             SkASSERT(sampler.textureType() == GrTextureType::kExternal);
             // We first mark the normal sampler key with last bit to flag that it has an extra
             // sampler key. We then add all the extraSamplerKeys to the end of the normal ones.
-            SkASSERT((k16[i] & (1 << 15)) == 0);
-            k16[i] = k16[i] | (1 << 15);
+            SkASSERT((k32[i] & (1 << 15)) == 0);
+            k32[i] = k32[i] | (1 << 15);
             b->add32(extraSamplerKey);
         }
-    }
-    // zero the last 16 bits if the number of uniforms for samplers is odd.
-    if (numTextureSamplers & 0x1) {
-        k16[numTextureSamplers] = 0;
     }
 }
 

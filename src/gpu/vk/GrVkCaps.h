@@ -191,8 +191,8 @@ private:
         ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
 
         void init(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&,
-                  VkFormat);
-        static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags);
+                  VkFormat, bool disableRendering);
+        static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags, bool disableRendering);
         void initSampleCounts(const GrVkInterface*, VkPhysicalDevice,
                               const VkPhysicalDeviceProperties&, VkFormat);
 

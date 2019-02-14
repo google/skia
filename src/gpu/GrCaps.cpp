@@ -138,6 +138,7 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig: return "RGBA444";
         case kRGBA_8888_GrPixelConfig: return "RGBA8888";
         case kRGB_888_GrPixelConfig: return "RGB888";
+        case kRGB_888X_GrPixelConfig: return "RGB888X";
         case kRG_88_GrPixelConfig: return "RG88";
         case kBGRA_8888_GrPixelConfig: return "BGRA8888";
         case kSRGBA_8888_GrPixelConfig: return "SRGBA8888";
