@@ -125,6 +125,8 @@ public:
         this->exitObject();
     }
 
+//    virtual void visit(const char* name, SkCurve2& curve, SkField = SkField()) = 0;
+
     template <typename T>
     void visit(const char* name, T& value) {
         this->enterObject(name);
@@ -151,6 +153,16 @@ public:
         }
     }
 
+    template <typename T, bool MEM_MOVE>
+    void visit(const char* name, SkTArray<T, MEM_MOVE>& arr) {
+        int newCount = this->enterArray(name, arr.count());
+        arr.resize_back(newCount);
+        for (int i = 0; i < arr.count(); ++i) {
+            this->visit(nullptr, arr[i]);
+        }
+        this->exitArray();
+    }
+
     template <typename T>
     void visit(const char* name, sk_sp<T>& obj) {
         this->enterObject(name);
@@ -174,6 +186,10 @@ public:
 protected:
     virtual void enterObject(const char* name) = 0;
     virtual void exitObject() = 0;
+
+    virtual int enterArray(const char* name, int oldCount) = 0;
+    virtual void exitArray() = 0;
+
     virtual void visit(sk_sp<SkReflected>&, const SkReflected::Type* baseType) = 0;
     virtual void visit(const char* name, SkTArray<sk_sp<SkReflected>>&,
                        const SkReflected::Type* baseType) = 0;

@@ -48,13 +48,38 @@ public:
         fWriter.appendFloat(c.fA);
         fWriter.endArray();
     }
+    /*
+    void visit(const char* name, SkCurve2& c, SkField field) override {
+        fWriter.beginObject(name);
+        fWriter.beginArray("XValues", false);
+        for (auto x : c.fXValues) {
+            fWriter.appendFloat(x);
+        }
+        fWriter.endArray();
+        fWriter.beginArray("Segments");
+        for (const auto& segment : c.fSegments) {
+            fWriter.beginObject();
 
+            fWriter.endObject();
+        }
+        fWriter.endArray();
+        fWriter.endObject();
+    }
+    */
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         fWriter.appendString("Type", e ? e->getType()->fName : "Null");
     }
 
     void enterObject(const char* name) override { fWriter.beginObject(name); }
     void exitObject()                  override { fWriter.endObject(); }
+
+    int enterArray(const char* name, int oldCount) override {
+        fWriter.beginArray(name);
+        return oldCount;
+    }
+    void exitArray() override {
+        fWriter.endArray();
+    }
 
     void visit(const char* name, SkTArray<sk_sp<SkReflected>>& arr,
                const SkReflected::Type* baseType) override {
@@ -124,6 +149,17 @@ public:
         fStack.pop_back();
     }
 
+    int enterArray(const char* name, int oldCount) override {
+        const skjson::ArrayValue* arrVal = get(name);
+        fStack.push_back(arrVal);
+        fArrayIndexStack.push_back(0);
+        return arrVal ? arrVal->size() : 0;
+    }
+    void exitArray() override {
+        fStack.pop_back();
+        fArrayIndexStack.pop_back();
+    }
+
     void visit(const char* name, SkTArray<sk_sp<SkReflected>>& arr,
                const SkReflected::Type* baseType) override {
         arr.reset();
@@ -149,9 +185,12 @@ public:
     }
 
 private:
-    const skjson::Value& get(const char* name) const {
+    const skjson::Value& get(const char* name) {
         if (const skjson::Value* cur = fStack.back()) {
-            if (!name) {
+            if (cur->is<skjson::ArrayValue>()) {
+                SkASSERT(!name);
+                return cur->as<skjson::ArrayValue>()[fArrayIndexStack.back()++];
+            } else if (!name) {
                 return *cur;
             } else if (cur->is<skjson::ObjectValue>()) {
                 return cur->as<skjson::ObjectValue>()[name];
@@ -203,6 +242,7 @@ private:
 
     const skjson::Value& fRoot;
     SkSTArray<16, const skjson::Value*, true> fStack;
+    SkSTArray<16, size_t, true>               fArrayIndexStack;
 };
 
 #endif // SkParticleSerialization_DEFINED

@@ -96,37 +96,38 @@ public:
     void visit(const char* name, float& f, SkField field) override {
         if (fTreeStack.back()) {
             if (field.fFlags & SkField::kAngle_Field) {
-                ImGui::SliderAngle(name, &f, 0.0f);
+                ImGui::SliderAngle(label(name), &f, 0.0f);
             } else {
-                ImGui::DragFloat(name, &f);
+                ImGui::DragFloat(label(name), &f);
             }
         }
     }
     void visit(const char* name, int& i, SkField) override {
-        IF_OPEN(ImGui::DragInt(name, &i))
+        IF_OPEN(ImGui::DragInt(label(name), &i))
     }
     void visit(const char* name, bool& b, SkField) override {
-        IF_OPEN(ImGui::Checkbox(name, &b))
+        IF_OPEN(ImGui::Checkbox(label(name), &b))
     }
     void visit(const char* name, SkString& s, SkField) override {
         if (fTreeStack.back()) {
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
-            ImGui::InputText(name, s.writable_str(), s.size() + 1, flags, InputTextCallback, &s);
+            ImGui::InputText(label(name), s.writable_str(), s.size() + 1, flags, InputTextCallback,
+                             &s);
         }
     }
 
     void visit(const char* name, SkPoint& p, SkField) override {
         if (fTreeStack.back()) {
-            ImGui::DragFloat2(name, &p.fX);
+            ImGui::DragFloat2(label(name), &p.fX);
             gDragPoints.push_back(&p);
         }
     }
     void visit(const char* name, SkColor4f& c, SkField) override {
-        IF_OPEN(ImGui::ColorEdit4(name, c.vec()))
+        IF_OPEN(ImGui::ColorEdit4(label(name), c.vec()))
     }
 
     void visit(const char* name, SkCurve& c, SkField) override {
-        this->enterObject(name);
+        this->enterObject(label(name));
         if (fTreeStack.back()) {
             ImGui::Checkbox("Ranged", &c.fRanged);
             ImGui::DragFloat4("Min", c.fMin);
@@ -157,7 +158,7 @@ public:
 
     void enterObject(const char* name) override {
         if (fTreeStack.back()) {
-            fTreeStack.push_back(ImGui::TreeNode(name));
+            fTreeStack.push_back(ImGui::TreeNode(label(name)));
         } else {
             fTreeStack.push_back(false);
         }
@@ -169,11 +170,21 @@ public:
         fTreeStack.pop_back();
     }
 
+    int enterArray(const char* name, int oldCount) override {
+        this->enterObject(label(name));
+        fArrayCounterStack.push_back(0);
+        return oldCount;
+    }
+    void exitArray() override {
+        fArrayCounterStack.pop_back();
+        this->exitObject();
+    }
+
 #undef IF_OPEN
 
     void visit(const char* name, SkTArray<sk_sp<SkReflected>>& arr,
                const SkReflected::Type* baseType) override {
-        this->enterObject(name);
+        this->enterObject(label(name));
         if (fTreeStack.back()) {
             for (int i = 0; i < arr.count(); ++i) {
                 ImGui::PushID(i);
@@ -216,7 +227,17 @@ public:
     }
 
 private:
+    const char* label(const char* name) {
+        if (name) {
+            return name;
+        }
+        fScratchLabel = SkStringPrintf("[%d]", fArrayCounterStack.back()++);
+        return fScratchLabel.c_str();
+    }
+
     SkSTArray<16, bool, true> fTreeStack;
+    SkSTArray<16, int, true>  fArrayCounterStack;
+    SkString fScratchLabel;
 };
 
 static sk_sp<SkParticleEffectParams> LoadEffectParams(const char* filename) {
