@@ -10,6 +10,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrImageContext.h"
+#include "SkRefCnt.h"
 
 class GrDrawingManager;
 class GrOpMemoryPool;
@@ -27,14 +28,27 @@ protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
+    bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
 
     void abandonContext() override;
 
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
-    virtual GrDrawingManager* drawingManager() = 0;
+    GrDrawingManager* drawingManager();
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
+
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
+
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
+                                                       const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
+                                                       SkBackingFit,
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
 
     /*
      * Create a new render target context backed by a deferred-style
@@ -76,9 +90,10 @@ protected:
     GrRecordingContext* asRecordingContext() override { return this; }
 
 private:
+    std::unique_ptr<GrDrawingManager> fDrawingManager;
     // All the GrOp-derived classes use this pool.
-    sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrAuditTrail          fAuditTrail;
+    sk_sp<GrOpMemoryPool>             fOpMemoryPool;
+    GrAuditTrail                      fAuditTrail;
 
     typedef GrImageContext INHERITED;
 };
