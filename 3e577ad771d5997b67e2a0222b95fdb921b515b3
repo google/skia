@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86659eb7_99e1688d",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-14T17:49:29Z",
+      "side": 1,
+      "message": "ScopedBuffers _ \u003d ensureBuffers(glyphRun)?  I had to look this one up again.",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8d1da9c_5c1679a7",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-14T17:49:29Z",
+      "side": 1,
+      "message": "odd indent?",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2d23346_bef5a559",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-14T17:49:29Z",
+      "side": 1,
+      "message": "This quick reject is the only reason to have the emptyGlyphs list, right?  We don\u0027t do anything with them later?  Could we just, not do any of this empty glyph tracking?  Or are we also maintaining an invariant that fMasks only has non-empty glyphs?\n\nIt\u0027s not clear reading here if this is an accelerator or an essential, so let\u0027s write some of this down here in comments?",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f76d7e6_016b8eb2",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-14T17:49:29Z",
+      "side": 1,
+      "message": "Is it weird now to call this fMasks?",
+      "range": {
+        "startLine": 362,
+        "startChar": 16,
+        "endLine": 362,
+        "endChar": 22
+      },
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cd5b14e_bc444e91",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-14T17:49:29Z",
+      "side": 1,
+      "message": "This one\u0027s maybe worth a comment about why it makes sense to be empty?",
+      "revId": "3e577ad771d5997b67e2a0222b95fdb921b515b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
