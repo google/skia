@@ -704,8 +704,7 @@
     "Housekeeper-PerCommit-Bookmaker": {
       "tasks": [
         "Housekeeper-PerCommit-Bookmaker"
-      ],
-      "trigger": "on demand"
+      ]
     },
     "Housekeeper-PerCommit-BundleRecipes": {
       "tasks": [
