@@ -1,23 +1,27 @@
 {
    "MaxCount": 4096,
+   "Duration": 1,
    "Rate": 30,
    "Life": {
-      "min": 10,
-      "max": 10
+      "XValues": [],
+      "Segments": [
+         {
+            "Constant": true,
+            "Ranged": false,
+            "Bidirectional": false,
+            "A0": 10,
+            "B0": 0,
+            "C0": 0,
+            "D0": 0,
+            "A1": 0,
+            "B1": 0,
+            "C1": 0,
+            "D1": 0
+         }
+      ]
    },
    "StartColor": [ 1, 0.999994, 0.99999, 1 ],
    "EndColor": [ 0.99999, 0.999992, 1, 1 ],
-   "Size": {
-      "Ranged": true,
-      "A0": 10,
-      "B0": 10,
-      "C0": 10,
-      "D0": 0,
-      "A1": 10,
-      "B1": 0,
-      "C1": 0,
-      "D1": 0
-   },
    "Velocity": {
       "Angle": 1.5708,
       "Spread": 0.174533,
@@ -40,12 +44,68 @@
       "P1": { "x": 61, "y": 34 },
       "P2": { "x": 606, "y": 32 }
    },
+   "Spawn": [
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Force": false,
+         "Angle": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 80,
+                  "B0": 1,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 100,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         },
+         "Strength": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 10,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 30,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      }
+   ],
    "Update": [
       {
-         "Type": "SkJitterAffector",
-         "X": {
-            "min": -0.2,
-            "max": 0.2
+         "Type": "SkSizeAffector",
+         "Curve": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": false,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 10,
+                  "B0": 10,
+                  "C0": 10,
+                  "D0": 0,
+                  "A1": 10,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
          }
       }
    ]

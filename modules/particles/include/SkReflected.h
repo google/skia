@@ -9,7 +9,6 @@
 #define SkReflected_DEFINED
 
 #include "SkColor.h"
-#include "SkCurve.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -118,12 +117,6 @@ public:
 
     virtual void visit(const char*, SkPoint&, SkField = SkField()) = 0;
     virtual void visit(const char*, SkColor4f&, SkField = SkField()) = 0;
-
-    virtual void visit(const char* name, SkCurve& curve, SkField = SkField()) {
-        this->enterObject(name);
-        curve.visitFields(this);
-        this->exitObject();
-    }
 
     template <typename T>
     void visit(const char* name, T& value) {
