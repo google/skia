@@ -66,7 +66,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     if (fGpu) {
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner(),
-                                                   this->options().fExplicitlyAllocateGPUResources);
+                                                   this->explicitlyAllocateGPUResources());
     }
 
     if (fResourceCache) {
