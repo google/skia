@@ -17,7 +17,7 @@
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
 
-GrTextureContext::GrTextureContext(GrContext* context,
+GrTextureContext::GrTextureContext(GrRecordingContext* context,
                                    GrDrawingManager* drawingMgr,
                                    sk_sp<GrTextureProxy> textureProxy,
                                    sk_sp<SkColorSpace> colorSpace,
@@ -33,7 +33,7 @@ GrTextureContext::GrTextureContext(GrContext* context,
 #ifdef SK_DEBUG
 void GrTextureContext::validate() const {
     SkASSERT(fTextureProxy);
-    fTextureProxy->validate(fContext);
+    fTextureProxy->validate(fContext1);
 
     if (fOpList && !fOpList->isClosed()) {
         SkASSERT(fTextureProxy->getLastOpList() == fOpList.get());
@@ -62,7 +62,7 @@ GrOpList* GrTextureContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newTextureOpList(fTextureProxy.get());
+        fOpList = this->drawingManager1()->newTextureOpList(fTextureProxy.get());
     }
 
     return fOpList.get();
