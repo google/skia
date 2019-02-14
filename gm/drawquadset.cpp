@@ -31,6 +31,8 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
 
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
+    GrContext* context = canvas->getGrContext();
+
     auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
     SkPaint paint;
     paint.setShader(gradient);
@@ -63,8 +65,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
                 // Use non-public API to leverage general GrPaint capabilities
                 SkMatrix view = canvas->getTotalMatrix();
                 GrPaint grPaint;
-                SkPaintToGrPaint(rtc->surfPriv().getContext(), rtc->colorSpaceInfo(), paint, view,
-                                 &grPaint);
+                SkPaintToGrPaint(context, rtc->colorSpaceInfo(), paint, view, &grPaint);
                 rtc->fillRectWithEdgeAA(GrNoClip(), std::move(grPaint),
                                         static_cast<GrQuadAAFlags>(aa), view, tile);
             } else {

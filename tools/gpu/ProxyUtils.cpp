@@ -7,18 +7,20 @@
 
 #include "ProxyUtils.h"
 #include "GrBackendSurface.h"
-#include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width, int height,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrRecordingContext* context, bool isRT,
+                                               int width, int height,
                                                GrColorType colorType, GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin, const void* data,
                                                size_t rowBytes) {
-    if (context->abandoned()) {
+    if (context->priv().abandoned()) {
         return nullptr;
     }
 
