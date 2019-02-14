@@ -134,7 +134,7 @@ static void test_partial(skiatest::Reporter* r, const char* name, size_t minByte
     test_partial(r, name, file, SkTMax(file->size() / 2, minBytes), kIncrement);
 }
 
-DEF_TEST(Codec_partial, r) {
+DEF_TEST(Codec_Partial, r) {
 #if 0
     // FIXME (scroggo): SkPngCodec needs to use SkStreamBuffer in order to
     // support incremental decoding.
@@ -154,7 +154,7 @@ DEF_TEST(Codec_partial, r) {
     test_partial(r, "images/color_wheel.gif");
 }
 
-DEF_TEST(Codec_partialWuffs, r) {
+DEF_TEST(Codec_PartialWuffs, r) {
     const char* path = "images/alphabetAnim.gif";
     auto file = GetResourceAsData(path);
     if (!file) {
@@ -171,7 +171,7 @@ DEF_TEST(Codec_partialWuffs, r) {
 
 // Verify that when decoding an animated gif byte by byte we report the correct
 // fRequiredFrame as soon as getFrameInfo reports the frame.
-DEF_TEST(Codec_requiredFrame, r) {
+DEF_TEST(Codec_RequiredFrame, r) {
     auto path = "images/colorTables.gif";
     sk_sp<SkData> file = GetResourceAsData(path);
     if (!file) {
@@ -222,7 +222,7 @@ DEF_TEST(Codec_requiredFrame, r) {
     }
 }
 
-DEF_TEST(Codec_partialAnim, r) {
+DEF_TEST(Codec_PartialAnim, r) {
     auto path = "images/test640x479.gif";
     sk_sp<SkData> file = GetResourceAsData(path);
     if (!file) {
@@ -363,7 +363,7 @@ static void test_interleaved(skiatest::Reporter* r, const char* name) {
     REPORTER_ASSERT(r, result == SkCodec::kInvalidParameters);
 }
 
-DEF_TEST(Codec_rewind, r) {
+DEF_TEST(Codec_Rewind, r) {
     test_interleaved(r, "images/plane.png");
     test_interleaved(r, "images/plane_interlaced.png");
     test_interleaved(r, "images/box.gif");
@@ -462,7 +462,7 @@ DEF_TEST(Codec_GifPreMap, r) {
     }
 }
 
-DEF_TEST(Codec_emptyIDAT, r) {
+DEF_TEST(Codec_EmptyIDAT, r) {
     const char* name = "images/baby_tux.png";
     sk_sp<SkData> file = GetResourceAsData(name);
     if (!file) {
@@ -486,7 +486,7 @@ DEF_TEST(Codec_emptyIDAT, r) {
     REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 }
 
-DEF_TEST(Codec_incomplete, r) {
+DEF_TEST(Codec_Incomplete, r) {
     for (const char* name : { "images/baby_tux.png",
                               "images/baby_tux.webp",
                               "images/CMYK.jpg",

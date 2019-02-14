@@ -19,7 +19,7 @@
 #include <memory>
 #include <utility>
 
-DEF_TEST(Codec_recommendedF16, r) {
+DEF_TEST(Codec_RecommendedF16, r) {
     // Encode an F16 bitmap. SkEncodeImage will encode this to a true-color PNG
     // with a bit depth of 16. SkAndroidCodec should always recommend F16 for
     // such a PNG.

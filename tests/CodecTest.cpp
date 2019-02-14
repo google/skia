@@ -469,22 +469,22 @@ static void check(skiatest::Reporter* r,
     }
 }
 
-DEF_TEST(Codec_wbmp, r) {
+DEF_TEST(Codec_Wbmp, r) {
     check(r, "images/mandrill.wbmp", SkISize::Make(512, 512), true, false, true);
 }
 
-DEF_TEST(Codec_webp, r) {
+DEF_TEST(Codec_Webp, r) {
     check(r, "images/baby_tux.webp", SkISize::Make(386, 395), false, true, true);
     check(r, "images/color_wheel.webp", SkISize::Make(128, 128), false, true, true);
     check(r, "images/yellow_rose.webp", SkISize::Make(400, 301), false, true, true);
 }
 
-DEF_TEST(Codec_bmp, r) {
+DEF_TEST(Codec_Bmp, r) {
     check(r, "images/randPixels.bmp", SkISize::Make(8, 8), true, false, true);
     check(r, "images/rle.bmp", SkISize::Make(320, 240), true, false, true);
 }
 
-DEF_TEST(Codec_ico, r) {
+DEF_TEST(Codec_Ico, r) {
     // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
     // Decodes an embedded BMP image
@@ -493,14 +493,14 @@ DEF_TEST(Codec_ico, r) {
     check(r, "images/google_chrome.ico", SkISize::Make(256, 256), false, false, false, true);
 }
 
-DEF_TEST(Codec_gif, r) {
+DEF_TEST(Codec_Gif, r) {
     check(r, "images/box.gif", SkISize::Make(200, 55), false, false, true, true);
     check(r, "images/color_wheel.gif", SkISize::Make(128, 128), false, false, true, true);
     // randPixels.gif is too small to test incomplete
     check(r, "images/randPixels.gif", SkISize::Make(8, 8), false, false, false, true);
 }
 
-DEF_TEST(Codec_jpg, r) {
+DEF_TEST(Codec_Jpg, r) {
     check(r, "images/CMYK.jpg", SkISize::Make(642, 516), true, false, true);
     check(r, "images/color_wheel.jpg", SkISize::Make(128, 128), true, false, true);
     // grayscale.jpg is too small to test incomplete
@@ -510,7 +510,7 @@ DEF_TEST(Codec_jpg, r) {
     check(r, "images/randPixels.jpg", SkISize::Make(8, 8), true, false, false);
 }
 
-DEF_TEST(Codec_png, r) {
+DEF_TEST(Codec_Png, r) {
     check(r, "images/arrow.png", SkISize::Make(187, 312), false, false, true, true);
     check(r, "images/baby_tux.png", SkISize::Make(240, 246), false, false, true, true);
     check(r, "images/color_wheel.png", SkISize::Make(128, 128), false, false, true, true);
@@ -531,7 +531,7 @@ DEF_TEST(Codec_png, r) {
 
 // Disable RAW tests for Win32.
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-DEF_TEST(Codec_raw, r) {
+DEF_TEST(Codec_Raw, r) {
     check(r, "images/sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
     check(r, "images/sample_1mp_rotated.dng", SkISize::Make(600, 338), false, false, false);
     check(r, "images/dng_with_preview.dng", SkISize::Make(600, 338), true, false, false);
@@ -548,7 +548,7 @@ static void test_invalid_stream(skiatest::Reporter* r, const void* stream, size_
 
 // Ensure that SkCodec::NewFromStream handles freeing the passed in SkStream,
 // even on failure. Test some bad streams.
-DEF_TEST(Codec_leaks, r) {
+DEF_TEST(Codec_Leaks, r) {
     // No codec should claim this as their format, so this tests SkCodec::NewFromStream.
     const char nonSupportedStream[] = "hello world";
     // The other strings should look like the beginning of a file type, so we'll call some
@@ -569,7 +569,7 @@ DEF_TEST(Codec_leaks, r) {
     test_invalid_stream(r, emptyGif, sizeof(emptyGif));
 }
 
-DEF_TEST(Codec_null, r) {
+DEF_TEST(Codec_Null, r) {
     // Attempting to create an SkCodec or an SkAndroidCodec with null should not
     // crash.
     REPORTER_ASSERT(r, !SkCodec::MakeFromStream(nullptr));
@@ -692,7 +692,7 @@ static void codex_test_write_fn(png_structp png_ptr, png_bytep data, png_size_t 
     }
 }
 
-DEF_TEST(Codec_pngChunkReader, r) {
+DEF_TEST(Codec_PngChunkReader, r) {
     // Create a dummy bitmap. Use unpremul RGBA for libpng.
     SkBitmap bm;
     const int w = 1;
@@ -868,7 +868,7 @@ private:
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
 // Test that the RawCodec works also for not asset stream. This will test the code path using
 // SkRawBufferedStream instead of SkRawAssetStream.
-DEF_TEST(Codec_raw_notseekable, r) {
+DEF_TEST(Codec_RawNotSeekable, r) {
     constexpr char path[] = "images/dng_with_preview.dng";
     sk_sp<SkData> data(GetResourceAsData(path));
     if (!data) {
@@ -886,7 +886,7 @@ DEF_TEST(Codec_raw_notseekable, r) {
 
 // Test that even if webp_parse_header fails to peek enough, it will fall back to read()
 // + rewind() and succeed.
-DEF_TEST(Codec_webp_peek, r) {
+DEF_TEST(Codec_WebpPeek, r) {
     constexpr char path[] = "images/baby_tux.webp";
     auto data = GetResourceAsData(path);
     if (!data) {
@@ -912,7 +912,7 @@ DEF_TEST(Codec_webp_peek, r) {
 // It required the second byte to be zero. The wbmp specification allows
 // a couple of bits to be 1 (so long as they do not overlap with 0x9F).
 // Test that SkCodec now supports an image with these bits set.
-DEF_TEST(Codec_wbmp_restrictive, r) {
+DEF_TEST(Codec_WbmpRestrictive, r) {
     const char* path = "images/mandrill.wbmp";
     std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
@@ -938,7 +938,7 @@ DEF_TEST(Codec_wbmp_restrictive, r) {
 // 8 bytes to determine whether we can read the image. This is important
 // because SkCodec only passes a limited number of bytes to SkWbmpCodec to
 // determine whether the image is a wbmp.
-DEF_TEST(Codec_wbmp_max_size, r) {
+DEF_TEST(Codec_WbmpMaxSize, r) {
     const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Header
                                           0x83, 0xFF, 0x7F,     // W: 65535
                                           0x83, 0xFF, 0x7F };   // H: 65535
@@ -962,7 +962,7 @@ DEF_TEST(Codec_wbmp_max_size, r) {
     REPORTER_ASSERT(r, !codec);
 }
 
-DEF_TEST(Codec_jpeg_rewind, r) {
+DEF_TEST(Codec_JpegRewind, r) {
     const char* path = "images/mandrill_512_q075.jpg";
     sk_sp<SkData> data(GetResourceAsData(path));
     if (!data) {
@@ -1201,7 +1201,7 @@ static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
 
 // For an animated GIF, we should only read enough to decode frame 0 if the
 // client never calls getFrameInfo and only decodes frame 0.
-DEF_TEST(Codec_skipFullParse, r) {
+DEF_TEST(Codec_SkipFullParse, r) {
     auto path = "images/test640x479.gif";
     auto streamObj = GetResourceAsStream(path);
     if (!streamObj) {
@@ -1278,7 +1278,7 @@ private:
     }
 };
 
-DEF_TEST(Codec_fallBack, r) {
+DEF_TEST(Codec_FallBack, r) {
     // SkAndroidCodec needs to be able to fall back to scanline decoding
     // if incremental decoding does not work. Make sure this does not
     // require a rewind.
@@ -1323,7 +1323,7 @@ DEF_TEST(Codec_fallBack, r) {
 
 // This test verifies that we fixed an assert statement that fired when reusing a png codec
 // after scaling.
-DEF_TEST(Codec_reusePng, r) {
+DEF_TEST(Codec_ReusePng, r) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("images/plane.png"));
     if (!stream) {
         return;
@@ -1351,7 +1351,7 @@ DEF_TEST(Codec_reusePng, r) {
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
 
-DEF_TEST(Codec_rowsDecoded, r) {
+DEF_TEST(Codec_RowsDecoded, r) {
     auto file = "images/plane_interlaced.png";
     std::unique_ptr<SkStream> stream(GetResourceAsStream(file));
     if (!stream) {
@@ -1615,7 +1615,7 @@ DEF_TEST(Codec_EncodeICC, r) {
     test_encode_icc(r, SkEncodedImageFormat::kWEBP);
 }
 
-DEF_TEST(Codec_webp_rowsDecoded, r) {
+DEF_TEST(Codec_WebpRowsDecoded, r) {
     const char* path = "images/baby_tux.webp";
     sk_sp<SkData> data(GetResourceAsData(path));
     if (!data) {
@@ -1637,7 +1637,7 @@ DEF_TEST(Codec_webp_rowsDecoded, r) {
 }
 
 /*
-For the Codec_ossfuzz6274 test, immediately below,
+For the Codec_Ossfuzz6274 test, immediately below,
 resources/invalid_images/ossfuzz6274.gif is:
 
 00000000: 4749 4638 3961 2000 2000 f120 2020 2020  GIF89a . ..
@@ -1660,7 +1660,7 @@ block size (for an 0x21 0xF9 Graphic Control Extension) must be "the fixed
 value 4".
 */
 
-DEF_TEST(Codec_ossfuzz6274, r) {
+DEF_TEST(Codec_Ossfuzz6274, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
@@ -1775,7 +1775,7 @@ DEF_TEST(Codec_A8, r) {
     REPORTER_ASSERT(r, codec->getPixels(bm.pixmap()) == SkCodec::kInvalidConversion);
 }
 
-DEF_TEST(Codec_crbug807324, r) {
+DEF_TEST(Codec_Crbug807324, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }

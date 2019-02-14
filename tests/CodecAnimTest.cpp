@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-DEF_TEST(Codec_trunc, r) {
+DEF_TEST(Codec_Trunc, r) {
     sk_sp<SkData> data(GetResourceAsData("images/box.gif"));
     if (!data) {
         return;
@@ -64,7 +64,7 @@ static bool restore_previous(const SkCodec::FrameInfo& info) {
     return info.fDisposalMethod == SkCodecAnimation::DisposalMethod::kRestorePrevious;
 }
 
-DEF_TEST(Codec_frames, r) {
+DEF_TEST(Codec_Frames, r) {
     constexpr int kNoFrame = SkCodec::kNoFrame;
     constexpr SkAlphaType kOpaque = kOpaque_SkAlphaType;
     constexpr SkAlphaType kUnpremul = kUnpremul_SkAlphaType;
@@ -389,7 +389,7 @@ DEF_TEST(Codec_frames, r) {
 // kRestoreBG frame, so it is an interesting image to test. After decoding that
 // frame, we have to erase its rectangle. The rectangle has to be adjusted
 // based on the scaled size.
-DEF_TEST(AndroidCodec_animated, r) {
+DEF_TEST(AndroidCodec_Animated, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }

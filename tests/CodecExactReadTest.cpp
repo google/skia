@@ -49,7 +49,7 @@ private:
 // Test that some SkCodecs do not attempt to read input beyond the logical
 // end of the data. Some other SkCodecs do, but some Android apps rely on not
 // doing so for PNGs. Test on other formats that work.
-DEF_TEST(Codec_end, r) {
+DEF_TEST(Codec_End, r) {
     for (const char* path : { "images/plane.png",
                               "images/yellow_rose.png",
                               "images/plane_interlaced.png",

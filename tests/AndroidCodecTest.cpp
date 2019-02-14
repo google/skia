@@ -37,7 +37,7 @@ static bool invalid(const SkISize& size) {
     return size.width() < 1 || size.height() < 1;
 }
 
-DEF_TEST(AndroidCodec_computeSampleSize, r) {
+DEF_TEST(AndroidCodec_ComputeSampleSize, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
@@ -131,7 +131,7 @@ DEF_TEST(AndroidCodec_computeSampleSize, r) {
     }
 }
 
-DEF_TEST(AndroidCodec_wide, r) {
+DEF_TEST(AndroidCodec_Wide, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
@@ -199,7 +199,7 @@ DEF_TEST(AndroidCodec_P3, r) {
     REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
 }
 
-DEF_TEST(AndroidCodec_orientation, r) {
+DEF_TEST(AndroidCodec_Orientation, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
@@ -265,7 +265,7 @@ DEF_TEST(AndroidCodec_orientation, r) {
     }
 }
 
-DEF_TEST(AndroidCodec_sampledOrientation, r) {
+DEF_TEST(AndroidCodec_SampledOrientation, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }

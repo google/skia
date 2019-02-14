@@ -422,7 +422,7 @@ DEF_TEST(Codec_GifTruncated3, r) {
 }
 #endif
 
-DEF_TEST(Codec_gif_out_of_palette, r) {
+DEF_TEST(Codec_GifOutOfPalette, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
