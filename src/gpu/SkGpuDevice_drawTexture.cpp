@@ -9,6 +9,8 @@
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrStyle.h"
