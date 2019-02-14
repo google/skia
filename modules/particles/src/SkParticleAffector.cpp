@@ -113,7 +113,7 @@ public:
     REFLECTED(SkJitterAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        pv.fVelocity.fLinear.fX += fX.eval(*params.fRandom);
+        pv.fVelocity.fLinear.fX += fX.eval(params.fParticleT, *params.fRandom);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -121,7 +121,7 @@ public:
     }
 
 private:
-    SkRangedFloat fX;
+    SkCurve2 fX;
 };
 
 void SkParticleAffector::RegisterAffectorTypes() {

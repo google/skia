@@ -132,23 +132,13 @@ public:
         this->exitObject();
     }
 
-    template <typename T>
-    void visit(const char* name, SkTArray<sk_sp<T>>& arr) {
-        SkTArray<sk_sp<SkReflected>> newArr;
-        for (auto ptr : arr) {
-            newArr.push_back(ptr);
+    template <typename T, bool MEM_MOVE>
+    void visit(const char* name, SkTArray<T, MEM_MOVE>& arr) {
+        arr.resize_back(this->enterArray(name, arr.count()));
+        for (int i = 0; i < arr.count(); ++i) {
+            this->visit(nullptr, arr[i]);
         }
-
-        this->visit(name, newArr, T::GetType());
-
-        arr.reset();
-        for (auto ptr : newArr) {
-            if (ptr && !ptr->isOfType(T::GetType())) {
-                ptr.reset();
-            }
-            sk_sp<T> newPtr(static_cast<T*>(ptr.release()));
-            arr.push_back(std::move(newPtr));
-        }
+        this->exitArray().apply(arr);
     }
 
     template <typename T>
@@ -172,11 +162,43 @@ public:
     }
 
 protected:
+    struct ArrayEdit {
+        enum class Verb {
+            kNone,
+            kRemove,
+            kMoveForward,
+        };
+
+        Verb fVerb = Verb::kNone;
+        int fIndex = 0;
+
+        template <typename T, bool MEM_MOVE>
+        void apply(SkTArray<T, MEM_MOVE>& arr) const {
+            switch (fVerb) {
+            case Verb::kNone:
+                break;
+            case Verb::kRemove:
+                for (int i = fIndex; i < arr.count() - 1; ++i) {
+                    arr[i] = arr[i + 1];
+                }
+                arr.pop_back();
+                break;
+            case Verb::kMoveForward:
+                if (fIndex > 0 && fIndex < arr.count()) {
+                    std::swap(arr[fIndex - 1], arr[fIndex]);
+                }
+                break;
+            }
+        }
+    };
+
     virtual void enterObject(const char* name) = 0;
     virtual void exitObject() = 0;
+
+    virtual int enterArray(const char* name, int oldCount) = 0;
+    virtual ArrayEdit exitArray() = 0;
+
     virtual void visit(sk_sp<SkReflected>&, const SkReflected::Type* baseType) = 0;
-    virtual void visit(const char* name, SkTArray<sk_sp<SkReflected>>&,
-                       const SkReflected::Type* baseType) = 0;
 };
 
 #endif // SkReflected_DEFINED
