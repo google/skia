@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28600bfb_b159756b",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-14T14:06:35Z",
+      "side": 1,
+      "message": "These are truly regexps right?  So this matches \"src/codec/SkWuffsCodec.cpp\" ?",
+      "revId": "fa3224e159fa640969ff38421cdd79b4988ddf47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
