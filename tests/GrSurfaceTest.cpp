@@ -453,7 +453,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
                 auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
                 auto singleUseLazyCB = [&texture](GrResourceProvider* rp) {
-                    return rp ? std::move(texture) : nullptr;
+                    return std::move(texture);
                 };
                 GrSurfaceDesc desc;
                 desc.fWidth = desc.fHeight = kS;
@@ -497,7 +497,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
 
                 // Make a proxy that should deinstantiate even if we keep a ref on it.
                 auto deinstantiateLazyCB = [&make, &context](GrResourceProvider* rp) {
-                    return rp ? make(context, 3) : nullptr;
+                    return make(context, 3);
                 };
                 proxy = context->priv().proxyProvider()->createLazyProxy(
                         deinstantiateLazyCB, backendFormat, desc,

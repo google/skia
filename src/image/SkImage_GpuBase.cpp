@@ -427,12 +427,6 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         ~PromiseLazyInstantiateCallback() = default;
 
         sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) {
-            if (!resourceProvider) {
-                if (fDelayedReleaseTexture) {
-                    fDelayedReleaseTexture.reset();
-                }
-                return nullptr;
-            }
             if (fDelayedReleaseTexture) {
                 return fDelayedReleaseTexture;
             }

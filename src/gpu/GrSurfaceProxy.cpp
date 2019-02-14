@@ -100,11 +100,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
-    if (fLazyInstantiateCallback) {
-        // We call the callback with a null GrResourceProvider to signal that the lambda should
-        // clean itself up if it is holding onto any captured objects.
-        this->fLazyInstantiateCallback(nullptr);
-    }
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
     // deleted. Which would have cleared out this back pointer.
     SkASSERT(!fLastOpList);
@@ -438,7 +433,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         surface = fProxy->fLazyInstantiateCallback(resourceProvider);
     }
     if (GrSurfaceProxy::LazyInstantiationType::kSingleUse == fProxy->fLazyInstantiationType) {
-        fProxy->fLazyInstantiateCallback(nullptr);
         fProxy->fLazyInstantiateCallback = nullptr;
     }
     if (!surface) {

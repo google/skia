@@ -19,6 +19,7 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
+#include "SkExchange.h"
 #include "SkMakeUnique.h"
 #include "SkRectPriv.h"
 #include "mock/GrMockGpu.h"
@@ -250,18 +251,33 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                               LazyInstantiationType::kMultipleUse,
                               LazyInstantiationType::kDeinstantiate}) {
             int testCount = 0;
-            int* testCountPtr = &testCount;
+            // Sets an integer to 1 when the callback is called and -1 when it is deleted.
+            class TestCallback {
+            public:
+                TestCallback(int* value) : fValue(value) {}
+                TestCallback(const TestCallback& that) { SkASSERT(0); }
+                TestCallback(TestCallback&& that) : fValue(that.fValue) { that.fValue = nullptr; }
+
+                ~TestCallback() { fValue ? (void)(*fValue = -1) : void(); }
+
+                TestCallback& operator=(TestCallback&& that) {
+                    fValue = skstd::exchange(that.fValue, nullptr);
+                    return *this;
+                }
+                TestCallback& operator=(const TestCallback& that) = delete;
+
+                sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) const {
+                    *fValue = 1;
+                    return {};
+                }
+
+            private:
+                int* fValue = nullptr;
+            };
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-                    [testCountPtr](GrResourceProvider* resourceProvider) {
-                        if (!resourceProvider) {
-                            *testCountPtr = -1;
-                            return sk_sp<GrTexture>();
-                        }
-                        *testCountPtr = 1;
-                        return sk_sp<GrTexture>();
-                    },
-                    format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                    GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+                    TestCallback(&testCount), format, desc, kTopLeft_GrSurfaceOrigin,
+                    GrMipMapped::kNo, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
+                    SkBudgeted::kNo, lazyType);
 
             REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
@@ -320,9 +336,6 @@ private:
 
         fLazyProxy = proxyProvider->createLazyProxy(
                 [testExecuteValue, shouldFailInstantiation, desc](GrResourceProvider* rp) {
-                    if (!rp) {
-                        return sk_sp<GrTexture>();
-                    }
                     if (shouldFailInstantiation) {
                         *testExecuteValue = 1;
                         return sk_sp<GrTexture>();
@@ -463,10 +476,6 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
 
         sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
                 [instantiatePtr, releasePtr, backendTex](GrResourceProvider* rp) {
-                    if (!rp) {
-                        return sk_sp<GrTexture>();
-                    }
-
                     sk_sp<GrTexture> texture =
                             rp->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
                                                    GrWrapCacheable::kNo, kRead_GrIOType);
