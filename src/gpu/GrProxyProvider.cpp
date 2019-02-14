@@ -247,11 +247,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [desc, budgeted, srcImage, fit, surfaceFlags](GrResourceProvider* resourceProvider) {
-                if (!resourceProvider) {
-                    // Nothing to clean up here. Once the proxy (and thus lambda) is deleted the ref
-                    // on srcImage will be released.
-                    return sk_sp<GrTexture>();
-                }
                 SkPixmap pixMap;
                 SkAssertResult(srcImage->peekPixels(&pixMap));
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
@@ -355,10 +350,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [desc, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
-                if (!resourceProvider) {
-                    return sk_sp<GrTexture>();
-                }
-
                 const int mipLevelCount = mipmaps->countLevels() + 1;
                 std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
@@ -447,10 +438,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrS
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
         [desc, data](GrResourceProvider* resourceProvider) {
-            if (!resourceProvider) {
-                return sk_sp<GrTexture>();
-            }
-
             GrMipLevel texels;
             texels.fPixels = data->data();
             texels.fRowBytes = GrBytesPerPixel(desc.fConfig)*desc.fWidth;

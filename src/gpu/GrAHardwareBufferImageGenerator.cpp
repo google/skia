@@ -26,6 +26,7 @@
 #include "GrResourceProviderPriv.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
+#include "SkExchange.h"
 #include "SkMessageBus.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLTypes.h"
@@ -120,19 +121,34 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 
     const bool isProtectedContent = fIsProtectedContent;
 
-    sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
-            [context, hardwareBuffer, width, height, pixelConfig, isProtectedContent,
-             backendFormat](GrResourceProvider* resourceProvider) {
-                if (!resourceProvider) {
-                    AHardwareBuffer_release(hardwareBuffer);
-                    return sk_sp<GrTexture>();
-                }
+    class AutoAHBRelease {
+    public:
+        AutoAHBRelease(AHardwareBuffer* ahb) : fAhb(ahb) {}
+        // std::function() must be CopyConstructible, but ours should never actually be copied.
+        AutoAHBRelease(const AutoAHBRelease&) { SkASSERT(0); }
+        AutoAHBRelease(AutoAHBRelease&& that) : fAhb(that.fAhb) { that.fAhb = nullptr; }
+        ~AutoAHBRelease() { fAhb ? AHardwareBuffer_release(fAhb) : void(); }
 
+        AutoAHBRelease& operator=(AutoAHBRelease&& that) {
+            fAhb = skstd::exchange(that.fAhb, nullptr);
+            return *this;
+        }
+        AutoAHBRelease& operator=(const AutoAHBRelease&) = delete;
+
+        AHardwareBuffer* get() const { return fAhb; }
+
+    private:
+        AHardwareBuffer* fAhb;
+    };
+
+    sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
+            [context, buffer = AutoAHBRelease(hardwareBuffer), width, height, pixelConfig,
+             isProtectedContent, backendFormat](GrResourceProvider* resourceProvider) {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
                 GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
 
                 GrBackendTexture backendTex =
-                        GrAHardwareBufferUtils::MakeBackendTexture(context, hardwareBuffer,
+                        GrAHardwareBufferUtils::MakeBackendTexture(context, buffer.get(),
                                                                    width, height,
                                                                    &deleteImageProc,
                                                                    &deleteImageCtx,
@@ -166,9 +182,6 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
             backendFormat, desc, fSurfaceOrigin, GrMipMapped::kNo,
             GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo);
 
-    if (!texProxy) {
-        AHardwareBuffer_release(hardwareBuffer);
-    }
     return texProxy;
 }
 
