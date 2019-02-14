@@ -60,6 +60,19 @@ public:
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
+
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
+                                                       const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
+                                                       SkBackingFit,
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
+
     /*
      * Create a new render target context backed by a deferred-style
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
@@ -101,19 +114,6 @@ public:
      * Create a GrContext without a resource cache
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
-
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
-                                                      sk_sp<SkColorSpace> = nullptr,
-                                                      const SkSurfaceProps* = nullptr);
-
-    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
-                                                       const GrSurfaceDesc&,
-                                                       GrSurfaceOrigin,
-                                                       GrMipMapped,
-                                                       SkBackingFit,
-                                                       SkBudgeted,
-                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
-                                                       const SkSurfaceProps* = nullptr);
 
     sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
                                                       GrSurfaceOrigin origin,

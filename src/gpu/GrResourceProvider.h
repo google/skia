@@ -54,7 +54,7 @@ public:
     };
 
     GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*,
-                       GrContextOptions::Enable explicitlyAllocateGPUResources);
+                       bool explicitlyAllocateGPUResources);
 
     /**
      * Finds a resource in the cache, based on the specified key. Prior to calling this, the caller

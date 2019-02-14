@@ -27,6 +27,7 @@ protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
+    bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
 
     void abandonContext() override;
 
@@ -35,6 +36,19 @@ protected:
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
+
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
+
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
+                                                       const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
+                                                       SkBackingFit,
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
 
     /*
      * Create a new render target context backed by a deferred-style

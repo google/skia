@@ -37,6 +37,8 @@ protected:
 
     GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t contextID);
 
+    virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
+
     /**
      * An identifier for this context. The id is used by all compatible contexts. For example,
      * if SkImages are created on one thread using an image creation context, then fed into a
@@ -55,6 +57,8 @@ protected:
      */
     const GrContextOptions& options() const { return fOptions; }
 
+    bool explicitlyAllocateGPUResources() const;
+
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
@@ -63,8 +67,6 @@ protected:
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
-
-    virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
 
 private:
     const GrBackendApi          fBackend;
