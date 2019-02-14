@@ -25,7 +25,7 @@ class SkFont;
  */
 class SkShaper {
 public:
-    SkShaper(sk_sp<SkTypeface> face);
+    SkShaper();
     ~SkShaper();
 
     class RunHandler {

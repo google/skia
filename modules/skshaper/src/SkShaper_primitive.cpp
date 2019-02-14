@@ -13,7 +13,7 @@
 #include "SkUTF.h"
 
 struct SkShaper::Impl {};
-SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl()) {}
+SkShaper::SkShaper() : fImpl(nullptr) {}
 
 SkShaper::~SkShaper() {}
 
