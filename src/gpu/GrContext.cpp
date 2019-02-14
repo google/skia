@@ -52,6 +52,17 @@ GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int3
     fGlyphCache = nullptr;
 }
 
+GrContext::~GrContext() {
+    ASSERT_SINGLE_OWNER
+
+    if (fDrawingManager) {
+        fDrawingManager->cleanup();
+    }
+    delete fResourceProvider;
+    delete fResourceCache;
+    delete fGlyphCache;
+}
+
 bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
     ASSERT_SINGLE_OWNER
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
@@ -66,7 +77,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     if (fGpu) {
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner(),
-                                                   this->options().fExplicitlyAllocateGPUResources);
+                                                   this->explicitlyAllocateGPUResources());
     }
 
     if (fResourceCache) {
@@ -126,17 +137,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     fPersistentCache = this->options().fPersistentCache;
 
     return true;
-}
-
-GrContext::~GrContext() {
-    ASSERT_SINGLE_OWNER
-
-    if (fDrawingManager) {
-        fDrawingManager->cleanup();
-    }
-    delete fResourceProvider;
-    delete fResourceCache;
-    delete fGlyphCache;
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
