@@ -40,7 +40,7 @@
       "P1": { "x": 200, "y": 200 },
       "P2": { "x": 250, "y": 200 }
    },
-   "Affectors": [
+   "Update": [
       {
          "Type": "SkRangedForceAffector",
          "Angle": {

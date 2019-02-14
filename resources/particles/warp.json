@@ -40,7 +40,7 @@
       "Center": { "x": 380.8, "y": 273.92 },
       "Radius": 43
    },
-   "Affectors": [
+   "Update": [
       {
          "Type": "SkPointForceAffector",
          "Point": { "x": 375, "y": 273 },
