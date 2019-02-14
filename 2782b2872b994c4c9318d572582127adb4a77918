@@ -34,6 +34,24 @@
       "revId": "2782b2872b994c4c9318d572582127adb4a77918",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02b14c2b_b35b6666",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-14T14:11:32Z",
+      "side": 0,
+      "message": "Assuming the layout tests don\u0027t change, I think it\u0027s fine either way.",
+      "parentUuid": "eac011ff_c06da57b",
+      "revId": "2782b2872b994c4c9318d572582127adb4a77918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
