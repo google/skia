@@ -22,6 +22,30 @@
       "revId": "612197b6bfd2fecd2518e02ce1d0ca2dc41cd547",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adc94ff1_cce500ab",
+        "filename": "src/svg/SkSVGCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-14T18:44:54Z",
+      "side": 1,
+      "message": "Same as before, the caller owns it.  Updated the comments.\n\nIt doesn\u0027t seem reasonable to always pass ownership, as the caller may need to post-process the result (e.g. think buffering to a SkDynamicWMemoryStream).",
+      "parentUuid": "227faafa_9675f580",
+      "range": {
+        "startLine": 13,
+        "startChar": 66,
+        "endLine": 13,
+        "endChar": 75
+      },
+      "revId": "612197b6bfd2fecd2518e02ce1d0ca2dc41cd547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
