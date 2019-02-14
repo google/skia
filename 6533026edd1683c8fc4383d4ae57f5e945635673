@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f02d163_0d3e77be",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 2176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-14T18:00:28Z",
+      "side": 1,
+      "message": "do we need these? Does view depending on the gpu_tools_utils? Cause the gpu_tools_utils should automatically include those frameworks already.",
+      "range": {
+        "startLine": 2173,
+        "startChar": 6,
+        "endLine": 2176,
+        "endChar": 9
+      },
+      "revId": "6533026edd1683c8fc4383d4ae57f5e945635673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e04457_cc4f40e0",
+        "filename": "tools/sk_app/mac/VulkanWindowContext_mac.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-14T18:00:28Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 3,
+        "startChar": 14,
+        "endLine": 3,
+        "endChar": 17
+      },
+      "revId": "6533026edd1683c8fc4383d4ae57f5e945635673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
