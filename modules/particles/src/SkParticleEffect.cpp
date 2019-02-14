@@ -50,7 +50,6 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("StartColor", fStartColor);
     v->visit("EndColor", fEndColor);
 
-    v->visit("Size", fSize);
     v->visit("Velocity", fVelocity);
 
     v->visit("Image", fImage);
@@ -178,14 +177,12 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 
         // Set color by lifetime
         fColors[i] = Sk4f_toL32(swizzle_rb(startColor + (colorScale * t)));
+
         for (auto affector : fParams->fUpdateAffectors) {
             if (affector) {
                 affector->apply(updateParams, fParticles[i].fPV);
             }
         }
-
-        // Set size by lifetime
-        fParticles[i].fPV.fPose.fScale = fParams->fSize.eval(t, stableRandom);
 
         // Integrate position / orientation
         fParticles[i].fPV.fPose.fPosition += fParticles[i].fPV.fVelocity.fLinear * deltaTime;

@@ -1,5 +1,6 @@
 {
    "MaxCount": 32,
+   "Duration": 1,
    "Rate": 0.5,
    "Life": {
       "min": 20,
@@ -29,10 +30,46 @@
       "P1": { "x": 237, "y": 396 },
       "P2": { "x": 214, "y": 398 }
    },
+   "Spawn": [],
    "Update": [
       {
-         "Type": "SkDirectionalForceAffector",
-         "Force": { "x": 0, "y": 50 }
+         "Type": "SkLinearForceAffector",
+         "Angle": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 90,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         },
+         "Strength": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 50,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
       },
       {
          "Type": "SkOrientAlongVelocityAffector"

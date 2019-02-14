@@ -1,5 +1,6 @@
 {
    "MaxCount": 4096,
+   "Duration": 1,
    "Rate": 2000,
    "Life": {
       "min": 1,
@@ -7,17 +8,6 @@
    },
    "StartColor": [ 1, 0.35, 0, 1 ],
    "EndColor": [ 1, 0.978085, 0.627451, 1 ],
-   "Size": {
-      "Ranged": false,
-      "A0": 1,
-      "B0": 1,
-      "C0": 1,
-      "D0": 1,
-      "A1": 1,
-      "B1": 1,
-      "C1": 1,
-      "D1": 1
-   },
    "Velocity": {
       "Angle": 4.71239,
       "Spread": 0.523599,
@@ -40,10 +30,6 @@
       "Text": "SKIA",
       "FontSize": 96
    },
-   "Update": [
-      {
-         "Type": "SkDirectionalForceAffector",
-         "Force": { "x": 0, "y": 0 }
-      }
-   ]
+   "Spawn": [],
+   "Update": []
 }

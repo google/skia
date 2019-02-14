@@ -1,5 +1,6 @@
 {
    "MaxCount": 32,
+   "Duration": 1,
    "Rate": 8,
    "Life": {
       "min": 1,
@@ -7,17 +8,6 @@
    },
    "StartColor": [ 1, 1, 1, 1 ],
    "EndColor": [ 1, 1, 1, 0.25098 ],
-   "Size": {
-      "Ranged": false,
-      "A0": 1,
-      "B0": 1,
-      "C0": 1,
-      "D0": 1,
-      "A1": 1,
-      "B1": 1,
-      "C1": 1,
-      "D1": 1
-   },
    "Velocity": {
       "Angle": 0,
       "Spread": 6.28319,
@@ -40,6 +30,7 @@
       "Center": { "x": 200, "y": 200 },
       "Radius": 60
    },
+   "Spawn": [],
    "Update": [
       {
          "Type": "SkPointForceAffector",
