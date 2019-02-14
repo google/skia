@@ -22,6 +22,30 @@
       "revId": "09c01e9df260053399eb22efcfd6b248d66a2492",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1a9c862_54708ddc",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-02-14T13:06:28Z",
+      "side": 1,
+      "message": "Makes sense. Hopefully the bot is fixed quickly and back to being PerCommit, if not I\u0027ll rename it.",
+      "parentUuid": "2f04a7d3_c062f285",
+      "range": {
+        "startLine": 1430,
+        "startChar": 122,
+        "endLine": 1430,
+        "endChar": 131
+      },
+      "revId": "09c01e9df260053399eb22efcfd6b248d66a2492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
