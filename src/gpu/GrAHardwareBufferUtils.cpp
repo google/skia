@@ -40,8 +40,9 @@ namespace GrAHardwareBufferUtils {
 SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
     switch (bufferFormat) {
         case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
-        case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
             return kRGBA_8888_SkColorType;
+        case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
+            return kRGB_888x_SkColorType;
         case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
             return kRGBA_F16_SkColorType;
         case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
