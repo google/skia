@@ -664,6 +664,7 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, SkXMLWriter* writer, bool ownsWrit
 
 SkSVGDevice::~SkSVGDevice() {
     if (fOwnsWriter && fWriter) {
+        fRootElement.reset(nullptr);
         delete fWriter;
     }
 }
