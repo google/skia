@@ -6,6 +6,8 @@
  */
 
 #include "GrTestUtils.h"
+
+#include "GrContext.h"
 #include "GrColorSpaceInfo.h"
 #include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
