@@ -10,13 +10,13 @@
 #include "GrGLGpu.h"
 
 GrGLSemaphore::GrGLSemaphore(GrGLGpu* gpu, bool isOwned)
-        : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {
+        : INHERITED(gpu), fSync(0), fIsOwned1(isOwned) {
     isOwned ? this->registerWithCache(SkBudgeted::kNo)
             : this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 void GrGLSemaphore::onRelease() {
-    if (fSync && fIsOwned) {
+    if (fSync && fIsOwned1) {
         static_cast<const GrGLGpu*>(this->getGpu())->deleteSync(fSync);
     }
     fSync = 0;

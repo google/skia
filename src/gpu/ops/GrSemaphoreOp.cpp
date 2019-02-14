@@ -12,17 +12,18 @@
 #include "GrOpFlushState.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
+#include "GrSemaphore.h"
 
 class GrWaitSemaphoreOp final : public GrSemaphoreOp {
 public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrOp> Make(GrRecordingContext* context,
-                                      sk_sp<GrSemaphore> semaphore,
-                                      GrRenderTargetProxy* proxy) {
+                                      GrRenderTargetProxy* proxy,
+                                      const GrBackendSemaphore& sema) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-        return pool->allocate<GrWaitSemaphoreOp>(std::move(semaphore), proxy);
+        return pool->allocate<GrWaitSemaphoreOp>(proxy, sema);
     }
 
     const char* name() const override { return "WaitSemaphore"; }
@@ -30,11 +31,11 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    explicit GrWaitSemaphoreOp(sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)
-            : INHERITED(ClassID(), std::move(semaphore), proxy) {}
+    explicit GrWaitSemaphoreOp(GrRenderTargetProxy* proxy, const GrBackendSemaphore& sema)
+            : INHERITED(ClassID(), proxy, sema) {}
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
-        state->gpu()->waitSemaphore(fSemaphore);
+        state->gpu()->waitSemaphore(fSemaphore1);
     }
 
     typedef GrSemaphoreOp INHERITED;
@@ -43,9 +44,18 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrOp> GrSemaphoreOp::MakeWait(GrRecordingContext* context,
-                                              sk_sp<GrSemaphore> semaphore,
-                                              GrRenderTargetProxy* proxy) {
-    return GrWaitSemaphoreOp::Make(context, std::move(semaphore), proxy);
+                                              GrRenderTargetProxy* proxy,
+                                              const GrBackendSemaphore& sema) {
+    return GrWaitSemaphoreOp::Make(context, proxy, sema);
 }
 
+void GrSemaphoreOp::onPrepare(GrOpFlushState* opFlushState) {
+    auto resourceProvider = opFlushState->resourceProvider();
+
+    fSemaphore1 = resourceProvider->wrapBackendSemaphore(
+                        fBackendSemaphore,
+                        GrResourceProvider::SemaphoreWrapType::kWillWait,
+                        kAdopt_GrWrapOwnership);
+    fBackendSemaphore.reset();
+}
 

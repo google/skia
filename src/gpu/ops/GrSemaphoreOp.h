@@ -8,31 +8,34 @@
 #ifndef GrSemaphoreOp_DEFINED
 #define GrSemaphoreOp_DEFINED
 
-#include "GrOp.h"
 
+#include "GrBackendSemaphore.h"
+#include "GrOp.h"
 #include "GrRenderTargetProxy.h"
-#include "GrSemaphore.h"
 #include "SkRefCnt.h"
 
 class GrRecordingContext;
+class GrSemaphore;
 
 class GrSemaphoreOp : public GrOp {
 public:
     static std::unique_ptr<GrOp> MakeWait(GrRecordingContext*,
-                                          sk_sp<GrSemaphore>,
-                                          GrRenderTargetProxy*);
+                                          GrRenderTargetProxy*,
+                                          const GrBackendSemaphore&);
 
 protected:
-    GrSemaphoreOp(uint32_t classId, sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)
-        : INHERITED(classId), fSemaphore(std::move(semaphore)) {
+    GrSemaphoreOp(uint32_t classId, GrRenderTargetProxy* proxy, const GrBackendSemaphore& sema)
+            : INHERITED(classId)
+            , fBackendSemaphore(sema) {
         this->makeFullScreen(proxy);
     }
 
-    sk_sp<GrSemaphore> fSemaphore;
+    void onPrepare(GrOpFlushState*) override;
+
+    sk_sp<GrSemaphore> fSemaphore1;
+    GrBackendSemaphore fBackendSemaphore;
 
 private:
-    void onPrepare(GrOpFlushState*) override {}
-
     typedef GrOp INHERITED;
 };
 

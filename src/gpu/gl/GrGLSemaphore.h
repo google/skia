@@ -45,7 +45,7 @@ private:
     void onAbandon() override;
 
     GrGLsync fSync;
-    bool     fIsOwned;
+    bool     fIsOwned1;
 
     typedef GrSemaphore INHERITED;
 };

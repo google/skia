@@ -40,6 +40,12 @@ public:
 
     bool isInitialized() const { return fIsInitialized; }
 
+    void reset() {
+        fBackend = GrBackendApi::kOpenGL;
+        fGLSync = 0;
+        fIsInitialized = false;
+    }
+
     GrGLsync glSync() const {
         if (!fIsInitialized || GrBackendApi::kOpenGL != fBackend) {
             return 0;
