@@ -955,7 +955,7 @@ SkPoint SkShaper::Impl::shapeCorrect(RunHandler* handler,
                 size_t modelStartCluster = utf8Start - utf8;
                 for (int i = 0; i < model.fNumGlyphs; ++i) {
                     SkASSERT(modelStartCluster <= model.fGlyphs[i].fCluster);
-                    SkASSERT(                     model.fGlyphs[i].fCluster < utf8End - utf8);
+                    SkASSERT(                     model.fGlyphs[i].fCluster < (size_t)(utf8End - utf8));
                     if (!model.fGlyphs[i].fUnsafeToBreak) {
                         modelText[model.fGlyphs[i].fCluster - modelStartCluster].glyphLen = i;
                         modelText[model.fGlyphs[i].fCluster - modelStartCluster].advance = advance;
