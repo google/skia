@@ -373,7 +373,7 @@ public:
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
      */
-    bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore waitSemaphores[]);
 
     void insertEventMarker(const SkString&);
 
