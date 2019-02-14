@@ -128,6 +128,7 @@ public:
 
 #undef IF_OPEN
 
+    /*
     void visit(const char* name, SkCurve& c, SkField) override {
         this->enterObject(item(name));
         if (fTreeStack.back()) {
@@ -142,6 +143,7 @@ public:
         }
         this->exitObject();
     }
+    */
 
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         if (fTreeStack.back()) {

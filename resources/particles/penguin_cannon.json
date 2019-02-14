@@ -1,9 +1,24 @@
 {
    "MaxCount": 32,
+   "Duration": 1,
    "Rate": 0.5,
    "Life": {
-      "min": 20,
-      "max": 20
+      "XValues": [],
+      "Segments": [
+         {
+            "Constant": true,
+            "Ranged": false,
+            "Bidirectional": false,
+            "A0": 20,
+            "B0": 0,
+            "C0": 0,
+            "D0": 0,
+            "A1": 0,
+            "B1": 0,
+            "C1": 0,
+            "D1": 0
+         }
+      ]
    },
    "StartColor": [ 1, 1, 1, 1 ],
    "EndColor": [ 1, 1, 1, 0.25098 ],
@@ -29,10 +44,88 @@
       "P1": { "x": 237, "y": 396 },
       "P2": { "x": 214, "y": 398 }
    },
+   "Spawn": [
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Force": false,
+         "Angle": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 280,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 340,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         },
+         "Strength": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 140,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 200,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      }
+   ],
    "Update": [
       {
-         "Type": "SkDirectionalForceAffector",
-         "Force": { "x": 0, "y": 50 }
+         "Type": "SkLinearVelocityAffector",
+         "Force": true,
+         "Angle": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 90,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         },
+         "Strength": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 50,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
       },
       {
          "Type": "SkOrientAlongVelocityAffector"
