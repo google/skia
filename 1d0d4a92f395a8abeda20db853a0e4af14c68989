@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "349c399c_b73e19ab",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-14T14:30:56Z",
+      "side": 1,
+      "message": "If it was a constructor it could just be *this \u003d {x, y};",
+      "range": {
+        "startLine": 204,
+        "startChar": 4,
+        "endLine": 204,
+        "endChar": 24
+      },
+      "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d97d167c_17474085",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-14T14:30:56Z",
+      "side": 1,
+      "message": "Kinda curious why not just have a constructor?",
+      "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
