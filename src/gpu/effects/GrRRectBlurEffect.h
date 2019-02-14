@@ -13,10 +13,10 @@
 #include "SkTypes.h"
 
 #include "GrClip.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrPaint.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "SkBlurMaskFilter.h"
@@ -27,7 +27,7 @@
 #include "GrCoordTransform.h"
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
+    static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrRecordingContext* context,
                                                                 const SkRRect& rrectToDraw,
                                                                 const SkISize& size,
                                                                 float xformedSigma) {
@@ -102,8 +102,10 @@ public:
     const SkRect& rect() const { return fRect; }
     float cornerRadius() const { return fCornerRadius; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrContext* context, float sigma,
-                                                     float xformedSigma, const SkRRect& srcRRect,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+                                                     float sigma,
+                                                     float xformedSigma,
+                                                     const SkRRect& srcRRect,
                                                      const SkRRect& devRRect);
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
