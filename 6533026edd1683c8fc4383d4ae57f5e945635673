@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e3bcf346_35d265e5",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 2176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-14T19:20:47Z",
+      "side": 1,
+      "message": "Ahhh I missed the \"Kit\" part. Just saw Metal before.",
+      "parentUuid": "a86b0f81_ca40a732",
+      "range": {
+        "startLine": 2173,
+        "startChar": 6,
+        "endLine": 2176,
+        "endChar": 9
+      },
+      "revId": "6533026edd1683c8fc4383d4ae57f5e945635673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0e04457_cc4f40e0",
         "filename": "tools/sk_app/mac/VulkanWindowContext_mac.mm",
         "patchSetId": 3
