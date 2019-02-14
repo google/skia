@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
     if (font_file.size() > 0) {
         typeface = SkTypeface::MakeFromFile(font_file.c_str(), 0 /* index */);
     }
-    SkShaper shaper(typeface);
+    SkShaper shaper;
     assert(shaper.good());
     //SkString line("This is هذا هو الخط a line.");
     //SkString line("⁧This is a line هذا هو الخط.⁩");

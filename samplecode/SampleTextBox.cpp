@@ -71,7 +71,7 @@ protected:
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(bg);
 
-        SkShaper shaper(nullptr);
+        SkShaper shaper;
 
         SkScalar margin = 20;
 

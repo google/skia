@@ -1873,7 +1873,7 @@ static int lsk_newTextBlob(lua_State* L) {
     SkRect bounds;
     lua2rect(L, 2, &bounds);
 
-    SkShaper shaper(nullptr);
+    SkShaper shaper;
 
     // TODO: restore this logic based on SkFont instead of SkPaint
 #if 0
