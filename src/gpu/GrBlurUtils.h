@@ -13,6 +13,7 @@
 class GrClip;
 class GrContext;
 class GrPaint;
+class GrRecordingContext;
 class GrRenderTarget;
 class GrRenderTargetContext;
 class GrShape;
@@ -43,7 +44,7 @@ namespace GrBlurUtils {
      * Draw a shape handling the mask filter. The mask filter is not optional.
      * The GrPaint will be modified after return.
      */
-    void drawShapeWithMaskFilter(GrContext*,
+    void drawShapeWithMaskFilter(GrRecordingContext*,
                                  GrRenderTargetContext*,
                                  const GrClip&,
                                  const GrShape&,

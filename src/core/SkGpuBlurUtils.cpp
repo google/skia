@@ -11,8 +11,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
-#include "GrContext.h"
 #include "GrFixedClip.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrGaussianConvolutionFragmentProcessor.h"
@@ -103,7 +104,7 @@ static GrPixelConfig get_blur_config(GrTextureProxy* proxy) {
     return config;
 }
 
-static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
+static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
                                                          sk_sp<GrTextureProxy> proxy,
                                                          const SkIRect& srcBounds,
                                                          const SkIPoint& srcOffset,
@@ -150,7 +151,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
     return renderTargetContext;
 }
 
-static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
+static sk_sp<GrRenderTargetContext> convolve_gaussian(GrRecordingContext* context,
                                                       sk_sp<GrTextureProxy> proxy,
                                                       const SkIRect& srcRect,
                                                       const SkIPoint& srcOffset,
@@ -259,7 +260,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
     return dstRenderTargetContext;
 }
 
-static sk_sp<GrTextureProxy> decimate(GrContext* context,
+static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                                       sk_sp<GrTextureProxy> src,
                                       SkIPoint* srcOffset,
                                       SkIRect* contentRect,
@@ -373,7 +374,7 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
 }
 
 // Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'.
-static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
+static sk_sp<GrRenderTargetContext> reexpand(GrRecordingContext* context,
                                              sk_sp<GrRenderTargetContext> srcRenderTargetContext,
                                              const SkIRect& localSrcBounds,
                                              int scaleFactorX, int scaleFactorY,
@@ -449,7 +450,7 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
 
 namespace SkGpuBlurUtils {
 
-sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
+sk_sp<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                           sk_sp<GrTextureProxy> srcProxy,
                                           sk_sp<SkColorSpace> colorSpace,
                                           const SkIRect& dstBounds,

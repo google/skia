@@ -14,10 +14,10 @@ uniform half blurRadius;
 
 @header {
     #include "GrClip.h"
-    #include "GrContext.h"
-    #include "GrContextPriv.h"
     #include "GrPaint.h"
     #include "GrProxyProvider.h"
+    #include "GrRecordingContext.h"
+    #include "GrRecordingContextPriv.h"
     #include "GrRenderTargetContext.h"
     #include "GrStyle.h"
     #include "SkBlurMaskFilter.h"
@@ -27,7 +27,7 @@ uniform half blurRadius;
 }
 
 @class {
-    static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
+    static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrRecordingContext* context,
                                                                 const SkRRect& rrectToDraw,
                                                                 const SkISize& size,
                                                                 float xformedSigma) {
@@ -105,14 +105,16 @@ uniform half blurRadius;
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrContext* context, float sigma,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+                                                     float sigma,
                                                      float xformedSigma,
                                                      const SkRRect& srcRRect,
                                                      const SkRRect& devRRect);
 }
 
 @cpp {
-    std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context, float sigma,
+    std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext* context,
+                                                                 float sigma,
                                                                  float xformedSigma,
                                                                  const SkRRect& srcRRect,
                                                                  const SkRRect& devRRect) {

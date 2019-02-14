@@ -331,7 +331,7 @@ bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
     return false;
 }
 
-bool SkMaskFilterBase::directFilterMaskGPU(GrContext*,
+bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
                                            GrRenderTargetContext*,
                                            GrPaint&&,
                                            const GrClip&,
@@ -340,7 +340,7 @@ bool SkMaskFilterBase::directFilterMaskGPU(GrContext*,
     return false;
 }
 
-sk_sp<GrTextureProxy> SkMaskFilterBase::filterMaskGPU(GrContext*,
+sk_sp<GrTextureProxy> SkMaskFilterBase::filterMaskGPU(GrRecordingContext*,
                                                       sk_sp<GrTextureProxy> srcProxy,
                                                       const SkMatrix& ctm,
                                                       const SkIRect& maskRect) const {

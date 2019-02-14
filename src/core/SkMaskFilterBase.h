@@ -17,10 +17,10 @@
 #include "SkStrokeRec.h"
 
 class GrClip;
-class GrContext;
 struct GrFPArgs;
 class GrFragmentProcessor;
 class GrPaint;
+class GrRecordingContext;
 class GrRenderTarget;
 class GrRenderTargetContext;
 class GrResourceProvider;
@@ -108,7 +108,7 @@ public:
      *  Try to directly render the mask filter into the target. Returns true if drawing was
      *  successful. If false is returned then paint is unmodified.
      */
-    virtual bool directFilterMaskGPU(GrContext*,
+    virtual bool directFilterMaskGPU(GrRecordingContext*,
                                      GrRenderTargetContext*,
                                      GrPaint&& paint,
                                      const GrClip&,
@@ -122,7 +122,7 @@ public:
      * Implementations are free to get the GrContext from the src texture in order to create
      * additional textures and perform multiple passes.
      */
-    virtual sk_sp<GrTextureProxy> filterMaskGPU(GrContext*,
+    virtual sk_sp<GrTextureProxy> filterMaskGPU(GrRecordingContext*,
                                                 sk_sp<GrTextureProxy> srcProxy,
                                                 const SkMatrix& ctm,
                                                 const SkIRect& maskRect) const;
