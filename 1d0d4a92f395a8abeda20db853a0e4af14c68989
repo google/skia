@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cbc89ce8_2f77d43f",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-14T18:20:00Z",
+      "side": 1,
+      "message": "Will this end up being any different from a performance point of view? Even if we keep it as MakeFromRect(), would \"return {x,y}\" be better?",
+      "parentUuid": "349c399c_b73e19ab",
+      "range": {
+        "startLine": 204,
+        "startChar": 4,
+        "endLine": 204,
+        "endChar": 24
+      },
+      "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d97d167c_17474085",
         "filename": "src/gpu/GrQuad.h",
         "patchSetId": 7
@@ -36,6 +60,24 @@
       "writtenOn": "2019-02-14T14:30:56Z",
       "side": 1,
       "message": "Kinda curious why not just have a constructor?",
+      "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91f2e86e_e42e800d",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-14T18:20:00Z",
+      "side": 1,
+      "message": "It was mostly based on matching what is added in the next CL of the chain, where an SkPoint[4] ordered like SkRect::toQuad() + matrix is the input. Both MakeFromRect and MakeFromSkRect apply transformations to the inputs to get the final quad, whereas the constructors perform no manipulations of the data (except to unpack the plain SkRect).\n\nGiven the different work levels I liked making them distinct from the constructors.",
+      "parentUuid": "d97d167c_17474085",
       "revId": "1d0d4a92f395a8abeda20db853a0e4af14c68989",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
