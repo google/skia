@@ -319,6 +319,22 @@ enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
 
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
+/**
+ * A number of rectangle/quadrilateral drawing APIs can control anti-aliasing on a per edge basis.
+ * These masks specify which edges are AA'ed. The intent for this is to support tiling with seamless
+ * boundaries, where the inner edges are non-AA and the outer edges are AA. Regular draws (where AA
+ * is specified by GrAA) is almost equivalent to kNone or kAll, with the exception of how MSAA is
+ * handled.
+ *
+ * When tiling and there is MSAA, mixed edge rectangles are processed with MSAA, so in order for the
+ * tiled edges to remain seamless, inner tiles with kNone must also be processed with MSAA. In
+ * regular drawing, however, kNone should disable MSAA (if it's supported) to match the expected
+ * appearance.
+ *
+ * Therefore, APIs that use per-edge AA flags also take a GrAA value so that they can differentiate
+ * between the regular and tiling use case behaviors. Tiling operations should always pass
+ * GrAA::kYes while regular options should pass GrAA based on the SkPaint's anti-alias state.
+ */
 enum class GrQuadAAFlags {
     kLeft   = SkCanvas::kLeft_QuadAAFlag,
     kTop    = SkCanvas::kTop_QuadAAFlag,
