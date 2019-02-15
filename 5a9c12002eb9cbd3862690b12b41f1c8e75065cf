@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "662655cc_d8447813",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-15T20:58:59Z",
+      "side": 0,
+      "message": "Hmm... RGB and BGR are side-by-side here...",
+      "revId": "5a9c12002eb9cbd3862690b12b41f1c8e75065cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3952392f_af450bf6",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-15T20:58:59Z",
+      "side": 0,
+      "message": "...but differ here. kRGBA_Color includes 16 bitsPerComponent but kBGRA_Color does not??",
+      "revId": "5a9c12002eb9cbd3862690b12b41f1c8e75065cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
