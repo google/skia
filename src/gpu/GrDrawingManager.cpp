@@ -186,7 +186,7 @@ GrDrawingManager::~GrDrawingManager() {
 }
 
 bool GrDrawingManager::wasAbandoned() const {
-    return fContext->abandoned();
+    return fContext->priv().abandoned();
 }
 
 void GrDrawingManager::freeGpuResources() {
@@ -213,11 +213,19 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     }
     SkDEBUGCODE(this->validate());
 
-    GrGpu* gpu = fContext->priv().getGpu();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
+    }
+
+    GrGpu* gpu = direct->priv().getGpu();
     if (!gpu) {
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
     fFlushing = true;
+
+    auto resourceProvider = direct->priv().resourceProvider();
+    auto resourceCache = direct->priv().getResourceCache();
 
     // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
     // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
@@ -235,8 +243,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
         fCpuBufferCache = GrBufferAllocPool::CpuBufferCache::Make(maxCachedBuffers);
     }
 
-    GrOpFlushState flushState(gpu, fContext->priv().resourceProvider(), &fTokenTracker,
-                              fCpuBufferCache);
+    GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
 
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
@@ -338,7 +345,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
-        fContext->priv().getResourceCache()->purgeAsNeeded();
+        resourceCache->purgeAsNeeded();
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
         onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingOpListIDs.begin(),
@@ -364,7 +371,12 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     }
 #endif
 
-    GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
     bool anyOpListsExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
@@ -389,7 +401,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 
         // TODO: handle this instantiation via lazy surface proxies?
         // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        opList->instantiateDeferredProxies(fContext->priv().resourceProvider());
+        opList->instantiateDeferredProxies(resourceProvider);
         opList->prepare(flushState);
     }
 
@@ -455,17 +467,24 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     SkDEBUGCODE(this->validate());
     SkASSERT(proxy);
 
-    GrGpu* gpu = fContext->priv().getGpu();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
+    }
+
+    GrGpu* gpu = direct->priv().getGpu();
     if (!gpu) {
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
+
+    auto resourceProvider = direct->priv().resourceProvider();
 
     GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
     if (proxy->priv().hasPendingIO() || numSemaphores) {
         result = this->flush(proxy, numSemaphores, backendSemaphores);
     }
 
-    if (!proxy->instantiate(fContext->priv().resourceProvider())) {
+    if (!proxy->instantiate(resourceProvider)) {
         return result;
     }
 
@@ -590,7 +609,13 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
         fActiveOpList = nullptr;
     }
 
-    auto resourceProvider = fContext->priv().resourceProvider();
+    // MDB TODO: this is unfortunate. GrOpList only needs the resourceProvider here so that, when
+    // not explicitly allocating resources, it can immediately instantiate 'rtp' so that the use
+    // order matches the allocation order (see the comment in GrOpList's ctor).
+    GrResourceProvider* resourceProvider = nullptr;
+    if (fContext->priv().asDirectContext()) {
+        resourceProvider = fContext->priv().asDirectContext()->priv().resourceProvider();
+    }
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                         resourceProvider,
@@ -633,7 +658,15 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
         fActiveOpList = nullptr;
     }
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->priv().resourceProvider(),
+    // MDB TODO: this is unfortunate. GrOpList only needs the resourceProvider here so that, when
+    // not explicitly allocating resources, it can immediately instantiate 'texureProxy' so that
+    // the use order matches the allocation order (see the comment in GrOpList's ctor).
+    GrResourceProvider* resourceProvider = nullptr;
+    if (fContext->priv().asDirectContext()) {
+        resourceProvider = fContext->priv().asDirectContext()->priv().resourceProvider();
+    }
+
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(resourceProvider,
                                                       fContext->priv().refOpMemoryPool(),
                                                       textureProxy,
                                                       fContext->priv().auditTrail()));
@@ -700,7 +733,12 @@ GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRendere
 }
 
 void GrDrawingManager::flushIfNecessary() {
-    GrResourceCache* resourceCache = fContext->priv().getResourceCache();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return;
+    }
+
+    auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
         this->flush(nullptr, 0, nullptr);
         resourceCache->purgeAsNeeded();
