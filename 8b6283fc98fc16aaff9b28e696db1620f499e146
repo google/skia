@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbc92461_a1130c27",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-15T16:00:53Z",
+      "side": 1,
+      "message": "Had me scratching my head for a second :)  Maybe the SkCurve ctor should be explicit to avoid surprises?",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 31
+      },
+      "revId": "8b6283fc98fc16aaff9b28e696db1620f499e146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53a44b65_21816930",
+        "filename": "modules/particles/src/SkCurve.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-15T16:00:53Z",
+      "side": 1,
+      "message": "This rings similar to how we compute interval-relative Ts for gradients.  I wonder if we could\n\na) reuse the code (gradients also do binary search for intervals)\n\nor \n\nb) use a similar approach here (store a scale + bias per interval, to reduce this calculation to FMA)\n\nMaybe perf is not critical-enough to justify a mem/speed trade-off, just a thought.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 63
+      },
+      "revId": "8b6283fc98fc16aaff9b28e696db1620f499e146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
