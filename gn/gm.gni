@@ -88,6 +88,7 @@ gm_sources = [
   "$_gm/complexclip3.cpp",
   "$_gm/complexclip4.cpp",
   "$_gm/composeshader.cpp",
+  "$_gm/compositor_quads.cpp",
   "$_gm/concavepaths.cpp",
   "$_gm/conicpaths.cpp",
   "$_gm/constcolorprocessor.cpp",

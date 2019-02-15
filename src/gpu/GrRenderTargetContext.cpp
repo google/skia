@@ -1037,8 +1037,8 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
         AutoCheckFlush acf(this->drawingManager());
         GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
-        auto op = GrTextureOp::Make(fContext, set, cnt, filter, aaType, viewMatrix,
-                                    std::move(texXform));
+        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, aaType, viewMatrix,
+                                       std::move(texXform));
         this->addDrawOp(clip, std::move(op));
     }
 }
