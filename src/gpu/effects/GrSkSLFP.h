@@ -18,13 +18,14 @@
 #include "../private/GrSkSLFPFactoryCache.h"
 #include <atomic>
 
+
 #if GR_TEST_UTILS
 #define GR_FP_SRC_STRING const char*
 #else
 #define GR_FP_SRC_STRING static const char*
 #endif
 
-class GrContext;
+class GrRecordingContext;
 class GrSkSLFPFactory;
 
 class GrSkSLFP : public GrFragmentProcessor {
@@ -68,7 +69,7 @@ public:
      * associated with it.
      */
     static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext* context,
+                   GrRecordingContext* context,
                    int index,
                    const char* name,
                    const char* sksl,
