@@ -57,6 +57,10 @@ GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     return this->refOpMemoryPool().get();
 }
 
+void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
+    this->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
+}
+
 sk_sp<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
                                                                  sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace,
@@ -218,6 +222,10 @@ sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
 
 sk_sp<GrOpMemoryPool> GrRecordingContextPriv::refOpMemoryPool() {
     return fContext->refOpMemoryPool();
+}
+
+void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
+    fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
 sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
