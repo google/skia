@@ -676,7 +676,7 @@ void GrContextPriv::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
 
 void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
                                        GrRenderTargetProxy* newDest) {
-    fContext->fDrawingManager->copyOpListsFromDDL(ddl, newDest);
+    fContext->drawingManager()->copyOpListsFromDDL(ddl, newDest);
 }
 
 //////////////////////////////////////////////////////////////////////////////

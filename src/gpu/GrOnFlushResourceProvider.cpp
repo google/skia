@@ -62,7 +62,13 @@ sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
 }
 
 bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
-    auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
+    // TODO: this class should probably just get a GrDirectContext
+    auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    auto resourceProvider = direct->priv().resourceProvider();
 
     if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
         // DDL TODO: Decide if we ever plan to have these proxies use the GrDeinstantiateTracker
@@ -75,14 +81,28 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
 
 sk_sp<GrGpuBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,
                                                          const void* data) {
-    auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
+    // TODO: this class should probably just get a GrDirectContext
+    auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    auto resourceProvider = direct->priv().resourceProvider();
+
     return sk_sp<GrGpuBuffer>(
             resourceProvider->createBuffer(size, intendedType, kDynamic_GrAccessPattern, data));
 }
 
 sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
         GrGpuBufferType intendedType, size_t size, const void* data, const GrUniqueKey& key) {
-    auto resourceProvider = fDrawingMgr->getContext()->priv().resourceProvider();
+    // TODO: class should probably just get a GrDirectContext
+    auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    auto resourceProvider = direct->priv().resourceProvider();
+
     sk_sp<const GrGpuBuffer> buffer =
             resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
     // Static buffers should never have pending IO.

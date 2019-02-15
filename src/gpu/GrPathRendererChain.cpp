@@ -28,10 +28,15 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
-        sk_sp<GrPathRenderer> pr(
-           GrStencilAndCoverPathRenderer::Create(context->priv().resourceProvider(), caps));
-        if (pr) {
-            fChain.push_back(std::move(pr));
+        auto direct = context->priv().asDirectContext();
+        if (direct) {
+            auto resourceProvider = direct->priv().resourceProvider();
+
+            sk_sp<GrPathRenderer> pr(
+               GrStencilAndCoverPathRenderer::Create(resourceProvider, caps));
+            if (pr) {
+                fChain.push_back(std::move(pr));
+            }
         }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
