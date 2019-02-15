@@ -13,9 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `SkPath.toCmds`.
  - `SkCanvas.drawTextBlob()` and `SkCanvas.SkTextBlob.MakeFromText()` to draw text to a canvas.
  - `CanvasKit.TextEncoding` enum. For use with `SkTextBlob`.
+ - Basic text shaping with `ShapedText` object and `SkCanvas.drawText`.
 
 ### Changed
- - `SkCanvas.drawText()` now requires an `SkFont` object.
+ - `SkCanvas.drawText()` now requires an `SkFont` object for raw strings.
+
 
 ### Removed
  -  `SkPaint.setTextSize()`, `SkPaint.getTextSize()`, `SkPaint.setTypeface()`
