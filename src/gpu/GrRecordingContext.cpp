@@ -280,3 +280,7 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
                                                                  mipMapped, origin, surfaceProps,
                                                                  budgeted);
 }
+
+GrContext* GrRecordingContextPriv::backdoor() {
+    return (GrContext*) fContext;
+}
