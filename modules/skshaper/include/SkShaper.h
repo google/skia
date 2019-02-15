@@ -26,7 +26,7 @@ class SkFont;
 class SkShaper {
 public:
     SkShaper();
-    ~SkShaper();
+    virtual ~SkShaper();
 
     class RunHandler {
     public:
@@ -55,22 +55,26 @@ public:
         virtual void commitLine() = 0;
     };
 
-    bool good() const;
-    SkPoint shape(RunHandler* handler,
-                  const SkFont& srcFont,
-                  const char* utf8text,
-                  size_t textBytes,
-                  bool leftToRight,
-                  SkPoint point,
-                  SkScalar width) const;
+    virtual bool good() const = 0;
+    virtual SkPoint shape(RunHandler* handler,
+                          const SkFont& srcFont,
+                          const char* utf8text,
+                          size_t textBytes,
+                          bool leftToRight,
+                          SkPoint point,
+                          SkScalar width) const = 0;
 
 private:
     SkShaper(const SkShaper&) = delete;
     SkShaper& operator=(const SkShaper&) = delete;
-
-    struct Impl;
-    std::unique_ptr<Impl> fImpl;
 };
+
+std::unique_ptr<SkShaper> MakePrimitiveShaper();
+#if SK_SHAPER_HARFBUZZ_AVAILABLE
+std::unique_ptr<SkShaper> MakeHarfBuzzShaper();
+#endif
+
+std::unique_ptr<SkShaper> MakeShaper();
 
 /**
  * Helper for shaping text directly into a SkTextBlob.
