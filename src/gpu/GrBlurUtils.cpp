@@ -447,7 +447,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
                                           const SkPaint& paint,
                                           const SkMatrix& viewMatrix,
                                           const GrShape& shape) {
-    if (context->abandoned()) {
+    if (context->priv().abandoned()) {
         return;
     }
 
