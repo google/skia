@@ -22,6 +22,10 @@ public:
 
     const GrContextOptions& options() const { return fContext->options(); }
 
+    bool explicitlyAllocateGPUResources() const {
+        return fContext->explicitlyAllocateGPUResources();
+    }
+
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const;
 
@@ -41,8 +45,6 @@ public:
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
-
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
