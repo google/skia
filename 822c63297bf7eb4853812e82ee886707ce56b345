@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fe01ca6_105b0b2d",
+        "filename": "src/gpu/ops/GrFillRectOp.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-15T18:57:59Z",
+      "side": 1,
+      "message": "One question I have is, how do we map from \"rect\" coords to local coords? There isn\u0027t always a linear mapping from one set of 4 points to another set of 4. Would it make sense to only accept a local matrix instead?",
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0f993ca_d5046994",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-15T18:57:59Z",
+      "side": 1,
+      "message": "Do we have data showing this is faster? I ask because a lot of times the texture unit is completely separate and it might not make any difference whether we filter or not.",
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
