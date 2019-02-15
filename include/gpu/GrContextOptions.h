@@ -183,6 +183,14 @@ struct SK_API GrContextOptions {
      */
     PersistentCache* fPersistentCache = nullptr;
 
+    /**
+     * This affects the usage of the PersistentCache. If this is set to true GLSL shader strings
+     * rather than GL program binaries will be cached. It is intended to be used when the driver's
+     * binary loading/storing is believed to have bugs. Caching GLSL strings still saves a
+     * significant amount of CPU work when a GL program is created.
+     */
+     bool fDisallowGLSLBinaryCaching = false;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.
