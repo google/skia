@@ -18,8 +18,8 @@
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
@@ -293,7 +293,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         const OutputProperties& outputProperties) const {
     SkASSERT(source->isTextureBacked());
 
-    GrContext* context = source->getContext();
+    auto context = source->getContext();
 
     sk_sp<GrTextureProxy> backgroundProxy, foregroundProxy;
 

@@ -86,6 +86,8 @@ void SkOverdrawColorFilter::RegisterFlattenables() {
 }
 #if SK_SUPPORT_GPU
 
+#include "GrContext.h"
+
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrContext* context, const GrColorSpaceInfo&) const {
     static int overdrawIndex = GrSkSLFP::NewIndex();

@@ -18,11 +18,11 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 
-class GrContext;
 class GrFragmentProcessor;
 class SkColorFilter;
 class SkColorSpaceXformer;
 struct SkIPoint;
+class GrRecordingContext;
 class SkSpecialImage;
 class SkImageFilterCache;
 struct SkImageFilterCacheKey;
@@ -167,7 +167,7 @@ public:
                          MapDirection, const SkIRect* inputRect = nullptr) const;
 
 #if SK_SUPPORT_GPU
-    static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context,
+    static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
                                             std::unique_ptr<GrFragmentProcessor> fp,
                                             const SkIRect& bounds,
                                             const OutputProperties& outputProperties);
