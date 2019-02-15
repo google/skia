@@ -471,7 +471,6 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     size_t src_bytes_per_pixel = src_bits_per_pixel / 8;
 
     wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
-    wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!fSwizzler) {
         auto bounds = SkIRect::MakeLTRB(frame_rect.min_incl_x, frame_rect.min_incl_y,
                                         frame_rect.max_excl_x, frame_rect.max_excl_y);
@@ -487,7 +486,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
 
         // If the frame rect does not fill the output, ensure that those pixels are not
         // left uninitialized.
-        if (independent && (bounds != this->bounds() || dirty_rect.is_empty())) {
+        if (independent && (bounds != this->bounds() || result != kSuccess)) {
             auto fillInfo = dstInfo().makeWH(fSwizzler->fillWidth(), fScaledHeight);
             SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
         }
@@ -518,6 +517,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     }
 
     // If the frame's dirty rect is empty, no need to swizzle.
+    wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!dirty_rect.is_empty()) {
         std::unique_ptr<uint8_t[]> tmpBuffer;
         if (!independent) {
