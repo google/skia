@@ -54,8 +54,6 @@ sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xform
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-#include "GrContext.h"
-
 std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     auto fp1 = as_SB(fShader)->asFragmentProcessor(args);

@@ -24,7 +24,7 @@
 #define GR_FP_SRC_STRING static const char*
 #endif
 
-class GrContext_Base;
+class GrContext;
 class GrSkSLFPFactory;
 
 class GrSkSLFP : public GrFragmentProcessor {
@@ -68,7 +68,7 @@ public:
      * associated with it.
      */
     static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext_Base* context,
+                   GrContext* context,
                    int index,
                    const char* name,
                    const char* sksl,

@@ -67,7 +67,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* ctx, const GrColorSpaceInfo& csi) const override {
+            GrContext* ctx, const GrColorSpaceInfo& csi) const override {
         return fMatrixFilter->asFragmentProcessor(ctx, csi);
     }
 #endif
