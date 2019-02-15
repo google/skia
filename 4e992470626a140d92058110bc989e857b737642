@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0b127cd_dd226d60",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5835
+      },
+      "writtenOn": "2019-02-15T23:11:10Z",
+      "side": 1,
+      "message": "This was the only change",
+      "revId": "4e992470626a140d92058110bc989e857b737642",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
