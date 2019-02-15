@@ -8,8 +8,6 @@
 #include "GrProxyProvider.h"
 
 #include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrImageContext.h"
 #include "GrImageContextPriv.h"
 #include "GrRenderTarget.h"
@@ -44,6 +42,11 @@ GrProxyProvider::~GrProxyProvider() {
         SkASSERT(!fUniquelyKeyedProxies.count());
     }
 }
+
+uint32_t GrProxyProvider::contextID() const { return fImageContext->contextID(); }
+const GrCaps* GrProxyProvider::caps() const { return fImageContext->priv().caps(); }
+sk_sp<const GrCaps> GrProxyProvider::refCaps() const { return fImageContext->priv().refCaps(); }
+bool GrProxyProvider::isAbandoned() const { return fImageContext->priv().abandoned(); }
 
 bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
@@ -214,7 +217,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps1()->isConfigTexturable(config)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
             !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
@@ -226,7 +229,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
+        sampleCnt = this->caps1()->getRenderTargetSampleCount(sampleCnt, config);
         if (!sampleCnt) {
             return nullptr;
         }
@@ -330,7 +333,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
     }
 
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps1()->isConfigTexturable(desc.fConfig)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
             !bitmap.readPixels(copy8888.pixmap())) {
@@ -406,19 +409,19 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         }
     }
 
-    if (!this->caps()->validateSurfaceDesc(desc, mipMapped)) {
+    if (!this->caps1()->validateSurfaceDesc(desc, mipMapped)) {
         return nullptr;
     }
     GrSurfaceDesc copyDesc = desc;
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
         copyDesc.fSampleCnt =
-                this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
+                this->caps1()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
     }
 
     if (copyDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*this->caps(), format, copyDesc,
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*this->caps1(), format, copyDesc,
                                                                     origin, mipMapped,
                                                                     fit, budgeted, surfaceFlags));
     }
@@ -428,7 +431,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrSurfaceDesc& desc) {
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps1()->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
 

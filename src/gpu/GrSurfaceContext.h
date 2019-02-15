@@ -111,24 +111,24 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrContext*, GrDrawingManager*, GrPixelConfig, sk_sp<SkColorSpace>,
+    GrSurfaceContext(GrRecordingContext*, GrDrawingManager*, GrPixelConfig, sk_sp<SkColorSpace>,
                      GrAuditTrail*, GrSingleOwner*);
 
-    GrDrawingManager* drawingManager() { return fDrawingManager; }
-    const GrDrawingManager* drawingManager() const { return fDrawingManager; }
+//    GrDrawingManager* drawingManager() { return fDrawingManager; }
+//    const GrDrawingManager* drawingManager() const { return fDrawingManager; }
 
     virtual GrOpList* getOpList() = 0;
     SkDEBUGCODE(virtual void validate() const = 0;)
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
-    GrContext* fContext;
-    GrAuditTrail* fAuditTrail;
+    GrRecordingContext* fContext;
+    GrAuditTrail*       fAuditTrail;
 
 private:
-    GrColorSpaceInfo fColorSpaceInfo;
+    GrColorSpaceInfo    fColorSpaceInfo;
 
-    GrDrawingManager* fDrawingManager;
+    GrDrawingManager*   fDrawingManager; //???
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

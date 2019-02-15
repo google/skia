@@ -28,7 +28,6 @@ class SkDeferredDisplayList;
     data members or virtual methods. */
 class GrContextPriv {
 public:
-
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
@@ -51,6 +50,9 @@ public:
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
+
+    bool abandoned1() const { return fContext->abandoned1(); }
+    void abandon1() { return fContext->abandon1(); }
 
     // from GrRecordingContext
 
@@ -103,18 +105,20 @@ public:
                                             GrPixelConfig config,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
-                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrMipMapped mipMapped = GrMipMapped::kNo,
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted budgeted = SkBudgeted::kYes);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
-    /**
-     * Create a GrContext without a resource cache
-     */
-    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
+                                                      sk_sp<SkColorSpace> cs = nullptr,
+                                                      const SkSurfaceProps* props = nullptr) {
+        return fContext->makeWrappedSurfaceContext(std::move(proxy), std::move(cs), props);
+    }
 
+    //----
     sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
                                                       GrSurfaceOrigin origin,
                                                       sk_sp<SkColorSpace> colorSpace);
@@ -149,6 +153,15 @@ public:
 
     sk_sp<GrRenderTargetContext> makeVulkanSecondaryCBRenderTargetContext(
             const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
+
+
+    /**
+     * Create a GrContext without a resource cache
+     */
+    static sk_sp<GrRecordingContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+
+    static sk_sp<GrImageContext> MakeImageContext(const sk_sp<GrContextThreadSafeProxy>&);
+
 
     /**
      * Call to ensure all drawing to the context has been issued to the
@@ -276,6 +289,13 @@ public:
 #endif
 
 #if GR_TEST_UTILS
+    /**
+     * Purge all the unlocked resources from the cache.
+     * This entry point is mainly meant for timing texture uploads
+     * and is not defined in normal builds of Skia.
+     */
+    void purgeAllUnlockedResources_ForTesting();
+
     /** Reset GPU stats */
     void resetGpuStats() const ;
 
@@ -304,6 +324,7 @@ public:
      * and is not defined in normal builds of Skia.
      */
     void testingOnly_purgeAllUnlockedResources();
+    GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif

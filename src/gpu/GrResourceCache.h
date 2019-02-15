@@ -313,7 +313,7 @@ private:
         return res->cacheAccess().accessCacheIndex();
     }
 
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Inbox InvalidUniqueKeyInbox;
     typedef SkMessageBus<GrGpuResourceFreedMessage>::Inbox FreedGpuResourceInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;

@@ -10,6 +10,7 @@
 #include "GrClip.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrGpuResourcePriv.h"
+#include "GrImageContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
 #include "GrProxyProvider.h"
@@ -98,7 +99,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    GrContext* context = renderTargetContext->surfPriv().getContext();
+    auto context = renderTargetContext->surfPriv().getContext();
     renderTargetContext->addDrawOp(clip,
                                    GrFillRectOp::MakeWithLocalMatrix(
                                            context, std::move(paint), GrAAType::kNone, viewMatrix,
@@ -172,7 +173,7 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                   dstRect, invert);
 }
 
-static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext* context,
+static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrImageContext* context,
                                                               SkBackingFit fit,
                                                               int width, int height) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -220,16 +221,16 @@ private:
 };
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
+class PathInvalidator : public SkPathRef::GenIDChangeListener2 {
 public:
     PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fMsg(key, contextUniqueID) {}
 
 private:
-    GrUniqueKeyInvalidatedMessage fMsg;
+    GrUniqueKeyInvalidatedMessage17 fMsg;
 
     void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(fMsg);
     }
 };
 

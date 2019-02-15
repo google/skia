@@ -8,6 +8,8 @@
 #include "gm.h"
 
 #include "GrContext.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.
@@ -29,10 +31,10 @@ static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas
 
     int oldMaxResources;
     size_t oldMaxResourceBytes;
-    context->getResourceCacheLimits(&oldMaxResources, &oldMaxResourceBytes);
+    direct->getResourceCacheLimits(&oldMaxResources, &oldMaxResourceBytes);
 
     const size_t newMaxResourceBytes = kBitmapBytes + (kBitmapBytes / 2);
-    context->setResourceCacheLimits(oldMaxResources, newMaxResourceBytes);
+    direct->setResourceCacheLimits(oldMaxResources, newMaxResourceBytes);
 
     // Construct our bitmap as either very wide or very tall
     SkBitmap bmp;
@@ -55,7 +57,7 @@ static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas
     }
 
     // Restore the cache
-    context->setResourceCacheLimits(oldMaxResources, oldMaxResourceBytes);
+    direct->setResourceCacheLimits(oldMaxResources, oldMaxResourceBytes);
 }
 
 DEF_SIMPLE_GPU_GM_BG(
