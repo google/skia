@@ -138,6 +138,13 @@ static void map_rect_general(const SkRect& rect, const SkMatrix& matrix,
     map_quad_general(rx, ry, matrix, xs, ys, ws);
 }
 
+// Rearranges (top-left, top-right, bottom-right, bottom-left) ordered skQuadPts into xs and ys
+// ordered (top-left, bottom-left, top-right, bottom-right)
+static void rearrange_sk_to_gr_points(const SkPoint skQuadPts[4], Sk4f* xs, Sk4f* ys) {
+    *xs = Sk4f(skQuadPts[0].fX, skQuadPts[3].fX, skQuadPts[1].fX, skQuadPts[2].fX);
+    *ys = Sk4f(skQuadPts[0].fY, skQuadPts[3].fY, skQuadPts[1].fY, skQuadPts[2].fY);
+}
+
 template <typename Q>
 void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
                             const Q& quad, GrQuadType knownType,
@@ -204,6 +211,18 @@ GrQuad GrQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
     return GrQuad(x, y);
 }
 
+GrQuad GrQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
+    Sk4f xs, ys;
+    rearrange_sk_to_gr_points(pts, &xs, &ys);
+    if (matrix.isIdentity()) {
+        return GrQuad(xs, ys);
+    } else {
+        Sk4f mx, my;
+        map_quad_general(xs, ys, matrix, &mx, &my, nullptr);
+        return GrQuad(mx, my);
+    }
+}
+
 bool GrQuad::aaHasEffectOnRect() const {
     SkASSERT(this->quadType() == GrQuadType::kRect);
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
@@ -226,6 +245,18 @@ GrPerspQuad GrPerspQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
         map_rect_general(rect, m, &x, &y, &w);
     }
     return GrPerspQuad(x, y, w);
+}
+
+GrPerspQuad GrPerspQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
+    Sk4f xs, ys;
+    rearrange_sk_to_gr_points(pts, &xs, &ys);
+    if (matrix.isIdentity()) {
+        return GrPerspQuad(xs, ys, 1.f);
+    } else {
+        Sk4f mx, my, mw;
+        map_quad_general(xs, ys, matrix, &mx, &my, &mw);
+        return GrPerspQuad(mx, my, mw);
+    }
 }
 
 bool GrPerspQuad::aaHasEffectOnRect() const {
