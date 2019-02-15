@@ -295,8 +295,6 @@ private:
 
     int fMaxFragmentSamplers;
 
-    size_t fDisableImageMultitexturingDstRectAreaThreshold;
-
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
     GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
