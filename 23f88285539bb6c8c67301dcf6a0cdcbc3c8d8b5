@@ -104,6 +104,24 @@
       "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b411e2a2_a6d7bc37",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-15T19:41:58Z",
+      "side": 1,
+      "message": "Or replace \"dirty_rect.is_empty()\" with \"status !\u003d kSuccess\" as in https://skia-review.googlesource.com/c/skia/+/193027/",
+      "parentUuid": "dc25c9d0_baf61c16",
+      "revId": "23f88285539bb6c8c67301dcf6a0cdcbc3c8d8b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
