@@ -7,8 +7,8 @@
 
 #include "GrSkSLFP.h"
 
-#include "GrContext_Base.h"
 #include "GrBaseContextPriv.h"
+#include "GrContext_Base.h"
 #include "GrTexture.h"
 #include "SkSLUtil.h"
 

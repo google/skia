@@ -118,17 +118,21 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
 #include "GrBackendSurface.h"
-#include "GrContext.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkGpuDevice.h"
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
+    SkSpecialSurface_Gpu(GrRecordingContext* context,
+                         sk_sp<GrRenderTargetContext> renderTargetContext,
                          int width, int height, const SkIRect& subset)
         : INHERITED(subset, &renderTargetContext->surfaceProps())
         , fRenderTargetContext(std::move(renderTargetContext)) {
 
-        sk_sp<SkBaseDevice> device(SkGpuDevice::Make(context, fRenderTargetContext, width, height,
+        // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
+        sk_sp<SkBaseDevice> device(SkGpuDevice::Make(context->priv().backdoor(),
+                                                     fRenderTargetContext, width, height,
                                                      SkGpuDevice::kUninit_InitContents));
         if (!device) {
             return;
@@ -164,7 +168,7 @@ private:
     typedef SkSpecialSurface_Base INHERITED;
 };
 
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
+sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* context,
                                                            const GrBackendFormat& format,
                                                            int width, int height,
                                                            GrPixelConfig config,

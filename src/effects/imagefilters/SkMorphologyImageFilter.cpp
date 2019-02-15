@@ -21,6 +21,8 @@
 #include "GrContextPriv.h"
 #include "GrCoordTransform.h"
 #include "GrFixedClip.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
@@ -462,7 +464,7 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
 }
 
 static sk_sp<SkSpecialImage> apply_morphology(
-                                          GrContext* context,
+                                          GrRecordingContext* context,
                                           SkSpecialImage* input,
                                           const SkIRect& rect,
                                           GrMorphologyEffect::Type morphType,
@@ -678,7 +680,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
 
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
-        GrContext* context = source->getContext();
+        auto context = source->getContext();
 
         // Ensure the input is in the destination color space. Typically applyCropRect will have
         // called pad_image to account for our dilation of bounds, so the result will already be

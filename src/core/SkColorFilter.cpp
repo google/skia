@@ -327,7 +327,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext* context, const GrColorSpaceInfo&) const override {
+            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
         return nullptr;
     }
 #endif
