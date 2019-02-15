@@ -5,19 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkShaper.h"
 #include "SkFontMetrics.h"
+#include "SkMakeUnique.h"
+#include "SkShaper.h"
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
 
-struct SkShaper::Impl {};
-SkShaper::SkShaper() : fImpl(nullptr) {}
+class SkShaperPrimitive : public SkShaper {
+public:
+    SkShaperPrimitive() {}
+private:
+    SkPoint shape(RunHandler* handler,
+                  const SkFont& srcFont,
+                  const char* utf8text,
+                  size_t textBytes,
+                  bool leftToRight,
+                  SkPoint point,
+                  SkScalar width) const override;
+};
 
-SkShaper::~SkShaper() {}
-
-bool SkShaper::good() const { return true; }
+std::unique_ptr<SkShaper> SkShaper::MakePrimitive() {
+    return skstd::make_unique<SkShaperPrimitive>();
+}
 
 static inline bool is_breaking_whitespace(SkUnichar c) {
     switch (c) {
@@ -129,13 +140,13 @@ static size_t linebreak(const char text[], const char stop[],
     return text - start;
 }
 
-SkPoint SkShaper::shape(RunHandler* handler,
-                        const SkFont& font,
-                        const char* utf8text,
-                        size_t textBytes,
-                        bool leftToRight,
-                        SkPoint point,
-                        SkScalar width) const {
+SkPoint SkShaperPrimitive::shape(RunHandler* handler,
+                                 const SkFont& font,
+                                 const char* utf8text,
+                                 size_t textBytes,
+                                 bool leftToRight,
+                                 SkPoint point,
+                                 SkScalar width) const {
     sk_ignore_unused_variable(leftToRight);
 
     int glyphCount = font.countText(utf8text, textBytes, SkTextEncoding::kUTF8);

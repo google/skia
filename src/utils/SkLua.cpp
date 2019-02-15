@@ -1873,7 +1873,7 @@ static int lsk_newTextBlob(lua_State* L) {
     SkRect bounds;
     lua2rect(L, 2, &bounds);
 
-    SkShaper shaper;
+    std::unique_ptr<SkShaper> shaper = SkShaper::Make();
 
     // TODO: restore this logic based on SkFont instead of SkPaint
 #if 0
@@ -1883,8 +1883,8 @@ static int lsk_newTextBlob(lua_State* L) {
     SkFont font;
 #endif
     SkTextBlobBuilderRunHandler builder(text);
-    SkPoint end = shaper.shape(&builder, font, text, strlen(text), true,
-                               { bounds.left(), bounds.top() }, bounds.width());
+    SkPoint end = shaper->shape(&builder, font, text, strlen(text), true,
+                                { bounds.left(), bounds.top() }, bounds.width());
 
     push_ref<SkTextBlob>(L, builder.makeBlob());
     SkLua(L).pushScalar(end.fY);
