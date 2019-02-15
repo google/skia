@@ -218,12 +218,6 @@ struct GrContextOptions {
      * Include or exclude specific GPU path renderers.
      */
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
-
-    /**
-     * Disables using multiple texture units to batch multiple images into a single draw on
-     * supported GPUs.
-     */
-    bool fDisableImageMultitexturing = false;
 #endif
 
 #if SK_SUPPORT_ATLAS_TEXT
