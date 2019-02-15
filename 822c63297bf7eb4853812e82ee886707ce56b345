@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "ed7fcf63_6c4d573a",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f58d555_c08ccbc7",
+      "range": {
+        "startLine": 253,
+        "startChar": 19,
+        "endLine": 253,
+        "endChar": 24
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fe19cc6_7cfb204f",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Done, it\u0027s much cleaner this way now, thanks!",
+      "parentUuid": "261d16f5_daa244a8",
+      "range": {
+        "startLine": 253,
+        "startChar": 26,
+        "endLine": 253,
+        "endChar": 65
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82f60b91_185b8414",
         "filename": "gm/compositor_quads.cpp",
         "patchSetId": 9
@@ -68,6 +116,30 @@
       "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fd77e94_5fa4cdbf",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Good point (but it will be intersectionCount !\u003d 2, since 0 and 1 intersections are treated the same)",
+      "parentUuid": "82f60b91_185b8414",
+      "range": {
+        "startLine": 288,
+        "startChar": 8,
+        "endLine": 288,
+        "endChar": 37
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "cbf4b839_ee06c57f",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "358ab6e6_ecaee792",
+      "range": {
+        "startLine": 302,
+        "startChar": 44,
+        "endLine": 302,
+        "endChar": 96
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9ee3256_12f14d42",
         "filename": "gm/compositor_quads.cpp",
         "patchSetId": 9
@@ -114,6 +210,30 @@
       "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d7f0cdc_c656857c",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Can\u0027t be too careful :) but yeah that is a little redundant taking a second look at it. I can remove those asserts.",
+      "parentUuid": "e9ee3256_12f14d42",
+      "range": {
+        "startLine": 306,
+        "startChar": 20,
+        "endLine": 306,
+        "endChar": 51
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "f66936c1_685cc031",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Yeah I think so; it makes the splitting code a little simpler (always 6 points to consider) and forces us to handle more degenerate quads. The intersection code using doubles mitigated a lot of the T-junction seams I had been seeing, but this is closer to what Chromium sends us.",
+      "parentUuid": "fb964a3b_83be15dc",
+      "range": {
+        "startLine": 316,
+        "startChar": 94,
+        "endLine": 318,
+        "endChar": 30
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ecef3839_a10ebe3f",
         "filename": "gm/compositor_quads.cpp",
         "patchSetId": 9
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "da36c4bd_84a6e749",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecef3839_a10ebe3f",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 23
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fe01ca6_105b0b2d",
         "filename": "src/gpu/ops/GrFillRectOp.h",
         "patchSetId": 9
@@ -174,6 +342,24 @@
       "writtenOn": "2019-02-15T18:57:59Z",
       "side": 1,
       "message": "One question I have is, how do we map from \"rect\" coords to local coords? There isn\u0027t always a linear mapping from one set of 4 points to another set of 4. Would it make sense to only accept a local matrix instead?",
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "185ae754_867d6dc6",
+        "filename": "src/gpu/ops/GrFillRectOp.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "In this case, it is \"okay\" that there is no linear mapping between the points in quad and what is stored in localQuad. The only artifact would be interpolation distortion between the quad points, nothing inside the fill rect op assumes that there is such a mapping (certainly not explicitly, fairly sure not implicitly).  That being said, the public API that relies on this will only use a linear mapping based on MakeRectToRect.",
+      "parentUuid": "2fe01ca6_105b0b2d",
       "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -209,6 +395,24 @@
       "side": 1,
       "message": "I may be wrong, but I believe we found that on some GPUs the texture coords don\u0027t always work out exactly at texel centers and we get a little filtering when we shouldn\u0027t. (And people don\u0027t like filtering when it should line up even if they specified filtering in the paint).",
       "parentUuid": "f0f993ca_d5046994",
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40e0adf8_e5485b8c",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-15T21:03:48Z",
+      "side": 1,
+      "message": "It is probably worth considering if the MakeQuad constructor should always accept the srcRect so that it can perform this same check to disable filtering. It\u0027s non-trivial to detect when it\u0027s arbitrary src to dst quads, but realistically, that\u0027s now how the API will be used.\n\nThis check had just been done inside the TextureOp constructor when the srcRect was provided there, but I had to move it to where the srcRect still existed.",
+      "parentUuid": "eff31ab0_d48a4f59",
       "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
