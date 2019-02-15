@@ -53,6 +53,9 @@ SkScalar SkCurve::eval(SkScalar x, SkRandom& random) const {
     SkScalar rangeMin = (i == 0) ? 0.0f : fXValues[i - 1];
     SkScalar rangeMax = (i == fXValues.count()) ? 1.0f : fXValues[i];
     SkScalar segmentX = (x - rangeMin) / (rangeMax - rangeMin);
+    if (!SkScalarIsFinite(segmentX)) {
+        segmentX = rangeMin;
+    }
     SkASSERT(0.0f <= segmentX && segmentX <= 1.0f);
     return fSegments[i].eval(segmentX, random);
 }
@@ -68,5 +71,22 @@ void SkCurve::visitFields(SkFieldVisitor* v) {
     fXValues.resize_back(fSegments.count() - 1);
     for (int i = 0; i < fXValues.count(); ++i) {
         fXValues[i] = SkTPin(fXValues[i], i > 0 ? fXValues[i - 1] : 0.0f, 1.0f);
+    }
+}
+
+void SkCurve::getExtents(SkScalar extents[2]) const {
+    extents[0] = INFINITY;
+    extents[1] = -INFINITY;
+    auto extend = [=](SkScalar y) {
+        extents[0] = SkTMin(extents[0], y);
+        extents[1] = SkTMax(extents[1], y);
+    };
+    for (const auto& segment : fSegments) {
+        for (int i = 0; i < (segment.fConstant ? 1 : 4); ++i) {
+            extend(segment.fMin[i]);
+            if (segment.fRanged) {
+                extend(segment.fMax[i]);
+            }
+        }
     }
 }
