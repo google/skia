@@ -6,6 +6,8 @@
  */
 
 #include "GrDefaultPathRenderer.h"
+
+#include "GrCaps.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrFillRectOp.h"

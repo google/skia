@@ -7,7 +7,9 @@
  */
 
 #include "GrSmallPathRenderer.h"
+
 #include "GrBuffer.h"
+#include "GrCaps.h"
 #include "GrDistanceFieldGenFromVector.h"
 #include "GrDrawOpTest.h"
 #include "GrQuad.h"

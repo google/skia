@@ -9,6 +9,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrColorSpaceInfo.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "SkGr.h"
 #include "text/GrTextBlobCache.h"

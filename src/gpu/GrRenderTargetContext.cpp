@@ -1702,6 +1702,10 @@ void GrRenderTargetContext::insertEventMarker(const SkString& str) {
     this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
+const GrCaps* GrRenderTargetContext::caps() const {
+    return fContext->priv().caps();
+}
+
 void GrRenderTargetContext::drawPath(const GrClip& clip,
                                      GrPaint&& paint,
                                      GrAA aa,

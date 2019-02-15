@@ -17,6 +17,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 
 #define SKDEBUGCANVAS_VERSION                     1

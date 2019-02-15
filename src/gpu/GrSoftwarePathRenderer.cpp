@@ -7,7 +7,9 @@
 
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
+#include "GrCaps.h"
 #include "GrClip.h"
+#include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpFlushState.h"

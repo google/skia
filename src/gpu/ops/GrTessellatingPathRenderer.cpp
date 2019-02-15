@@ -8,6 +8,7 @@
 #include "GrTessellatingPathRenderer.h"
 #include <stdio.h>
 #include "GrAuditTrail.h"
+#include "GrCaps.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"

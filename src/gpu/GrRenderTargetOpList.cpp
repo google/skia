@@ -11,6 +11,8 @@
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceAllocator.h"
@@ -574,7 +576,7 @@ bool GrRenderTargetOpList::resetForFullscreenClear() {
 
 // This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
 // also store the applied clip and dest proxy with the op
-bool GrRenderTargetOpList::copySurface(GrContext* context,
+bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
                                        GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,

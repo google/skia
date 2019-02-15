@@ -8,6 +8,7 @@
 #include "Test.h"
 
 #include "GrClip.h"
+#include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrProxyProvider.h"

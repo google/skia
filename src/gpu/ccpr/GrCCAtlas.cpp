@@ -14,6 +14,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
+#include "SkIPoint16.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
 #include "ccpr/GrCCPathCache.h"

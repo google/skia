@@ -19,6 +19,7 @@
 #include "GrClip.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 

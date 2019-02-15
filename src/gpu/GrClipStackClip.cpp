@@ -7,6 +7,7 @@
 
 #include "GrClipStackClip.h"
 #include "GrAppliedClip.h"
+#include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"

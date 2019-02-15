@@ -9,9 +9,12 @@
 
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTarget.h"
@@ -91,7 +94,8 @@ class ClockwiseTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context, bool readSkFragCoord, int y = 0) {
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+                                          bool readSkFragCoord, int y = 0) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<ClockwiseTestOp>(readSkFragCoord, y);
     }

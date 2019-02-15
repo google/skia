@@ -13,6 +13,7 @@ layout(ctype=SkRect) uniform float4 proxyRect;
 uniform half blurRadius;
 
 @header {
+    #include "GrCaps.h"
     #include "GrClip.h"
     #include "GrPaint.h"
     #include "GrProxyProvider.h"
