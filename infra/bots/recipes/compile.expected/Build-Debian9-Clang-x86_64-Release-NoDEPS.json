@@ -22,7 +22,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
+      "PATH": "RECIPE_REPO[depot_tools]:<PATH>"
     },
     "infra_step": true,
     "name": "git fetch"
@@ -102,7 +102,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -117,7 +117,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -130,7 +130,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
