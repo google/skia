@@ -6,13 +6,15 @@
  */
 
 #include "GrSkSLFP.h"
+
+#include "GrContext_Base.h"
+#include "GrBaseContextPriv.h"
+#include "GrTexture.h"
+#include "SkSLUtil.h"
+
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrTexture.h"
-#include "SkSLUtil.h"
 
 GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
         : fName(name) {
@@ -231,7 +233,7 @@ public:
     std::vector<UniformHandle> fUniformHandles;
 };
 
-std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext* context, int index, const char* name,
+std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
                                          const char* sksl, const void* inputs,
                                          size_t inputSize) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
@@ -397,6 +399,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 #if GR_TEST_UTILS
 
 #include "GrConstColorProcessor.h"
+#include "GrContext.h"
 #include "SkArithmeticImageFilter.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkFlattenable.h"
-
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
+
+#include "SkColorFilter.h"
+#include "SkFlattenable.h"
 
 class SkModeColorFilter : public SkColorFilter {
 public:
@@ -22,7 +22,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext*, const GrColorSpaceInfo&) const override;
+            GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
 
 protected:
