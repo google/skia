@@ -7,11 +7,14 @@
 
 
 #include "GrPathRendererChain.h"
+
 #include "GrCaps.h"
-#include "GrShaderCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
+#include "GrShaderCaps.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "ops/GrAAConvexPathRenderer.h"
 #include "ops/GrAAHairLinePathRenderer.h"
@@ -22,16 +25,21 @@
 #include "ops/GrStencilAndCoverPathRenderer.h"
 #include "ops/GrTessellatingPathRenderer.h"
 
-GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
+GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
-        sk_sp<GrPathRenderer> pr(
-           GrStencilAndCoverPathRenderer::Create(context->priv().resourceProvider(), caps));
-        if (pr) {
-            fChain.push_back(std::move(pr));
+        auto direct = context->priv().asDirectContext();
+        if (direct) {
+            auto resourceProvider = direct->priv().resourceProvider();
+
+            sk_sp<GrPathRenderer> pr(
+               GrStencilAndCoverPathRenderer::Create(resourceProvider, caps));
+            if (pr) {
+                fChain.push_back(std::move(pr));
+            }
         }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
