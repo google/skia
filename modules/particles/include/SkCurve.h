@@ -39,6 +39,7 @@ struct SkCurve {
 
     SkScalar eval(SkScalar x, SkRandom& random) const;
     void visitFields(SkFieldVisitor* v);
+    void getExtents(SkScalar extents[2]) const;
 
     SkTArray<SkScalar, true>       fXValues;
     SkTArray<SkCurveSegment, true> fSegments;

@@ -7,6 +7,7 @@
 
 #include "ParticlesSlide.h"
 
+#include "ImGuiLayer.h"
 #include "SkParticleAffector.h"
 #include "SkParticleEffect.h"
 #include "SkParticleEmitter.h"
@@ -37,55 +38,6 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     }
     return 0;
 }
-
-#if 0
-static ImVec2 map_point(float x, float y, ImVec2 pos, ImVec2 size, float yMin, float yMax) {
-    // Turn y into 0 - 1 value
-    float yNorm = 1.0f - ((y - yMin) / (yMax - yMin));
-    return ImVec2(pos.x + size.x * x, pos.y + size.y * yNorm);
-}
-
-static void ImGui_DrawCurve(SkScalar* pts) {
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    // Fit our image/canvas to the available width, and scale the height to maintain aspect ratio.
-    float canvasWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 50.0f);
-    ImVec2 size = ImVec2(canvasWidth, canvasWidth);
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-
-    // Background rectangle
-    drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), IM_COL32(0, 0, 0, 128));
-
-    // Determine min/max extents
-    float yMin = pts[0], yMax = pts[0];
-    for (int i = 1; i < 4; ++i) {
-        yMin = SkTMin(yMin, pts[i]);
-        yMax = SkTMax(yMax, pts[i]);
-    }
-
-    // Grow the extents by 10%, at least 1.0f
-    float grow = SkTMax((yMax - yMin) * 0.1f, 1.0f);
-
-    yMin -= grow;
-    yMax += grow;
-
-    ImVec2 a = map_point(0.0f    , pts[0], pos, size, yMin, yMax),
-           b = map_point(1 / 3.0f, pts[1], pos, size, yMin, yMax),
-           c = map_point(2 / 3.0f, pts[2], pos, size, yMin, yMax),
-           d = map_point(1.0f    , pts[3], pos, size, yMin, yMax);
-
-    drawList->AddBezierCurve(a, b, c, d, IM_COL32(255, 255, 255, 255), 1.0f);
-
-    // Draw markers
-    drawList->AddCircle(a, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(b, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(c, 5.0f, 0xFFFFFFFF);
-    drawList->AddCircle(d, 5.0f, 0xFFFFFFFF);
-
-    ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + size.y));
-    ImGui::Spacing();
-}
-#endif
 
 class SkGuiVisitor : public SkFieldVisitor {
 public:
@@ -130,22 +82,58 @@ public:
 
 #undef IF_OPEN
 
-    /*
     void visit(const char* name, SkCurve& c, SkField) override {
         this->enterObject(item(name));
         if (fTreeStack.back()) {
-            ImGui::Checkbox("Ranged", &c.fRanged);
-            ImGui::DragFloat4("Min", c.fMin);
-            ImGui_DrawCurve(c.fMin);
-            if (c.fRanged) {
-                ImGui::DragFloat4("Max", c.fMax);
-                ImGui_DrawCurve(c.fMax);
-            }
+            // Get vertical extents of the curve
+            SkScalar extents[2];
+            c.getExtents(extents);
 
+            // Grow the extents by 10%, at least 1.0f
+            SkScalar grow = SkTMax((extents[1] - extents[0]) * 0.1f, 1.0f);
+            extents[0] -= grow;
+            extents[1] += grow;
+
+            {
+                ImGui::DragCanvas dc(&c, { 0.0f, extents[1] }, { 1.0f, extents[0] }, 0.5f);
+                dc.fillColor(IM_COL32(0, 0, 0, 128));
+
+                for (int i = 0; i < c.fSegments.count(); ++i) {
+                    SkSTArray<8, ImVec2, true> pts;
+                    SkScalar rangeMin = (i == 0) ? 0.0f : c.fXValues[i - 1];
+                    SkScalar rangeMax = (i == c.fXValues.count()) ? 1.0f : c.fXValues[i];
+                    auto screenPoint = [&](int idx, bool useMax) {
+                        SkScalar xVal = rangeMin + (idx / 3.0f) * (rangeMax - rangeMin);
+                        SkScalar* yVals = useMax ? c.fSegments[i].fMax : c.fSegments[i].fMin;
+                        SkScalar yVal = yVals[c.fSegments[i].fConstant ? 0 : idx];
+                        SkPoint pt = dc.fLocalToScreen.mapXY(xVal, yVal);
+                        return ImVec2(pt.fX, pt.fY);
+                    };
+                    for (int i = 0; i < 4; ++i) {
+                        pts.push_back(screenPoint(i, false));
+                    }
+                    if (c.fSegments[i].fRanged) {
+                        for (int i = 3; i >= 0; --i) {
+                            pts.push_back(screenPoint(i, true));
+                        }
+                    }
+
+                    if (c.fSegments[i].fRanged) {
+                        dc.fDrawList->PathLineTo(pts[0]);
+                        dc.fDrawList->PathBezierCurveTo(pts[1], pts[2], pts[3]);
+                        dc.fDrawList->PathLineTo(pts[4]);
+                        dc.fDrawList->PathBezierCurveTo(pts[5], pts[6], pts[7]);
+                        dc.fDrawList->PathFillConvex(IM_COL32(255, 255, 255, 128));
+                    } else {
+                        dc.fDrawList->AddBezierCurve(pts[0], pts[1], pts[2], pts[3],
+                                                     IM_COL32(255, 255, 255, 255), 1.0f);
+                    }
+                }
+            }
+            c.visitFields(this);
         }
         this->exitObject();
     }
-    */
 
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         if (fTreeStack.back()) {
