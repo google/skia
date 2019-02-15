@@ -22,23 +22,10 @@
    },
    "StartColor": [ 0.334527, 0, 0.598039, 1 ],
    "EndColor": [ 0, 1, 0.880952, 1 ],
-   "Velocity": {
-      "Angle": 4.71239,
-      "Spread": 0.174533,
-      "Strength": {
-         "min": 60,
-         "max": 50
-      },
-      "Bidirectional": false,
-      "Spin": {
-         "min": 0,
-         "max": 0
-      },
-      "BidirectionalSpin": false
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
    },
-   "Image": "images/half-transparent-white-pixel.png",
-   "ImageCols": 1,
-   "ImageRows": 1,
    "Emitter": {
       "Type": "SkLineEmitter",
       "P1": { "x": 200, "y": 200 },
@@ -136,10 +123,10 @@
                   "Constant": false,
                   "Ranged": false,
                   "Bidirectional": false,
-                  "A0": 6,
-                  "B0": 5,
-                  "C0": 4,
-                  "D0": 3,
+                  "A0": 3,
+                  "B0": 2.5,
+                  "C0": 2,
+                  "D0": 1.5,
                   "A1": 0,
                   "B1": 0,
                   "C1": 0,

@@ -1,0 +1,153 @@
+/*
+* Copyright 2019 Google LLC
+*
+* Use of this source code is governed by a BSD-style license that can be
+* found in the LICENSE file.
+*/
+
+#include "SkParticleDrawable.h"
+
+#include "Resources.h"
+#include "SkAutoMalloc.h"
+#include "SkCanvas.h"
+#include "SkImage.h"
+#include "SkPaint.h"
+#include "SkRect.h"
+#include "SkSurface.h"
+#include "SkString.h"
+#include "SkRSXform.h"
+
+static sk_sp<SkImage> make_circle_image(int radius) {
+    auto surface = SkSurface::MakeRasterN32Premul(radius * 2, radius * 2);
+    surface->getCanvas()->clear(SK_ColorTRANSPARENT);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorWHITE);
+    surface->getCanvas()->drawCircle(radius, radius, radius, paint);
+    return surface->makeImageSnapshot();
+}
+
+class SkCircleDrawable : public SkParticleDrawable {
+public:
+    SkCircleDrawable(int radius = 1)
+            : fRadius(radius) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkCircleDrawable, SkParticleDrawable)
+
+    void draw(SkCanvas* canvas, const SkRSXform xform[], const float tex[], const SkColor colors[],
+              int count, const SkPaint* paint) override {
+        SkAutoTMalloc<SkRect> texRects(count);
+        for (int i = 0; i < count; ++i) {
+            texRects[i].set(0.0f, 0.0f, fImage->width(), fImage->height());
+        }
+        canvas->drawAtlas(fImage, xform, texRects.get(), colors, count,
+                          SkBlendMode::kModulate, nullptr, paint);
+    }
+
+    SkPoint center() const override {
+        return { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        v->visit("Radius", fRadius);
+        this->rebuild();
+    }
+
+private:
+    int fRadius;
+
+    void rebuild() {
+        fRadius = SkTMax(fRadius, 1);
+        if (!fImage || fImage->width() != 2 * fRadius) {
+            fImage = make_circle_image(fRadius);
+        }
+    }
+
+    // Cached
+    sk_sp<SkImage> fImage;
+};
+
+class SkImageDrawable : public SkParticleDrawable {
+public:
+    SkImageDrawable(const SkString& path = SkString(), int cols = 1, int rows = 1)
+            : fPath(path)
+            , fCols(cols)
+            , fRows(rows) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkImageDrawable, SkParticleDrawable)
+
+    void draw(SkCanvas* canvas, const SkRSXform xform[], const float tex[], const SkColor colors[],
+              int count, const SkPaint* paint) override {
+        SkAutoTMalloc<SkRect> texRects(count);
+
+        SkRect baseRect = getBaseRect();
+        int frameCount = fCols * fRows;
+
+        for (int i = 0; i < count; ++i) {
+            int frame = static_cast<int>(tex[i] * frameCount + 0.5f);
+            frame = SkTPin(frame, 0, frameCount - 1);
+            int row = frame / fCols;
+            int col = frame % fCols;
+            texRects[i] = baseRect.makeOffset(col * baseRect.width(), row * baseRect.height());
+        }
+        canvas->drawAtlas(fImage, xform, texRects.get(), colors, count,
+                          SkBlendMode::kModulate, nullptr, paint);
+    }
+
+    SkPoint center() const override {
+        SkRect baseRect = getBaseRect();
+        return { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldPath = fPath;
+
+        v->visit("Path", fPath);
+        v->visit("Columns", fCols);
+        v->visit("Rows", fRows);
+
+        fCols = SkTMax(fCols, 1);
+        fRows = SkTMax(fRows, 1);
+        if (oldPath != fPath) {
+            this->rebuild();
+        }
+    }
+
+private:
+    SkString fPath;
+    int      fCols;
+    int      fRows;
+
+    SkRect getBaseRect() const {
+        return SkRect::MakeWH(static_cast<float>(fImage->width()) / fCols,
+                              static_cast<float>(fImage->height() / fRows));
+    }
+
+    void rebuild() {
+        fImage = GetResourceAsImage(fPath.c_str());
+        if (!fImage) {
+            fImage = make_circle_image(1);
+        }
+    }
+
+    // Cached
+    sk_sp<SkImage> fImage;
+};
+
+void SkParticleDrawable::RegisterDrawableTypes() {
+    REGISTER_REFLECTED(SkParticleDrawable);
+    REGISTER_REFLECTED(SkCircleDrawable);
+    REGISTER_REFLECTED(SkImageDrawable);
+}
+
+sk_sp<SkParticleDrawable> SkParticleDrawable::MakeCircle(int radius) {
+    return sk_sp<SkParticleDrawable>(new SkCircleDrawable(radius));
+}
+
+sk_sp<SkParticleDrawable> SkParticleDrawable::MakeImage(const SkString& path, int cols, int rows) {
+    return sk_sp<SkParticleDrawable>(new SkImageDrawable(path, cols, rows));
+}

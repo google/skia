@@ -13,16 +13,14 @@
 #include "SkCurve.h"
 #include "SkParticleData.h"
 #include "SkRandom.h"
-#include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkString.h"
 #include "SkTArray.h"
 
 class SkAnimTimer;
 class SkCanvas;
 class SkFieldVisitor;
-class SkImage;
 class SkParticleAffector;
+class SkParticleDrawable;
 class SkParticleEmitter;
 struct SkRSXform;
 
@@ -35,11 +33,8 @@ public:
     SkColor4f fStartColor = { 1.0f, 1.0f, 1.0f, 1.0f };
     SkColor4f fEndColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    // Sprite image parameters
-    // TODO: Move sprite stuff in here, out of effect
-    SkString fImage;
-    int      fImageCols = 1;
-    int      fImageRows = 1;
+    // Drawable (image, sprite sheet, etc.)
+    sk_sp<SkParticleDrawable> fDrawable;
 
     // Emitter shape & parameters
     sk_sp<SkParticleEmitter> fEmitter;
@@ -68,17 +63,6 @@ public:
 private:
     void setCapacity(int capacity);
 
-    int spriteCount() const { return fParams->fImageCols * fParams->fImageRows; }
-    SkRect spriteRect(int i) const {
-        SkASSERT(i >= 0 && i < this->spriteCount());
-        int row = i / fParams->fImageCols;
-        int col = i % fParams->fImageCols;
-        return fImageRect.makeOffset(col * fImageRect.width(), row * fImageRect.height());
-    }
-    SkPoint spriteCenter() const {
-        return { fImageRect.width() * 0.5f, fImageRect.height() * 0.5f };
-    }
-
     struct Particle {
         double fTimeOfBirth;
         double fTimeOfDeath;
@@ -89,8 +73,6 @@ private:
     };
 
     sk_sp<SkParticleEffectParams> fParams;
-    sk_sp<SkImage>                fImage;
-    SkRect                        fImageRect;
 
     SkRandom fRandom;
 
@@ -103,7 +85,7 @@ private:
 
     SkAutoTMalloc<Particle>  fParticles;
     SkAutoTMalloc<SkRSXform> fXforms;
-    SkAutoTMalloc<SkRect>    fSpriteRects;
+    SkAutoTMalloc<float>     fFrames;
     SkAutoTMalloc<SkColor>   fColors;
 
     // Cached

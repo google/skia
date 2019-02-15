@@ -1,7 +1,7 @@
 {
    "MaxCount": 4096,
    "Duration": 1,
-   "Rate": 2000,
+   "Rate": 1000,
    "Life": {
       "XValues": [],
       "Segments": [
@@ -22,23 +22,10 @@
    },
    "StartColor": [ 1, 0.35, 0, 1 ],
    "EndColor": [ 1, 0.978085, 0.627451, 1 ],
-   "Velocity": {
-      "Angle": 4.71239,
-      "Spread": 0.523599,
-      "Strength": {
-         "min": 10,
-         "max": 30
-      },
-      "Bidirectional": false,
-      "Spin": {
-         "min": 0,
-         "max": 0
-      },
-      "BidirectionalSpin": false
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
    },
-   "Image": "images/half-transparent-white-pixel.png",
-   "ImageCols": 1,
-   "ImageRows": 1,
    "Emitter": {
       "Type": "SkTextEmitter",
       "Text": "SKIA",

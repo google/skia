@@ -9,6 +9,7 @@
 
 #include "ImGuiLayer.h"
 #include "SkParticleAffector.h"
+#include "SkParticleDrawable.h"
 #include "SkParticleEffect.h"
 #include "SkParticleEmitter.h"
 #include "SkParticleSerialization.h"
@@ -241,6 +242,7 @@ ParticlesSlide::ParticlesSlide() {
     // Register types for serialization
     REGISTER_REFLECTED(SkReflected);
     SkParticleAffector::RegisterAffectorTypes();
+    SkParticleDrawable::RegisterDrawableTypes();
     SkParticleEmitter::RegisterEmitterTypes();
     fName = "Particles";
 }

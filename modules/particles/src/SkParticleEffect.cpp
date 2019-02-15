@@ -14,6 +14,7 @@
 #include "SkNx.h"
 #include "SkPaint.h"
 #include "SkParticleAffector.h"
+#include "SkParticleDrawable.h"
 #include "SkParticleEmitter.h"
 #include "SkReflected.h"
 #include "SkRSXform.h"
@@ -26,10 +27,7 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("StartColor", fStartColor);
     v->visit("EndColor", fEndColor);
 
-    v->visit("Image", fImage);
-    v->visit("ImageCols", fImageCols);
-    v->visit("ImageRows", fImageRows);
-
+    v->visit("Drawable", fDrawable);
     v->visit("Emitter", fEmitter);
 
     v->visit("Spawn", fSpawnAffectors);
@@ -45,19 +43,6 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
         , fLastTime(-1.0)
         , fSpawnRemainder(0.0f) {
     this->setCapacity(fParams->fMaxCount);
-
-    // Load image, determine sprite rect size
-    fImage = GetResourceAsImage(fParams->fImage.c_str());
-    if (!fImage) {
-        uint32_t whitePixel = ~0;
-        SkPixmap pmap(SkImageInfo::MakeN32Premul(1, 1), &whitePixel, sizeof(uint32_t));
-        fImage = SkImage::MakeRasterCopy(pmap);
-    }
-    int w = fImage->width();
-    int h = fImage->height();
-    SkASSERT(w % fParams->fImageCols == 0);
-    SkASSERT(h % fParams->fImageRows == 0);
-    fImageRect = SkRect::MakeIWH(w / fParams->fImageCols, h / fParams->fImageRows);
 }
 
 void SkParticleEffect::start(const SkAnimTimer& timer, bool looping) {
@@ -68,7 +53,7 @@ void SkParticleEffect::start(const SkAnimTimer& timer, bool looping) {
 }
 
 void SkParticleEffect::update(const SkAnimTimer& timer) {
-    if (!timer.isRunning() || !this->isAlive()) {
+    if (!timer.isRunning() || !this->isAlive() || !fParams->fDrawable) {
         return;
     }
 
@@ -92,9 +77,9 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     for (int i = 0; i < fCount; ++i) {
         if (now > fParticles[i].fTimeOfDeath) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
-            fParticles[i]   = fParticles[fCount - 1];
-            fSpriteRects[i] = fSpriteRects[fCount - 1];
-            fColors[i]      = fColors[fCount - 1];
+            fParticles[i] = fParticles[fCount - 1];
+            fFrames[i]    = fFrames[fCount - 1];
+            fColors[i]    = fColors[fCount - 1];
             --i;
             --fCount;
         }
@@ -123,7 +108,7 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             fParticles[fCount].fPV.fVelocity.fAngular = 0.0f;
 
             fParticles[fCount].fStableRandom = fRandom;
-            fSpriteRects[fCount] = this->spriteRect(0);
+            fFrames[fCount] = 0.0f;
             fCount++;
         }
 
@@ -147,10 +132,8 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         updateParams.fStableRandom = &stableRandom;
         updateParams.fParticleT = t;
 
-        // Set sprite rect by lifetime
-        int frame = static_cast<int>(t * this->spriteCount() + 0.5);
-        frame = SkTPin(frame, 0, this->spriteCount() - 1);
-        fSpriteRects[i] = this->spriteRect(frame);
+        // Set sprite frame by lifetime (TODO: Remove, add affector)
+        fFrames[i] = t;
 
         // Set color by lifetime
         fColors[i] = Sk4f_toL32(swizzle_rb(startColor + (colorScale * t)));
@@ -171,7 +154,7 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     }
 
     // Re-generate all xforms
-    SkPoint ofs = this->spriteCenter();
+    SkPoint ofs = fParams->fDrawable ? fParams->fDrawable->center() : SkPoint{ 0.0f, 0.0f };
     for (int i = 0; i < fCount; ++i) {
         fXforms[i] = fParticles[i].fPV.fPose.asRSXform(ofs);
     }
@@ -183,18 +166,18 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 }
 
 void SkParticleEffect::draw(SkCanvas* canvas) {
-    if (this->isAlive()) {
+    if (this->isAlive() && fParams->fDrawable) {
         SkPaint paint;
         paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-        canvas->drawAtlas(fImage, fXforms.get(), fSpriteRects.get(), fColors.get(), fCount,
-                          SkBlendMode::kModulate, nullptr, &paint);
+        fParams->fDrawable->draw(
+                canvas, fXforms.get(), fFrames.get(), fColors.get(), fCount, &paint);
     }
 }
 
 void SkParticleEffect::setCapacity(int capacity) {
     fParticles.realloc(capacity);
     fXforms.realloc(capacity);
-    fSpriteRects.realloc(capacity);
+    fFrames.realloc(capacity);
     fColors.realloc(capacity);
 
     fCapacity = capacity;

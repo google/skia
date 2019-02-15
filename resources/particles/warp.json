@@ -22,42 +22,36 @@
    },
    "StartColor": [ 1, 0.999994, 0.99999, 1 ],
    "EndColor": [ 0.99999, 0.999992, 1, 1 ],
-   "Velocity": {
-      "Angle": 1.5708,
-      "Spread": 6.28319,
-      "Strength": {
-         "min": 0,
-         "max": 0
-      },
-      "Bidirectional": false,
-      "Spin": {
-         "min": 0,
-         "max": 0
-      },
-      "BidirectionalSpin": false
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
    },
-   "Image": "images/half-transparent-white-pixel.png",
-   "ImageCols": 1,
-   "ImageRows": 1,
    "Emitter": {
       "Type": "SkCircleEmitter",
       "Center": { "x": 380.8, "y": 273.92 },
       "Radius": 43
    },
-   "Spawn": [
+   "Spawn": [],
+   "Update": [
+      {
+         "Type": "SkPointForceAffector",
+         "Point": { "x": 375, "y": 273 },
+         "Constant": -10,
+         "InvSquare": 0
+      },
       {
          "Type": "SkSizeAffector",
          "Curve": {
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Constant": false,
                   "Ranged": false,
                   "Bidirectional": false,
-                  "A0": 2,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
+                  "A0": 0.25,
+                  "B0": 1,
+                  "C0": 2,
+                  "D0": 3,
                   "A1": 0,
                   "B1": 0,
                   "C1": 0,
@@ -65,14 +59,6 @@
                }
             ]
          }
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkPointForceAffector",
-         "Point": { "x": 375, "y": 273 },
-         "Constant": -10,
-         "InvSquare": 0
       }
    ]
 }
