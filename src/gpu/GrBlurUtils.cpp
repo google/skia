@@ -8,6 +8,7 @@
 #include "GrBlurUtils.h"
 
 #include "GrCaps.h"
+#include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrProxyProvider.h"
 #include "GrRecordingContext.h"
@@ -447,7 +448,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
                                           const SkPaint& paint,
                                           const SkMatrix& viewMatrix,
                                           const GrShape& shape) {
-    if (context->abandoned()) {
+    if (context->priv().abandoned()) {
         return;
     }
 
