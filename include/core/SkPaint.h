@@ -259,17 +259,25 @@ public:
 
         @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
-    uint8_t getAlpha() const { return sk_float_round2int(fColor4f.fA * 255); }
+    float getAlphaf() const { return fColor4f.fA; }
+
+    // Helper that scales the alpha by 255.
+    uint8_t getAlpha() const { return sk_float_round2int(this->getAlphaf() * 255); }
 
     /** Replaces alpha, leaving RGB
         unchanged. An out of range value triggers an assert in the debug
-        build. a is a value from zero to 255.
-        a set to zero makes color fully transparent; a set to 255 makes color
+        build. a is a value from 0.0 to 1.0.
+        a set to zero makes color fully transparent; a set to 1.0 makes color
         fully opaque.
 
         @param a  alpha component of color
     */
-    void setAlpha(U8CPU a);
+    void setAlphaf(float a);
+
+    // Helper that accepts an int between 0 and 255, and divides it by 255.0
+    void setAlpha(U8CPU a) {
+        this->setAlphaf(a * (1.0f / 255));
+    }
 
     /** Sets color used when drawing solid fills. The color components range from 0 to 255.
         The color is unpremultiplied; alpha sets the transparency independent of RGB.
