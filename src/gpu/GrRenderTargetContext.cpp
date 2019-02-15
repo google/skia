@@ -1184,7 +1184,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                            const SkPath& path,
                                            const SkDrawShadowRec& rec) {
     ASSERT_SINGLE_OWNER
-    if (fContext->abandoned()) {
+    if (fContext->priv().abandoned()) {
         return true;
     }
     SkDEBUGCODE(this->validate();)
@@ -1654,7 +1654,7 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
 GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
         int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
     ASSERT_SINGLE_OWNER
-    if (fContext->abandoned()) {
+    if (fContext->priv().abandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
     SkDEBUGCODE(this->validate();)
@@ -1849,7 +1849,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
 SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
     ASSERT_SINGLE_OWNER_PRIV
 
-    if (fRenderTargetContext->fContext->abandoned()) {
+    if (fRenderTargetContext->fContext->priv().abandoned()) {
         return SkBudgeted::kNo;
     }
 
