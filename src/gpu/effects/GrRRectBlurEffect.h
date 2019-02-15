@@ -12,6 +12,7 @@
 #define GrRRectBlurEffect_DEFINED
 #include "SkTypes.h"
 
+#include "GrCaps.h"
 #include "GrClip.h"
 #include "GrPaint.h"
 #include "GrProxyProvider.h"

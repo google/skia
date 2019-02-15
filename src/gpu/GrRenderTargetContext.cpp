@@ -216,6 +216,15 @@ GrMipMapped GrRenderTargetContext::mipMapped() const {
     return GrMipMapped::kNo;
 }
 
+GrRenderTarget* GrRenderTargetContext::accessRenderTarget1() {
+    // TODO: usage of this entry point needs to be reduced and potentially eliminated
+    // since it ends the deferral of the GrRenderTarget's allocation
+    if (!fRenderTargetProxy->instantiate(fContext->priv().resourceProvider())) {
+        return nullptr;
+    }
+    return fRenderTargetProxy->peekRenderTarget();
+}
+
 GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
@@ -1700,6 +1709,10 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 void GrRenderTargetContext::insertEventMarker(const SkString& str) {
     std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
     this->getRTOpList()->addOp(std::move(op), *this->caps());
+}
+
+const GrCaps* GrRenderTargetContext::caps() const {
+    return fContext->priv().caps();
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,

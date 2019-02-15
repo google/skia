@@ -9,6 +9,7 @@
 
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
+#include "GrOpFlushState.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 

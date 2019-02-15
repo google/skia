@@ -7,8 +7,9 @@
 
 #include "GrGpuCommandBuffer.h"
 
-#include "GrContext.h"
 #include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrMesh.h"

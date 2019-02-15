@@ -7,6 +7,7 @@
 
 #include "GrAALinearizingConvexPathRenderer.h"
 #include "GrAAConvexTessellator.h"
+#include "GrCaps.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"

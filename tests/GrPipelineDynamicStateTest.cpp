@@ -8,12 +8,15 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#include "GrContext.h"
 #include "GrColor.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
@@ -110,7 +113,7 @@ class GrPipelineDynamicStateTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrScissorTest scissorTest,
                                           sk_sp<const GrBuffer> vbuff) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
