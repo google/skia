@@ -8,6 +8,7 @@
 #ifndef SkCurve_DEFINED
 #define SkCurve_DEFINED
 
+#include "SkColor.h"
 #include "SkScalar.h"
 #include "SkTArray.h"
 
@@ -43,6 +44,42 @@ struct SkCurve {
 
     SkTArray<SkScalar, true>       fXValues;
     SkTArray<SkCurveSegment, true> fSegments;
+};
+
+struct SkColorCurveSegment {
+    SkColorCurveSegment() {
+        for (int i = 0; i < 4; ++i) {
+            fMin[i] = { 1.0f, 1.0f, 1.0f, 1.0f };
+            fMax[i] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        }
+    }
+  
+    SkColor4f eval(SkScalar x, SkRandom& random) const;
+    void visitFields(SkFieldVisitor* v);
+
+    void setConstant(SkColor4f c) {
+        fConstant = true;
+        fRanged = false;
+        fMin[0] = c;
+    }
+
+    SkColor4f fMin[4];
+    SkColor4f fMax[4];
+
+    bool fConstant = true;
+    bool fRanged = false;
+};
+
+struct SkColorCurve {
+    SkColorCurve(SkColor4f c = { 1.0f, 1.0f, 1.0f, 1.0f }) {
+        fSegments.push_back().setConstant(c);
+    }
+
+    SkColor4f eval(SkScalar x, SkRandom& random) const;
+    void visitFields(SkFieldVisitor* v);
+
+    SkTArray<SkScalar, true>            fXValues;
+    SkTArray<SkColorCurveSegment, true> fSegments;
 };
 
 #endif // SkCurve_DEFINED
