@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4171e26_6ff618ba",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-15T16:35:02Z",
+      "side": 1,
+      "message": "Nit: this should just be Bug: 803153, since it\u0027s a Chromium bug.",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aed0f3bc_13894fec",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-15T16:35:02Z",
+      "side": 1,
+      "message": "Could you explain this limit further? We\u0027re undoing the scale factor change here, but leaving the sigma unchanged. This seems like it would result in an incorrect blur result: a smaller sigma, but not enough scaling to compensate.\n\nIs there a test case which could demonstrate this problem?",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bbc62a2_672024a8",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-15T16:35:02Z",
+      "side": 1,
+      "message": "Nit: could these be const-ref rather than pointer?",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d64105ac_0e4eb0ad",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-15T16:35:02Z",
+      "side": 1,
+      "message": "Could you add a test case which exercises this?",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccbcac52_01e4777b",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-02-15T16:35:02Z",
+      "side": 1,
+      "message": "It seems a little strange that the limit is determined by the right border of the rect, and not its width.",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
