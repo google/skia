@@ -261,6 +261,7 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
                 *--rowIter = firstchar;
                 code = oldcode;
             } else {
+                printf("\n\nINVALID CODE!!!\n");
                 // This is an invalid code. The dictionary is just initialized
                 // and the code is incomplete. We don't know how to handle
                 // this case.

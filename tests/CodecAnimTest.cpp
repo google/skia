@@ -89,6 +89,12 @@ DEF_TEST(Codec_frames, r) {
         int                                           fRepetitionCount;
         std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
     } gRecs[] = {
+        { "../../../Downloads/watch.gif", 16,
+            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 },
+            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
+            { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            0,
+            { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
         { "images/required.gif", 7,
             { 0, 1, 2, 3, 4, 5 },
             { kOpaque, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
@@ -161,7 +167,13 @@ DEF_TEST(Codec_frames, r) {
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
     };
 
+    bool seen_watch_dot_gif = false;
     for (const auto& rec : gRecs) {
+        if (seen_watch_dot_gif) {
+            break;
+        }
+        seen_watch_dot_gif = true;
+
         sk_sp<SkData> data(GetResourceAsData(rec.fName));
         if (!data) {
             // Useful error statement, but sometimes people run tests without
@@ -220,7 +232,8 @@ DEF_TEST(Codec_frames, r) {
             kIndividual,
         };
 
-        for (auto mode : { TestMode::kVector, TestMode::kIndividual }) {
+        //for (auto mode : { TestMode::kVector, TestMode::kIndividual }) {
+        for (auto mode : { TestMode::kVector }) {
             // Re-create the codec to reset state and test parsing.
             codec = SkCodec::MakeFromData(data);
 
@@ -336,7 +349,8 @@ DEF_TEST(Codec_frames, r) {
                 }
                 if (result != SkCodec::kSuccess) {
                     ERRORF(r, "Failed to decode frame %i from %s when providing prior frame %i, "
-                              "error %i", index, rec.fName, cachedIndex, result);
+                              "error %i (%s)", index, rec.fName, cachedIndex, result,
+                              result == SkCodec::kErrorInInput ? "kErrorInInput" : "???");
                 }
                 return result == SkCodec::kSuccess;
             };
