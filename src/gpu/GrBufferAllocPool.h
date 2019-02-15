@@ -17,6 +17,8 @@
 #include "SkTypes.h"
 
 class GrGpu;
+class GrGpuBuffer;
+class GrResourceProvider;
 
 /**
  * A pool of geometry buffers tied to a GrGpu.
@@ -40,20 +42,26 @@ public:
      */
     class CpuBufferCache : public GrNonAtomicRef<CpuBufferCache> {
     public:
-        static sk_sp<CpuBufferCache> Make(int maxBuffersToCache);
+        static sk_sp<CpuBufferCache> Make(int maxCpuBuffersToCache, int maxGpuBuffersToCache, GrResourceProvider*);
 
-        sk_sp<GrCpuBuffer> makeBuffer(size_t size, bool mustBeInitialized);
+        sk_sp<GrCpuBuffer> makeCpuBuffer(size_t size, bool mustBeInitialized);
+        sk_sp<GrGpuBuffer> makeGpuBuffer(size_t size, GrGpuBufferType);
         void releaseAll();
+        void notifyDidFlush() { fFlushParity = 1 - fFlushParity; }
 
     private:
-        CpuBufferCache(int maxBuffersToCache);
+        CpuBufferCache(int maxBuffersToCache, int maxGpuBuffersToCache, GrResourceProvider*);
 
-        struct Buffer {
+        struct CpuBuffer {
             sk_sp<GrCpuBuffer> fBuffer;
             bool fCleared = false;
         };
-        std::unique_ptr<Buffer[]> fBuffers;
-        int fMaxBuffersToCache = 0;
+        GrResourceProvider* fResourceProvider;
+        std::unique_ptr<CpuBuffer[]> fCpuBuffers;
+        std::unique_ptr<sk_sp<GrGpuBuffer>[]> fGpuBuffers[2];
+        int fMaxCpuBuffersToCache = 0;
+        int fMaxGpuBuffersToCache = 0;
+        int fFlushParity = 0;
     };
 
     /**

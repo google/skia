@@ -248,6 +248,7 @@ public:
     uint32_t contextUniqueID() const { return fCache->contextUniqueID(); }
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
+    void notifyDidFlush() { fFlushParity = 1 - fFlushParity; }
 
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;
@@ -295,6 +296,9 @@ private:
     GrGpu* fGpu;
     sk_sp<const GrCaps> fCaps;
     sk_sp<const GrGpuBuffer> fQuadIndexBuffer;
+    sk_sp<const GrGpuBuffer> fScratchBuffer[2];
+    int fFlushParity = 0;
+
     bool fExplicitlyAllocateGPUResources;
 
     // In debug builds we guard against improper thread handling

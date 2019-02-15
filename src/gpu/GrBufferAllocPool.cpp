@@ -19,35 +19,42 @@
 #include "SkTraceEvent.h"
 
 sk_sp<GrBufferAllocPool::CpuBufferCache> GrBufferAllocPool::CpuBufferCache::Make(
-        int maxBuffersToCache) {
-    return sk_sp<CpuBufferCache>(new CpuBufferCache(maxBuffersToCache));
+        int maxCpuBuffersToCache, int maxGpuBuffersToCache, GrResourceProvider* rp) {
+    SkASSERT(rp);
+    return sk_sp<CpuBufferCache>(new CpuBufferCache(maxCpuBuffersToCache, maxGpuBuffersToCache, rp));
 }
 
-GrBufferAllocPool::CpuBufferCache::CpuBufferCache(int maxBuffersToCache)
-        : fMaxBuffersToCache(maxBuffersToCache) {
-    if (fMaxBuffersToCache) {
-        fBuffers.reset(new Buffer[fMaxBuffersToCache]);
+GrBufferAllocPool::CpuBufferCache::CpuBufferCache(int maxBuffersToCache, int maxGpuBuffersToCache, GrResourceProvider* rp)
+        : fResourceProvider(rp), fMaxCpuBuffersToCache(maxBuffersToCache), fMaxGpuBuffersToCache(maxGpuBuffersToCache) {
+    if (fMaxCpuBuffersToCache) {
+        fCpuBuffers.reset(new CpuBuffer[fMaxCpuBuffersToCache]);
+    }
+    if (fMaxGpuBuffersToCache) {
+        fGpuBuffers[0].reset(new sk_sp<GrGpuBuffer>[fMaxGpuBuffersToCache]);
+        if (fResourceProvider->caps()->doubleBufferBuffers()) {
+            fGpuBuffers[1].reset(new sk_sp<GrGpuBuffer>[fMaxGpuBuffersToCache]);
+        }
     }
 }
 
-sk_sp<GrCpuBuffer> GrBufferAllocPool::CpuBufferCache::makeBuffer(size_t size,
-                                                                 bool mustBeInitialized) {
+sk_sp<GrCpuBuffer> GrBufferAllocPool::CpuBufferCache::makeCpuBuffer(size_t size,
+                                                                    bool mustBeInitialized) {
     SkASSERT(size > 0);
-    Buffer* result = nullptr;
+    CpuBuffer* result = nullptr;
     if (size == kDefaultBufferSize) {
         int i = 0;
-        for (; i < fMaxBuffersToCache && fBuffers[i].fBuffer; ++i) {
-            SkASSERT(fBuffers[i].fBuffer->size() == kDefaultBufferSize);
-            if (fBuffers[i].fBuffer->unique()) {
-                result = &fBuffers[i];
+        for (; i < fMaxCpuBuffersToCache && fCpuBuffers[i].fBuffer; ++i) {
+            SkASSERT(fCpuBuffers[i].fBuffer->size() == kDefaultBufferSize);
+            if (fCpuBuffers[i].fBuffer->unique()) {
+                result = &fCpuBuffers[i];
             }
         }
-        if (!result && i < fMaxBuffersToCache) {
-            fBuffers[i].fBuffer = GrCpuBuffer::Make(size);
-            result = &fBuffers[i];
+        if (!result && i < fMaxCpuBuffersToCache) {
+            fCpuBuffers[i].fBuffer = GrCpuBuffer::Make(size);
+            result = &fCpuBuffers[i];
         }
     }
-    Buffer tempResult;
+    CpuBuffer tempResult;
     if (!result) {
         tempResult.fBuffer = GrCpuBuffer::Make(size);
         result = &tempResult;
@@ -59,10 +66,25 @@ sk_sp<GrCpuBuffer> GrBufferAllocPool::CpuBufferCache::makeBuffer(size_t size,
     return result->fBuffer;
 }
 
+sk_sp<GrGpuBuffer> GrBufferAllocPool::CpuBufferCache::makeGpuBuffer(size_t size, GrGpuBufferType type) {
+    if (!fMaxGpuBuffersToCache || type != GrGpuBufferType::kVertex || size != kDefaultBufferSize) {
+        return fResourceProvider->createBuffer(size, type, kDynamic_GrAccessPattern);
+    }
+    SkASSERT(fGpuBuffers[0]);
+    int parity = fGpuBuffers[1] ? fFlushParity : 0;
+    auto& gpuBuffers = fGpuBuffers[parity];
+    for (int i = 0; i < fMaxGpuBuffersToCache; ++i) {
+        if (!gpuBuffers[i]) {
+            return (gpuBuffers[i] = fResourceProvider->createBuffer(size, type, kDynamic_GrAccessPattern));
+        }
+        if (gpuBuffers[i]->resourcePriv().)
+    }
+}
+
 void GrBufferAllocPool::CpuBufferCache::releaseAll() {
-    for (int i = 0; i < fMaxBuffersToCache && fBuffers[i].fBuffer; ++i) {
-        fBuffers[i].fBuffer.reset();
-        fBuffers[i].fCleared = false;
+    for (int i = 0; i < fMaxCpuBuffersToCache && fCpuBuffers[i].fBuffer; ++i) {
+        fCpuBuffers[i].fBuffer.reset();
+        fCpuBuffers[i].fCleared = false;
     }
 }
 
@@ -394,7 +416,7 @@ void GrBufferAllocPool::resetCpuData(size_t newSize) {
         return;
     }
     bool mustInitialize = fGpu->caps()->mustClearUploadedBufferData();
-    fCpuStagingBuffer = fCpuBufferCache ? fCpuBufferCache->makeBuffer(newSize, mustInitialize)
+    fCpuStagingBuffer = fCpuBufferCache ? fCpuBufferCache->makeCpuBuffer(newSize, mustInitialize)
                                         : GrCpuBuffer::Make(newSize);
 }
 
@@ -425,7 +447,7 @@ sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
 
     if (fGpu->caps()->preferClientSideDynamicBuffers()) {
         bool mustInitialize = fGpu->caps()->mustClearUploadedBufferData();
-        return fCpuBufferCache ? fCpuBufferCache->makeBuffer(size, mustInitialize)
+        return fCpuBufferCache ? fCpuBufferCache->makeCpuBuffer(size, mustInitialize)
                                : GrCpuBuffer::Make(size);
     }
     return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern);
