@@ -37,7 +37,7 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
-        GrContext*, const GrColorSpaceInfo&) const {
+        GrRecordingContext*, const GrColorSpaceInfo&) const {
     return nullptr;
 }
 #endif
@@ -110,7 +110,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
         auto innerFP = fInner->asFragmentProcessor(context, dstColorSpaceInfo);
         auto outerFP = fOuter->asFragmentProcessor(context, dstColorSpaceInfo);
         if (!innerFP || !outerFP) {
@@ -212,7 +212,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext*, const GrColorSpaceInfo&) const override {
+            GrRecordingContext*, const GrColorSpaceInfo&) const override {
         // wish our caller would let us know if our input was opaque...
         GrSRGBEffect::Alpha alpha = GrSRGBEffect::Alpha::kPremul;
         switch (fDir) {
@@ -327,7 +327,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext* context, const GrColorSpaceInfo&) const override {
+            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
         return nullptr;
     }
 #endif
