@@ -2,6 +2,167 @@
   "comments": [
     {
       "key": {
+        "uuid": "261d16f5_daa244a8",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "Why not have the function call drawTile() always?",
+      "range": {
+        "startLine": 253,
+        "startChar": 26,
+        "endLine": 253,
+        "endChar": 65
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f58d555_c08ccbc7",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "leaves?",
+      "range": {
+        "startLine": 253,
+        "startChar": 19,
+        "endLine": 253,
+        "endChar": 24
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82f60b91_185b8414",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "really minor but this could be:\n\nif (intersectionCount \u003d\u003d 1) {\n    return this-\u003eclipTile(\n                    canvas, tileID, baseRect, tile, edgeAA, lines + 2, lineCount - 1, quadCount);\n}\n\n// Now I don\u0027t have indent the really long common case code with 2 intersections.",
+      "range": {
+        "startLine": 288,
+        "startChar": 8,
+        "endLine": 288,
+        "endChar": 37
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "358ab6e6_ecaee792",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "std::array\u003cint, 4\u003e?",
+      "range": {
+        "startLine": 302,
+        "startChar": 44,
+        "endLine": 302,
+        "endChar": 96
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9ee3256_12f14d42",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "checking that x - 0 \u003d 2 implies x \u003d 2? :)",
+      "range": {
+        "startLine": 306,
+        "startChar": 20,
+        "endLine": 306,
+        "endChar": 51
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb964a3b_83be15dc",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "I wonder if it\u0027d be better to just choose to make the pentagon one triangle and one quad by splitting using the line from the quad corner \"opposite\" the intersection points to one of the intersection points. It\u0027d avoid the T-junctions.",
+      "range": {
+        "startLine": 316,
+        "startChar": 94,
+        "endLine": 318,
+        "endChar": 30
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecef3839_a10ebe3f",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "much to my chagrin, we indent case labels.",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 23
+      },
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2fe01ca6_105b0b2d",
         "filename": "src/gpu/ops/GrFillRectOp.h",
         "patchSetId": 9
@@ -30,6 +191,24 @@
       "writtenOn": "2019-02-15T18:57:59Z",
       "side": 1,
       "message": "Do we have data showing this is faster? I ask because a lot of times the texture unit is completely separate and it might not make any difference whether we filter or not.",
+      "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eff31ab0_d48a4f59",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-15T19:16:11Z",
+      "side": 1,
+      "message": "I may be wrong, but I believe we found that on some GPUs the texture coords don\u0027t always work out exactly at texel centers and we get a little filtering when we shouldn\u0027t. (And people don\u0027t like filtering when it should line up even if they specified filtering in the paint).",
+      "parentUuid": "f0f993ca_d5046994",
       "revId": "822c63297bf7eb4853812e82ee886707ce56b345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
