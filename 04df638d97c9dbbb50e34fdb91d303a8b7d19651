@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8223d294_7d26886e",
+        "filename": "BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 1136,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-15T20:27:26Z",
+      "side": 1,
+      "message": "so you\u0027re creating a :skshaper target here which we\u0027re not supposed to depend elsewhere outside your script or we will end up with double definitions? This seems quite awkward, is there something better we can do to keep our build files somewhat understandable?\n\nIt seems that libharfbuzz and libicu currently work because they are \u0027third_party\u0027 which is defined to be \u0027static_library\u0027 if they have any sources. Do we just need SkShaper to be static_library?",
+      "range": {
+        "startLine": 1136,
+        "startChar": 2,
+        "endLine": 1136,
+        "endChar": 30
+      },
+      "revId": "04df638d97c9dbbb50e34fdb91d303a8b7d19651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
