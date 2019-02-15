@@ -682,6 +682,17 @@ Color_Alpha sets the transparency independent of RGB: red, blue, and green.
 
 ##
 
+#Method float getAlphaf() const
+#In Alpha_Methods
+#Line # returns Color_Alpha, color opacity ##
+#Populate
+
+#Example
+    SkPaint paint;
+##
+
+##
+
 #Method void setAlpha(U8CPU a)
 #In Alpha_Methods
 #Line # sets Color_Alpha, color opacity ##
@@ -697,6 +708,17 @@ Color_Alpha sets the transparency independent of RGB: red, blue, and green.
             0x44112233 == paint.getColor()
         ##
     ##
+
+##
+
+#Method void setAlphaf(float a)
+#In Alpha_Methods
+#Line # sets Color_Alpha, color opacity ##
+#Populate
+
+#Example
+    SkPaint paint;
+##
 
 ##
 
