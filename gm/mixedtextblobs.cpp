@@ -26,10 +26,10 @@ static void draw_blob(SkCanvas* canvas, const SkTextBlob* blob, const SkPaint& s
     SkPaint paint(skPaint);
     canvas->save();
     canvas->drawRect(clipRect, clipHairline);
-    paint.setAlpha(0x20);
+    paint.setAlphaf(0.125f);
     canvas->drawTextBlob(blob, 0, 0, paint);
     canvas->clipRect(clipRect);
-    paint.setAlpha(0xFF);
+    paint.setAlphaf(1.0f);
     canvas->drawTextBlob(blob, 0, 0, paint);
     canvas->restore();
 }

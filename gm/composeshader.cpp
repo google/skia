@@ -93,7 +93,7 @@ protected:
         for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
             canvas->save();
             for (int alpha = 0xFF; alpha > 0; alpha -= 0x28) {
-                paint.setAlpha(0xFF);
+                paint.setAlphaf(1.0f);
                 paint.setShader(nullptr);
                 canvas->drawRect(r, paint);
 

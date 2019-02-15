@@ -36,7 +36,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm = make_bitmap();
         SkPaint paint;
-        paint.setAlpha(0x80);
+        paint.setAlphaf(0.5f);
         paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                    SkShader::kMirror_TileMode));
         canvas->drawPaint(paint);

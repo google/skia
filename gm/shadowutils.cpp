@@ -125,7 +125,7 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
                 } else {
                     paint.setColor(kDebugColorOccluders == mode ? SK_ColorLTGRAY : SK_ColorWHITE);
                     if (SkToBool(flags & kTransparentOccluder_ShadowFlag)) {
-                        paint.setAlpha(128);
+                        paint.setAlphaf(0.5f);
                     }
                     paint.setStyle(SkPaint::kFill_Style);
                 }

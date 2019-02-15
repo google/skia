@@ -280,8 +280,8 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
     canvas->translate(10, 10);
     SkPaint paint;
     for (SkBlendMode mode : modes) {
-        for (int alpha : { 0xFF, 0x7F }) {
-            paint.setAlpha(alpha);
+        for (float alpha : { 1.0f, 0.5f }) {
+            paint.setAlphaf(alpha);
             canvas->save();
             for (auto cf : filters) {
                 paint.setColorFilter(cf);

@@ -123,7 +123,7 @@ protected:
                                 shaderPaint.setColorFilter(make_color_filter());
                             }
                             if (alpha) {
-                                shaderPaint.setAlpha(0x80);
+                                shaderPaint.setAlphaf(0.5f);
                             }
                             shaderFont.setSize(30);
                             shaderFont.getMetrics(&metrics);
@@ -170,7 +170,7 @@ protected:
             paint.setAlpha(0x20);
             canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
             canvas->clipRect(clipRect);
-            paint.setAlpha(0xFF);
+            paint.setAlphaf(1.0f);
             canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));

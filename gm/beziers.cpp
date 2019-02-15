@@ -30,7 +30,7 @@ static void rnd_quad(SkPath* p, SkPaint* paint, SkRandom& rand) {
     SkScalar width = rand.nextRangeScalar(1, 5);
     width *= width;
     paint->setStrokeWidth(width);
-    paint->setAlpha(0xFF);
+    paint->setAlphaf(1.0f);
 }
 
 static void rnd_cubic(SkPath* p, SkPaint* paint, SkRandom& rand) {
@@ -50,7 +50,7 @@ static void rnd_cubic(SkPath* p, SkPaint* paint, SkRandom& rand) {
     SkScalar width = rand.nextRangeScalar(1, 5);
     width *= width;
     paint->setStrokeWidth(width);
-    paint->setAlpha(0xFF);
+    paint->setAlphaf(1.0f);
 }
 
 class BeziersGM : public skiagm::GM {

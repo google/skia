@@ -154,7 +154,7 @@ protected:
         int x = 0;
         for (auto mode : modes) {
             canvas->save();
-            for (uint8_t alpha : {0xFF, 0x80}) {
+            for (float alpha : {1.0f, 0.5f}) {
                 for (const auto& cf : {sk_sp<SkColorFilter>(nullptr), fColorFilter}) {
                     for (const auto& shader : {fShader1, fShader2}) {
                         static constexpr struct {
@@ -164,7 +164,7 @@ protected:
                         for (auto attrs : kAttrs) {
                             paint.setShader(shader);
                             paint.setColorFilter(cf);
-                            paint.setAlpha(alpha);
+                            paint.setAlphaf(alpha);
 
                             const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
                             const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;

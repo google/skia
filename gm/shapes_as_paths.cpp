@@ -22,7 +22,7 @@ skiagm::DrawResult draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB, SkS
 
     // First, draw the two images faintly overlaid
     SkPaint paint;
-    paint.setAlpha(64);
+    paint.setAlphaf(0.25f);
     paint.setBlendMode(SkBlendMode::kPlus);
     canvas->drawImage(imgA, 0, 0, &paint);
     canvas->drawImage(imgB, 0, 0, &paint);
