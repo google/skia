@@ -31,7 +31,7 @@ static void rnd_rect(SkRect* r, SkPaint* paint, SkRandom& rand) {
     r->offset(-w/2 + woffset, -h/2 + hoffset);
 
     paint->setColor(rand.nextU());
-    paint->setAlpha(0xFF);
+    paint->setAlphaf(1.0f);
 }
 
 
@@ -118,8 +118,8 @@ protected:
         strokePaint = fillPaint;
         strokePaint.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i < 2; ++i) {
-            fillPaint.setAlpha(255);
-            strokePaint.setAlpha(255);
+            fillPaint.setAlphaf(1.0f);
+            strokePaint.setAlphaf(1.0f);
             strokePaint.setStrokeWidth(i ? 8.f : 10.f);
             strokePaint.setStrokeCap(i ? SkPaint::kSquare_Cap : SkPaint::kRound_Cap);
             canvas->save();
@@ -137,13 +137,13 @@ protected:
             canvas->translate(0, 20);
             canvas->drawPath(fRefPath[i * 2], fillPaint);
             strokePaint.setStrokeWidth(20);
-            strokePaint.setAlpha(127);
+            strokePaint.setAlphaf(0.5f);
             canvas->translate(0, 50);
             canvas->drawPath(fMoveHfPath, strokePaint);
             canvas->translate(0, 30);
             canvas->drawPath(fMoveZfPath, strokePaint);
             canvas->translate(0, 30);
-            fillPaint.setAlpha(127);
+            fillPaint.setAlphaf(0.5f);
             canvas->drawPath(fRefPath[1 + i * 2], fillPaint);
             canvas->translate(0, 30);
             canvas->drawPath(fCubicPath, strokePaint);

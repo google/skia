@@ -71,7 +71,7 @@ protected:
         matrix.postTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, &paint);
 
-        paint.setAlpha(0x80);
+        paint.setAlphaf(0.5f);
         matrix.postTranslate(110, 0);
         canvas->drawPicture(fPicture, &matrix, &paint);
     }

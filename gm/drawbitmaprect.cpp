@@ -163,7 +163,7 @@ protected:
         const int kPadX = 30;
         const int kPadY = 40;
         SkPaint paint;
-        paint.setAlpha(0x20);
+        paint.setAlphaf(0.125f);
         canvas->drawImageRect(fImage, SkRect::MakeIWH(gSize, gSize), &paint);
         canvas->translate(SK_Scalar1 * kPadX / 2,
                           SK_Scalar1 * kPadY / 2);

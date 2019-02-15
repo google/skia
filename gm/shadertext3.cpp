@@ -67,7 +67,7 @@ protected:
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
         bmpPaint.setFilterQuality(kLow_SkFilterQuality);
-        bmpPaint.setAlpha(0x80);
+        bmpPaint.setAlphaf(0.5f);
         canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
         SkFont font(sk_tool_utils::create_portable_typeface(), SkIntToScalar(kPointSize));

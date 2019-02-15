@@ -234,7 +234,7 @@ public:
         font.getMetrics(&fm);
         SkPaint metricsPaint(boundsPaint);
         metricsPaint.setStyle(SkPaint::kFill_Style);
-        metricsPaint.setAlpha(0x40);
+        metricsPaint.setAlphaf(0.25f);
         if ((fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) &&
             (fm.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag))
         {

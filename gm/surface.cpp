@@ -177,7 +177,7 @@ DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
     // not trigger discard, even tho its alpha (SK_ColorBLUE) is opaque, since it is in a layer
     // with a non-opaque paint.
     SkPaint paint;
-    paint.setAlpha(0x40);
+    paint.setAlphaf(0.25f);
     surf->getCanvas()->saveLayer({0, 0, 256, 256}, &paint);
     surf->getCanvas()->clear(SK_ColorBLUE);
     surf->getCanvas()->restore();

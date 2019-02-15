@@ -86,8 +86,8 @@ DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
 
 DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     SkPaint paint1, paint2, paint3;
-    paint1.setAlpha(0x7f);
-    paint2.setAlpha(0x3f);
+    paint1.setAlphaf(0.5f);
+    paint2.setAlphaf(0.25f);
     paint3.setColor(0xFFFF0000);
     SkRect rect1{40, 5, 80, 70}, rect2{5, 40, 70, 80}, rect3{10, 10, 70, 70};
     // In the future, we might also test the clipped case by allowing i = 0
@@ -319,7 +319,7 @@ static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkSca
     // just outline where we expect the treatment to appear
     p.reset();
     p.setStyle(SkPaint::kStroke_Style);
-    p.setAlpha(0x40);
+    p.setAlphaf(0.25f);
     canvas->drawRect(r, p);
 }
 

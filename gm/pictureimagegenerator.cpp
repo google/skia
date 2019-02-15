@@ -149,7 +149,7 @@ protected:
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(configs); ++i) {
             SkPaint p;
-            p.setAlpha(SkScalarRoundToInt(255 * configs[i].opacity));
+            p.setAlphaf(configs[i].opacity);
 
             SkMatrix m = SkMatrix::MakeScale(configs[i].scaleX, configs[i].scaleY);
             if (configs[i].scaleX < 0) {
@@ -173,7 +173,7 @@ protected:
             const SkScalar y = kDrawSize * (i / kDrawsPerRow);
 
             p.setColor(0xfff0f0f0);
-            p.setAlpha(255);
+            p.setAlphaf(1.0f);
             canvas->drawRect(SkRect::MakeXYWH(x, y,
                                               SkIntToScalar(bm.width()),
                                               SkIntToScalar(bm.height())), p);

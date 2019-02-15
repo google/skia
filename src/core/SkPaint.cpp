@@ -112,15 +112,17 @@ void SkPaint::setColor(SkColor color) {
 }
 
 void SkPaint::setColor4f(const SkColor4f& color, SkColorSpace* colorSpace) {
+    SkASSERT(fColor4f.fA >= 0 && fColor4f.fA <= 1.0f);
+
     SkColorSpaceXformSteps steps{colorSpace,          kUnpremul_SkAlphaType,
                                  sk_srgb_singleton(), kUnpremul_SkAlphaType};
     fColor4f = color;
     steps.apply(fColor4f.vec());
 }
 
-void SkPaint::setAlpha(U8CPU a) {
-    SkASSERT(a <= 255);
-    fColor4f.fA = a * (1.0f / 255);
+void SkPaint::setAlphaf(float a) {
+    SkASSERT(a >= 0 && a <= 1.0f);
+    fColor4f.fA = a;
 }
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
