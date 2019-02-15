@@ -88,7 +88,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext*, const GrColorSpaceInfo&) const override;
+            GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
 
     enum {
@@ -283,9 +283,9 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::onMakeComposed(sk_sp<SkColorFilter> in
 #if SK_SUPPORT_GPU
 
 #include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -294,7 +294,8 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::onMakeComposed(sk_sp<SkColorFilter> in
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(GrContext* context, const SkBitmap& bitmap);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
+                                                     const SkBitmap& bitmap);
 
     ~ColorTableEffect() override {}
 
@@ -384,7 +385,7 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
+std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* context,
                                                             const SkBitmap& bitmap) {
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
@@ -421,6 +422,9 @@ GrGLSLFragmentProcessor* ColorTableEffect::onCreateGLSLInstance() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
 #if GR_TEST_UTILS
+
+#include "GrContext.h"
+
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
     uint8_t luts[256][4];
@@ -451,7 +455,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
 #endif
 
 std::unique_ptr<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(
-        GrContext* context, const GrColorSpaceInfo&) const {
+        GrRecordingContext* context, const GrColorSpaceInfo&) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 

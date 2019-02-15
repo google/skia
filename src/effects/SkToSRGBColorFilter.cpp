@@ -51,7 +51,7 @@ void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(
-        GrContext*, const GrColorSpaceInfo&) const {
+        GrRecordingContext*, const GrColorSpaceInfo&) const {
     return GrColorSpaceXformEffect::Make(fSrcColorSpace.get(), kPremul_SkAlphaType,
                                          sk_srgb_singleton(),  kPremul_SkAlphaType);
 }
