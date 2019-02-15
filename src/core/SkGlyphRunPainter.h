@@ -131,11 +131,11 @@ public:
     // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
     // and the position in fallback vectors. After all the glyphs are processed, pass the
     // fallback glyphIDs and positions to fallbackARGB.
-    template <typename ProcessPathsT>
+    template <typename PerEmptyT, typename PerPath>
     void drawGlyphRunAsPathWithARGBFallback(
             SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textScale,
-            ProcessPathsT&& processPaths, ARGBFallback&& fallbackARGB);
+            PerEmptyT&& perEmpty, PerPath&& perPath, ARGBFallback&& fallbackARGB);
 
     template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
@@ -171,7 +171,7 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<GlyphAndPos> fGlyphPos;
+    SkAutoTMalloc<GlyphAndPos> fMasks;
 
     std::vector<GlyphAndPos> fPaths;
 
