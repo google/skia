@@ -41,7 +41,7 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo&) const override;
+            GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
 protected:
@@ -65,7 +65,7 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 #if SK_SUPPORT_GPU
 
 std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo&) const {
+        GrContext*, const GrColorSpaceInfo&) const {
     return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::Mode::kGaussian);
 }
 #endif

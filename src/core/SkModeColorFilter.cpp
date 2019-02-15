@@ -90,7 +90,7 @@ sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xf
 #include "SkGr.h"
 
 std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const {
+        GrContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const {
     if (SkBlendMode::kDst == fMode) {
         return nullptr;
     }
