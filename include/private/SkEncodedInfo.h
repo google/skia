@@ -129,12 +129,10 @@ public:
                 SkASSERT(8 == bitsPerComponent);
                 break;
             case kRGBA_Color:
-                SkASSERT(kOpaque_Alpha != alpha);
                 SkASSERT(bitsPerComponent >= 8);
                 break;
             case kBGRA_Color:
             case kYUVA_Color:
-                SkASSERT(kOpaque_Alpha != alpha);
                 SkASSERT(8 == bitsPerComponent);
                 break;
             case kXAlpha_Color:
