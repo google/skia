@@ -116,11 +116,9 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 #endif
 
-    bool explicitlyAllocatingResources = fResourceProvider
-                                            ? fResourceProvider->explicitlyAllocateGPUResources()
-                                            : false;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
-                                               this->singleOwner(), explicitlyAllocatingResources,
+                                               this->singleOwner(),
+                                               this->explicitlyAllocateGPUResources(),
                                                this->options().fSortRenderTargets,
                                                this->options().fReduceOpListSplitting));
 

@@ -36,6 +36,10 @@ public:
 
     const GrContextOptions& options() const { return fContext->options(); }
 
+    bool explicitlyAllocateGPUResources() const {
+        return fContext->explicitlyAllocateGPUResources();
+    }
+
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const;
 
