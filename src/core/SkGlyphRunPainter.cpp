@@ -8,6 +8,7 @@
 #include "SkGlyphRunPainter.h"
 
 #if SK_SUPPORT_GPU
+#include "GrContextPriv.h"
 #include "GrColorSpaceInfo.h"
 #include "GrRenderTargetContext.h"
 #include "SkGr.h"

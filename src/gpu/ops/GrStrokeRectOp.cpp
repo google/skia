@@ -7,6 +7,7 @@
 
 #include "GrStrokeRectOp.h"
 
+#include "GrCaps.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"

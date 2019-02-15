@@ -7,6 +7,7 @@
 
 #include "GrGLGpuCommandBuffer.h"
 
+#include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetPriv.h"
 
