@@ -421,12 +421,12 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     BlobMaker blobMaker(fText.fAlign);
 
     const auto& push_line = [&](const char* start, const char* end) {
-        SkShaper shaper;
-        if (!shaper.good()) {
+        std::unique_ptr<SkShaper> shaper = SkShaper::Make();
+        if (!shaper) {
             return;
         }
 
-        shaper.shape(&blobMaker, font, start, SkToSizeT(end - start), true, { 0, 0 }, SK_ScalarMax);
+        shaper->shape(&blobMaker, font, start, SkToSizeT(end - start), true, { 0, 0 }, SK_ScalarMax);
     };
 
     const auto& is_line_break = [](SkUnichar uch) {

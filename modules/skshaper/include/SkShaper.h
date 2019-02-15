@@ -25,8 +25,15 @@ class SkFont;
  */
 class SkShaper {
 public:
+    static std::unique_ptr<SkShaper> MakePrimitive();
+    #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    static std::unique_ptr<SkShaper> MakeHarfBuzz();
+    #endif
+
+    static std::unique_ptr<SkShaper> Make();
+
     SkShaper();
-    ~SkShaper();
+    virtual ~SkShaper();
 
     class RunHandler {
     public:
@@ -55,21 +62,17 @@ public:
         virtual void commitLine() = 0;
     };
 
-    bool good() const;
-    SkPoint shape(RunHandler* handler,
-                  const SkFont& srcFont,
-                  const char* utf8text,
-                  size_t textBytes,
-                  bool leftToRight,
-                  SkPoint point,
-                  SkScalar width) const;
+    virtual SkPoint shape(RunHandler* handler,
+                          const SkFont& srcFont,
+                          const char* utf8text,
+                          size_t textBytes,
+                          bool leftToRight,
+                          SkPoint point,
+                          SkScalar width) const = 0;
 
 private:
     SkShaper(const SkShaper&) = delete;
     SkShaper& operator=(const SkShaper&) = delete;
-
-    struct Impl;
-    std::unique_ptr<Impl> fImpl;
 };
 
 /**
