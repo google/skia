@@ -22,23 +22,12 @@
    },
    "StartColor": [ 1, 1, 1, 1 ],
    "EndColor": [ 1, 1, 1, 0.25098 ],
-   "Velocity": {
-      "Angle": 5.41052,
-      "Spread": 0.523599,
-      "Strength": {
-         "min": 140,
-         "max": 200
-      },
-      "Bidirectional": false,
-      "Spin": {
-         "min": 0.2,
-         "max": 0
-      },
-      "BidirectionalSpin": false
+   "Drawable": {
+      "Type": "SkImageDrawable",
+      "Path": "images/baby_tux.png",
+      "Columns": 1,
+      "Rows": 1
    },
-   "Image": "images/baby_tux.png",
-   "ImageCols": 1,
-   "ImageRows": 1,
    "Emitter": {
       "Type": "SkLineEmitter",
       "P1": { "x": 237, "y": 396 },

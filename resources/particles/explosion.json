@@ -22,23 +22,12 @@
    },
    "StartColor": [ 1, 1, 1, 1 ],
    "EndColor": [ 1, 1, 1, 0.25098 ],
-   "Velocity": {
-      "Angle": 0,
-      "Spread": 6.28319,
-      "Strength": {
-         "min": 0,
-         "max": 20
-      },
-      "Bidirectional": false,
-      "Spin": {
-         "min": 0,
-         "max": 0
-      },
-      "BidirectionalSpin": false
+   "Drawable": {
+      "Type": "SkImageDrawable",
+      "Path": "images/explosion_sprites.png",
+      "Columns": 4,
+      "Rows": 4
    },
-   "Image": "images/explosion_sprites.png",
-   "ImageCols": 4,
-   "ImageRows": 4,
    "Emitter": {
       "Type": "SkCircleEmitter",
       "Center": { "x": 200, "y": 200 },
