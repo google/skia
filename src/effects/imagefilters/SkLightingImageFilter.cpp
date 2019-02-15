@@ -17,10 +17,11 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrFragmentProcessor.h"
 #include "GrPaint.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
@@ -459,7 +460,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
                                                    const OutputProperties& outputProperties) const {
     SkASSERT(source->isTextureBacked());
 
-    GrContext* context = source->getContext();
+    GrRecordingContext* context = source->getContext();
 
     sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
     SkASSERT(inputProxy);
