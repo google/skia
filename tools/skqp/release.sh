@@ -59,6 +59,8 @@ cat > platform_tools/android/apps/skqp/src/main/AndroidTest.xml <<- "EOM"
 	<configuration description="Config for CTS SkQP test cases">
 	<option name="test-suite-tag" value="cts" />
 	<option name="config-descriptor:metadata" key="component" value="uitoolkit" />
+	<option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+	<option name="config-descriptor:metadata" key="parameter" value="multi_abi" />
 	<target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
 	<option name="cleanup-apks" value="true" />
 	<option name="test-file-name" value="CtsSkQPTestCases.apk" />
