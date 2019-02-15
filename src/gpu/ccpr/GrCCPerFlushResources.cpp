@@ -13,6 +13,7 @@
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
+#include "GrSurfaceContextPriv.h"
 #include "GrShape.h"
 #include "GrSurfaceContextPriv.h"
 #include "SkMakeUnique.h"

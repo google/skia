@@ -9,18 +9,20 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrOpList.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 #include "../private/GrAuditTrail.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->abandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->priv().abandoned()) { return false; }
 
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
-GrSurfaceContext::GrSurfaceContext(GrContext* context,
+GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
                                    GrDrawingManager* drawingMgr,
                                    GrPixelConfig config,
                                    sk_sp<SkColorSpace> colorSpace,
@@ -52,9 +54,15 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
     if (GrColorType::kUnknown == colorType) {
         return false;
     }
-    return fContext->priv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
-                                                     colorType, dstInfo.colorSpace(), dstBuffer,
-                                                     dstRowBytes, flags);
+
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    return direct->priv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
+                                            colorType, dstInfo.colorSpace(), dstBuffer,
+                                            dstRowBytes, flags);
 }
 
 bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
@@ -71,9 +79,15 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
     if (GrColorType::kUnknown == colorType) {
         return false;
     }
-    return fContext->priv().writeSurfacePixels(this, x, y, srcInfo.width(), srcInfo.height(),
-                                                      colorType, srcInfo.colorSpace(), srcBuffer,
-                                                      srcRowBytes, flags);
+
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    return direct->priv().writeSurfacePixels(this, x, y, srcInfo.width(), srcInfo.height(),
+                                             colorType, srcInfo.colorSpace(), srcBuffer,
+                                             srcRowBytes, flags);
 }
 
 bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
