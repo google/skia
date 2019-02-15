@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7987eb60_8426a6bf",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-15T18:09:19Z",
+      "side": 1,
+      "message": "It seems we could avoid this copy when fCF0-\u003eappendStages() doesn\u0027t clobber dest... but alas, no way to know that.",
+      "range": {
+        "startLine": 306,
+        "startChar": 12,
+        "endLine": 306,
+        "endChar": 69
+      },
+      "revId": "75d5c712206cf9e94075c77f5747c45d92de6d7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
