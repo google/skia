@@ -137,11 +137,11 @@ public:
             const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& viewMatrix,
             ProcessPathsT&& processPaths, ARGBFallback&& fallbackARGB);
 
-    template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
+    template <typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
             SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textRatio,
-            PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
+            PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
     // TODO: Make this the canonical check for Skia.
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
