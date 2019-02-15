@@ -184,6 +184,43 @@ static GrBackendFormat create_backend_format(GrContext* context,
         }
         break;
 #endif
+#ifdef SK_DAWN
+    case GrBackendApi::kDawn:
+        switch (ct) {
+            case kUnknown_SkColorType:
+                return GrBackendFormat();
+            case kAlpha_8_SkColorType:
+                if (kAlpha_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeDawn(dawn::TextureFormat::R8Unorm);
+                }
+                break;
+            case kRGBA_8888_SkColorType:
+                if (kRGBA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeDawn(dawn::TextureFormat::R8G8B8A8Unorm);
+                }
+                break;
+            case kBGRA_8888_SkColorType:
+                if (kBGRA_8888_GrPixelConfig == config) {
+                    return GrBackendFormat::MakeDawn(dawn::TextureFormat::B8G8R8A8Unorm);
+                }
+                break;
+            case kGray_8_SkColorType:
+                // TODO: what about kAlpha_8_GrPixelConfig and kGray_8_as_Lum_GrPixelConfig?
+                if (kGray_8_as_Red_GrPixelConfig == config) {
+                    return  GrBackendFormat::MakeDawn(dawn::TextureFormat::R8Unorm);
+                }
+                break;
+            case kRGBA_1010102_SkColorType:
+            case kRGB_101010x_SkColorType:
+            case kRGBA_F16_SkColorType:
+            case kRGBA_F32_SkColorType:
+            case kRGB_565_SkColorType:
+            case kARGB_4444_SkColorType:
+            case kRGB_888x_SkColorType:
+                return GrBackendFormat();
+        }
+        break;
+#endif
     case GrBackendApi::kMock:
         switch (ct) {
             case kUnknown_SkColorType:
