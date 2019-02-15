@@ -2818,6 +2818,9 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDoManualMipmapping) {
         fDoManualMipmapping = true;
     }
+    if (options.fDisallowGLSLBinaryCaching) {
+        fProgramBinarySupport = false;
+    }
 }
 
 bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
