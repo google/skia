@@ -9,6 +9,7 @@
 #include "Test.h"
 
 #include "GrClip.h"
+#include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrPathRenderer.h"
 #include "GrPaint.h"

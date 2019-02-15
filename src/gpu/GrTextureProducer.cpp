@@ -7,6 +7,7 @@
 
 #include "GrTextureProducer.h"
 #include "GrClip.h"
+#include "GrContextPriv.h"
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"

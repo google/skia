@@ -18,6 +18,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrCoordTransform.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
