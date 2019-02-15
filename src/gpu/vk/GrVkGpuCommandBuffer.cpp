@@ -8,6 +8,7 @@
 #include "GrVkGpuCommandBuffer.h"
 
 #include "GrBackendDrawableInfo.h"
+#include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
