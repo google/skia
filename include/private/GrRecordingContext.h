@@ -12,6 +12,7 @@
 #include "GrImageContext.h"
 
 class GrDrawingManager;
+class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrRecordingContextPriv;
 
@@ -36,6 +37,14 @@ protected:
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
+
+    /**
+     * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
+     *
+     * NOTE: the drawing manager tracks this object as a raw pointer; it is up to the caller to
+     * ensure its lifetime is tied to that of the context.
+     */
+    void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
                                                       sk_sp<SkColorSpace> = nullptr,

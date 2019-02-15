@@ -43,6 +43,10 @@ sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
     return fContext->refOpMemoryPool();
 }
 
+void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
+    fContext->addOnFlushCallbackObject(onFlushCBObject);
+}
+
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(
                                                     sk_sp<GrSurfaceProxy> proxy,
                                                     sk_sp<SkColorSpace> colorSpace,
@@ -191,10 +195,6 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     ASSERT_OWNED_PROXY_PRIV(proxy);
 
     fContext->drawingManager()->flush(proxy);
-}
-
-void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
-    fContext->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
 }
 
 void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
