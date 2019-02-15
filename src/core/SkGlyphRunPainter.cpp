@@ -9,6 +9,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrColorSpaceInfo.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "SkGr.h"
 #include "text/GrTextBlobCache.h"
@@ -505,7 +507,7 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo
 }
 
 void GrTextContext::drawGlyphRunList(
-        GrContext* context, GrTextTarget* target, const GrClip& clip,
+        GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
         const SkMatrix& viewMatrix, const SkSurfaceProps& props,
         const SkGlyphRunList& glyphRunList) {
     SkPoint origin = glyphRunList.origin();
@@ -517,7 +519,7 @@ void GrTextContext::drawGlyphRunList(
     GrColor color = generate_filtered_color(listPaint, target->colorSpaceInfo()).toBytes_RGBA();
 
     // If we have been abandoned, then don't draw
-    if (context->abandoned()) {
+    if (context->priv().abandoned()) {
         return;
     }
 

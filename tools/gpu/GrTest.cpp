@@ -14,6 +14,8 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrMemoryPool.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
@@ -82,7 +84,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
         std::unique_ptr<GrDrawOp> op,
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
-    if (fRenderTargetContext->fContext->abandoned()) {
+    if (fRenderTargetContext->fContext->priv().abandoned()) {
         fRenderTargetContext->fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
@@ -188,7 +190,7 @@ DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 DRAW_OP_TEST_EXTERN(TextureOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
-    GrContext* context = renderTargetContext->surfPriv().getContext();
+    GrRecordingContext* context = renderTargetContext->surfPriv().getContext();
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*,
                                                    GrRecordingContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
