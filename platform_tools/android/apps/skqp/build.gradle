@@ -8,7 +8,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation 'com.android.support:design:26.+'
-    implementation 'com.android.support.test:runner:0.5'
+    implementation 'androidx.test:runner:1.1.0'
 }
 
 android {
