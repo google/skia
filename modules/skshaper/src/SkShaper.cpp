@@ -28,7 +28,9 @@ SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::newRunBuffer(const Run
 }
 
 void SkTextBlobBuilderRunHandler::commitRun() {
+    SkASSERT(0 <= fClusterOffset);
     for (int i = 0; i < fGlyphCount; ++i) {
+        SkASSERT(fClusters[i] >= (unsigned)fClusterOffset);
         fClusters[i] -= fClusterOffset;
     }
 }
