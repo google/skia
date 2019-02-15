@@ -441,13 +441,13 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                 viewMatrix, as_MFB(mf), shape);
 }
 
-void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
+void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           GrRenderTargetContext* renderTargetContext,
                                           const GrClip& clip,
                                           const SkPaint& paint,
                                           const SkMatrix& viewMatrix,
                                           const GrShape& shape) {
-    if (context->abandoned()) {
+    if (context->priv().abandoned()) {
         return;
     }
 
