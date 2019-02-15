@@ -55,8 +55,8 @@ GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int3
 GrContext::~GrContext() {
     ASSERT_SINGLE_OWNER
 
-    if (fDrawingManager) {
-        fDrawingManager->cleanup();
+    if (this->drawingManager()) {
+        this->drawingManager()->cleanup();
     }
     delete fResourceProvider;
     delete fResourceCache;
@@ -103,7 +103,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
         // Disable the small path renderer bc of the proxies in the atlas. They need to be
         // unified when the opLists are added back to the destination drawing manager.
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kStencilAndCover;
     }
 
     GrTextContext::Options textContextOptions;
@@ -160,7 +159,7 @@ void GrContext::abandonContext() {
 
     // Need to cleanup the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
-    fDrawingManager->cleanup();
+    this->drawingManager()->cleanup();
 
     // abandon first to so destructors
     // don't try to free the resources in the API.
@@ -170,7 +169,6 @@ void GrContext::abandonContext() {
 
     fGlyphCache->freeAll();
     fTextBlobCache->freeAll();
-
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {
@@ -184,7 +182,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
 
     // Need to cleanup the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
-    fDrawingManager->cleanup();
+    this->drawingManager()->cleanup();
 
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();
@@ -212,7 +210,7 @@ void GrContext::freeGpuResources() {
 
     fGlyphCache->freeAll();
 
-    fDrawingManager->freeGpuResources();
+    this->drawingManager()->freeGpuResources();
 
     fResourceCache->purgeAllUnlocked();
 }
@@ -232,7 +230,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     fResourceCache->purgeAsNeeded();
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 
-    if (auto ccpr = fDrawingManager->getCoverageCountingPathRenderer()) {
+    if (auto ccpr = this->drawingManager()->getCoverageCountingPathRenderer()) {
         ccpr->purgeCacheEntriesOlderThan(this->proxyProvider(), purgeTime);
     }
 
@@ -294,7 +292,7 @@ void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
 
-    fDrawingManager->flush(nullptr);
+    this->drawingManager()->flush(nullptr);
 }
 
 GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
@@ -304,7 +302,7 @@ GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return fDrawingManager->flush(nullptr, numSemaphores, signalSemaphores);
+    return this->drawingManager()->flush(nullptr, numSemaphores, signalSemaphores);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

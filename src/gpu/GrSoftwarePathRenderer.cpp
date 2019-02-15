@@ -100,7 +100,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    GrContext* context = renderTargetContext->surfPriv().getContext();
+    auto context = renderTargetContext->surfPriv().getContext();
     renderTargetContext->addDrawOp(clip,
                                    GrFillRectOp::MakeWithLocalMatrix(
                                            context, std::move(paint), GrAAType::kNone, viewMatrix,

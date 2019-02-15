@@ -52,9 +52,15 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
     if (GrColorType::kUnknown == colorType) {
         return false;
     }
-    return fContext->priv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
-                                                     colorType, dstInfo.colorSpace(), dstBuffer,
-                                                     dstRowBytes, flags);
+
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    return direct->priv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
+                                            colorType, dstInfo.colorSpace(), dstBuffer,
+                                            dstRowBytes, flags);
 }
 
 bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
@@ -71,9 +77,15 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
     if (GrColorType::kUnknown == colorType) {
         return false;
     }
-    return fContext->priv().writeSurfacePixels(this, x, y, srcInfo.width(), srcInfo.height(),
-                                                      colorType, srcInfo.colorSpace(), srcBuffer,
-                                                      srcRowBytes, flags);
+
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
+
+    return direct->priv().writeSurfacePixels(this, x, y, srcInfo.width(), srcInfo.height(),
+                                             colorType, srcInfo.colorSpace(), srcBuffer,
+                                             srcRowBytes, flags);
 }
 
 bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
