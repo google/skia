@@ -56,4 +56,11 @@ sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
                                 [](const void* p, void*) { delete[] (unsigned char*)p; },
                                 nullptr);
 }
-#endif
+
+#else
+
+sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData>, const SkPDFGlyphUse&, const char*, int) {
+    return nullptr;
+}
+#endif  // defined(SK_PDF_USE_SFNTLY)
+

@@ -269,8 +269,6 @@ static void add_common_font_descriptor_entries(SkPDFDict* descriptor,
 //  Type0Font
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_PDF_SUBSET_SUPPORTED
-
 // if possible, make no copy.
 static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
     SkASSERT(stream);
@@ -284,7 +282,6 @@ static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
     }
     return SkData::MakeFromStream(stream.get(), size);
 }
-#endif  // SK_PDF_SUBSET_SUPPORTED
 
 static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     const SkAdvancedTypefaceMetrics* metricsPtr =
@@ -311,7 +308,6 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     } else {
         switch (type) {
             case SkAdvancedTypefaceMetrics::kTrueType_Font: {
-                #ifdef SK_PDF_SUBSET_SUPPORTED
                 if (!SkToBool(metrics.fFlags &
                               SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag)) {
                     SkASSERT(font.firstGlyphID() == 1);
@@ -334,7 +330,6 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                     SkASSERT(fontAsset->getLength() == fontSize);
                     if (!fontAsset || fontAsset->getLength() == 0) { break; }
                 }
-                #endif  // SK_PDF_SUBSET_SUPPORTED
                 std::unique_ptr<SkPDFDict> tmp = SkPDFMakeDict();
                 tmp->insertInt("Length1", fontSize);
                 descriptor->insertRef("FontFile2",
