@@ -471,10 +471,10 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                         GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
                         GrSurfaceProxy::LazyInstantiationType::kSingleUse);
-                rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest, SkPMColor4f(),
-                                 SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
-                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), nullptr);
+                rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
+                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(kS, kS),
+                                 SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 // We still have the proxy, which should remain instantiated, thereby keeping the
                 // texture not purgeable.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
@@ -485,9 +485,9 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
 
                 // This time we move the proxy into the draw.
                 rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
-                                 SkPMColor4f(), SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
-                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), nullptr);
+                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(kS, kS),
+                                 SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 context->flush();
                 context->priv().getGpu()->testingOnly_flushGpuAndSync();
@@ -504,9 +504,9 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
                         GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
                 rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
-                                 SkPMColor4f(), SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
-                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), nullptr);
+                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(kS, kS),
+                                 SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 // At this point the proxy shouldn't even be instantiated, there is no texture with
                 // id 3.
                 REPORTER_ASSERT(reporter, idleIDs.find(3) == idleIDs.end());
@@ -551,8 +551,9 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
                                                          texture, kTopLeft_GrSurfaceOrigin);
                             rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
-                                             SkPMColor4f(), SkRect::MakeWH(kS, kS),
-                                             SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                             SkBlendMode::kSrcOver, SkPMColor4f(),
+                                             SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
+                                             GrQuadAAFlags::kNone,
                                              SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
                                              nullptr);
                             if (drawType == DrawType::kDrawAndFlush) {

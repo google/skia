@@ -61,12 +61,23 @@ public:
             : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
             , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom} {}
 
-    /** Sets the quad to the rect as transformed by the matrix. */
-    GrQuad(const SkRect&, const SkMatrix&);
+    GrQuad(const Sk4f& xs, const Sk4f& ys) {
+        xs.store(fX);
+        ys.store(fY);
+    }
 
     explicit GrQuad(const SkPoint pts[4])
             : fX{pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX}
             , fY{pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY} {}
+
+    /** Sets the quad to the rect as transformed by the matrix. */
+    static GrQuad MakeFromRect(const SkRect&, const SkMatrix&);
+
+    // Creates a GrQuad from the quadrilateral 'pts', transformed by the matrix. Unlike the explicit
+    // constructor, the input points array is arranged as per SkRect::toQuad (top-left, top-right,
+    // bottom-right, bottom-left). The returned instance's point order will still be CCW tri-strip
+    // order.
+    static GrQuad MakeFromSkQuad(const SkPoint pts[4], const SkMatrix&);
 
     GrQuad& operator=(const GrQuad& that) = default;
 
@@ -102,7 +113,29 @@ class GrPerspQuad {
 public:
     GrPerspQuad() = default;
 
-    GrPerspQuad(const SkRect&, const SkMatrix&);
+    explicit GrPerspQuad(const SkRect& rect)
+            : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
+            , fY{rect.fTop, rect.fBottom, rect.fTop, rect.fBottom}
+            , fW{1.f, 1.f, 1.f, 1.f} {}
+
+    GrPerspQuad(const Sk4f& xs, const Sk4f& ys) {
+        xs.store(fX);
+        ys.store(fY);
+        fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
+    }
+
+    GrPerspQuad(const Sk4f& xs, const Sk4f& ys, const Sk4f& ws) {
+        xs.store(fX);
+        ys.store(fY);
+        ws.store(fW);
+    }
+
+    static GrPerspQuad MakeFromRect(const SkRect&, const SkMatrix&);
+
+    // Creates a GrPerspQuad from the quadrilateral 'pts', transformed by the matrix. The input
+    // points array is arranged as per SkRect::toQuad (top-left, top-right, bottom-right,
+    // bottom-left). The returned instance's point order will still be CCW tri-strip order.
+    static GrPerspQuad MakeFromSkQuad(const SkPoint pts[4], const SkMatrix&);
 
     GrPerspQuad& operator=(const GrPerspQuad&) = default;
 
