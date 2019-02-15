@@ -19,7 +19,7 @@
 class SkExecutor;
 
 #if SK_SUPPORT_GPU
-struct GrContextOptions {
+struct SK_API GrContextOptions {
     enum class Enable {
         /** Forces an option to be disabled. */
         kNo,
@@ -36,7 +36,7 @@ struct GrContextOptions {
      * Skia stores compiled shader binaries (only when glProgramBinary / glGetProgramBinary are
      * supported) when provided a persistent cache, but this may extend to other data in the future.
      */
-    class PersistentCache {
+    class SK_API PersistentCache {
     public:
         virtual ~PersistentCache() {}
 
