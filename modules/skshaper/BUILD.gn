@@ -19,7 +19,7 @@ source_set("skshaper") {
     deps = [
       "../..:skia",
     ]
-    if (target_cpu == "wasm" || !skia_use_icu) {
+    if (!skia_use_icu) {
       sources = skia_shaper_primitive_sources
     } else {
       sources = skia_shaper_harfbuzz_sources
