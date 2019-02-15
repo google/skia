@@ -331,39 +331,28 @@ void SkGlyphRunListPainter::processARGBFallback(
 
 // Beware! The following code will end up holding two glyph caches at the same time, but they
 // will not be the same cache (which would cause two separate caches to be created).
-template <typename ProcessPathsT>
+template <typename PerEmptyT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
-        SkStrikeInterface* strike, const SkGlyphRun& glyphRun,
+        SkStrikeInterface* pathCache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textScale,
-        ProcessPathsT&& processPaths, ARGBFallback&& argbFallback) {
+        PerEmptyT&& perEmpty, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
-    ScopedBuffers _ = ensureBuffers(glyphRun);
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
-    // Four empty glyphs are expected; one for each horizontal subpixel position.
-    SkSTArray<4, const SkGlyph*> emptyGlyphs;
-
-    int glyphCount = 0;
     const SkPoint* positionCursor = glyphRun.positions().data();
     for (auto glyphID : glyphRun.glyphsIDs()) {
         SkPoint glyphPos = origin + *positionCursor++;
-
-        if (std::any_of(emptyGlyphs.begin(), emptyGlyphs.end(),
-                        [glyphID](const SkGlyph* g) { return g->getGlyphID() == glyphID; })) {
-            continue;
-        }
-
-        const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, glyphPos);
+        const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
         if (glyph.isEmpty()) {
-            emptyGlyphs.push_back(&glyph);
+            perEmpty(glyph, glyphPos);
         } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-            if (strike->decideCouldDrawFromPath(glyph)) {
-                fGlyphPos[glyphCount++] = {&glyph, glyphPos};
+            if (pathCache->decideCouldDrawFromPath(glyph)) {
+                perPath(glyph, glyphPos);
             } else {
-                // This happens when a bitmap-only font is forced to scale very large. This
-                // doesn't happen in practice.
-                emptyGlyphs.push_back(&glyph);
+                // This happens when a bitmap-only font has a very large glyph compared to the
+                // rest of the glyphs. This doesn't happen in practice.
+                perEmpty(glyph, glyphPos);
             }
         } else {
             SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
@@ -372,13 +361,6 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
             fARGBPositions.push_back(glyphPos);
         }
     }
-
-    if (glyphCount > 0) {
-        processPaths(SkSpan<const GlyphAndPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
-                    strike,
-                    textScale);
-    }
-
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
@@ -438,14 +420,14 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
                 }
             } else {
                 // If the glyph is not empty, then it will have a pointer to mask data.
-                fGlyphPos[glyphCount++] = {&glyph, mappedPt};
+                fMasks[glyphCount++] = {&glyph, mappedPt};
             }
         }
     }
 
     if (glyphCount > 0) {
         mapping.mapPoints(fPositions, glyphCount);
-        processMasks(SkSpan<const GlyphAndPos>{fGlyphPos, SkTo<size_t>(glyphCount)}, strike.get());
+        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)}, strike.get());
     }
     if (!fPaths.empty()) {
         processPaths(SkSpan<const GlyphAndPos>{fPaths});
@@ -831,15 +813,14 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                                 pathFont, pathPaint, props,
                                 scalerContextFlags, SkMatrix::I());
 
+            auto perEmpty = [](const SkGlyph&, SkPoint) {};
+
             // Given a glyph that is not ARGB, draw it.
-            auto processPath = [run](
-                    SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths,
-                    SkStrikeInterface* strike, SkScalar textScale) {
-                run->setupFont(strike->strikeSpec());
-                for (const auto& path : paths) {
-                    if (const SkPath* glyphPath = path.glyph->path()) {
-                        run->appendPathGlyph(*glyphPath, path.position, textScale, false);
-                    }
+            auto perPath = [textScale, run]
+                           (const SkGlyph& glyph, SkPoint position) {
+                // TODO: path should always be set. Remove when proven.
+                if (const SkPath* glyphPath = glyph.path()) {
+                    run->appendPathGlyph(*glyphPath, position, textScale, false);
                 }
             };
 
@@ -847,7 +828,7 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
                 pathCache.get(), glyphRun, origin, runPaint, viewMatrix, textScale,
-                std::move(processPath), std::move(argbFallback));
+                std::move(perEmpty), std::move(perPath), std::move(argbFallback));
         } else {
             // Ensure the blob is set for bitmaptext
             this->setHasBitmap();
@@ -1031,16 +1012,20 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
             pathPaint, pathFont, this->surfaceProps(), SkMatrix::I(),
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
-    // This processor is empty because all changes to the cache are tracked through
-    // getGlyphMetrics and decideCouldDrawFromPath.
-    auto processPaths = [](
-            SkSpan<const SkGlyphRunListPainter::GlyphAndPos>, SkStrikeInterface*, SkScalar) { };
+    auto perEmpty = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
+        glyphCacheState->addGlyph(glyph.getPackedID(), false);
+    };
+
+    auto perPath = [glyphCacheState](const SkGlyph& glyph, SkPoint position) {
+        const bool asPath = true;
+        glyphCacheState->addGlyph(glyph.getGlyphID(), asPath);
+    };
 
     ARGBHelper argbFallback{runMatrix, surfaceProps(), fStrikeServer};
 
     fPainter.drawGlyphRunAsPathWithARGBFallback(
             glyphCacheState, glyphRun, origin, runPaint, runMatrix, textScale,
-            std::move(processPaths), std::move(argbFallback));
+            std::move(perEmpty), std::move(perPath), std::move(argbFallback));
 }
 
 #if SK_SUPPORT_GPU
@@ -1110,7 +1095,7 @@ SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* paint
         fPainter->fMaxRunSize = size;
 
         fPainter->fPositions.reset(size);
-        fPainter->fGlyphPos.reset(size);
+        fPainter->fMasks.reset(size);
     }
 }
 
@@ -1122,7 +1107,7 @@ SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
     if (fPainter->fMaxRunSize > 200) {
         fPainter->fMaxRunSize = 0;
         fPainter->fPositions.reset();
-        fPainter->fGlyphPos.reset();
+        fPainter->fMasks.reset();
         fPainter->fPaths.shrink_to_fit();
         fPainter->fARGBGlyphsIDs.shrink_to_fit();
         fPainter->fARGBPositions.shrink_to_fit();
