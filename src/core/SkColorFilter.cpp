@@ -10,6 +10,7 @@
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpaceXformer.h"
+#include "SkMakeUnique.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -21,6 +22,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
 bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
@@ -325,8 +328,131 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
-        return nullptr;
+            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+
+        class MixerFragmentProcessor final : public GrFragmentProcessor {
+        public:
+            MixerFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp0,
+                                   std::unique_ptr<GrFragmentProcessor> fp1,
+                                   float weight)
+                : INHERITED(kMixerFragmentProcessor_ClassID, OptFlags(fp0, fp1))
+                , fWeight(weight) {
+
+                SkASSERT(fp0);
+                SkASSERT(0 <= fWeight && fWeight <= 1);
+
+                this->registerChildProcessor(std::move(fp0));
+                if (fp1) {
+                    this->registerChildProcessor(std::move(fp1));
+                }
+            }
+
+            const char* name() const override { return "Mixer"; }
+
+            std::unique_ptr<GrFragmentProcessor> clone() const override {
+                SkASSERT(this->numChildProcessors() == 1 || this->numChildProcessors() == 2);
+                const auto hasFP1 = (this->numChildProcessors() == 2);
+
+                auto fp0 = this->childProcessor(0).clone(),
+                     fp1 = hasFP1 ? this->childProcessor(1).clone() : nullptr;
+
+                if (!fp0 || (hasFP1 && !fp1)) {
+                    return nullptr;
+                }
+
+                return skstd::make_unique<MixerFragmentProcessor>(std::move(fp0),
+                                                                  std::move(fp1),
+                                                                  fWeight);
+
+            }
+
+            float weight() const { return fWeight; }
+
+        private:
+            GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+                class GLFP final : public GrGLSLFragmentProcessor {
+                public:
+                    void emitCode(EmitArgs& args) override {
+                        fWeightVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                      kHalf_GrSLType,
+                                                                      kDefault_GrSLPrecision,
+                                                                      "weight");
+
+                        SkASSERT(this->numChildProcessors() == 1 ||
+                                 this->numChildProcessors() == 2);
+                        SkString out0("child_out0"), out1("child_out1");
+                        this->emitChild(0, args.fInputColor, &out0, args);
+
+                        auto mix_input0 = out0.c_str(),
+                             mix_input1 = args.fInputColor,
+                             mix_weight = args.fUniformHandler->getUniformCStr(fWeightVar);
+
+                        if (this->numChildProcessors() == 2) {
+                            this->emitChild(1, args.fInputColor, &out1, args);
+                            mix_input1 = out1.c_str();
+                        }
+
+                        args.fFragBuilder->codeAppendf("%s = mix(%s, %s, %s);\n",
+                                                       args.fOutputColor,
+                                                       mix_input0,
+                                                       mix_input1,
+                                                       mix_weight);
+                    }
+                private:
+                    void onSetData(const GrGLSLProgramDataManager& pdman,
+                                   const GrFragmentProcessor& proc) override {
+                        const auto weight = proc.cast<MixerFragmentProcessor>().weight();
+                        if (weight != fWeightPrev) {
+                            fWeightPrev = weight;
+                            pdman.set1f(fWeightVar, weight);
+                        }
+                    }
+
+                    UniformHandle fWeightVar;
+                    float         fWeightPrev = -1;
+                };
+
+                return new GLFP;
+            }
+
+            void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {
+            }
+
+            bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+            static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp0,
+                                              const std::unique_ptr<GrFragmentProcessor>& fp1) {
+
+                const auto& GetOptFlags = [] (const std::unique_ptr<GrFragmentProcessor>& fp) {
+                    auto flags = kNone_OptimizationFlags;
+                    if (fp->compatibleWithCoverageAsAlpha()) {
+                        flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+                    }
+                    if (fp->preservesOpaqueInput()) {
+                        flags |= kPreservesOpaqueInput_OptimizationFlag;
+                    }
+                    if (fp->hasConstantOutputForConstantInput()) {
+                        flags |= kConstantOutputForConstantInput_OptimizationFlag;
+                    }
+                    return flags;
+                };
+
+                const auto fp0_flags = GetOptFlags(fp0),
+                           fp1_flags = fp1 ? GetOptFlags(fp1) : kAll_OptimizationFlags;
+                return fp0_flags & fp1_flags;
+            }
+
+            const float fWeight;
+
+            using INHERITED = GrFragmentProcessor;
+        };
+
+        auto cf0FP = fCF0->asFragmentProcessor(context, dstColorSpaceInfo),
+             cf1FP = fCF1 ? fCF1->asFragmentProcessor(context, dstColorSpaceInfo) : nullptr;
+
+        return skstd::make_unique<MixerFragmentProcessor>(std::move(cf0FP),
+                                                          std::move(cf1FP),
+                                                          fWeight);
     }
 #endif
 
