@@ -184,7 +184,7 @@
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux:[START_DIR]/opencl_ocl_icd_linux:[START_DIR]/opencl_intel_neo_linux",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/mesa_intel_driver_linux",
       "OPENCL_VENDOR_PATH": "[START_DIR]/tmp/OpenCL/vendors",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
     "name": "symbolized dm"

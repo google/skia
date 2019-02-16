@@ -69,7 +69,10 @@ def parse(repo_root, recipes_cfg_path):
 
     # If we're running ./recipes.py from the recipe_engine repo itself, then
     # return None to signal that there's no EngineDep.
-    if pb['project_id'] == 'recipe_engine':
+    repo_name = pb.get('repo_name')
+    if not repo_name:
+      repo_name = pb['project_id']
+    if repo_name == 'recipe_engine':
       return None, pb.get('recipes_path', '')
 
     engine = pb['deps']['recipe_engine']

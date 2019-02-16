@@ -29,7 +29,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env['CHROME_HEADLESS'] = '1'
     self.default_env['PATH'] = self.m.path.pathsep.join([
         self.default_env.get('PATH', '%(PATH)s'),
-        str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
+        str(self.m.bot_update.repo_resource()),
     ])
     self.cache_dir = self.slave_dir.join('cache')
 

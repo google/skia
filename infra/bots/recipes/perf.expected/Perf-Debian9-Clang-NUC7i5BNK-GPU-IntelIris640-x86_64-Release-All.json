@@ -233,7 +233,7 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/mesa_intel_driver_linux",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
     "name": "symbolized nanobench"

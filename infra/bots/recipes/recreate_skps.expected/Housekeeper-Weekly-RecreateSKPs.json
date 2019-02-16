@@ -50,7 +50,7 @@
     "cwd": "[START_DIR]/cache/work",
     "env_prefixes": {
       "PATH": [
-        "RECIPE_PACKAGE_REPO[depot_tools]"
+        "RECIPE_REPO[depot_tools]"
       ]
     },
     "infra_step": true,
@@ -97,7 +97,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "RECIPE_REPO[depot_tools]/gclient.py",
       "runhooks"
     ],
     "cwd": "[START_DIR]/cache/work",
@@ -108,7 +108,7 @@
     },
     "env_suffixes": {
       "PATH": [
-        "RECIPE_PACKAGE_REPO[depot_tools]"
+        "RECIPE_REPO[depot_tools]"
       ]
     },
     "name": "gclient runhooks"
@@ -139,7 +139,7 @@
       "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
       "GYP_GENERATORS": "ninja",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "GN"
   },
@@ -153,7 +153,7 @@
     "cwd": "[START_DIR]/cache/work/src",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Build Chrome"
   },
@@ -200,7 +200,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Recreate SKPs"
   },
@@ -219,7 +219,7 @@
       "GOCACHE": "[START_DIR]/cache/go_cache",
       "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Upload SKPs"
   },

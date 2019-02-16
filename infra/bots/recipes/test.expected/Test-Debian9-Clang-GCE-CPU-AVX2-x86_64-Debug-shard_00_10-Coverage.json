@@ -202,7 +202,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LLVM_PROFILE_FILE": "[START_DIR]/[SWARM_OUT_DIR]/shard_00_10.profraw",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "symbolized dm"
   },

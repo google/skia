@@ -31,7 +31,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "DOCKER_CONFIG": "/home/chrome-bot/.docker",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Build SKQP apk with Docker"
   },

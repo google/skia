@@ -23,7 +23,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -39,7 +39,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -55,7 +55,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },

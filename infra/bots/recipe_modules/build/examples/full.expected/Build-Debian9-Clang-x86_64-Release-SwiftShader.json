@@ -40,7 +40,7 @@
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
     },
     "name": "swiftshader cmake"
   },
@@ -57,7 +57,7 @@
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
     },
     "name": "swiftshader ninja"
   },
@@ -70,7 +70,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -85,7 +85,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -98,7 +98,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },

@@ -50,7 +50,7 @@
     "cwd": "[START_DIR]/cache/work",
     "env_prefixes": {
       "PATH": [
-        "RECIPE_PACKAGE_REPO[depot_tools]"
+        "RECIPE_REPO[depot_tools]"
       ]
     },
     "infra_step": true,
@@ -229,7 +229,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "DOCKER_CONFIG": "/home/chrome-bot/.docker",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Create lottie-web Gold output with Docker"
   },

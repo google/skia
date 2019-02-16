@@ -22,7 +22,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -41,7 +41,7 @@
       "GOCACHE": "[START_DIR]/cache/go_cache",
       "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "build firebase runner"
   },
@@ -55,7 +55,7 @@
       "ANDROID_NDK": "[START_DIR]/android_ndk_linux",
       "APK_OUTPUT_DIR": "[START_DIR]/cache/work/skia/out/Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP/devrel",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "make_universal"
   },
