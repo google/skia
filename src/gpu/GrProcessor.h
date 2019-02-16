@@ -167,6 +167,7 @@ public:
         kMappedNormalsFP_ClassID,
         kLightingFP_ClassID,
         kLinearStrokeProcessor_ClassID,
+        kMixerFragmentProcessor_ClassID,
     };
 
     virtual ~GrProcessor() = default;
