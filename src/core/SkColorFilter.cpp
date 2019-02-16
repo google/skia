@@ -284,12 +284,12 @@ public:
     SkMixerColorFilter(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float weight)
         : fCF0(std::move(cf0)), fCF1(std::move(cf1)), fWeight(weight)
     {
-        SkASSERT(fCF0 || fCF1);
+        SkASSERT(fCF0);
         SkASSERT(fWeight >= 0 && fWeight <= 1);
     }
 
     uint32_t getFlags() const override {
-        uint32_t f0 = fCF0 ? fCF0->getFlags() : ~0U;
+        uint32_t f0 = fCF0->getFlags();
         uint32_t f1 = fCF1 ? fCF1->getFlags() : ~0U;
         return f0 & f1;
     }
@@ -307,7 +307,7 @@ public:
         auto state = alloc->make<State>();
 
         p->append(SkRasterPipeline::store_rgba, state->orig_rgba);
-        if (fCF0 && !fCF1) {
+        if (!fCF1) {
             fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
             p->append(SkRasterPipeline::move_src_dst);
             p->append(SkRasterPipeline::load_rgba, state->orig_rgba);
@@ -315,9 +315,7 @@ public:
             fCF1->appendStages(p, dst, alloc, shaderIsOpaque);
             p->append(SkRasterPipeline::store_rgba, state->filtered_rgba);
             p->append(SkRasterPipeline::load_rgba, state->orig_rgba);
-            if (fCF0) {
-                fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
-            }
+            fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
             p->append(SkRasterPipeline::move_src_dst);
             p->append(SkRasterPipeline::load_rgba, state->filtered_rgba);
         }
@@ -379,7 +377,9 @@ sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> cf0,
         return cf1;
     }
 
-    return sk_sp<SkColorFilter>(new SkMixerColorFilter(std::move(cf0), std::move(cf1), weight));
+    return sk_sp<SkColorFilter>(cf0
+            ? new SkMixerColorFilter(std::move(cf0), std::move(cf1), weight)
+            : new SkMixerColorFilter(std::move(cf1), nullptr, 1 - weight));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
