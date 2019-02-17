@@ -229,6 +229,7 @@ gm_sources = [
   "$_gm/megalooper.cpp",
   "$_gm/mipmap.cpp",
   "$_gm/mixedtextblobs.cpp",
+  "$_gm/mixercolorfilter.cpp",
   "$_gm/modecolorfilters.cpp",
   "$_gm/morphology.cpp",
   "$_gm/multipicturedraw.cpp",
