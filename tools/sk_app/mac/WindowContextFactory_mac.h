@@ -33,6 +33,15 @@ inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&
 
 WindowContext* NewGLForMac(const MacWindowInfo&, const DisplayParams&);
 
+#ifdef SK_DAWN
+#ifdef SK_DAWN_OPENGL
+WindowContext* NewDawnGLForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
+#ifdef SK_DAWN_METAL
+WindowContext* NewDawnMTLForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
+#endif
+
 WindowContext* NewRasterForMac(const MacWindowInfo&, const DisplayParams&);
 #ifdef SK_METAL
 WindowContext* NewMetalForMac(const MacWindowInfo&, const DisplayParams&);
