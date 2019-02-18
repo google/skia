@@ -34711,6 +34711,7 @@
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia",
+        "valgrind:1",
         "rack:1"
       ],
       "env_prefixes": {
@@ -34828,6 +34829,7 @@
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia",
+        "valgrind:1",
         "rack:1"
       ],
       "env_prefixes": {
@@ -35637,6 +35639,7 @@
         "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
+        "valgrind:1",
         "rack:2"
       ],
       "env_prefixes": {
@@ -35754,6 +35757,7 @@
         "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
+        "valgrind:1",
         "rack:2"
       ],
       "env_prefixes": {
@@ -64325,7 +64329,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -64441,7 +64446,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -64557,7 +64563,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -66393,7 +66400,8 @@
       "dimensions": [
         "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -66509,7 +66517,8 @@
       "dimensions": [
         "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -66625,7 +66634,8 @@
       "dimensions": [
         "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "env_prefixes": {
         "PATH": [
