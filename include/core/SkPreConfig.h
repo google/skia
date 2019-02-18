@@ -73,7 +73,7 @@
       defined(__ppc__) || defined(__hppa) || \
       defined(__PPC__) || defined(__PPC64__) || \
       defined(_MIPSEB) || defined(__ARMEB__) || \
-      defined(__s390__) || \
+      defined(__s390__) || defined(__s390x__) || \
       (defined(__sh__) && defined(__BIG_ENDIAN__)) || \
       (defined(__ia64) && defined(__BIG_ENDIAN__))
          #define SK_CPU_BENDIAN
