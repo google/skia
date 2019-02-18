@@ -442,7 +442,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                 viewMatrix, as_MFB(mf), shape);
 }
 
-void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
+void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           GrRenderTargetContext* renderTargetContext,
                                           const GrClip& clip,
                                           const SkPaint& paint,
@@ -453,8 +453,9 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, renderTargetContext->colorSpaceInfo(), paint, viewMatrix,
-                          &grPaint)) {
+    // CONTEXT TODO: remove this use of backdoor to convert from an SkPaint to a GrPaint
+    if (!SkPaintToGrPaint(context->priv().backdoor(), renderTargetContext->colorSpaceInfo(),
+                          paint, viewMatrix, &grPaint)) {
         return;
     }
 

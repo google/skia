@@ -45,12 +45,13 @@ public:
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
-
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+
+    GrStrikeCache* getGlyphCache() { return fContext->getGlyphCache(); }
+    GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
@@ -109,6 +110,10 @@ public:
                                             SkBudgeted budgeted = SkBudgeted::kYes);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+
+    // CONTEXT TODO: remove this backdoor
+    // In order to make progress we temporarily need a way to break CL impasses.
+    GrContext* backdoor();
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
