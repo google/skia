@@ -1138,6 +1138,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		timeout(task, 9*time.Hour)
 		task.Expiration = 48 * time.Hour
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
+		// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
+		// to ensure there are always bots free for CQ tasks.
+		task.Dimensions = append(task.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		timeout(task, 9*time.Hour)
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
@@ -1189,6 +1192,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		timeout(task, 9*time.Hour)
 		task.Expiration = 48 * time.Hour
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
+		// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
+		// to ensure there are always bots free for CQ tasks.
+		task.Dimensions = append(task.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		timeout(task, 9*time.Hour)
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
