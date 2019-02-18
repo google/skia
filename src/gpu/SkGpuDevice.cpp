@@ -11,10 +11,12 @@
 #include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
 #include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
+//#include "GrContext.h"
+//#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrShape.h"
 #include "GrStyle.h"
@@ -83,11 +85,11 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context,
                                      sk_sp<GrRenderTargetContext> renderTargetContext,
                                      int width, int height,
                                      InitContents init) {
-    if (!renderTargetContext || context->abandoned()) {
+    if (!renderTargetContext || context->priv().abandoned()) {
         return nullptr;
     }
     unsigned flags;
@@ -98,7 +100,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
                                               width, height, flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted budgeted,
                                      const SkImageInfo& info, int sampleCount,
                                      GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                      GrMipMapped mipMapped, InitContents init) {
@@ -128,7 +130,8 @@ static SkImageInfo make_info(GrRenderTargetContext* context, int w, int h, bool 
                              context->colorSpaceInfo().refColorSpace());
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
+SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
+                         sk_sp<GrRenderTargetContext> renderTargetContext,
                          int width, int height, unsigned flags)
     : INHERITED(make_info(renderTargetContext.get(), width, height,
                           SkToBool(flags & kIsOpaque_Flag)), renderTargetContext->surfaceProps())
@@ -143,7 +146,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> render
 }
 
 sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
-                                                               GrContext* context,
+                                                               GrRecordingContext* context,
                                                                SkBudgeted budgeted,
                                                                const SkImageInfo& origInfo,
                                                                int sampleCount,
@@ -706,6 +709,10 @@ static void determine_clipped_src_rect(int width, int height,
     }
 }
 
+const GrCaps* SkGpuDevice::caps() const {
+    return fContext->priv().caps();
+}
+
 bool SkGpuDevice::shouldTileImageID(uint32_t imageID,
                                     const SkIRect& imageRect,
                                     const SkMatrix& viewMatrix,
@@ -996,7 +1003,7 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSprite", fContext.get());
 
-    if (fContext->abandoned()) {
+    if (fContext->priv().abandoned()) {
         return;
     }
 
@@ -1239,7 +1246,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
     }
 
 
-    GrContext* ctx = this->context();
+    GrRecordingContext* ctx = this->context();
     SkASSERT(rtc->asSurfaceProxy());
 
     auto srcProxy =
@@ -1482,7 +1489,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
     draw();
 }
 
-static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
+static bool init_vertices_paint(GrRecordingContext* context, const GrColorSpaceInfo& colorSpaceInfo,
                                 const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {
     if (hasTexs && skPaint.getShader()) {

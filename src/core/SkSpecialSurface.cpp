@@ -119,6 +119,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 ///////////////////////////////////////////////////////////////////////////////
 #include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkGpuDevice.h"
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
