@@ -9,6 +9,8 @@
 #include "GrClip.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
@@ -18,7 +20,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
-sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
+sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,
                                                    const CopyParams& copyParams,
                                                    bool dstWillRequireMipMaps) {
@@ -236,14 +238,14 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
 
     int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
     bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        fContext->priv().caps()->mipMapSupport();
+                        this->context()->priv().caps()->mipMapSupport();
 
     auto result = this->onRefTextureProxyForParams(sampler, willBeMipped, scaleAdjust);
 
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
     SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes ||
-             !fContext->priv().caps()->isConfigCopyable(result->config()));
+             !this->context()->priv().caps()->isConfigCopyable(result->config()));
 
     // Check that the "no scaling expected" case always returns a proxy of the same size as the
     // producer.
@@ -260,14 +262,14 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMip
 
     int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
     bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        fContext->priv().caps()->mipMapSupport();
+                        this->context()->priv().caps()->mipMapSupport();
 
     auto result = this->onRefTextureProxyForParams(sampler, willBeMipped, nullptr);
 
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
     SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes ||
-             !fContext->priv().caps()->isConfigCopyable(result->config()));
+             !this->context()->priv().caps()->isConfigCopyable(result->config()));
 
     // Check that no scaling occured and we returned a proxy of the same size as the producer.
     SkASSERT(!result || (result->width() == this->width() && result->height() == this->height()));
