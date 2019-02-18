@@ -239,7 +239,7 @@ bool SkImageFilter::canComputeFastBounds() const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
+sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrRecordingContext* context,
                                                 std::unique_ptr<GrFragmentProcessor> fp,
                                                 const SkIRect& bounds,
                                                 const OutputProperties& outputProperties) {

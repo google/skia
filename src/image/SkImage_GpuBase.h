@@ -20,8 +20,10 @@ class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
-    SkImage_GpuBase(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkAlphaType,
+    SkImage_GpuBase(sk_sp<GrContext_Base>, int width, int height, uint32_t uniqueID, SkAlphaType,
                     sk_sp<SkColorSpace>);
+    SkImage_GpuBase(sk_sp<GrContextThreadSafeProxy>, int width, int height, uint32_t uniqueID,
+                    SkAlphaType, sk_sp<SkColorSpace>);
     ~SkImage_GpuBase() override;
 
     GrContext* context() const final { return fContext.get(); }
@@ -37,7 +39,7 @@ public:
         SkASSERT(false);
         return this->INHERITED::asTextureProxyRef();
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const final;
 
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const final {
@@ -53,7 +55,7 @@ public:
     bool onIsValid(GrContext*) const final;
 
 #if GR_TEST_UTILS
-    void resetContext(sk_sp<GrContext> newContext);
+    void resetContext17(sk_sp<GrContext> newContext);
 #endif
 
     static bool ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
@@ -83,7 +85,7 @@ protected:
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
     // be null.
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
-            GrContext*, int width, int height, GrSurfaceOrigin, GrPixelConfig, GrBackendFormat,
+            GrImageContext* context, int width, int height, GrSurfaceOrigin, GrPixelConfig, GrBackendFormat,
             GrMipMapped, PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext, DelayReleaseCallback);
 
@@ -93,9 +95,10 @@ protected:
                                  const sk_sp<GrTextureProxy> proxies[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
-    sk_sp<GrContext>      fContext;
-    const SkAlphaType     fAlphaType;  // alpha type for final image
-    sk_sp<SkColorSpace>   fColorSpace; // color space for final image
+    sk_sp<GrContext_Base>           fContext1;
+    sk_sp<GrContextThreadSafeProxy> fThreadSafeProxy73;
+    const SkAlphaType               fAlphaType;  // alpha type for final image
+    sk_sp<SkColorSpace>             fColorSpace; // color space for final image
 
 private:
     typedef SkImage_Base INHERITED;

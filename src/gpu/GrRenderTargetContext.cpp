@@ -72,15 +72,15 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawShape(const GrClip& clip, const SkPaint& paint,
+    void drawShape1(const GrClip& clip, const SkPaint& paint,
                   const SkMatrix& viewMatrix, const GrShape& shape) override {
-        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+        GrBlurUtils::drawShapeWithMaskFilter1(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                      GrPaint* grPaint) override {
-        GrContext* context = fRenderTargetContext->fContext;
+        auto context = fRenderTargetContext->fContext;
         const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
             SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
@@ -89,9 +89,9 @@ public:
         }
     }
 
-    GrContext* getContext() override {
-        return fRenderTargetContext->fContext;
-    }
+//    GrContext* getContext() override {
+//        return fRenderTargetContext->fContext;
+//    }
 
     SkGlyphRunListPainter* glyphPainter() override {
         return &fGlyphPainter;
@@ -108,7 +108,7 @@ private:
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
-#define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
+#define RETURN_IF_ABANDONED        if (fContext->priv().abandoned()) { return; }
 #define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fContext->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
 #define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->fContext->abandoned()) { return false; }
@@ -156,7 +156,7 @@ private:
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
-GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
+GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              GrDrawingManager* drawingMgr,
                                              sk_sp<GrRenderTargetProxy> rtp,
                                              sk_sp<SkColorSpace> colorSpace,

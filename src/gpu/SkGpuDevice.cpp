@@ -83,7 +83,7 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context,
                                      sk_sp<GrRenderTargetContext> renderTargetContext,
                                      int width, int height,
                                      InitContents init) {
@@ -98,7 +98,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
                                               width, height, flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted budgeted,
                                      const SkImageInfo& info, int sampleCount,
                                      GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                      GrMipMapped mipMapped, InitContents init) {
@@ -317,7 +317,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
     if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
         GrStyle style(paint, SkPaint::kStroke_Style);
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+        if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                               this->ctm(), &grPaint)) {
             return;
         }
@@ -362,7 +362,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 #endif
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                           *viewMatrix, &grPaint)) {
         return;
     }
@@ -393,7 +393,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaint(this->context12(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
         return;
     }
@@ -449,7 +449,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     SkASSERT(!style.pathEffect());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
         return;
     }
@@ -474,7 +474,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
 
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+        if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                               this->ctm(), &grPaint)) {
             return;
         }
@@ -510,7 +510,7 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
         return;
     }
@@ -530,7 +530,7 @@ void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
         return;
     }
@@ -548,7 +548,7 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
         return;
     }
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
         return;
     }
@@ -604,7 +604,7 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     m.postConcat(this->ctm());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), newPaint, m,
+    if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), newPaint, m,
                           &grPaint)) {
         return;
     }
@@ -634,7 +634,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+        if (!SkPaintToGrPaint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
                               this->ctm(), &grPaint)) {
             return;
         }
@@ -979,7 +979,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+    if (!SkPaintToGrPaintWithTexture(this->context12(), fRenderTargetContext->colorSpaceInfo(), paint,
                                      viewMatrix, std::move(fp),
                                      kAlpha_8_SkColorType == bitmap.colorType(), &grPaint)) {
         return;
@@ -1420,6 +1420,12 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
 void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                SkFilterQuality filterQuality, SkBlendMode mode) {
     SkASSERT(count > 0);
+
+    if (mode != SkBlendMode::kSrcOver ||
+        !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
+        INHERITED::drawImageSet(set, count, filterQuality, mode);
+        return;
+    }
 
     GrSamplerState sampler;
     sampler.setFilterMode(kNone_SkFilterQuality == filterQuality ? GrSamplerState::Filter::kNearest
