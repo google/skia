@@ -29,8 +29,12 @@ public:
         if (!SkScalarsAreFinite(dx, dy)) {
             return false;
         }
+#ifdef SK_SUPPORT_LEGACY_SETLENGTH
         // Simple enough (and performance critical sometimes) so we inline it.
         return (dx*dx + dy*dy) > (SK_ScalarNearlyZero * SK_ScalarNearlyZero);
+#else
+        return dx || dy;
+#endif
     }
 
     static SkScalar DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,

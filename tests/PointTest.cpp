@@ -121,19 +121,6 @@ static void test_overflow(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(length, SK_Scalar1));
 }
 
-// test that we handle very small values correctly. i.e. that we can
-// report failure if we try to normalize them.
-static void test_underflow(skiatest::Reporter* reporter) {
-    SkPoint pt = { 1.0e-37f, 1.0e-37f };
-    const SkPoint empty = { 0, 0 };
-
-    REPORTER_ASSERT(reporter, 0 == SkPoint::Normalize(&pt));
-    REPORTER_ASSERT(reporter, pt == empty);
-
-    REPORTER_ASSERT(reporter, !pt.setLength(SK_Scalar1));
-    REPORTER_ASSERT(reporter, pt == empty);
-}
-
 DEF_TEST(Point, reporter) {
     test_casts(reporter);
 
@@ -150,7 +137,6 @@ DEF_TEST(Point, reporter) {
         test_length(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fLength);
     }
 
-    test_underflow(reporter);
     test_overflow(reporter);
     test_normalize_cannormalize_consistent(reporter);
 }
