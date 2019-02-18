@@ -57,7 +57,7 @@ SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument*
                                                                   const SkPaint& p) {
     SkASSERT(doc);
     if (SkPaint::kFill_Style == p.getStyle()) {
-        SkPDFFillGraphicState fillKey = {p.getColor4f().fA, pdf_blend_mode(p.getBlendMode())};
+        SkPDFFillGraphicState fillKey = {p.getAlphaf(), pdf_blend_mode(p.getBlendMode())};
         auto& fillMap = doc->fFillGSMap;
         if (SkPDFIndirectReference* statePtr = fillMap.find(fillKey)) {
             return *statePtr;
@@ -73,7 +73,7 @@ SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument*
         SkPDFStrokeGraphicState strokeKey = {
             p.getStrokeWidth(),
             p.getStrokeMiter(),
-            p.getColor4f().fA,
+            p.getAlphaf(),
             SkToU8(p.getStrokeCap()),
             SkToU8(p.getStrokeJoin()),
             pdf_blend_mode(p.getBlendMode())
