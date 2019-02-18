@@ -49,7 +49,7 @@ public:
                 " half scale = %s / max(0.001, color.w);\n    color.xyz *= scale;\n    color.w = "
                 "%s;\n}\n%s = color;\n",
                 args.fInputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fUniformHandler->getUniformCStr(fOuterThresholdVar),
