@@ -24,8 +24,6 @@
 #include "GrCaps.h"
 #include "GrColor.h"
 #include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "SkGr.h"
