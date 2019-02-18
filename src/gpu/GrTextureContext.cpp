@@ -17,7 +17,7 @@
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
 
-GrTextureContext::GrTextureContext(GrContext* context,
+GrTextureContext::GrTextureContext(GrRecordingContext* context,
                                    GrDrawingManager* drawingMgr,
                                    sk_sp<GrTextureProxy> textureProxy,
                                    sk_sp<SkColorSpace> colorSpace,

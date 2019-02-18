@@ -10,11 +10,14 @@
 
 #include "GrAuditTrail.h"
 #include "GrImageContext.h"
+#include "SkRefCnt.h"
 
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrRecordingContextPriv;
+class GrStrikeCache;
+class GrTextBlobCache;
 
 class SK_API GrRecordingContext : public GrImageContext {
 public:
@@ -32,11 +35,14 @@ protected:
 
     void abandonContext() override;
 
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
-    virtual GrDrawingManager* drawingManager() = 0;
+    GrDrawingManager* drawingManager();
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
+
+    GrStrikeCache* getGlyphCache() { return fGlyphCache; }
+    GrTextBlobCache* getTextBlobCache();
+    const GrTextBlobCache* getTextBlobCache() const;
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
@@ -99,9 +105,14 @@ protected:
     GrRecordingContext* asRecordingContext() override { return this; }
 
 private:
+    std::unique_ptr<GrDrawingManager> fDrawingManager;
     // All the GrOp-derived classes use this pool.
-    sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    GrAuditTrail          fAuditTrail;
+    sk_sp<GrOpMemoryPool>             fOpMemoryPool;
+
+    GrStrikeCache*                    fGlyphCache = nullptr;
+    std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
+
+    GrAuditTrail                      fAuditTrail;
 
     typedef GrImageContext INHERITED;
 };
