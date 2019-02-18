@@ -11,6 +11,8 @@
 #include "GrCaps.h"
 #include "GrContextPriv.h"
 #include "GrContextThreadSafeProxyPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxyPriv.h"
@@ -284,7 +286,7 @@ bool SkSurface_Gpu::Valid(const GrCaps* caps, GrPixelConfig config, SkColorSpace
     }
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
     if (!context || !c.isValid()) {
@@ -322,7 +324,9 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, sk_ref_sp(sc->asRenderTargetContext()),
+    // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context->priv().backdoor(),
+                                                sk_ref_sp(sc->asRenderTargetContext()),
                                                 c.width(), c.height(),
                                                 SkGpuDevice::kClear_InitContents));
     if (!device) {

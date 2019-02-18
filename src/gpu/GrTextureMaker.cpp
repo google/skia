@@ -8,16 +8,16 @@
 #include "GrTextureMaker.h"
 
 #include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 
 sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
                                                                  bool willBeMipped,
                                                                  SkScalar scaleAdjust[2]) {
-    if (this->width() > fContext->priv().caps()->maxTextureSize() ||
-        this->height() > fContext->priv().caps()->maxTextureSize()) {
+    if (this->width() > this->context()->priv().caps()->maxTextureSize() ||
+        this->height() > this->context()->priv().caps()->maxTextureSize()) {
         return nullptr;
     }
 
@@ -28,10 +28,10 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
     bool needsCopyForMipsOnly = false;
     if (original) {
         if (!params.isRepeated() ||
-            !GrGpu::IsACopyNeededForRepeatWrapMode(fContext->priv().caps(), original.get(),
+            !GrGpu::IsACopyNeededForRepeatWrapMode(this->context()->priv().caps(), original.get(),
                                                    original->width(), original->height(),
                                                    params.filter(), &copyParams, scaleAdjust)) {
-            needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
+            needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(this->context()->priv().caps(),
                                                                original.get(), params.filter(),
                                                                &copyParams);
             if (!needsCopyForMipsOnly) {
@@ -40,14 +40,14 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
         }
     } else {
         if (!params.isRepeated() ||
-            !GrGpu::IsACopyNeededForRepeatWrapMode(fContext->priv().caps(), nullptr,
+            !GrGpu::IsACopyNeededForRepeatWrapMode(this->context()->priv().caps(), nullptr,
                                                    this->width(), this->height(),
                                                    params.filter(), &copyParams, scaleAdjust)) {
             return this->refOriginalTextureProxy(willBeMipped, AllowedTexGenType::kAny);
         }
     }
 
-    GrProxyProvider* proxyProvider = fContext->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
 
     GrSurfaceOrigin origOrigin = original ? original->origin() : kTopLeft_GrSurfaceOrigin;
     GrUniqueKey copyKey;
@@ -74,7 +74,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> result = CopyOnGpu(fContext, source, copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> result = CopyOnGpu(this->context(), source, copyParams, willBeMipped);
 
     if (!result) {
         // If we were unable to make a copy and we only needed a copy for mips, then we will return
