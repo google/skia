@@ -29,8 +29,7 @@ public:
         if (!SkScalarsAreFinite(dx, dy)) {
             return false;
         }
-        // Simple enough (and performance critical sometimes) so we inline it.
-        return (dx*dx + dy*dy) > (SK_ScalarNearlyZero * SK_ScalarNearlyZero);
+        return dx || dy;
     }
 
     static SkScalar DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,
