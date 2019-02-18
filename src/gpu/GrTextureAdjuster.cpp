@@ -7,13 +7,13 @@
 
 #include "GrTextureAdjuster.h"
 #include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 
-GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> original,
+GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context, sk_sp<GrTextureProxy> original,
                                      SkAlphaType alphaType,
                                      uint32_t uniqueID,
                                      SkColorSpace* cs)
@@ -37,7 +37,7 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contex
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams,
                                                              bool willBeMipped) {
-    GrProxyProvider* proxyProvider = fContext->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
 
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key);
@@ -52,7 +52,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(this->context(), std::move(proxy),
+                                           copyParams, willBeMipped);
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
@@ -79,20 +80,20 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
-    if (!fContext) {
+    if (this->context()->priv().abandoned()) {
         // The texture was abandoned.
         return nullptr;
     }
 
-    SkASSERT(this->width() <= fContext->priv().caps()->maxTextureSize() &&
-             this->height() <= fContext->priv().caps()->maxTextureSize());
+    SkASSERT(this->width() <= this->context()->priv().caps()->maxTextureSize() &&
+             this->height() <= this->context()->priv().caps()->maxTextureSize());
 
     bool needsCopyForMipsOnly = false;
     if (!params.isRepeated() ||
-        !GrGpu::IsACopyNeededForRepeatWrapMode(fContext->priv().caps(), proxy.get(),
+        !GrGpu::IsACopyNeededForRepeatWrapMode(this->context()->priv().caps(), proxy.get(),
                                                proxy->width(), proxy->height(), params.filter(),
                                                &copyParams, scaleAdjust)) {
-        needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
+        needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(this->context()->priv().caps(),
                                                            proxy.get(), params.filter(),
                                                            &copyParams);
         if (!needsCopyForMipsOnly) {

@@ -13,8 +13,8 @@
 #include "SkImageInfo.h"
 #include "SkNoncopyable.h"
 
-class GrContext;
 class GrFragmentProcessor;
+class GrRecordingContext;
 class GrTexture;
 class GrTextureProxy;
 class SkColorSpace;
@@ -113,7 +113,7 @@ public:
 protected:
     friend class GrTextureProducer_TestAccess;
 
-    GrTextureProducer(GrContext* context, int width, int height, bool isAlphaOnly)
+    GrTextureProducer(GrRecordingContext* context, int width, int height, bool isAlphaOnly)
         : fContext(context)
         , fWidth(width)
         , fHeight(height)
@@ -156,7 +156,8 @@ protected:
         kTightCopy_DomainMode
     };
 
-    static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
+    // This can draw to accomplish the copy, thus the recording context is needed
+    static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*, sk_sp<GrTextureProxy> inputProxy,
                                            const CopyParams& copyParams,
                                            bool dstWillRequireMipMaps);
 
@@ -174,16 +175,17 @@ protected:
             const SkRect& domain,
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
-    GrContext* fContext;
+    GrRecordingContext* context() const { return fContext; }
 
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
                                                              bool willBeMipped,
                                                              SkScalar scaleAdjust[2]) = 0;
 
-    const int   fWidth;
-    const int   fHeight;
-    const bool  fIsAlphaOnly;
+    GrRecordingContext* fContext;
+    const int           fWidth;
+    const int           fHeight;
+    const bool          fIsAlphaOnly;
 
     typedef SkNoncopyable INHERITED;
 };
