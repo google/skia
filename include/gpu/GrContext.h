@@ -8,9 +8,13 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
+
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
+
+#if SK_SUPPORT_GPU
+
 #include "../private/GrRecordingContext.h"
 #include "GrContextOptions.h"
 
@@ -345,5 +349,38 @@ private:
 
     typedef GrRecordingContext INHERITED;
 };
+
+#else
+
+#include "SkTypes.h"
+
+class SK_API GrContext_Base {
+public:
+
+};
+
+class SK_API GrImageContext : public GrContext_Base {
+public:
+
+private:
+    typedef GrContext_Base INHERITED;
+};
+
+class SK_API GrRecordingContext : public GrImageContext {
+public:
+
+private:
+    typedef GrImageContext INHERITED;
+};
+
+
+class SK_API GrContext : public GrRecordingContext {
+public:
+
+private:
+    typedef GrRecordingContext INHERITED;
+};
+
+#endif // SK_SUPPORT_GPU
 
 #endif

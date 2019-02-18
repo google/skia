@@ -19,6 +19,8 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
 #include "SkImage_Gpu.h"
@@ -43,12 +45,12 @@ public:
 
     virtual bool onGetROPixels(SkBitmap*) const = 0;
 
-    virtual GrContext* onGetContext() const { return nullptr; }
+    virtual GrRecordingContext* onGetContext() const { return nullptr; }
 
     virtual SkColorSpace* onGetColorSpace() const = 0;
 
 #if SK_SUPPORT_GPU
-    virtual sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const = 0;
+    virtual sk_sp<GrTextureProxy> onAsTextureProxyRef(GrRecordingContext* context) const = 0;
 #endif
 
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
@@ -79,13 +81,13 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
 }
 
-sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
+sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* context) {
 #if SK_SUPPORT_GPU
     if (!context) {
         return nullptr;
     }
-    if (GrContext* curContext = as_SIB(this)->onGetContext()) {
-        return curContext == context ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
+    if (GrRecordingContext* curContext = as_SIB(this)->onGetContext()) {
+        return curContext->priv().matches(context) ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
     }
 
     auto proxyProvider = context->priv().proxyProvider();
@@ -137,7 +139,7 @@ bool SkSpecialImage::isTextureBacked() const {
     return SkToBool(as_SIB(this)->onGetContext());
 }
 
-GrContext* SkSpecialImage::getContext() const {
+GrRecordingContext* SkSpecialImage::getContext() const {
     return as_SIB(this)->onGetContext();
 }
 
@@ -146,7 +148,7 @@ SkColorSpace* SkSpecialImage::getColorSpace() const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxyRef(GrContext* context) const {
+sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxyRef(GrRecordingContext* context) const {
     return as_SIB(this)->onAsTextureProxyRef(context);
 }
 #endif
@@ -184,7 +186,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
                                                     const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {
@@ -243,7 +245,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const override {
+    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrRecordingContext* context) const override {
         if (context) {
             return GrMakeCachedBitmapProxy(context->priv().proxyProvider(), fBitmap);
         }
@@ -362,15 +364,17 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
-static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, sk_sp<GrTextureProxy> proxy,
+static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
+    // CONTEXT TODO: remove this use of 'backdoor' to create an SkImage
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context->priv().backdoor()),
+                                   kNeedNewImageUniqueID, alphaType,
                                    std::move(proxy), std::move(colorSpace));
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
-    SkSpecialImage_Gpu(GrContext* context, const SkIRect& subset,
+    SkSpecialImage_Gpu(GrRecordingContext* context, const SkIRect& subset,
                        uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, SkAlphaType at,
                        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
         : INHERITED(subset, uniqueID, props)
@@ -409,9 +413,9 @@ public:
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    GrContext* onGetContext() const override { return fContext; }
+    GrRecordingContext* onGetContext() const override { return fContext; }
 
-    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext*) const override {
+    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrRecordingContext*) const override {
         return fTextureProxy;
     }
 
@@ -516,11 +520,12 @@ public:
             ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
                                              sk_ref_sp(colorSpace));
-        return SkSurface::MakeRenderTarget(fContext, SkBudgeted::kYes, info);
+        // CONTEXT TODO: remove this use of 'backdoor' to create an SkSurface
+        return SkSurface::MakeRenderTarget(fContext->priv().backdoor(), SkBudgeted::kYes, info);
     }
 
 private:
-    GrContext*                fContext;
+    GrRecordingContext*       fContext;
     sk_sp<GrTextureProxy>     fTextureProxy;
     const SkAlphaType         fAlphaType;
     sk_sp<SkColorSpace>       fColorSpace;
@@ -529,14 +534,14 @@ private:
     typedef SkSpecialImage_Base INHERITED;
 };
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* context,
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
                                                           sk_sp<GrTextureProxy> proxy,
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
-    if (!context || context->abandoned() || !proxy) {
+    if (!context || context->priv().abandoned() || !proxy) {
         return nullptr;
     }
     SkASSERT_RELEASE(rect_fits(subset, proxy->width(), proxy->height()));
