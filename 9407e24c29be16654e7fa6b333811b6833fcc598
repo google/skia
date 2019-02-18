@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "050954dd_c71e6510",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-18T16:52:49Z",
+      "side": 1,
+      "message": "I thought this ranges from 0.0f to 1.0f?, not to 255?",
+      "revId": "9407e24c29be16654e7fa6b333811b6833fcc598",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
