@@ -42,14 +42,14 @@ protected:
     bool onIsValid(GrContext*) const override;
 
     TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
-    sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
-                                            bool willNeedMipMaps) override;
+    sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
+                                            const SkIPoint&, bool willNeedMipMaps) override;
 
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,
                                     bool isProtectedContent, uint32_t bufferFormat,
                                     GrSurfaceOrigin surfaceOrigin);
-    sk_sp<GrTextureProxy> makeProxy(GrContext* context);
+    sk_sp<GrTextureProxy> makeProxy(GrRecordingContext* context);
 
     void releaseTextureRef();
 
