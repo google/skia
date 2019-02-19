@@ -147,10 +147,10 @@ public:
         return &fRuns[fRunCount - 1];
     }
 
-    void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
+    void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
         // we init fMaxMinScale and fMinMaxScale in the constructor
-        fMaxMinScale = SkMaxScalar(scaledMax, fMaxMinScale);
-        fMinMaxScale = SkMinScalar(scaledMin, fMinMaxScale);
+        fMaxMinScale = SkMaxScalar(scaledMin, fMaxMinScale);
+        fMinMaxScale = SkMinScalar(scaledMax, fMinMaxScale);
     }
 
     static size_t GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {
