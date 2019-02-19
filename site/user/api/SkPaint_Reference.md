@@ -611,33 +611,6 @@ SkFontHinting::kNormal == paint.getHinting()
 
 </fiddle-embed></div>
 
-<a name='Flags'></a>
-
-<a name='SkPaint_Flags'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_Flags'>Flags</a> {
-        <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> = 0x01,
-        <a href='#SkPaint_kDither_Flag'>kDither_Flag</a> = 0x04,
-        <a href='#SkPaint_kFakeBoldText_Flag'>kFakeBoldText_Flag</a> = 0x20,
-        <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> = 0x40,
-        <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a> = 0x80,
-        <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> = 0x200,
-        <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> = 0x400,
-        <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> = 0x800,
-        <a href='#SkPaint_kAllFlags'>kAllFlags</a> = 0xFFFF,
-    };
-
-</pre>
-
-The bit values stored in <a href='#SkPaint_Flags'>Flags</a>.
-The default value for <a href='#SkPaint_Flags'>Flags</a>, normally zero, can be changed at compile time
-with a custom definition of <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults_Flags</a>.
-All flags can be read and written explicitly; <a href='#SkPaint_Flags'>Flags</a> allows manipulating
-multiple settings at once.
-
 ### Constants
 
 <table style='border-collapse: collapse; width: 62.5em'>
