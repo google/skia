@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "137c3ab5_04ce5c21",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-19T16:31:46Z",
+      "side": 1,
+      "message": "Ack.\n\nMaybe this is an argument for more decomposition and not baking the luminance/luma decision in the effect.  Then it\u0027s up the client to use whatever is needed (which in the context of SkSG/Skottie/AE is not entirely clear anyway).",
+      "parentUuid": "095e6a3e_e36bea81",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 94
+      },
+      "revId": "7e1a64f2a4e11434dffac913b05e6263fb30597a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "646a47d4_34fcd0fd",
         "filename": "src/core/SkColorFilter.cpp",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2019-02-19T16:04:29Z",
       "side": 1,
       "message": "Given this impl, seems like we could start it private and then think about public later?",
+      "revId": "7e1a64f2a4e11434dffac913b05e6263fb30597a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac559633_0ddca6b4",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-19T16:31:46Z",
+      "side": 1,
+      "message": "I\u0027m also fine with not landing anything in core Skia - it\u0027s easy enough to construct the effect in SkSG/Skottie.\n\nThis is mostly me getting excited about some of the AE effects and thinking it would be cool to make the available in Skia.  But maybe core APIs is not the proper place - these could live in some helper module?",
+      "parentUuid": "646a47d4_34fcd0fd",
       "revId": "7e1a64f2a4e11434dffac913b05e6263fb30597a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
