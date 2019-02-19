@@ -388,8 +388,10 @@ sk_sp<SkSpecialImage> SkBaseDevice::snapBackImage(const SkIRect&) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::LogDrawScaleFactor(const SkMatrix& matrix, SkFilterQuality filterQuality) {
+void SkBaseDevice::LogDrawScaleFactor(const SkMatrix& view, const SkMatrix& srcToDst,
+                                      SkFilterQuality filterQuality) {
 #if SK_HISTOGRAMS_ENABLED
+    SkMatrix matrix = SkMatrix::Concat(view, srcToDst);
     enum ScaleFactor {
         kUpscale_ScaleFactor,
         kNoScale_ScaleFactor,
