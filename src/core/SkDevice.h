@@ -379,8 +379,10 @@ private:
 
 class SkNoPixelsDevice : public SkBaseDevice {
 public:
-    SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props)
-            : SkBaseDevice(SkImageInfo::MakeUnknown(bounds.width(), bounds.height()), props)
+    SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props,
+                     sk_sp<SkColorSpace> colorSpace = nullptr)
+    : SkBaseDevice(SkImageInfo::Make(bounds.width(), bounds.height(), kUnknown_SkColorType,
+                                     kUnknown_SkAlphaType, std::move(colorSpace)), props)
     {
         // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
