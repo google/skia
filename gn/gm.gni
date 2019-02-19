@@ -344,6 +344,7 @@ gm_sources = [
   "$_gm/tileimagefilter.cpp",
   "$_gm/tilemodes.cpp",
   "$_gm/tilemodes_scaled.cpp",
+  "$_gm/tintcolorfilter.cpp",
   "$_gm/tinybitmap.cpp",
   "$_gm/transparency.cpp",
   "$_gm/trickycubicstrokes.cpp",

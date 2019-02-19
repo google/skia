@@ -72,8 +72,6 @@ private:
     //
     //   c' = lerp(lo, hi, luma(c))
     //
-    // TODO: move to public headers/API?
-    //
     static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
         const auto r_lo = SkColorGetR(lo),
                    g_lo = SkColorGetG(lo),
