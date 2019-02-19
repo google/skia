@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "095e6a3e_e36bea81",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-19T16:04:29Z",
+      "side": 1,
+      "message": "This will be an uphill battle fixing up existing documentation for sure, but my rough understanding is:\n\n   luma \u003d dot product of gamma-encoded r,g,b\n   luminance \u003d dot product of linear r,g,b\n\nColor spaces do generally have well defined ways of getting luminance... in our color spaces it\u0027s really easy because the coefficients for the dot product are just the middle row of the matrix, I think.  Luma is a little more arbitrarily defined, and it looks like people just sometimes use the same coefficients as luminance even though that doesn\u0027t necessarily make math sense.  It\u0027s more just \"for this color space, here are the luma numbers\".  While they kind of scale the same way, there\u0027s no real way to convert between luma and luminance in either direction.",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 94
+      },
+      "revId": "7e1a64f2a4e11434dffac913b05e6263fb30597a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "646a47d4_34fcd0fd",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-19T16:04:29Z",
+      "side": 1,
+      "message": "Given this impl, seems like we could start it private and then think about public later?",
+      "revId": "7e1a64f2a4e11434dffac913b05e6263fb30597a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
