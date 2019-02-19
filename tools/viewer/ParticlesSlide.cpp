@@ -48,22 +48,16 @@ public:
 
 #define IF_OPEN(WIDGET) if (fTreeStack.back()) { WIDGET; }
 
-    void visit(const char* name, float& f, SkField field) override {
-        if (fTreeStack.back()) {
-            if (field.fFlags & SkField::kAngle_Field) {
-                ImGui::SliderAngle(item(name), &f, 0.0f);
-            } else {
-                ImGui::DragFloat(item(name), &f);
-            }
-        }
+    void visit(const char* name, float& f) override {
+        IF_OPEN(ImGui::DragFloat(item(name), &f))
     }
-    void visit(const char* name, int& i, SkField) override {
+    void visit(const char* name, int& i) override {
         IF_OPEN(ImGui::DragInt(item(name), &i))
     }
-    void visit(const char* name, bool& b, SkField) override {
+    void visit(const char* name, bool& b) override {
         IF_OPEN(ImGui::Checkbox(item(name), &b))
     }
-    void visit(const char* name, SkString& s, SkField) override {
+    void visit(const char* name, SkString& s) override {
         if (fTreeStack.back()) {
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
             ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags, InputTextCallback,
@@ -71,19 +65,19 @@ public:
         }
     }
 
-    void visit(const char* name, SkPoint& p, SkField) override {
+    void visit(const char* name, SkPoint& p) override {
         if (fTreeStack.back()) {
             ImGui::DragFloat2(item(name), &p.fX);
             gDragPoints.push_back(&p);
         }
     }
-    void visit(const char* name, SkColor4f& c, SkField) override {
+    void visit(const char* name, SkColor4f& c) override {
         IF_OPEN(ImGui::ColorEdit4(item(name), c.vec()))
     }
 
 #undef IF_OPEN
 
-    void visit(const char* name, SkCurve& c, SkField) override {
+    void visit(const char* name, SkCurve& c) override {
         this->enterObject(item(name));
         if (fTreeStack.back()) {
             // Get vertical extents of the curve

@@ -90,36 +90,21 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct SkField {
-    // Other useful flags/properties:
-    //   No UI (to avoid editing dangerous things)
-    //   Point vs. vector
-    //   Range limits
-    enum SkFieldFlags {
-        kAngle_Field = 0x1,
-    };
-
-    SkField(uint32_t flags = 0)
-        : fFlags(flags) {}
-
-    uint32_t fFlags;
-};
-
 struct SkPoint;
 
 class SkFieldVisitor {
 public:
     virtual ~SkFieldVisitor() {}
 
-    virtual void visit(const char*, float&, SkField = SkField()) = 0;
-    virtual void visit(const char*, int&, SkField = SkField()) = 0;
-    virtual void visit(const char*, bool&, SkField = SkField()) = 0;
-    virtual void visit(const char*, SkString&, SkField = SkField()) = 0;
+    virtual void visit(const char*, float&) = 0;
+    virtual void visit(const char*, int&) = 0;
+    virtual void visit(const char*, bool&) = 0;
+    virtual void visit(const char*, SkString&) = 0;
 
-    virtual void visit(const char*, SkPoint&, SkField = SkField()) = 0;
-    virtual void visit(const char*, SkColor4f&, SkField = SkField()) = 0;
+    virtual void visit(const char*, SkPoint&) = 0;
+    virtual void visit(const char*, SkColor4f&) = 0;
 
-    virtual void visit(const char* name, SkCurve& c, SkField = SkField()) {
+    virtual void visit(const char* name, SkCurve& c) {
         this->enterObject(name);
         c.visitFields(this);
         this->exitObject();

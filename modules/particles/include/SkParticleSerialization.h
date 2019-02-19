@@ -19,28 +19,28 @@ public:
     SkToJsonVisitor(SkJSONWriter& writer) : fWriter(writer) {}
 
     // Primitives
-    void visit(const char* name, float& f, SkField) override {
+    void visit(const char* name, float& f) override {
         fWriter.appendFloat(name, f);
     }
-    void visit(const char* name, int& i, SkField) override {
+    void visit(const char* name, int& i) override {
         fWriter.appendS32(name, i);
     }
-    void visit(const char* name, bool& b, SkField) override {
+    void visit(const char* name, bool& b) override {
         fWriter.appendBool(name, b);
     }
-    void visit(const char* name, SkString& s, SkField) override {
+    void visit(const char* name, SkString& s) override {
         fWriter.appendString(name, s.c_str());
     }
 
     // Compound types
-    void visit(const char* name, SkPoint& p, SkField) override {
+    void visit(const char* name, SkPoint& p) override {
         fWriter.beginObject(name, false);
         fWriter.appendFloat("x", p.fX);
         fWriter.appendFloat("y", p.fY);
         fWriter.endObject();
     }
 
-    void visit(const char* name, SkColor4f& c, SkField) override {
+    void visit(const char* name, SkColor4f& c) override {
         fWriter.beginArray(name, false);
         fWriter.appendFloat(c.fR);
         fWriter.appendFloat(c.fG);
@@ -75,27 +75,27 @@ public:
         fStack.push_back(&fRoot);
     }
 
-    void visit(const char* name, float& f, SkField) override {
+    void visit(const char* name, float& f) override {
         TryParse(get(name), f);
     }
-    void visit(const char* name, int& i, SkField) override {
+    void visit(const char* name, int& i) override {
         TryParse(get(name), i);
     }
-    void visit(const char* name, bool& b, SkField) override {
+    void visit(const char* name, bool& b) override {
         TryParse(get(name), b);
     }
-    void visit(const char* name, SkString& s, SkField) override {
+    void visit(const char* name, SkString& s) override {
         TryParse(get(name), s);
     }
 
-    void visit(const char* name, SkPoint& p, SkField) override {
+    void visit(const char* name, SkPoint& p) override {
         if (const skjson::ObjectValue* obj = get(name)) {
             TryParse((*obj)["x"], p.fX);
             TryParse((*obj)["y"], p.fY);
         }
     }
 
-    void visit(const char* name, SkColor4f& c, SkField) override {
+    void visit(const char* name, SkColor4f& c) override {
         const skjson::ArrayValue* arr = get(name);
         if (arr && arr->size() == 4) {
             TryParse((*arr)[0], c.fR);
