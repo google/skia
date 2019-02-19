@@ -860,6 +860,10 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     ts.tag = config.getTag();
 }
 
+static sk_sp<SkColorSpace> rgb_to_gbr() {
+    return SkColorSpace::MakeSRGB()->makeColorSpin();
+}
+
 static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLineConfig* config) {
     if (FLAGS_gpu) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
@@ -930,6 +934,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
         SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
         SINK(   "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
+        SINK(   "esgbr",  RasterSink,  kRGBA_F16_SkColorType, rgb_to_gbr());
         SINK(  "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
         SINK( "enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
         SINK(      "p3",  RasterSink, kRGBA_8888_SkColorType, p3        );
@@ -941,10 +946,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
     }
 #undef SINK
     return nullptr;
-}
-
-static sk_sp<SkColorSpace> rgb_to_gbr() {
-    return SkColorSpace::MakeSRGB()->makeColorSpin();
 }
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
