@@ -51,6 +51,24 @@
       "revId": "5a9c12002eb9cbd3862690b12b41f1c8e75065cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16989fdc_c62699f6",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-19T21:04:33Z",
+      "side": 0,
+      "message": "Hmm... hypothetically, in the future, we might use Wuffs to decode PNGs, and Wuffs would probably decode such PNGs as 16 bit BGRA (not RGBA).",
+      "parentUuid": "b459bf25_ee6a7d80",
+      "revId": "5a9c12002eb9cbd3862690b12b41f1c8e75065cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
