@@ -465,7 +465,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
+#Method static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted)
 #Populate
