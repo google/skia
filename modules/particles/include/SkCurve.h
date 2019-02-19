@@ -14,6 +14,35 @@
 class SkFieldVisitor;
 class SkRandom;
 
+/**
+ * SkCurve implements a keyframed 1D function, useful for animating values over time. This pattern
+ * is common in digital content creation tools. An SkCurve might represent rotation, scale, opacity,
+ * or any other scalar quantity.
+ *
+ * An SkCurve has a logical domain of [0, 1], and is made of one or more SkCurveSegments.
+ * Each segment describes the behavior of the curve in some sub-domain. For an SkCurve with N
+ * segments, there are (N - 1) intermediate x-values that subdivide the domain. The first and last
+ * x-values are implicitly 0 and 1:
+ *
+ * 0    ...    x[0]    ...    x[1]   ...      ...    1
+ *   Segment_0      Segment_1     ...     Segment_N-1
+ *
+ * Each segment describes a function over [0, 1] - x-values are re-normalized to the segment's
+ * domain when being evaluated. The segments are cubic polynomials, defined by four values (fMin).
+ * These are the values at x=0 and x=1, as well as control points at x=1/3 and x=2/3.
+ *
+ * For segments with fConstant == true, only the first value is used (fMin[0]).
+ *
+ * Each segment has two additional features for creating interesting (and varied) animation:
+ *   - A segment can be ranged. Ranged segments have two sets of coefficients, and a random value
+ *     taken from the SkRandom will be used to lerp betwen them. Typically, the SkRandom passed to
+ *     eval will be in the same state at each call, so this value will be stable. That causes a
+ *     ranged SkCurve to produce a single smooth cubic function somewhere within the range defined
+ *     by fMin and fMax.
+ *   - A segment can be bidirectional. In that case, after a value is computed, it will be negated
+ *     50% of the time.
+ */
+
 struct SkCurveSegment {
     SkScalar eval(SkScalar x, SkRandom& random) const;
     void visitFields(SkFieldVisitor* v);
@@ -37,10 +66,14 @@ struct SkCurve {
         fSegments.push_back().setConstant(c);
     }
 
+    // Evaluate this curve at x, using random for curves that have ranged or bidirectional segments.
     SkScalar eval(SkScalar x, SkRandom& random) const;
     void visitFields(SkFieldVisitor* v);
+
+    // Returns the (very conversative) range of this SkCurve in extents (as [minimum, maximum]).
     void getExtents(SkScalar extents[2]) const;
 
+    // It should always be true that (fXValues.count() + 1) == fSegments.count()
     SkTArray<SkScalar, true>       fXValues;
     SkTArray<SkCurveSegment, true> fSegments;
 };
