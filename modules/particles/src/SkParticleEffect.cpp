@@ -11,7 +11,6 @@
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"
-#include "SkNx.h"
 #include "SkPaint.h"
 #include "SkParticleAffector.h"
 #include "SkParticleDrawable.h"
@@ -24,8 +23,6 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("Duration", fEffectDuration);
     v->visit("Rate", fRate);
     v->visit("Life", fLifetime);
-    v->visit("StartColor", fStartColor);
-    v->visit("EndColor", fEndColor);
 
     v->visit("Drawable", fDrawable);
     v->visit("Emitter", fEmitter);
@@ -66,9 +63,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     float deltaTime = static_cast<float>(now - fLastTime);
     fLastTime = now;
 
-    Sk4f startColor = Sk4f::Load(fParams->fStartColor.vec());
-    Sk4f colorScale = Sk4f::Load(fParams->fEndColor.vec()) - startColor;
-
     SkParticleUpdateParams updateParams;
     updateParams.fDeltaTime = deltaTime;
     updateParams.fRandom = &fRandom;
@@ -79,7 +73,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
             fParticles[i] = fParticles[fCount - 1];
             fFrames[i]    = fFrames[fCount - 1];
-            fColors[i]    = fColors[fCount - 1];
             --i;
             --fCount;
         }
@@ -106,6 +99,7 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             fParticles[fCount].fPV.fPose = fParams->fEmitter->emit(fRandom);
             fParticles[fCount].fPV.fVelocity.fLinear = { 0.0f, 0.0f };
             fParticles[fCount].fPV.fVelocity.fAngular = 0.0f;
+            fParticles[fCount].fPV.fColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
             fParticles[fCount].fStableRandom = fRandom;
             fFrames[fCount] = 0.0f;
@@ -135,9 +129,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         // Set sprite frame by lifetime (TODO: Remove, add affector)
         fFrames[i] = t;
 
-        // Set color by lifetime
-        fColors[i] = Sk4f_toL32(swizzle_rb(startColor + (colorScale * t)));
-
         for (auto affector : fParams->fUpdateAffectors) {
             if (affector) {
                 affector->apply(updateParams, fParticles[i].fPV);
@@ -153,10 +144,11 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
                                              oldHeading.fX * s + oldHeading.fY * c };
     }
 
-    // Re-generate all xforms
+    // Re-generate all xforms and colors
     SkPoint ofs = fParams->fDrawable ? fParams->fDrawable->center() : SkPoint{ 0.0f, 0.0f };
     for (int i = 0; i < fCount; ++i) {
         fXforms[i] = fParticles[i].fPV.fPose.asRSXform(ofs);
+        fColors[i] = fParticles[i].fPV.fColor.toSkColor();
     }
 
     // Mark effect as dead if we've reached the end (and are not looping)
