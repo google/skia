@@ -72,4 +72,14 @@ static inline bool GrRectsTouchOrOverlap(const SkRect& a, const SkRect& b) {
     SkASSERT(!b.isFinite() || (b.fLeft <= b.fRight && b.fTop <= b.fBottom));
     return a.fRight >= b.fLeft && a.fBottom >= b.fTop && b.fRight >= a.fLeft && b.fBottom >= a.fTop;
 }
+
+/**
+ * Apply the transform from 'inRect' to 'outRect' to each point in 'inPts', storing the mapped point
+ * into the parallel index of 'outPts'.
+ */
+static inline void GrMapRectPoints(const SkRect& inRect, const SkRect& outRect,
+                                   const SkPoint inPts[], SkPoint outPts[], int ptCount) {
+    SkMatrix rectTransform = SkMatrix::MakeRectToRect(inRect, outRect, SkMatrix::kFill_ScaleToFit);
+    rectTransform.mapPoints(outPts, inPts, ptCount);
+}
 #endif
