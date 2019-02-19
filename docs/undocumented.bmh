@@ -19,7 +19,7 @@
 
  affine destructor multitexturing representable subclasses descender descenders grayscale kerning
  unhinted no-parameter
- 
+
  Sa Da Sc Dc 0xAARRGGBB # temporary until figure out what to do
 
  SkUserConfig.h  # not external, but still thinking about how markup refers to this
@@ -758,8 +758,6 @@ A glyph index is a 16-bit word.
 #Topic ##
 
 #Topic Paint_Defaults
-#Const SkPaintDefaults_Flags 0
-##
 #Const SkPaintDefaults_Hinting 2
 ##
 #Const SkPaintDefaults_TextSize 12

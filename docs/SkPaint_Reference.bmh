@@ -72,7 +72,6 @@ build system.
 #ifndef SkUserConfig_DEFINED
 #define SkUserConfig_DEFINED
 
-#define SkPaintDefaults_Flags      0x01   // always enable antialiasing
 #define SkPaintDefaults_TextSize   24.f   // double default font size
 #define SkPaintDefaults_Hinting    3      // use full hinting
 #define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting
