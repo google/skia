@@ -23,21 +23,63 @@ class SkImage;
 class SkPicture;
 struct SkYUVAIndex;
 
+class Foo {
+public:
+    using PromiseImageTextureContext = SkDeferredDisplayListRecorder::PromiseImageTextureContext;
+    using PromiseImageTextureFulfillProc = SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc;
+    using PromiseImageTextureReleaseProc = SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc;
+    using PromiseImageTextureDoneProc = SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc;
+    using DelayReleaseCallback = SkDeferredDisplayListRecorder::DelayReleaseCallback;
+
+    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
+                                      int width,
+                                      int height,
+                                      GrMipMapped mipMapped,
+                                      GrSurfaceOrigin origin,
+                                      SkColorType colorType,
+                                      SkAlphaType alphaType,
+                                      sk_sp<SkColorSpace> colorSpace,
+                                      PromiseImageTextureFulfillProc textureFulfillProc,
+                                      PromiseImageTextureReleaseProc textureReleaseProc,
+                                      PromiseImageTextureDoneProc textureDoneProc,
+                                      PromiseImageTextureContext textureContext,
+                                      DelayReleaseCallback delayReleaseCallback);
+
+    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                          const GrBackendFormat yuvaFormats[],
+                                          const SkISize yuvaSizes[],
+                                          const SkYUVAIndex yuvaIndices[4],
+                                          int imageWidth,
+                                          int imageHeight,
+                                          GrSurfaceOrigin imageOrigin,
+                                          sk_sp<SkColorSpace> imageColorSpace,
+                                          PromiseImageTextureFulfillProc textureFulfillProc,
+                                          PromiseImageTextureReleaseProc textureReleaseProc,
+                                          PromiseImageTextureDoneProc textureDoneProc,
+                                          PromiseImageTextureContext textureContexts[],
+                                          DelayReleaseCallback delayReleaseCallback);
+
+private:
+};
+
 // This class consolidates tracking & extraction of the original image data from an skp,
-// the upload of said data to the GPU and the fulfillment of promise images.
+// the creation of promise images, the upload of the images to the GPU and the fulfillment
+// of the promise images.
 //
 // The way this works is:
-//    the original skp is converted to SkData and all its image info is extracted into this
+//    1) the original skp is converted to SkData and all its image info is extracted into this
 //       class and only indices into this class are left in the SkData (via deflateSKP)
 //
-//    Prior to replaying in threads, all the images stored in this class are uploaded to the
-//       gpu and PromiseImageCallbackContexts are created for them (via uploadAllToGPU)
+//    2) Prior to threaded DDL creation, a promise image is created for each image that was
+//        extracted from the skp (via createPromiseImages)
 //
-//    Each thread reinflates the SkData into an SkPicture replacing all the indices w/
-//       promise images (all using the same GrBackendTexture and getting a ref to the
-//       appropriate PromiseImageCallbackContext) (via reinflateSKP).
+//    3) A thread is then spawned to upload all the images to the GPU (via uploadAllToGPU).
 //
-//    This class is then reset - dropping all of its refs on the PromiseImageCallbackContexts
+//    4) While the images are being uploaded in one thread each tile thread reinflates the SkData
+//       into its own copy of the SkPicture replacing all the indices w/ the
+//       promise images generated in step 2 (via reinflateSKP).
+//
+//    5) This class is then reset - dropping all of its refs on the PromiseImageCallbackContexts
 //
 //    Each done callback unrefs its PromiseImageCallbackContext so, once all the promise images
 //       are done, the PromiseImageCallbackContext is freed and its GrBackendTexture removed
@@ -55,6 +97,8 @@ public:
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
     sk_sp<SkData> deflateSKP(const SkPicture* inputPicture);
 
+    void createPromiseImages(Foo*);
+
     void uploadAllToGPU(GrContext* context);
 
     // Change the backing store texture for half the images. (Must ensure all fulfilled images are
@@ -62,9 +106,7 @@ public:
     void replaceEveryOtherPromiseTexture(GrContext*);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
-    sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
-                                  SkData* compressedPicture,
-                                  SkTArray<sk_sp<SkImage>>* promiseImages) const;
+    sk_sp<SkPicture> reinflateSKP(SkData* compressedPicture) const;
 
     // Remove this class' refs on the PromiseImageCallbackContexts
     void reset() { fImageInfo.reset(); }
@@ -74,12 +116,12 @@ private:
     // Whenever a promise image is created for the image, the promise image receives a ref to
     // potentially several of these objects. Once all the promise images receive their done
     // callbacks this object is deleted - removing the GrBackendTexture from VRAM.
-    // Note that while the DDLs are being created in the threads, the PromiseImageHelper holds
-    // a ref on all the PromiseImageCallbackContexts. However, once all the threads are done
+    // Note that, while the DDLs are being created in the threads, the PromiseImageHelper holds
+    // a ref on all the PromiseImageCallbackContexts. However, once all the threads are done,
     // it drops all of its refs (via "reset").
     class PromiseImageCallbackContext : public SkRefCnt {
     public:
-        PromiseImageCallbackContext(GrContext* context) : fContext(context) {}
+        PromiseImageCallbackContext(GrContext* context) : fContext1(context) {}
 
         ~PromiseImageCallbackContext();
 
@@ -111,7 +153,7 @@ private:
         }
 
     private:
-        GrContext* fContext;
+        GrContext* fContext1;
         sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
         int fNumImages = 0;
         int fTotalFulfills = 0;
@@ -122,7 +164,7 @@ private:
         typedef SkRefCnt INHERITED;
     };
 
-    // This is the information extracted into this class from the parsing of the skp file.
+    // This is the per image information extracted into this class from the parsing of the skp file.
     // Once it has all been uploaded to the GPU and distributed to the promise images, it
     // is all dropped via "reset".
     class PromiseImageInfo {
@@ -195,6 +237,9 @@ private:
             fYUVPlanes[index].reset(ii, plane, widthBytes);
         }
 
+        sk_sp<SkImage> promiseImage() const { return fPromiseImage1; }
+        void createPromiseImage(Foo*, DelayReleaseCallback);
+
     private:
         const int                          fIndex;                // index in the 'fImageInfo' array
         const uint32_t                     fOriginalUniqueID;     // original ID for deduping
@@ -212,14 +257,8 @@ private:
 
         // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVASizeInfo::kMaxCount];
-    };
 
-    // This stack-based context allows each thread to re-inflate the image indices into
-    // promise images while still using the same GrBackendTexture.
-    struct PerRecorderContext {
-        SkDeferredDisplayListRecorder* fRecorder;
-        const DDLPromiseImageHelper*   fHelper;
-        SkTArray<sk_sp<SkImage>>*      fPromiseImages;
+        sk_sp<SkImage>                     fPromiseImage1;
     };
 
     static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
@@ -238,7 +277,7 @@ private:
         callbackContext->unref();
     }
 
-    static sk_sp<SkImage> PromiseImageCreator(const void* rawData, size_t length, void* ctxIn);
+    static sk_sp<SkImage> FindOrCreatePromiseImage(const void* rawData, size_t length, void* ctxIn);
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
