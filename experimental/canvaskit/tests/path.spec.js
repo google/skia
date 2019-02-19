@@ -134,7 +134,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             canvas.drawArc(CanvasKit.LTRBRect(55, 35, 95, 80), 15, 270, true, paint);
 
             const font = new CanvasKit.SkFont(null, 20);
-            canvas.drawText('this is ascii text', 5, 100, font, paint);
+            canvas.drawText('this is ascii text', 5, 100, paint, font);
 
             const blob = CanvasKit.SkTextBlob.MakeFromText('Unicode chars 💩 é É ص', font);
             canvas.drawTextBlob(blob, 5, 130, paint);
@@ -189,7 +189,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
             canvas.drawPath(path, paint);
-            canvas.drawText('This is text', 10, 280, textFont, textPaint);
+            canvas.drawText('This is text', 10, 280, textPaint, textFont);
             surface.flush();
             dpe.delete();
             path.delete();
