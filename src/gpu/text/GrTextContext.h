@@ -62,14 +62,18 @@ public:
                                         const SkSurfaceProps& props,
                                         bool contextSupportsDistanceFieldText,
                                         const Options& options);
-    static void InitDistanceFieldPaint(SkScalar textSize,
-                                       const SkMatrix& viewMatrix,
-                                       const Options& options,
-                                       GrTextBlob* blob,
-                                       SkPaint* skPaint,
-                                       SkFont* skFont,
-                                       SkScalar* textRatio,
-                                       SkScalerContextFlags* flags);
+    static void InitDistanceFieldFont(SkScalar textSize,
+                                      const SkMatrix& viewMatrix,
+                                      const Options& options,
+                                      SkFont* skFont,
+                                      SkScalar* textRatio);
+
+    static void InitDistanceFieldPaint(SkPaint* dfPaint);
+    static void InitDistanceFieldFlags(SkScalerContextFlags* dfFlags);
+
+    static std::pair<SkScalar, SkScalar> InitDistanceFieldBlob(SkScalar textSize,
+                                                               const SkMatrix& viewMatrix,
+                                                               const Options& options);
 
 private:
     GrTextContext(const Options& options);
