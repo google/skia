@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8aee4bec_a2e291f7",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-19T21:07:42Z",
+      "side": 1,
+      "message": "#ifdef",
+      "revId": "128d38c4115941208716a7ee93fd668df62cf4b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ecf97167_df4c0a65",
         "filename": "modules/skshaper/include/SkShaper.h",
         "patchSetId": 3
@@ -31,6 +48,23 @@
       "side": 1,
       "message": "I suppose the factories still need it, but no one else does.",
       "parentUuid": "ecf97167_df4c0a65",
+      "revId": "128d38c4115941208716a7ee93fd668df62cf4b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0256f68a_c6d5352a",
+        "filename": "modules/skshaper/src/SkShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-19T21:07:42Z",
+      "side": 1,
+      "message": "#ifdef",
       "revId": "128d38c4115941208716a7ee93fd668df62cf4b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
