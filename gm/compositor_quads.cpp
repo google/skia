@@ -9,10 +9,9 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrClip.h"
+#include "GrRect.h"
 #include "GrRenderTargetContextPriv.h"
-
-#include "ops/GrFillRectOp.h"
-#include "ops/GrTextureOp.h"
 
 #include "Resources.h"
 #include "SkFont.h"
@@ -188,7 +187,7 @@ public:
 
     virtual void drawBanner(SkCanvas* canvas) = 0;
 
-    void drawTiles(SkCanvas* canvas, GrContext* context, GrRenderTargetContext* rtc) {
+    virtual void drawTiles(SkCanvas* canvas, GrContext* context, GrRenderTargetContext* rtc) {
         // TODO (michaelludwig) - once the quad APIs are in SkCanvas, drop these
         // cached fields, which drawTile() needs
         fContext = context;
@@ -234,12 +233,6 @@ protected:
         flags |= edgeAA[2] ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
         flags |= edgeAA[3] ? GrQuadAAFlags::kLeft   : GrQuadAAFlags::kNone;
         return flags;
-    }
-
-    // NOTE: This will go away when the quad APIs exist on the RTC and we don't have to add
-    // draw ops manually.
-    GrAAType getDefaultAAType(GrAA aa = GrAA::kYes) const {
-        return GrChooseAAType(aa, fRTC->fsaaType(), GrAllowMixedSamples::kNo, *fRTC->caps());
     }
 
     // Recursively splits the quadrilateral against the segments stored in 'lines', which must be
@@ -566,16 +559,13 @@ public:
         paint.setColor4f(c);
 
         GrQuadAAFlags aaFlags = fEnableAAOverride ? fAAOverride : this->maskToFlags(edgeAA);
-        std::unique_ptr<GrDrawOp> op;
         if (clip) {
-            op = GrFillRectOp::MakePerEdgeQuad(fContext, std::move(paint), this->getDefaultAAType(),
-                                               aaFlags, canvas->getTotalMatrix(), clip, nullptr);
+            fRTC->fillQuadWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes, aaFlags,
+                                     canvas->getTotalMatrix(), clip, nullptr);
         } else {
-            op = GrFillRectOp::MakePerEdge(fContext, std::move(paint), this->getDefaultAAType(),
-                                           aaFlags, canvas->getTotalMatrix(), rect);
+            fRTC->fillRectWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes, aaFlags,
+                                     canvas->getTotalMatrix(), rect);
         }
-
-        fRTC->priv().testingOnly_addDrawOp(std::move(op));
     }
 
     void drawBanner(SkCanvas* canvas) override {
@@ -623,18 +613,13 @@ public:
         GrPaint paint;
         paint.setColor4f(fColor);
 
-        std::unique_ptr<GrDrawOp> op;
         if (clip) {
-            op = GrFillRectOp::MakePerEdgeQuad(fContext, std::move(paint), this->getDefaultAAType(),
-                                               this->maskToFlags(edgeAA), canvas->getTotalMatrix(),
-                                               clip, nullptr);
+            fRTC->fillQuadWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
+                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), clip, nullptr);
         } else {
-            op = GrFillRectOp::MakePerEdge(fContext, std::move(paint), this->getDefaultAAType(),
-                                           this->maskToFlags(edgeAA), canvas->getTotalMatrix(),
-                                           rect);
+            fRTC->fillRectWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
+                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), rect);
         }
-
-        fRTC->priv().testingOnly_addDrawOp(std::move(op));
     }
 
     void drawBanner(SkCanvas* canvas) override {
@@ -666,38 +651,21 @@ public:
         SkPaintToGrPaint(fContext, fRTC->colorSpaceInfo(), fGradient, canvas->getTotalMatrix(),
                          &paint);
 
-        std::unique_ptr<GrDrawOp> op;
-        if (fLocal) {
-            SkRect localRect = SkRect::MakeWH(kTileWidth, kTileHeight);
-            if (clip) {
-                SkMatrix toLocal = SkMatrix::MakeRectToRect(rect, localRect,
-                                                            SkMatrix::kFill_ScaleToFit);
-                SkPoint localQuad[4];
-                toLocal.mapPoints(localQuad, clip, 4);
-
-                op = GrFillRectOp::MakePerEdgeQuad(
-                        fContext, std::move(paint), this->getDefaultAAType(),
-                        this->maskToFlags(edgeAA), canvas->getTotalMatrix(),
-                        clip, localQuad);
-            } else {
-                op = GrFillRectOp::MakePerEdgeWithLocalRect(
-                        fContext, std::move(paint), this->getDefaultAAType(),
-                        this->maskToFlags(edgeAA), canvas->getTotalMatrix(), rect, localRect);
-            }
-        } else {
-            if (clip) {
-                op = GrFillRectOp::MakePerEdgeQuad(
-                        fContext, std::move(paint), this->getDefaultAAType(),
-                        this->maskToFlags(edgeAA), canvas->getTotalMatrix(),
-                        clip, nullptr);
-            } else {
-                op = GrFillRectOp::MakePerEdge(
-                        fContext, std::move(paint), this->getDefaultAAType(),
-                        this->maskToFlags(edgeAA), canvas->getTotalMatrix(), rect);
-            }
+        SkRect localRect = SkRect::MakeWH(kTileWidth, kTileHeight);
+        SkPoint localQuad[4];
+        if (fLocal && clip) {
+            GrMapRectPoints(rect, localRect, clip, localQuad, 4);
         }
 
-        fRTC->priv().testingOnly_addDrawOp(std::move(op));
+        if (clip) {
+            fRTC->fillQuadWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
+                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), clip,
+                    fLocal ? localQuad : nullptr);
+        } else {
+            fRTC->fillRectWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
+                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), rect,
+                    fLocal ? &localRect : nullptr);
+        }
     }
 
     void drawBanner(SkCanvas* canvas) override {
@@ -727,6 +695,17 @@ private:
     typedef TileRenderer INHERITED;
 };
 
+static SkRect get_image_local_rect(const sk_sp<SkImage> image, const SkRect& rect) {
+    // This acts like the whole image is rendered over the entire tile grid, so derive local
+    // coordinates from 'rect', based on the grid to image transform.
+    SkMatrix gridToImage = SkMatrix::MakeRectToRect(SkRect::MakeWH(kColCount * kTileWidth,
+                                                                   kRowCount * kTileHeight),
+                                                    SkRect::MakeWH(image->width(),
+                                                                   image->height()),
+                                                    SkMatrix::kFill_ScaleToFit);
+    return gridToImage.mapRect(rect);
+}
+
 class TextureRenderer : public TileRenderer {
 public:
 
@@ -736,37 +715,24 @@ public:
 
     void drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
                   int tileID, int quadID) override {
-        // This acts like the whole image is rendered over the entire tile grid, so derive local
-        // coordinates from 'rect', based on the grid to image transform.
-        SkMatrix gridToImage = SkMatrix::MakeRectToRect(SkRect::MakeWH(kColCount * kTileWidth,
-                                                                       kRowCount * kTileHeight),
-                                                        SkRect::MakeWH(fImage->width(),
-                                                                       fImage->height()),
-                                                        SkMatrix::kFill_ScaleToFit);
-        SkRect localRect = gridToImage.mapRect(rect);
-
         SkPMColor4f color = {1.f, 1.f, 1.f, 1.f};
+        SkRect localRect = get_image_local_rect(fImage, rect);
+
         fImage = fImage->makeTextureImage(fContext, nullptr);
         sk_sp<GrTextureProxy> proxy = as_IB(fImage)->asTextureProxyRef();
         SkASSERT(proxy);
-
-        std::unique_ptr<GrDrawOp> op;
         if (clip) {
-            SkMatrix toLocal = SkMatrix::MakeRectToRect(rect, localRect,
-                                                        SkMatrix::kFill_ScaleToFit);
             SkPoint localQuad[4];
-            toLocal.mapPoints(localQuad, clip, 4);
-
-            op = GrTextureOp::MakeQuad(fContext, std::move(proxy), GrSamplerState::Filter::kBilerp,
-                    color, localQuad, clip, this->getDefaultAAType(), this->maskToFlags(edgeAA),
-                    nullptr, canvas->getTotalMatrix(), nullptr);
+            GrMapRectPoints(rect, localRect, clip, localQuad, 4);
+            fRTC->drawTextureQuad(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kBilerp,
+                    SkBlendMode::kSrcOver, color, localQuad, clip, GrAA::kYes,
+                    this->maskToFlags(edgeAA), nullptr, canvas->getTotalMatrix(), nullptr);
         } else {
-            op = GrTextureOp::Make(fContext, std::move(proxy), GrSamplerState::Filter::kBilerp,
-                    color, localRect, rect, this->getDefaultAAType(), this->maskToFlags(edgeAA),
-                    SkCanvas::kFast_SrcRectConstraint, canvas->getTotalMatrix(), nullptr);
+            fRTC->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kBilerp,
+                    SkBlendMode::kSrcOver, color, localRect, rect, GrAA::kYes,
+                    this->maskToFlags(edgeAA), SkCanvas::kFast_SrcRectConstraint,
+                    canvas->getTotalMatrix(), nullptr);
         }
-
-        fRTC->priv().testingOnly_addDrawOp(std::move(op));
     }
 
     void drawBanner(SkCanvas* canvas) override {
@@ -782,6 +748,101 @@ private:
     typedef TileRenderer INHERITED;
 };
 
+// Looks like TextureRenderer, but bundles tiles into drawTextureSet calls
+class TextureSetRenderer : public TileRenderer {
+public:
+
+    static sk_sp<TileRenderer> Make(sk_sp<SkImage> image) {
+        return sk_sp<TileRenderer>(new TextureSetRenderer(image));
+    }
+
+    void drawTiles(SkCanvas* canvas, GrContext* ctx, GrRenderTargetContext* rtc) override {
+        this->INHERITED::drawTiles(canvas, ctx, rtc);
+        // Push the last tile set
+        this->drawAndReset(canvas);
+    }
+
+    void drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
+                  int tileID, int quadID) override {
+        // Submit the last batch if we've moved on to a new tile
+        if (tileID != fCurrentTileID) {
+            this->drawAndReset(canvas);
+        }
+        SkASSERT((fCurrentTileID < 0 && fDstClips.count() == 0 && fDstClipIndices.count() == 0 &&
+                  fSetEntries.count() == 0) ||
+                 (fCurrentTileID == tileID && fSetEntries.count() > 0));
+
+        // Now don't actually draw the tile, accumulate it in the growing entry set
+        fCurrentTileID = tileID;
+
+        int clipIndex = -1;
+        if (clip) {
+            // Record the four points into fDstClips and get the pointer to the first in the array
+            clipIndex = fDstClips.count();
+            fDstClips.push_back_n(4, clip);
+        }
+
+        SkRect localRect = get_image_local_rect(fImage, rect);
+
+        fImage = fImage->makeTextureImage(fContext, nullptr);
+        sk_sp<GrTextureProxy> proxy = as_IB(fImage)->asTextureProxyRef();
+        // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr
+        // is not null.
+        fSetEntries.push_back({proxy, localRect, rect, nullptr, 1.f, this->maskToFlags(edgeAA)});
+        fDstClipIndices.push_back(clipIndex);
+    }
+
+    void drawBanner(SkCanvas* canvas) override {
+        draw_text(canvas, "Texture Set");
+    }
+
+private:
+    sk_sp<SkImage> fImage;
+
+    SkTArray<SkPoint> fDstClips;
+    // Since fDstClips will reallocate as needed, can't get the final pointer for the entries'
+    // fDstClip values until submitting the entire set
+    SkTArray<int> fDstClipIndices;
+    SkTArray<GrRenderTargetContext::TextureSetEntry> fSetEntries;
+    int fCurrentTileID;
+
+    TextureSetRenderer(sk_sp<SkImage> image)
+            : fImage(image)
+            , fCurrentTileID(-1) {}
+
+    void drawAndReset(SkCanvas* canvas) {
+        // Early out if there's nothing to draw
+        if (fSetEntries.count() == 0) {
+            SkASSERT(fCurrentTileID < 0 && fDstClips.count() == 0 && fDstClipIndices.count() == 0);
+            return;
+        }
+
+        // Fill in fDstClip in the entries now that fDstClips' storage won't change until after the
+        // draw is finished.
+        // NOTE: The eventual API in SkGpuDevice will make easier to collect
+        // SkCanvas::ImageSetEntries and dst clips without this extra work, but also internally maps
+        // very cleanly on to the TextureSetEntry fDstClip approach.
+        SkASSERT(fDstClipIndices.count() == fSetEntries.count());
+        for (int i = 0; i < fSetEntries.count(); ++i) {
+            if (fDstClipIndices[i] >= 0) {
+                fSetEntries[i].fDstClip = &fDstClips[fDstClipIndices[i]];
+            }
+        }
+
+        // Send to GPU
+        fRTC->drawTextureSet(GrNoClip(), fSetEntries.begin(), fSetEntries.count(),
+                             GrSamplerState::Filter::kBilerp, SkBlendMode::kSrcOver, GrAA::kYes,
+                             canvas->getTotalMatrix(), nullptr);
+        // Reset for next tile
+        fCurrentTileID = -1;
+        fDstClips.reset();
+        fDstClipIndices.reset();
+        fSetEntries.reset();
+    }
+
+    typedef TileRenderer INHERITED;
+};
+
 DEF_GM(return new CompositorGM("debug",
         DebugTileRenderer::Make(), DebugTileRenderer::MakeAA(),
         DebugTileRenderer::MakeNonAA());)
@@ -789,6 +850,7 @@ DEF_GM(return new CompositorGM("color", SolidColorRenderer::Make({.2f, .8f, .3f,
 DEF_GM(return new CompositorGM("shader",
         GradientRenderer::MakeSeamless(), GradientRenderer::MakeLocal()));
 DEF_GM(return new CompositorGM("image",
-        TextureRenderer::Make(GetResourceAsImage("images/mandrill_512.png"))));
+        TextureRenderer::Make(GetResourceAsImage("images/mandrill_512.png")),
+        TextureSetRenderer::Make(GetResourceAsImage("images/mandrill_512.png"))));
 
 #endif // SK_SUPPORT_GPU
