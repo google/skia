@@ -160,7 +160,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
         rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                          SK_PMColor4fWHITE, {0, 0, 100, 200},
-                         {100, 0, 200, 200}, GrQuadAAFlags::kNone,
+                         {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
                          nullptr);
     }
@@ -177,7 +177,7 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
         rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                          SK_PMColor4fWHITE, {0, 0, 100, 200},
-                         {200, 0, 300, 200}, GrQuadAAFlags::kNone,
+                         {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
                          nullptr);
     }
