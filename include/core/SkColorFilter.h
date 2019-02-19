@@ -131,6 +131,20 @@ public:
     static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
                                           float weight);
 
+    /**
+     *  Construct a color filter that implement a 'tint' effect (maps colors to a [c0,c1]
+     *  gradient/range based on input luminance, then mixes the result with the original input
+     *  based on the given weight:
+     *
+     *    return = mix(color, lerp(c0, c1, luma(color)), weight)
+     *
+     *  @param c0      The lower gradient color.
+     *  @param c1      The high gradient color.
+     *  @param weight  Mix ratio in [0,1] (0 -> original color, 1 -> gradient only)
+     */
+    static sk_sp<SkColorFilter> MakeTint(const SkColor4f& c0, const SkColor4f& c1, SkScalar weight);
+    static sk_sp<SkColorFilter> MakeTint(SkColor c0, SkColor c1, SkScalar weight);
+
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns

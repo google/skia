@@ -10,6 +10,7 @@
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpaceXformer.h"
+#include "SkLumaColorFilter.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -380,6 +381,42 @@ sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> cf0,
     return sk_sp<SkColorFilter>(cf0
             ? new SkMixerColorFilter(std::move(cf0), std::move(cf1), weight)
             : new SkMixerColorFilter(std::move(cf1), nullptr, 1 - weight));
+}
+
+sk_sp<SkColorFilter> SkColorFilter::MakeTint(const SkColor4f &c0, const SkColor4f &c1,
+                                             SkScalar weight) {
+    if (weight <= 0) {
+        return nullptr;
+    }
+
+    // We map to gradient component-wise:
+    //
+    //   r' = c0.r + (c1.r - c0.r) * luma
+    //   g' = c0.g + (c1.g - c0.g) * luma
+    //   b' = c0.b + (c1.b - c0.b) * luma
+    //   a' = c0.a + (c1.a - c0.a) * luma
+    //
+    // The input luminance is stored in the alpha channel
+    // (and RGB are cleared -- see SkLumaColorFilter). Thus:
+    const SkScalar gradient_matrix[] = {
+        0, 0, 0, (c1.fR - c0.fR), c0.fR * 255,
+        0, 0, 0, (c1.fG - c0.fG), c0.fG * 255,
+        0, 0, 0, (c1.fB - c0.fB), c0.fB * 255,
+        0, 0, 0, (c1.fA - c0.fA), c0.fA * 255,
+    };
+
+    auto gradientCF = SkColorFilter::MakeMatrixFilterRowMajor255(gradient_matrix)
+            ->makeComposed(SkLumaColorFilter::Make());
+
+    if (weight >= 1) {
+        return gradientCF;
+    }
+
+    return SkColorFilter::MakeMixer(std::move(gradientCF), nullptr, 1 - weight);
+}
+
+sk_sp<SkColorFilter> SkColorFilter::MakeTint(SkColor c0, SkColor c1, SkScalar weight) {
+    return SkColorFilter::MakeTint(SkColor4f::FromColor(c0), SkColor4f::FromColor(c1), weight);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
