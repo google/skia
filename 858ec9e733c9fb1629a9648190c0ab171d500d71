@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38360df7_64f79d5f",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-19T16:52:34Z",
+      "side": 1,
+      "message": "What made these definitions necessary? Is it possible we could get away with just forward declarations?",
+      "revId": "858ec9e733c9fb1629a9648190c0ab171d500d71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
