@@ -1946,13 +1946,17 @@ ViaDDL::ViaDDL(int numReplays, int numDivisions, Sink* sink)
 
 Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    SkPictureRecorder recorder;
-    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
-                                                 SkIntToScalar(size.height())));
-    if (!err.isEmpty()) {
-        return err;
+    sk_sp<SkPicture> inputPicture;
+    {
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(size.width()),
+                                                   SkIntToScalar(size.height()));
+        Error err = src.draw(canvas);
+        if (!err.isEmpty()) {
+            return err;
+        }
+        inputPicture = recorder.finishRecordingAsPicture();
     }
-    sk_sp<SkPicture> inputPicture(recorder.finishRecordingAsPicture());
 
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
@@ -1970,6 +1974,9 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     if (!compressedPictureData) {
         return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
     }
+
+    promiseImageHelper.createPromiseImages(nullptr);
+
     auto draw = [&](SkCanvas* canvas) -> Error {
         GrContext* context = canvas->getGrContext();
         if (!context || !context->priv().getGpu()) {
@@ -1977,7 +1984,9 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
         }
 
         // This is here bc this is the first point where we have access to the context
+        // TODO: do in a thread
         promiseImageHelper.uploadAllToGPU(context);
+
         // We draw N times, with a clear between. Between each run we invalidate and delete half of
         // the textures backing promise images. So half the images exercise reusing a cached
         // GrTexture and the other half exercise the case whem the client provides a different
