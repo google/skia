@@ -298,16 +298,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
     GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
 
-    static const uint32_t kPipelineFlags = 0;
-    auto pipe = target->makePipeline(kPipelineFlags, std::move(fProcessors),
-                                     target->detachAppliedClip(), kMaxTextures);
+    auto fixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
     for (unsigned i = 0; i < numActiveProxies; ++i) {
-        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+        fixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
     }
 
     FlushInfo flushInfo;
-    flushInfo.fPipeline = pipe.fPipeline;
-    flushInfo.fFixedDynamicState = pipe.fFixedDynamicState;
+    flushInfo.fFixedDynamicState = fixedDynamicState;
 
     bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
@@ -389,6 +386,12 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     this->flush(target, &flushInfo);
 }
 
+void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    static const uint32_t kPipelineFlags = 0;
+    flushState->executeDrawsAndUploadsForMeshDrawOp(
+            this, chainBounds, std::move(fProcessors), kPipelineFlags);
+}
+
 void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
     if (!flushInfo->fGlyphsToFlush) {
         return;
@@ -428,8 +431,8 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerGlyph, kVerticesPerGlyph,
                               flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
     mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-    target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline, flushInfo->fFixedDynamicState,
-                 mesh);
+    target->recordDraw(
+            flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState, nullptr);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }

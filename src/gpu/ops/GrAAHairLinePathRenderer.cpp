@@ -845,6 +845,7 @@ public:
 
 private:
     void onPrepareDraws(Target*) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -954,7 +955,6 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    auto pipe = fHelper.makePipeline(target);
     // do lines first
     if (lineCount) {
         sk_sp<GrGeometryProcessor> lineGP;
@@ -993,7 +993,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         mesh->setIndexedPatterned(std::move(linesIndexBuffer), kIdxsPerLineSeg, kLineSegNumVertices,
                                   lineCount, kLineSegsNumInIdxBuffer);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->draw(std::move(lineGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->recordDraw(std::move(lineGP), mesh);
     }
 
     if (quadCount || conicCount) {
@@ -1048,7 +1048,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, kQuadNumVertices, quadCount,
                                       kQuadsNumInIdxBuffer);
             mesh->setVertexData(vertexBuffer, firstVertex);
-            target->draw(std::move(quadGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+            target->recordDraw(std::move(quadGP), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -1057,9 +1057,13 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, kQuadNumVertices,
                                       conicCount, kQuadsNumInIdxBuffer);
             mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-            target->draw(std::move(conicGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+            target->recordDraw(std::move(conicGP), mesh);
         }
     }
+}
+
+void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
