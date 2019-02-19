@@ -363,8 +363,11 @@ private:
                                                                : GrPrimitiveType::kTriangles);
         mesh->setNonIndexedNonInstanced(count);
         mesh->setVertexData(std::move(vb), firstVertex);
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->recordDraw(std::move(gp), mesh);
+    }
+
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
     }
 
     Helper fHelper;
