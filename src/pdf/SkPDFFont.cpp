@@ -73,15 +73,16 @@ SkScalar scaleFromFontUnits(int16_t val, uint16_t emSize) {
 void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
                                  SkDynamicMemoryWStream* content) {
     // Specify width and bounding box for the glyph.
+    // See PDF 32000-1:2008 section 9.6.5, table 113
     SkPDFUtils::AppendScalar(width, content);
     content->writeText(" 0 ");
-    content->writeDecAsText(box.fLeft);
-    content->writeText(" ");
-    content->writeDecAsText(box.fTop);
-    content->writeText(" ");
-    content->writeDecAsText(box.fRight);
+    content->writeDecAsText(box.fLeft);  // lower-left
     content->writeText(" ");
     content->writeDecAsText(box.fBottom);
+    content->writeText(" ");
+    content->writeDecAsText(box.fRight);  // upper-right
+    content->writeText(" ");
+    content->writeDecAsText(box.fTop);
     content->writeText(" d1\n");
 }
 }  // namespace
