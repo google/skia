@@ -74,6 +74,8 @@ public:
 
     bool hasRefOrPendingIO() const { return fResource->hasRefOrPendingIO(); }
 
+    bool isUniquelyRefedAndNoPendingIO() const { return fResource->isUniquelyRefedAndNoPendingIO(); }
+
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}

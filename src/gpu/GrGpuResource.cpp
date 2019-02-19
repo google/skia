@@ -104,6 +104,10 @@ bool GrGpuResource::hasRefOrPendingIO() const {
     return this->internalHasRef() || this->internalHasPendingIO();
 }
 
+bool GrGpuResource::isUniquelyRefedAndNoPendingIO() const {
+    return !this->internalHasPendingIO() && this->internalHasUniqueRef();
+}
+
 SkString GrGpuResource::getResourceName() const {
     // Dump resource as "skia/gpu_resources/resource_#".
     SkString resourceName("skia/gpu_resources/resource_");

@@ -281,6 +281,7 @@ protected:
 private:
     bool isPurgeable() const;
     bool hasRefOrPendingIO() const;
+    bool isUniquelyRefedAndNoPendingIO() const;
 
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.

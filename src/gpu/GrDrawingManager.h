@@ -164,7 +164,7 @@ private:
     GrTextContext::Options            fOptionsForTextContext;
     // This cache is used by both the vertex and index pools. It reuses memory across multiple
     // flushes.
-    sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
+    sk_sp<GrBufferAllocPool::BufferCache> fCpuBufferCache;
     // In debug builds we guard against improper thread handling
     GrSingleOwner*                    fSingleOwner;
 

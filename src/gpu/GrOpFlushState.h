@@ -30,7 +30,7 @@ public:
     // GrBufferAllocPool::kDefaultBufferSize. If the latter, then CPU memory is only allocated for
     // vertices/indices when a buffer larger than kDefaultBufferSize is required.
     GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*,
-                   sk_sp<GrBufferAllocPool::CpuBufferCache> = nullptr);
+                   sk_sp<GrBufferAllocPool::BufferCache> = nullptr);
 
     ~GrOpFlushState() final { this->reset(); }
 

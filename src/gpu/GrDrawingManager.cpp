@@ -232,7 +232,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
         // expect each pool will use a CPU buffer as a staging buffer before uploading to a GPU
         // buffer object. Each pool only requires one staging buffer at a time.
         int maxCachedBuffers = fContext->priv().caps()->preferClientSideDynamicBuffers() ? 2 : 6;
-        fCpuBufferCache = GrBufferAllocPool::CpuBufferCache::Make(maxCachedBuffers);
+        fCpuBufferCache = GrBufferAllocPool::BufferCache::Make(maxCachedBuffers, 0, fContext->priv().resourceProvider());
     }
 
     GrOpFlushState flushState(gpu, fContext->priv().resourceProvider(), &fTokenTracker,
@@ -345,6 +345,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
                                    fFlushingOpListIDs.count());
     }
     fFlushingOpListIDs.reset();
+    fCpuBufferCache->notifyDidFlush();
     fFlushing = false;
 
     return result;

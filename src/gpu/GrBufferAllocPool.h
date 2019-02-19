@@ -17,6 +17,8 @@
 #include "SkTypes.h"
 
 class GrGpu;
+class GrGpuBuffer;
+class GrResourceProvider;
 
 /**
  * A pool of geometry buffers tied to a GrGpu.
@@ -38,22 +40,28 @@ public:
      * A cache object that can be shared by multiple GrBufferAllocPool instances. It caches
      * cpu buffer allocations to avoid reallocating them.
      */
-    class CpuBufferCache : public GrNonAtomicRef<CpuBufferCache> {
+    class BufferCache : public GrNonAtomicRef<BufferCache> {
     public:
-        static sk_sp<CpuBufferCache> Make(int maxBuffersToCache);
+        static sk_sp<BufferCache> Make(int maxCpuBuffersToCache, int maxGpuBuffersToCache, GrResourceProvider*);
 
-        sk_sp<GrCpuBuffer> makeBuffer(size_t size, bool mustBeInitialized);
+        sk_sp<GrCpuBuffer> makeCpuBuffer(size_t size, bool mustBeInitialized);
+        sk_sp<GrGpuBuffer> makeGpuBuffer(size_t size, GrGpuBufferType);
         void releaseAll();
+        void notifyDidFlush() { fFlushParity = 1 - fFlushParity; }
 
     private:
-        CpuBufferCache(int maxBuffersToCache);
+        BufferCache(int maxBuffersToCache, int maxGpuBuffersToCache, GrResourceProvider*);
 
-        struct Buffer {
+        struct CpuBuffer {
             sk_sp<GrCpuBuffer> fBuffer;
             bool fCleared = false;
         };
-        std::unique_ptr<Buffer[]> fBuffers;
-        int fMaxBuffersToCache = 0;
+        GrResourceProvider* fResourceProvider;
+        std::unique_ptr<CpuBuffer[]> fCpuBuffers;
+        std::unique_ptr<sk_sp<GrGpuBuffer>[]> fGpuBuffers[2];
+        int fMaxCpuBuffersToCache = 0;
+        int fMaxGpuBuffersToCache = 0;
+        int fFlushParity = 0;
     };
 
     /**
@@ -82,7 +90,7 @@ protected:
      *                              or staging buffers used before data is uploaded to
      *                              GPU buffer objects.
      */
-    GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, sk_sp<CpuBufferCache> cpuBufferCache);
+    GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, sk_sp<BufferCache> cpuBufferCache);
 
     virtual ~GrBufferAllocPool();
 
@@ -158,7 +166,7 @@ private:
     size_t fBytesInUse = 0;
 
     SkTArray<BufferBlock> fBlocks;
-    sk_sp<CpuBufferCache> fCpuBufferCache;
+    sk_sp<BufferCache> fBufferCache;
     sk_sp<GrCpuBuffer> fCpuStagingBuffer;
     GrGpu* fGpu;
     GrGpuBufferType fBufferType;
@@ -178,7 +186,7 @@ public:
      *                              or staging buffers used before data is uploaded to
      *                              GPU buffer objects.
      */
-    GrVertexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache);
+    GrVertexBufferAllocPool(GrGpu* gpu, sk_sp<BufferCache> cpuBufferCache);
 
     /**
      * Returns a block of memory to hold vertices. A buffer designated to hold
@@ -257,7 +265,7 @@ public:
      *                              or staging buffers used before data is uploaded to
      *                              GPU buffer objects.
      */
-    GrIndexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache);
+    GrIndexBufferAllocPool(GrGpu* gpu, sk_sp<BufferCache> cpuBufferCache);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold
