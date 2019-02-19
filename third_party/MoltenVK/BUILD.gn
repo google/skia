@@ -1,0 +1,28 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+action("MoltenVK_deps") {
+  script = "//third_party/MoltenVK/generate_framework.py"
+  outputs = [
+    "$target_gen_dir/MoltenVK_deps",
+  ]
+}
+
+third_party("MoltenVK") {
+  public_include_dirs = [ "../externals/MoltenVK/MoltenVK/include" ]
+
+  deps = [
+    ":MoltenVK_deps",
+  ]
+  include_dirs = [ "." ]
+  sources = []
+  defines = []
+  libs = []
+}
