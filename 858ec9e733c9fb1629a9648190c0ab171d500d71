@@ -16,6 +16,24 @@
       "revId": "858ec9e733c9fb1629a9648190c0ab171d500d71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a64124b_e659449c",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-19T17:10:40Z",
+      "side": 1,
+      "message": "Unfortunately, when compiling in no-GPU mode we could get away with never actually defining GrContext - even the code that \"used\" it.\n\nIn the new world we have some places in non-GPU code (in this case SkImage code) that receives a GrContext* but passes along a GrRecordingContext*. In that case the compiler needs to be assured that there is a valid conversion.",
+      "parentUuid": "38360df7_64f79d5f",
+      "revId": "858ec9e733c9fb1629a9648190c0ab171d500d71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
