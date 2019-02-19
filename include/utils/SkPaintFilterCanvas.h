@@ -114,6 +114,8 @@ protected:
     bool onGetProps(SkSurfaceProps* props) const override;
 
 private:
+    friend class ClipTileRenderer;  // GM needs proxy() until API is in SkCanvas
+
     class AutoPaintFilter;
 
     SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
