@@ -16,6 +16,24 @@
       "revId": "9407e24c29be16654e7fa6b333811b6833fcc598",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1764cbec_5908b884",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-19T11:17:22Z",
+      "side": 1,
+      "message": "Yep.",
+      "parentUuid": "050954dd_c71e6510",
+      "revId": "9407e24c29be16654e7fa6b333811b6833fcc598",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
