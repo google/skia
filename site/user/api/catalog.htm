@@ -7380,14 +7380,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::breakText"
 },
-    "SkPaint_empty_constructor": {
-    "code": "void draw(SkCanvas* canvas) {\n    #ifndef SkUserConfig_DEFINED\n    #define SkUserConfig_DEFINED\n    #define SkPaintDefaults_Flags      0x01   // always enable antialiasing\n    #define SkPaintDefaults_TextSize   24.f   // double default font size\n    #define SkPaintDefaults_Hinting    3      // use full hinting\n    #define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting\n    #endif\n}",
-    "width": 256,
-    "height": 1,
-    "hash": "c4b2186d85c142a481298f7144295ffd",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::SkPaint()"
-},
     "SkPaint_getFillPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint strokePaint;\n    strokePaint.setAntiAlias(true);\n    strokePaint.setStyle(SkPaint::kStroke_Style);\n    strokePaint.setStrokeWidth(.1f);\n    SkPath strokePath;\n    strokePath.moveTo(.08f, .08f);\n    strokePath.quadTo(.09f, .08f, .17f, .17f);\n    SkPath fillPath;\n    SkPaint outlinePaint(strokePaint);\n    outlinePaint.setStrokeWidth(2);\n    SkMatrix scale = SkMatrix::MakeScale(300, 300);\n    for (SkScalar precision : { 0.01f, .1f, 1.f, 10.f, 100.f } ) {\n        strokePaint.getFillPath(strokePath, &fillPath, nullptr, precision);\n        fillPath.transform(scale);\n        canvas->drawPath(fillPath, outlinePaint);\n        canvas->translate(60, 0);\n        if (1.f == precision) canvas->translate(-180, 100);\n    }\n    strokePath.transform(scale);\n    strokePaint.setStrokeWidth(30);\n    canvas->drawPath(strokePath, strokePaint);\n}\n",
     "width": 256,
@@ -9741,4 +9733,4 @@ onclick="handleMouseClick()"
 ></canvas >
 </body>
 </html>
-    
+

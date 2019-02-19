@@ -16,10 +16,6 @@
  *  edited directly.
  */
 
-#ifndef SkPaintDefaults_Flags
-    #define SkPaintDefaults_Flags           0
-#endif
-
 #ifndef SkPaintDefaults_TextSize
     #define SkPaintDefaults_TextSize        SkIntToScalar(12)
 #endif
