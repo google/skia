@@ -67,7 +67,7 @@ SkScalerContextRec SkScalerContext::PreprocessRec(const SkTypeface& typeface,
     }
 
     // TODO: remove CanonicalColor when we to fix up Chrome layout tests.
-    rec.setLuminanceColor(SkMaskGamma::CanonicalColor(lumColor));
+    rec.setLuminanceColor(lumColor);
 
     return rec;
 }
@@ -811,6 +811,11 @@ SkAxisAlignment SkScalerContextRec::computeAxisAlignmentForHText() const {
         return kY_SkAxisAlignment;
     }
     return kNone_SkAxisAlignment;
+}
+
+void SkScalerContextRec::setLuminanceColor(SkColor c) {
+    fLumBits = SkMaskGamma::CanonicalColor(
+            SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
