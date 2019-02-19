@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_use_system_icu = is_official_build
+  skia_use_system_icu = target_cpu != "wasm" && is_official_build
 }
 
 import("../../gn/skia.gni")
@@ -37,8 +37,12 @@ if (skia_use_icu) {
       if (target_cpu == "wasm") {
         _u_icu_version_major_num = "63"  # defined in source/common/unicode/uvernum.h
         script = "make_data_cpp.py"
-        inputs = [ "$data_dir/icudtl.dat" ]
-        outputs = [ data_assembly ]
+        inputs = [
+          "$data_dir/icudtl.dat",
+        ]
+        outputs = [
+          data_assembly,
+        ]
         args = [
           "icudt${_u_icu_version_major_num}_dat",
           rebase_path(inputs[0], root_build_dir),
@@ -80,6 +84,11 @@ if (skia_use_icu) {
         "U_ENABLE_DYLOAD=0",
         "U_I18N_IMPLEMENTATION",
       ]
+      if (target_cpu == "wasm") {
+        # Tell ICU that we are a 32 bit platform, otherwise,
+        # double-conversion-utils.h doesn't know how to operate.
+        defines += [ "__i386__" ]
+      }
       sources = icu_sources
       if (is_win) {
         deps = [
