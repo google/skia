@@ -15,6 +15,8 @@
 #include "GrCoordTransform.h"
 class GrTiledGradientEffect : public GrFragmentProcessor {
 public:
+    int colorizer_index() const { return fColorizer_index; }
+    int gradLayout_index() const { return fGradLayout_index; }
     bool mirror() const { return fMirror; }
     bool makePremul() const { return fMakePremul; }
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
@@ -41,13 +43,21 @@ private:
             , fMirror(mirror)
             , fMakePremul(makePremul)
             , fColorsAreOpaque(colorsAreOpaque) {
-        this->registerChildProcessor(std::move(colorizer));
-        this->registerChildProcessor(std::move(gradLayout));
+        if (colorizer) {
+            fColorizer_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(colorizer));
+        }
+        if (gradLayout) {
+            fGradLayout_index = this->numChildProcessors();
+            this->registerChildProcessor(std::move(gradLayout));
+        }
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    int fColorizer_index = -1;
+    int fGradLayout_index = -1;
     bool fMirror;
     bool fMakePremul;
     bool fColorsAreOpaque;

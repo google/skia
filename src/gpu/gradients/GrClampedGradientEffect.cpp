@@ -36,7 +36,9 @@ public:
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                  kDefault_GrSLPrecision, "rightBorderColor");
         SkString _child1("_child1");
-        this->emitChild(1, &_child1, args);
+        if (_outer.gradLayout_index() >= 0) {
+            this->emitChild(1, &_child1, args);
+        }
         fragBuilder->codeAppendf(
                 "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
                 "0.0) {\n    %s = %s;\n} else if (t.x > 1.0) {\n    %s = %s;\n} else {",
@@ -47,7 +49,9 @@ public:
                 args.fUniformHandler->getUniformCStr(fRightBorderColorVar));
         SkString _input0("t");
         SkString _child0("_child0");
-        this->emitChild(0, _input0.c_str(), &_child0, args);
+        if (_outer.colorizer_index() >= 0) {
+            this->emitChild(0, _input0.c_str(), &_child0, args);
+        }
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                                  args.fOutputColor, _child0.c_str(),
                                  (_outer.makePremul() ? "true" : "false"), args.fOutputColor,
@@ -98,8 +102,14 @@ GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& 
         , fRightBorderColor(src.fRightBorderColor)
         , fMakePremul(src.fMakePremul)
         , fColorsAreOpaque(src.fColorsAreOpaque) {
-    this->registerChildProcessor(src.childProcessor(0).clone());
-    this->registerChildProcessor(src.childProcessor(1).clone());
+    this->fColorizer_index = src.fColorizer_index;
+    if (this->fColorizer_index >= 0) {
+        this->registerChildProcessor(src.childProcessor(0).clone());
+    }
+    this->fGradLayout_index = src.fGradLayout_index;
+    if (this->fGradLayout_index >= 0) {
+        this->registerChildProcessor(src.childProcessor(1).clone());
+    }
 }
 std::unique_ptr<GrFragmentProcessor> GrClampedGradientEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(*this));

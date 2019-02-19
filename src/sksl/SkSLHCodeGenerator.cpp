@@ -271,8 +271,12 @@ void HCodeGenerator::writeConstructor() {
         if (param->fType.kind() == Type::kSampler_Kind) {
             ++samplerCount;
         } else if (param->fType == *fContext.fFragmentProcessor_Type) {
-            this->writef("        this->registerChildProcessor(std::move(%s));",
+            this->writef("        if (%s) {\n", String(param->fName).c_str());
+            this->writef("            %s_index = this->numChildProcessors();",
+                         FieldName(String(param->fName).c_str()).c_str());
+            this->writef("            this->registerChildProcessor(std::move(%s));",
                          String(param->fName).c_str());
+            this->writef("       }");
         }
     }
     if (samplerCount) {
@@ -289,12 +293,14 @@ void HCodeGenerator::writeConstructor() {
 void HCodeGenerator::writeFields() {
     this->writeSection(FIELDS_SECTION);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        String name = FieldName(String(param->fName).c_str());
         if (param->fType == *fContext.fFragmentProcessor_Type) {
-            continue;
+            this->writef("    int %s_index = -1;\n", name.c_str());
+        } else {
+            this->writef("    %s %s;\n", FieldType(fContext, param->fType,
+                                                   param->fModifiers.fLayout).c_str(),
+                                         name.c_str());
         }
-        this->writef("    %s %s;\n", FieldType(fContext, param->fType,
-                                               param->fModifiers.fLayout).c_str(),
-                     FieldName(String(param->fName).c_str()).c_str());
     }
     const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
     for (size_t i = 0; i < transforms.size(); ++i) {
@@ -341,15 +347,19 @@ bool HCodeGenerator::generateCode() {
     }
     this->writeSection(CLASS_SECTION);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType.kind() == Type::kSampler_Kind ||
-            param->fType.kind() == Type::kOther_Kind) {
+        if (param->fType.kind() == Type::kSampler_Kind) {
             continue;
         }
         String nameString(param->fName);
         const char* name = nameString.c_str();
-        this->writef("    %s %s() const { return %s; }\n",
-                     AccessType(fContext, param->fType, param->fModifiers.fLayout).c_str(), name,
-                     FieldName(name).c_str());
+        if (param->fType == *fContext.fFragmentProcessor_Type) {
+            this->writef("    int %s_index() const { return %s_index; }\n", name,
+                         FieldName(name).c_str());
+        } else {
+            this->writef("    %s %s() const { return %s; }\n",
+                         AccessType(fContext, param->fType, param->fModifiers.fLayout).c_str(),
+                         name, FieldName(name).c_str());
+        }
     }
     this->writeMake();
     this->writef("    %s(const %s& src);\n"

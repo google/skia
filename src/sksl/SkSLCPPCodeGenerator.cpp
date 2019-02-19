@@ -333,7 +333,7 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
         }
 
         const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
-        int index = getChildFPIndex((const VariableReference&) *access.fBase);
+        int index = getChildFPIndex(((const VariableReference&) *access.fBase).fVariable);
         String cppAccess = String::printf("_outer.childProcessor(%s).%s()",
                                           to_string(index).c_str(), String(field.fName).c_str());
 
@@ -347,7 +347,7 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
     INHERITED::writeFieldAccess(access);
 }
 
-int CPPCodeGenerator::getChildFPIndex(const VariableReference& reference) const {
+int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     int index = 0;
     bool found = false;
     for (const auto& p : fProgram) {
@@ -355,7 +355,7 @@ int CPPCodeGenerator::getChildFPIndex(const VariableReference& reference) const 
             const VarDeclarations& decls = (const VarDeclarations&) p;
             for (const auto& raw : decls.fVars) {
                 const VarDeclaration& decl = (VarDeclaration&) *raw;
-                if (decl.fVar == &reference.fVariable) {
+                if (decl.fVar == &var) {
                     found = true;
                 } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
                     ++index;
@@ -388,7 +388,8 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             // Second argument must also be a half4 expression
             SkASSERT("half4" == c.fArguments[1]->fType.name());
         }
-        int index = getChildFPIndex((const VariableReference&) *c.fArguments[0]);
+        const Variable& child = ((const VariableReference&) *c.fArguments[0]).fVariable;
+        int index = getChildFPIndex(child);
 
         // Start a new extra emit code section so that the emitted child processor can depend on
         // sksl variables defined in earlier sksl code.
@@ -412,9 +413,10 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // Write the output handling after the possible input handling
         String childName = "_child" + to_string(index);
         addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
+        addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index() >= 0) {");
         addExtraEmitCodeLine("this->emitChild(" + to_string(index) + inputArg +
                              ", &" + childName + ", args);");
-
+        addExtraEmitCodeLine("}");
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");
         return;
@@ -1012,8 +1014,13 @@ void CPPCodeGenerator::writeClone() {
             if (param->fType.kind() == Type::kSampler_Kind) {
                 ++samplerCount;
             } else if (param->fType == *fContext.fFragmentProcessor_Type) {
-                this->writef("    this->registerChildProcessor(src.childProcessor(%d).clone());"
+                String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
+                this->writef("    this->%s_index = src.%s_index;", fieldName.c_str(),
+                             fieldName.c_str());
+                this->writef("    if (this->%s_index >= 0) {\n", fieldName.c_str());
+                this->writef("        this->registerChildProcessor(src.childProcessor(%d).clone());"
                              "\n", childCount++);
+                this->writef("    }\n");
             }
         }
         if (samplerCount) {
