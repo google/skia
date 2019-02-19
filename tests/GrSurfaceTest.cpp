@@ -474,7 +474,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrSurfaceProxy::LazyInstantiationType::kSingleUse);
                 rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(kS, kS),
-                                 SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                 SkRect::MakeWH(kS, kS), GrAA::kNo, GrQuadAAFlags::kNone,
                                  SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 // We still have the proxy, which should remain instantiated, thereby keeping the
                 // texture not purgeable.
@@ -487,7 +487,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // This time we move the proxy into the draw.
                 rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(kS, kS),
-                                 SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                 SkRect::MakeWH(kS, kS), GrAA::kNo, GrQuadAAFlags::kNone,
                                  SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 context->flush();
@@ -506,7 +506,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
                 rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(kS, kS),
-                                 SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                 SkRect::MakeWH(kS, kS), GrAA::kNo, GrQuadAAFlags::kNone,
                                  SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 // At this point the proxy shouldn't even be instantiated, there is no texture with
                 // id 3.
@@ -554,7 +554,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
                                              SkBlendMode::kSrcOver, SkPMColor4f(),
                                              SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
-                                             GrQuadAAFlags::kNone,
+                                             GrAA::kNo, GrQuadAAFlags::kNone,
                                              SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
                                              nullptr);
                             if (drawType == DrawType::kDrawAndFlush) {

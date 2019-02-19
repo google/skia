@@ -418,8 +418,9 @@ void SkGpuDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkCo
         grPaint.setXPFactory(SkBlendMode_AsXPFactory(mode));
     }
 
+    // This is exclusively meant for tiling operations, so keep AA enabled to handle MSAA seaming
     fRenderTargetContext->fillRectWithEdgeAA(this->clip(), std::move(grPaint),
-                                             SkToGrQuadAAFlags(aa), this->ctm(), r);
+                                             GrAA::kYes, SkToGrQuadAAFlags(aa), this->ctm(), r);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1433,8 +1434,10 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
             auto textureXform = GrColorSpaceXform::Make(
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
+            // Currently, drawImageSet is only used for tiled images so keep AA to handle MSAA
+            // seams (this will not remain true in the future)
             fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
-                                                 sampler.filter(), mode, this->ctm(),
+                                                 sampler.filter(), mode, GrAA::kYes, this->ctm(),
                                                  std::move(textureXform));
         }
     };

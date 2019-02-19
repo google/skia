@@ -109,12 +109,16 @@ public:
      * @param rectToDraw   the rectangle to draw
      * @param localRect    the rectangle of shader coordinates applied to rectToDraw
      */
-    void fillRectToRect(const GrClip&,
+    void fillRectToRect(const GrClip& clip,
                         GrPaint&& paint,
-                        GrAA,
+                        GrAA aa,
                         const SkMatrix& viewMatrix,
                         const SkRect& rectToDraw,
-                        const SkRect& localRect);
+                        const SkRect& localRect) {
+        this->fillRectWithEdgeAA(clip, std::move(paint), aa,
+                                 aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+                                 viewMatrix, rectToDraw, &localRect);
+    }
 
     /**
      * Fills a rect with a paint and a localMatrix.
@@ -129,8 +133,9 @@ public:
     /**
      * Creates an op that draws a fill rect with per-edge control over anti-aliasing.
      */
-    void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrQuadAAFlags edgeAA,
-                            const SkMatrix& viewMatrix, const SkRect& rect);
+    void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+                            const SkMatrix& viewMatrix, const SkRect& rect,
+                            const SkRect* optionalLocalRect = nullptr);
 
     /** Used with drawQuadSet */
     struct QuadSetEntry {
@@ -152,7 +157,7 @@ public:
      */
     void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
                      SkBlendMode mode, const SkPMColor4f&, const SkRect& srcRect,
-                     const SkRect& dstRect, GrQuadAAFlags, SkCanvas::SrcRectConstraint,
+                     const SkRect& dstRect, GrAA, GrQuadAAFlags, SkCanvas::SrcRectConstraint,
                      const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform);
 
     /** Used with drawTextureSet */
@@ -168,7 +173,7 @@ public:
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
      */
     void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
-                        SkBlendMode mode, const SkMatrix& viewMatrix,
+                        SkBlendMode mode, GrAA aa, const SkMatrix& viewMatrix,
                         sk_sp<GrColorSpaceXform> texXform);
 
     /**
