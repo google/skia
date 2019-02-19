@@ -130,6 +130,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         bytesRead = offset;
 
         // Create a new stream for the embedded codec
+        if (size > 2000000000) break;
         SkAutoFree buffer(sk_malloc_canfail(size));
         if (!buffer) {
             SkCodecPrintf("Warning: OOM trying to create embedded stream.\n");
