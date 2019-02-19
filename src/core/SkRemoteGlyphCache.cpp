@@ -193,8 +193,8 @@ struct StrikeSpec {
 // -- TrackLayerDevice -----------------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::TrackLayerDevice::TrackLayerDevice(
         const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
-        const SkTextBlobCacheDiffCanvas::Settings& settings)
-    : SkNoPixelsDevice(bounds, props)
+        sk_sp<SkColorSpace> colorSpace, const SkTextBlobCacheDiffCanvas::Settings& settings)
+    : SkNoPixelsDevice(bounds, props, std::move(colorSpace))
     , fStrikeServer(server)
     , fSettings(settings)
     , fPainter{props, kUnknown_SkColorType, SkScalerContextFlags::kFakeGammaAndBoostContrast} {
@@ -204,7 +204,8 @@ SkTextBlobCacheDiffCanvas::TrackLayerDevice::TrackLayerDevice(
 SkBaseDevice* SkTextBlobCacheDiffCanvas::TrackLayerDevice::onCreateDevice(
         const CreateInfo& cinfo, const SkPaint*) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-    return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fStrikeServer, fSettings);
+    return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fStrikeServer,
+                                cinfo.fInfo.refColorSpace(), fSettings);
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
@@ -217,19 +218,29 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
 
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOBCACHEDIFFCANVAS_CONSTRUCTOR
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkMatrix& deviceMatrix,
                                                      const SkSurfaceProps& props,
                                                      SkStrikeServer* strikeServer,
                                                      Settings settings)
         : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
-                                                      strikeServer, settings)} {}
+                                                      strikeServer, nullptr, settings)} {}
+#endif
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
         int width, int height, const SkSurfaceProps& props,
         SkStrikeServer* strikeServer, Settings settings)
     : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(
-            SkIRect::MakeWH(width, height), props, strikeServer, settings)} {}
+            SkIRect::MakeWH(width, height), props, strikeServer, nullptr, settings)} {}
+
+SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
+                                                     const SkSurfaceProps& props,
+                                                     SkStrikeServer* strikeServer,
+                                                     sk_sp<SkColorSpace> colorSpace,
+                                                     Settings settings)
+    : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
+                                                  strikeServer, std::move(colorSpace), settings)} {}
 
 SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
 
@@ -244,6 +255,7 @@ bool SkTextBlobCacheDiffCanvas::onDoSaveBehind(const SkRect*) {
 
 void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                                const SkPaint& paint) {
+    ///
     SkCanvas::onDrawTextBlob(blob, x, y, paint);
 }
 
