@@ -78,15 +78,9 @@ template <bool use_rsqrt> bool set_point_length(SkPoint* pt, float x, float y, f
         double xx = x;
         double yy = y;
         double dmag = sqrt(xx * xx + yy * yy);
-        double dscale;
-        if (dmag) {
-            dscale = length / dmag;
-            x *= dscale;
-            y *= dscale;
-        } else {
-            SkASSERT(x == 0);
-            SkASSERT(y == 0);
-        }
+        double dscale = sk_ieee_double_divide(length, dmag);
+        x *= dscale;
+        y *= dscale;
         // check if we're not finite, or we're zero-length
         if (!sk_float_isfinite(x) || !sk_float_isfinite(y) || (x == 0 && y == 0)) {
             pt->set(0, 0);
