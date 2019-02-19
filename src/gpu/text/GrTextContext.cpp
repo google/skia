@@ -129,14 +129,7 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
     return true;
 }
 
-void GrTextContext::InitDistanceFieldPaint(const SkScalar textSize,
-                                           const SkMatrix& viewMatrix,
-                                           const Options& options,
-                                           GrTextBlob* blob,
-                                           SkPaint* skPaint,
-                                           SkFont* skFont,
-                                           SkScalar* textRatio,
-                                           SkScalerContextFlags* flags) {
+SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
     SkScalar scaledTextSize = textSize;
 
     if (viewMatrix.hasPerspective()) {
@@ -153,6 +146,43 @@ void GrTextContext::InitDistanceFieldPaint(const SkScalar textSize,
         }
     }
 
+    return scaledTextSize;
+}
+
+SkFont GrTextContext::InitDistanceFieldFont(const SkFont& font,
+                                            const SkMatrix& viewMatrix,
+                                            const Options& options,
+                                            SkScalar* textRatio) {
+    SkScalar textSize = font.getSize();
+    SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
+
+    SkFont dfFont{font};
+
+    if (scaledTextSize <= kSmallDFFontLimit) {
+        *textRatio = textSize / kSmallDFFontSize;
+        dfFont.setSize(SkIntToScalar(kSmallDFFontSize));
+    } else if (scaledTextSize <= kMediumDFFontLimit) {
+        *textRatio = textSize / kMediumDFFontSize;
+        dfFont.setSize(SkIntToScalar(kMediumDFFontSize));
+    } else {
+        *textRatio = textSize / kLargeDFFontSize;
+        dfFont.setSize(SkIntToScalar(kLargeDFFontSize));
+    }
+
+    dfFont.setEdging(SkFont::Edging::kAntiAlias);
+    dfFont.setForceAutoHinting(false);
+    dfFont.setHinting(kNormal_SkFontHinting);
+    dfFont.setSubpixel(true);
+    return dfFont;
+}
+
+std::pair<SkScalar, SkScalar> GrTextContext::InitDistanceFieldMinMaxScale(
+        SkScalar textSize,
+        const SkMatrix& viewMatrix,
+        const GrTextContext::Options& options) {
+
+    SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
+
     // We have three sizes of distance field text, and within each size 'bucket' there is a floor
     // and ceiling.  A scale outside of this range would require regenerating the distance fields
     SkScalar dfMaskScaleFloor;
@@ -160,18 +190,12 @@ void GrTextContext::InitDistanceFieldPaint(const SkScalar textSize,
     if (scaledTextSize <= kSmallDFFontLimit) {
         dfMaskScaleFloor = options.fMinDistanceFieldFontSize;
         dfMaskScaleCeil = kSmallDFFontLimit;
-        *textRatio = textSize / kSmallDFFontSize;
-        skFont->setSize(SkIntToScalar(kSmallDFFontSize));
     } else if (scaledTextSize <= kMediumDFFontLimit) {
         dfMaskScaleFloor = kSmallDFFontLimit;
         dfMaskScaleCeil = kMediumDFFontLimit;
-        *textRatio = textSize / kMediumDFFontSize;
-        skFont->setSize(SkIntToScalar(kMediumDFFontSize));
     } else {
         dfMaskScaleFloor = kMediumDFFontLimit;
         dfMaskScaleCeil = options.fMaxDistanceFieldFontSize;
-        *textRatio = textSize / kLargeDFFontSize;
-        skFont->setSize(SkIntToScalar(kLargeDFFontSize));
     }
 
     // Because there can be multiple runs in the blob, we want the overall maxMinScale, and
@@ -182,21 +206,20 @@ void GrTextContext::InitDistanceFieldPaint(const SkScalar textSize,
     // against these values to decide if we can reuse or not(ie, will a given scale change our mip
     // level)
     SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
-    if (blob) {
-        blob->setMinAndMaxScale(dfMaskScaleFloor / scaledTextSize,
-                                dfMaskScaleCeil / scaledTextSize);
-    }
 
-    skFont->setEdging(SkFont::Edging::kAntiAlias);
-    skFont->setForceAutoHinting(false);
-    skFont->setHinting(kNormal_SkFontHinting);
-    skFont->setSubpixel(true);
+    return std::make_pair(dfMaskScaleFloor / scaledTextSize, dfMaskScaleCeil / scaledTextSize);
+}
 
-    skPaint->setMaskFilter(GrSDFMaskFilter::Make());
+SkPaint GrTextContext::InitDistanceFieldPaint(const SkPaint& paint) {
+    SkPaint dfPaint{paint};
+    dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
+    return dfPaint;
+}
 
+SkScalerContextFlags GrTextContext::InitDistanceFieldFlags() {
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    *flags = SkScalerContextFlags::kNone;
+    return SkScalerContextFlags::kNone;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -759,18 +759,18 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                              || options.fDistanceFieldVerticesAlwaysHaveW;
 
             // Setup distance field runPaint and text ratio
+            SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(runPaint);
             SkScalar textScale;
-            SkPaint distanceFieldPaint{runPaint};
-            SkFont distanceFieldFont{runFont};
-            SkScalerContextFlags flags;
-            GrTextContext::InitDistanceFieldPaint(runFont.getSize(),
-                                                  viewMatrix,
-                                                  options,
-                                                  this,
-                                                  &distanceFieldPaint,
-                                                  &distanceFieldFont,
-                                                  &textScale,
-                                                  &flags);
+            SkFont dfFont = GrTextContext::InitDistanceFieldFont(
+                    runFont, viewMatrix, options, &textScale);
+            SkScalerContextFlags flags = GrTextContext::InitDistanceFieldFlags();
+
+            SkScalar minScale, maxScale;
+            std::tie(minScale, maxScale) = GrTextContext::InitDistanceFieldMinMaxScale(
+                    runFont.getSize(), viewMatrix, options);
+
+            this->setMinAndMaxScale(minScale, maxScale);
+
             this->setHasDistanceField();
             run->setSubRunHasDistanceFields(
                     runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
@@ -779,7 +779,7 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
 
             {
                 SkExclusiveStrikePtr cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                        distanceFieldFont, distanceFieldPaint, props, flags, SkMatrix::I());
+                        dfFont, dfPaint, props, flags, SkMatrix::I());
                 sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache->getDescriptor());
                 run->setupFont(cache->strikeSpec());
 
@@ -1050,18 +1050,11 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
         return false;
     }
 
+    SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(runPaint);
     SkScalar textRatio;
-    SkPaint dfPaint{runPaint};
-    SkFont dfFont{runFont};
-    SkScalerContextFlags flags;
-    GrTextContext::InitDistanceFieldPaint(runFont.getSize(),
-                                          runMatrix,
-                                          options,
-                                          nullptr,
-                                          &dfPaint,
-                                          &dfFont,
-                                          &textRatio,
-                                          &flags);
+    SkFont dfFont = GrTextContext::InitDistanceFieldFont(runFont, runMatrix, options, &textRatio);
+    SkScalerContextFlags flags = GrTextContext::InitDistanceFieldFlags();
+
     SkScalerContextEffects effects;
     auto* sdfCache = fStrikeServer->getOrCreateCache(dfPaint, dfFont, this->surfaceProps(),
                                                      SkMatrix::I(), flags, &effects);
