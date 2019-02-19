@@ -74,6 +74,9 @@ void SkCurve::visitFields(SkFieldVisitor* v) {
     }
 }
 
+// TODO: This implementation is extremely conservative, because it uses the position of the control
+// points as the actual range. The curve typically doesn't reach that far. Evaluating the curve at
+// each of [0, 1/3, 2/3, 1] would be tighter, but can be too tight in some cases.
 void SkCurve::getExtents(SkScalar extents[2]) const {
     extents[0] = INFINITY;
     extents[1] = -INFINITY;
