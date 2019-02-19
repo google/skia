@@ -9,16 +9,13 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrClip.h"
-#include "GrRect.h"
-#include "GrRenderTargetContextPriv.h"
-
 #include "Resources.h"
 #include "SkFont.h"
-#include "SkGr.h"
+#include "SkGpuDevice.h"
 #include "SkGradientShader.h"
 #include "SkImage_Base.h"
 #include "SkLineClipper.h"
+#include "SkPaintFilterCanvas.h"
 
 #include <array>
 
@@ -172,9 +169,9 @@ static void draw_text(SkCanvas* canvas, const char* text) {
 // the Chromium quad types, and a generic GM template to arrange renderers x transforms in a grid
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TileRenderer : public SkRefCntBase {
+class ClipTileRenderer : public SkRefCntBase {
 public:
-    virtual ~TileRenderer() {}
+    virtual ~ClipTileRenderer() {}
 
     // Draw the base rect, possibly clipped by 'clip' if that is not null. The edges to antialias
     // are specified in 'edgeAA' (to make manipulation easier than an unsigned bitfield). 'tileID'
@@ -191,7 +188,18 @@ public:
         // TODO (michaelludwig) - once the quad APIs are in SkCanvas, drop these
         // cached fields, which drawTile() needs
         fContext = context;
-        fRTC = rtc;
+
+        SkBaseDevice* device = canvas->getDevice();
+        if (device->context()) {
+            // Pretty sure it's a SkGpuDevice since this is a run as a GPU GM, unfortunately we
+            // dont' have RTTI for dynamic_cast
+            fDevice = static_cast<SkGpuDevice*>(device);
+        } else {
+            // Assume that we're in viewer and not dm, so the canvas is an SkPaintFilterCanvas
+            // and we need the device from its proxy (it always returns an SkNoPixelDevice).
+            SkPaintFilterCanvas* filteredCanvas = static_cast<SkPaintFilterCanvas*>(canvas);
+            fDevice = static_cast<SkGpuDevice*>(filteredCanvas->proxy()->getDevice());
+        }
 
         // All three lines in a list
         SkPoint lines[6];
@@ -224,15 +232,15 @@ public:
 protected:
     // Remembered for convenience in drawTile, set by drawTiles()
     GrContext* fContext;
-    GrRenderTargetContext* fRTC;
+    SkGpuDevice* fDevice;
 
-    GrQuadAAFlags maskToFlags(const bool edgeAA[4]) const {
-        GrQuadAAFlags flags = GrQuadAAFlags::kNone;
-        flags |= edgeAA[0] ? GrQuadAAFlags::kTop    : GrQuadAAFlags::kNone;
-        flags |= edgeAA[1] ? GrQuadAAFlags::kRight  : GrQuadAAFlags::kNone;
-        flags |= edgeAA[2] ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
-        flags |= edgeAA[3] ? GrQuadAAFlags::kLeft   : GrQuadAAFlags::kNone;
-        return flags;
+    SkCanvas::QuadAAFlags maskToFlags(const bool edgeAA[4]) const {
+        unsigned flags = SkCanvas::kNone_QuadAAFlags;
+        flags |= edgeAA[0] ? SkCanvas::kTop_QuadAAFlag    : 0;
+        flags |= edgeAA[1] ? SkCanvas::kRight_QuadAAFlag  : 0;
+        flags |= edgeAA[2] ? SkCanvas::kBottom_QuadAAFlag : 0;
+        flags |= edgeAA[3] ? SkCanvas::kLeft_QuadAAFlag   : 0;
+        return static_cast<SkCanvas::QuadAAFlags>(flags);
     }
 
     // Recursively splits the quadrilateral against the segments stored in 'lines', which must be
@@ -392,17 +400,17 @@ protected:
 
 class CompositorGM : public skiagm::GpuGM {
 public:
-    CompositorGM(const char* name, sk_sp<TileRenderer> renderer)
+    CompositorGM(const char* name, sk_sp<ClipTileRenderer> renderer)
             : fName(name) {
         fRenderers.push_back(std::move(renderer));
     }
-    CompositorGM(const char* name, sk_sp<TileRenderer> r1, sk_sp<TileRenderer> r2)
+    CompositorGM(const char* name, sk_sp<ClipTileRenderer> r1, sk_sp<ClipTileRenderer> r2)
             : fName(name) {
         fRenderers.push_back(std::move(r1));
         fRenderers.push_back(std::move(r2));
     }
-    CompositorGM(const char* name, sk_sp<TileRenderer> r1, sk_sp<TileRenderer> r2,
-                 sk_sp<TileRenderer> r3)
+    CompositorGM(const char* name, sk_sp<ClipTileRenderer> r1, sk_sp<ClipTileRenderer> r2,
+                 sk_sp<ClipTileRenderer> r3)
             : fName(name) {
         fRenderers.push_back(std::move(r1));
         fRenderers.push_back(std::move(r2));
@@ -475,7 +483,7 @@ protected:
 private:
     static constexpr int kMatrixCount = 5;
 
-    SkTArray<sk_sp<TileRenderer>> fRenderers;
+    SkTArray<sk_sp<ClipTileRenderer>> fRenderers;
     SkTArray<SkMatrix> fMatrices;
     SkTArray<SkString> fMatrixNames;
 
@@ -526,20 +534,20 @@ private:
 // Implementations of TileRenderer that color the clipped tiles in various ways
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-class DebugTileRenderer : public TileRenderer {
+class DebugTileRenderer : public ClipTileRenderer {
 public:
 
-    static sk_sp<TileRenderer> Make() {
+    static sk_sp<ClipTileRenderer> Make() {
         // Since aa override is disabled, the quad flags arg doesn't matter.
-        return sk_sp<TileRenderer>(new DebugTileRenderer(GrQuadAAFlags::kAll, false));
+        return sk_sp<ClipTileRenderer>(new DebugTileRenderer(SkCanvas::kAll_QuadAAFlags, false));
     }
 
-    static sk_sp<TileRenderer> MakeAA() {
-        return sk_sp<TileRenderer>(new DebugTileRenderer(GrQuadAAFlags::kAll, true));
+    static sk_sp<ClipTileRenderer> MakeAA() {
+        return sk_sp<ClipTileRenderer>(new DebugTileRenderer(SkCanvas::kAll_QuadAAFlags, true));
     }
 
-    static sk_sp<TileRenderer> MakeNonAA() {
-        return sk_sp<TileRenderer>(new DebugTileRenderer(GrQuadAAFlags::kNone, true));
+    static sk_sp<ClipTileRenderer> MakeNonAA() {
+        return sk_sp<ClipTileRenderer>(new DebugTileRenderer(SkCanvas::kNone_QuadAAFlags, true));
     }
 
     void drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
@@ -548,24 +556,16 @@ public:
         int i = tileID / kColCount;
         int j = tileID % kColCount;
 
-        SkPMColor4f c = {(i + 1.f) / kRowCount, (j + 1.f) / kColCount, .4f, 1.f};
+        SkColor4f c = {(i + 1.f) / kRowCount, (j + 1.f) / kColCount, .4f, 1.f};
         float alpha = quadID / 10.f;
         c.fR = c.fR * (1 - alpha) + alpha;
         c.fG = c.fG * (1 - alpha) + alpha;
         c.fB = c.fB * (1 - alpha) + alpha;
         c.fA = c.fA * (1 - alpha) + alpha;
 
-        GrPaint paint;
-        paint.setColor4f(c);
-
-        GrQuadAAFlags aaFlags = fEnableAAOverride ? fAAOverride : this->maskToFlags(edgeAA);
-        if (clip) {
-            fRTC->fillQuadWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes, aaFlags,
-                                     canvas->getTotalMatrix(), clip, nullptr);
-        } else {
-            fRTC->fillRectWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes, aaFlags,
-                                     canvas->getTotalMatrix(), rect);
-        }
+        SkCanvas::QuadAAFlags aaFlags = fEnableAAOverride ? fAAOverride : this->maskToFlags(edgeAA);
+        fDevice->tmp_drawEdgeAAQuad(
+                rect, clip, clip ? 4 : 0, aaFlags, c.toSkColor(), SkBlendMode::kSrcOver);
     }
 
     void drawBanner(SkCanvas* canvas) override {
@@ -576,8 +576,9 @@ public:
         SkString config;
         static const char* kFormat = "Ext(%s) - Int(%s)";
         if (fEnableAAOverride) {
-            SkASSERT(fAAOverride == GrQuadAAFlags::kAll || fAAOverride == GrQuadAAFlags::kNone);
-            if (fAAOverride == GrQuadAAFlags::kAll) {
+            SkASSERT(fAAOverride == SkCanvas::kAll_QuadAAFlags ||
+                     fAAOverride == SkCanvas::kNone_QuadAAFlags);
+            if (fAAOverride == SkCanvas::kAll_QuadAAFlags) {
                 config.appendf(kFormat, "yes", "yes");
             } else {
                 config.appendf(kFormat, "no", "no");
@@ -591,35 +592,28 @@ public:
     }
 
 private:
-    GrQuadAAFlags fAAOverride;
+    SkCanvas::QuadAAFlags fAAOverride;
     bool fEnableAAOverride;
 
-    DebugTileRenderer(GrQuadAAFlags aa, bool enableAAOverrde)
+    DebugTileRenderer(SkCanvas::QuadAAFlags aa, bool enableAAOverrde)
             : fAAOverride(aa)
             , fEnableAAOverride(enableAAOverrde) {}
 
-    typedef TileRenderer INHERITED;
+    typedef ClipTileRenderer INHERITED;
 };
 
-class SolidColorRenderer : public TileRenderer {
+// Tests tmp_drawEdgeAAQuad
+class SolidColorRenderer : public ClipTileRenderer {
 public:
 
-    static sk_sp<TileRenderer> Make(const SkPMColor4f& color) {
-        return sk_sp<TileRenderer>(new SolidColorRenderer(color));
+    static sk_sp<ClipTileRenderer> Make(const SkColor4f& color) {
+        return sk_sp<ClipTileRenderer>(new SolidColorRenderer(color));
     }
 
     void drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
                   int tileID, int quadID) override {
-        GrPaint paint;
-        paint.setColor4f(fColor);
-
-        if (clip) {
-            fRTC->fillQuadWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
-                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), clip, nullptr);
-        } else {
-            fRTC->fillRectWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
-                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), rect);
-        }
+        fDevice->tmp_drawEdgeAAQuad(rect, clip, clip ? 4 : 0, this->maskToFlags(edgeAA),
+                                    fColor.toSkColor(), SkBlendMode::kSrcOver);
     }
 
     void drawBanner(SkCanvas* canvas) override {
@@ -627,136 +621,28 @@ public:
     }
 
 private:
-    SkPMColor4f fColor;
+    SkColor4f fColor;
 
-    SolidColorRenderer(const SkPMColor4f& color) : fColor(color) {}
+    SolidColorRenderer(const SkColor4f& color) : fColor(color) {}
 
-    typedef TileRenderer INHERITED;
+    typedef ClipTileRenderer INHERITED;
 };
 
-class GradientRenderer : public TileRenderer {
+// Tests tmp_drawImageSet(), but can batch the entries together in different ways
+// TODO(michaelludwig) - add transform batching
+class TextureSetRenderer : public ClipTileRenderer {
 public:
 
-    static sk_sp<TileRenderer> MakeSeamless() {
-        return sk_sp<TileRenderer>(new GradientRenderer(false));
+    static sk_sp<ClipTileRenderer> MakeUnbatched(sk_sp<SkImage> image) {
+        return sk_sp<ClipTileRenderer>(new TextureSetRenderer(image, true));
     }
 
-    static sk_sp<TileRenderer> MakeLocal() {
-        return sk_sp<TileRenderer>(new GradientRenderer(true));
-    }
-
-    void drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
-                  int tileID, int quadID) override {
-        GrPaint paint;
-        SkPaintToGrPaint(fContext, fRTC->colorSpaceInfo(), fGradient, canvas->getTotalMatrix(),
-                         &paint);
-
-        SkRect localRect = SkRect::MakeWH(kTileWidth, kTileHeight);
-        SkPoint localQuad[4];
-        if (fLocal && clip) {
-            GrMapRectPoints(rect, localRect, clip, localQuad, 4);
-        }
-
-        if (clip) {
-            fRTC->fillQuadWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
-                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), clip,
-                    fLocal ? localQuad : nullptr);
-        } else {
-            fRTC->fillRectWithEdgeAA(GrNoClip(), std::move(paint), GrAA::kYes,
-                    this->maskToFlags(edgeAA), canvas->getTotalMatrix(), rect,
-                    fLocal ? &localRect : nullptr);
-        }
-    }
-
-    void drawBanner(SkCanvas* canvas) override {
-        canvas->save();
-        draw_text(canvas, "Gradient");
-        canvas->translate(0.f, 15.f);
-        if (fLocal) {
-            draw_text(canvas, "Local");
-        } else {
-            draw_text(canvas, "Seamless");
-        }
-        canvas->restore();
-    }
-
-private:
-    SkPaint fGradient;
-    bool fLocal;
-
-    GradientRenderer(bool local) : fLocal(local) {
-        static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
-        static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
-        auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkShader::kMirror_TileMode);
-        fGradient.setShader(gradient);
-    }
-
-    typedef TileRenderer INHERITED;
-};
-
-static SkRect get_image_local_rect(const sk_sp<SkImage> image, const SkRect& rect) {
-    // This acts like the whole image is rendered over the entire tile grid, so derive local
-    // coordinates from 'rect', based on the grid to image transform.
-    SkMatrix gridToImage = SkMatrix::MakeRectToRect(SkRect::MakeWH(kColCount * kTileWidth,
-                                                                   kRowCount * kTileHeight),
-                                                    SkRect::MakeWH(image->width(),
-                                                                   image->height()),
-                                                    SkMatrix::kFill_ScaleToFit);
-    return gridToImage.mapRect(rect);
-}
-
-class TextureRenderer : public TileRenderer {
-public:
-
-    static sk_sp<TileRenderer> Make(sk_sp<SkImage> image) {
-        return sk_sp<TileRenderer>(new TextureRenderer(image));
-    }
-
-    void drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
-                  int tileID, int quadID) override {
-        SkPMColor4f color = {1.f, 1.f, 1.f, 1.f};
-        SkRect localRect = get_image_local_rect(fImage, rect);
-
-        fImage = fImage->makeTextureImage(fContext, nullptr);
-        sk_sp<GrTextureProxy> proxy = as_IB(fImage)->asTextureProxyRef();
-        SkASSERT(proxy);
-        if (clip) {
-            SkPoint localQuad[4];
-            GrMapRectPoints(rect, localRect, clip, localQuad, 4);
-            fRTC->drawTextureQuad(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kBilerp,
-                    SkBlendMode::kSrcOver, color, localQuad, clip, GrAA::kYes,
-                    this->maskToFlags(edgeAA), nullptr, canvas->getTotalMatrix(), nullptr);
-        } else {
-            fRTC->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kBilerp,
-                    SkBlendMode::kSrcOver, color, localRect, rect, GrAA::kYes,
-                    this->maskToFlags(edgeAA), SkCanvas::kFast_SrcRectConstraint,
-                    canvas->getTotalMatrix(), nullptr);
-        }
-    }
-
-    void drawBanner(SkCanvas* canvas) override {
-        draw_text(canvas, "Texture");
-    }
-
-private:
-    sk_sp<SkImage> fImage;
-
-    TextureRenderer(sk_sp<SkImage> image)
-            : fImage(image) {}
-
-    typedef TileRenderer INHERITED;
-};
-
-// Looks like TextureRenderer, but bundles tiles into drawTextureSet calls
-class TextureSetRenderer : public TileRenderer {
-public:
-
-    static sk_sp<TileRenderer> Make(sk_sp<SkImage> image) {
-        return sk_sp<TileRenderer>(new TextureSetRenderer(image));
+    static sk_sp<ClipTileRenderer> MakeBatched(sk_sp<SkImage> image) {
+        return sk_sp<ClipTileRenderer>(new TextureSetRenderer(image, false));
     }
 
     void drawTiles(SkCanvas* canvas, GrContext* ctx, GrRenderTargetContext* rtc) override {
+        SkASSERT(fImage); // initImage should be called before any drawing
         this->INHERITED::drawTiles(canvas, ctx, rtc);
         // Push the last tile set
         this->drawAndReset(canvas);
@@ -768,79 +654,196 @@ public:
         if (tileID != fCurrentTileID) {
             this->drawAndReset(canvas);
         }
-        SkASSERT((fCurrentTileID < 0 && fDstClips.count() == 0 && fDstClipIndices.count() == 0 &&
+        SkASSERT((fCurrentTileID < 0 && fDstClips.count() == 0 && fDstClipCounts.count() == 0 &&
                   fSetEntries.count() == 0) ||
                  (fCurrentTileID == tileID && fSetEntries.count() > 0));
 
         // Now don't actually draw the tile, accumulate it in the growing entry set
         fCurrentTileID = tileID;
 
-        int clipIndex = -1;
+        int clipCount = 0;
         if (clip) {
-            // Record the four points into fDstClips and get the pointer to the first in the array
-            clipIndex = fDstClips.count();
+            // Record the four points into fDstClips
+            clipCount = 4;
             fDstClips.push_back_n(4, clip);
         }
 
-        SkRect localRect = get_image_local_rect(fImage, rect);
+        // This acts like the whole image is rendered over the entire tile grid, so derive local
+        // coordinates from 'rect', based on the grid to image transform.
+        SkMatrix gridToImage = SkMatrix::MakeRectToRect(SkRect::MakeWH(kColCount * kTileWidth,
+                                                                       kRowCount * kTileHeight),
+                                                        SkRect::MakeWH(fImage->width(),
+                                                                       fImage->height()),
+                                                        SkMatrix::kFill_ScaleToFit);
+        SkRect localRect = gridToImage.mapRect(rect);
 
-        fImage = fImage->makeTextureImage(fContext, nullptr);
-        sk_sp<GrTextureProxy> proxy = as_IB(fImage)->asTextureProxyRef();
         // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr
         // is not null.
-        fSetEntries.push_back({proxy, localRect, rect, nullptr, 1.f, this->maskToFlags(edgeAA)});
-        fDstClipIndices.push_back(clipIndex);
+        fSetEntries.push_back({fImage, localRect, rect, 1.f, this->maskToFlags(edgeAA)});
+        fDstClipCounts.push_back(clipCount);
+
+        if (fResetEachQuad) {
+            // Only ever draw one entry at a time
+            this->drawAndReset(canvas);
+        }
     }
 
     void drawBanner(SkCanvas* canvas) override {
-        draw_text(canvas, "Texture Set");
+        if (fResetEachQuad) {
+            draw_text(canvas, "Texture");
+        } else {
+            draw_text(canvas, "Texture Set");
+        }
+    }
+
+protected:
+    sk_sp<SkImage> fImage;
+    bool fResetEachQuad;
+
+    TextureSetRenderer(sk_sp<SkImage> image, bool resetEachQuad)
+            : fResetEachQuad(resetEachQuad)
+            , fCurrentTileID(-1) {
+        this->initImage(std::move(image));
+    }
+
+    void initImage(sk_sp<SkImage> image) {
+        fImage = std::move(image);
+    }
+
+    virtual void configureTilePaint(const SkRect& rect, int tileID, SkPaint* paint) const {
+        paint->setAntiAlias(true);
+        paint->setFilterQuality(kLow_SkFilterQuality);
+        paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
 private:
-    sk_sp<SkImage> fImage;
-
     SkTArray<SkPoint> fDstClips;
-    // Since fDstClips will reallocate as needed, can't get the final pointer for the entries'
-    // fDstClip values until submitting the entire set
-    SkTArray<int> fDstClipIndices;
-    SkTArray<GrRenderTargetContext::TextureSetEntry> fSetEntries;
+    // ImageSetEntry does not yet have an fDstClipCount field
+    SkTArray<int> fDstClipCounts;
+    SkTArray<SkCanvas::ImageSetEntry> fSetEntries;
     int fCurrentTileID;
-
-    TextureSetRenderer(sk_sp<SkImage> image)
-            : fImage(image)
-            , fCurrentTileID(-1) {}
 
     void drawAndReset(SkCanvas* canvas) {
         // Early out if there's nothing to draw
         if (fSetEntries.count() == 0) {
-            SkASSERT(fCurrentTileID < 0 && fDstClips.count() == 0 && fDstClipIndices.count() == 0);
+            SkASSERT(fCurrentTileID < 0 && fDstClips.count() == 0 && fDstClipCounts.count() == 0);
             return;
         }
 
-        // Fill in fDstClip in the entries now that fDstClips' storage won't change until after the
-        // draw is finished.
-        // NOTE: The eventual API in SkGpuDevice will make easier to collect
-        // SkCanvas::ImageSetEntries and dst clips without this extra work, but also internally maps
-        // very cleanly on to the TextureSetEntry fDstClip approach.
-        SkASSERT(fDstClipIndices.count() == fSetEntries.count());
-        for (int i = 0; i < fSetEntries.count(); ++i) {
-            if (fDstClipIndices[i] >= 0) {
-                fSetEntries[i].fDstClip = &fDstClips[fDstClipIndices[i]];
-            }
-        }
+        // NOTE: Eventually fDstClipCounts will just be stored as a field on each entry
+        SkASSERT(fDstClipCounts.count() == fSetEntries.count());
 
-        // Send to GPU
-        fRTC->drawTextureSet(GrNoClip(), fSetEntries.begin(), fSetEntries.count(),
-                             GrSamplerState::Filter::kBilerp, SkBlendMode::kSrcOver, GrAA::kYes,
-                             canvas->getTotalMatrix(), nullptr);
+#ifdef SK_DEBUG
+        int expectedDstClipCount = 0;
+        for (int i = 0; i < fDstClipCounts.count(); ++i) {
+            expectedDstClipCount += fDstClipCounts[i];
+        }
+        SkASSERT(expectedDstClipCount == fDstClips.count());
+#endif
+
+        SkPaint paint;
+        SkRect lastTileRect = fSetEntries[fSetEntries.count() - 1].fDstRect;
+        this->configureTilePaint(lastTileRect, fCurrentTileID, &paint);
+
+        fDevice->tmp_drawImageSetV2(fSetEntries.begin(), fDstClipCounts.begin(),
+                                    fSetEntries.count(), fDstClips.begin(), paint,
+                                    SkCanvas::kFast_SrcRectConstraint);
+
         // Reset for next tile
         fCurrentTileID = -1;
         fDstClips.reset();
-        fDstClipIndices.reset();
+        fDstClipCounts.reset();
         fSetEntries.reset();
     }
 
-    typedef TileRenderer INHERITED;
+    typedef ClipTileRenderer INHERITED;
+};
+
+// Tests an alpha-only image combined with a regular paint shader
+class GradientRenderer : public TextureSetRenderer {
+public:
+
+    static sk_sp<ClipTileRenderer> MakeSeamless() {
+        return sk_sp<ClipTileRenderer>(new GradientRenderer(false));
+    }
+
+    static sk_sp<ClipTileRenderer> MakeLocal() {
+        return sk_sp<ClipTileRenderer>(new GradientRenderer(true));
+    }
+
+    void drawBanner(SkCanvas* canvas) override {
+        canvas->save();
+        draw_text(canvas, "Gradient");
+        canvas->translate(0.f, 15.f);
+        if (fResetEachQuad) {
+            draw_text(canvas, "Local");
+        } else {
+            draw_text(canvas, "Seamless");
+        }
+        canvas->restore();
+    }
+
+protected:
+    void configureTilePaint(const SkRect& rect, int tileID, SkPaint* paint) const override {
+        this->INHERITED::configureTilePaint(rect, tileID, paint);
+        if (fResetEachQuad) {
+            // Apply a local transform in the shader to map from the tile rectangle to (0,0,w,h)
+            static const SkRect kTarget = SkRect::MakeWH(kTileWidth, kTileHeight);
+            SkMatrix local = SkMatrix::MakeRectToRect(rect, kTarget, SkMatrix::kFill_ScaleToFit);
+            paint->setShader(fGradient->makeWithLocalMatrix(local));
+        } else {
+            paint->setShader(fGradient);
+        }
+    }
+
+private:
+    sk_sp<SkShader> fGradient;
+
+    // local coords require resetting per quad since the paint's local coordinates are updated
+    GradientRenderer(bool local) : INHERITED(nullptr, local) {
+        static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
+        static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
+        fGradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                 SkShader::kMirror_TileMode);
+
+        auto info = SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kOpaque_SkAlphaType);
+        SkBitmap bm;
+        bm.allocPixels(info);
+        bm.eraseColor(SK_ColorWHITE);
+        this->initImage(SkImage::MakeFromBitmap(bm));
+    }
+
+    typedef TextureSetRenderer INHERITED;
+};
+
+// Tests effects of paint color (i.e. the alpha channel is combined with each set entry).
+class PaintAlphaRenderer : public TextureSetRenderer {
+public:
+    static sk_sp<ClipTileRenderer> Make(sk_sp<SkImage> image, SkScalar alpha) {
+        return sk_sp<ClipTileRenderer>(new PaintAlphaRenderer(image, alpha));
+    }
+
+    void drawBanner(SkCanvas* canvas) override {
+        canvas->save();
+        draw_text(canvas, "Paint Alpha");
+        canvas->translate(0.f, 15.f);
+        draw_text(canvas, SkStringPrintf("a = %.2f", fAlpha).c_str());
+        canvas->restore();
+    }
+protected:
+    void configureTilePaint(const SkRect& rect, int tileID, SkPaint* paint) const override {
+        this->INHERITED::configureTilePaint(rect, tileID, paint);
+        // Send non-white RGB, that should be ignored
+        paint->setColor4f({1.f, 0.4f, 0.25f, fAlpha}, nullptr);
+    }
+private:
+    SkScalar fAlpha;
+
+    PaintAlphaRenderer(sk_sp<SkImage> image, SkScalar alpha)
+            : INHERITED(image, false)
+            , fAlpha(alpha) {}
+
+    typedef TextureSetRenderer INHERITED;
 };
 
 DEF_GM(return new CompositorGM("debug",
@@ -850,7 +853,9 @@ DEF_GM(return new CompositorGM("color", SolidColorRenderer::Make({.2f, .8f, .3f,
 DEF_GM(return new CompositorGM("shader",
         GradientRenderer::MakeSeamless(), GradientRenderer::MakeLocal()));
 DEF_GM(return new CompositorGM("image",
-        TextureRenderer::Make(GetResourceAsImage("images/mandrill_512.png")),
-        TextureSetRenderer::Make(GetResourceAsImage("images/mandrill_512.png"))));
+        TextureSetRenderer::MakeUnbatched(GetResourceAsImage("images/mandrill_512.png")),
+        TextureSetRenderer::MakeBatched(GetResourceAsImage("images/mandrill_512.png"))));
+DEF_GM(return new CompositorGM("filter",
+        PaintAlphaRenderer::Make(GetResourceAsImage("images/color_wheel.png"), 0.5f)));
 
 #endif // SK_SUPPORT_GPU
