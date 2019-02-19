@@ -307,9 +307,10 @@ private:
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
-        // All dst rects are transformed by the same view matrix, so their quad types are identical
-        GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
-        fQuads.reserve(cnt, quadType);
+        // All dst rects are transformed by the same view matrix, so their quad types are identical,
+        // unless an entry provides a dstClip that forces quad type to be at least standard.
+        GrQuadType baseQuadType = GrQuadTypeForTransformedRect(viewMatrix);
+        fQuads.reserve(cnt, baseQuadType);
 
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
@@ -319,7 +320,16 @@ private:
             if (!fProxies[p].fProxy->canSkipResourceAllocator()) {
                 fCanSkipAllocatorGather = static_cast<unsigned>(false);
             }
-            auto quad = GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix);
+
+            // Use dstRect unless dstClip is provided, which is assumed to be a quad
+            auto quad = set[p].fDstClip == nullptr ?
+                    GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix) :
+                    GrPerspQuad::MakeFromSkQuad(set[p].fDstClip, viewMatrix);
+            GrQuadType quadType = baseQuadType;
+            if (set[p].fDstClip && baseQuadType != GrQuadType::kPerspective) {
+                quadType = GrQuadType::kStandard;
+            }
+
             bounds.joinPossiblyEmptyRect(quad.bounds(quadType));
             GrQuadAAFlags aaFlags;
             // Don't update the overall aaType, might be inappropriate for some of the quads
@@ -337,9 +347,18 @@ private:
             }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
-            // TODO(michaelludwig) - Once TextureSetEntry is updated to include a dstClip, fSrcQuads
-            // will need to be used similarly to the single-image ctor.
-            fQuads.push_back(quad, quadType, {color, set[p].fSrcRect, -1, Domain::kNo, aaFlags});
+            int srcQuadIndex = -1;
+            if (set[p].fDstClip) {
+                // Derive new source coordinates that match dstClip's relative locations in dstRect,
+                // but with respect to srcRect
+                SkPoint srcQuad[4];
+                GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClip, srcQuad, 4);
+                fSrcQuads.push_back(GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
+                                    GrQuadType::kStandard);
+                srcQuadIndex = fSrcQuads.count() - 1;
+            }
+            fQuads.push_back(quad, quadType,
+                             {color, set[p].fSrcRect, srcQuadIndex, Domain::kNo, aaFlags});
         }
         fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {

@@ -132,10 +132,29 @@ public:
 
     /**
      * Creates an op that draws a fill rect with per-edge control over anti-aliasing.
+     *
+     * This is a specialized version of fillQuadWithEdgeAA, but is kept separate since knowing
+     * the geometry is a rectangle affords more optimizations.
      */
     void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
                             const SkMatrix& viewMatrix, const SkRect& rect,
                             const SkRect* optionalLocalRect = nullptr);
+
+    /**
+     * Similar to fillRectWithEdgeAA but draws an arbitrary 2D convex quadrilateral transformed
+     * by 'viewMatrix', with per-edge control over anti-aliasing. The quad should follow the
+     * ordering used by SkRect::toQuad(), which determines how the edge AA is applied:
+     *  - "top" = points [0] and [1]
+     *  - "right" = points[1] and [2]
+     *  - "bottom" = points[2] and [3]
+     *  - "left" = points[3] and [0]
+     *
+     * The last argument, 'optionalLocalQuad', can be null if no separate local coordinates are
+     * necessary.
+     */
+    void fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
+                            const SkMatrix& viewMatrix, const SkPoint quad[4],
+                            const SkPoint optionalLocalQuad[4]);
 
     /** Used with drawQuadSet */
     struct QuadSetEntry {
@@ -160,17 +179,32 @@ public:
                      const SkRect& dstRect, GrAA, GrQuadAAFlags, SkCanvas::SrcRectConstraint,
                      const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform);
 
+    /**
+     * Variant of drawTexture that instead draws the texture applied to 'dstQuad' transformed by
+     * 'viewMatrix', using the 'srcQuad' texture coordinates clamped to the optional 'domain'. If
+     * 'domain' is null, it's equivalent to using the fast src rect constraint. If 'domain' is
+     * provided, the strict src rect constraint is applied using 'domain'.
+     */
+    void drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
+                         SkBlendMode mode, const SkPMColor4f&, const SkPoint srcQuad[4],
+                         const SkPoint dstQuad[4], GrAA, GrQuadAAFlags, const SkRect* domain,
+                         const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform);
+
     /** Used with drawTextureSet */
     struct TextureSetEntry {
         sk_sp<GrTextureProxy> fProxy;
         SkRect fSrcRect;
         SkRect fDstRect;
+        SkPoint* fDstClip; // Must be null, or point to an array of 4 points
         float fAlpha;
         GrQuadAAFlags fAAFlags;
     };
     /**
      * Draws a set of textures with a shared filter, color, view matrix, color xform, and
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
+     *
+     * If any entries provide a non-null fDstClip array, it will be read from immediately based on
+     * fDstClipCount, so the pointer can become invalid after this returns.
      */
     void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
                         SkBlendMode mode, GrAA aa, const SkMatrix& viewMatrix,
