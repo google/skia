@@ -108,12 +108,32 @@ private:
     SkCurve fCurve;
 };
 
+class SkColorAffector : public SkParticleAffector {
+public:
+    SkColorAffector(const SkColorCurve& curve = SkColor4f{ 1.0f, 1.0f, 1.0f, 1.0f })
+        : fCurve(curve) {}
+
+    REFLECTED(SkColorAffector, SkParticleAffector)
+
+    void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
+        pv.fColor = fCurve.eval(params.fParticleT, *params.fStableRandom);
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        v->visit("Curve", fCurve);
+    }
+
+private:
+    SkColorCurve fCurve;
+};
+
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
     REGISTER_REFLECTED(SkLinearVelocityAffector);
     REGISTER_REFLECTED(SkPointForceAffector);
     REGISTER_REFLECTED(SkOrientAlongVelocityAffector);
     REGISTER_REFLECTED(SkSizeAffector);
+    REGISTER_REFLECTED(SkColorAffector);
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
@@ -131,6 +151,10 @@ sk_sp<SkParticleAffector> SkParticleAffector::MakeOrientAlongVelocity() {
     return sk_sp<SkParticleAffector>(new SkOrientAlongVelocityAffector());
 }
 
-sk_sp<SkParticleAffector> SkParticleAffector::MakeSizeAffector(const SkCurve& curve) {
+sk_sp<SkParticleAffector> SkParticleAffector::MakeSize(const SkCurve& curve) {
     return sk_sp<SkParticleAffector>(new SkSizeAffector(curve));
+}
+
+sk_sp<SkParticleAffector> SkParticleAffector::MakeColor(const SkColorCurve& curve) {
+    return sk_sp<SkParticleAffector>(new SkColorAffector(curve));
 }
