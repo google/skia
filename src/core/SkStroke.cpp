@@ -499,6 +499,7 @@ void SkPathStroker::init(StrokeType strokeType, SkQuadConstruct* quadPts, SkScal
 // returns the distance squared from the point to the line
 static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const SkPoint& lineEnd) {
     SkVector dxy = lineEnd - lineStart;
+#ifdef SK_SUPPORT_LEGACY_SETLENGTH
     if (degenerate_vector(dxy)) {
         return SkPointPriv::DistanceToSqd(pt, lineStart);
     }
@@ -510,6 +511,20 @@ static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const Sk
     hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
     hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
     return SkPointPriv::DistanceToSqd(hit, pt);
+#else
+    SkVector ab0 = pt - lineStart;
+    SkScalar numer = dxy.dot(ab0);
+    SkScalar denom = dxy.dot(dxy);
+    SkScalar t = sk_ieee_float_divide(numer, denom);
+    if (t >= 0 && t <= 1) {
+        SkPoint hit;
+        hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
+        hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
+        return SkPointPriv::DistanceToSqd(hit, pt);
+    } else {
+        return SkPointPriv::DistanceToSqd(pt, lineStart);
+    }
+#endif
 }
 
 /*  Given a cubic, determine if all four points are in a line.
