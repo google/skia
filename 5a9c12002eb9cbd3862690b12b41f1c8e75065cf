@@ -33,6 +33,24 @@
       "revId": "5a9c12002eb9cbd3862690b12b41f1c8e75065cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b459bf25_ee6a7d80",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-19T13:35:35Z",
+      "side": 0,
+      "message": "The only images we deal with that are 16 bitsPerComponent are PNGs, which are always RGBA.",
+      "parentUuid": "3952392f_af450bf6",
+      "revId": "5a9c12002eb9cbd3862690b12b41f1c8e75065cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
