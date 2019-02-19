@@ -7,10 +7,10 @@
 
 #include "GrBitmapTextureMaker.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSurfaceContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -19,7 +19,7 @@
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 
-GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap)
+GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap)
     : INHERITED(context, bitmap.width(), bitmap.height(), bmp_is_alpha_only(bitmap))
     , fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {

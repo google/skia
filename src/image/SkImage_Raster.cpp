@@ -81,7 +81,7 @@ public:
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const override;
 #endif
 
@@ -169,7 +169,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
+sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrRecordingContext* context,
                                                         const GrSamplerState& params,
                                                         SkScalar scaleAdjust[2]) const {
     if (!context) {

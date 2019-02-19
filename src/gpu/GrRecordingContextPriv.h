@@ -110,6 +110,10 @@ public:
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
+    // CONTEXT TODO: remove this backdoor
+    // In order to make progress we temporarily need a way to break CL impasses.
+    GrContext* backdoor();
+
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
     GrRecordingContextPriv(const GrRecordingContextPriv&); // unimpl

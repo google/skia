@@ -61,7 +61,8 @@ bool SkImageGenerator::getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
 #if SK_SUPPORT_GPU
 #include "GrTextureProxy.h"
 
-sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
+sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrRecordingContext* ctx,
+                                                        const SkImageInfo& info,
                                                         const SkIPoint& origin,
                                                         bool willNeedMipMaps) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
@@ -71,7 +72,8 @@ sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const Sk
     return this->onGenerateTexture(ctx, info, origin, willNeedMipMaps);
 }
 
-sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkImageInfo&,
+sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrRecordingContext*,
+                                                          const SkImageInfo&,
                                                           const SkIPoint&,
                                                           bool willNeedMipMaps) {
     return nullptr;

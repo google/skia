@@ -12,7 +12,7 @@
 #include "SkImage_Lazy.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
-GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
+GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint)
         : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
         , fImage(static_cast<const SkImage_Lazy*>(client))

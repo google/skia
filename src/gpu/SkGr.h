@@ -27,6 +27,7 @@ class GrColorSpaceXform;
 class GrContext;
 class GrFragmentProcessor;
 class GrPaint;
+class GrRecordingContext;
 class GrResourceProvider;
 class GrTextureProxy;
 class GrUniqueKey;
@@ -67,16 +68,16 @@ SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorSpaceInfo&, const GrCaps&)
 ////////////////////////////////////////////////////////////////////////////////
 // Paint conversion
 
-/** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
+/** Converts an SkPaint to a GrPaint for a given GrRecordingContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
-bool SkPaintToGrPaint(GrContext*,
+bool SkPaintToGrPaint(GrRecordingContext*,
                       const GrColorSpaceInfo& dstColorSpaceInfo,
                       const SkPaint& skPaint,
                       const SkMatrix& viewM,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
-bool SkPaintToGrPaintNoShader(GrContext* context,
+bool SkPaintToGrPaintNoShader(GrRecordingContext*,
                               const GrColorSpaceInfo& dstColorSpaceInfo,
                               const SkPaint& skPaint,
                               GrPaint* grPaint);
@@ -84,7 +85,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
     should expect an unpremul input color and produce a premultiplied output color. There is
     no primitive color. */
-bool SkPaintToGrPaintReplaceShader(GrContext*,
+bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
                                    const GrColorSpaceInfo& dstColorSpaceInfo,
                                    const SkPaint& skPaint,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
@@ -92,7 +93,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext*,
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
     GrOp's GrPrimitiveProcesssor. */
-bool SkPaintToGrPaintWithXfermode(GrContext* context,
+bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
                                   const GrColorSpaceInfo& dstColorSpaceInfo,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
@@ -103,18 +104,19 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
     the expectation is that the primitive color will be premultiplied, though it really should be
     unpremultiplied so that interpolation is done in unpremul space. The paint's alpha will be
     applied to the primitive color after interpolation. */
-inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context,
+inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
                                                const GrColorSpaceInfo& dstColorSpaceInfo,
-                                               const SkPaint& skPaint, GrPaint* grPaint) {
+                                               const SkPaint& skPaint,
+                                               GrPaint* grPaint) {
     return SkPaintToGrPaintWithXfermode(context, dstColorSpaceInfo, skPaint, SkMatrix::I(),
                                         SkBlendMode::kDst, grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
     lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
-bool SkPaintToGrPaintWithTexture(GrContext* context,
+bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
                                  const GrColorSpaceInfo& dstColorSpaceInfo,
-                                 const SkPaint& paint,
+                                 const SkPaint& skPaint,
                                  const SkMatrix& viewM,
                                  std::unique_ptr<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
@@ -174,7 +176,7 @@ GR_STATIC_ASSERT((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
  *  performed on the absolute texture coordinates (e.g., if the texture is resized out to
  *  the next power of two). It can be null if the caller is sure the bitmap won't be resized.
  */
-sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
+sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
                                                     const SkBitmap&,
                                                     const GrSamplerState&,
                                                     SkScalar scaleAdjust[2]);
@@ -189,7 +191,7 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBit
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext*,
+sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                      GrTextureProxy* baseProxy);
 
 /*

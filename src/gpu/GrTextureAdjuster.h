@@ -12,6 +12,8 @@
 #include "GrTextureProxy.h"
 #include "SkTLazy.h"
 
+class GrRecordingContext;
+
 /**
  * Base class for sources that start out as textures. Optionally allows for a content area subrect.
  * The intent is not to use content area for subrect rendering. Rather, the pixels outside the
@@ -29,7 +31,7 @@ public:
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
-    GrTextureAdjuster(GrContext*, sk_sp<GrTextureProxy>, SkAlphaType, uint32_t uniqueID,
+    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, SkAlphaType, uint32_t uniqueID,
                       SkColorSpace*);
 
 protected:

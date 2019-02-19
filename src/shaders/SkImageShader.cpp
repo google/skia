@@ -160,8 +160,6 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 
 #include "GrCaps.h"
 #include "GrColorSpaceInfo.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "SkGr.h"

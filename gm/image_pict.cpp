@@ -160,7 +160,7 @@ public:
         }
     }
 protected:
-    sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+    sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext* ctx, const SkImageInfo& info,
                                             const SkIPoint& origin,
                                             bool willBeMipped) override {
         SkASSERT(ctx);

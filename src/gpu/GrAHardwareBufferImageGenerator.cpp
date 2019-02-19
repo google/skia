@@ -21,6 +21,8 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
@@ -78,12 +80,17 @@ GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
-    if (context->abandoned()) {
+sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingContext* context) {
+    if (context->priv().abandoned()) {
         return nullptr;
     }
 
-    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(context,
+    auto direct = context->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(direct,
                                                                              fHardwareBuffer,
                                                                              fBufferFormat,
                                                                              false);
@@ -142,13 +149,13 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     };
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
-            [context, buffer = AutoAHBRelease(hardwareBuffer), width, height, pixelConfig,
+            [direct, buffer = AutoAHBRelease(hardwareBuffer), width, height, pixelConfig,
              isProtectedContent, backendFormat](GrResourceProvider* resourceProvider) {
                 GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
                 GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
 
                 GrBackendTexture backendTex =
-                        GrAHardwareBufferUtils::MakeBackendTexture(context, buffer.get(),
+                        GrAHardwareBufferUtils::MakeBackendTexture(direct, buffer.get(),
                                                                    width, height,
                                                                    &deleteImageProc,
                                                                    &deleteImageCtx,
@@ -186,7 +193,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 }
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
-        GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
+        GrRecordingContext* context, const SkImageInfo& info,
+        const SkIPoint& origin, bool willNeedMipMaps) {
     sk_sp<GrTextureProxy> texProxy = this->makeProxy(context);
     if (!texProxy) {
         return nullptr;

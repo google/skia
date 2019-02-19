@@ -36,6 +36,7 @@ class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrBackendTexture;
 class GrContext;
+class GrRecordingContext;
 class GrRenderTarget;
 
 /** \class SkSurface
@@ -416,7 +417,7 @@ public:
         @param budgeted          one of: SkBudgeted::kNo, SkBudgeted::kYes
         @return                  SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context,
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted);
 

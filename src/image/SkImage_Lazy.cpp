@@ -16,12 +16,13 @@
 #include "SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrCaps.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageTextureMaker.h"
 #include "GrResourceKey.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSamplerState.h"
 #include "GrYUVProvider.h"
 #include "SkGr.h"
@@ -237,7 +238,7 @@ bool SkImage_Lazy::onIsValid(GrContext* context) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
+sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrRecordingContext* context,
                                                       const GrSamplerState& params,
                                                       SkScalar scaleAdjust[2]) const {
     if (!context) {
@@ -363,7 +364,7 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
  *  4. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
-        GrContext* ctx,
+        GrRecordingContext* ctx,
         const GrUniqueKey& origKey,
         SkImage::CachingHint chint,
         bool willBeMipped,

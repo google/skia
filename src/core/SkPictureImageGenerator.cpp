@@ -26,8 +26,8 @@ protected:
 
 #if SK_SUPPORT_GPU
     TexGenType onCanGenerateTexture() const override { return TexGenType::kExpensive; }
-    sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
-                                            bool willNeedMipMaps) override;
+    sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
+                                            const SkIPoint&, bool willNeedMipMaps) override;
 #endif
 
 private:
@@ -92,12 +92,19 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
+
 sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
-        GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
+        GrRecordingContext* ctx, const SkImageInfo& info,
+        const SkIPoint& origin, bool willNeedMipMaps) {
     SkASSERT(ctx);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info, 0,
+
+    // CONTEXT TODO: remove this use of 'backdoor' to create an SkSkSurface
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx->priv().backdoor(),
+                                                         SkBudgeted::kYes, info, 0,
                                                          kTopLeft_GrSurfaceOrigin, &props,
                                                          willNeedMipMaps));
     if (!surface) {
