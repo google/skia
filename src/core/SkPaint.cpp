@@ -44,14 +44,14 @@ SkPaint::SkPaint()
     : fColor4f{0, 0, 0, 1}  // opaque black
     , fWidth{0}
     , fMiterLimit{SkPaintDefaults_MiterLimit}
-    , fBitfields{0,                                   // fAntiAlias
-                 0,                                   // fDither
-                 kDefault_Cap,                        // fCapType
-                 kDefault_Join,                       // fJoinType
-                 kFill_Style,                         // fStyle
-                 0,                                   // fFilterQuality
-                 (unsigned)SkBlendMode::kSrcOver,     // fBlendMode
-                 0}                                   // fPadding
+    , fBitfields{(unsigned)false,                   // fAntiAlias
+                 (unsigned)false,                   // fDither
+                 (unsigned)SkPaint::kDefault_Cap,   // fCapType
+                 (unsigned)SkPaint::kDefault_Join,  // fJoinType
+                 (unsigned)SkPaint::kFill_Style,    // fStyle
+                 (unsigned)kNone_SkFilterQuality,   // fFilterQuality
+                 (unsigned)SkBlendMode::kSrcOver,   // fBlendMode
+                 0}                                 // fPadding
 {
     static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
 }
