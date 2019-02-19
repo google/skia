@@ -16,7 +16,7 @@
     subset of the pixelref specified by the bitmap. */
 class GrBitmapTextureMaker : public GrTextureMaker {
 public:
-    GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap);
+    GrBitmapTextureMaker(GrContext* context, const SkBitmap& bitmap, bool useDecal = false);
 
 protected:
     sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
