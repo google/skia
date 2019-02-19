@@ -250,7 +250,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
     canvas->clear(0);
 
     gDragPoints.reset();
-    if (ImGui::Begin("Particles")) {
+    if (ImGui::Begin("Particles", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
         static bool looped = true;
         ImGui::Checkbox("Looped", &looped);
         if (fTimer && ImGui::Button("Play")) {
