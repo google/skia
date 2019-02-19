@@ -202,9 +202,7 @@ public:
 
     // setLuminanceColor forces the alpha to be 0xFF because the blitter that draws the glyph
     // will apply the alpha from the paint. Don't apply the alpha twice.
-    void setLuminanceColor(SkColor c) {
-        fLumBits = SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c));
-    }
+    void setLuminanceColor(SkColor c);
 
 private:
     // TODO: remove
