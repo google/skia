@@ -3,7 +3,54 @@
 
 #include "SkPDFSubsetFont.h"
 
-#if defined(SK_PDF_USE_SFNTLY)
+#if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
+
+#include "SkTo.h"
+
+#include "hb.h"
+#include "hb-subset.h"
+
+sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
+                              const SkPDFGlyphUse& glyphUsage,
+                              const char*,
+                              int ttcIndex) {
+    if (!fontData) { return nullptr; }
+
+    /* Creating a face */
+    hb_blob_t* srcBlob = hb_blob_create((char*)fontData->data(), SkToUInt(fontData->size()),
+                                        HB_MEMORY_MODE_READONLY, nullptr, nullptr);
+    hb_face_t* face = hb_face_create(srcBlob, ttcIndex);
+    hb_blob_destroy(srcBlob);
+
+    /* Add your codepoints here and subset */
+    hb_set_t* glyphs = hb_set_create();
+
+    hb_set_add(glyphs, 0);
+    glyphUsage.getSetValues([glyphs](unsigned gid) { hb_set_add(glyphs, gid);});
+
+    hb_subset_input_t* input = hb_subset_input_create_or_fail();
+    hb_set_t* input_glyphs = hb_subset_input_glyph_set(input);
+    hb_set_union(input_glyphs, glyphs);
+    hb_subset_input_set_drop_hints(input, true);
+    hb_subset_input_set_drop_layout(input, true);
+    hb_face_t* subset = hb_subset(face, input);
+
+    /* Clean up */
+    hb_set_destroy(glyphs);
+    hb_subset_input_destroy(input);
+
+    /* Get result blob */
+    hb_blob_t* resultBlob = hb_face_reference_blob(subset);
+    hb_face_destroy(subset);
+    unsigned int length;
+    const char* data = hb_blob_get_data(resultBlob, &length);
+
+    return SkData::MakeWithProc(data, SkToSizeT(length),
+                                [](const void*, void* ctx) { hb_blob_destroy((hb_blob_t*)ctx); },
+                                resultBlob);
+}
+
+#elif defined(SK_PDF_USE_SFNTLY)
 
 #if defined(SK_USING_THIRD_PARTY_ICU)
 #include "SkLoadICU.h"
