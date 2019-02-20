@@ -37,19 +37,18 @@ struct SkParticleVelocity {
 };
 
 struct SkParticleState {
-    double             fTimeOfBirth;
-    double             fTimeOfDeath;
+    float              fAge;          // Normalized age [0, 1]
+    float              fInvLifetime;  // 1 / Lifetime
     SkParticlePose     fPose;
     SkParticleVelocity fVelocity;
     SkColor4f          fColor;
-    SkScalar           fFrame;         // Parameter to drawable for animated sprites, etc.
+    SkScalar           fFrame;        // Parameter to drawable for animated sprites, etc.
     SkRandom           fStableRandom;
 };
 
 struct SkParticleUpdateParams {
     SkRandom* fRandom;
     float fDeltaTime;
-    float fParticleT;
 };
 
 #endif // SkParticleData_DEFINED
