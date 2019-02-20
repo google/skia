@@ -226,7 +226,7 @@ JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
     // Wrapping it in val automatically turns it into a JS string.
     // Not too sure on performance implications, but is is simpler than
     // returning a raw pointer to const char * and then using
-    // Pointer_stringify() on the calling side.
+    // UTF8ToString() on the calling side.
     return emscripten::val(s.c_str());
 }
 
