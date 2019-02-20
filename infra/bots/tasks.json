@@ -13735,7 +13735,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "android_ndk_darwin",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -15858,7 +15858,7 @@
         {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
-          "version": "version:8"
+          "version": "version:9"
         }
       ],
       "command": [
@@ -21336,7 +21336,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:13"
+          "version": "version:14"
         }
       ],
       "command": [
