@@ -1816,6 +1816,10 @@ std::unique_ptr<ASTExpression> Parser::unaryExpression() {
         case Token::BITWISENOT: // fall through
         case Token::PLUSPLUS:   // fall through
         case Token::MINUSMINUS: {
+            AutoDepth depth(this);
+            if (!depth.checkValid()) {
+                return nullptr;
+            }
             Token t = this->nextToken();
             std::unique_ptr<ASTExpression> expr = this->unaryExpression();
             if (!expr) {
