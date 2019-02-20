@@ -745,8 +745,10 @@ optional("pdf") {
   }
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
-
-  if (skia_use_sfntly) {
+  if (skia_use_icu && skia_use_harfbuzz && skia_pdf_subset_harfbuzz) {
+    deps += [ "//third_party/harfbuzz" ]
+    defines = [ "SK_PDF_USE_HARFBUZZ_SUBSET" ]
+  } else if (skia_use_icu && skia_use_sfntly) {
     deps += [ "//third_party/sfntly" ]
     defines = [ "SK_PDF_USE_SFNTLY" ]
   }
