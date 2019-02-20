@@ -45,12 +45,13 @@ public:
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
 
     // from GrRecordingContext
-
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+
+    GrStrikeCache* getGlyphCache() { return fContext->getGlyphCache(); }
+    GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
