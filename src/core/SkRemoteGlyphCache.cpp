@@ -218,16 +218,6 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
 
-#ifdef SK_SUPPORT_LEGACY_TEXTBLOBCACHEDIFFCANVAS_CONSTRUCTOR
-SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
-                                                     const SkMatrix& deviceMatrix,
-                                                     const SkSurfaceProps& props,
-                                                     SkStrikeServer* strikeServer,
-                                                     Settings settings)
-        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
-                                                      strikeServer, nullptr, settings)} {}
-#endif
-
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
         int width, int height, const SkSurfaceProps& props,
         SkStrikeServer* strikeServer, Settings settings)
