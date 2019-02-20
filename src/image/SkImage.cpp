@@ -26,8 +26,8 @@
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTexture.h"
 #include "GrContext.h"
+#include "GrTexture.h"
 #include "SkImage_Gpu.h"
 #endif
 #include "GrBackendSurface.h"
@@ -264,8 +264,12 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
     if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
         return nullptr;
     }
-    sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage(
-        grContext, subset, sk_ref_sp(const_cast<SkImage*>(this)));
+    sk_sp<SkSpecialImage> srcSpecialImage =
+#if SK_SUPPORT_GPU
+        SkSpecialImage::MakeFromImage(grContext, subset, sk_ref_sp(const_cast<SkImage*>(this)));
+#else
+        SkSpecialImage::MakeFromImage(nullptr, subset, sk_ref_sp(const_cast<SkImage*>(this)));
+#endif
     if (!srcSpecialImage) {
         return nullptr;
     }
