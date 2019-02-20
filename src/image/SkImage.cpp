@@ -25,9 +25,10 @@
 #include "SkString.h"
 #include "SkSurface.h"
 
+#include "GrContext.h"
+
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
-#include "GrContext.h"
 #include "SkImage_Gpu.h"
 #endif
 #include "GrBackendSurface.h"
