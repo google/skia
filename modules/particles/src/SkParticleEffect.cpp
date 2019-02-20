@@ -54,22 +54,26 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         return;
     }
 
+    double now = timer.secs();
+    float deltaTime = static_cast<float>(now - fLastTime);
+    if (deltaTime < 0.0f) {
+        return;
+    }
+    fLastTime = now;
+
     // Handle user edits to fMaxCount
     if (fParams->fMaxCount != fCapacity) {
         this->setCapacity(fParams->fMaxCount);
     }
 
-    double now = timer.secs();
-    float deltaTime = static_cast<float>(now - fLastTime);
-    fLastTime = now;
-
     SkParticleUpdateParams updateParams;
     updateParams.fDeltaTime = deltaTime;
     updateParams.fRandom = &fRandom;
 
-    // Remove particles that have reached their end of life
+    // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
-        if (now > fParticles[i].fTimeOfDeath) {
+        fParticles[i].fAge += fParticles[i].fInvLifetime * deltaTime;
+        if (fParticles[i].fAge > 1.0f) {
             // NOTE: This is fast, but doesn't preserve drawing order. Could be a problem...
             fParticles[i]     = fParticles[fCount - 1];
             fStableRandoms[i] = fStableRandoms[fCount - 1];
@@ -85,16 +89,17 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
     if (fParams->fEmitter) {
         // This isn't "particle" t, it's effect t.
-        double t = (now - fSpawnTime) / fParams->fEffectDuration;
-        updateParams.fParticleT = static_cast<float>(fLooping ? fmod(t, 1.0) : SkTPin(t, 0.0, 1.0));
+        float t = static_cast<float>((now - fSpawnTime) / fParams->fEffectDuration);
+        t = fLooping ? fmodf(t, 1.0f) : SkTPin(t, 0.0f, 1.0f);
 
         for (int i = 0; i < numToSpawn; ++i) {
             // Mutate our SkRandom so each particle definitely gets a different stable generator
             fRandom.nextU();
 
-            fParticles[fCount].fTimeOfBirth = now;
-            fParticles[fCount].fTimeOfDeath = now + fParams->fLifetime.eval(updateParams.fParticleT,
-                                                                            fRandom);
+            // Temporarily set our age to the *effect* age, so spawn affectors are driven by that
+            fParticles[fCount].fAge = t;
+            fParticles[fCount].fInvLifetime =
+                    sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(t, fRandom));
             fParticles[fCount].fPose = fParams->fEmitter->emit(fRandom);
             fParticles[fCount].fVelocity.fLinear = { 0.0f, 0.0f };
             fParticles[fCount].fVelocity.fAngular = 0.0f;
@@ -105,13 +110,14 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             fCount++;
         }
 
-        // Apply spawn affectors
+        // Apply spawn affectors, then reset our age to 0 (the *particle* age)
         for (int i = fCount - numToSpawn; i < fCount; ++i) {
             for (auto affector : fParams->fSpawnAffectors) {
                 if (affector) {
                     affector->apply(updateParams, fParticles[i]);
                 }
             }
+            fParticles[i].fAge = 0.0f;
         }
     }
 
@@ -122,11 +128,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 
     // Apply update rules
     for (int i = 0; i < fCount; ++i) {
-        // Compute fraction of lifetime that's elapsed
-        updateParams.fParticleT =
-            static_cast<float>((now - fParticles[i].fTimeOfBirth) /
-                               (fParticles[i].fTimeOfDeath - fParticles[i].fTimeOfBirth));
-
         for (auto affector : fParams->fUpdateAffectors) {
             if (affector) {
                 affector->apply(updateParams, fParticles[i]);

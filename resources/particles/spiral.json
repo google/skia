@@ -1,0 +1,117 @@
+{
+   "MaxCount": 800,
+   "Duration": 4,
+   "Rate": 120,
+   "Life": {
+      "XValues": [],
+      "Segments": [
+         {
+            "Constant": true,
+            "Ranged": true,
+            "Bidirectional": false,
+            "A0": 2,
+            "B0": 0,
+            "C0": 0,
+            "D0": 0,
+            "A1": 3,
+            "B1": 0,
+            "C1": 0,
+            "D1": 0
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "Emitter": {
+      "Type": "SkCircleEmitter",
+      "Center": { "x": 0, "y": 0 },
+      "Radius": 0
+   },
+   "Spawn": [
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Force": false,
+         "Angle": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": false,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0,
+                  "B0": 360,
+                  "C0": 720,
+                  "D0": 1080,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         },
+         "Strength": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": true,
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 50,
+                  "B0": 0,
+                  "C0": 0,
+                  "D0": 0,
+                  "A1": 60,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkSizeAffector",
+         "Curve": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": false,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0.5,
+                  "B0": 1,
+                  "C0": 1.5,
+                  "D0": 2,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkColorAffector",
+         "Curve": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": false,
+                  "Ranged": true,
+                  "A0": [ 0.0999616, 0.140218, 0.784314, 1 ],
+                  "B0": [ 0.183679, 0.183692, 0.764706, 1 ],
+                  "C0": [ 0.242647, 0.43925, 0.916667, 1 ],
+                  "D0": [ 0.523837, 0.886396, 0.980392, 1 ],
+                  "A1": [ 0.378665, 0.121107, 0.705882, 1 ],
+                  "B1": [ 0.538658, 0.162534, 0.872549, 1 ],
+                  "C1": [ 0.672143, 0.259443, 0.867647, 1 ],
+                  "D1": [ 0.934257, 0.229599, 0.955882, 1 ]
+               }
+            ]
+         }
+      }
+   ]
+}

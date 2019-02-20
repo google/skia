@@ -23,9 +23,9 @@ public:
     REFLECTED(SkLinearVelocityAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
-        float angle = fAngle.eval(params.fParticleT, ps.fStableRandom);
+        float angle = fAngle.eval(ps.fAge, ps.fStableRandom);
         SkScalar c, s = SkScalarSinCos(SkDegreesToRadians(angle), &c);
-        float strength = fStrength.eval(params.fParticleT, ps.fStableRandom);
+        float strength = fStrength.eval(ps.fAge, ps.fStableRandom);
         SkVector force = { c * strength, s * strength };
         if (fForce) {
             ps.fVelocity.fLinear += force * params.fDeltaTime;
@@ -97,7 +97,7 @@ public:
     REFLECTED(SkSizeAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
-        ps.fPose.fScale = fCurve.eval(params.fParticleT, ps.fStableRandom);
+        ps.fPose.fScale = fCurve.eval(ps.fAge, ps.fStableRandom);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -115,7 +115,7 @@ public:
     REFLECTED(SkFrameAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
-        ps.fFrame = fCurve.eval(params.fParticleT, ps.fStableRandom);
+        ps.fFrame = fCurve.eval(ps.fAge, ps.fStableRandom);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -134,7 +134,7 @@ public:
     REFLECTED(SkColorAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
-        ps.fColor = fCurve.eval(params.fParticleT, ps.fStableRandom);
+        ps.fColor = fCurve.eval(ps.fAge, ps.fStableRandom);
     }
 
     void visitFields(SkFieldVisitor* v) override {
