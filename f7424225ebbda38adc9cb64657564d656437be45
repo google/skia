@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dae1aff_e0036f12",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-20T18:57:37Z",
+      "side": 1,
+      "message": "So in cases like this, when the SkSL code is not really aware of the optional nature of the inputs, things would break if one passes null fps, right?\n\nI suspect there\u0027s no way to make this bulletproof without SkSL collaboration - i.e. how missing optional inputs are handled is totally implementation-dependent.  E.g. for GrMixerEffect I\u0027d do something along these lines:\n\n  if (has(fp1)) {\n      sk_OutColor \u003d mix(process(fp0, sk_InColor),\n                        process(fp1, sk_InColor),\n                        weight);\n  } else {\n      sk_OutColor \u003d mix(process(fp0, sk_InColor),\n                        sk_InColor,\n                        weight);\n  }\n\nI guess what I\u0027m wondering is: if the FP needs to be aware/guard for missing inputs at the SkSL level, do we still need these guards in the generated code?",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "f7424225ebbda38adc9cb64657564d656437be45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
