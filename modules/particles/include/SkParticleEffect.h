@@ -30,8 +30,6 @@ public:
     float     fEffectDuration = 1.0f;
     float     fRate = 8.0f;
     SkCurve   fLifetime = 1.0f;
-    SkColor4f fStartColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    SkColor4f fEndColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     // Drawable (image, sprite sheet, etc.)
     sk_sp<SkParticleDrawable> fDrawable;
@@ -66,10 +64,7 @@ private:
     struct Particle {
         double fTimeOfBirth;
         double fTimeOfDeath;
-        SkRandom fStableRandom;
-
-        // Texture coord rects and colors are stored in parallel arrays for drawAtlas.
-        SkParticlePoseAndVelocity fPV;
+        SkParticleState fPS;
     };
 
     sk_sp<SkParticleEffectParams> fParams;
@@ -84,6 +79,7 @@ private:
     float  fSpawnRemainder;
 
     SkAutoTMalloc<Particle>  fParticles;
+    SkAutoTMalloc<SkRandom>  fStableRandoms;
     SkAutoTMalloc<SkRSXform> fXforms;
     SkAutoTMalloc<float>     fFrames;
     SkAutoTMalloc<SkColor>   fColors;

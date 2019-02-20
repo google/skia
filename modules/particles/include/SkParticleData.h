@@ -8,6 +8,7 @@
 #ifndef SkParticleData_DEFINED
 #define SkParticleData_DEFINED
 
+#include "SkColor.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
 #include "SkRSXform.h"
@@ -35,14 +36,15 @@ struct SkParticleVelocity {
     SkScalar fAngular;
 };
 
-struct SkParticlePoseAndVelocity {
+struct SkParticleState {
     SkParticlePose     fPose;
     SkParticleVelocity fVelocity;
+    SkColor4f          fColor;
+    SkRandom           fStableRandom;
 };
 
 struct SkParticleUpdateParams {
     SkRandom* fRandom;
-    SkRandom* fStableRandom;
     float fDeltaTime;
     float fParticleT;
 };
