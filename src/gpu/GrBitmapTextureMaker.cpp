@@ -19,8 +19,9 @@
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
 
-GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap)
-    : INHERITED(context, bitmap.width(), bitmap.height(), bmp_is_alpha_only(bitmap))
+GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
+                                           bool useDecal)
+    : INHERITED(context, bitmap.width(), bitmap.height(), bmp_is_alpha_only(bitmap), useDecal)
     , fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
         SkIPoint origin = bitmap.pixelRefOrigin();
