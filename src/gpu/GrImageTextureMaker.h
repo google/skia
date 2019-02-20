@@ -19,7 +19,7 @@ class SkImage_GpuYUVA;
 class GrImageTextureMaker : public GrTextureMaker {
 public:
     GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
-                        SkImage::CachingHint chint);
+                        SkImage::CachingHint chint, bool useDecal = false);
 
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
@@ -45,7 +45,7 @@ private:
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
 class GrYUVAImageTextureMaker : public GrTextureMaker {
 public:
-    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client);
+    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client, bool useDecal = false);
 
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be

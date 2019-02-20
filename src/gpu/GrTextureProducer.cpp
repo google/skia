@@ -198,31 +198,61 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     return kDomain_DomainMode;
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
+std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorForDomainAndFilter(
         sk_sp<GrTextureProxy> proxy,
         const SkMatrix& textureMatrix,
         DomainMode domainMode,
         const SkRect& domain,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     SkASSERT(kTightCopy_DomainMode != domainMode);
+    bool clampToBorderSupport = fContext->priv().caps()->clampToBorderSupport();
     if (filterOrNullForBicubic) {
-        if (kDomain_DomainMode == domainMode) {
+        if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
+            GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
+                                                               : GrTextureDomain::kClamp_Mode;
             return GrTextureDomainEffect::Make(std::move(proxy), textureMatrix, domain,
-                                               GrTextureDomain::kClamp_Mode,
-                                               *filterOrNullForBicubic);
+                                               wrapMode, *filterOrNullForBicubic);
         } else {
-            GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, *filterOrNullForBicubic);
+            GrSamplerState::WrapMode wrapMode =
+                    fDomainNeedsDecal ? GrSamplerState::WrapMode::kClampToBorder
+                                      : GrSamplerState::WrapMode::kClamp;
+            GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
             return GrSimpleTextureEffect::Make(std::move(proxy), textureMatrix, samplerState);
         }
     } else {
-        if (kDomain_DomainMode == domainMode) {
-            return GrBicubicEffect::Make(std::move(proxy), textureMatrix, domain);
+        static const GrSamplerState::WrapMode kClampClamp[] = {
+                GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
+        static const GrSamplerState::WrapMode kDecalDecal[] = {
+                GrSamplerState::WrapMode::kClampToBorder, GrSamplerState::WrapMode::kClampToBorder};
+
+        if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
+            GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
+                                         : GrTextureDomain::kClamp_Mode;
+            return GrBicubicEffect::Make(std::move(proxy), textureMatrix, kClampClamp,
+                                         wrapMode, wrapMode,
+                                         kDomain_DomainMode == domainMode ? &domain : nullptr);
         } else {
-            static const GrSamplerState::WrapMode kClampClamp[] = {
-                    GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
-            return GrBicubicEffect::Make(std::move(proxy), textureMatrix, kClampClamp);
+            return GrBicubicEffect::Make(std::move(proxy), textureMatrix,
+                                         fDomainNeedsDecal ? kDecalDecal : kClampClamp);
         }
     }
+}
+
+sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
+        const GrSamplerState::Filter* filterOrNullForBicubic,
+        SkScalar scaleAdjust[2]) {
+    GrSamplerState sampler; // Default is nearest + clamp
+    if (filterOrNullForBicubic) {
+        sampler.setFilterMode(*filterOrNullForBicubic);
+    }
+    if (fDomainNeedsDecal) {
+        // Assuming hardware support, switch to clamp-to-border instead of clamp
+        if (fContext->priv().caps()->clampToBorderSupport()) {
+            sampler.setWrapModeX(GrSamplerState::WrapMode::kClampToBorder);
+            sampler.setWrapModeY(GrSamplerState::WrapMode::kClampToBorder);
+        }
+    }
+    return this->refTextureProxyForParams(sampler, scaleAdjust);
 }
 
 sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(

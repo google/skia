@@ -1374,7 +1374,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorSpaceInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    auto proxy = producer->refTextureProxyForParams(filter, nullptr);
+    auto proxy = producer->refTextureProxyForParams(&filter, nullptr);
     if (!proxy) {
         return;
     }
