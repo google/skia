@@ -20,8 +20,6 @@
          }
       ]
    },
-   "StartColor": [ 1, 1, 1, 1 ],
-   "EndColor": [ 1, 1, 1, 0.25098 ],
    "Drawable": {
       "Type": "SkImageDrawable",
       "Path": "images/explosion_sprites.png",
@@ -40,6 +38,27 @@
          "Point": { "x": 200, "y": 200 },
          "Constant": 0,
          "InvSquare": -50
+      },
+      {
+         "Type": "SkFrameAffector",
+         "Curve": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Constant": false,
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0,
+                  "B0": 0.333,
+                  "C0": 0.666,
+                  "D0": 1,
+                  "A1": 0,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
       }
    ]
 }

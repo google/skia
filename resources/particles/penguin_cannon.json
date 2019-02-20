@@ -20,8 +20,6 @@
          }
       ]
    },
-   "StartColor": [ 1, 1, 1, 1 ],
-   "EndColor": [ 1, 1, 1, 0.25098 ],
    "Drawable": {
       "Type": "SkImageDrawable",
       "Path": "images/baby_tux.png",

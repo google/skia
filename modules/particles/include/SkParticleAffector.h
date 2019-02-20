@@ -12,15 +12,16 @@
 
 #include "SkPoint.h"
 
+struct SkColorCurve;
 struct SkCurve;
-struct SkParticlePoseAndVelocity;
+struct SkParticleState;
 struct SkParticleUpdateParams;
 
 class SkParticleAffector : public SkReflected {
 public:
     REFLECTED_ABSTRACT(SkParticleAffector, SkReflected)
 
-    virtual void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) = 0;
+    virtual void apply(SkParticleUpdateParams& params, SkParticleState& ps) = 0;
 
     static void RegisterAffectorTypes();
 
@@ -31,7 +32,9 @@ public:
                                                     SkScalar invSquare);
     static sk_sp<SkParticleAffector> MakeOrientAlongVelocity();
 
-    static sk_sp<SkParticleAffector> MakeSizeAffector(const SkCurve& curve);
+    static sk_sp<SkParticleAffector> MakeSize(const SkCurve& curve);
+    static sk_sp<SkParticleAffector> MakeFrame(const SkCurve& curve);
+    static sk_sp<SkParticleAffector> MakeColor(const SkColorCurve& curve);
 };
 
 #endif // SkParticleAffector_DEFINED
