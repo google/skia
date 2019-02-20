@@ -2970,6 +2970,7 @@ static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]
             case 'g': glValues[i] = GR_GL_GREEN; break;
             case 'b': glValues[i] = GR_GL_BLUE;  break;
             case 'a': glValues[i] = GR_GL_ALPHA; break;
+            case '1': glValues[i] = GR_GL_ONE;   break;
             default:  SK_ABORT("Unsupported component");
         }
     }
