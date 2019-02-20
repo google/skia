@@ -1,0 +1,60 @@
+# Copyright 2019 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+action("MoltenVK") {
+  script = "generate_framework.py"
+  inputs = [
+    "generate_framework.py",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCommandEncodingPool.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCmdQueries.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCommandPool.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCmdRenderPass.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCommandResourceFactory.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCmdTransfer.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKMTLBufferAllocation.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Commands/MVKCommand.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKBuffer.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKQueryPool.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKDescriptorSet.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKQueue.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKDevice.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKRenderPass.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKDeviceMemory.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKResource.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKFramebuffer.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKShaderModule.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKImage.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKSurface.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKInstance.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKSwapchain.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKPipeline.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/GPUObjects/MVKSync.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Loader/MVKLayers.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/CAMetalLayer+MoltenVK.m",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/MTLRenderPassDescriptor+MoltenVK.m",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/MTLRenderPipelineDescriptor+MoltenVK.m",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/MTLSamplerDescriptor+MoltenVK.m",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/MTLTextureDescriptor+MoltenVK.m",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/MVKOSExtensions.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/OS/NSString+MoltenVK.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Utility/MVKFoundation.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Utility/MVKWatermark.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Vulkan/mvk_datatypes.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Vulkan/vulkan.mm",
+    "../externals/MoltenVK/MoltenVK/MoltenVK/Vulkan/vk_mvk_moltenvk.mm",
+  ]
+  args = [ rebase_path(target_out_dir, root_build_dir) ]
+  if (is_mac) {
+    args += [ "macOS" ]
+  } else {
+    args += [ "iOS" ]
+  }
+  outputs = [
+    "$target_out_dir/MoltenVK.framework",
+  ]
+}
