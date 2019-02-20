@@ -253,12 +253,6 @@ bool SkTextBlobCacheDiffCanvas::onDoSaveBehind(const SkRect*) {
     return false;
 }
 
-void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                               const SkPaint& paint) {
-    ///
-    SkCanvas::onDrawTextBlob(blob, x, y, paint);
-}
-
 struct WireTypeface {
     WireTypeface() = default;
     WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style, bool is_fixed)

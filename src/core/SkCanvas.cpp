@@ -44,6 +44,8 @@
 #include "SkTraceEvent.h"
 #include "SkVertices.h"
 
+#include "SkRemoteGlyphCache.h"
+
 #include <new>
 
 #if SK_SUPPORT_GPU
@@ -2545,6 +2547,19 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
     LOOPER_END
 }
+
+void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
+                                               const SkPaint& paint) {
+    // Avoid calling SkCanvas::onDrawTextBlob() so that we skip quick-rejects. See chromium:931065.
+    LOOPER_BEGIN(paint, nullptr)
+
+    while (iter.next()) {
+        fScratchGlyphRunBuilder->drawTextBlob(looper.paint(), *blob, {x, y}, iter.fDevice);
+    }
+
+    LOOPER_END
+}
+
 
 // These call the (virtual) onDraw... method
 void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,

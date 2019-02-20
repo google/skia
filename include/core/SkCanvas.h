@@ -2498,6 +2498,7 @@ private:
         kNotOpaque_ShaderOverrideOpacity,   //!< the overriding shader may not be opaque
     };
 
+protected:
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify(bool willOverwritesEntireSurface = false);
@@ -2506,6 +2507,7 @@ private:
         this->predrawNotify(rect, paint, shaderOverrideIsOpaque ? kOpaque_ShaderOverrideOpacity
                                                                 : kNotOpaque_ShaderOverrideOpacity);
     }
+private:
 
     SkBaseDevice* getDevice() const;
 
@@ -2657,7 +2659,9 @@ private:
     void validateClip() const {}
 #endif
 
+protected:
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
+private:
 
     typedef SkRefCnt INHERITED;
 };
