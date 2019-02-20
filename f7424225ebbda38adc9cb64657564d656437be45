@@ -46,6 +46,30 @@
       "revId": "f7424225ebbda38adc9cb64657564d656437be45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d890091d_9d5239f5",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-20T19:31:25Z",
+      "side": 1,
+      "message": "So where my checks run only once during code emission, I wasn\u0027t super stressed about the performance impact of a couple of if\u0027s, but I definitely understand the value of non-nullable parameters. Worth doing, you think? Or we could just punt and go with Florin\u0027s null FP effect instead of this.\n\nFlorin, as for whether we need these checks in the generated code: I believe so, yes. clone, emitChild, etc. all need to be aware of whether or not the child FP actually exists, and then the FP will also have to know not to call process on a child that doesn\u0027t exist. I was assuming that the FP would already know (based on its other configuration information) which children it has, but if that\u0027s not the case I can add a function to check whether a particular child has been provided.",
+      "parentUuid": "3eb09ce6_24be1e77",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "f7424225ebbda38adc9cb64657564d656437be45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
