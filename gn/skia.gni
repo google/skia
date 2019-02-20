@@ -14,6 +14,10 @@ declare_args() {
   skia_use_icu = !is_fuchsia && !is_ios
   skia_use_harfbuzz = true
 }
+declare_args() {
+  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
+  skia_pdf_subset_harfbuzz = false
+}
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.
 skia_enable_tools = skia_enable_tools && !is_component_build && skia_enable_gpu
