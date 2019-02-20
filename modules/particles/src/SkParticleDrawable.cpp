@@ -12,6 +12,7 @@
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkPaint.h"
+#include "SkParticleData.h"
 #include "SkRect.h"
 #include "SkSurface.h"
 #include "SkString.h"
@@ -27,6 +28,22 @@ static sk_sp<SkImage> make_circle_image(int radius) {
     return surface->makeImageSnapshot();
 }
 
+struct DrawAtlasArrays {
+    DrawAtlasArrays(const SkParticleState particles[], int count, SkPoint center)
+            : fXforms(count)
+            , fRects(count)
+            , fColors(count) {
+        for (int i = 0; i < count; ++i) {
+            fXforms[i] = particles[i].fPose.asRSXform(center);
+            fColors[i] = particles[i].fColor.toSkColor();
+        }
+    }
+
+    SkAutoTMalloc<SkRSXform> fXforms;
+    SkAutoTMalloc<SkRect>    fRects;
+    SkAutoTMalloc<SkColor>   fColors;
+};
+
 class SkCircleDrawable : public SkParticleDrawable {
 public:
     SkCircleDrawable(int radius = 1)
@@ -36,18 +53,15 @@ public:
 
     REFLECTED(SkCircleDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkRSXform xform[], const float tex[], const SkColor colors[],
-              int count, const SkPaint* paint) override {
-        SkAutoTMalloc<SkRect> texRects(count);
+    void draw(SkCanvas* canvas, const SkParticleState particles[], int count,
+              const SkPaint* paint) override {
+        SkPoint center = { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
+        DrawAtlasArrays arrays(particles, count, center);
         for (int i = 0; i < count; ++i) {
-            texRects[i].set(0.0f, 0.0f, fImage->width(), fImage->height());
+            arrays.fRects[i].set(0.0f, 0.0f, fImage->width(), fImage->height());
         }
-        canvas->drawAtlas(fImage, xform, texRects.get(), colors, count,
-                          SkBlendMode::kModulate, nullptr, paint);
-    }
-
-    SkPoint center() const override {
-        return { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
+        canvas->drawAtlas(fImage, arrays.fXforms.get(), arrays.fRects.get(), arrays.fColors.get(),
+                          count, SkBlendMode::kModulate, nullptr, paint);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -80,27 +94,22 @@ public:
 
     REFLECTED(SkImageDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkRSXform xform[], const float tex[], const SkColor colors[],
-              int count, const SkPaint* paint) override {
-        SkAutoTMalloc<SkRect> texRects(count);
-
+    void draw(SkCanvas* canvas, const SkParticleState particles[], int count,
+              const SkPaint* paint) override {
         SkRect baseRect = getBaseRect();
-        int frameCount = fCols * fRows;
+        SkPoint center = { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
+        DrawAtlasArrays arrays(particles, count, center);
 
+        int frameCount = fCols * fRows;
         for (int i = 0; i < count; ++i) {
-            int frame = static_cast<int>(tex[i] * frameCount + 0.5f);
+            int frame = static_cast<int>(particles[i].fFrame * frameCount + 0.5f);
             frame = SkTPin(frame, 0, frameCount - 1);
             int row = frame / fCols;
             int col = frame % fCols;
-            texRects[i] = baseRect.makeOffset(col * baseRect.width(), row * baseRect.height());
+            arrays.fRects[i] = baseRect.makeOffset(col * baseRect.width(), row * baseRect.height());
         }
-        canvas->drawAtlas(fImage, xform, texRects.get(), colors, count,
-                          SkBlendMode::kModulate, nullptr, paint);
-    }
-
-    SkPoint center() const override {
-        SkRect baseRect = getBaseRect();
-        return { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
+        canvas->drawAtlas(fImage, arrays.fXforms.get(), arrays.fRects.get(), arrays.fColors.get(),
+                          count, SkBlendMode::kModulate, nullptr, paint);
     }
 
     void visitFields(SkFieldVisitor* v) override {

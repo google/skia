@@ -22,15 +22,15 @@ public:
 
     REFLECTED(SkLinearVelocityAffector, SkParticleAffector)
 
-    void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        float angle = fAngle.eval(params.fParticleT, *params.fStableRandom);
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
+        float angle = fAngle.eval(params.fParticleT, ps.fStableRandom);
         SkScalar c, s = SkScalarSinCos(SkDegreesToRadians(angle), &c);
-        float strength = fStrength.eval(params.fParticleT, *params.fStableRandom);
+        float strength = fStrength.eval(params.fParticleT, ps.fStableRandom);
         SkVector force = { c * strength, s * strength };
         if (fForce) {
-            pv.fVelocity.fLinear += force * params.fDeltaTime;
+            ps.fVelocity.fLinear += force * params.fDeltaTime;
         } else {
-            pv.fVelocity.fLinear = force;
+            ps.fVelocity.fLinear = force;
         }
     }
 
@@ -54,11 +54,11 @@ public:
 
     REFLECTED(SkPointForceAffector, SkParticleAffector)
 
-    void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        SkVector toPoint = fPoint - pv.fPose.fPosition;
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
+        SkVector toPoint = fPoint - ps.fPose.fPosition;
         SkScalar lenSquare = toPoint.dot(toPoint);
         toPoint.normalize();
-        pv.fVelocity.fLinear += toPoint * (fConstant + (fInvSquare/lenSquare)) * params.fDeltaTime;
+        ps.fVelocity.fLinear += toPoint * (fConstant + (fInvSquare/lenSquare)) * params.fDeltaTime;
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -79,12 +79,12 @@ public:
 
     REFLECTED(SkOrientAlongVelocityAffector, SkParticleAffector)
 
-    void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        SkVector heading = pv.fVelocity.fLinear;
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
+        SkVector heading = ps.fVelocity.fLinear;
         if (!heading.normalize()) {
             heading.set(0, -1);
         }
-        pv.fPose.fHeading = heading;
+        ps.fPose.fHeading = heading;
     }
 
     void visitFields(SkFieldVisitor*) override {}
@@ -96,8 +96,8 @@ public:
 
     REFLECTED(SkSizeAffector, SkParticleAffector)
 
-    void apply(SkParticleUpdateParams& params, SkParticlePoseAndVelocity& pv) override {
-        pv.fPose.fScale = fCurve.eval(params.fParticleT, *params.fStableRandom);
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
+        ps.fPose.fScale = fCurve.eval(params.fParticleT, ps.fStableRandom);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -108,12 +108,51 @@ private:
     SkCurve fCurve;
 };
 
+class SkFrameAffector : public SkParticleAffector {
+public:
+    SkFrameAffector(const SkCurve& curve = 1.0f) : fCurve(curve) {}
+
+    REFLECTED(SkFrameAffector, SkParticleAffector)
+
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
+        ps.fFrame = fCurve.eval(params.fParticleT, ps.fStableRandom);
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        v->visit("Curve", fCurve);
+    }
+
+private:
+    SkCurve fCurve;
+};
+
+class SkColorAffector : public SkParticleAffector {
+public:
+    SkColorAffector(const SkColorCurve& curve = SkColor4f{ 1.0f, 1.0f, 1.0f, 1.0f })
+        : fCurve(curve) {}
+
+    REFLECTED(SkColorAffector, SkParticleAffector)
+
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
+        ps.fColor = fCurve.eval(params.fParticleT, ps.fStableRandom);
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        v->visit("Curve", fCurve);
+    }
+
+private:
+    SkColorCurve fCurve;
+};
+
 void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkParticleAffector);
     REGISTER_REFLECTED(SkLinearVelocityAffector);
     REGISTER_REFLECTED(SkPointForceAffector);
     REGISTER_REFLECTED(SkOrientAlongVelocityAffector);
     REGISTER_REFLECTED(SkSizeAffector);
+    REGISTER_REFLECTED(SkFrameAffector);
+    REGISTER_REFLECTED(SkColorAffector);
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
@@ -131,6 +170,14 @@ sk_sp<SkParticleAffector> SkParticleAffector::MakeOrientAlongVelocity() {
     return sk_sp<SkParticleAffector>(new SkOrientAlongVelocityAffector());
 }
 
-sk_sp<SkParticleAffector> SkParticleAffector::MakeSizeAffector(const SkCurve& curve) {
+sk_sp<SkParticleAffector> SkParticleAffector::MakeSize(const SkCurve& curve) {
     return sk_sp<SkParticleAffector>(new SkSizeAffector(curve));
+}
+
+sk_sp<SkParticleAffector> SkParticleAffector::MakeFrame(const SkCurve& curve) {
+    return sk_sp<SkParticleAffector>(new SkFrameAffector(curve));
+}
+
+sk_sp<SkParticleAffector> SkParticleAffector::MakeColor(const SkColorCurve& curve) {
+    return sk_sp<SkParticleAffector>(new SkColorAffector(curve));
 }

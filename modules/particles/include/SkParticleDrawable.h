@@ -10,20 +10,17 @@
 
 #include "SkReflected.h"
 
-#include "SkColor.h"
-
 class SkCanvas;
+struct SkParticleState;
 class SkPaint;
-struct SkRSXform;
 class SkString;
 
 class SkParticleDrawable : public SkReflected {
 public:
     REFLECTED_ABSTRACT(SkParticleDrawable, SkReflected)
 
-    virtual void draw(SkCanvas* canvas, const SkRSXform xform[], const float tex[],
-                      const SkColor colors[], int count, const SkPaint* paint) = 0;
-    virtual SkPoint center() const = 0;
+    virtual void draw(SkCanvas* canvas, const SkParticleState particles[], int count,
+                      const SkPaint* paint) = 0;
 
     static void RegisterDrawableTypes();
 
