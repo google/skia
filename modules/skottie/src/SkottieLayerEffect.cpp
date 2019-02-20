@@ -20,6 +20,46 @@ namespace internal {
 
 namespace {
 
+sk_sp<sksg::RenderNode> AttachTintLayerEffect(const skjson::ArrayValue& jprops,
+                                              const AnimationBuilder* abuilder,
+                                              AnimatorScope* ascope,
+                                              sk_sp<sksg::RenderNode> layer) {
+    enum : size_t {
+        kMapBlackTo_Index = 0,
+        kMapWhiteTo_Index = 1,
+        kAmount_Index     = 2,
+        // kOpacity_Index    = 3, // currently unused (not exported)
+
+        kMax_Index      = kAmount_Index,
+    };
+
+    if (jprops.size() <= kMax_Index) {
+        return nullptr;
+    }
+
+    const skjson::ObjectValue* color0_prop = jprops[kMapBlackTo_Index];
+    const skjson::ObjectValue* color1_prop = jprops[kMapWhiteTo_Index];
+    const skjson::ObjectValue* amount_prop = jprops[    kAmount_Index];
+
+    if (!color0_prop || !color1_prop || !amount_prop) {
+        return nullptr;
+    }
+
+    auto tint_node = sksg::TintColorFilter::Make(std::move(layer),
+                                                 abuilder->attachColor(*color0_prop, ascope, "v"),
+                                                 abuilder->attachColor(*color1_prop, ascope, "v"));
+    if (!tint_node) {
+        return nullptr;
+    }
+
+    abuilder->bindProperty<ScalarValue>((*amount_prop)["v"], ascope,
+        [tint_node](const ScalarValue& w) {
+            tint_node->setWeight(w / 100); // 100-based
+        });
+
+    return std::move(tint_node);
+}
+
 sk_sp<sksg::RenderNode> AttachFillLayerEffect(const skjson::ArrayValue& jprops,
                                               const AnimationBuilder* abuilder,
                                               AnimatorScope* ascope,
@@ -58,7 +98,7 @@ sk_sp<sksg::RenderNode> AttachFillLayerEffect(const skjson::ArrayValue& jprops,
             color_node->setColor(SkColorSetA(c, a));
         });
 
-    return sksg::ColorModeFilter::Make(std::move(layer),
+    return sksg::ModeColorFilter::Make(std::move(layer),
                                        std::move(color_node),
                                        SkBlendMode::kSrcIn);
 }
@@ -139,6 +179,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
     }
 
     enum : int32_t {
+        kTint_Effect       = 20,
         kFill_Effect       = 21,
         kDropShadow_Effect = 25,
     };
@@ -154,6 +195,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
         }
 
         switch (const auto ty = ParseDefault<int>((*jeffect)["ty"], -1)) {
+        case kTint_Effect:
+            layer = AttachTintLayerEffect(*jprops, this, ascope, std::move(layer));
+            break;
         case kFill_Effect:
             layer = AttachFillLayerEffect(*jprops, this, ascope, std::move(layer));
             break;
