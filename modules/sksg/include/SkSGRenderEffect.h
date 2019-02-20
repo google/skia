@@ -10,6 +10,7 @@
 
 #include "SkSGEffectNode.h"
 
+#include "SkBlendMode.h"
 #include "SkColor.h"
 
 #include <memory>
@@ -21,59 +22,169 @@ class SkImageFilter;
 
 namespace sksg {
 
-/**
- * ImageFilter base class.
- */
-class ImageFilter : public Node {
-public:
-    ~ImageFilter() override;
+class Color;
 
-    const sk_sp<SkImageFilter>& getFilter() const {
+namespace internal {
+
+// Base class for filter nodes (image filters, color filters)
+template <typename T>
+class Filter : public Node {
+public:
+    const sk_sp<T>& getFilter() const {
         SkASSERT(!this->hasInval());
-        return fFilter;
+        return fCachedFilter;
     }
 
 protected:
-    explicit ImageFilter(sk_sp<ImageFilter> input = 0);
+    using InputsT = std::vector<sk_sp<Filter>>;
 
-    using InputsT = std::vector<sk_sp<ImageFilter>>;
-    explicit ImageFilter(std::unique_ptr<InputsT> inputs);
+    explicit Filter(std::unique_ptr<InputsT> inputs)
+        : INHERITED(kBubbleDamage_Trait)
+        , fInputs(std::move(inputs)) {
+        if (fInputs) {
+            for (const auto& input : *fInputs) {
+                this->observeInval(input);
+            }
+        }
+    }
 
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
+    explicit Filter(sk_sp<Filter> input = 0)
+        : Filter(input ? std::unique_ptr<InputsT>(new InputsT(1, std::move(input))) : nullptr) {}
 
-    virtual sk_sp<SkImageFilter> onRevalidateFilter() = 0;
+    ~Filter() override {
+        if (fInputs) {
+            for (const auto& input : *fInputs) {
+                this->unobserveInval(input);
+            }
+        }
+    }
 
-    sk_sp<SkImageFilter> refInput(size_t) const;
+    sk_sp<T> refInput(size_t i) const {
+        if (!fInputs || i >= fInputs->size()) {
+            return nullptr;
+        }
+        return (*fInputs)[i]->getFilter();
+    }
+
+    virtual sk_sp<T> onRevalidateFilter() = 0;
+
+    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) final {
+        SkASSERT(this->hasInval());
+        if (fInputs) {
+            for (const auto& input : *fInputs) {
+                input->revalidate(ic, ctm);
+            }
+        }
+
+        fCachedFilter = this->onRevalidateFilter();
+        return SkRect::MakeEmpty();
+    }
 
 private:
     const std::unique_ptr<InputsT> fInputs;
-
-    sk_sp<SkImageFilter>           fFilter;
+    sk_sp<T>                       fCachedFilter;
 
     using INHERITED = Node;
 };
 
-/**
- * Attaches an ImageFilter (chain) to the render DAG.
- */
-class ImageFilterEffect final : public EffectNode {
-public:
-    ~ImageFilterEffect() override;
+// Render node attaching a filter (DAG) to the render DAG.
+template <typename T>
+class FilterEffect : public EffectNode {
+protected:
+    FilterEffect(sk_sp<RenderNode> child, sk_sp<Filter<T>> filter)
+        // filters always override descendent damage
+        : INHERITED(std::move(child), kOverrideDamage_Trait)
+        , fFilter(std::move(filter)) {
+        SkASSERT(fFilter);
+        this->observeInval(fFilter);
+    }
 
+    ~FilterEffect() override {
+        this->unobserveInval(fFilter);
+    }
+
+    virtual SkRect onRevalidateFilterEffect(const SkRect& content_bounds) = 0;
+
+    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) final {
+        fFilter->revalidate(ic, ctm);
+        return this->onRevalidateFilterEffect(this->INHERITED::onRevalidate(ic, ctm));
+    }
+
+    const sk_sp<T>& getFilter() const { return fFilter->getFilter(); }
+
+private:
+    sk_sp<Filter<T>> fFilter;
+
+    using INHERITED = EffectNode;
+};
+
+} // namespace internal
+
+using ColorFilter = internal::Filter<SkColorFilter>;
+using ImageFilter = internal::Filter<SkImageFilter>;
+
+/**
+ * Attaches a ColorFilter (DAG) to the render DAG.
+ */
+
+class ColorFilterEffect final : public internal::FilterEffect<SkColorFilter> {
+public:
+    ~ColorFilterEffect() override;
+
+    static sk_sp<RenderNode> Make(sk_sp<RenderNode> child, sk_sp<ColorFilter> filter);
+
+protected:
+    void onRender(SkCanvas*, const RenderContext*) const override;
+    const RenderNode* onNodeAt(const SkPoint&)     const override;
+
+    SkRect onRevalidateFilterEffect(const SkRect&) override;
+
+private:
+    ColorFilterEffect(sk_sp<RenderNode>, sk_sp<ColorFilter>);
+
+    using INHERITED = internal::FilterEffect<SkColorFilter>;
+};
+
+/**
+ *
+ */
+class ColorModeFilter final : public ColorFilter {
+public:
+    ~ColorModeFilter() override;
+
+    static sk_sp<ColorModeFilter> Make(sk_sp<Color> color, SkBlendMode mode);
+
+    SG_ATTRIBUTE(Mode , SkBlendMode, fMode)
+
+protected:
+    sk_sp<SkColorFilter> onRevalidateFilter() override;
+
+private:
+    ColorModeFilter(sk_sp<Color>, SkBlendMode);
+
+    sk_sp<Color> fColor;
+    SkBlendMode  fMode;
+
+    using INHERITED = ColorFilter;
+};
+
+/**
+ * Attaches an ImageFilter (DAG) to the render DAG.
+ */
+class ImageFilterEffect final : public internal::FilterEffect<SkImageFilter> {
+public:
     static sk_sp<RenderNode> Make(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter);
 
 protected:
     void onRender(SkCanvas*, const RenderContext*) const override;
     const RenderNode* onNodeAt(const SkPoint&)     const override;
 
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidateFilterEffect(const SkRect&) override;
 
 private:
-    ImageFilterEffect(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter);
+    ImageFilterEffect(sk_sp<RenderNode>, sk_sp<ImageFilter>);
 
-    sk_sp<ImageFilter> fImageFilter;
-
-    using INHERITED = EffectNode;
+    using INHERITED = internal::FilterEffect<SkImageFilter>;
 };
 
 /**
@@ -103,7 +214,7 @@ private:
     SkColor              fColor  = SK_ColorBLACK;
     Mode                 fMode   = Mode::kShadowAndForeground;
 
-    using INHERITED = ImageFilter;
+    using INHERITED = internal::Filter<SkImageFilter>;
 };
 
 } // namespace sksg

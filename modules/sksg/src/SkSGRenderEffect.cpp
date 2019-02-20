@@ -13,30 +13,72 @@
 
 namespace sksg {
 
+sk_sp<RenderNode> ColorFilterEffect::Make(sk_sp<RenderNode> child, sk_sp<ColorFilter> filter) {
+    return (child && filter) ? sk_sp<RenderNode>(new ColorFilterEffect(std::move(child),
+                                                                       std::move(filter)))
+                             : child;
+}
+
+ColorFilterEffect::ColorFilterEffect(sk_sp<RenderNode> child, sk_sp<ColorFilter> filter)
+    : INHERITED(std::move(child), std::move(filter)) {}
+
+ColorFilterEffect::~ColorFilterEffect() = default;
+
+SkRect ColorFilterEffect::onRevalidateFilterEffect(const SkRect& content_bounds) {
+    // Color filter effects do not alter the descendants' bounds.
+    return content_bounds;
+}
+
+const RenderNode* ColorFilterEffect::onNodeAt(const SkPoint& p) const {
+    SkASSERT(this->bounds().contains(p.x(), p.y()));
+    // Pass through to descendants.
+    return this->INHERITED::onNodeAt(p);
+}
+
+void ColorFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    // TODO: hoist these checks to RenderNode?
+    if (this->bounds().isEmpty())
+        return;
+
+    const auto local_ctx = ScopedRenderContext(canvas, ctx).modulateColorFilter(this->getFilter());
+
+    this->INHERITED::onRender(canvas, local_ctx);
+}
+
+sk_sp<ColorModeFilter> ColorModeFilter::Make(sk_sp<Color> color, SkBlendMode mode) {
+    return color ? sk_sp<ColorModeFilter>(new ColorModeFilter(std::move(color), mode))
+                 : nullptr;
+}
+
+ColorModeFilter::ColorModeFilter(sk_sp<Color> color, SkBlendMode mode)
+    : fColor(std::move(color))
+    , fMode(mode) {
+    this->observeInval(fColor);
+}
+
+ColorModeFilter::~ColorModeFilter() {
+    this->unobserveInval(fColor);
+}
+
+sk_sp<SkColorFilter> ColorModeFilter::onRevalidateFilter() {
+    fColor->revalidate(nullptr, SkMatrix::I());
+    return SkColorFilter::MakeModeFilter(fColor->getColor(), fMode);
+}
+
 sk_sp<RenderNode> ImageFilterEffect::Make(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter) {
-    return filter ? sk_sp<RenderNode>(new ImageFilterEffect(std::move(child), std::move(filter)))
-                  : child;
+    return (child && filter) ? sk_sp<RenderNode>(new ImageFilterEffect(std::move(child),
+                                                                       std::move(filter)))
+                             : child;
 }
 
 ImageFilterEffect::ImageFilterEffect(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter)
-    // filters always override descendent damage
-    : INHERITED(std::move(child), kOverrideDamage_Trait)
-    , fImageFilter(std::move(filter)) {
-    this->observeInval(fImageFilter);
-}
+    : INHERITED(std::move(child), std::move(filter)) {}
 
-ImageFilterEffect::~ImageFilterEffect() {
-    this->unobserveInval(fImageFilter);
-}
-
-SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    // FIXME: image filter effects should replace the descendents' damage!
-    fImageFilter->revalidate(ic, ctm);
-
-    const auto& filter = fImageFilter->getFilter();
+SkRect ImageFilterEffect::onRevalidateFilterEffect(const SkRect& content_bounds) {
+    const auto& filter = this->getFilter();
     SkASSERT(filter->canComputeFastBounds());
 
-    return filter->computeFastBounds(this->INHERITED::onRevalidate(ic, ctm));
+    return filter->computeFastBounds(content_bounds);
 }
 
 const RenderNode* ImageFilterEffect::onNodeAt(const SkPoint& p) const {
@@ -54,40 +96,8 @@ void ImageFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) con
     // Note: we're using the source content bounds for saveLayer, not our local/filtered bounds.
     const auto filter_ctx =
         ScopedRenderContext(canvas, ctx).setFilterIsolation(this->getChild()->bounds(),
-                                                            fImageFilter->getFilter());
+                                                            this->getFilter());
     this->INHERITED::onRender(canvas, filter_ctx);
-}
-
-ImageFilter::ImageFilter(sk_sp<ImageFilter> input)
-    : ImageFilter(input ? skstd::make_unique<InputsT>(1, std::move(input)) : nullptr) {}
-
-ImageFilter::ImageFilter(std::unique_ptr<InputsT> inputs)
-    : INHERITED(kBubbleDamage_Trait)
-    , fInputs(std::move(inputs)) {
-    if (fInputs) {
-        for (const auto& input : *fInputs) {
-            this->observeInval(input);
-        }
-    }
-}
-
-ImageFilter::~ImageFilter() {
-    if (fInputs) {
-        for (const auto& input : *fInputs) {
-            this->unobserveInval(input);
-        }
-    }
-}
-
-sk_sp<SkImageFilter> ImageFilter::refInput(size_t i) const {
-    return (fInputs && i < fInputs->size()) ? (*fInputs)[i]->getFilter() : nullptr;
-}
-
-SkRect ImageFilter::onRevalidate(InvalidationController*, const SkMatrix&) {
-    SkASSERT(this->hasInval());
-
-    fFilter = this->onRevalidateFilter();
-    return SkRect::MakeEmpty();
 }
 
 sk_sp<DropShadowImageFilter> DropShadowImageFilter::Make(sk_sp<ImageFilter> input) {

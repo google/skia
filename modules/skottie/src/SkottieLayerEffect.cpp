@@ -13,7 +13,6 @@
 #include "SkottieValue.h"
 #include "SkSGColor.h"
 #include "SkSGRenderEffect.h"
-#include "SkSGColorFilter.h"
 
 namespace skottie {
 namespace internal {
@@ -58,9 +57,9 @@ sk_sp<sksg::RenderNode> AttachFillLayerEffect(const skjson::ArrayValue& jprops,
             color_node->setColor(SkColorSetA(c, a));
         });
 
-    return sksg::ColorModeFilter::Make(std::move(layer),
-                                       std::move(color_node),
-                                       SkBlendMode::kSrcIn);
+    return sksg::ColorFilterEffect::Make(std::move(layer),
+                                         sksg::ColorModeFilter::Make(std::move(color_node),
+                                                                     SkBlendMode::kSrcIn));
 }
 
 sk_sp<sksg::RenderNode> AttachDropShadowLayerEffect(const skjson::ArrayValue& jprops,
