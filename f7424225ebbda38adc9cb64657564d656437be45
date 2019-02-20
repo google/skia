@@ -22,6 +22,30 @@
       "revId": "f7424225ebbda38adc9cb64657564d656437be45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eb09ce6_24be1e77",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-20T19:20:41Z",
+      "side": 1,
+      "message": "Would it help to have something like a required layout qualifier for cases where the child fp is not truly optional?",
+      "parentUuid": "5dae1aff_e0036f12",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "f7424225ebbda38adc9cb64657564d656437be45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
