@@ -243,6 +243,13 @@ def nanobench_flags(api, bot):
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
+  if (('Iris655' in bot or 'Iris540' in bot) and 'Release' in bot and
+      'Win10' in bot and 'Vulkan' not in bot and 'ANGLE' not in bot):
+    # skia:8706
+    match.append('~^top25desk_techcrunch.skp_1_mpd$')
+    match.append('~^top25desk_techcrunch.skp_1$')
+    match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
+    match.append('~^top25desk_techcrunch.skp_1.1$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -411,6 +418,7 @@ TEST_BUILDERS = [
     'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
+  'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
 ]
 
