@@ -68,6 +68,9 @@ public:
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
+    GrStrikeCache* getGlyphCache() { return fContext->getGlyphCache(); }
+    GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
+
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
      *
@@ -264,9 +267,6 @@ public:
 
     GrGpu* getGpu() { return fContext->fGpu.get(); }
     const GrGpu* getGpu() const { return fContext->fGpu.get(); }
-
-    GrStrikeCache* getGlyphCache() { return fContext->fGlyphCache; }
-    GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
 
     // This accessor should only ever be called by the GrOpFlushState.
     GrAtlasManager* getAtlasManager() {
