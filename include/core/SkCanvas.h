@@ -181,6 +181,8 @@ public:
     */
     explicit SkCanvas(const SkBitmap& bitmap);
 
+    bool reject_text_ops = true;
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     /** Private.
      */

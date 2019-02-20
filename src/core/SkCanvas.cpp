@@ -2529,7 +2529,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     if (paint.canComputeFastBounds()) {
         storage = blob->bounds().makeOffset(x, y);
         SkRect tmp;
-        if (this->quickReject(paint.computeFastBounds(storage, &tmp))) {
+        if (this->quickReject(paint.computeFastBounds(storage, &tmp)) && reject_text_ops) {
             return;
         }
         bounds = &storage;
