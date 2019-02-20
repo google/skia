@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "22adfcc1_db077f75",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9294
+      },
+      "writtenOn": "2019-02-20T22:37:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4171e26_6ff618ba",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aed0f3bc_13894fec",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ca10180_2a6193be",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9294
+      },
+      "writtenOn": "2019-02-20T22:37:27Z",
+      "side": 1,
+      "message": "This section of code was added to handle scenarios where the sigma was essentially too big relative to the size of the rect, so it only came into effect when there was a very large relative blur (at which point there is no way our eyes could see any difference).\n\nThere was an error with this section of code (good eye!) that could cause sigma to be too small if we happened to go over the limit on the last iteration of the while loop. Instead of doubling sigma to undo its previous halving, I have removed the condition surrounding setting sigma to MAX_BLUR_SIGMA. Since now it should always be greater than the max allowed.\n\nI have added a comment to help clarify.",
+      "parentUuid": "aed0f3bc_13894fec",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "73554e7e_64842f6b",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 9294
+      },
+      "writtenOn": "2019-02-20T22:37:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bbc62a2_672024a8",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d64105ac_0e4eb0ad",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2019-02-15T16:35:02Z",
       "side": 1,
       "message": "Could you add a test case which exercises this?",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4225bc8c_3547a9f6",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 9294
+      },
+      "writtenOn": "2019-02-20T22:37:27Z",
+      "side": 1,
+      "message": "I added asserts in a few places because the tests I looked at that excercise this section of code say this: \"Tests pass by not asserting.\"\n\nFound in: ImageFilterCropRect_Gpu in tests/ImageFilterTest.cpp\n\nIs that sufficient testing? The bug I found was a problem with internal state. I was having a hard time trying to compare inputs and outputs of the function to highlight the information lost during scaling.",
+      "parentUuid": "d64105ac_0e4eb0ad",
       "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -84,6 +156,24 @@
       "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a017cd5e_c8d20a5a",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 9294
+      },
+      "writtenOn": "2019-02-20T22:37:27Z",
+      "side": 1,
+      "message": "Agreed, updated to be width and height.",
+      "parentUuid": "ccbcac52_01e4777b",
+      "revId": "8fad14e65fcb9c18bc42938223be1c353550a403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
