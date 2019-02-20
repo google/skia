@@ -15,7 +15,7 @@ import os.path
 import shutil
 import subprocess
 
-NDK_VER = "android-ndk-r19-beta2"
+NDK_VER = "android-ndk-r19b"
 NDK_URL = \
     "https://dl.google.com/android/repository/%s-windows-x86_64.zip" % NDK_VER
 
