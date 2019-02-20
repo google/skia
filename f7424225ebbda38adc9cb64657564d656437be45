@@ -70,6 +70,30 @@
       "revId": "f7424225ebbda38adc9cb64657564d656437be45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cf345dd_c89d2fce",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-20T19:43:39Z",
+      "side": 1,
+      "message": "I thought the non-nullable might be useful from the perspective of the reader of the .fp file to undertsand the expectations.\n\nI think the null-fp isn\u0027t great because we have allocate/free another object just to do nothing.",
+      "parentUuid": "d890091d_9d5239f5",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "f7424225ebbda38adc9cb64657564d656437be45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
