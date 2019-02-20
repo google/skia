@@ -13,19 +13,19 @@
       function makeWebGLContext(canvas, attrs) {
         // These defaults come from the emscripten _emscripten_webgl_create_context
         var contextAttributes = {
-          'alpha': get(attrs, 'alpha', 1),
-          'depth': get(attrs, 'depth', 1),
-          'stencil': get(attrs, 'stencil', 0),
-          'antialias': get(attrs, 'antialias', 1),
-          'premultipliedAlpha': get(attrs, 'premultipliedAlpha', 1),
-          'preserveDrawingBuffer': get(attrs, 'preserveDrawingBuffer', 0),
-          'preferLowPowerToHighPerformance': get(attrs, 'preferLowPowerToHighPerformance', 0),
-          'failIfMajorPerformanceCaveat': get(attrs, 'failIfMajorPerformanceCaveat', 0),
-          'majorVersion': get(attrs, 'majorVersion', 1),
-          'minorVersion': get(attrs, 'minorVersion', 0),
-          'enableExtensionsByDefault': get(attrs, 'enableExtensionsByDefault', 1),
-          'explicitSwapControl': get(attrs, 'explicitSwapControl', 0),
-          'renderViaOffscreenBackBuffer': get(attrs, 'renderViaOffscreenBackBuffer', 0),
+          alpha: get(attrs, 'alpha', 1),
+          depth: get(attrs, 'depth', 1),
+          stencil: get(attrs, 'stencil', 0),
+          antialias: get(attrs, 'antialias', 1),
+          premultipliedAlpha: get(attrs, 'premultipliedAlpha', 1),
+          preserveDrawingBuffer: get(attrs, 'preserveDrawingBuffer', 0),
+          preferLowPowerToHighPerformance: get(attrs, 'preferLowPowerToHighPerformance', 0),
+          failIfMajorPerformanceCaveat: get(attrs, 'failIfMajorPerformanceCaveat', 0),
+          majorVersion: get(attrs, 'majorVersion', 1),
+          minorVersion: get(attrs, 'minorVersion', 0),
+          enableExtensionsByDefault: get(attrs, 'enableExtensionsByDefault', 1),
+          explicitSwapControl: get(attrs, 'explicitSwapControl', 0),
+          renderViaOffscreenBackBuffer: get(attrs, 'renderViaOffscreenBackBuffer', 0),
         };
         if (!canvas) {
           SkDebug('null canvas passed into makeWebGLContext');
@@ -36,6 +36,8 @@
           SkDebug('explicitSwapControl is not supported');
           return 0;
         }
+        // GL is an enscripten provided helper
+        // See https://github.com/emscripten-core/emscripten/blob/incoming/src/library_webgl.js
         return GL.createContext(canvas, contextAttributes);
       }
 
