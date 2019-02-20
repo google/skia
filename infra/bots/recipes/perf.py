@@ -243,6 +243,9 @@ def nanobench_flags(api, bot):
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
+  if 'Iris655' in bot or 'Iris540' in bot:
+    # skia:8706
+    match.append('~^top25desk_techcrunch.skp_1_mpd$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
