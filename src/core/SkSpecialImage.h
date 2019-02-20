@@ -15,7 +15,7 @@
 #include "SkImageFilter.h" // for OutputProperties
 #include "SkImageInfo.h"   // for SkAlphaType
 
-class GrContext;
+class GrRecordingContext;
 class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
@@ -58,18 +58,18 @@ public:
     virtual size_t getSize() const = 0;
 
     /**
-     *  Ensures that a special image is backed by a texture (when GrContext is non-null). If no
-     *  transformation is required, the returned image may be the same as this special image.
-     *  If this special image is from a different GrContext, this will fail.
+     *  Ensures that a special image is backed by a texture (when GrRecordingContext is non-null).
+     *  If no transformation is required, the returned image may be the same as this special image.
+     *  If this special image is from a different GrRecordingContext, this will fail.
      */
-    sk_sp<SkSpecialImage> makeTextureImage(GrContext*);
+    sk_sp<SkSpecialImage> makeTextureImage(GrRecordingContext*);
 
     /**
      *  Draw this SpecialImage into the canvas.
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static sk_sp<SkSpecialImage> MakeFromImage(GrContext*,
+    static sk_sp<SkSpecialImage> MakeFromImage(GrRecordingContext*,
                                                const SkIRect& subset,
                                                sk_sp<SkImage>,
                                                const SkSurfaceProps* = nullptr);
@@ -80,7 +80,7 @@ public:
                                                 const SkBitmap&,
                                                 const SkSurfaceProps* = nullptr);
 #if SK_SUPPORT_GPU
-    static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrContext*,
+    static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
                                                      sk_sp<GrTextureProxy>,
@@ -127,16 +127,16 @@ public:
     bool isTextureBacked() const;
 
     /**
-     * Return the GrContext if the SkSpecialImage is GrTexture-backed
+     * Return the GrRecordingContext if the SkSpecialImage is GrTexture-backed
      */
-    GrContext* getContext() const;
+    GrRecordingContext* getContext() const;
 
 #if SK_SUPPORT_GPU
     /**
      *  Regardless of the underlying backing store, return the contents as a GrTextureProxy.
      *  The active portion of the texture can be retrieved via 'subset'.
      */
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*) const;
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const;
 #endif
 
     /**

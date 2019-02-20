@@ -18,10 +18,12 @@ class GrOpMemoryPool;
 class GrOnFlushCallbackObject;
 class GrSemaphore;
 class GrSkSLFPFactory;
+class GrSkSLFPFactoryCache;
 class GrSurfaceProxy;
 class GrTextureContext;
 
 class SkDeferredDisplayList;
+class SkTaskGroup;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional

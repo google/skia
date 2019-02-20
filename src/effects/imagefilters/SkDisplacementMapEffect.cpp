@@ -16,11 +16,12 @@
 #include "SkUnPreMultiply.h"
 #include "SkColorData.h"
 #if SK_SUPPORT_GPU
+#include "GrCaps.h"
 #include "GrClip.h"
 #include "GrColorSpaceXform.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrCoordTransform.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
@@ -271,7 +272,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
-        GrContext* context = source->getContext();
+        auto context = source->getContext();
 
         sk_sp<GrTextureProxy> colorProxy(color->asTextureProxyRef(context));
         sk_sp<GrTextureProxy> displProxy(displ->asTextureProxyRef(context));

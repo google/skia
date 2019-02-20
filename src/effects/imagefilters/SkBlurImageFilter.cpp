@@ -629,7 +629,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         return input->makeSubset(inputBounds);
     }
 
-    GrContext* context = source->getContext();
+    auto context = source->getContext();
 
     sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
     if (!inputTexture) {
