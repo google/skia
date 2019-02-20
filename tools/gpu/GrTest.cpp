@@ -14,6 +14,8 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrMemoryPool.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
@@ -188,7 +190,7 @@ DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 DRAW_OP_TEST_EXTERN(TextureOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
-    GrContext* context = renderTargetContext->surfPriv().getContext();
+    auto context = renderTargetContext->surfPriv().getContext();
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*,
                                                    GrRecordingContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {

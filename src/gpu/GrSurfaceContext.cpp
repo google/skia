@@ -9,18 +9,20 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrOpList.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 #include "../private/GrAuditTrail.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
-#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->abandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED  if (this->fContext->priv().abandoned()) { return false; }
 
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
-GrSurfaceContext::GrSurfaceContext(GrContext* context,
+GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
                                    GrDrawingManager* drawingMgr,
                                    GrPixelConfig config,
                                    sk_sp<SkColorSpace> colorSpace,

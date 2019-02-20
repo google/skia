@@ -454,7 +454,7 @@ public:
     bool isWrapped_ForTesting() const;
 
 protected:
-    GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
+    GrRenderTargetContext(GrRecordingContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
                           GrSingleOwner*, bool managedOpList = true);
 
