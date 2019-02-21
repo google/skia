@@ -52,6 +52,24 @@
       "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d84d5c0_24528f49",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-21T20:16:58Z",
+      "side": 1,
+      "message": ";) Actually, I think that when I tried doing this as part of an earlier change, I made the same mistake.",
+      "parentUuid": "f4c753b1_cb88d796",
+      "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
