@@ -38,7 +38,7 @@ static CGContextRef make_cg_ctx(const SkPixmap& pm) {
 
     switch (pm.colorType()) {
         case kRGBA_8888_SkColorType:
-            info = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+            info = kCGBitmapByteOrder32Host | kCGImageAlphaNoneSkipFirst;
             cs = CGColorSpaceCreateDeviceRGB();
             break;
         case kGray_8_SkColorType:
@@ -71,11 +71,11 @@ static void test_mac_fonts(SkCanvas* canvas, SkScalar size, SkScalar xpos) {
         SkPixmap pm;
         surf->peekPixels(&pm);
         CGContextRef ctx = make_cg_ctx(pm);
-        CGContextSelectFont(ctx, "Helvetica", size, kCGEncodingMacRoman);
+        CGContextSelectFont(ctx, "Times", size, kCGEncodingMacRoman);
 
         SkScalar x = 1;
         for (bool smooth : {false, true}) {
-            surf->getCanvas()->clear(ct == kGray_8_SkColorType ? 0xFFFFFFFF : 0);
+            surf->getCanvas()->clear(ct == kAlpha_8_SkColorType ? 0 : 0xFFFFFFFF);
             CGContextSetShouldSmoothFonts(ctx, smooth);
             CGContextShowTextAtPoint(ctx, 2 + xpos, 2, "A", 1);
 
@@ -118,6 +118,8 @@ protected:
 };
 DEF_GM(return new MacAAFontsGM;)
 
+#endif
+
 DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
     const SkColor GRAY = 0xFF808080;
     const SkColor colors[] = {
@@ -150,7 +152,7 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
             font.setSize(ps);
             for (bool lcd : {false, true}) {
                 font.setEdging(lcd ? SkFont::Edging::kSubpixelAntiAlias
-                                   : SkFont::Edging::kAntiAlias);
+                               : SkFont::Edging::kAntiAlias);
 
                 y += font.getSpacing() + 2;
                 canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
@@ -161,6 +163,3 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
         canvas->translate(width, 0);
     }
 }
-
-#endif
-
