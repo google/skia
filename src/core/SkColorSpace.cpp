@@ -75,14 +75,18 @@ SkColorSpace* sk_srgb_singleton() {
     return cs;
 }
 
+SkColorSpace* sk_srgb_linear_singleton() {
+    static SkColorSpace* cs = SkColorSpaceSingletonFactory::Make(SkNamedTransferFn::kLinear,
+                                                                 SkNamedGamut::kSRGB);
+    return cs;
+}
+
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGB() {
     return sk_ref_sp(sk_srgb_singleton());
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
-    return sk_sp<SkColorSpace>{
-        new SkColorSpace(&SkNamedTransferFn::kLinear.g, SkNamedGamut::kSRGB)
-    };
+    return sk_ref_sp(sk_srgb_linear_singleton());
 }
 
 void SkColorSpace::computeLazyDstFields() const {
