@@ -16,6 +16,24 @@
       "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "270ea533_f1f8c9b6",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-21T16:41:19Z",
+      "side": 1,
+      "message": "I tried this out,\n\n    sk_sp\u003cSkColorSpace\u003e SkColorSpace::MakeSRGBLinear() {\n        return sk_sp\u003cSkColorSpace\u003e{\n            new SkColorSpace(\u0026SkNamedTransferFn::kLinear.g, SkNamedGamut::kSRGB)\n        };\n    }\n\nand I think\n\n    return sk_srgb_singleton()-\u003emakeLinearGamma();\n\nis clearer / simpler.",
+      "parentUuid": "d2c0fb4b_d6f9cee7",
+      "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
