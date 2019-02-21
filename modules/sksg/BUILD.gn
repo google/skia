@@ -17,7 +17,7 @@ component("sksg") {
   ]
 }
 
-if (defined(is_skia_standalone)) {
+if (defined(is_skia_standalone) && !is_official_build) {
   source_set("tests") {
     testonly = true
 
