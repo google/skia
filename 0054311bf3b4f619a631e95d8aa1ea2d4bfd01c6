@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a89f22e_75671251",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 9331
+      },
+      "writtenOn": "2019-02-21T02:46:57Z",
+      "side": 1,
+      "message": "I was happy to find you already fixed locale-specific decimal points in Skia generated shaders. However, I discovered that this fix doesn\u0027t address the Arabic decimal (U+066B) used in the locale \u0027ps_AF\u0027 since it\u0027s a multi-byte Unicode character.\n\nIn our Skia fork for Cobalt, I just did the opposite of stod() below and let stringstream::imbue() do the dirty work. You might want to patch that in too:\nhttps://lbshell-internal-review.git.corp.google.com/c/third_party/skia/+/125963",
+      "revId": "0054311bf3b4f619a631e95d8aa1ea2d4bfd01c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
