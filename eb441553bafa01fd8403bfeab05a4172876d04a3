@@ -22,6 +22,30 @@
       "revId": "eb441553bafa01fd8403bfeab05a4172876d04a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff16d11a_88488649",
+        "filename": "src/sksl/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-21T21:31:30Z",
+      "side": 1,
+      "message": ":-)",
+      "parentUuid": "2fb9bc55_1b776957",
+      "range": {
+        "startLine": 152,
+        "startChar": 25,
+        "endLine": 152,
+        "endChar": 43
+      },
+      "revId": "eb441553bafa01fd8403bfeab05a4172876d04a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
