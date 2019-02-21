@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fb9bc55_1b776957",
+        "filename": "src/sksl/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-21T21:28:01Z",
+      "side": 1,
+      "message": "I cannot help but read this in upspeak.",
+      "range": {
+        "startLine": 152,
+        "startChar": 25,
+        "endLine": 152,
+        "endChar": 43
+      },
+      "revId": "eb441553bafa01fd8403bfeab05a4172876d04a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
