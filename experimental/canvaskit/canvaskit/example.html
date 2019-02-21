@@ -43,6 +43,9 @@
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
 
+<h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
+<canvas id=shape1 width=600 height=600></canvas>
+
 <h2> Skottie </h2>
 <canvas id=sk_legos width=300 height=300></canvas>
 <canvas id=sk_drinks width=500 height=500></canvas>
@@ -61,6 +64,7 @@
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
+  var notoserifData = null;
 
   var bonesImageData = null;
   CanvasKitInit({
@@ -85,12 +89,14 @@
     CanvasAPI5(CanvasKit);
     CanvasAPI6(CanvasKit);
     CanvasAPI7(CanvasKit);
-    CanvasAPI8(CanvasKit)
+    CanvasAPI8(CanvasKit);
 
     VertexAPI1(CanvasKit);
     VertexAPI2(CanvasKit, bonesImageData);
 
     GradiantAPI1(CanvasKit);
+
+    TextShapingAPI1(CanvasKit, notoserifData);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -132,7 +138,14 @@
   fetch('./Roboto-Regular.woff').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
-      DrawingExample(CanvasKit, robotoData)
+      DrawingExample(CanvasKit, robotoData);
+    });
+  });
+
+  fetch('./NotoSerif-Regular.ttf').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      notoserifData = buffer;
+      TextShapingAPI1(CanvasKit, notoserifData);
     });
   });
 
@@ -152,7 +165,7 @@
     const paint = new CanvasKit.SkPaint();
 
     const fontMgr = CanvasKit.SkFontMgr.RefDefault();
-    let roboto = fontMgr.MakeTypefaceFromData(robotoData);
+    const roboto = fontMgr.MakeTypefaceFromData(robotoData);
 
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.RED);
@@ -183,7 +196,7 @@
       canvas.clear(CanvasKit.TRANSPARENT);
 
       canvas.drawPath(path, paint);
-      canvas.drawText('Try Clicking!', 10, 280, textFont, textPaint);
+      canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
 
       surface.flush();
 
@@ -1077,5 +1090,74 @@
     textFont.delete();
     textBlob.delete();
     surface.flush();
+  }
+
+  function TextShapingAPI1(CanvasKit, notoserifData) {
+    if (!notoserifData || !CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('shape1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
+
+    const textPaint = new CanvasKit.SkPaint();
+    const textFont = new CanvasKit.SkFont(notoSerif, 20);
+
+    canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
+    canvas.drawText('This text is not shaped, and overflows the boundry',
+                    35, 50, textPaint, textFont);
+
+    const shapedText = new CanvasKit.ShapedText({
+      font: textFont,
+      leftToRight: true,
+      text: 'This text *is* shaped, and wraps to the right width.',
+      width: 160,
+    });
+    const textBoxX = 35;
+    const textBoxY = 55;
+    canvas.drawText(shapedText, textBoxX, textBoxY, textPaint);
+    const bounds = shapedText.getBounds();
+
+    bounds.fLeft += textBoxX;
+    bounds.fRight += textBoxX;
+    bounds.fTop += textBoxY;
+    bounds.fBottom += textBoxY
+
+    canvas.drawRect(bounds, paint);
+    const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
+    const textFont2 = new CanvasKit.SkFont(notoSerif, 60);
+    const shapedText2 = new CanvasKit.ShapedText({
+      font: textFont2,
+      leftToRight: true,
+      text: SHAPE_TEST_TEXT,
+      width: 600,
+    });
+
+    canvas.drawText('no kerning ↓', 10, 240, textPaint, textFont);
+    canvas.drawText(SHAPE_TEST_TEXT, 10, 300, textPaint, textFont2);
+    canvas.drawText(shapedText2, 10, 300, textPaint);
+    canvas.drawText('kerning ↑', 10, 390, textPaint, textFont);
+
+    surface.flush();
+
+    paint.delete();
+    notoSerif.delete();
+    textPaint.delete();
+    textFont.delete();
+    shapedText.delete();
+    textFont2.delete();
+    shapedText2.delete();
+
+    surface.delete();
   }
 </script>
