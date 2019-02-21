@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5545b52f_fd094b0e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-21T13:46:52Z",
+      "side": 1,
+      "message": "Though checking for is_empty fixed the image I was looking at, it doesn\u0027t consider cases where there is *some* pixel data, but still not enough. This is a better bandaid. I could imagine using\n\n  !dirty_rect.contains(frame_rect)\n\nhere, but I\u0027m assuming that dirty_rect will never be bigger than frame_rect?",
+      "range": {
+        "startLine": 494,
+        "startChar": 44,
+        "endLine": 494,
+        "endChar": 74
+      },
+      "revId": "8fad5a8b4b3b1085442555a89f913d18d0c69ff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

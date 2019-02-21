@@ -16,6 +16,24 @@
       "revId": "ee3713be4602ad1822734d5ff427737724384089",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32016ff6_59d3fe7d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-21T13:46:52Z",
+      "side": 1,
+      "message": "In addition to frame 0, there are a few cases where a frame can be independent and not fill the frame:\n- the prior frame\u0027s DisposalMethod is kRestoreBGColor and it is independent [1]\n- all prior frames are DisposalMethod::kRestorePrevious [2]\n- the frame rect covers the frame rect of all prior frames (back through an independent frame) [3]\n- there\u0027s a fourth place where we can mark a frame independent [4], but I don\u0027t think we\u0027ll ever reach that point. That ought to get caught by [1]\n\n\n[1] https://skia.googlesource.com/skia/+/05ff93c43ea57fd62cd1bc36ab7cd9b6112a7ecf/src/codec/SkCodec.cpp#773\n[2] https://skia.googlesource.com/skia/+/05ff93c43ea57fd62cd1bc36ab7cd9b6112a7ecf/src/codec/SkCodec.cpp#760\n[3] https://skia.googlesource.com/skia/+/05ff93c43ea57fd62cd1bc36ab7cd9b6112a7ecf/src/codec/SkCodec.cpp#791\n[4] https://skia.googlesource.com/skia/+/05ff93c43ea57fd62cd1bc36ab7cd9b6112a7ecf/src/codec/SkCodec.cpp#803",
+      "parentUuid": "3429a28c_45973761",
+      "revId": "ee3713be4602ad1822734d5ff427737724384089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
