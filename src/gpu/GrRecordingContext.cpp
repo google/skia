@@ -16,6 +16,7 @@
 #include "GrSkSLFPFactoryCache.h"
 #include "GrTextureContext.h"
 #include "SkGr.h"
+#include "text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
@@ -28,17 +29,45 @@ GrRecordingContext::GrRecordingContext(GrBackendApi backend,
 
 GrRecordingContext::~GrRecordingContext() { }
 
+/**
+ * TODO: move textblob draw calls below context (see comment below)
+ */
+static void textblobcache_overbudget_CB(void* data) {
+    SkASSERT(data);
+    GrRecordingContext* context = reinterpret_cast<GrRecordingContext*>(data);
+
+    GrContext* direct = context->priv().asDirectContext();
+    if (!direct) {
+        return;
+    }
+
+    // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
+    // GrRenderTargetContext to perform a necessary flush.  The solution is to move drawText calls
+    // to below the GrContext level, but this is not trivial because they call drawPath on
+    // SkGpuDevice.
+    direct->flush();
+}
+
 bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> cache) {
 
     if (!INHERITED::init(std::move(caps), std::move(cache))) {
         return false;
     }
 
+    fGlyphCache.reset(new GrStrikeCache(this->caps(),
+                                        this->options().fGlyphCacheTextureMaximumBytes));
+
+    fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
+                                             this->contextID()));
+
     return true;
 }
 
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
+
+    fGlyphCache->freeAll();
+    fTextBlobCache->freeAll();
 }
 
 sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
@@ -55,6 +84,14 @@ sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
 
 GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     return this->refOpMemoryPool().get();
+}
+
+GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
+    return fTextBlobCache.get();
+}
+
+const GrTextBlobCache* GrRecordingContext::getTextBlobCache() const {
+    return fTextBlobCache.get();
 }
 
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

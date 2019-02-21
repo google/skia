@@ -52,6 +52,9 @@ public:
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
+    GrStrikeCache* getGlyphCache() { return fContext->getGlyphCache(); }
+    GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
+
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
      *

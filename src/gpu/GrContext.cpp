@@ -49,7 +49,6 @@ GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int3
         : INHERITED(backend, options, contextID) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
-    fGlyphCache = nullptr;
 }
 
 GrContext::~GrContext() {
@@ -60,7 +59,6 @@ GrContext::~GrContext() {
     }
     delete fResourceProvider;
     delete fResourceCache;
-    delete fGlyphCache;
 }
 
 bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
@@ -73,6 +71,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     }
 
     SkASSERT(this->caps());
+    SkASSERT(this->getGlyphCache());
+    SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
@@ -121,10 +121,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
                                                this->options().fSortRenderTargets,
                                                this->options().fReduceOpListSplitting));
 
-    fGlyphCache = new GrStrikeCache(this->caps(), this->options().fGlyphCacheTextureMaximumBytes);
-
-    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this, this->contextID()));
-
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.
     if (this->options().fExecutor) {
@@ -164,9 +160,6 @@ void GrContext::abandonContext() {
     fResourceCache->abandonAll();
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
-
-    fGlyphCache->freeAll();
-    fTextBlobCache->freeAll();
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {
@@ -186,9 +179,6 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fResourceCache->releaseAll();
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
-
-    fGlyphCache->freeAll();
-    fTextBlobCache->freeAll();
 }
 
 void GrContext::resetGLTextureBindings() {
@@ -206,7 +196,9 @@ void GrContext::resetContext(uint32_t state) {
 void GrContext::freeGpuResources() {
     ASSERT_SINGLE_OWNER
 
-    fGlyphCache->freeAll();
+    // TODO: the glyph cache doesn't hold any GpuResources so this call should not be needed here.
+    // Some slack in the GrTextBlob's implementation requires it though. That could be fixed.
+    this->getGlyphCache()->freeAll();
 
     this->drawingManager()->freeGpuResources();
 
@@ -217,7 +209,10 @@ void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
     ASSERT_SINGLE_OWNER
     fResourceCache->purgeUnlockedResources(scratchResourcesOnly);
     fResourceCache->purgeAsNeeded();
-    fTextBlobCache->purgeStaleBlobs();
+
+    // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
+    // place to purge stale blobs
+    this->getTextBlobCache()->purgeStaleBlobs();
 }
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
@@ -232,7 +227,9 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
         ccpr->purgeCacheEntriesOlderThan(this->proxyProvider(), purgeTime);
     }
 
-    fTextBlobCache->purgeStaleBlobs();
+    // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
+    // place to purge stale blobs
+    this->getTextBlobCache()->purgeStaleBlobs();
 }
 
 void GrContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
@@ -270,18 +267,6 @@ bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
     return this->caps()->maxRenderTargetSampleCount(config);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void GrContext::TextBlobCacheOverBudgetCB(void* data) {
-    SkASSERT(data);
-    // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
-    // GrRenderTargetContext to perform a necessary flush.  The solution is to move drawText calls
-    // to below the GrContext level, but this is not trivial because they call drawPath on
-    // SkGpuDevice.
-    GrContext* context = reinterpret_cast<GrContext*>(data);
-    context->flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -373,6 +358,6 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
     traceMemoryDump->dumpNumericValue("skia/gr_text_blob_cache", "size", "bytes",
-                                      fTextBlobCache->usedBytes());
+                                      this->getTextBlobCache()->usedBytes());
 }
 
