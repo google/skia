@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3429a28c_45973761",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-21T01:54:39Z",
+      "side": 1,
+      "message": "Can you remind me when (independent \u0026\u0026 (bounds !\u003d this-\u003ebounds()) can be true? In other words, what sort of independent frames don\u0027t fill the entire image?\n\nI can see that frame #0 is always independent (but its frame can be smaller than the image), but I get a little lost trying to read the rest of the SkFrameHolder::setAlphaAndRequiredFrame logic.",
+      "revId": "ee3713be4602ad1822734d5ff427737724384089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
