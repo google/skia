@@ -34,6 +34,24 @@
       "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4c753b1_cb88d796",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-21T17:01:17Z",
+      "side": 1,
+      "message": "On the other hand, your version doesn\u0027t lead to an infinite loop and stack overflow... so maybe let\u0027s go with that.",
+      "parentUuid": "270ea533_f1f8c9b6",
+      "revId": "808e17e00b6b5f8bf5f26037f0ff86a3bab0524d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
