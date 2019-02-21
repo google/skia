@@ -22,6 +22,30 @@
       "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c5fa83e_d045d502",
+        "filename": "third_party/icu/BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-21T20:53:55Z",
+      "side": 1,
+      "message": "Yes, this is gn format\u0027s doing",
+      "parentUuid": "d56322a0_97f84033",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 9
+      },
+      "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
