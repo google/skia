@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "a78a6d0d_3d767187",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T19:35:30Z",
+      "side": 1,
+      "message": "If component works I\u0027d prefer that too.",
+      "parentUuid": "dfbb0eaa_a72a6c71",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 14
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e02aaec_8f6f8f84",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T19:35:30Z",
+      "side": 1,
+      "message": "This seems like the wrong way to exclude these? Like if we\u0027re an official build just don\u0027t pull the in? If this is just for scraping the gn output, can we calculate that a different way. I really don\u0027t like the build conditions around the existence of targets, I\u0027d much prefer conditions around depending on targets if possible.",
+      "range": {
+        "startLine": 52,
+        "startChar": 5,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b386665_b8a030f9",
         "filename": "modules/skshaper/BUILD.gn",
         "patchSetId": 21
