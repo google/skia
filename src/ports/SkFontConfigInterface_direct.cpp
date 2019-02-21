@@ -539,6 +539,13 @@ bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
     if (!c_filename) {
         return false;
     }
+    const char* sysroot = (const char*)FcConfigGetSysRoot(nullptr);
+    SkString resolvedFilename;
+    if (sysroot) {
+        resolvedFilename = sysroot;
+        resolvedFilename += c_filename;
+        c_filename = resolvedFilename.c_str();
+    }
     return this->isAccessible(c_filename);
 }
 
@@ -669,6 +676,13 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     if (!c_filename) {
         FcFontSetDestroy(font_set);
         return false;
+    }
+    const char* sysroot = (const char*)FcConfigGetSysRoot(nullptr);
+    SkString resolvedFilename;
+    if (sysroot) {
+        resolvedFilename = sysroot;
+        resolvedFilename += c_filename;
+        c_filename = resolvedFilename.c_str();
     }
 
     int face_index = get_int(match, FC_INDEX, 0);
