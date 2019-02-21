@@ -65,8 +65,6 @@ WASM_SKOTTIE=" \
   modules/skottie/src/SkottieTextLayer.cpp \
   modules/skottie/src/SkottieValue.cpp \
   modules/sksg/src/*.cpp \
-  modules/skshaper/src/SkShaper.cpp \
-  modules/skshaper/src/SkShaper_primitive.cpp \
   src/core/SkCubicMap.cpp \
   src/core/SkTime.cpp \
   src/pathops/SkOpBuilder.cpp \
@@ -149,14 +147,16 @@ echo "Compiling bitcode"
   skia_use_expat=false \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
-  skia_use_icu=false \
   skia_use_libheif=false \
-  skia_use_system_libjpeg_turbo = false \
   skia_use_libjpeg_turbo=true \
   skia_use_libpng=true \
   skia_use_libwebp=false \
   skia_use_lua=false \
   skia_use_piex=false \
+  skia_use_system_libpng=true \
+  skia_use_system_freetype2=true \
+  skia_use_system_icu=false\
+  skia_use_system_libjpeg_turbo = false \
   skia_use_vulkan=false \
   skia_use_zlib=true \
   \
@@ -167,7 +167,7 @@ echo "Compiling bitcode"
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
-${NINJA} -C ${BUILD_DIR} libskia.a
+${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a libharfbuzz.a libicu.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -175,7 +175,7 @@ echo "Generating final wasm"
 
 # Skottie doesn't end up in libskia and is currently not its own library
 # so we just hack in the .cpp files we need for now.
-# Emscripten prefers that libskia.a goes last in order, otherwise, it
+# Emscripten prefers that the .a files goe last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
@@ -200,8 +200,8 @@ ${EMCXX} \
     -Isrc/sfnt/ \
     -Isrc/shaders/ \
     -Isrc/utils/ \
+    -Ithird_party/icu \
     -Itools \
-    -Itools/fonts \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
@@ -217,15 +217,19 @@ ${EMCXX} \
     $WASM_SKOTTIE \
     $WASM_MANAGED_SKOTTIE \
     $BUILD_DIR/libskia.a \
+    $BUILD_DIR/libskshaper.a \
+    $BUILD_DIR/libharfbuzz.a \
+    $BUILD_DIR/libicu.a \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
-    -s TOTAL_MEMORY=32MB \
+    -s TOTAL_MEMORY=128MB \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js
+
