@@ -55,6 +55,10 @@ public:
     }
     VkFormat imageFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
+        if (this->ycbcrConversionInfo().isValid()) {
+            SkASSERT(this->imageFormat() == VK_FORMAT_UNDEFINED);
+            return GrBackendFormat::MakeVk(this->ycbcrConversionInfo());
+        }
         return GrBackendFormat::MakeVk(this->imageFormat());
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
