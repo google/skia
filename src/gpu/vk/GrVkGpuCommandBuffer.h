@@ -193,7 +193,7 @@ private:
         // Array of images that will be sampled and thus need to be transfered to sampled layout
         // before submitting the secondary command buffers. This must happen after we do any predraw
         // uploads or copies.
-        SkTArray<GrVkImage*>                   fSampledImages;
+        SkTArray<sk_sp<GrVkTexture>>           fSampledTextures;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
             return fCommandBuffers.back();
