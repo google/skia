@@ -33,12 +33,14 @@ class SkTraceMemoryDump;
  *
  * The latter two ref types are private and intended only for Gr core code.
  *
- * When all the ref/io counts reach zero DERIVED::notifyAllCntsAreZero() will be called (static poly
- * morphism using CRTP). Similarly when the ref (but not necessarily pending read/write) count
- * reaches 0 DERIVED::notifyRefCountIsZero() will be called. In the case when an unref() causes both
+ * PRIOR to the last ref/IO count being removed DERIVED::notifyAllCntsWillBeZero() will be called
+ * (static poly morphism using CRTP). It is legal for additional ref's or pending IOs to be added
+ * during this time. AFTER all the ref/io counts reach zero DERIVED::notifyAllCntsAreZero() will be
+ * called. Similarly when the ref (but not necessarily pending read/write) count reaches 0
+ * DERIVED::notifyRefCountIsZero() will be called. In the case when an unref() causes both
  * the ref cnt to reach zero and the other counts are zero, notifyRefCountIsZero() will be called
  * before notifyAllCntsAreZero(). Moreover, if notifyRefCountIsZero() returns false then
- * notifyAllRefCntsAreZero() won't be called at all. notifyRefCountIsZero() must return false if the
+ * notifyAllCntsAreZero() won't be called at all. notifyRefCountIsZero() must return false if the
  * object may be deleted after notifyRefCntIsZero() returns.
  *
  * GrIORef and GrGpuResource are separate classes for organizational reasons and to be
@@ -58,7 +60,13 @@ public:
     void unref() const {
         this->validate();
 
-        if (!(--fRefCnt)) {
+        if (fRefCnt == 1) {
+            if (!this->internalHasPendingIO()) {
+                static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
+            }
+            SkASSERT(fRefCnt > 0);
+        }
+        if (--fRefCnt == 0) {
             if (!static_cast<const DERIVED*>(this)->notifyRefCountIsZero()) {
                 return;
             }
@@ -104,6 +112,9 @@ private:
 
     void completedRead() const {
         this->validate();
+        if (fPendingReads == 1 && !fPendingWrites && !fRefCnt) {
+            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
+        }
         --fPendingReads;
         this->didRemoveRefOrPendingIO(kPendingRead_CntType);
     }
@@ -115,6 +126,9 @@ private:
 
     void completedWrite() const {
         this->validate();
+        if (fPendingWrites == 1 && !fPendingReads && !fRefCnt) {
+            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
+        }
         --fPendingWrites;
         this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
     }
@@ -306,11 +320,12 @@ private:
     /**
      * Called by GrResourceCache when a resource loses its last ref or pending IO.
      */
-    virtual void removedLastRefOrPendingIO() {}
+    virtual void willRemoveLastRefOrPendingIO() {}
 
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
+    void notifyAllCntsWillBeZero() const;
     void notifyAllCntsAreZero(CntType) const;
     bool notifyRefCountIsZero() const;
     void removeScratchKey();
