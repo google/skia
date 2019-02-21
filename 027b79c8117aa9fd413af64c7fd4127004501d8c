@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfbb0eaa_a72a6c71",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-21T19:10:13Z",
+      "side": 1,
+      "message": "I don\u0027t recall all the subtleties, but wouldn\u0027t \"component\" work for you also?\n\n(we were trying to componentize all modules at some point, e.g. https://skia-review.googlesource.com/145883)",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 14
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b386665_b8a030f9",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-21T19:10:13Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 14
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
