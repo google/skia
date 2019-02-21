@@ -22,6 +22,30 @@
       "revId": "8fad5a8b4b3b1085442555a89f913d18d0c69ff8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8e365ae_0a7cb073",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-21T21:09:43Z",
+      "side": 1,
+      "message": "\u003e I\u0027m assuming that dirty_rect will never be bigger than frame_rect?\n\nYeah, you should be able to make that assumption. I now check, in Wuffs\u0027 GIF fuzzer, that that\u0027s always true.\n\nhttps://github.com/google/wuffs/blob/21eb64f4c6cb11f3b133fee8f6352bc04e935827/fuzz/c/std/gif_fuzzer.c#L140\n\nSee also:\n\nhttps://github.com/google/wuffs/blob/21eb64f4c6cb11f3b133fee8f6352bc04e935827/std/gif/decode_gif.wuffs#L182",
+      "parentUuid": "5545b52f_fd094b0e",
+      "range": {
+        "startLine": 494,
+        "startChar": 44,
+        "endLine": 494,
+        "endChar": 74
+      },
+      "revId": "8fad5a8b4b3b1085442555a89f913d18d0c69ff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
