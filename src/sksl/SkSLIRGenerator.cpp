@@ -938,7 +938,7 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
     std::vector<Variable*> variables;
     int64_t currentValue = 0;
     Layout layout;
-    ASTType enumType(e.fOffset, e.fTypeName, ASTType::kIdentifier_Kind, {});
+    ASTType enumType(e.fOffset, e.fTypeName, ASTType::kIdentifier_Kind, {}, false);
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable, &fErrors));
@@ -970,6 +970,18 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
 const Type* IRGenerator::convertType(const ASTType& type) {
     const Symbol* result = (*fSymbolTable)[type.fName];
     if (result && result->fKind == Symbol::kType_Kind) {
+        if (type.fNullable) {
+            if (((Type&) *result) == *fContext.fFragmentProcessor_Type) {
+                if (type.fSizes.size()) {
+                    fErrors.error(type.fOffset, "type '" + type.fName + "' may not be used in "
+                                                "an array");
+                }
+                result = new Type(String(result->fName) + "?", Type::kNullable_Kind,
+                                  (const Type&) *result);
+            } else {
+                fErrors.error(type.fOffset, "type '" + type.fName + "' may not be nullable");
+            }
+        }
         for (int size : type.fSizes) {
             String name(result->fName);
             name += "[";

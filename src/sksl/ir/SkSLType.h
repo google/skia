@@ -45,6 +45,7 @@ public:
         kArray_Kind,
         kEnum_Kind,
         kGeneric_Kind,
+        kNullable_Kind,
         kMatrix_Kind,
         kOther_Kind,
         kSampler_Kind,
@@ -140,6 +141,20 @@ public:
     , fCoercibleTypes(std::move(coercibleTypes))
     , fColumns(1)
     , fRows(1) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
+
+    // Create a nullable type.
+    Type(String name, Kind kind, const Type& componentType)
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
+    , fTypeKind(kind)
+    , fNumberKind(kNonnumeric_NumberKind)
+    , fComponentType(&componentType)
+    , fColumns(1)
+    , fRows(1)
+    , fDimensions(SpvDim1D) {
         fName.fChars = fNameString.c_str();
         fName.fLength = fNameString.size();
     }
@@ -286,6 +301,16 @@ public:
     const Type& componentType() const {
         SkASSERT(fComponentType);
         return *fComponentType;
+    }
+
+    /**
+     * For nullable types, returns the base type, otherwise returns the type itself.
+     */
+    const Type& nonnullable() const {
+        if (fTypeKind == kNullable_Kind) {
+            return this->componentType();
+        }
+        return *this;
     }
 
     /**

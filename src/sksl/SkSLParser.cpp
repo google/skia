@@ -517,7 +517,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
     fTypes.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
                                                                 fields)));
     return std::unique_ptr<ASTType>(new ASTType(name.fOffset, this->text(name),
-                                                ASTType::kStruct_Kind, std::vector<int>()));
+                                                ASTType::kStruct_Kind, std::vector<int>(), false));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -1071,7 +1071,7 @@ std::unique_ptr<ASTStatement> Parser::statement() {
     }
 }
 
-/* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* */
+/* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
 std::unique_ptr<ASTType> Parser::type() {
     Token type;
     if (!this->expect(Token::IDENTIFIER, "a type", &type)) {
@@ -1095,8 +1095,9 @@ std::unique_ptr<ASTType> Parser::type() {
         }
         this->expect(Token::RBRACKET, "']'");
     }
+    bool nullable = this->checkNext(Token::QUESTION);
     return std::unique_ptr<ASTType>(new ASTType(type.fOffset, this->text(type),
-                                                ASTType::kIdentifier_Kind, sizes));
+                                                ASTType::kIdentifier_Kind, sizes, nullable));
 }
 
 /* IDENTIFIER LBRACE varDeclaration* RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? */
@@ -1816,6 +1817,10 @@ std::unique_ptr<ASTExpression> Parser::unaryExpression() {
         case Token::BITWISENOT: // fall through
         case Token::PLUSPLUS:   // fall through
         case Token::MINUSMINUS: {
+            AutoDepth depth(this);
+            if (!depth.checkValid()) {
+                return nullptr;
+            }
             Token t = this->nextToken();
             std::unique_ptr<ASTExpression> expr = this->unaryExpression();
             if (!expr) {
