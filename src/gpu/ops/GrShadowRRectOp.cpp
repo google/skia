@@ -589,15 +589,16 @@ private:
             }
         }
 
-        static const uint32_t kPipelineFlags = 0;
-        auto pipe = target->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet(),
-                                         target->detachAppliedClip());
-
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->recordDraw(std::move(gp), mesh);
+    }
+
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                this, chainBounds, GrProcessorSet::MakeEmptySet());
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
