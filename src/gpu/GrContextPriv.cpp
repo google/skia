@@ -765,7 +765,7 @@ void GrContextPriv::printGpuStats() const {
 }
 
 void GrContextPriv::testingOnly_setTextBlobCacheLimit(size_t bytes) {
-    fContext->fTextBlobCache->setBudget(bytes);
+    fContext->priv().getTextBlobCache()->setBudget(bytes);
 }
 
 sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format, unsigned int index) {
