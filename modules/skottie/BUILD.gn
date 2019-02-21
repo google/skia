@@ -14,7 +14,7 @@ config("public_config") {
   }
 }
 
-source_set("skottie") {
+static_library("skottie") {
   if (skia_enable_skottie) {
     import("skottie.gni")
     public_configs = [ ":public_config" ]
