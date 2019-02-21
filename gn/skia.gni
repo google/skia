@@ -2,7 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+if (!defined(is_skia_standalone)) {
+  is_skia_standalone = false
+}
+is_skia_dev_build = is_skia_standalone && !is_official_build
+
 declare_args() {
   skia_use_icu = !is_fuchsia && !is_ios
   skia_enable_skshaper = true
+  skia_enable_tools = is_skia_dev_build
 }

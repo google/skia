@@ -51,38 +51,32 @@ if [[ $@ == *cpu* ]]; then
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
 fi
 
-WASM_SKOTTIE=" \
-  $BASE_DIR/skottie_bindings.cpp \
-  modules/skottie/src/Skottie.cpp \
-  modules/skottie/src/SkottieAdapter.cpp \
-  modules/skottie/src/SkottieAnimator.cpp \
-  modules/skottie/src/SkottieJson.cpp \
-  modules/skottie/src/SkottieLayer.cpp \
-  modules/skottie/src/SkottieLayerEffect.cpp \
-  modules/skottie/src/SkottiePrecompLayer.cpp \
-  modules/skottie/src/SkottieProperty.cpp \
-  modules/skottie/src/SkottieShapeLayer.cpp \
-  modules/skottie/src/SkottieTextLayer.cpp \
-  modules/skottie/src/SkottieValue.cpp \
-  modules/sksg/src/*.cpp \
-  modules/skshaper/src/SkShaper.cpp \
-  modules/skshaper/src/SkShaper_primitive.cpp \
+# TODO(fmalita,kjlubick): reduce this list to one item by fixing
+# the libskottie.a and libsksg.a builds
+SKOTTIE_BINDINGS="$BASE_DIR/skottie_bindings.cpp\
+  src/core/SkColorMatrixFilterRowMajor255.cpp \
   src/core/SkCubicMap.cpp \
   src/core/SkTime.cpp \
+  src/effects/imagefilters/SkDropShadowImageFilter.cpp \
   src/pathops/SkOpBuilder.cpp \
   src/utils/SkJSON.cpp \
   src/utils/SkParse.cpp "
+
+SKOTTIE_LIB="$BUILD_DIR/libskottie.a \
+             $BUILD_DIR/libsksg.a"
+
 if [[ $@ == *no_skottie* ]]; then
   echo "Omitting Skottie"
-  WASM_SKOTTIE=""
+  SKOTTIE_LIB=""
+  SKOTTIE_BINDINGS=""
 fi
 
-WASM_MANAGED_SKOTTIE="\
+MANAGED_SKOTTIE_BINDINGS="\
   -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
   modules/skottie/utils/SkottieUtils.cpp"
 if [[ $@ == *no_managed_skottie* ]]; then
   echo "Omitting managed Skottie"
-  WASM_MANAGED_SKOTTIE="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
+  MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
@@ -113,6 +107,17 @@ else
       --input $BASE_DIR/fonts/NotoMono-Regular.ttf \
       --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
       --align 4
+fi
+
+GN_SHAPER="skia_use_icu=true skia_use_system_icu=false"
+SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
+            $BUILD_DIR/libicu.a"
+SHAPER_TARGETS="libharfbuzz.a libicu.a"
+if [[ $@ == *primitive_shaper* ]]; then
+  echo "Using the primitive shaper instead of the harfbuzz/icu one"
+  GN_SHAPER="skia_use_icu=false"
+  SHAPER_LIB=""
+  SHAPER_TARGETS=""
 fi
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
@@ -149,33 +154,36 @@ echo "Compiling bitcode"
   skia_use_expat=false \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
-  skia_use_icu=false \
   skia_use_libheif=false \
-  skia_use_system_libjpeg_turbo = false \
   skia_use_libjpeg_turbo=true \
   skia_use_libpng=true \
   skia_use_libwebp=false \
   skia_use_lua=false \
   skia_use_piex=false \
+  skia_use_system_libpng=true \
+  skia_use_system_freetype2=true \
+  skia_use_system_libjpeg_turbo = false \
   skia_use_vulkan=false \
   skia_use_zlib=true \
   \
+  ${GN_SHAPER} \
+  ${GN_GPU} \
+  \
+  skia_enable_skshaper=true \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skpicture=false \
-  ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
-${NINJA} -C ${BUILD_DIR} libskia.a
+# Build all the libs, we'll link the appropriate ones down below
+${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a $SHAPER_TARGETS
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
 echo "Generating final wasm"
 
-# Skottie doesn't end up in libskia and is currently not its own library
-# so we just hack in the .cpp files we need for now.
-# Emscripten prefers that libskia.a goes last in order, otherwise, it
+# Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
@@ -200,8 +208,8 @@ ${EMCXX} \
     -Isrc/sfnt/ \
     -Isrc/shaders/ \
     -Isrc/utils/ \
+    -Ithird_party/icu \
     -Itools \
-    -Itools/fonts \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
@@ -214,16 +222,19 @@ ${EMCXX} \
     $HTML_CANVAS_API \
     $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
-    $WASM_SKOTTIE \
-    $WASM_MANAGED_SKOTTIE \
+    $SKOTTIE_BINDINGS \
+    $MANAGED_SKOTTIE_BINDINGS \
     $BUILD_DIR/libskia.a \
+    $SKOTTIE_LIB \
+    $BUILD_DIR/libskshaper.a \
+    $SHAPER_LIB \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
-    -s TOTAL_MEMORY=32MB \
+    -s TOTAL_MEMORY=128MB \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \

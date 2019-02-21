@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("../../gn/skia.gni")
+
 declare_args() {
   skia_enable_skottie = true
 }
@@ -14,7 +16,7 @@ config("public_config") {
   }
 }
 
-source_set("skottie") {
+component("skottie") {
   if (skia_enable_skottie) {
     import("skottie.gni")
     public_configs = [ ":public_config" ]
@@ -49,93 +51,95 @@ if (defined(is_skia_standalone)) {
     }
   }
 
-  source_set("tests") {
-    if (skia_enable_skottie) {
-      testonly = true
+  if (skia_enable_tools) {
+    source_set("tests") {
+      if (skia_enable_skottie) {
+        testonly = true
 
-      configs += [
-        "../..:skia_private",
-        "../..:tests_config",
-      ]
-      sources = [
-        "src/SkottieTest.cpp",
-      ]
+        configs += [
+          "../..:skia_private",
+          "../..:tests_config",
+        ]
+        sources = [
+          "src/SkottieTest.cpp",
+        ]
 
-      deps = [
-        ":skottie",
-        "../..:gpu_tool_utils",
-        "../..:skia",
-      ]
+        deps = [
+          ":skottie",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+        ]
+      }
     }
-  }
 
-  source_set("fuzz") {
-    if (skia_enable_skottie) {
+    source_set("fuzz") {
+      if (skia_enable_skottie) {
+        testonly = true
+
+        configs += [ "../..:skia_private" ]
+        include_dirs = [
+          "../../tools",
+          "../../tools/flags",
+          "../../tools/fonts",
+        ]
+        sources = [
+          "../../tools/Resources.cpp",
+          "../../tools/fonts/SkTestFontMgr.cpp",
+          "../../tools/fonts/SkTestSVGTypeface.cpp",
+          "../../tools/fonts/SkTestTypeface.cpp",
+          "fuzz/FuzzSkottieJSON.cpp",
+        ]
+
+        deps = [
+          "../..:experimental_svg_model",
+          "../..:skia",
+        ]
+
+        public_deps = [
+          ":skottie",
+        ]
+      }
+    }
+
+    source_set("tool") {
       testonly = true
 
       configs += [ "../..:skia_private" ]
-      include_dirs = [
-        "../../tools",
-        "../../tools/flags",
-        "../../tools/fonts",
-      ]
       sources = [
-        "../../tools/Resources.cpp",
-        "../../tools/fonts/SkTestFontMgr.cpp",
-        "../../tools/fonts/SkTestSVGTypeface.cpp",
-        "../../tools/fonts/SkTestTypeface.cpp",
-        "fuzz/FuzzSkottieJSON.cpp",
+        "src/SkottieTool.cpp",
       ]
 
       deps = [
-        "../..:experimental_svg_model",
+        "../..:flags",
         "../..:skia",
       ]
 
       public_deps = [
         ":skottie",
+        ":utils",
       ]
     }
-  }
 
-  source_set("tool") {
-    testonly = true
+    source_set("gm") {
+      if (skia_enable_skottie) {
+        testonly = true
 
-    configs += [ "../..:skia_private" ]
-    sources = [
-      "src/SkottieTool.cpp",
-    ]
+        # would be nice to have a gm_config
+        include_dirs = [ "../../gm" ]
 
-    deps = [
-      "../..:flags",
-      "../..:skia",
-    ]
+        configs += [ "../..:skia_private" ]
+        sources = [
+          "gm/SkottieGM.cpp",
+        ]
 
-    public_deps = [
-      ":skottie",
-      ":utils",
-    ]
-  }
-
-  source_set("gm") {
-    if (skia_enable_skottie) {
-      testonly = true
-
-      # would be nice to have a gm_config
-      include_dirs = [ "../../gm" ]
-
-      configs += [ "../..:skia_private" ]
-      sources = [
-        "gm/SkottieGM.cpp",
-      ]
-
-      deps = [
-        ":skottie",
-        ":utils",
-        "../..:gpu_tool_utils",
-        "../..:skia",
-        "../..:tool_utils",
-      ]
+        deps = [
+          ":skottie",
+          ":utils",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+          "../..:tool_utils",
+        ]
+      }
     }
   }
 }
