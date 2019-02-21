@@ -25,9 +25,6 @@ ClipEffect::~ClipEffect() {
 }
 
 void ClipEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    if (this->bounds().isEmpty())
-        return;
-
     SkAutoCanvasRestore acr(canvas, !fNoop);
     if (!fNoop) {
         fClipNode->clip(canvas, fAntiAlias);
