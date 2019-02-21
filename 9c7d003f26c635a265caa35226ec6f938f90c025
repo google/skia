@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42f1cdf6_bf8e1cb4",
+        "filename": "src/ports/SkFontMgr_fontconfig.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T19:28:53Z",
+      "side": 1,
+      "message": "This is the wrong FcConfig, you\u0027d need to pass some more state into this typeface to get the right one (or modify the pattern passed in). The right config is the one in fFC.\n\nNote that Chromium (as far as I know) doesn\u0027t use this file (this is the one everyone else uses), I can update this separately.",
+      "range": {
+        "startLine": 489,
+        "startChar": 61,
+        "endLine": 489,
+        "endChar": 68
+      },
+      "revId": "9c7d003f26c635a265caa35226ec6f938f90c025",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
