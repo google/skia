@@ -49,6 +49,29 @@
     },
     {
       "key": {
+        "uuid": "4f072432_2e7d9369",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T16:38:07Z",
+      "side": 1,
+      "message": "Here (and below) it seems excessive to always copy the string just to pass it off, since outside the unique testing environment FcConfigGetSysRoot is going to return nullptr. Maybe something like\n\nconst char* sysroot \u003d (const char*)FcConfigGetSysRoot(nullptr);\nSkString resolvedFilename;\nif (sysroot) {\n    resolvedFilename \u003d sysroot;\n    resolvedFilename +\u003d c_filename;\n    c_filename \u003d resolvedFilename.c_str();\n}\nreturn this-\u003eisAccessible(c_filename);",
+      "range": {
+        "startLine": 543,
+        "startChar": 0,
+        "endLine": 545,
+        "endChar": 48
+      },
+      "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "011d0401_2070c34c",
         "filename": "src/ports/SkFontConfigInterface_direct.cpp",
         "patchSetId": 2
@@ -93,6 +116,30 @@
       "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18645278_db572f4f",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T16:38:07Z",
+      "side": 1,
+      "message": "Well, upstream took the doc change with https://gitlab.freedesktop.org/fontconfig/fontconfig/commit/40e27f5d989ef4e40d218624de0a51de3de43177 so I suppose this is supported now.",
+      "parentUuid": "1db2f637_a36c8bef",
+      "range": {
+        "startLine": 676,
+        "startChar": 35,
+        "endLine": 676,
+        "endChar": 53
+      },
+      "revId": "fdfab9ed62a890f9c57f7a9f7ad9285a14446b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
