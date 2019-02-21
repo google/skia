@@ -35,7 +35,6 @@ struct Expression : public IRNode {
         kFunctionReference_Kind,
         kFunctionCall_Kind,
         kIndex_Kind,
-        kNullLiteral_Kind,
         kPrefix_Kind,
         kPostfix_Kind,
         kSetting_Kind,

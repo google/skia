@@ -25,6 +25,4 @@ layout(builtin=10012) half sk_Height;
 
 half4 process(fragmentProcessor fp);
 half4 process(fragmentProcessor fp, half4 input);
-half4 process(fragmentProcessor? fp);
-half4 process(fragmentProcessor? fp, half4 input);
 )

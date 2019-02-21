@@ -17,7 +17,6 @@
 #include "ast/SkSLASTFloatLiteral.h"
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTIntLiteral.h"
-#include "ast/SkSLASTNullLiteral.h"
 #include "ir/SkSLAppendStage.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
@@ -41,7 +40,6 @@
 #include "ir/SkSLInterfaceBlock.h"
 #include "ir/SkSLIntLiteral.h"
 #include "ir/SkSLLayout.h"
-#include "ir/SkSLNullLiteral.h"
 #include "ir/SkSLPostfixExpression.h"
 #include "ir/SkSLPrefixExpression.h"
 #include "ir/SkSLReturnStatement.h"
@@ -940,7 +938,7 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
     std::vector<Variable*> variables;
     int64_t currentValue = 0;
     Layout layout;
-    ASTType enumType(e.fOffset, e.fTypeName, ASTType::kIdentifier_Kind, {}, false);
+    ASTType enumType(e.fOffset, e.fTypeName, ASTType::kIdentifier_Kind, {});
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable, &fErrors));
@@ -972,18 +970,6 @@ void IRGenerator::convertEnum(const ASTEnum& e) {
 const Type* IRGenerator::convertType(const ASTType& type) {
     const Symbol* result = (*fSymbolTable)[type.fName];
     if (result && result->fKind == Symbol::kType_Kind) {
-        if (type.fNullable) {
-            if (((Type&) *result) == *fContext.fFragmentProcessor_Type) {
-                if (type.fSizes.size()) {
-                    fErrors.error(type.fOffset, "type '" + type.fName + "' may not be used in "
-                                                "an array");
-                }
-                result = new Type(String(result->fName) + "?", Type::kNullable_Kind,
-                                  (const Type&) *result);
-            } else {
-                fErrors.error(type.fOffset, "type '" + type.fName + "' may not be nullable");
-            }
-        }
         for (int size : type.fSizes) {
             String name(result->fName);
             name += "[";
@@ -1015,8 +1001,6 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTExpression& 
                                                                 ((ASTFloatLiteral&) expr).fValue));
         case ASTExpression::kBinary_Kind:
             return this->convertBinaryExpression((ASTBinaryExpression&) expr);
-        case ASTExpression::kNull_Kind:
-            return std::unique_ptr<Expression>(new NullLiteral(fContext, expr.fOffset));
         case ASTExpression::kPrefix_Kind:
             return this->convertPrefixExpression((ASTPrefixExpression&) expr);
         case ASTExpression::kSuffix_Kind:
@@ -1133,10 +1117,6 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         }
         SkASSERT(ctor);
         return this->call(-1, std::move(ctor), std::move(args));
-    }
-    if (expr->fKind == Expression::kNullLiteral_Kind) {
-        SkASSERT(type.kind() == Type::kNullable_Kind);
-        return std::unique_ptr<Expression>(new NullLiteral(expr->fOffset, type));
     }
     std::vector<std::unique_ptr<Expression>> args;
     args.push_back(std::move(expr));

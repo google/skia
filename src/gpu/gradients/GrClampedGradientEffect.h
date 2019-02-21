@@ -15,8 +15,6 @@
 #include "GrCoordTransform.h"
 class GrClampedGradientEffect : public GrFragmentProcessor {
 public:
-    int colorizer_index() const { return fColorizer_index; }
-    int gradLayout_index() const { return fGradLayout_index; }
     const SkPMColor4f& leftBorderColor() const { return fLeftBorderColor; }
     const SkPMColor4f& rightBorderColor() const { return fRightBorderColor; }
     bool makePremul() const { return fMakePremul; }
@@ -47,19 +45,13 @@ private:
             , fRightBorderColor(rightBorderColor)
             , fMakePremul(makePremul)
             , fColorsAreOpaque(colorsAreOpaque) {
-        SkASSERT(colorizer);
-        fColorizer_index = this->numChildProcessors();
         this->registerChildProcessor(std::move(colorizer));
-        SkASSERT(gradLayout);
-        fGradLayout_index = this->numChildProcessors();
         this->registerChildProcessor(std::move(gradLayout));
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fColorizer_index = -1;
-    int fGradLayout_index = -1;
     SkPMColor4f fLeftBorderColor;
     SkPMColor4f fRightBorderColor;
     bool fMakePremul;

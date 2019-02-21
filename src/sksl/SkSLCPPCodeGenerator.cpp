@@ -77,32 +77,6 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         if (precedence >= parentPrecedence) {
             this->write(")");
         }
-    } else if (b.fLeft->fKind == Expression::kNullLiteral_Kind ||
-               b.fRight->fKind == Expression::kNullLiteral_Kind) {
-        const Variable* var;
-        if (b.fLeft->fKind != Expression::kNullLiteral_Kind) {
-            SkASSERT(b.fLeft->fKind == Expression::kVariableReference_Kind);
-            var = &((VariableReference&) *b.fLeft).fVariable;
-        } else {
-            SkASSERT(b.fRight->fKind == Expression::kVariableReference_Kind);
-            var = &((VariableReference&) *b.fRight).fVariable;
-        }
-        SkASSERT(var->fType.kind() == Type::kNullable_Kind &&
-                 var->fType.componentType() == *fContext.fFragmentProcessor_Type);
-        this->write("%s");
-        const char* op;
-        switch (b.fOperator) {
-            case Token::EQEQ:
-                op = "<";
-                break;
-            case Token::NEQ:
-                op = ">=";
-                break;
-            default:
-                SkASSERT(false);
-        }
-        fFormatArgs.push_back("_outer." + String(var->fName) + "_index() " + op + " 0 ? \"true\" "
-                              ": \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
     }
@@ -359,10 +333,9 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
         }
 
         const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
-        const Variable& var = ((const VariableReference&) *access.fBase).fVariable;
-        String cppAccess = String::printf("_outer.childProcessor(_outer.%s_index()).%s()",
-                                          String(var.fName).c_str(),
-                                          String(field.fName).c_str());
+        int index = getChildFPIndex((const VariableReference&) *access.fBase);
+        String cppAccess = String::printf("_outer.childProcessor(%s).%s()",
+                                          to_string(index).c_str(), String(field.fName).c_str());
 
         if (fCPPMode) {
             this->write(cppAccess.c_str());
@@ -374,7 +347,7 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
     INHERITED::writeFieldAccess(access);
 }
 
-int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
+int CPPCodeGenerator::getChildFPIndex(const VariableReference& reference) const {
     int index = 0;
     bool found = false;
     for (const auto& p : fProgram) {
@@ -382,9 +355,9 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
             const VarDeclarations& decls = (const VarDeclarations&) p;
             for (const auto& raw : decls.fVars) {
                 const VarDeclaration& decl = (VarDeclaration&) *raw;
-                if (decl.fVar == &var) {
+                if (decl.fVar == &reference.fVariable) {
                     found = true;
-                } else if (decl.fVar->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+                } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
                     ++index;
                 }
             }
@@ -415,8 +388,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             // Second argument must also be a half4 expression
             SkASSERT("half4" == c.fArguments[1]->fType.name());
         }
-        const Variable& child = ((const VariableReference&) *c.fArguments[0]).fVariable;
-        int index = getChildFPIndex(child);
+        int index = getChildFPIndex((const VariableReference&) *c.fArguments[0]);
 
         // Start a new extra emit code section so that the emitted child processor can depend on
         // sksl variables defined in earlier sksl code.
@@ -440,14 +412,9 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // Write the output handling after the possible input handling
         String childName = "_child" + to_string(index);
         addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
-        if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index() >= 0) {\n    ");
-        }
-        addExtraEmitCodeLine("this->emitChild(_outer." + String(child.fName) + "_index()" +
-                             inputArg + ", &" + childName + ", args);");
-        if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            addExtraEmitCodeLine("}");
-        }
+        addExtraEmitCodeLine("this->emitChild(" + to_string(index) + inputArg +
+                             ", &" + childName + ", args);");
+
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");
         return;
@@ -630,9 +597,8 @@ void CPPCodeGenerator::writePrivateVarValues() {
 }
 
 static bool is_accessible(const Variable& var) {
-    const Type& type = var.fType.nonnullable();
-    return Type::kSampler_Kind != type.kind() &&
-           Type::kOther_Kind != type.kind();
+    return Type::kSampler_Kind != var.fType.kind() &&
+           Type::kOther_Kind != var.fType.kind();
 }
 
 void CPPCodeGenerator::newExtraEmitCodeBlock() {
@@ -1025,16 +991,13 @@ void CPPCodeGenerator::writeClone() {
                      ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
-            if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-                this->writef("\n, %s_index(src.%s_index)",
-                             fieldName.c_str(),
-                             fieldName.c_str());
-            } else {
-                this->writef("\n, %s(src.%s)",
-                             fieldName.c_str(),
-                             fieldName.c_str());
+            if (param->fType == *fContext.fFragmentProcessor_Type) {
+                continue;
             }
+            String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
+            this->writef("\n, %s(src.%s)",
+                         fieldName.c_str(),
+                         fieldName.c_str());
         }
         const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
         for (size_t i = 0; i < transforms.size(); ++i) {
@@ -1043,20 +1006,14 @@ void CPPCodeGenerator::writeClone() {
             this->writef("\n, %s(src.%s)", fieldName.c_str(), fieldName.c_str());
         }
         this->writef(" {\n");
+        int childCount = 0;
         int samplerCount = 0;
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {
                 ++samplerCount;
-            } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-                String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
-                if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    if (%s_index >= 0) {\n    ", fieldName.c_str());
-                }
-                this->writef("    this->registerChildProcessor(src.childProcessor(%s_index)."
-                             "clone());\n", fieldName.c_str());
-                if (param->fType.kind() == Type::kNullable_Kind) {
-                    this->writef("    }\n");
-                }
+            } else if (param->fType == *fContext.fFragmentProcessor_Type) {
+                this->writef("    this->registerChildProcessor(src.childProcessor(%d).clone());"
+                             "\n", childCount++);
             }
         }
         if (samplerCount) {
@@ -1225,7 +1182,7 @@ bool CPPCodeGenerator::generateCode() {
                  "    (void) that;\n",
                  fullName, fullName, fullName);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+        if (param->fType == *fContext.fFragmentProcessor_Type) {
             continue;
         }
         String nameString(param->fName);

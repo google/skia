@@ -115,7 +115,7 @@ private:
     // Append CPP code to the current extra emit code block.
     void addExtraEmitCodeLine(const String& toAppend);
 
-    int getChildFPIndex(const Variable& var) const;
+    int getChildFPIndex(const VariableReference& reference) const;
 
     String fName;
     String fFullName;

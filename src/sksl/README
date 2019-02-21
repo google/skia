@@ -148,10 +148,6 @@ Within an '.fp' fragment processor file:
   The first variant emits the child with a solid white input color. The second
   variant emits the child with the result of the 2nd argument's expression,
   which must evaluate to a half4. The process function returns a half4.
-* By default, fragment processors must be non-null. The type for a nullable
-  fragment processor is 'fragmentProcessor?', as in
-  'in fragmentProcessor? <name>'. You can check for the presence of such a
-  fragment processor by comparing it to 'null'.
 
 
 Creating a new .fp file
