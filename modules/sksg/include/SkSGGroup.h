@@ -19,13 +19,8 @@ namespace sksg {
  */
 class Group : public RenderNode {
 public:
-    static sk_sp<Group> Make() {
-        return sk_sp<Group>(new Group(std::vector<sk_sp<RenderNode>>()));
-    }
-
-    static sk_sp<Group> Make(std::vector<sk_sp<RenderNode>> children) {
-        return sk_sp<Group>(new Group(std::move(children)));
-    }
+    static sk_sp<Group> Make();
+    static sk_sp<Group> Make(std::vector<sk_sp<RenderNode>> children);
 
     void addChild(sk_sp<RenderNode>);
     void removeChild(const sk_sp<RenderNode>&);

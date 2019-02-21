@@ -13,6 +13,12 @@
 
 namespace sksg {
 
+sk_sp<ClipEffect> ClipEffect::Make(sk_sp<RenderNode> child, sk_sp<GeometryNode> clip, bool aa) {
+    return (child && clip)
+            ? sk_sp<ClipEffect>(new ClipEffect(std::move(child), std::move(clip), aa))
+            : nullptr;
+}
+
 ClipEffect::ClipEffect(sk_sp<RenderNode> child, sk_sp<GeometryNode> clip, bool aa)
     : INHERITED(std::move(child))
     , fClipNode(std::move(clip))

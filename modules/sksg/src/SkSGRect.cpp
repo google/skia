@@ -13,6 +13,9 @@
 
 namespace sksg {
 
+sk_sp<Rect> Rect::Make() { return sk_sp<Rect>(new Rect(SkRect::MakeEmpty())); }
+sk_sp<Rect> Rect::Make(const SkRect& r) { return sk_sp<Rect>(new Rect(r)); }
+
 Rect::Rect(const SkRect& rect) : fRect(rect) {}
 
 void Rect::onClip(SkCanvas* canvas, bool antiAlias) const {
@@ -38,6 +41,9 @@ SkPath Rect::onAsPath() const {
     path.addRect(fRect, this->getDirection(), this->getInitialPointIndex());
     return path;
 }
+
+sk_sp<RRect> RRect::Make() { return sk_sp<RRect>(new RRect(SkRRect())); }
+sk_sp<RRect> RRect::Make(const SkRRect& rr) { return sk_sp<RRect>(new RRect(rr)); }
 
 RRect::RRect(const SkRRect& rr) : fRRect(rr) {}
 

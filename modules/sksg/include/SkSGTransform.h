@@ -81,15 +81,8 @@ private:
  */
 class TransformEffect final : public EffectNode {
 public:
-    static sk_sp<TransformEffect> Make(sk_sp<RenderNode> child, sk_sp<Transform> transform) {
-        return child && transform
-            ? sk_sp<TransformEffect>(new TransformEffect(std::move(child), std::move(transform)))
-            : nullptr;
-    }
-
-    static sk_sp<TransformEffect> Make(sk_sp<RenderNode> child, const SkMatrix& m) {
-        return Make(std::move(child), Matrix<SkMatrix>::Make(m));
-    }
+    static sk_sp<TransformEffect> Make(sk_sp<RenderNode> child, sk_sp<Transform> transform);
+    static sk_sp<TransformEffect> Make(sk_sp<RenderNode> child, const SkMatrix& m);
 
     ~TransformEffect() override;
 

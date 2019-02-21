@@ -20,7 +20,7 @@ namespace sksg {
  */
 class Plane final : public GeometryNode {
 public:
-    static sk_sp<Plane> Make() { return sk_sp<Plane>(new Plane()); }
+    static sk_sp<Plane> Make();
 
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;

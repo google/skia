@@ -12,6 +12,10 @@
 
 namespace sksg {
 
+sk_sp<Image> Image::Make(sk_sp<SkImage> image) {
+    return sk_sp<Image>(new Image(std::move(image)));
+}
+
 Image::Image(sk_sp<SkImage> image) : fImage(std::move(image)) {}
 
 void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {

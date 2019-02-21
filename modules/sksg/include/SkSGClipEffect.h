@@ -20,13 +20,9 @@ class GeometryNode;
  */
 class ClipEffect final : public EffectNode {
 public:
-    static sk_sp<ClipEffect> Make(sk_sp<RenderNode> child, sk_sp<GeometryNode> clip,
-                                  bool aa = false) {
-        return (child && clip)
-            ? sk_sp<ClipEffect>(new ClipEffect(std::move(child), std::move(clip), aa))
-            : nullptr;
-    }
-
+    static sk_sp<ClipEffect> Make(sk_sp<RenderNode> child,
+                                  sk_sp<GeometryNode> clip,
+                                  bool aa = false);
     ~ClipEffect() override;
 
 protected:

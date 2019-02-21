@@ -34,6 +34,10 @@ void Gradient::onApplyToPaint(SkPaint* paint) const {
     paint->setShader(this->onMakeShader(colors, positions));
 }
 
+sk_sp<LinearGradient> LinearGradient::Make() {
+    return sk_sp<LinearGradient>(new LinearGradient());
+}
+
 sk_sp<SkShader> LinearGradient::onMakeShader(const std::vector<SkColor>& colors,
                                              const std::vector<SkScalar>& positions) const {
     SkASSERT(colors.size() == positions.size());
@@ -41,6 +45,10 @@ sk_sp<SkShader> LinearGradient::onMakeShader(const std::vector<SkColor>& colors,
     const SkPoint pts[] = { fStartPoint, fEndPoint };
     return SkGradientShader::MakeLinear(pts, colors.data(), positions.data(), colors.size(),
                                         this->getTileMode());
+}
+
+sk_sp<RadialGradient> RadialGradient::Make() {
+    return sk_sp<RadialGradient>(new RadialGradient());
 }
 
 sk_sp<SkShader> RadialGradient::onMakeShader(const std::vector<SkColor>& colors,

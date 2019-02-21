@@ -19,7 +19,7 @@ namespace sksg {
  */
 class Color : public PaintNode {
 public:
-    static sk_sp<Color> Make(SkColor c) { return sk_sp<Color>(new Color(c)); }
+    static sk_sp<Color> Make(SkColor c);
 
     SG_ATTRIBUTE(Color, SkColor, fColor)
 

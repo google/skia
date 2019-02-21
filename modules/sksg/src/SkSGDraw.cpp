@@ -15,6 +15,11 @@
 
 namespace sksg {
 
+sk_sp<Draw> Draw::Make(sk_sp<GeometryNode> geo, sk_sp<PaintNode> paint) {
+    return (geo && paint) ? sk_sp<Draw>(new Draw(std::move(geo), std::move(paint)))
+                          : nullptr;
+}
+
 Draw::Draw(sk_sp<GeometryNode> geometry, sk_sp<PaintNode> paint)
     : fGeometry(std::move(geometry))
     , fPaint(std::move(paint)) {

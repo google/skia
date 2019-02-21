@@ -12,6 +12,10 @@
 
 namespace sksg {
 
+sk_sp<Merge> Merge::Make(std::vector<Rec>&& recs) {
+    return sk_sp<Merge>(new Merge(std::move(recs)));
+}
+
 Merge::Merge(std::vector<Rec>&& recs)
     : fRecs(std::move(recs)) {
     for (const auto& rec : fRecs) {

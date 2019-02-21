@@ -36,9 +36,9 @@ SkRect ColorFilter::onRevalidate(InvalidationController* ic, const SkMatrix& ctm
 
 sk_sp<ModeColorFilter> ModeColorFilter::Make(sk_sp<RenderNode> child, sk_sp<Color> color,
                                              SkBlendMode mode) {
-    return (child && color) ? sk_sp<ModeColorFilter>(new ModeColorFilter(std::move(child),
-                                                                         std::move(color), mode))
-                            : nullptr;
+    return (child && color)
+            ? sk_sp<ModeColorFilter>(new ModeColorFilter(std::move(child), std::move(color), mode))
+            : nullptr;
 }
 
 ModeColorFilter::ModeColorFilter(sk_sp<RenderNode> child, sk_sp<Color> color, SkBlendMode mode)

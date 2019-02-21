@@ -13,6 +13,9 @@
 
 namespace sksg {
 
+sk_sp<Path> Path::Make() { return sk_sp<Path>(new Path(SkPath())); }
+sk_sp<Path> Path::Make(const SkPath& r) { return sk_sp<Path>(new Path(r)); }
+
 Path::Path(const SkPath& path) : fPath(path) {}
 
 void Path::onClip(SkCanvas* canvas, bool antiAlias) const {

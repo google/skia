@@ -19,9 +19,7 @@ namespace sksg {
  */
 class RoundEffect final : public GeometryNode {
 public:
-    static sk_sp<RoundEffect> Make(sk_sp<GeometryNode> child) {
-        return child ? sk_sp<RoundEffect>(new RoundEffect(std::move(child))) : nullptr;
-    }
+    static sk_sp<RoundEffect> Make(sk_sp<GeometryNode> child);
 
     ~RoundEffect() override;
 

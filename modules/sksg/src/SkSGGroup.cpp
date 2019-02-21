@@ -11,6 +11,14 @@
 
 namespace sksg {
 
+sk_sp<Group> Group::Make() {
+    return sk_sp<Group>(new Group(std::vector<sk_sp<RenderNode>>()));
+}
+
+sk_sp<Group> Group::Make(std::vector<sk_sp<RenderNode>> children) {
+    return sk_sp<Group>(new Group(std::move(children)));
+}
+
 Group::Group(std::vector<sk_sp<RenderNode>> children)
     : fChildren(std::move(children)) {
     for (const auto& child : fChildren) {

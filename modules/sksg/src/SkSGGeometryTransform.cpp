@@ -13,6 +13,14 @@
 
 namespace sksg {
 
+sk_sp<GeometryTransform> GeometryTransform::Make(sk_sp<GeometryNode> child,
+                                                 sk_sp<Transform> transform) {
+    return (child && transform)
+            ? sk_sp<GeometryTransform>(new GeometryTransform(std::move(child),
+                                                             std::move(transform)))
+            : nullptr;
+}
+
 GeometryTransform::GeometryTransform(sk_sp<GeometryNode> child, sk_sp<Transform> transform)
     : fChild(std::move(child))
     , fTransform(std::move(transform)) {

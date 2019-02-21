@@ -24,12 +24,7 @@ public:
     };
 
     static sk_sp<MaskEffect> Make(sk_sp<RenderNode> child, sk_sp<RenderNode> mask,
-                                  Mode mode = Mode::kNormal) {
-        return (child && mask)
-            ? sk_sp<MaskEffect>(new MaskEffect(std::move(child), std::move(mask), mode))
-            : nullptr;
-    }
-
+                                  Mode mode = Mode::kNormal);
     ~MaskEffect() override;
 
 protected:

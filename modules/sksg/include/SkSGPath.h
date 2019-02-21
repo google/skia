@@ -22,8 +22,8 @@ namespace sksg {
  */
 class Path : public GeometryNode {
 public:
-    static sk_sp<Path> Make()                { return sk_sp<Path>(new Path(SkPath())); }
-    static sk_sp<Path> Make(const SkPath& r) { return sk_sp<Path>(new Path(r)); }
+    static sk_sp<Path> Make();
+    static sk_sp<Path> Make(const SkPath& r);
 
     SG_ATTRIBUTE(Path, SkPath, fPath)
     SG_MAPPED_ATTRIBUTE(FillType, SkPath::FillType, fPath)

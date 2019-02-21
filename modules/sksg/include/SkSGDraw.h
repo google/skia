@@ -23,13 +23,12 @@ namespace sksg {
  */
 class Draw : public RenderNode {
 public:
-    static sk_sp<Draw> Make(sk_sp<GeometryNode> geo, sk_sp<PaintNode> paint) {
-        return (geo && paint) ? sk_sp<Draw>(new Draw(std::move(geo), std::move(paint))) : nullptr;
-    }
+    static sk_sp<Draw> Make(sk_sp<GeometryNode> geo, sk_sp<PaintNode> paint);
+
+    ~Draw() override;
 
 protected:
     Draw(sk_sp<GeometryNode>, sk_sp<PaintNode> paint);
-    ~Draw() override;
 
     void onRender(SkCanvas*, const RenderContext*) const override;
     const RenderNode* onNodeAt(const SkPoint&)     const override;

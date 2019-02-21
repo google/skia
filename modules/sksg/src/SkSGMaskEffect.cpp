@@ -11,6 +11,12 @@
 
 namespace sksg {
 
+sk_sp<MaskEffect> MaskEffect::Make(sk_sp<RenderNode> child, sk_sp<RenderNode> mask, Mode mode) {
+    return (child && mask)
+        ? sk_sp<MaskEffect>(new MaskEffect(std::move(child), std::move(mask), mode))
+        : nullptr;
+}
+
 MaskEffect::MaskEffect(sk_sp<RenderNode> child, sk_sp<RenderNode> mask, Mode mode)
     : INHERITED(std::move(child))
     , fMaskNode(std::move(mask))

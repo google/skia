@@ -12,6 +12,8 @@
 
 namespace sksg {
 
+sk_sp<Plane> Plane::Make() { return sk_sp<Plane>(new Plane()); }
+
 Plane::Plane() = default;
 
 void Plane::onClip(SkCanvas*, bool) const {}

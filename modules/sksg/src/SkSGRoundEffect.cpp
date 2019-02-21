@@ -13,6 +13,11 @@
 
 namespace sksg {
 
+sk_sp<RoundEffect> RoundEffect::Make(sk_sp<GeometryNode> child) {
+    return child ? sk_sp<RoundEffect>(new RoundEffect(std::move(child)))
+                 : nullptr;
+}
+
 RoundEffect::RoundEffect(sk_sp<GeometryNode> child)
     : fChild(std::move(child)) {
     this->observeInval(fChild);

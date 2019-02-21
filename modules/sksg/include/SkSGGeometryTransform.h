@@ -23,12 +23,7 @@ class Transform;
  */
 class GeometryTransform final : public GeometryNode {
 public:
-    static sk_sp<GeometryTransform> Make(sk_sp<GeometryNode> child, sk_sp<Transform> transform) {
-        return child && transform
-            ? sk_sp<GeometryTransform>(new GeometryTransform(std::move(child),
-                                                             std::move(transform)))
-            : nullptr;
-    }
+    static sk_sp<GeometryTransform> Make(sk_sp<GeometryNode> child, sk_sp<Transform> transform);
 
     ~GeometryTransform() override;
 

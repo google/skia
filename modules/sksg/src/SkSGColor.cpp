@@ -9,6 +9,8 @@
 
 namespace sksg {
 
+sk_sp<Color> Color::Make(SkColor c) { return sk_sp<Color>(new Color(c)); }
+
 Color::Color(SkColor c) : fColor(c) {}
 
 void Color::onApplyToPaint(SkPaint* paint) const {

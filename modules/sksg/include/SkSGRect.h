@@ -24,8 +24,8 @@ namespace sksg {
  */
 class Rect final : public GeometryNode {
 public:
-    static sk_sp<Rect> Make()                { return sk_sp<Rect>(new Rect(SkRect::MakeEmpty())); }
-    static sk_sp<Rect> Make(const SkRect& r) { return sk_sp<Rect>(new Rect(r)); }
+    static sk_sp<Rect> Make();
+    static sk_sp<Rect> Make(const SkRect& r);
 
     SG_ATTRIBUTE(L, SkScalar, fRect.fLeft  )
     SG_ATTRIBUTE(T, SkScalar, fRect.fTop   )
@@ -70,8 +70,8 @@ private:
  */
 class RRect final : public GeometryNode {
 public:
-    static sk_sp<RRect> Make()                  { return sk_sp<RRect>(new RRect(SkRRect())); }
-    static sk_sp<RRect> Make(const SkRRect& rr) { return sk_sp<RRect>(new RRect(rr)); }
+    static sk_sp<RRect> Make();
+    static sk_sp<RRect> Make(const SkRRect& rr);
 
     SG_ATTRIBUTE(RRect, SkRRect, fRRect)
 

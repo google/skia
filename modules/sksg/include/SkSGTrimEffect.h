@@ -23,9 +23,7 @@ namespace sksg {
  */
 class TrimEffect final : public GeometryNode {
 public:
-    static sk_sp<TrimEffect> Make(sk_sp<GeometryNode> child) {
-        return child ? sk_sp<TrimEffect>(new TrimEffect(std::move(child))) : nullptr;
-    }
+    static sk_sp<TrimEffect> Make(sk_sp<GeometryNode> child);
 
     ~TrimEffect() override;
 

@@ -22,9 +22,7 @@ namespace sksg {
  */
 class Image final : public RenderNode {
 public:
-    static sk_sp<Image> Make(sk_sp<SkImage> image) {
-        return sk_sp<Image>(new Image(std::move(image)));
-    }
+    static sk_sp<Image> Make(sk_sp<SkImage> image);
 
     SG_ATTRIBUTE(Image,     sk_sp<SkImage> , fImage    )
     SG_ATTRIBUTE(Quality  , SkFilterQuality, fQuality  )

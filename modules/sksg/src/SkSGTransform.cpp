@@ -79,6 +79,16 @@ sk_sp<Transform> Transform::MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b) {
         : sk_sp<Transform>(new Concat<SkMatrix  >(std::move(a), std::move(b)));
 }
 
+sk_sp<TransformEffect> TransformEffect::Make(sk_sp<RenderNode> child, sk_sp<Transform> transform) {
+    return child && transform
+        ? sk_sp<TransformEffect>(new TransformEffect(std::move(child), std::move(transform)))
+        : nullptr;
+}
+
+sk_sp<TransformEffect> TransformEffect::Make(sk_sp<RenderNode> child, const SkMatrix& m) {
+    return Make(std::move(child), Matrix<SkMatrix>::Make(m));
+}
+
 TransformEffect::TransformEffect(sk_sp<RenderNode> child, sk_sp<Transform> transform)
     : INHERITED(std::move(child))
     , fTransform(std::move(transform)) {

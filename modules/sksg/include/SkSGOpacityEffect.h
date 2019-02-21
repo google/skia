@@ -18,9 +18,7 @@ namespace sksg {
  */
 class OpacityEffect final : public EffectNode {
 public:
-    static sk_sp<OpacityEffect> Make(sk_sp<RenderNode> child, float opacity = 1) {
-        return child ? sk_sp<OpacityEffect>(new OpacityEffect(std::move(child), opacity)) : nullptr;
-    }
+    static sk_sp<OpacityEffect> Make(sk_sp<RenderNode> child, float opacity = 1);
 
     SG_ATTRIBUTE(Opacity, float, fOpacity)
 

@@ -13,6 +13,11 @@
 
 namespace sksg {
 
+sk_sp<TrimEffect> TrimEffect::Make(sk_sp<GeometryNode> child) {
+    return child ? sk_sp<TrimEffect>(new TrimEffect(std::move(child)))
+                 : nullptr;
+}
+
 TrimEffect::TrimEffect(sk_sp<GeometryNode> child)
     : fChild(std::move(child)) {
     this->observeInval(fChild);

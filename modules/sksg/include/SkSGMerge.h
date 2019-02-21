@@ -41,9 +41,7 @@ public:
         Mode                fMode;
     };
 
-    static sk_sp<Merge> Make(std::vector<Rec>&& recs) {
-        return sk_sp<Merge>(new Merge(std::move(recs)));
-    }
+    static sk_sp<Merge> Make(std::vector<Rec>&& recs);
 
     ~Merge() override;
 

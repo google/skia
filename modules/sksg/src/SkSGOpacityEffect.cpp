@@ -9,6 +9,11 @@
 
 namespace sksg {
 
+sk_sp<OpacityEffect> OpacityEffect::Make(sk_sp<RenderNode> child, float opacity) {
+    return child ? sk_sp<OpacityEffect>(new OpacityEffect(std::move(child), opacity))
+                 : nullptr;
+}
+
 OpacityEffect::OpacityEffect(sk_sp<RenderNode> child, float opacity)
     : INHERITED(std::move(child))
     , fOpacity(opacity) {}

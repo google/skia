@@ -54,9 +54,7 @@ private:
 
 class LinearGradient final : public Gradient {
 public:
-    static sk_sp<LinearGradient> Make() {
-        return sk_sp<LinearGradient>(new LinearGradient());
-    }
+    static sk_sp<LinearGradient> Make();
 
     SG_ATTRIBUTE(StartPoint, SkPoint, fStartPoint)
     SG_ATTRIBUTE(EndPoint  , SkPoint, fEndPoint  )
@@ -76,9 +74,7 @@ private:
 
 class RadialGradient final : public Gradient {
 public:
-    static sk_sp<RadialGradient> Make() {
-        return sk_sp<RadialGradient>(new RadialGradient());
-    }
+    static sk_sp<RadialGradient> Make();
 
     SG_ATTRIBUTE(StartCenter, SkPoint , fStartCenter)
     SG_ATTRIBUTE(EndCenter  , SkPoint , fEndCenter  )
