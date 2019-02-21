@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "de9484dc_0aac26eb",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-21T20:46:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a78a6d0d_3d767187",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 14
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e02aaec_8f6f8f84",
         "filename": "modules/skottie/BUILD.gn",
         "patchSetId": 21
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "79a52e0f_60994721",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-21T20:46:19Z",
+      "side": 1,
+      "message": "Changed to skia_enable_tools as discussed IRL",
+      "parentUuid": "3e02aaec_8f6f8f84",
+      "range": {
+        "startLine": 52,
+        "startChar": 5,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b386665_b8a030f9",
         "filename": "modules/skshaper/BUILD.gn",
         "patchSetId": 21
@@ -92,6 +140,30 @@
       "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5454fea8_347d8a83",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-21T20:46:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b386665_b8a030f9",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 14
+      },
+      "revId": "027b79c8117aa9fd413af64c7fd4127004501d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
