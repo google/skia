@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "681d5b91_43668c50",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-21T21:51:07Z",
+      "side": 1,
+      "message": "How about this:\n\n    static sk_sp\u003cSkTextBlob\u003e do_shaping(const ShapedTextOpts\u0026 opts, SkPoint* pt) {\n        SkTextBlobBuilderRunHandler builder(opts.text.c_str());\n        std::unique_ptr\u003cSkShaper\u003e shaper \u003d SkShaper::Make();\n        *pt \u003d shaper-\u003eshape(\u0026builder, opts.font, opts.text.c_str(),\n                            opts.text.length(), opts.leftToRight,\n                            {0, 0}, opts.width);\n        return builder.makeBlob();\n    }\n\n    class ShapedText {\n    public:\n        ShapedText(ShapedTextOpts opts) : fOpts(opts) {}\n\n        SkRect getBounds() {\n            this-\u003einit();\n            return SkRect::MakeLTRB(0, 0, fOpts.width, fPoint.y());\n        }\n        SkTextBlob* blob() {\n            this-\u003einit();\n            return fBlob.get();\n        }\n\n    private:\n        const ShapedTextOpts fOpts;\n        SkPoint fPoint;\n        sk_sp\u003cSkTextBlob\u003e fBlob;\n\n        void init() {\n            if (!fBlob) {\n                fBlob \u003d do_shaping(fOpts, \u0026fPoint);\n            }\n        }\n    };\n\n    void drawShapedText(SkCanvas\u0026 canvas, ShapedText st, SkScalar x,\n                         SkScalar y, SkPaint paint) {\n        canvas.drawTextBlob(st.blob(), x, y, paint);\n    }",
+      "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d56322a0_97f84033",
         "filename": "third_party/icu/BUILD.gn",
         "patchSetId": 23
