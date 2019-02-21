@@ -155,9 +155,12 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
     get_resource_cache(fGpu)->resourceAccess().changeUniqueKey(this, key);
 }
 
-void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
+void GrGpuResource::notifyAllCntsWillBeZero() const {
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
-    mutableThis->removedLastRefOrPendingIO();
+    mutableThis->willRemoveLastRefOrPendingIO();
+}
+
+void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
         delete this;
@@ -169,12 +172,12 @@ void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
 
     static const uint32_t kFlag =
         GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
+    GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, kFlag);
 }
 
 bool GrGpuResource::notifyRefCountIsZero() const {
     if (this->wasDestroyed()) {
-        // handle this in notifyAllCntsAreZero().
         return true;
     }
 
@@ -182,7 +185,6 @@ bool GrGpuResource::notifyRefCountIsZero() const {
     uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
     if (!this->internalHasPendingIO()) {
         flags |= GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
-        mutableThis->removedLastRefOrPendingIO();
     }
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, flags);
 

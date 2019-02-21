@@ -72,7 +72,7 @@ protected:
 
     // protected so that GrMockTextureRenderTarget can call this to avoid "inheritance via
     // dominance" warning.
-    void removedLastRefOrPendingIO() override {
+    void willRemoveLastRefOrPendingIO() override {
         if (fIdleProc) {
             fIdleProc(fIdleProcContext);
             fIdleProc = nullptr;
@@ -191,7 +191,7 @@ private:
     }
 
     // We implement this to avoid the inheritance via dominance warning.
-    void removedLastRefOrPendingIO() override { GrMockTexture::removedLastRefOrPendingIO(); }
+    void willRemoveLastRefOrPendingIO() override { GrMockTexture::willRemoveLastRefOrPendingIO(); }
 
     size_t onGpuMemorySize() const override {
         int numColorSamples = this->numColorSamples();
