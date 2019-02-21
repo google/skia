@@ -17,7 +17,9 @@ RenderNode::RenderNode(uint32_t inval_traits) : INHERITED(inval_traits) {}
 
 void RenderNode::render(SkCanvas* canvas, const RenderContext* ctx) const {
     SkASSERT(!this->hasInval());
-    this->onRender(canvas, ctx);
+    if (!this->bounds().isEmpty()) {
+        this->onRender(canvas, ctx);
+    }
 }
 
 const RenderNode* RenderNode::nodeAt(const SkPoint& p) const {

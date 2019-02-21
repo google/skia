@@ -47,10 +47,6 @@ const RenderNode* ImageFilterEffect::onNodeAt(const SkPoint& p) const {
 }
 
 void ImageFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    // TODO: hoist these checks to RenderNode?
-    if (this->bounds().isEmpty())
-        return;
-
     // Note: we're using the source content bounds for saveLayer, not our local/filtered bounds.
     const auto filter_ctx =
         ScopedRenderContext(canvas, ctx).setFilterIsolation(this->getChild()->bounds(),

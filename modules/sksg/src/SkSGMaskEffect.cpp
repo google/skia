@@ -23,9 +23,6 @@ MaskEffect::~MaskEffect() {
 }
 
 void MaskEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    if (this->bounds().isEmpty())
-        return;
-
     SkAutoCanvasRestore acr(canvas, false);
 
     canvas->saveLayer(this->bounds(), nullptr);

@@ -16,9 +16,6 @@ ColorFilter::ColorFilter(sk_sp<RenderNode> child)
     : INHERITED(std::move(child)) {}
 
 void ColorFilter::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    if (this->bounds().isEmpty())
-        return;
-
     const auto local_ctx = ScopedRenderContext(canvas, ctx).modulateColorFilter(fColorFilter);
 
     this->INHERITED::onRender(canvas, local_ctx);
