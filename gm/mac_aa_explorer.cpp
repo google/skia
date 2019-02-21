@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkFont.h"
 #include "SkSurface.h"
 
 #ifdef SK_BUILD_FOR_MAC
@@ -115,8 +116,51 @@ protected:
         return false;
     }
 };
-
 DEF_GM(return new MacAAFontsGM;)
+
+DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
+    const SkColor GRAY = 0xFF808080;
+    const SkColor colors[] = {
+        SK_ColorBLACK, SK_ColorWHITE,
+        SK_ColorBLACK, GRAY,
+        SK_ColorWHITE, SK_ColorBLACK,
+        SK_ColorWHITE, GRAY,
+    };
+    const SkScalar sizes[] = {10, 12, 15, 18, 24};
+
+    const SkScalar width = 200;
+    const SkScalar height = 500;
+    const char str[] = "Hamburgefons";
+    const size_t len = strlen(str);
+
+    SkFont font;
+    font.setTypeface(SkTypeface::MakeFromName("Times", SkFontStyle()));
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i += 2) {
+        canvas->save();
+
+        SkPaint paint;
+        paint.setColor(colors[i+1]);
+        canvas->drawRect({0, 0, width, height}, paint);
+        paint.setColor(colors[i]);
+
+        SkScalar x = 10;
+        SkScalar y = 10;
+        for (SkScalar ps : sizes) {
+            font.setSize(ps);
+            for (bool lcd : {false, true}) {
+                font.setEdging(lcd ? SkFont::Edging::kSubpixelAntiAlias
+                                   : SkFont::Edging::kAntiAlias);
+
+                y += font.getSpacing() + 2;
+                canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
+            }
+        }
+
+        canvas->restore();
+        canvas->translate(width, 0);
+    }
+}
 
 #endif
 
