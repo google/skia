@@ -1304,9 +1304,9 @@ SaveLayerRec contains the state used to create the Layer.
 
 #Member const SkImageFilter*    fBackdrop
 #Line # applies Image_Filter to prior Layer ##
-    fBackdrop applies Image_Filter to the prior Layer when copying to the Layer;
-    may be nullptr. Use kInitWithPrevious_SaveLayerFlag to copy the
-    prior Layer without an Image_Filter.
+    If not null, this causes the current layer to be filtered by
+    fBackdrop, and then drawn into the new layer (respecting the current clip).
+    If null, the new layer is initialized with transparent-black.
 ##
 
 #Member const SkImage*          fClipMask
