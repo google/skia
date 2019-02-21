@@ -117,8 +117,9 @@ static inline bool is_almost_linear(const skcms_TransferFunction& coeffs) {
     return linearExp || linearFn;
 }
 
-// Return raw pointer to most commonly used SkColorSpace.
+// Return raw pointers to commonly used SkColorSpaces.
 // No need to ref/unref these, but if you do, do it in pairs.
 SkColorSpace* sk_srgb_singleton();
+SkColorSpace* sk_srgb_linear_singleton();
 
 #endif  // SkColorSpacePriv_DEFINED
