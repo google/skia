@@ -17,14 +17,13 @@ namespace SkSL {
  */
 struct ASTExpression : public ASTPositionNode {
     enum Kind {
-        kBinary_Kind,
-        kBool_Kind,
         kFloat_Kind,
         kIdentifier_Kind,
         kInt_Kind,
-        kNull_Kind,
+        kBool_Kind,
         kPrefix_Kind,
         kSuffix_Kind,
+        kBinary_Kind,
         kTernary_Kind
     };
 

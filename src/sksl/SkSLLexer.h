@@ -53,8 +53,6 @@ struct Token {
         DISCARD,
 #undef RETURN
         RETURN,
-#undef NULL_LITERAL
-        NULL_LITERAL,
 #undef IN
         IN,
 #undef OUT
@@ -247,5 +245,5 @@ private:
     int32_t fOffset;
 };
 
-}  // namespace SkSL
+}  // namespace
 #endif

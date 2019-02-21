@@ -29,7 +29,6 @@
 #include "ast/SkSLASTInterfaceBlock.h"
 #include "ast/SkSLASTIntLiteral.h"
 #include "ast/SkSLASTModifiersDeclaration.h"
-#include "ast/SkSLASTNullLiteral.h"
 #include "ast/SkSLASTParameter.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
@@ -518,7 +517,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
     fTypes.add(this->text(name), std::unique_ptr<Type>(new Type(name.fOffset, this->text(name),
                                                                 fields)));
     return std::unique_ptr<ASTType>(new ASTType(name.fOffset, this->text(name),
-                                                ASTType::kStruct_Kind, std::vector<int>(), false));
+                                                ASTType::kStruct_Kind, std::vector<int>()));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -1072,7 +1071,7 @@ std::unique_ptr<ASTStatement> Parser::statement() {
     }
 }
 
-/* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
+/* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* */
 std::unique_ptr<ASTType> Parser::type() {
     Token type;
     if (!this->expect(Token::IDENTIFIER, "a type", &type)) {
@@ -1096,9 +1095,8 @@ std::unique_ptr<ASTType> Parser::type() {
         }
         this->expect(Token::RBRACKET, "']'");
     }
-    bool nullable = this->checkNext(Token::QUESTION);
     return std::unique_ptr<ASTType>(new ASTType(type.fOffset, this->text(type),
-                                                ASTType::kIdentifier_Kind, sizes, nullable));
+                                                ASTType::kIdentifier_Kind, sizes));
 }
 
 /* IDENTIFIER LBRACE varDeclaration* RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? */
@@ -1919,7 +1917,7 @@ std::unique_ptr<ASTSuffix> Parser::suffix() {
     }
 }
 
-/* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | NULL_LITERAL | '(' expression ')' */
+/* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | '(' expression ')' */
 std::unique_ptr<ASTExpression> Parser::term() {
     std::unique_ptr<ASTExpression> result;
     Token t = this->peek();
@@ -1953,10 +1951,6 @@ std::unique_ptr<ASTExpression> Parser::term() {
             }
             break;
         }
-        case Token::NULL_LITERAL:
-            this->nextToken();
-            result.reset(new ASTNullLiteral(t.fOffset));
-            break;
         case Token::LPAREN: {
             this->nextToken();
             result = this->expression();

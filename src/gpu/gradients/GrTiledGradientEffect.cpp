@@ -29,7 +29,7 @@ public:
         auto colorsAreOpaque = _outer.colorsAreOpaque();
         (void)colorsAreOpaque;
         SkString _child1("_child1");
-        this->emitChild(_outer.gradLayout_index(), &_child1, args);
+        this->emitChild(1, &_child1, args);
         fragBuilder->codeAppendf(
                 "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else {\n    @if "
                 "(%s) {\n        half t_1 = t.x - 1.0;\n        half tiled_t = (t_1 - 2.0 * "
@@ -37,12 +37,11 @@ public:
                 "       tiled_t = clamp(tiled_t, -1.0, 1.0);\n        }\n        t.x = "
                 "abs(tiled_t);\n    } else {\n        t.x = fract(t.x);\n    }",
                 _child1.c_str(),
-                (_outer.childProcessor(_outer.gradLayout_index()).preservesOpaqueInput() ? "true"
-                                                                                         : "false"),
+                (_outer.childProcessor(1).preservesOpaqueInput() ? "true" : "false"),
                 args.fOutputColor, (_outer.mirror() ? "true" : "false"));
         SkString _input0("t");
         SkString _child0("_child0");
-        this->emitChild(_outer.colorizer_index(), _input0.c_str(), &_child0, args);
+        this->emitChild(0, _input0.c_str(), &_child0, args);
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                                  args.fOutputColor, _child0.c_str(),
                                  (_outer.makePremul() ? "true" : "false"), args.fOutputColor,
@@ -71,13 +70,11 @@ bool GrTiledGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
         : INHERITED(kGrTiledGradientEffect_ClassID, src.optimizationFlags())
-        , fColorizer_index(src.fColorizer_index)
-        , fGradLayout_index(src.fGradLayout_index)
         , fMirror(src.fMirror)
         , fMakePremul(src.fMakePremul)
         , fColorsAreOpaque(src.fColorsAreOpaque) {
-    this->registerChildProcessor(src.childProcessor(fColorizer_index).clone());
-    this->registerChildProcessor(src.childProcessor(fGradLayout_index).clone());
+    this->registerChildProcessor(src.childProcessor(0).clone());
+    this->registerChildProcessor(src.childProcessor(1).clone());
 }
 std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(*this));
