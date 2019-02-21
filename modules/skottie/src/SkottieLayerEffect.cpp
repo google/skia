@@ -45,9 +45,10 @@ sk_sp<sksg::RenderNode> AttachTintLayerEffect(const skjson::ArrayValue& jprops,
         return nullptr;
     }
 
-    auto tint_node = sksg::TintColorFilter::Make(std::move(layer),
-                                                 abuilder->attachColor(*color0_prop, ascope, "v"),
-                                                 abuilder->attachColor(*color1_prop, ascope, "v"));
+    auto tint_node =
+            sksg::GradientColorFilter::Make(std::move(layer),
+                                            abuilder->attachColor(*color0_prop, ascope, "v"),
+                                            abuilder->attachColor(*color1_prop, ascope, "v"));
     if (!tint_node) {
         return nullptr;
     }
@@ -58,6 +59,49 @@ sk_sp<sksg::RenderNode> AttachTintLayerEffect(const skjson::ArrayValue& jprops,
         });
 
     return std::move(tint_node);
+}
+
+sk_sp<sksg::RenderNode> AttachTritoneLayerEffect(const skjson::ArrayValue& jprops,
+                                                 const AnimationBuilder* abuilder,
+                                                 AnimatorScope* ascope,
+                                                 sk_sp<sksg::RenderNode> layer) {
+    enum : size_t {
+        kHiColor_Index     = 0,
+        kMiColor_Index     = 1,
+        kLoColor_Index     = 2,
+        kBlendAmount_Index = 3,
+
+        kMax_Index      = kBlendAmount_Index,
+    };
+
+    if (jprops.size() <= kMax_Index) {
+        return nullptr;
+    }
+
+    const skjson::ObjectValue* hicolor_prop = jprops[    kHiColor_Index];
+    const skjson::ObjectValue* micolor_prop = jprops[    kMiColor_Index];
+    const skjson::ObjectValue* locolor_prop = jprops[    kLoColor_Index];
+    const skjson::ObjectValue*   blend_prop = jprops[kBlendAmount_Index];
+
+    if (!hicolor_prop || !micolor_prop || !locolor_prop || !blend_prop) {
+        return nullptr;
+    }
+
+    auto tritone_node =
+            sksg::GradientColorFilter::Make(std::move(layer), {
+                                            abuilder->attachColor(*locolor_prop, ascope, "v"),
+                                            abuilder->attachColor(*micolor_prop, ascope, "v"),
+                                            abuilder->attachColor(*hicolor_prop, ascope, "v") });
+    if (!tritone_node) {
+        return nullptr;
+    }
+
+    abuilder->bindProperty<ScalarValue>((*blend_prop)["v"], ascope,
+        [tritone_node](const ScalarValue& w) {
+            tritone_node->setWeight((100 - w) / 100); // 100-based, inverted (!?).
+        });
+
+    return std::move(tritone_node);
 }
 
 sk_sp<sksg::RenderNode> AttachFillLayerEffect(const skjson::ArrayValue& jprops,
@@ -181,6 +225,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
     enum : int32_t {
         kTint_Effect       = 20,
         kFill_Effect       = 21,
+        kTritone_Effect    = 23,
         kDropShadow_Effect = 25,
     };
 
@@ -200,6 +245,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
             break;
         case kFill_Effect:
             layer = AttachFillLayerEffect(*jprops, this, ascope, std::move(layer));
+            break;
+        case kTritone_Effect:
+            layer = AttachTritoneLayerEffect(*jprops, this, ascope, std::move(layer));
             break;
         case kDropShadow_Effect:
             layer = AttachDropShadowLayerEffect(*jprops, this, ascope, std::move(layer));
