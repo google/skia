@@ -3,13 +3,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-declare_args() {
-}
-
 import("../../gn/skia.gni")
 import("../third_party.gni")
 
-if (skia_use_icu) {
+declare_args() {
+  skia_use_system_harfbuzz = is_official_build
+}
+
+if (skia_use_system_harfbuzz) {
+  system("harfbuzz") {
+    include_dirs = [ "/usr/include/harfbuzz" ]
+    libs = [ "harfbuzz" ]
+  }
+} else {
   third_party("harfbuzz") {
     _src = "../externals/harfbuzz/src"
     public_include_dirs = [
