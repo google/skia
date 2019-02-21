@@ -1,16 +1,16 @@
 # Copyright 2019 Google Inc.
-#
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Things are easiest for everyone if these source paths are absolute.
-_src = get_path_info("src", "abspath")
-_include = get_path_info("include", "abspath")
+_shaper_public = [ "include/SkShaper.h" ]
 
-skia_shaper_public = [ "$_include/SkShaper.h" ]
-
-skia_shaper_primitive_sources = [
-  "$_src/SkShaper.cpp",
-  "$_src/SkShaper_primitive.cpp",
+_shaper_sources = [
+  "src/SkShaper.cpp",
+  "src/SkShaper_primitive.cpp",
+  "src/SkShaper_harfbuzz.cpp",
 ]
-skia_shaper_harfbuzz_sources = [ "$_src/SkShaper_harfbuzz.cpp" ]
+
+skia_shaper_public = get_path_info(_shaper_public, "abspath")
+skia_shaper_sources = get_path_info(_shaper_sources, "abspath")
+skia_shaper_primitive_sources = skia_shaper_sources
+skia_shaper_harfbuzz_sources = skia_shaper_sources
