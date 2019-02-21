@@ -499,19 +499,6 @@ void SkPathStroker::init(StrokeType strokeType, SkQuadConstruct* quadPts, SkScal
 // returns the distance squared from the point to the line
 static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const SkPoint& lineEnd) {
     SkVector dxy = lineEnd - lineStart;
-#ifdef SK_SUPPORT_LEGACY_SETLENGTH
-    if (degenerate_vector(dxy)) {
-        return SkPointPriv::DistanceToSqd(pt, lineStart);
-    }
-    SkVector ab0 = pt - lineStart;
-    SkScalar numer = dxy.dot(ab0);
-    SkScalar denom = dxy.dot(dxy);
-    SkScalar t = numer / denom;
-    SkPoint hit;
-    hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
-    hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
-    return SkPointPriv::DistanceToSqd(hit, pt);
-#else
     SkVector ab0 = pt - lineStart;
     SkScalar numer = dxy.dot(ab0);
     SkScalar denom = dxy.dot(dxy);
@@ -524,7 +511,6 @@ static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const Sk
     } else {
         return SkPointPriv::DistanceToSqd(pt, lineStart);
     }
-#endif
 }
 
 /*  Given a cubic, determine if all four points are in a line.
@@ -779,20 +765,9 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
         SkPoint* tangent) const {
-#ifdef SK_SUPPORT_LEGACY_SETLENGTH
-    SkPoint oldDxy = *dxy;
-    if (!dxy->setLength(fRadius)) {  // consider moving double logic into SkPoint::setLength
-        double xx = oldDxy.fX;
-        double yy = oldDxy.fY;
-        double dscale = fRadius / sqrt(xx * xx + yy * yy);
-        dxy->fX = SkDoubleToScalar(xx * dscale);
-        dxy->fY = SkDoubleToScalar(yy * dscale);
-    }
-#else
     if (!dxy->setLength(fRadius)) {
         dxy->set(fRadius, 0);
     }
-#endif
     SkScalar axisFlip = SkIntToScalar(fStrokeType);  // go opposite ways for outer, inner
     onPt->fX = tPt.fX + axisFlip * dxy->fY;
     onPt->fY = tPt.fY - axisFlip * dxy->fX;
