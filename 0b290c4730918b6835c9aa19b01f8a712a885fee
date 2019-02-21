@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8985d5ac_958c7017",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T14:21:00Z",
+      "side": 1,
+      "message": "// Because of limitations on wrapped VK secondary command buffers we can tell ahead of time\n// when some parameter combinations are bad news\n\nbut with useful information ?",
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7db9e92_59a2dfc0",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T14:21:00Z",
+      "side": 1,
+      "message": "// secondary command buffers don\u0027t support texturing\n\n?",
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "891e28d7_cb7fb4e7",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T14:21:00Z",
+      "side": 1,
+      "message": "wrapsVkSecondaryCB ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 64,
+        "endLine": 186,
+        "endChar": 87
+      },
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72867ff9_5eed1cc4",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T14:21:00Z",
+      "side": 1,
+      "message": "in",
+      "range": {
+        "startLine": 123,
+        "startChar": 36,
+        "endLine": 123,
+        "endChar": 38
+      },
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92c07d7f_6b931744",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T14:21:00Z",
+      "side": 1,
+      "message": "Can we have a unit test that exercises this stuff? In particular, the (in)compatibility of characterizations and that drawing a DDL into a 2ndary CB actually works?",
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dc86b3e_4bdeec9e",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T14:21:00Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 102,
+        "startChar": 82,
+        "endLine": 102,
+        "endChar": 87
+      },
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
