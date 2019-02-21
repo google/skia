@@ -689,6 +689,7 @@ SKSHAPER_INCLUDES = [
 SKSHAPER_HARFBUZZ_SRCS = [
     "modules/skshaper/include/SkShaper.h",
     "modules/skshaper/src/SkShaper.cpp",
+    "modules/skshaper/src/SkShaper_primitive.cpp",
     "modules/skshaper/src/SkShaper_harfbuzz.cpp",
 ]
 
