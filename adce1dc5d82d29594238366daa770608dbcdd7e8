@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a3d7b6d_96ca7076",
+        "filename": "include/core/SkCubicMap.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-21T16:45:00Z",
+      "side": 1,
+      "message": "While at it, should we hide this setter (and default ctor), and make this an immutable object?",
+      "range": {
+        "startLine": 29,
+        "startChar": 9,
+        "endLine": 29,
+        "endChar": 39
+      },
+      "revId": "adce1dc5d82d29594238366daa770608dbcdd7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
