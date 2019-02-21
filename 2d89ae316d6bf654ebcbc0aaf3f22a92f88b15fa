@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c60a303_0a2da515",
+        "filename": "docs/SkCanvas_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1308,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-21T22:22:54Z",
+      "side": 1,
+      "message": "I think we should still document the kInitWithPrevious_SaveLayerFlag flag somewhere.",
+      "revId": "2d89ae316d6bf654ebcbc0aaf3f22a92f88b15fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
