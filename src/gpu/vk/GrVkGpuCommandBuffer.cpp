@@ -39,8 +39,8 @@ void GrVkGpuTextureCommandBuffer::insertEventMarker(const char* msg) {
 void GrVkGpuTextureCommandBuffer::submit() {
     for (int i = 0; i < fCopies.count(); ++i) {
         CopyInfo& copyInfo = fCopies[i];
-        fGpu->copySurface(fTexture, fOrigin, copyInfo.fSrc, copyInfo.fSrcOrigin, copyInfo.fSrcRect,
-                          copyInfo.fDstPoint);
+        fGpu->copySurface(fTexture, fOrigin, copyInfo.fSrc.get(), copyInfo.fSrcOrigin,
+                          copyInfo.fSrcRect, copyInfo.fDstPoint);
     }
 }
 
@@ -175,7 +175,7 @@ void GrVkGpuRTCommandBuffer::submit() {
 
         for (int j = 0; j < cbInfo.fPreCopies.count(); ++j) {
             CopyInfo& copyInfo = cbInfo.fPreCopies[j];
-            fGpu->copySurface(fRenderTarget, fOrigin, copyInfo.fSrc, copyInfo.fSrcOrigin,
+            fGpu->copySurface(fRenderTarget, fOrigin, copyInfo.fSrc.get(), copyInfo.fSrcOrigin,
                               copyInfo.fSrcRect, copyInfo.fDstPoint, copyInfo.fShouldDiscardDst);
         }
 
@@ -195,12 +195,10 @@ void GrVkGpuRTCommandBuffer::submit() {
         // We don't want to actually submit the secondary command buffer if it is wrapped.
         if (this->wrapsSecondaryCommandBuffer()) {
             // If we have any sampled images set their layout now.
-            for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
-                cbInfo.fSampledImages[j]->setImageLayout(fGpu,
-                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                                         VK_ACCESS_SHADER_READ_BIT,
-                                                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                                         false);
+            for (int j = 0; j < cbInfo.fSampledTextures.count(); ++j) {
+                cbInfo.fSampledTextures[j]->setImageLayout(
+                        fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, false);
             }
 
             // There should have only been one secondary command buffer in the wrapped case so it is
@@ -249,12 +247,10 @@ void GrVkGpuRTCommandBuffer::submit() {
             }
 
             // If we have any sampled images set their layout now.
-            for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
-                cbInfo.fSampledImages[j]->setImageLayout(fGpu,
-                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                                         VK_ACCESS_SHADER_READ_BIT,
-                                                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                                         false);
+            for (int j = 0; j < cbInfo.fSampledTextures.count(); ++j) {
+                cbInfo.fSampledTextures[j]->setImageLayout(
+                        fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, false);
             }
 
             SkIRect iBounds;
@@ -728,7 +724,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                 fGpu->regenerateMipMapLevels(vkTexture);
             }
         }
-        cbInfo.fSampledImages.push_back(vkTexture);
+        cbInfo.fSampledTextures.push_back(sk_ref_sp(vkTexture));
     };
 
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -752,7 +748,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         }
     }
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        cbInfo.fSampledImages.push_back(static_cast<GrVkTexture*>(dstTexture));
+        cbInfo.fSampledTextures.push_back(sk_ref_sp(static_cast<GrVkTexture*>(dstTexture)));
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
