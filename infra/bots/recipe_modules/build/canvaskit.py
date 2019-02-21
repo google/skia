@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-release:1.38.16_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/canvaskit-emsdk:1.38.27_v1'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/canvaskit/build_canvaskit.sh'
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
