@@ -713,7 +713,6 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        auto pipe = fHelper.makePipeline(target);
         int instanceCount = fPaths.count();
 
         SkMatrix invert;
@@ -794,9 +793,12 @@ private:
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
-            target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, nullptr, meshes,
-                         draws.count());
+            target->recordDraw(quadProcessor, meshes, draws.count());
         }
+    }
+
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
