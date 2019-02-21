@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d56322a0_97f84033",
+        "filename": "third_party/icu/BUILD.gn",
+        "patchSetId": 23
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T20:52:26Z",
+      "side": 1,
+      "message": "nit: did \"gn format\" want this? Seems a bit verbose.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 9
+      },
+      "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
