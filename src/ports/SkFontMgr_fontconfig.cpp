@@ -486,7 +486,18 @@ public:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         FCLocker lock;
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
-        return SkStream::MakeFromFile(get_string(fPattern, FC_FILE)).release();
+        const char* filename = get_string(fPattern, FC_FILE, nullptr);
+        if (!filename) {
+            return nullptr;
+        }
+        const char* sysroot = (const char*)FcConfigGetSysRoot(nullptr);
+        SkString resolvedFilename;
+        if (sysroot) {
+            resolvedFilename = sysroot;
+            resolvedFilename += filename;
+            filename = resolvedFilename.c_str();
+        }
+        return SkStream::MakeFromFile(filename).release();
     }
 
     void onFilterRec(SkScalerContextRec* rec) const override {
@@ -769,6 +780,13 @@ protected:
         const char* filename = get_string(font, FC_FILE, nullptr);
         if (nullptr == filename) {
             return false;
+        }
+        const char* sysroot = (const char*)FcConfigGetSysRoot(nullptr);
+        SkString resolvedFilename;
+        if (sysroot) {
+            resolvedFilename = sysroot;
+            resolvedFilename += filename;
+            filename = resolvedFilename.c_str();
         }
         return sk_exists(filename, kRead_SkFILE_Flag);
     }
