@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
+#ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+
 #include "SkBitmaskEnum.h"
 #include "SkFont.h"
 #include "SkFontArguments.h"
@@ -26,7 +30,6 @@
 #include "SkTemplates.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "SkTypes.h"
 #include "SkUTF.h"
 
 #include <hb.h>
@@ -1402,3 +1405,4 @@ ShapedRun SkShaperHarfBuzz::shape(const char* utf8,
 
     return run;
 }
+#endif  // SK_SHAPER_HARFBUZZ_AVAILABLE
