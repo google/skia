@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "e24ca2fd_1f8e82e5",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-21T22:01:55Z",
+      "side": 1,
+      "message": "I think you\u0027re currently single threaded. If so, you can just make one SkShaper and keep re-using it instead of creating a new one each time. There is some overhead to creating the iterators it holds onto, so it should be a bit faster to not be creating lots of them.",
+      "range": {
+        "startLine": 481,
+        "startChar": 8,
+        "endLine": 481,
+        "endChar": 60
+      },
+      "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d56322a0_97f84033",
         "filename": "third_party/icu/BUILD.gn",
         "patchSetId": 23
