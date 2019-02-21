@@ -99,7 +99,8 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
     };
 
     // TODO: restrict to area of buffer we're interested in
-    gpu->addBufferMemoryBarrier(srcStageMask, dstStageMask, byRegion, &bufferMemoryBarrier);
+    gpu->addBufferMemoryBarrier(this->resource(), srcStageMask, dstStageMask, byRegion,
+                                &bufferMemoryBarrier);
 }
 
 void GrVkBuffer::Resource::freeGPUData(GrVkGpu* gpu) const {
