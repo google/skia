@@ -409,11 +409,12 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs',
   'Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
   'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
-  ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
+  ('Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-'
    'CommandBuffer'),
-  'Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer',
-  ('Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
+  ('Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
    'MoltenVK_Vulkan'),
+  ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
+   'CommandBuffer'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
