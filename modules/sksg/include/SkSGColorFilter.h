@@ -12,8 +12,6 @@
 
 #include "SkBlendMode.h"
 
-#include <vector>
-
 class SkColorFilter;
 
 namespace sksg {
@@ -64,18 +62,17 @@ private:
 };
 
 /**
- * Tint/multi-tone color effect: maps RGB colors to the [C0,C1][C1,C2]..[Cn-1,Cn] gradient
- * based on input luminance (where the colors are evenly distributed across the luminance domain),
- * then mixes with the input based on weight.  Leaves alpha unchanged.
+ * Tint color effect: maps RGB colors to the [c0,c1] gradient based on input luminance
+ * (while leaving the alpha channel unchanged), then mixes with the input based on weight.
  */
-class GradientColorFilter final : public ColorFilter {
-public:
-    ~GradientColorFilter() override;
 
-    static sk_sp<GradientColorFilter> Make(sk_sp<RenderNode> child,
-                                           sk_sp<Color> c0, sk_sp<Color> c1);
-    static sk_sp<GradientColorFilter> Make(sk_sp<RenderNode> child,
-                                           std::vector<sk_sp<Color>>);
+class TintColorFilter final : public ColorFilter {
+public:
+    ~TintColorFilter() override;
+
+    static sk_sp<TintColorFilter> Make(sk_sp<RenderNode> child,
+                                       sk_sp<Color> color0,
+                                       sk_sp<Color> color1);
 
     SG_ATTRIBUTE(Weight, float, fWeight)
 
@@ -83,13 +80,14 @@ protected:
     sk_sp<SkColorFilter> onRevalidateFilter() override;
 
 private:
-    GradientColorFilter(sk_sp<RenderNode>, std::vector<sk_sp<Color>>);
+    TintColorFilter(sk_sp<RenderNode>, sk_sp<Color>, sk_sp<Color>);
 
-    const std::vector<sk_sp<Color>> fColors;
+    const sk_sp<Color> fColor0,
+                       fColor1;
 
-    float                           fWeight = 0;
+    float              fWeight = 0;
 
-    using INHERITED = ColorFilter;
+    typedef ColorFilter INHERITED;
 };
 
 } // namespace sksg
