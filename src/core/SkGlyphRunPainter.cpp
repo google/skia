@@ -450,27 +450,31 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     }
 }
 
-template <typename PerSDFT, typename PerPathT>
+template <typename ProcessMasksT, typename ProcessPathsT>
 void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
-        SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
+        SkStrikeInterface* strike, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textScale,
-        PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& argbFallback) {
+        ProcessMasksT&& processMasks, ProcessPathsT&& processPaths, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
+    ScopedBuffers _ = this->ensureBuffers(glyphRun);
     SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
+    std::vector<GlyphAndPos> paths;
+
+    int glyphCount = 0;
     const SkPoint* positionCursor = glyphRun.positions().data();
     for (auto glyphID : glyphRun.glyphsIDs()) {
-        const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
+        const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
         SkPoint glyphPos = origin + *positionCursor++;
         if (!glyph.isEmpty()) {
             if (glyph.fMaskFormat == SkMask::kSDF_Format) {
                 if (!SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
                     // If the glyph is not empty, then it will have a pointer to SDF data.
-                    perSDF(glyph, glyphPos);
+                    fGlyphPos[glyphCount++] = {&glyph, glyphPos};
                 } else {
-                    if (cache->decideCouldDrawFromPath(glyph)) {
-                        perPath(glyph, glyphPos);
+                    if (strike->decideCouldDrawFromPath(glyph)) {
+                        paths.push_back({&glyph, glyphPos});
                     }
                 }
             } else {
@@ -481,6 +485,15 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
                 fARGBPositions.push_back(glyphPos);
             }
         }
+    }
+
+    if (glyphCount > 0) {
+        processMasks(
+                SkSpan<const GlyphAndPos>{fGlyphPos, SkTo<size_t>(glyphCount)}, strike, textScale);
+    }
+
+    if (!paths.empty()) {
+        processPaths(SkSpan<const GlyphAndPos>{paths}, strike, textScale);
     }
 
     if (!fARGBGlyphsIDs.empty()) {
@@ -784,29 +797,40 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                 SkExclusiveStrikePtr cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                         dfFont, dfPaint, props, flags, SkMatrix::I());
                 sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache->getDescriptor());
-                run->setupFont(cache->strikeSpec());
 
-                auto perSDF =
-                    [run, &currStrike, textScale]
-                    (const SkGlyph& glyph, SkPoint position) {
-                        run->appendSourceSpaceGlyph(currStrike, glyph, position, textScale);
-                    };
+                auto processMasks =
+                        [run, glyphCache]
+                                (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+                                 SkStrikeInterface* strike, SkScalar textScale) {
+                            run->setupFont(strike->strikeSpec());
+                            sk_sp<GrTextStrike> currStrike =
+                                    glyphCache->getStrike(strike->getDescriptor());
+                            for (const auto& mask : masks) {
+                                run->appendSourceSpaceGlyph(
+                                        currStrike, *mask.glyph, mask.position, textScale);
+                            }
+                        };
 
-                auto perPath =
-                    [run, textScale]
-                    (const SkGlyph& glyph, SkPoint position) {
-                        // TODO: path should always be set. Remove when proven.
-                        if (const SkPath* glyphPath = glyph.path()) {
-                            run->appendPathGlyph(*glyphPath, position, textScale, false);
-                        }
-                    };
+
+                auto processPaths =
+                        [run](
+                                SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths,
+                                SkStrikeInterface* strike, SkScalar textScale) {
+                            run->setupFont(strike->strikeSpec());
+                            for (const auto& path : paths) {
+                                if (const SkPath* glyphPath = path.glyph->path()) {
+                                    run->appendPathGlyph(*glyphPath, path.position, textScale,
+                                                         false);
+                                }
+                            }
+                        };
 
                 ARGBFallbackHelper argbFallback{this, run, props, scalerContextFlags,
                                                 glyphCache};
 
                 glyphPainter->drawGlyphRunAsSDFWithARGBFallback(
                     cache.get(), glyphRun, origin, runPaint, viewMatrix, textScale,
-                    std::move(perSDF), std::move(perPath),
+                    std::move(processMasks), std::move(processPaths),
                     std::move(argbFallback));
             }
 
@@ -1064,19 +1088,17 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
 
     ARGBHelper argbFallback{runMatrix, surfaceProps(), fStrikeServer};
 
-    auto perSDF = [sdfCache] (const SkGlyph& glyph, SkPoint position) {
-        const bool asPath = false;
-        sdfCache->addGlyph(glyph.getGlyphID(), asPath);
-    };
+    auto processMasks =
+            [](SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+               SkStrikeInterface* strike, SkScalar textScale) {};
 
-    auto perPath = [sdfCache] (const SkGlyph& glyph, SkPoint position) {
-        const bool asPath = true;
-        sdfCache->addGlyph(glyph.getGlyphID(), asPath);
-    };
+    auto processPaths =
+            [](SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths,
+               SkStrikeInterface* strike, SkScalar textScale) {};
 
     fPainter.drawGlyphRunAsSDFWithARGBFallback(
             sdfCache, glyphRun, origin, runPaint, runMatrix, textRatio,
-            std::move(perSDF), std::move(perPath),
+            std::move(processMasks), std::move(processPaths),
             std::move(argbFallback));
 
     return true;
