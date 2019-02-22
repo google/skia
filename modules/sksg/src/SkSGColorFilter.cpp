@@ -7,6 +7,7 @@
 
 #include "SkSGColorFilter.h"
 
+#include "SkColorData.h"
 #include "SkColorFilter.h"
 #include "SkSGColor.h"
 #include "SkTableColorFilter.h"
@@ -88,11 +89,6 @@ GradientColorFilter::~GradientColorFilter() {
 
 namespace  {
 
-// luminance coefficients
-static constexpr float kR = 0.2126f,
-                       kG = 0.7152f,
-                       kB = 0.0722f;
-
 sk_sp<SkColorFilter> Make2ColorGradient(const sk_sp<Color>& color0, const sk_sp<Color>& color1) {
     const auto c0 = SkColor4f::FromColor(color0->getColor()),
                c1 = SkColor4f::FromColor(color1->getColor());
@@ -130,10 +126,10 @@ sk_sp<SkColorFilter> Make2ColorGradient(const sk_sp<Color>& color0, const sk_sp<
     // Composing these two, we get the total tint matrix:
 
     const SkScalar tint_matrix[] = {
-        dR*kR, dR*kG, dR*kB, 0, c0.fR * 255,
-        dG*kR, dG*kG, dG*kB, 0, c0.fG * 255,
-        dB*kR, dB*kG, dB*kB, 0, c0.fB * 255,
-            0,     0,     0, 1,           0,
+        dR*SK_LUM_COEFF_R, dR*SK_LUM_COEFF_G, dR*SK_LUM_COEFF_B, 0, c0.fR * 255,
+        dG*SK_LUM_COEFF_R, dG*SK_LUM_COEFF_G, dG*SK_LUM_COEFF_B, 0, c0.fG * 255,
+        dB*SK_LUM_COEFF_R, dB*SK_LUM_COEFF_G, dB*SK_LUM_COEFF_B, 0, c0.fB * 255,
+                        0,                 0,                 0, 1,           0,
     };
 
     return SkColorFilter::MakeMatrixFilterRowMajor255(tint_matrix);
@@ -181,10 +177,10 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
     SkASSERT(span_start == 256);
 
     const SkScalar luminance_matrix[] = {
-        kR, kG, kB,  0,  0,  // r' = L
-        kR, kG, kB,  0,  0,  // g' = L
-        kR, kG, kB,  0,  0,  // b' = L
-         0,  0,  0,  1,  0,  // a' = a
+        SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,  0,  0,  // r' = L
+        SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,  0,  0,  // g' = L
+        SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B,  0,  0,  // b' = L
+                     0,              0,              0,  1,  0,  // a' = a
     };
 
     return SkTableColorFilter::MakeARGB(nullptr, rTable, gTable, bTable)
