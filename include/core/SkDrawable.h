@@ -16,6 +16,7 @@ class GrBackendDrawableInfo;
 class SkCanvas;
 class SkMatrix;
 class SkPicture;
+class SkSurface;
 enum class GrBackendApi : unsigned;
 struct SkRect;
 
@@ -81,8 +82,9 @@ public:
     std::unique_ptr<GpuDrawHandler> snapGpuDrawHandler(GrBackendApi backendApi,
                                                        const SkMatrix& matrix,
                                                        const SkIRect& clipBounds,
-                                                       const SkImageInfo& bufferInfo) {
-        return this->onSnapGpuDrawHandler(backendApi, matrix, clipBounds, bufferInfo);
+                                                       const SkImageInfo& bufferInfo,
+                                                       SkSurface* surface) {
+        return this->onSnapGpuDrawHandler(backendApi, matrix, clipBounds, bufferInfo, surface);
     }
 
     SkPicture* newPictureSnapshot();
@@ -136,12 +138,8 @@ protected:
 
     virtual std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi, const SkMatrix&,
                                                                  const SkIRect& /*clipBounds*/,
-                                                                 const SkImageInfo&) {
-        return nullptr;
-    }
-
-    // TODO: Delete this once Android gets updated to take the clipBounds version above.
-    virtual std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi, const SkMatrix&) {
+                                                                 const SkImageInfo&,
+                                                                 SkSurface*) {
         return nullptr;
     }
 

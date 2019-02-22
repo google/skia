@@ -238,7 +238,7 @@ protected:
     void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
                              SkPoint origin, const SkPaint& paint);
 
-    virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
+    virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*, SkSurface*);
 
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
                              SkImage* clipImage, const SkMatrix& clipMatrix);

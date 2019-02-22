@@ -1664,20 +1664,21 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {
+void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas,
+                               SkSurface* surface) {
     GrBackendApi api = this->context()->backend();
     if (GrBackendApi::kVulkan == api) {
         const SkMatrix& ctm = canvas->getTotalMatrix();
         const SkMatrix& combinedMatrix = matrix ? SkMatrix::Concat(ctm, *matrix) : ctm;
         std::unique_ptr<SkDrawable::GpuDrawHandler> gpuDraw =
                 drawable->snapGpuDrawHandler(api, combinedMatrix, canvas->getDeviceClipBounds(),
-                                             this->imageInfo());
+                                             this->imageInfo(), surface);
         if (gpuDraw) {
             fRenderTargetContext->drawDrawable(std::move(gpuDraw), drawable->getBounds());
             return;
         }
     }
-    this->INHERITED::drawDrawable(drawable, matrix, canvas);
+    this->INHERITED::drawDrawable(drawable, matrix, canvas, surface);
 }
 
 
