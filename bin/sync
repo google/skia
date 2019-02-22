@@ -1,53 +1,16 @@
 #!/usr/bin/env python
-
 # Copyright 2016 Google Inc.
-#
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This script will update Skia's dependencies as necessary.
+"""
+Calls `GIT_SYNC_DEPS_QUIET=T tools/git-sync-deps`.
+"""
 
-# Depends on: Python and Git
-
-# To retreive and use all optional deps:
-#
-#   python bin/sync --deps=all
-
-import hashlib
 import os
 import subprocess
 import sys
 
-HASH_FILE = '.deps_sha1'
-DEPS_FLAG = '--deps='
-DEPS_FILE = 'DEPS'
-
-skia_opt_deps = [arg[len(DEPS_FLAG):] for arg in sys.argv[1:] if arg.startswith(DEPS_FLAG)]
-
-os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
-
-if not os.path.isfile(DEPS_FILE):
-  sys.stderr.write('DEPS file missing')
-  exit(1)
-
-deps_hasher = hashlib.sha1()
-with open(DEPS_FILE, 'r') as f:
-  deps_hasher.update(f.read())
-deps_hasher.update(repr(skia_opt_deps))
-deps_hash = deps_hasher.hexdigest()
-current_deps_hash = None
-if os.path.isfile(HASH_FILE):
-  with open(HASH_FILE, 'r') as f:
-    current_deps_hash = f.read().strip()
-
-if current_deps_hash != deps_hash:
-  if os.path.isfile(HASH_FILE):
-    os.remove(HASH_FILE)
-  command = [sys.executable, os.path.join('tools', 'git-sync-deps')]
-  command.extend(skia_opt_deps)
-  sys.stdout.write('%r\n' % command)
-  sys.stdout.flush()
-  subprocess.check_call(command)
-  # Only write hash after a successful sync.
-  with open(HASH_FILE, 'w') as o:
-    o.write(deps_hash)
+path = os.path.dirname(__file__) + '/../tools/git-sync-deps'
+subprocess.check_call([sys.executable, path] + sys.argv[:1],
+                      env=dict(os.environ, GIT_SYNC_DEPS_QUIET='T'))
