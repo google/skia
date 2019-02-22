@@ -58,7 +58,7 @@ struct DFAState {
 namespace std {
     template<> struct hash<DFAState::Label> {
         size_t operator()(const DFAState::Label& s) const {
-            int result = 0;
+            size_t result = 0;
             for (int i : s.fStates) {
                 result = result * 101 + i;
             }

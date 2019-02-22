@@ -20,14 +20,6 @@ try:
                           shell=True)
     subprocess.check_call(clangFormat + " -i \"" + src +
                           "/sksl/SkSLLexer.cpp\"", shell=True)
-    subprocess.check_output([sksllex, src + "/sksl/lex/layout.lex",
-                             "LayoutLexer", "LayoutToken",
-                             src + "/sksl/SkSLLayoutLexer.h",
-                             src + "/sksl/SkSLLayoutLexer.cpp"])
-    subprocess.check_call(clangFormat + " -i \"" + src +
-                          "/sksl/SkSLLayoutLexer.h\"", shell=True)
-    subprocess.check_call(clangFormat + " -i \"" + src +
-                          "/sksl/SkSLLayoutLexer.cpp\"", shell=True)
 except subprocess.CalledProcessError as err:
     print("### Lexer error:")
     print(err.output)
