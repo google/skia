@@ -508,6 +508,7 @@
       "~^WritePixelsNonTexture_Gpu$",
       "~^RGB565TextureTest$",
       "~^RGBA4444TextureTest$",
+      "~^TextureIdleProcFlushTest$",
       "--nonativeFonts",
       "--verbose"
     ],
