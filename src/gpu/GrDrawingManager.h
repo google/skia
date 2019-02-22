@@ -16,10 +16,10 @@
 #include "SkTArray.h"
 #include "text/GrTextContext.h"
 
-class GrContext;
 class GrCoverageCountingPathRenderer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
+class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOWner;
@@ -53,7 +53,7 @@ public:
     sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managedOpList);
     sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
 
-    GrContext* getContext() { return fContext; }
+    GrRecordingContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();
 
@@ -134,7 +134,7 @@ private:
         bool                      fSortOpLists;
     };
 
-    GrDrawingManager(GrContext*, const GrPathRendererChain::Options&,
+    GrDrawingManager(GrRecordingContext*, const GrPathRendererChain::Options&,
                      const GrTextContext::Options&, GrSingleOwner*,
                      bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets,
                      GrContextOptions::Enable reduceOpListSplitting);
@@ -152,14 +152,15 @@ private:
 
     SkDEBUGCODE(void validate() const);
 
-    friend class GrContext;  // for access to: ctor, abandon, reset & flush
+    friend class GrContext; // access to: flush & cleanup
     friend class GrContextPriv; // access to: flush
     friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class
+    friend class GrRecordingContext;  // access to: ctor
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
-    GrContext*                        fContext;
+    GrRecordingContext*               fContext;
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
     GrTextContext::Options            fOptionsForTextContext;
     // This cache is used by both the vertex and index pools. It reuses memory across multiple
