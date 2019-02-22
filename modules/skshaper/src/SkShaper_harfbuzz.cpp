@@ -215,15 +215,28 @@ hb_bool_t skhb_glyph_extents(hb_font_t* hb_font,
     return true;
 }
 
+#define SK_HB_VERSION_CHECK(x, y, z) \
+    (HB_VERSION_MAJOR >  (x)) || \
+    (HB_VERSION_MAJOR == (x) && HB_VERSION_MINOR >  (y)) || \
+    (HB_VERSION_MAJOR == (x) && HB_VERSION_MINOR == (y) && HB_VERSION_MICRO >= (z))
+
 hb_font_funcs_t* skhb_get_font_funcs() {
     static hb_font_funcs_t* const funcs = []{
         // HarfBuzz will use the default (parent) implementation if they aren't set.
         hb_font_funcs_t* const funcs = hb_font_funcs_create();
         hb_font_funcs_set_variation_glyph_func(funcs, skhb_glyph, nullptr, nullptr);
         hb_font_funcs_set_nominal_glyph_func(funcs, skhb_nominal_glyph, nullptr, nullptr);
+#if SK_HB_VERSION_CHECK(2, 0, 0)
         hb_font_funcs_set_nominal_glyphs_func(funcs, skhb_nominal_glyphs, nullptr, nullptr);
+#else
+        sk_ignore_unused_variable(skhb_nominal_glyphs);
+#endif
         hb_font_funcs_set_glyph_h_advance_func(funcs, skhb_glyph_h_advance, nullptr, nullptr);
+#if SK_HB_VERSION_CHECK(1, 8, 6)
         hb_font_funcs_set_glyph_h_advances_func(funcs, skhb_glyph_h_advances, nullptr, nullptr);
+#else
+        sk_ignore_unused_variable(skhb_glyph_h_advances);
+#endif
         hb_font_funcs_set_glyph_extents_func(funcs, skhb_glyph_extents, nullptr, nullptr);
         hb_font_funcs_make_immutable(funcs);
         return funcs;
@@ -1393,7 +1406,11 @@ ShapedRun SkShaperHarfBuzz::shape(const char* utf8,
         SkPaint p;
         run.fFont.getWidthsBounds(&glyph.fID, 1, &advance, &bounds, &p);
         glyph.fHasVisual = !bounds.isEmpty(); //!font->currentTypeface()->glyphBoundsAreZero(glyph.fID);
+#if SK_HB_VERSION_CHECK(1, 5, 0)
         glyph.fUnsafeToBreak = info[i].mask & HB_GLYPH_FLAG_UNSAFE_TO_BREAK;
+#else
+        glyph.fUnsafeToBreak = false;
+#endif
         glyph.fMustLineBreakBefore = false;
 
         runAdvance += glyph.fAdvance;
