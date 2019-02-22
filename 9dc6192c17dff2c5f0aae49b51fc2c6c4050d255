@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c300a2c0_ca76c433",
+        "filename": "src/codec/SkScalingCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-22T16:15:38Z",
+      "side": 1,
+      "message": "These are moved from SkWebpCodec, mostly unchanged. (The old code called getEncodedInfo in the second method, but it just needs the dimensions.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 5
+      },
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
