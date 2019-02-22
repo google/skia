@@ -34,6 +34,8 @@
 
 #include "GrContextPriv.h"
 #include "GrContextThreadSafeProxy.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
 #include "GrTexture.h"
@@ -412,10 +414,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get(),
                                                                 mipMapped));
                 if (!texImage) {
-                    GrContext* imageContext = as_IB(image)->context();
+                    GrImageContext* imageContext = as_IB(image)->context1();
 
                     // We expect to fail if image comes from a different GrContext.
-                    if (!image->isTextureBacked() || imageContext == context) {
+                    if (!image->isTextureBacked() || imageContext->priv().matches(context)) {
                         ERRORF(reporter, "makeTextureImage failed.");
                     }
                     continue;

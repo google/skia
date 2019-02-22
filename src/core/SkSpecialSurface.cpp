@@ -127,12 +127,10 @@ public:
     SkSpecialSurface_Gpu(GrRecordingContext* context,
                          sk_sp<GrRenderTargetContext> renderTargetContext,
                          int width, int height, const SkIRect& subset)
-        : INHERITED(subset, &renderTargetContext->surfaceProps())
-        , fRenderTargetContext(std::move(renderTargetContext)) {
+            : INHERITED(subset, &renderTargetContext->surfaceProps())
+            , fRenderTargetContext(std::move(renderTargetContext)) {
 
-        // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
-        sk_sp<SkBaseDevice> device(SkGpuDevice::Make(context->priv().backdoor(),
-                                                     fRenderTargetContext, width, height,
+        sk_sp<SkBaseDevice> device(SkGpuDevice::Make(context, fRenderTargetContext, width, height,
                                                      SkGpuDevice::kUninit_InitContents));
         if (!device) {
             return;

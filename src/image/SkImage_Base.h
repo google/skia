@@ -16,6 +16,7 @@
 #include "GrTextureProxy.h"
 #include "SkTDArray.h"
 
+class GrImageContext;
 class GrRecordingContext;
 class GrTexture;
 #endif
@@ -50,7 +51,7 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
-    virtual GrContext* context() const { return nullptr; }
+    virtual GrImageContext* context1() const { return nullptr; }
 
 #if SK_SUPPORT_GPU
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
@@ -72,7 +73,7 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
+    virtual sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect&) const = 0;
 
     virtual sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                           SkYUVColorSpace*, const void* planes[4]);
@@ -97,7 +98,8 @@ public:
     virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
-    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const = 0;
+    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*, SkColorType,
+                                                        sk_sp<SkColorSpace>) const = 0;
 protected:
     SkImage_Base(int width, int height, uint32_t uniqueID);
 

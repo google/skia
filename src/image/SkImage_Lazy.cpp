@@ -250,7 +250,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrRecordingContext* contex
 }
 #endif
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrRecordingContext*, const SkIRect& subset) const {
     SkASSERT(fInfo.bounds().contains(subset));
     SkASSERT(fInfo.bounds() != subset);
 
