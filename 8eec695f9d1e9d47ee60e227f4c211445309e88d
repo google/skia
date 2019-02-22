@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3fc36223_935d0c2c",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b312ae3_6ec7140a",
+      "range": {
+        "startLine": 13,
+        "startChar": 12,
+        "endLine": 13,
+        "endChar": 18
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a1c38cd_3434fc6d",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-22T17:44:08Z",
       "side": 1,
       "message": "rm ?",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 6
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77901962_5eff85ad",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "I found the extra illumination made it easier to grok.",
+      "parentUuid": "1a1c38cd_3434fc6d",
       "range": {
         "startLine": 18,
         "startChar": 4,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "f35e4797_2d22a8a0",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "done -- using constexpr count",
+      "parentUuid": "4d52c91f_bd7dfba1",
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d06bb03c_4a2fa562",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "0e368cd0_5759f96b",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d06bb03c_4a2fa562",
+      "range": {
+        "startLine": 25,
+        "startChar": 24,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49013032_2e228080",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "ec325939_1e640b89",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49013032_2e228080",
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd3122ff_e43d4dc3",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -116,6 +224,30 @@
       "writtenOn": "2019-02-22T17:44:08Z",
       "side": 1,
       "message": "rm ?",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 6
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58798142_0d4c229f",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "cd3122ff_e43d4dc3",
       "range": {
         "startLine": 36,
         "startChar": 4,
@@ -151,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "f05d2271_6b15943d",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "hmmm, should I use kCX instead of cx? I think its ok to look like a var",
+      "parentUuid": "6fdb4780_2686efaf",
+      "range": {
+        "startLine": 39,
+        "startChar": 19,
+        "endLine": 39,
+        "endChar": 24
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "97510bbe_dc5111d0",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -171,6 +327,30 @@
       "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed2f1081_60272384",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97510bbe_dc5111d0",
+      "range": {
+        "startLine": 48,
+        "startChar": 19,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +377,30 @@
     },
     {
       "key": {
+        "uuid": "701cee8a_3ac71b6d",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99a8429e_bace4ac4",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 27
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13281f73_e521dcff",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -217,6 +421,30 @@
       "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b09f30bf_bc5844c7",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13281f73_e521dcff",
+      "range": {
+        "startLine": 60,
+        "startChar": 69,
+        "endLine": 60,
+        "endChar": 73
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -243,6 +471,30 @@
     },
     {
       "key": {
+        "uuid": "c134fc9c_0967ae46",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8ae2654_659dfbd2",
+      "range": {
+        "startLine": 65,
+        "startChar": 30,
+        "endLine": 65,
+        "endChar": 37
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e02d682e_11576e72",
         "filename": "gm/backdrop.cpp",
         "patchSetId": 2
@@ -263,6 +515,30 @@
       "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e4d0891_cb8db662",
+        "filename": "gm/backdrop.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T21:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e02d682e_11576e72",
+      "range": {
+        "startLine": 68,
+        "startChar": 14,
+        "endLine": 68,
+        "endChar": 30
+      },
+      "revId": "8eec695f9d1e9d47ee60e227f4c211445309e88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
