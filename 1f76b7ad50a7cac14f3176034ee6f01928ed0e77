@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fba0753b_046548f6",
+        "filename": "src/gpu/effects/GrMixerEffect.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-22T19:30:15Z",
+      "side": 1,
+      "message": "These don\u0027t need to check for the possible null of the second fp?",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 43,
+        "endChar": 10
+      },
+      "revId": "1f76b7ad50a7cac14f3176034ee6f01928ed0e77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
