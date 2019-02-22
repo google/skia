@@ -382,15 +382,20 @@
       throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
     }
 
-    CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, font, paint) {
-      // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
-      // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
-      // Add 1 for null terminator
-      var strLen = lengthBytesUTF8(str) + 1;
-      var strPtr = CanvasKit._malloc(strLen);
-      // Add 1 for the null terminator.
-      stringToUTF8(str, strPtr, strLen);
-      this._drawSimpleText(strPtr, strLen, x, y, font, paint);
+    // str can be either a text string or a ShapedText object
+    CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
+      if (typeof str === 'string') {
+        // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+        // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+        // Add 1 for null terminator
+        var strLen = lengthBytesUTF8(str) + 1;
+        var strPtr = CanvasKit._malloc(strLen);
+
+        stringToUTF8(str, strPtr, strLen);
+        this._drawSimpleText(strPtr, strLen, x, y, font, paint);
+      } else {
+        this._drawShapedText(str, x, y, paint);
+      }
     }
 
     // returns Uint8Array

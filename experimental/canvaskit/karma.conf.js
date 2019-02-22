@@ -14,6 +14,7 @@ module.exports = function(config) {
       { pattern: 'tests/assets/*', included:false, served:true},
       '../../modules/pathkit/tests/testReporter.js',
       'canvaskit/bin/canvaskit.js',
+      'tests/util.js',
       'tests/*.spec.js'
     ],
 

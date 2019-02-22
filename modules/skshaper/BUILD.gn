@@ -15,7 +15,7 @@ config("public_config") {
   }
 }
 
-source_set("skshaper") {
+component("skshaper") {
   if (skia_enable_skshaper) {
     import("skshaper.gni")
     public_configs = [ ":public_config" ]
