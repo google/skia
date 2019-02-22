@@ -16,6 +16,24 @@
       "revId": "2d89ae316d6bf654ebcbc0aaf3f22a92f88b15fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b713c46_06d5c369",
+        "filename": "docs/SkCanvas_Reference.bmh",
+        "patchSetId": 2
+      },
+      "lineNbr": 1308,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-22T13:25:48Z",
+      "side": 1,
+      "message": "Good point, though we should document it in the flags section, not as an afterthought on the filter",
+      "parentUuid": "4c60a303_0a2da515",
+      "revId": "2d89ae316d6bf654ebcbc0aaf3f22a92f88b15fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
