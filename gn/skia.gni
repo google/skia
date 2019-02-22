@@ -12,6 +12,7 @@ declare_args() {
   skia_enable_skshaper = true
   skia_enable_tools = is_skia_dev_build
   skia_use_icu = !is_fuchsia && !is_ios
+  skia_use_harfbuzz = true
 }
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.

@@ -3,120 +3,124 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-declare_args() {
-  skia_use_system_icu = is_official_build
-}
-
 import("../../gn/skia.gni")
 import("../third_party.gni")
 import("icu.gni")
 
-if (skia_use_icu) {
-  if (skia_use_system_icu) {
-    system("icu") {
-      libs = [ "icuuc" ]
-      defines = [ "U_USING_ICU_NAMESPACE=0" ]
-    }
+declare_args() {
+  skia_use_system_icu = is_official_build
+}
+
+if (skia_use_system_icu) {
+  system("icu") {
+    libs = [ "icuuc" ]
+    defines = [ "U_USING_ICU_NAMESPACE=0" ]
+  }
+} else {
+  if (target_cpu == "wasm") {
+    data_assembly = "$target_gen_dir/icudtl_dat.cpp"
   } else {
+    data_assembly = "$target_gen_dir/icudtl_dat.S"
+  }
+  data_dir = "../externals/icu/"
+  if (target_cpu == "wasm") {
+    # Use a super super super stripped down version for wasm,
+    # which is the same thing flutter is using.
+    data_dir += "flutter"
+  } else if (is_android) {
+    data_dir += "android"
+  } else if (is_ios) {
+    data_dir += "ios"
+  } else {
+    data_dir += "common"
+  }
+  action("make_data_assembly") {
     if (target_cpu == "wasm") {
-      data_assembly = "$target_gen_dir/icudtl_dat.cpp"
+      _u_icu_version_major_num = "63"  # defined in source/common/unicode/uvernum.h
+      script = "make_data_cpp.py"
+      inputs = [
+        "$data_dir/icudtl.dat",
+      ]
+      outputs = [
+        data_assembly,
+      ]
+      args = [
+        "icudt${_u_icu_version_major_num}_dat",
+        rebase_path(inputs[0], root_build_dir),
+        rebase_path(data_assembly, root_build_dir),
+      ]
     } else {
-      data_assembly = "$target_gen_dir/icudtl_dat.S"
-    }
-    data_dir = "../externals/icu/"
-    if (target_cpu == "wasm") {
-      # Use a super super super stripped down version for wasm,
-      # which is the same thing flutter is using.
-      data_dir += "flutter"
-    } else if (is_android) {
-      data_dir += "android"
-    } else if (is_ios) {
-      data_dir += "ios"
-    } else {
-      data_dir += "common"
-    }
-    action("make_data_assembly") {
-      if (target_cpu == "wasm") {
-        _u_icu_version_major_num = "63"  # defined in source/common/unicode/uvernum.h
-        script = "make_data_cpp.py"
-        inputs = [
-          "$data_dir/icudtl.dat",
-        ]
-        outputs = [
-          data_assembly,
-        ]
-        args = [
-          "icudt${_u_icu_version_major_num}_dat",
-          rebase_path(inputs[0], root_build_dir),
-          rebase_path(data_assembly, root_build_dir),
-        ]
-      } else {
-        script = "../externals/icu/scripts/make_data_assembly.py"
-        inputs = [
-          "$data_dir/icudtl.dat",
-        ]
-        outputs = [
-          "$data_assembly",
-        ]
-        args = [
-          rebase_path(inputs[0], root_build_dir),
-          rebase_path(data_assembly, root_build_dir),
-        ]
-        if (is_mac || is_ios) {
-          args += [ "--mac" ]
-        }
+      script = "../externals/icu/scripts/make_data_assembly.py"
+      inputs = [
+        "$data_dir/icudtl.dat",
+      ]
+      outputs = [
+        "$data_assembly",
+      ]
+      args = [
+        rebase_path(inputs[0], root_build_dir),
+        rebase_path(data_assembly, root_build_dir),
+      ]
+      if (is_mac || is_ios) {
+        args += [ "--mac" ]
       }
     }
+  }
 
-    third_party("icu") {
-      public_include_dirs = [
-        "../externals/icu/source/common",
-        "../externals/icu/source/i18n",
-        ".",
+  third_party("icu") {
+    public_include_dirs = [
+      "../externals/icu/source/common",
+      "../externals/icu/source/i18n",
+      ".",
+    ]
+    public_defines = [
+      "U_USING_ICU_NAMESPACE=0",
+      "SK_USING_THIRD_PARTY_ICU",
+    ]
+    configs -= [ "//gn:no_rtti" ]
+    defines = [
+      # http://userguide.icu-project.org/howtouseicu
+      "U_COMMON_IMPLEMENTATION",
+      "U_STATIC_IMPLEMENTATION",
+      "U_ENABLE_DYLOAD=0",
+      "U_I18N_IMPLEMENTATION",
+    ]
+    if (target_cpu == "wasm") {
+      # Tell ICU that we are a 32 bit platform, otherwise,
+      # double-conversion-utils.h doesn't know how to operate.
+      defines += [ "__i386__" ]
+    }
+    sources = icu_sources
+    if (is_win) {
+      deps = [
+        ":icudata",
       ]
-      public_defines = [
-        "U_USING_ICU_NAMESPACE=0",
-        "SK_USING_THIRD_PARTY_ICU",
-      ]
-      configs -= [ "//gn:no_rtti" ]
-      defines = [
-        # http://userguide.icu-project.org/howtouseicu
-        "U_COMMON_IMPLEMENTATION",
+      public_defines += [
+        "U_NOEXCEPT=",
         "U_STATIC_IMPLEMENTATION",
-        "U_ENABLE_DYLOAD=0",
-        "U_I18N_IMPLEMENTATION",
       ]
-      if (target_cpu == "wasm") {
-        # Tell ICU that we are a 32 bit platform, otherwise,
-        # double-conversion-utils.h doesn't know how to operate.
-        defines += [ "__i386__" ]
-      }
-      sources = icu_sources
-      if (is_win) {
-        deps = [
-          ":icudata",
-        ]
-        public_defines += [
-          "U_NOEXCEPT=",
-          "U_STATIC_IMPLEMENTATION",
-        ]
-        libs = [ "Advapi32.lib" ]
-        sources += [
-          "../externals/icu/source/stubdata/stubdata.cpp",
-          "SkLoadICU.cpp",
-        ]
-      } else {
-        sources += [ "$data_assembly" ]
-        deps = [
-          ":make_data_assembly",
-        ]
-      }
+      libs = [ "Advapi32.lib" ]
+      sources += [
+        "../externals/icu/source/stubdata/stubdata.cpp",
+        "SkLoadICU.cpp",
+      ]
+    } else {
+      sources += [ "$data_assembly" ]
+      deps = [
+        ":make_data_assembly",
+      ]
     }
+  }
 
-    copy("icudata") {
-      sources = [ "../externals/icu/common/icudtl.dat" ]
-      outputs = [ "$root_out_dir/icudtl.dat" ]
-      data = [ "$root_out_dir/icudtl.dat" ]
-    }
+  copy("icudata") {
+    sources = [
+      "../externals/icu/common/icudtl.dat",
+    ]
+    outputs = [
+      "$root_out_dir/icudtl.dat",
+    ]
+    data = [
+      "$root_out_dir/icudtl.dat",
+    ]
   }
 }
