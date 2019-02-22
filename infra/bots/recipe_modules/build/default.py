@@ -197,6 +197,7 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_enable_pdf':        'false',
       'skia_use_expat':         'false',
       'skia_use_freetype':      'false',
+      'skia_use_harfbuzz':      'false',
       'skia_use_libjpeg_turbo': 'false',
       'skia_use_libpng':        'false',
       'skia_use_libwebp':       'false',

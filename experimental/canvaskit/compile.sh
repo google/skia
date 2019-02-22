@@ -110,13 +110,13 @@ else
       --align 4
 fi
 
-GN_SHAPER="skia_use_icu=true skia_use_system_icu=false"
+GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_system_harfbuzz=false"
 SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
 SHAPER_TARGETS="libharfbuzz.a libicu.a"
 if [[ $@ == *primitive_shaper* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"
-  GN_SHAPER="skia_use_icu=false"
+  GN_SHAPER="skia_use_icu=false skia_use_harfbuzz=false"
   SHAPER_LIB=""
   SHAPER_TARGETS=""
 fi

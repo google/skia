@@ -32,7 +32,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false is_official_build=true skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_libjpeg_turbo=false skia_use_libpng=false skia_use_libwebp=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false is_official_build=true skia_enable_fontmgr_empty=true skia_enable_gpu=true skia_enable_pdf=false skia_use_expat=false skia_use_freetype=false skia_use_harfbuzz=false skia_use_libjpeg_turbo=false skia_use_libpng=false skia_use_libwebp=false skia_use_vulkan=false skia_use_zlib=false target_cpu=\"x86_64\""
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
