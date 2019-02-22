@@ -198,9 +198,18 @@ private:
     protected:
         mutable sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
+        void invokeReleaseProc() const {
+            if (fReleaseHelper) {
+                // Depending on the ref count of fReleaseHelper this may or may not actually trigger
+                // the ReleaseProc to be called.
+                fReleaseHelper.reset();
+            }
+        }
+
     private:
         void freeGPUData(GrVkGpu* gpu) const override;
         void abandonGPUData() const override {
+            this->invokeReleaseProc();
             SkASSERT(!fReleaseHelper);
         }
 
@@ -222,14 +231,6 @@ private:
             : Resource(image, alloc, tiling) {
         }
     private:
-        void invokeReleaseProc() const {
-            if (fReleaseHelper) {
-                // Depending on the ref count of fReleaseHelper this may or may not actually trigger
-                // the ReleaseProc to be called.
-                fReleaseHelper.reset();
-            }
-        }
-
         void freeGPUData(GrVkGpu* gpu) const override;
         void abandonGPUData() const override;
     };

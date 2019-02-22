@@ -246,7 +246,7 @@ void GrVkImage::setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
 }
 
 void GrVkImage::Resource::freeGPUData(GrVkGpu* gpu) const {
-    SkASSERT(!fReleaseHelper);
+    this->invokeReleaseProc();
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);

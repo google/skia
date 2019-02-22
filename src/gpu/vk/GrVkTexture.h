@@ -69,7 +69,7 @@ private:
         this->setResourceRelease(std::move(releaseHelper));
     }
 
-    void removedLastRefOrPendingIO() override;
+    void willRemoveLastRefOrPendingIO() override;
 
     const GrVkImageView* fTextureView;
     GrTexture::IdleProc* fIdleProc = nullptr;

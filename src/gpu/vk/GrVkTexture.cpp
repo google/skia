@@ -179,7 +179,7 @@ void GrVkTexture::setIdleProc(IdleProc proc, void* context) {
     }
 }
 
-void GrVkTexture::removedLastRefOrPendingIO() {
+void GrVkTexture::willRemoveLastRefOrPendingIO() {
     if (!fIdleProc) {
         return;
     }

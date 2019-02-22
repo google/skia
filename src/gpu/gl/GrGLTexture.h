@@ -126,7 +126,7 @@ protected:
 private:
     void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
 
-    void removedLastRefOrPendingIO() override {
+    void willRemoveLastRefOrPendingIO() override {
         if (fIdleProc) {
             fIdleProc(fIdleProcContext);
             fIdleProc = nullptr;
