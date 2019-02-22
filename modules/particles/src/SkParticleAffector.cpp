@@ -15,16 +15,21 @@ class SkLinearVelocityAffector : public SkParticleAffector {
 public:
     SkLinearVelocityAffector(const SkCurve& angle = 0.0f,
                              const SkCurve& strength = 0.0f,
-                             bool force = true)
+                             bool force = true,
+                             bool local = false)
         : fAngle(angle)
         , fStrength(strength)
-        , fForce(force) {}
+        , fForce(force)
+        , fLocal(local) {}
 
     REFLECTED(SkLinearVelocityAffector, SkParticleAffector)
 
     void apply(SkParticleUpdateParams& params, SkParticleState& ps) override {
         float angle = fAngle.eval(ps.fAge, ps.fStableRandom);
-        SkScalar c, s = SkScalarSinCos(SkDegreesToRadians(angle), &c);
+        SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
+        SkVector heading = fLocal ? ps.fPose.fHeading : SkVector{ 0, -1 };
+        SkScalar c = heading.fX * c_local - heading.fY * s_local;
+        SkScalar s = heading.fX * s_local + heading.fY * c_local;
         float strength = fStrength.eval(ps.fAge, ps.fStableRandom);
         SkVector force = { c * strength, s * strength };
         if (fForce) {
@@ -36,6 +41,7 @@ public:
 
     void visitFields(SkFieldVisitor* v) override {
         v->visit("Force", fForce);
+        v->visit("Local", fLocal);
         v->visit("Angle", fAngle);
         v->visit("Strength", fStrength);
     }
@@ -44,6 +50,7 @@ private:
     SkCurve fAngle;
     SkCurve fStrength;
     bool fForce;
+    bool fLocal;
 };
 
 class SkPointForceAffector : public SkParticleAffector {
@@ -157,8 +164,9 @@ void SkParticleAffector::RegisterAffectorTypes() {
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakeLinearVelocity(const SkCurve& angle,
                                                                  const SkCurve& strength,
-                                                                 bool force) {
-    return sk_sp<SkParticleAffector>(new SkLinearVelocityAffector(angle, strength, force));
+                                                                 bool force,
+                                                                 bool local) {
+    return sk_sp<SkParticleAffector>(new SkLinearVelocityAffector(angle, strength, force, local));
 }
 
 sk_sp<SkParticleAffector> SkParticleAffector::MakePointForce(SkPoint point, SkScalar constant,

@@ -27,7 +27,8 @@ public:
 
     static sk_sp<SkParticleAffector> MakeLinearVelocity(const SkCurve& angle,
                                                         const SkCurve& strength,
-                                                        bool force);
+                                                        bool force,
+                                                        bool local);
     static sk_sp<SkParticleAffector> MakePointForce(SkPoint point, SkScalar constant,
                                                     SkScalar invSquare);
     static sk_sp<SkParticleAffector> MakeOrientAlongVelocity();
