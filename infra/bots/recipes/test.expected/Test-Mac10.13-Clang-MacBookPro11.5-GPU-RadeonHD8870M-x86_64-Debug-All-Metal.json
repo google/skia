@@ -506,6 +506,7 @@
       "~^TransferPixelsTest$",
       "~^VertexAttributeCount$",
       "~^WritePixelsNonTexture_Gpu$",
+      "~^TextureIdleProcFlushTest$",
       "~^RGB565TextureTest$",
       "~^RGBA4444TextureTest$",
       "--nonativeFonts",
