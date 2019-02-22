@@ -1239,8 +1239,8 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         height = SkTMax(1, height / 2);
 
         imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
-        this->addImageMemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                    false, &imageMemoryBarrier);
+        this->addImageMemoryBarrier(vkTex->resource(), VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                    VK_PIPELINE_STAGE_TRANSFER_BIT, false, &imageMemoryBarrier);
 
         blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel - 1, 0, 1 };
         blitRegion.srcOffsets[0] = { 0, 0, 0 };
@@ -1264,8 +1264,8 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     // all the others, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL. This makes tracking of the layouts and
     // future layout changes easier.
     imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
-    this->addImageMemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                false, &imageMemoryBarrier);
+    this->addImageMemoryBarrier(vkTex->resource(), VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                VK_PIPELINE_STAGE_TRANSFER_BIT, false, &imageMemoryBarrier);
     vkTex->updateImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
     return true;
 }
@@ -1753,6 +1753,7 @@ void GrVkGpu::addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                VkMemoryBarrier* barrier) const {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->pipelineBarrier(this,
+                                       nullptr,
                                        srcStageMask,
                                        dstStageMask,
                                        byRegion,
@@ -1760,12 +1761,15 @@ void GrVkGpu::addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                        barrier);
 }
 
-void GrVkGpu::addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
+void GrVkGpu::addBufferMemoryBarrier(const GrVkResource* resource,
+                                     VkPipelineStageFlags srcStageMask,
                                      VkPipelineStageFlags dstStageMask,
                                      bool byRegion,
                                      VkBufferMemoryBarrier* barrier) const {
     SkASSERT(fCurrentCmdBuffer);
+    SkASSERT(resource);
     fCurrentCmdBuffer->pipelineBarrier(this,
+                                       resource,
                                        srcStageMask,
                                        dstStageMask,
                                        byRegion,
@@ -1773,12 +1777,15 @@ void GrVkGpu::addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                        barrier);
 }
 
-void GrVkGpu::addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
+void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
+                                    VkPipelineStageFlags srcStageMask,
                                     VkPipelineStageFlags dstStageMask,
                                     bool byRegion,
                                     VkImageMemoryBarrier* barrier) const {
     SkASSERT(fCurrentCmdBuffer);
+    SkASSERT(resource);
     fCurrentCmdBuffer->pipelineBarrier(this,
+                                       resource,
                                        srcStageMask,
                                        dstStageMask,
                                        byRegion,
