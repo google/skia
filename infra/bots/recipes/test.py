@@ -776,6 +776,7 @@ def dm_flags(api, bot):
     if 'Mac' in bot:
       match.append('~^RGB565TextureTest$')
       match.append('~^RGBA4444TextureTest$')
+      match.append('~^TextureIdleProcFlushTest$')
 
   if 'Wuffs' in api.vars.extra_tokens:
     # skia:8750
