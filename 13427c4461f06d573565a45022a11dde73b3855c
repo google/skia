@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "162cd149_0ba4bbbe",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2637,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-22T21:47:56Z",
+      "side": 1,
+      "message": "this is kind of gpu specific that this surface is needed. Is it possible for the SkGpuDevice to just pull it off of the SkCanvas instead of passing it in here?",
+      "range": {
+        "startLine": 2637,
+        "startChar": 52,
+        "endLine": 2637,
+        "endChar": 66
+      },
+      "revId": "13427c4461f06d573565a45022a11dde73b3855c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
