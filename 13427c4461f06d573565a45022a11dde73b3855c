@@ -46,6 +46,30 @@
       "revId": "13427c4461f06d573565a45022a11dde73b3855c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb50b6c5_cb2dfd05",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2637,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-22T22:09:00Z",
+      "side": 1,
+      "message": "Might want to talk with someone who better controls this api if they have ideas, cause fSurfaceBase is not always valid from an arbitrary SkCanvas, so I\u0027d feel wrong having the SkCanvas pass this to everyone",
+      "parentUuid": "76ee857c_3ccdadf0",
+      "range": {
+        "startLine": 2637,
+        "startChar": 52,
+        "endLine": 2637,
+        "endChar": 66
+      },
+      "revId": "13427c4461f06d573565a45022a11dde73b3855c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
