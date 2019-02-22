@@ -146,19 +146,22 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
         canvas->drawRect({0, 0, width, height}, paint);
         paint.setColor(colors[i]);
 
-        SkScalar x = 10;
         SkScalar y = 10;
+        SkScalar x = 10;
         for (SkScalar ps : sizes) {
             font.setSize(ps);
             for (bool lcd : {false, true}) {
                 font.setEdging(lcd ? SkFont::Edging::kSubpixelAntiAlias
-                               : SkFont::Edging::kAntiAlias);
+                                   : SkFont::Edging::kAntiAlias);
+                for (auto h : {kNo_SkFontHinting, kNormal_SkFontHinting}) {
+                    font.setHinting(h);
 
-                y += font.getSpacing() + 2;
-                canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
+                    y += font.getSpacing() + 2;
+                    canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
+                }
             }
+            y += 8;
         }
-
         canvas->restore();
         canvas->translate(width, 0);
     }
