@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "32e8f0ab_e78e17e3",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-22T15:05:14Z",
+      "side": 1,
+      "message": "I like it.  Modified to use a single static shaper.",
+      "parentUuid": "681d5b91_43668c50",
+      "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e24ca2fd_1f8e82e5",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 23
@@ -39,6 +57,30 @@
       "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e17aa3ff_e97785ba",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-22T15:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e24ca2fd_1f8e82e5",
+      "range": {
+        "startLine": 481,
+        "startChar": 8,
+        "endLine": 481,
+        "endChar": 60
+      },
+      "revId": "e990d1f7ccfb291faa173466a47a23f02ee6c986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
