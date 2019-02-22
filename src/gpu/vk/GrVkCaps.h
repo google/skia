@@ -98,6 +98,12 @@ public:
         return fPreferredStencilFormat;
     }
 
+    // Returns whether the device supports VK_KHR_Swapchain. Internally Skia never uses any of the
+    // swapchain functions, but we may need to transition to and from the
+    // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR image layout, so we must know whether that layout is
+    // supported.
+    bool supportsSwapchain() const { return fSupportsSwapchain; }
+
     // Returns whether the device supports the ability to extend VkPhysicalDeviceProperties struct.
     bool supportsPhysicalDeviceProperties2() const { return fSupportsPhysicalDeviceProperties2; }
     // Returns whether the device supports the ability to extend VkMemoryRequirements struct.
@@ -218,6 +224,8 @@ private:
     bool fMustSleepOnTearDown = false;
     bool fNewCBOnPipelineChange = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
+
+    bool fSupportsSwapchain = false;
 
     bool fSupportsPhysicalDeviceProperties2 = false;
     bool fSupportsMemoryRequirements2 = false;

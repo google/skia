@@ -29,6 +29,8 @@ VkPipelineStageFlags GrVkImage::LayoutToPipelineSrcStageFlags(const VkImageLayou
         return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         return VK_PIPELINE_STAGE_HOST_BIT;
+    } else if (VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+        return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     }
 
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == layout);
@@ -64,6 +66,8 @@ VkAccessFlags GrVkImage::LayoutToSrcAccessMask(const VkImageLayout layout) {
         flags = VK_ACCESS_TRANSFER_READ_BIT;
     } else if (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
         flags = VK_ACCESS_SHADER_READ_BIT;
+    } else if (VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
+        flags = 0;
     }
     return flags;
 }
