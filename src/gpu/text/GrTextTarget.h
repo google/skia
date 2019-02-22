@@ -14,6 +14,7 @@
 class GrAtlasTextOp;
 class GrClip;
 class GrPaint;
+class GrRecordingContext;
 class GrShape;
 class SkGlyphRunListPainter;
 class SkMatrix;
@@ -37,7 +38,7 @@ public:
     virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                              GrPaint*) = 0;
 
-    virtual GrContext* getContext() = 0;
+    virtual GrRecordingContext* getContext() = 0;
 
     virtual SkGlyphRunListPainter* glyphPainter() = 0;
 

@@ -7,7 +7,7 @@
 
 #include "TestUtils.h"
 
-#include "GrProxyProvider.h"
+#include "GrContextPriv.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceContextPriv.h"
 #include "GrSurfaceProxy.h"
@@ -94,8 +94,10 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
     }
 }
 
-void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider,
-                          GrSurfaceContext* dstContext, const char* testName) {
+void test_copy_to_surface(skiatest::Reporter* reporter,
+                          GrContext* context,
+                          GrSurfaceContext* dstContext,
+                          const char* testName) {
 
     int pixelCnt = dstContext->width() * dstContext->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
@@ -109,7 +111,7 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
     for (auto isRT : {false, true}) {
         for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto src = sk_gpu_test::MakeTextureProxyFromData(
-                    dstContext->surfPriv().getContext(), isRT, dstContext->width(),
+                    context, isRT, dstContext->width(),
                     dstContext->height(), GrColorType::kRGBA_8888, origin, pixels.get(), 0);
             dstContext->copy(src.get());
             test_read_pixels(reporter, dstContext, pixels.get(), testName);

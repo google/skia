@@ -154,7 +154,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     fColor = color;
 
     SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
-    auto* grContext = this->context()->internal().grContext();
+    auto grContext = this->context()->internal().grContext();
     auto atlasTextContext = grContext->priv().drawingManager()->getTextContext();
     SkGlyphRunBuilder builder;
     builder.drawGlyphsWithPositions(paint, font.makeFont(),

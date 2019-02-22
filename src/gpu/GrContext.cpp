@@ -70,6 +70,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
         return false;
     }
 
+    SkASSERT(this->drawingManager());
     SkASSERT(this->caps());
     SkASSERT(this->getGlyphCache());
     SkASSERT(this->getTextBlobCache());
@@ -86,41 +87,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
 
     fDidTestPMConversions = false;
 
-    GrPathRendererChain::Options prcOptions;
-    prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
-#if GR_TEST_UTILS
-    prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
-#endif
-    if (this->options().fDisableCoverageCountingPaths) {
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
-    }
-    if (this->options().fDisableDistanceFieldPaths) {
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-    }
-
-    if (!fResourceCache) {
-        // DDL TODO: remove this crippling of the path renderer chain
-        // Disable the small path renderer bc of the proxies in the atlas. They need to be
-        // unified when the opLists are added back to the destination drawing manager.
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-    }
-
-    GrTextContext::Options textContextOptions;
-    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
-    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
-    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
-#if SK_SUPPORT_ATLAS_TEXT
-    if (GrContextOptions::Enable::kYes == this->options().fDistanceFieldGlyphVerticesAlwaysHaveW) {
-        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
-    }
-#endif
-
-    fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
-                                               this->singleOwner(),
-                                               this->explicitlyAllocateGPUResources(),
-                                               this->options().fSortRenderTargets,
-                                               this->options().fReduceOpListSplitting));
-
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.
     if (this->options().fExecutor) {
@@ -134,10 +100,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return fThreadSafeProxy;
-}
-
-GrDrawingManager* GrContext::drawingManager() {
-    return fDrawingManager.get();
 }
 
 //////////////////////////////////////////////////////////////////////////////

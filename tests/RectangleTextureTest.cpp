@@ -165,8 +165,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");
 
-        test_copy_to_surface(reporter, context->priv().proxyProvider(),
-                              rectContext.get(), "RectangleTexture-copy-to");
+        test_copy_to_surface(reporter, context, rectContext.get(), "RectangleTexture-copy-to");
 
         test_write_pixels(reporter, rectContext.get(), true, "RectangleTexture-write");
 

@@ -23,7 +23,6 @@ class GrBackendSemaphore;
 class GrCaps;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
-class GrDrawingManager;
 class GrFragmentProcessor;
 struct GrGLInterface;
 class GrGpu;
@@ -293,9 +292,6 @@ protected:
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
-    GrDrawingManager* drawingManager() override;
-
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
@@ -311,8 +307,6 @@ private:
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;
-
-    std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 
