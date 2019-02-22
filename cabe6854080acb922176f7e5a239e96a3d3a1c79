@@ -22,6 +22,30 @@
       "revId": "cabe6854080acb922176f7e5a239e96a3d3a1c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8169f9c_624a0439",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-22T21:00:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95e9271d_f77f9b92",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 28
+      },
+      "revId": "cabe6854080acb922176f7e5a239e96a3d3a1c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
