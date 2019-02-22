@@ -16,9 +16,10 @@
 GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context, sk_sp<GrTextureProxy> original,
                                      SkAlphaType alphaType,
                                      uint32_t uniqueID,
-                                     SkColorSpace* cs)
+                                     SkColorSpace* cs,
+                                     bool useDecal)
     : INHERITED(context, original->width(), original->height(),
-                GrPixelConfigIsAlphaOnly(original->config()))
+                GrPixelConfigIsAlphaOnly(original->config()), useDecal)
     , fOriginal(std::move(original))
     , fAlphaType(alphaType)
     , fColorSpace(cs)
@@ -119,14 +120,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     SkMatrix textureMatrix = origTextureMatrix;
 
-    SkRect domain;
-    GrSamplerState samplerState;
-    if (filterOrNullForBicubic) {
-        samplerState.setFilterMode(*filterOrNullForBicubic);
-    }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(
-            this->refTextureProxyForParams(samplerState, scaleAdjust));
+            this->refTextureProxyForParams(filterOrNullForBicubic, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
@@ -136,6 +132,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         textureMatrix.postScale(scaleAdjust[0], scaleAdjust[1]);
     }
 
+    SkRect domain;
     DomainMode domainMode =
         DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                             proxy.get(), filterOrNullForBicubic, &domain);
@@ -155,6 +152,6 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
-    return CreateFragmentProcessorForDomainAndFilter(std::move(proxy), textureMatrix, domainMode,
-                                                     domain, filterOrNullForBicubic);
+    return this->createFragmentProcessorForDomainAndFilter(
+            std::move(proxy), textureMatrix, domainMode, domain, filterOrNullForBicubic);
 }

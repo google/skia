@@ -341,6 +341,8 @@ private:
     friend class SkGlyphRunList;
     friend class SkGlyphRunBuilder;
 
+    friend class ClipTileRenderer;  // GM needs context() until API is in SkCanvas
+
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
