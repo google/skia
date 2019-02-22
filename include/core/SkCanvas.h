@@ -614,7 +614,10 @@ public:
             @param bounds          layer dimensions; may be nullptr
             @param paint           applied to layer when overlaying prior layer;
                                    may be nullptr
-            @param backdrop        prior layer copied with SkImageFilter; may be nullptr
+            @param backdrop        If not null, this causes the current layer to be filtered by
+                                   backdrop, and then drawn into the new layer
+                                   (respecting the current clip).
+                                   If null, the new layer is initialized with transparent-black.
             @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec fully specified
         */
@@ -636,8 +639,10 @@ public:
             @param bounds          layer dimensions; may be nullptr
             @param paint           graphics state applied to layer when overlaying prior
                                    layer; may be nullptr
-            @param backdrop        prior layer copied with SkImageFilter;
-                                   may be nullptr
+            @param backdrop        If not null, this causes the current layer to be filtered by
+                                   backdrop, and then drawn into the new layer
+                                   (respecting the current clip).
+                                   If null, the new layer is initialized with transparent-black.
             @param clipMask        clip applied to layer; may be nullptr
             @param clipMatrix      matrix applied to clipMask; may be nullptr to use
                                    identity matrix
@@ -661,7 +666,12 @@ public:
         /** modifies overlay */
         const SkPaint*       fPaint          = nullptr;
 
-        /** applies SkImageFilter to prior layer */
+        /**
+         *  If not null, this triggers the same initialization behavior as setting
+         *  kInitWithPrevious_SaveLayerFlag on fSaveLayerFlags: the current layer is copied into
+         *  the new layer, rather than initializing the new layer with transparent-black.
+         *  This is then filtered by fBackdrop (respecting the current clip).
+         */
         const SkImageFilter* fBackdrop       = nullptr;
 
         /** clips layer with mask alpha */
