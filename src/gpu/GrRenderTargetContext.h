@@ -9,7 +9,6 @@
 #define GrRenderTargetContext_DEFINED
 
 #include "../private/GrRenderTargetProxy.h"
-#include "GrContext.h"
 #include "GrPaint.h"
 #include "GrSurfaceContext.h"
 #include "GrTypesPriv.h"
@@ -27,6 +26,7 @@ class GrCoverageCountingPathRenderer;
 class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
+class GrOp;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
 class GrRenderTargetOpList;
@@ -454,9 +454,9 @@ public:
     bool isWrapped_ForTesting() const;
 
 protected:
-    GrRenderTargetContext(GrRecordingContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
-                          sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
-                          GrSingleOwner*, bool managedOpList = true);
+    explicit GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>,
+                                   sk_sp<SkColorSpace>, const SkSurfaceProps*,
+                                   bool managedOpList = true);
 
     SkDEBUGCODE(void validate() const override;)
 
