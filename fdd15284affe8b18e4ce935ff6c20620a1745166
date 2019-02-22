@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7de7ecc7_05af5843",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 0,
+      "message": "Heh, this sentence was no longer true. :-)",
+      "revId": "fdd15284affe8b18e4ce935ff6c20620a1745166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

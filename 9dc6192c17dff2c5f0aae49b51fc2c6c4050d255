@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "14c8a4d0_c944520e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "Does this also get us subsetting: decoding only a sub-rectangle of a (possibly animated) image?\n\nIf it doesn\u0027t, that\u0027s fine. But I\u0027m curious (not in this CL, but in a follow-up CL) whether subsetting would ideally be done in SkWuffsCodec or in Wuffs.",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73bdbb8b_a9010f8f",
+        "filename": "src/codec/SkScalingCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "Perhaps:\n\nint w \u003d requested.width();\nint h \u003d requested.height();\nreturn w \u003e\u003d 1 \u0026\u0026 w \u003c\u003d dim.width() \u0026\u0026 h \u003e\u003d 1 \u0026\u0026 h \u003c\u003d dim.height();\n\nThis is getting pretty minor, but personally, I\u0027d also re-write that last line so that all of the inequalities point the same way, so it\u0027s a little more obvious that you\u0027re checking that w is in the range [1, dim.width()] and likewise for h:\n\nreturn 1 \u003c\u003d w \u0026\u0026 w \u003c\u003d dim.width() \u0026\u0026 1 \u003c\u003d h \u0026\u0026 h \u003c\u003d dim.height();\n\nJust a suggestion.",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c300a2c0_ca76c433",
         "filename": "src/codec/SkScalingCodec.h",
         "patchSetId": 1
@@ -19,6 +53,108 @@
         "endLine": 30,
         "endChar": 5
       },
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3430197_dbd5eb0a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "Keep these sorted?\n\nOr finally succumb to using clang-format. :-)",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65a25d89_17e71c2b",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "You might be able to delete this one.",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5f3bde8_d28303dc",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "\"return SkCodec::kInvalidConversion;\" would be redundant, but consistent with the nearby code.",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c492c85_04cc1116",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "Ditto re \"return SkCodec::kInternalError;\".",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "015b1133_b99783e6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "Out of curiosity, if the source file had a color profile (GIF can\u0027t, but e.g. PNG can), how would that be represented? Another configurating call on srcInfo here, or by some other mechanism (on the SkBitmap / the SkCanvas / the SkPaint)?",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61e65f80_ca472483",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-02-22T21:38:24Z",
+      "side": 1,
+      "message": "Just confirming that you want Unpremul. Wuffs can generate Premul, if it would be faster in the subsequent drawBitmap call.\n\nSpecifically for GIF (which has only 0% or 100% transparency), the src pixels are actually in both Premul and Unpremul form (so conversion is a no-op), but some day in the future, we might use re-use this code for other image formats.\n\nIn any case, I\u0027m talking about performance, not just correctness. Perhaps we should punt this to a future CL (with its own benchmark measurements)...",
       "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
