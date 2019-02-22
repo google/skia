@@ -6,10 +6,12 @@
  */
 
 #include "GrOnFlushResourceProvider.h"
-#include "GrContext.h"
+
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrSurfaceProxy.h"
 

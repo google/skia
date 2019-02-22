@@ -60,6 +60,42 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
                                              this->contextID()));
 
+    GrPathRendererChain::Options prcOptions;
+    prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
+#if GR_TEST_UTILS
+    prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
+#endif
+    if (this->options().fDisableCoverageCountingPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
+    }
+    if (this->options().fDisableDistanceFieldPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+    }
+
+    if (!this->proxyProvider()->renderingDirectly()) {
+        // DDL TODO: remove this crippling of the path renderer chain
+        // Disable the small path renderer bc of the proxies in the atlas. They need to be
+        // unified when the opLists are added back to the destination drawing manager.
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+    }
+
+    GrTextContext::Options textContextOptions;
+    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
+    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
+    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
+#if SK_SUPPORT_ATLAS_TEXT
+    if (GrContextOptions::Enable::kYes == this->options().fDistanceFieldGlyphVerticesAlwaysHaveW) {
+        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
+    }
+#endif
+
+    fDrawingManager.reset(new GrDrawingManager(this,
+                                               prcOptions,
+                                               textContextOptions,
+                                               this->singleOwner(),
+                                               this->explicitlyAllocateGPUResources(),
+                                               this->options().fSortRenderTargets,
+                                               this->options().fReduceOpListSplitting));
     return true;
 }
 
@@ -68,6 +104,10 @@ void GrRecordingContext::abandonContext() {
 
     fGlyphCache->freeAll();
     fTextBlobCache->freeAll();
+}
+
+GrDrawingManager* GrRecordingContext::drawingManager() {
+    return fDrawingManager.get();
 }
 
 sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
@@ -177,7 +217,6 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
         return nullptr;
     }
 
-    // CONTEXT TODO: move GrDrawingManager to GrRecordingContext for real
     auto drawingManager = this->drawingManager();
 
     sk_sp<GrRenderTargetContext> renderTargetContext =

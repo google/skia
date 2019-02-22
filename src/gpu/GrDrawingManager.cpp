@@ -6,13 +6,15 @@
  */
 
 #include "GrDrawingManager.h"
+
 #include "GrBackendSemaphore.h"
-#include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpList.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceAllocator.h"
@@ -145,7 +147,7 @@ void GrDrawingManager::OpListDAG::cleanup(const GrCaps* caps) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-GrDrawingManager::GrDrawingManager(GrContext* context,
+GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrTextContext::Options& optionsForTextContext,
                                    GrSingleOwner* singleOwner,
@@ -290,8 +292,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(fContext->priv().resourceProvider(),
-                                  flushState.deinstantiateProxyTracker());
+        GrResourceAllocator alloc(resourceProvider, flushState.deinstantiateProxyTracker());
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
                 fDAG.opList(i)->gatherProxyIntervals(&alloc);
@@ -376,7 +377,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         return false;
     }
 
-    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
+    auto resourceProvider = direct->priv().resourceProvider();
     bool anyOpListsExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
