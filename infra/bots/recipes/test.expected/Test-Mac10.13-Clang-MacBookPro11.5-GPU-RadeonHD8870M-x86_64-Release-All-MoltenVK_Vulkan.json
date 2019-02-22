@@ -499,6 +499,7 @@
       "~^InitialTextureClear$",
       "~^RGB565TextureTest$",
       "~^RGBA4444TextureTest$",
+      "~^TextureIdleProcFlushTest$",
       "~^WritePixelsNonTextureMSAA_Gpu$",
       "--nonativeFonts",
       "--verbose"
