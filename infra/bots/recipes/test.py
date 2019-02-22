@@ -678,6 +678,7 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
     blacklist(['vk', 'gm', '_', 'drawregionmodes'])
     blacklist(['vk', 'gm', '_', 'filterfastbounds'])
+    blacklist(['vk', 'gm', '_', 'fontmgr_bounds_1_-0.25'])
     blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
     blacklist(['vk', 'gm', '_', 'fontmgr_match'])
     blacklist(['vk', 'gm', '_', 'fontregen'])
@@ -724,6 +725,7 @@ def dm_flags(api, bot):
     match.append('~^InitialTextureClear$')
     match.append('~^RGB565TextureTest$')
     match.append('~^RGBA4444TextureTest$')
+    match.append('~^TextureIdleProcFlushTest$')
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
 
   if 'ANGLE' in bot:
