@@ -128,11 +128,12 @@ void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
+                                        const GrVkResource* resource,
                                         VkPipelineStageFlags srcStageMask,
                                         VkPipelineStageFlags dstStageMask,
                                         bool byRegion,
                                         BarrierType barrierType,
-                                        void* barrier) const {
+                                        void* barrier) {
     SkASSERT(!this->isWrapped());
     SkASSERT(fIsActive);
     // For images we can have barriers inside of render passes but they require us to add more
@@ -175,7 +176,9 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
             break;
         }
     }
-
+    if (resource) {
+        this->addResource(resource);
+    }
 }
 
 void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
@@ -193,7 +196,7 @@ void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
                                                             &vkBuffer,
                                                             &offset));
         fBoundInputBuffers[binding] = vkBuffer;
-        addResource(vbuffer->resource());
+        this->addResource(vbuffer->resource());
     }
 }
 
@@ -208,7 +211,7 @@ void GrVkCommandBuffer::bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibu
                                                           ibuffer->offset(),
                                                           VK_INDEX_TYPE_UINT16));
         fBoundIndexBuffer = vkBuffer;
-        addResource(ibuffer->resource());
+        this->addResource(ibuffer->resource());
     }
 }
 
