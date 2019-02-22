@@ -149,8 +149,7 @@ DEF_GM( return new TypefaceStylesGM(true); )
 static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                                        char character = 'A') {
     struct AliasType {
-        bool antiAlias;
-        bool subpixelAntitalias;
+        SkFont::Edging edging;
         bool inLayer;
     } constexpr aliasTypes[] {
 #ifndef SK_BUILD_FOR_IOS
@@ -164,24 +163,12 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
         //       0x330b19d8 <+88>: ldr    r0, [r4, #0x4]
         // Disable testing embedded bitmaps on iOS for now.
         // See https://bug.skia.org/5530 .
-        { false, false, false },  // aliased
+        { SkFont::Edging::kAlias            , false },
 #endif
-        { true,  false, false },  // anti-aliased
-        { true,  true , false },  // subpixel anti-aliased
-        { true,  false, true  },  // anti-aliased in layer (flat pixel geometry)
-        { true,  true , true  },  // subpixel anti-aliased in layer (flat pixel geometry)
-    };
-
-    auto compute_edging = [](AliasType at) {
-        if (at.antiAlias) {
-            if (at.subpixelAntitalias) {
-                return SkFont::Edging::kSubpixelAntiAlias;
-            } else {
-                return SkFont::Edging::kAntiAlias;
-            }
-        } else {
-            return SkFont::Edging::kAlias;
-        }
+        { SkFont::Edging::kAntiAlias        , false },
+        { SkFont::Edging::kSubpixelAntiAlias, false },
+        { SkFont::Edging::kAntiAlias        , true  },
+        { SkFont::Edging::kSubpixelAntiAlias, true  },
     };
 
     // The hintgasp.ttf is designed for the following sizes to be different.
@@ -229,7 +216,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
             font.setSubpixel(subpixel.requested);
 
             for (const AliasType& alias : aliasTypes) {
-                font.setEdging(compute_edging(alias));
+                font.setEdging(alias.edging);
                 SkAutoCanvasRestore acr(canvas, false);
                 if (alias.inLayer) {
                     canvas->saveLayer(nullptr, &paint);
@@ -292,7 +279,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 
             font.setEmbolden(fakeBold);
             for (const AliasType& alias : aliasTypes) {
-                font.setEdging(compute_edging(alias));
+                font.setEdging(alias.edging);
                 SkAutoCanvasRestore acr(canvas, false);
                 if (alias.inLayer) {
                     canvas->saveLayer(nullptr, &paint);
@@ -343,7 +330,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                 y += dy;
                 x = 5;
 
-                font.setEdging(compute_edging(alias));
+                font.setEdging(alias.edging);
                 SkAutoCanvasRestore acr(canvas, false);
                 if (alias.inLayer) {
                     canvas->saveLayer(nullptr, &paint);
