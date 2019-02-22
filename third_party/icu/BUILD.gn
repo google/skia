@@ -112,16 +112,11 @@ if (skia_use_icu) {
         ]
       }
     }
-    if (is_win) {
-      copy("icudata") {
-        sources = [
-          "../externals/icu/windows/icudt.dll",
-        ]
-        outputs = [
-          "$root_out_dir/icudt.dll",
-        ]
-        data = outputs
-      }
+
+    copy("icudata") {
+      sources = [ "../externals/icu/common/icudtl.dat" ]
+      outputs = [ "$root_out_dir/icudtl.dat" ]
+      data = [ "$root_out_dir/icudtl.dat" ]
     }
   }
 }
