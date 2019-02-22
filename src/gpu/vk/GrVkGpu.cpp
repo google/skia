@@ -1033,6 +1033,10 @@ static bool check_image_info(const GrVkCaps& caps,
         }
     }
 
+    if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
+        return false;
+    }
+
     SkASSERT(GrVkFormatPixelConfigPairIsValid(info.fFormat, config));
     return true;
 }
@@ -1103,7 +1107,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (VK_NULL_HANDLE == info.fImage) {
+    if (!check_image_info(this->vkCaps(), info, backendRT.config())) {
         return nullptr;
     }
 
@@ -1135,9 +1139,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (VK_NULL_HANDLE == imageInfo.fImage) {
+    if (!check_image_info(this->vkCaps(), imageInfo, tex.config())) {
         return nullptr;
     }
+
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
