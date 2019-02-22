@@ -318,6 +318,19 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         return false;
     }
 
+    // can't inset by a negative or non-finite amount
+    if (inset < -SK_ScalarNearlyZero || !SkScalarIsFinite(inset)) {
+        return false;
+    }
+
+    // insetting close to zero just returns the original poly
+    if (inset <= SK_ScalarNearlyZero) {
+        for (int i = 0; i < inputPolygonSize; ++i) {
+            *insetPolygon->push() = inputPolygonVerts[i];
+        }
+        return true;
+    }
+
     // get winding direction
     int winding = SkGetPolygonWinding(inputPolygonVerts, inputPolygonSize);
     if (0 == winding) {
@@ -1145,6 +1158,14 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
 
     if (!SkScalarIsFinite(offset)) {
         return false;
+    }
+
+    // offsetting close to zero just returns the original poly
+    if (SkScalarNearlyZero(offset)) {
+        for (int i = 0; i < inputPolygonSize; ++i) {
+            *offsetPolygon->push() = inputPolygonVerts[i];
+        }
+        return true;
     }
 
     // get winding direction
