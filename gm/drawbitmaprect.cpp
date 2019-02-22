@@ -118,7 +118,7 @@ static void imagesubsetproc(SkCanvas* canvas, SkImage* image, const SkBitmap& bm
         return;
     }
 
-    if (sk_sp<SkImage> subset = image->makeSubset(srcR)) {
+    if (sk_sp<SkImage> subset = image->makeSubset(canvas->getGrContext(), srcR)) {
         canvas->drawImageRect(subset, dstR, paint);
     }
 }

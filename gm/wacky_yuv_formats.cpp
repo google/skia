@@ -1007,8 +1007,8 @@ protected:
                 canvas->drawImage(yuv, x, y);
                 y += kTileWidthHeight + kPad;
 
-                auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
-                                                              kTileWidthHeight / 2));
+                auto subset = yuv->makeSubset(context, SkIRect::MakeWH(kTileWidthHeight / 2,
+                                                                       kTileWidthHeight / 2));
                 canvas->drawImage(subset, x, y);
                 y += kTileWidthHeight + kPad;
 
