@@ -67,6 +67,7 @@ var CanvasKit = {
 	_MakeSkVertices: function() {},
 	_MakeTwoPointConicalGradientShader: function() {},
 	_decodeImage: function() {},
+	_drawShapedText: function() {},
 	_getRasterDirectSurface: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
@@ -76,6 +77,11 @@ var CanvasKit = {
 	_testing: {},
 
 	// Objects and properties on CanvasKit
+
+	ShapedText: {
+		// public API (from C++ bindings)
+		getBounds: function() {},
+	},
 
 	SkCanvas: {
 		// public API (from C++ bindings)

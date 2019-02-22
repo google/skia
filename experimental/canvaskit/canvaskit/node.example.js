@@ -73,7 +73,7 @@ function fancyAPI(CanvasKit) {
   canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
   canvas.drawPath(skpath, paint);
-  canvas.drawText('Try Clicking!', 10, 280, textFont, textPaint);
+  canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
 
   surface.flush();
 
