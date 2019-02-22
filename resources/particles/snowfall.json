@@ -33,6 +33,7 @@
       {
          "Type": "SkLinearVelocityAffector",
          "Force": false,
+         "Local": false,
          "Angle": {
             "XValues": [],
             "Segments": [
@@ -40,11 +41,11 @@
                   "Constant": true,
                   "Ranged": true,
                   "Bidirectional": false,
-                  "A0": 80,
+                  "A0": 170,
                   "B0": 1,
                   "C0": 0,
                   "D0": 0,
-                  "A1": 100,
+                  "A1": 190,
                   "B1": 0,
                   "C1": 0,
                   "D1": 0
