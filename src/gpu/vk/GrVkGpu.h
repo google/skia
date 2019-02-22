@@ -104,11 +104,13 @@ public:
                           VkPipelineStageFlags dstStageMask,
                           bool byRegion,
                           VkMemoryBarrier* barrier) const;
-    void addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
+    void addBufferMemoryBarrier(const GrVkResource*,
+                                VkPipelineStageFlags srcStageMask,
                                 VkPipelineStageFlags dstStageMask,
                                 bool byRegion,
                                 VkBufferMemoryBarrier* barrier) const;
-    void addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
+    void addImageMemoryBarrier(const GrVkResource*,
+                               VkPipelineStageFlags srcStageMask,
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion,
                                VkImageMemoryBarrier* barrier) const;

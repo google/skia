@@ -39,11 +39,12 @@ public:
     };
 
     void pipelineBarrier(const GrVkGpu* gpu,
+                         const GrVkResource* resource,
                          VkPipelineStageFlags srcStageMask,
                          VkPipelineStageFlags dstStageMask,
                          bool byRegion,
                          BarrierType barrierType,
-                         void* barrier) const;
+                         void* barrier);
 
     void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkVertexBuffer* vbuffer);
 
