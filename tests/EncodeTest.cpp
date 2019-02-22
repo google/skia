@@ -23,6 +23,11 @@
 #include <string>
 #include <vector>
 
+// FIXME: Update the Google3 build's dependencies so it can run this test.
+#ifndef SK_BUILD_FOR_GOOGLE3
+#include "webp/decode.h"
+#endif
+
 static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& src) {
     switch (format) {
         case SkEncodedImageFormat::kJPEG:
@@ -285,6 +290,54 @@ DEF_TEST(Encode_PngOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 0));
 }
+
+#ifndef SK_BUILD_FOR_GOOGLE3
+DEF_TEST(Encode_WebpQuality, r) {
+    SkBitmap bm;
+    bm.allocN32Pixels(100, 100);
+    bm.eraseColor(SK_ColorBLUE);
+
+    auto dataLossy    = SkEncodeBitmap(bm, SkEncodedImageFormat::kWEBP, 99);
+    auto dataLossLess = SkEncodeBitmap(bm, SkEncodedImageFormat::kWEBP, 100);
+
+    enum Format {
+        kMixed    = 0,
+        kLossy    = 1,
+        kLossless = 2,
+    };
+
+    auto test = [&r](const sk_sp<SkData>& data, Format expected) {
+        auto printFormat = [](int f) {
+            switch (f) {
+                case kMixed:    return "mixed";
+                case kLossy:    return "lossy";
+                case kLossless: return "lossless";
+                default:        return "unknown";
+            }
+        };
+
+        if (!data) {
+            ERRORF(r, "Failed to encode. Expected %s", printFormat(expected));
+            return;
+        }
+
+        WebPBitstreamFeatures features;
+        auto status = WebPGetFeatures(data->bytes(), data->size(), &features);
+        if (status != VP8_STATUS_OK) {
+            ERRORF(r, "Encode had an error %i. Expected %s", status, printFormat(expected));
+            return;
+        }
+
+        if (expected != features.format) {
+            ERRORF(r, "Expected %s encode, but got format %s", printFormat(expected),
+                                                               printFormat(features.format));
+        }
+    };
+
+    test(dataLossy,    kLossy);
+    test(dataLossLess, kLossless);
+}
+#endif
 
 DEF_TEST(Encode_WebpOptions, r) {
     SkBitmap bitmap;
