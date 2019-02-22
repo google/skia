@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95e9271d_f77f9b92",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-22T20:19:23Z",
+      "side": 1,
+      "message": "Can you skia_use_system_harfbuzz to CanvasKit\u0027s compile.sh ?\n\nAdd it https://github.com/google/skia/blob/3bc37fd63b8bd7a76414d64013770b77c170401f/experimental/canvaskit/compile.sh#L112\n\n(and probably make that 3 lines instead of 1)",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 28
+      },
+      "revId": "cabe6854080acb922176f7e5a239e96a3d3a1c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
