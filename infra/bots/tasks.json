@@ -1252,92 +1252,92 @@
         "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
       "tasks": [
-        "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"
+        "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"
       ]
     },
-    "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
+        "Upload-Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
       ]
     },
-    "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
+    "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer"
+        "Upload-Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"
+        "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
+        "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN"
       ]
     },
-    "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer"
+        "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
+      ]
+    },
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+      "tasks": [
+        "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All"
+      ]
+    },
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
+      "tasks": [
+        "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan"
+      ]
+    },
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
+      "tasks": [
+        "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
+      ]
+    },
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
+      "tasks": [
+        "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
       "tasks": [
-        "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
+        "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
+    "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
       "tasks": [
-        "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN"
+        "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
+        "Upload-Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
       "tasks": [
-        "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All"
-      ]
-    },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
-      "tasks": [
-        "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan"
-      ]
-    },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
-      "tasks": [
-        "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
-      ]
-    },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
-      "tasks": [
-        "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer"
+        "Upload-Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
+    "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
+        "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
+    "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
       "tasks": [
-        "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All"
+        "Upload-Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
+    "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
-      ]
-    },
-    "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
-      "tasks": [
-        "Upload-Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer"
+        "Upload-Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer"
       ],
       "trigger": "master"
     },
@@ -2520,128 +2520,133 @@
         "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"
+        "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer"
+        "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
+        "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts"
+        "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts"
       ]
     },
-    "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer"
+        "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN"
+      ]
+    },
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
+      "tasks": [
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts"
+      ]
+    },
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+      "tasks": [
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
+      ]
+    },
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN": {
+      "tasks": [
+        "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN"
+      ]
+    },
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+      "tasks": [
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All"
+      ]
+    },
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
+      "tasks": [
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL": {
       "tasks": [
-        "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts"
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
       "tasks": [
-        "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN"
+        "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
+    "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer"
+        "Upload-Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All"
+      ]
+    },
+    "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
+      "tasks": [
+        "Upload-Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
+    "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"
+        "Upload-Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
+    "Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan"
+        "Upload-Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL": {
+    "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
       "tasks": [
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL"
+        "Upload-Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
+    "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
-      ]
-    },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
-      "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"
-      ]
-    },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
-      "tasks": [
-        "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
-      ]
-    },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN": {
-      "tasks": [
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN"
-      ]
-    },
-    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
-      "tasks": [
-        "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All"
-      ]
-    },
-    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
-      "tasks": [
-        "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer"
+        "Upload-Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer"
       ],
       "trigger": "master"
     },
-    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
+    "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
+        "Upload-Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
       ]
     },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
@@ -32035,7 +32040,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -32112,7 +32117,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32146,7 +32151,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -32223,7 +32228,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32257,7 +32262,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
+    "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -32334,7 +32339,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32368,7 +32373,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -32445,340 +32450,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Mac-Clang-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:8086:1626",
-        "os:Mac-10.13.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "perf"
-      ]
-    },
-    "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:39"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:173"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "perf",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Mac-Clang-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:8086:1626",
-        "os:Mac-10.13.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "perf"
-      ]
-    },
-    "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:39"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:173"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "perf",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Mac-Clang-x86_64-Release-CommandBuffer"
-      ],
-      "dimensions": [
-        "gpu:8086:1626",
-        "os:Mac-10.13.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "perf"
-      ]
-    },
-    "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:39"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:173"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "perf",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32812,7 +32484,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -32889,7 +32561,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -32923,7 +32595,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -33000,7 +32672,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33034,7 +32706,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -33111,7 +32783,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33145,7 +32817,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -33222,7 +32894,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33256,7 +32928,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -33333,7 +33005,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33367,7 +33039,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -33444,7 +33116,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33478,7 +33150,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
+    "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -33555,7 +33227,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33589,7 +33261,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
+    "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -33666,7 +33338,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33701,7 +33373,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
+    "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -33778,7 +33450,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33813,7 +33485,7 @@
         "perf"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
+    "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -33890,7 +33562,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -33902,6 +33574,339 @@
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
         "os:Mac-10.13.6",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:8086:1626",
+        "os:Mac-10.14.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:8086:1626",
+        "os:Mac-10.14.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Release-CommandBuffer"
+      ],
+      "dimensions": [
+        "gpu:8086:1626",
+        "os:Mac-10.14.3",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -59607,7 +59612,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -59684,7 +59689,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -59718,7 +59723,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -59795,7 +59800,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -59829,7 +59834,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -59906,7 +59911,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -59940,7 +59945,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
+    "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -60017,7 +60022,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -60051,7 +60056,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -60128,340 +60133,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Mac-Clang-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:8086:1626",
-        "os:Mac-10.13.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:39"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:173"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "test",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
-      ],
-      "dimensions": [
-        "gpu:8086:1626",
-        "os:Mac-10.13.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:39"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:173"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "test",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Mac-Clang-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:8086:1626",
-        "os:Mac-10.13.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:39"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:173"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "test",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -60495,7 +60167,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN": {
       "caches": [
         {
           "name": "vpython",
@@ -60572,7 +60244,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -60606,7 +60278,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -60683,7 +60355,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -60717,7 +60389,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -60794,7 +60466,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -60828,7 +60500,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -60905,7 +60577,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All-TSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -60939,7 +60611,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -61016,7 +60688,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61050,7 +60722,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -61127,7 +60799,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61161,7 +60833,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
       "caches": [
         {
           "name": "vpython",
@@ -61238,7 +60910,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61272,7 +60944,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -61349,7 +61021,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61383,7 +61055,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL": {
       "caches": [
         {
           "name": "vpython",
@@ -61460,7 +61132,7 @@
         "-recipe",
         "compute_test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61494,7 +61166,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -61571,7 +61243,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61605,7 +61277,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
       "caches": [
         {
           "name": "vpython",
@@ -61682,7 +61354,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61716,7 +61388,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -61793,7 +61465,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61827,7 +61499,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN": {
+    "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -61904,7 +61576,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-TSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -61938,7 +61610,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
+    "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -62015,7 +61687,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -62050,7 +61722,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
+    "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -62127,7 +61799,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -62162,7 +61834,7 @@
         "test"
       ]
     },
-    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
+    "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -62239,7 +61911,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -62251,6 +61923,450 @@
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
         "os:Mac-10.13.6",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i5-5350U",
+        "os:Mac-10.14.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:8086:1626",
+        "os:Mac-10.14.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      ],
+      "dimensions": [
+        "gpu:8086:1626",
+        "os:Mac-10.14.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:173"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:8086:1626",
+        "os:Mac-10.14.3",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85211,7 +85327,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
+    "Upload-Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -85278,13 +85394,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
+        "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85311,7 +85427,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
+    "Upload-Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -85378,13 +85494,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer"
+        "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85411,7 +85527,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+    "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -85478,13 +85594,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
+        "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85511,7 +85627,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
+    "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -85578,13 +85694,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer"
+        "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85611,7 +85727,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -85678,13 +85794,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
+        "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85711,7 +85827,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
+    "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -85778,13 +85894,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
+        "Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85811,7 +85927,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
+    "Upload-Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -85878,13 +85994,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer"
+        "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -85911,7 +86027,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
+    "Upload-Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -85978,13 +86094,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
+        "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -86011,7 +86127,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
+    "Upload-Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -86078,13 +86194,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
+        "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -86111,7 +86227,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
+    "Upload-Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -86178,13 +86294,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer"
+        "Perf-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -102576,7 +102692,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
+    "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -102643,13 +102759,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"
+        "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -102676,7 +102792,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
+    "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -102743,13 +102859,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer"
+        "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -102776,7 +102892,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
+    "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -102843,13 +102959,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
+        "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -102876,7 +102992,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
+    "Upload-Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -102943,13 +103059,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts"
+        "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -102976,7 +103092,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -103043,13 +103159,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"
+        "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103076,7 +103192,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -103143,13 +103259,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer"
+        "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103176,7 +103292,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -103243,13 +103359,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
+        "Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103276,7 +103392,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -103343,13 +103459,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103376,7 +103492,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -103443,13 +103559,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103476,7 +103592,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
       "caches": [
         {
           "name": "vpython",
@@ -103543,13 +103659,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103576,7 +103692,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -103643,13 +103759,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103676,7 +103792,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -103743,13 +103859,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103776,7 +103892,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
       "caches": [
         {
           "name": "vpython",
@@ -103843,13 +103959,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103876,7 +103992,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
+    "Upload-Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
       "caches": [
         {
           "name": "vpython",
@@ -103943,13 +104059,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan"
+        "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -103976,7 +104092,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
+    "Upload-Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -104043,13 +104159,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All"
+        "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -104076,7 +104192,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
+    "Upload-Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -104143,13 +104259,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"
+        "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -104176,7 +104292,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
+    "Upload-Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -104243,13 +104359,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan"
+        "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -104276,7 +104392,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
+    "Upload-Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
       "caches": [
         {
           "name": "vpython",
@@ -104343,13 +104459,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All"
+        "Test-Mac10.14-Clang-MacBookAir7.2-CPU-AVX2-x86_64-Debug-All-NativeFonts"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -104376,7 +104492,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
+    "Upload-Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -104443,13 +104559,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer"
+        "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -104476,7 +104592,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
+    "Upload-Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
       "caches": [
         {
           "name": "vpython",
@@ -104543,13 +104659,113 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All"
+        "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
