@@ -395,6 +395,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			task_os = "Win"
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
 			task_os = "Debian9"
+		} else if strings.Contains(task_os, "Mac") {
+			task_os = "Mac"
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
@@ -449,6 +451,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        DEFAULT_OS_MAC,
+			"Mac10.13":   DEFAULT_OS_MAC,
+			"Mac10.14":   "Mac-10.14.3",
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Ubuntu18":   "Ubuntu-18.04",
@@ -535,6 +539,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				},
 				"AVX2": {
 					"GCE":            "x86-64-Haswell_GCE",
+					"MacBookAir7.2":  "x86-64-i5-5350U",
 					"MacBookPro11.5": "x86-64-i7-4870HQ",
 					"NUC5i7RYH":      "x86-64-i7-5557U",
 				},
