@@ -57,6 +57,7 @@ SKOTTIE_BINDINGS="$BASE_DIR/skottie_bindings.cpp\
   src/core/SkColorMatrixFilterRowMajor255.cpp \
   src/core/SkCubicMap.cpp \
   src/core/SkTime.cpp \
+  src/effects/SkTableColorFilter.cpp \
   src/effects/imagefilters/SkDropShadowImageFilter.cpp \
   src/pathops/SkOpBuilder.cpp \
   src/utils/SkJSON.cpp \
