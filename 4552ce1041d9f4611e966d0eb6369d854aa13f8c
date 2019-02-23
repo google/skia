@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "849d35ce_290afd0d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-23T00:12:38Z",
+      "side": 1,
+      "message": "I noticed that SkAndroidFrameworkUtils already has a getSurfaceFromCanvas function and is already set up as our \"backdoor\" way to access private canvas stuff. Can we just pass the SkCanvas through the function and then on Android side we can extract the surface?",
+      "range": {
+        "startLine": 2557,
+        "startChar": 17,
+        "endLine": 2557,
+        "endChar": 29
+      },
+      "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
