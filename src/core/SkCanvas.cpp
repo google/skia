@@ -973,6 +973,12 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
 
+    // If we have a backdrop filter, then we must apply it to the entire layer (clip-bounds)
+    // regardless of any hint-rect from the caller. skbug.com/8783
+    if (rec.fBackdrop) {
+        bounds = nullptr;
+    }
+
     SkLazyPaint lazyP;
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
