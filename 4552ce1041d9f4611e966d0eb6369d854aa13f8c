@@ -70,6 +70,30 @@
       "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67757867_56d528b4",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-02-23T02:17:55Z",
+      "side": 1,
+      "message": "I think it is ugly to pass to the client SkCanvas, when it needs SkSurface. We should not rely on \"backdoor\" SkAndroidFrameworksUtils::getSurfaceFromCanvas and should try to delete backdoor API (maybe when Android GL pipeline is not needed anymore).\nI suggest another reviewer (Derek or Mike) to chime in and sway which way to go (passing SkCanvas or SKSurface).",
+      "parentUuid": "c057382d_9441efa3",
+      "range": {
+        "startLine": 2557,
+        "startChar": 17,
+        "endLine": 2557,
+        "endChar": 29
+      },
+      "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
