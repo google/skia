@@ -46,6 +46,30 @@
       "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c057382d_9441efa3",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-23T01:58:11Z",
+      "side": 1,
+      "message": "No other approach needs the surface. The API was designed so that no client should need the SkCanvas or SkSurface. The issue is that Android is set up in a way where it doesn\u0027t know whether or not it is in a layer and thus we are having to punch wholes into Skia to make up for a deficiency in Android. Therefore I would rather have as few changes to Skia as possible and thus this doesn\u0027t have to work for non-android clients.",
+      "parentUuid": "42bad0b3_c7402f21",
+      "range": {
+        "startLine": 2557,
+        "startChar": 17,
+        "endLine": 2557,
+        "endChar": 29
+      },
+      "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
