@@ -22,6 +22,30 @@
       "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42bad0b3_c7402f21",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-02-23T01:10:37Z",
+      "side": 1,
+      "message": "Current approach has the advantage of working for non-Android clients and easier on the user (one vs two API calls)",
+      "parentUuid": "849d35ce_290afd0d",
+      "range": {
+        "startLine": 2557,
+        "startChar": 17,
+        "endLine": 2557,
+        "endChar": 29
+      },
+      "revId": "4552ce1041d9f4611e966d0eb6369d854aa13f8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
