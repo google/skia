@@ -19,7 +19,7 @@
 // As we have not #define'd WUFFS_IMPLEMENTATION, the #include here is
 // including a header file, even though that file name ends in ".c".
 #include "wuffs-v0.2.c"
-#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1605
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1640
 #error "Wuffs version is too old. Upgrade to the latest version."
 #endif
 
