@@ -110,7 +110,7 @@ static void adjust_non_rectilinear_outset(const Sk4f& xdiff, const Sk4f& ydiff, 
     Sk4f cosTheta = fma(xdiff, nextCW(xdiff), ydiff * nextCW(ydiff));
     *outset *= (1.f - cosTheta * cosTheta).rsqrt();
     // But clamp to make sure we don't expand by a giant amount if the sheer is really high
-    *outset = Sk4f::Max(-3.f, Sk4f::Min(*outset, 3.f));
+    *outset = Sk4f::Max(-100.f, Sk4f::Min(*outset, 100.f));
 }
 
 // Computes the vertices for the two nested quads used to create AA edges. The original single quad
