@@ -24,12 +24,12 @@ static SkColor4f eval_cubic(const SkColor4f* pts, SkScalar x) {
     return pts[0]*(ix*ix*ix) + pts[1]*(3*ix*ix*x) + pts[2]*(3*ix*x*x) + pts[3]*(x*x*x);
 }
 
-SkScalar SkCurveSegment::eval(SkScalar x, SkRandom& random) const {
+SkScalar SkCurveSegment::eval(SkScalar x, SkScalar t, bool negate) const {
     SkScalar result = fConstant ? fMin[0] : eval_cubic(fMin, x);
     if (fRanged) {
-        result += ((fConstant ? fMax[0] : eval_cubic(fMax, x)) - result) * random.nextF();
+        result += ((fConstant ? fMax[0] : eval_cubic(fMax, x)) - result) * t;
     }
-    if (fBidirectional && random.nextBool()) {
+    if (fBidirectional && negate) {
         result = -result;
     }
     return result;
@@ -66,7 +66,12 @@ SkScalar SkCurve::eval(SkScalar x, SkRandom& random) const {
         segmentX = rangeMin;
     }
     SkASSERT(0.0f <= segmentX && segmentX <= 1.0f);
-    return fSegments[i].eval(segmentX, random);
+
+    // Always pull t and negate here, so that the stable generator behaves consistently, even if
+    // our segments use an inconsistent feature-set.
+    SkScalar t = random.nextF();
+    bool negate = random.nextBool();
+    return fSegments[i].eval(segmentX, t, negate);
 }
 
 void SkCurve::visitFields(SkFieldVisitor* v) {
