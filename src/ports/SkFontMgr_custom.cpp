@@ -48,7 +48,7 @@ int SkTypeface_Custom::getIndex() const { return fIndex; }
 
 SkTypeface_Empty::SkTypeface_Empty() : INHERITED(SkFontStyle(), false, true, SkString(), 0) {}
 
-SkStreamAsset* SkTypeface_Empty::onOpenStream(int*) const { return nullptr; }
+std::unique_ptr<SkStreamAsset> SkTypeface_Empty::onOpenStream(int*) const { return nullptr; }
 
 sk_sp<SkTypeface> SkTypeface_Empty::onMakeClone(const SkFontArguments& args) const {
     return sk_ref_sp(this);
@@ -61,9 +61,9 @@ SkTypeface_Stream::SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
     , fData(std::move(fontData))
 { }
 
-SkStreamAsset* SkTypeface_Stream::onOpenStream(int* ttcIndex) const {
+std::unique_ptr<SkStreamAsset> SkTypeface_Stream::onOpenStream(int* ttcIndex) const {
     *ttcIndex = fData->getIndex();
-    return fData->getStream()->duplicate().release();
+    return fData->getStream()->duplicate();
 }
 
 std::unique_ptr<SkFontData> SkTypeface_Stream::onMakeFontData() const {
@@ -92,9 +92,9 @@ SkTypeface_File::SkTypeface_File(const SkFontStyle& style, bool isFixedPitch, bo
     , fPath(path)
 { }
 
-SkStreamAsset* SkTypeface_File::onOpenStream(int* ttcIndex) const {
+std::unique_ptr<SkStreamAsset> SkTypeface_File::onOpenStream(int* ttcIndex) const {
     *ttcIndex = this->getIndex();
-    return SkStream::MakeFromFile(fPath.c_str()).release();
+    return SkStream::MakeFromFile(fPath.c_str());
 }
 
 sk_sp<SkTypeface> SkTypeface_File::onMakeClone(const SkFontArguments& args) const {
