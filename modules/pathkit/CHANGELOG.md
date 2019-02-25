@@ -6,8 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+
+## [0.6.0] 2019-02-25
+
 ### Fixed
  - Potential bug in `ready()` if already loaded.
+
+### Removed
+ - Deprecated `PathKitInit.then()` see 0.5.1 notes.
 
 ## [0.5.1] 2019-01-04
 
