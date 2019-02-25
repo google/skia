@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "41545ea8_20d4eabe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "Yes, this could certainly get us closer to doing that.\n\nIf Wuffs can do subsetting in a way that prevents allocating memory for the entire image, that would fit with the original goal of subsetting. If SkWuffsCodec does it just by drawing a subset, there\u0027s less of a benefit to doing it here (though I suppose it still saves some memory).",
+      "parentUuid": "14c8a4d0_c944520e",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "73bdbb8b_a9010f8f",
         "filename": "src/codec/SkScalingCodec.h",
         "patchSetId": 1
@@ -30,6 +48,23 @@
       "writtenOn": "2019-02-22T21:38:24Z",
       "side": 1,
       "message": "Perhaps:\n\nint w \u003d requested.width();\nint h \u003d requested.height();\nreturn w \u003e\u003d 1 \u0026\u0026 w \u003c\u003d dim.width() \u0026\u0026 h \u003e\u003d 1 \u0026\u0026 h \u003c\u003d dim.height();\n\nThis is getting pretty minor, but personally, I\u0027d also re-write that last line so that all of the inequalities point the same way, so it\u0027s a little more obvious that you\u0027re checking that w is in the range [1, dim.width()] and likewise for h:\n\nreturn 1 \u003c\u003d w \u0026\u0026 w \u003c\u003d dim.width() \u0026\u0026 1 \u003c\u003d h \u0026\u0026 h \u003c\u003d dim.height();\n\nJust a suggestion.",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41972aa1_202cce25",
+        "filename": "src/codec/SkScalingCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "I like it. Thanks! Done.",
       "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +111,24 @@
     },
     {
       "key": {
+        "uuid": "87d8e2a3_3e01d612",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3430197_dbd5eb0a",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65a25d89_17e71c2b",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -90,6 +143,24 @@
       "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "869e56e1_30dfb287",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65a25d89_17e71c2b",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +181,24 @@
     },
     {
       "key": {
+        "uuid": "c23e066b_09b0cb80",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "Matched the nearby code.",
+      "parentUuid": "a5f3bde8_d28303dc",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c492c85_04cc1116",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -124,6 +213,24 @@
       "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76c05e2d_5ea54671",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c492c85_04cc1116",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -144,6 +251,24 @@
     },
     {
       "key": {
+        "uuid": "b16e64a8_41599fc9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "Yes, that would be part of getInfo(). When you create the SkEncodedInfo, you can supply an skcms_ICCProfile, which getInfo() will convert to an SkColorSpace.\n\nYou\u0027re right to question this, though - not all skcms_ICCProfile have corresponding SkColorSpaces. In that case, we (currently) convert to SRGB. But the approach in this CL does not handle that case.\n\nI talked about this with brianosman@. skcms_ICCProfiles that do *not* have corresponding SkColorSpaces are very rare. It *might* make sense for them to have a special case that requires an extra temporary memory allocation. OTOH, maybe we should stick with the old approach and use the same code for all images.",
+      "parentUuid": "015b1133_b99783e6",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61e65f80_ca472483",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -155,6 +280,24 @@
       "writtenOn": "2019-02-22T21:38:24Z",
       "side": 1,
       "message": "Just confirming that you want Unpremul. Wuffs can generate Premul, if it would be faster in the subsequent drawBitmap call.\n\nSpecifically for GIF (which has only 0% or 100% transparency), the src pixels are actually in both Premul and Unpremul form (so conversion is a no-op), but some day in the future, we might use re-use this code for other image formats.\n\nIn any case, I\u0027m talking about performance, not just correctness. Perhaps we should punt this to a future CL (with its own benchmark measurements)...",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "751469a1_0aa19aeb",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T16:28:22Z",
+      "side": 1,
+      "message": "My understanding of skcms is that unpremul should generally be used. I don\u0027t know for sure whether that applies to today\u0027s Skia drawing.\n\nGiven that I\u0027m seeing a regression here, this may be worth exploring.",
+      "parentUuid": "61e65f80_ca472483",
       "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
