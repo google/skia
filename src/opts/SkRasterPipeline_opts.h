@@ -1009,11 +1009,11 @@ STAGE(seed_shader, Ctx::None) {
     dr = dg = db = da = 0;
 }
 
-STAGE(dither, const float* rate) {
+STAGE(dither, const SkRasterPipeline_DitherCtx* c) {
     // Get [(dx,dy), (dx+1,dy), (dx+2,dy), ...] loaded up in integer vectors.
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
-    U32 X = dx + unaligned_load<U32>(iota),
-        Y = dy;
+    U32 X = dx + c->x_offset + unaligned_load<U32>(iota),
+        Y = dy + c->y_offset;
 
     // We're doing 8x8 ordered dithering, see https://en.wikipedia.org/wiki/Ordered_dithering.
     // In this case n=8 and we're using the matrix that looks like 1/64 x [ 0 48 12 60 ... ].
@@ -1032,9 +1032,9 @@ STAGE(dither, const float* rate) {
     // like 0 and 1 unchanged after rounding.
     F dither = cast(M) * (2/128.0f) - (63/128.0f);
 
-    r += *rate*dither;
-    g += *rate*dither;
-    b += *rate*dither;
+    r += c->rate*dither;
+    g += c->rate*dither;
+    b += c->rate*dither;
 
     r = max(0, min(r, a));
     g = max(0, min(g, a));

@@ -72,7 +72,7 @@ private:
     // These values are pointed to by the blit pipelines above,
     // which allows us to adjust them from call to call.
     float fCurrentCoverage = 0.0f;
-    float fDitherRate      = 0.0f;
+    SkRasterPipeline_DitherCtx fDitherCtx = { 0.0f, 0, 0 };
 
     typedef SkBlitter INHERITED;
 };
@@ -160,21 +160,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     // to zero.  We need to decide if we're going to dither now to keep is_constant accurate.
     if (paint.isDither()) {
         switch (dst.info().colorType()) {
-            default:                        blitter->fDitherRate =      0.0f; break;
-            case kARGB_4444_SkColorType:    blitter->fDitherRate =   1/15.0f; break;
-            case   kRGB_565_SkColorType:    blitter->fDitherRate =   1/63.0f; break;
+            default:                        blitter->fDitherCtx.rate =      0.0f; break;
+            case kARGB_4444_SkColorType:    blitter->fDitherCtx.rate =   1/15.0f; break;
+            case   kRGB_565_SkColorType:    blitter->fDitherCtx.rate =   1/63.0f; break;
             case    kGray_8_SkColorType:
             case  kRGB_888x_SkColorType:
             case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:    blitter->fDitherRate =  1/255.0f; break;
+            case kBGRA_8888_SkColorType:    blitter->fDitherCtx.rate =  1/255.0f; break;
             case kRGB_101010x_SkColorType:
-            case kRGBA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
+            case kRGBA_1010102_SkColorType: blitter->fDitherCtx.rate = 1/1023.0f; break;
         }
         // TODO: for constant colors, we could try to measure the effect of dithering, and if
         //       it has no value (i.e. all variations result in the same 32bit color, then we
         //       could disable it (for speed, by not adding the stage).
     }
-    is_constant = is_constant && (blitter->fDitherRate == 0.0f);
+    is_constant = is_constant && (blitter->fDitherCtx.rate == 0.0f);
 
     // We're logically done here.  The code between here and return blitter is all optimization.
 
@@ -267,8 +267,8 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::unpremul);
     }
-    if (fDitherRate > 0.0f) {
-        p->append(SkRasterPipeline::dither, &fDitherRate);
+    if (fDitherCtx.rate > 0.0f) {
+        p->append(SkRasterPipeline::dither, &fDitherCtx);
     }
 
     p->append_store(fDst.info().colorType(), &fDstPtr);
@@ -293,7 +293,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
                     fDst.info().colorType() == kBGRA_8888_SkColorType)
                 && !fDst.colorSpace()
                 && fDst.info().alphaType() != kUnpremul_SkAlphaType
-                && fDitherRate == 0.0f) {
+                && fDitherCtx.rate == 0.0f) {
             if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
                 p.append(SkRasterPipeline::swap_rb);
             }

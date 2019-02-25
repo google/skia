@@ -507,7 +507,8 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
 
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = this->info().makeWH(rec.fInfo.width(), rec.fInfo.height());
-    SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes);
+    SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
+                    dstX, dstY);
     this->notifyPixelsChanged();
     return true;
 }

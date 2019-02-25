@@ -162,6 +162,12 @@ struct SkRasterPipeline_2PtConicalCtx {
              fP1;
 };
 
+struct SkRasterPipeline_DitherCtx {
+    float rate;
+    int   x_offset;
+    int   y_offset;
+};
+
 struct SkRasterPipeline_UniformColorCtx {
     float r,g,b,a;
     uint16_t rgba[4];  // [0,255] in a 16-bit lane.

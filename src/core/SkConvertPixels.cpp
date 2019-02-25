@@ -162,7 +162,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
 // Default: Use the pipeline.
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                   const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
-                                  const SkColorSpaceXformSteps& steps) {
+                                  const SkColorSpaceXformSteps& steps, int xOffset, int yOffset) {
 
     SkRasterPipeline_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
                                dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
@@ -174,16 +174,16 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     pipeline.append_gamut_clamp_if_normalized(dstInfo);
 
     // We'll dither if we're decreasing precision below 32-bit.
-    float dither_rate = 0.0f;
+    SkRasterPipeline_DitherCtx dither_ctx = { 0.0f, xOffset, yOffset };
     if (srcInfo.bytesPerPixel() > dstInfo.bytesPerPixel()) {
         switch (dstInfo.colorType()) {
-            case   kRGB_565_SkColorType: dither_rate = 1/63.0f; break;
-            case kARGB_4444_SkColorType: dither_rate = 1/15.0f; break;
-            default:                     dither_rate =    0.0f; break;
+            case   kRGB_565_SkColorType: dither_ctx.rate = 1/63.0f; break;
+            case kARGB_4444_SkColorType: dither_ctx.rate = 1/15.0f; break;
+            default:                     dither_ctx.rate =    0.0f; break;
         }
     }
-    if (dither_rate > 0) {
-        pipeline.append(SkRasterPipeline::dither, &dither_rate);
+    if (dither_ctx.rate > 0) {
+        pipeline.append(SkRasterPipeline::dither, &dither_ctx);
     }
 
     pipeline.append_store(dstInfo.colorType(), &dst);
@@ -191,7 +191,8 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
 }
 
 void SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t dstRB,
-                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
+                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
+                     int xOffset, int yOffset) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
@@ -203,5 +204,6 @@ void SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t d
             return;
         }
     }
-    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps);
+    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, steps,
+                          xOffset, yOffset);
 }
