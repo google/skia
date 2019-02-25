@@ -575,6 +575,31 @@ DEF_TEST(SkSLDerivatives, r) {
          "void main() {\n"
          "    sk_FragColor.x = dFdx(1.0);\n"
          "}\n");
+
+    SkSL::Program::Settings settings;
+    settings.fFlipY = false;
+    auto caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    SkSL::Program::Inputs inputs;
+    test(r,
+         "void main() { sk_FragColor.r = half(dFdx(1)), sk_FragColor.g = half(dFdy(1)); }",
+         settings,
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    (sk_FragColor.x = dFdx(1.0) , sk_FragColor.y = dFdy(1.0));\n"
+         "}\n",
+         &inputs);
+    settings.fFlipY = true;
+    test(r,
+         "void main() { sk_FragColor.r = half(dFdx(1)), sk_FragColor.g = half(dFdy(1)); }",
+         settings,
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    (sk_FragColor.x = dFdx(1.0) , sk_FragColor.y = -dFdy(1.0));\n"
+         "}\n",
+         &inputs);
 }
 
 
