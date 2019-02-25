@@ -16,6 +16,24 @@
       "revId": "5ffaddcc995d78a9088c3266f9b54e698257343f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b186a69_c2ffa8f4",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-02-25T15:47:04Z",
+      "side": 1,
+      "message": "It\u0027s not used anywhere else, so I didn\u0027t think it was necessary.",
+      "parentUuid": "4a57126f_ca090e0e",
+      "revId": "5ffaddcc995d78a9088c3266f9b54e698257343f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
