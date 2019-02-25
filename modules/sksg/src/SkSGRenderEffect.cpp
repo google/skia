@@ -105,4 +105,26 @@ sk_sp<SkImageFilter> DropShadowImageFilter::onRevalidateFilter() {
                                          fColor, mode, this->refInput(0));
 }
 
+sk_sp<BlendModeEffect> BlendModeEffect::Make(sk_sp<RenderNode> child, SkBlendMode mode) {
+    return child ? sk_sp<BlendModeEffect>(new BlendModeEffect(std::move(child), mode))
+                 : nullptr;
+}
+
+BlendModeEffect::BlendModeEffect(sk_sp<RenderNode> child, SkBlendMode mode)
+    : INHERITED(std::move(child))
+    , fMode(mode) {}
+
+BlendModeEffect::~BlendModeEffect() = default;
+
+void BlendModeEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    const auto local_ctx = ScopedRenderContext(canvas, ctx).modulateBlendMode(fMode);
+
+    this->INHERITED::onRender(canvas, local_ctx);
+}
+
+const RenderNode* BlendModeEffect::onNodeAt(const SkPoint& p) const {
+    // TODO: we likely need to do something more sophisticated than delegate to descendants here.
+    return this->INHERITED::onNodeAt(p);
+}
+
 } // namespace sksg
