@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a57126f_ca090e0e",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-02-25T15:45:37Z",
+      "side": 1,
+      "message": "Should this be in the top level vars? (like CIPD_PKGS_GSUTIL)",
+      "revId": "5ffaddcc995d78a9088c3266f9b54e698257343f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
