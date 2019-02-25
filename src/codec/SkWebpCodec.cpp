@@ -176,21 +176,6 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
                                                     demux.release(), std::move(data), origin));
 }
 
-SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
-    SkISize dim = this->dimensions();
-    // SkCodec treats zero dimensional images as errors, so the minimum size
-    // that we will recommend is 1x1.
-    dim.fWidth = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
-    dim.fHeight = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fHeight));
-    return dim;
-}
-
-bool SkWebpCodec::onDimensionsSupported(const SkISize& dim) {
-    const SkEncodedInfo& info = this->getEncodedInfo();
-    return dim.width() >= 1 && dim.width() <= info.width()
-            && dim.height() >= 1 && dim.height() <= info.height();
-}
-
 static WEBP_CSP_MODE webp_decode_mode(SkColorType dstCT, bool premultiply) {
     switch (dstCT) {
         case kBGRA_8888_SkColorType:
