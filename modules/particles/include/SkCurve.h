@@ -45,7 +45,7 @@ class SkRandom;
  */
 
 struct SkCurveSegment {
-    SkScalar eval(SkScalar x, SkRandom& random) const;
+    SkScalar eval(SkScalar x, SkScalar t, bool negate) const;
     void visitFields(SkFieldVisitor* v);
 
     void setConstant(SkScalar c) {

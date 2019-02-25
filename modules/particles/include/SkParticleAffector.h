@@ -21,7 +21,8 @@ class SkParticleAffector : public SkReflected {
 public:
     REFLECTED_ABSTRACT(SkParticleAffector, SkReflected)
 
-    virtual void apply(SkParticleUpdateParams& params, SkParticleState& ps) = 0;
+    void apply(SkParticleUpdateParams& params, SkParticleState& ps);
+    void visitFields(SkFieldVisitor* v) override;
 
     static void RegisterAffectorTypes();
 
@@ -36,6 +37,11 @@ public:
     static sk_sp<SkParticleAffector> MakeSize(const SkCurve& curve);
     static sk_sp<SkParticleAffector> MakeFrame(const SkCurve& curve);
     static sk_sp<SkParticleAffector> MakeColor(const SkColorCurve& curve);
+
+private:
+    virtual void onApply(SkParticleUpdateParams& params, SkParticleState& ps) = 0;
+
+    bool fEnabled = true;
 };
 
 #endif // SkParticleAffector_DEFINED
