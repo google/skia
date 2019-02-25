@@ -111,12 +111,12 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         }
 
         // Apply spawn affectors, then reset our age to 0 (the *particle* age)
-        for (int i = fCount - numToSpawn; i < fCount; ++i) {
-            for (auto affector : fParams->fSpawnAffectors) {
-                if (affector) {
-                    affector->apply(updateParams, fParticles[i]);
-                }
+        for (auto affector : fParams->fSpawnAffectors) {
+            if (affector) {
+                affector->apply(updateParams, fParticles + (fCount - numToSpawn), numToSpawn);
             }
+        }
+        for (int i = fCount - numToSpawn; i < fCount; ++i) {
             fParticles[i].fAge = 0.0f;
         }
     }
@@ -127,14 +127,14 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     }
 
     // Apply update rules
-    for (int i = 0; i < fCount; ++i) {
-        for (auto affector : fParams->fUpdateAffectors) {
-            if (affector) {
-                affector->apply(updateParams, fParticles[i]);
-            }
+    for (auto affector : fParams->fUpdateAffectors) {
+        if (affector) {
+            affector->apply(updateParams, fParticles, fCount);
         }
+    }
 
-        // Integrate position / orientation
+    // Do fixed-function update work (integration of position and orientation)
+    for (int i = 0; i < fCount; ++i) {
         fParticles[i].fPose.fPosition += fParticles[i].fVelocity.fLinear * deltaTime;
 
         SkScalar c, s = SkScalarSinCos(fParticles[i].fVelocity.fAngular * deltaTime, &c);
