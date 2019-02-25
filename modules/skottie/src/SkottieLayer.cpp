@@ -25,6 +25,7 @@
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGRenderEffect.h"
 #include "SkSGTransform.h"
 
 #include <algorithm>
@@ -169,6 +170,35 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     }
 
     return sksg::MaskEffect::Make(std::move(childNode), std::move(maskNode));
+}
+
+sk_sp<sksg::RenderNode> AttachBlendMode(const skjson::ObjectValue& jlayer,
+                                        sk_sp<sksg::RenderNode> layer) {
+    static constexpr SkBlendMode kBlendModeMap[] = {
+        SkBlendMode::kSrcOver,    // 0:'normal'
+        SkBlendMode::kMultiply,   // 1:'multiply'
+        SkBlendMode::kScreen,     // 2:'screen'
+        SkBlendMode::kOverlay,    // 3:'overlay
+        SkBlendMode::kDarken,     // 4:'darken'
+        SkBlendMode::kLighten,    // 5:'lighten'
+        SkBlendMode::kColorDodge, // 6:'color-dodge'
+        SkBlendMode::kColorBurn,  // 7:'color-burn'
+        SkBlendMode::kHardLight,  // 8:'hard-light'
+        SkBlendMode::kSoftLight,  // 9:'soft-light'
+        SkBlendMode::kDifference, // 10:'difference'
+        SkBlendMode::kExclusion,  // 11:'exclusion'
+        SkBlendMode::kHue,        // 12:'hue'
+        SkBlendMode::kSaturation, // 13:'saturation'
+        SkBlendMode::kColor,      // 14:'color'
+        SkBlendMode::kLuminosity, // 15:'luminosity'
+    };
+
+    const auto bm = ParseDefault<size_t>(jlayer["bm"], 0);
+
+    // Ignore no-op 'normal'.
+    return (bm > 0 && bm < SK_ARRAY_COUNT(kBlendModeMap))
+            ? sksg::BlendModeEffect::Make(std::move(layer), kBlendModeMap[bm])
+            : layer;
 }
 
 } // namespace
@@ -462,7 +492,7 @@ private:
 };
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue* jlayer,
-                                                     AttachLayerContext* layerCtx) const {
+                                                      AttachLayerContext* layerCtx) const {
     if (!jlayer) return nullptr;
 
     const LayerInfo layer_info = {
@@ -525,6 +555,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
         layer = this->attachLayerEffects(*jeffects, &layer_animators, std::move(layer));
     }
+
+    // Optional blend mode.
+    layer = AttachBlendMode(*jlayer, std::move(layer));
 
     class LayerController final : public sksg::GroupAnimator {
     public:
