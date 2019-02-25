@@ -34,6 +34,24 @@
       "revId": "5ffaddcc995d78a9088c3266f9b54e698257343f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95666719_618c1a80",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-02-25T15:52:38Z",
+      "side": 1,
+      "message": "Might be nice to have all of them visible in the top level. I think this is the only one that is not up there (eg: CIPD_PKGS_XCODE).\nThis is just a nit though and upto you.",
+      "parentUuid": "6b186a69_c2ffa8f4",
+      "revId": "5ffaddcc995d78a9088c3266f9b54e698257343f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
