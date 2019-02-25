@@ -158,11 +158,8 @@ private:
         mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
 
-        target->recordDraw(std::move(gp), mesh);
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+        auto pipe = fHelper.makePipeline(target);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Helper fHelper;

@@ -98,17 +98,6 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
     return result;
 }
 
-void GrSimpleMeshDrawOpHelper::executeDrawsAndUploads(
-        const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
-    if (fProcessors) {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, std::move(*fProcessors), fPipelineFlags);
-    } else {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags);
-    }
-}
-
 #ifdef SK_DEBUG
 SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
     const GrProcessorSet& processors = fProcessors ? *fProcessors : GrProcessorSet::EmptySet();
@@ -133,6 +122,42 @@ SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
 }
 #endif
 
+GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
+        GrMeshDrawOp::Target* target) const {
+    GrPipeline::InitArgs args;
+    args.fFlags = this->pipelineFlags();
+    args.fDstProxy = target->dstProxy();
+    args.fCaps = &target->caps();
+    args.fResourceProvider = target->resourceProvider();
+    return args;
+}
+
+auto GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target,
+                                                    const GrPipeline::InitArgs& args,
+                                                    int numPrimitiveProcessorProxies)
+        -> PipelineAndFixedDynamicState {
+    // A caller really should only call this once as the processor set and applied clip get
+    // moved into the GrPipeline.
+    SkASSERT(!fMadePipeline);
+    SkDEBUGCODE(fMadePipeline = true);
+    auto clip = target->detachAppliedClip();
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+    if (clip.scissorState().enabled() || numPrimitiveProcessorProxies) {
+        fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect());
+        if (numPrimitiveProcessorProxies) {
+            fixedDynamicState->fPrimitiveProcessorTextures =
+                    target->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorProxies);
+        }
+    }
+    if (fProcessors) {
+        return {target->allocPipeline(args, std::move(*fProcessors), std::move(clip)),
+                fixedDynamicState};
+    } else {
+        return {target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip)),
+                fixedDynamicState};
+    }
+}
+
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
         const MakeArgs& args, GrAAType aaType, const GrUserStencilSettings* stencilSettings,
         Flags flags)
@@ -154,15 +179,12 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
            fStencilSettings == that.fStencilSettings;
 }
 
-void GrSimpleMeshDrawOpHelperWithStencil::executeDrawsAndUploads(
-        const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
-    if (fProcessors) {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, std::move(*fProcessors), fPipelineFlags, fStencilSettings);
-    } else {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags, fStencilSettings);
-    }
+auto GrSimpleMeshDrawOpHelperWithStencil::makePipeline(GrMeshDrawOp::Target* target,
+                                                       int numPrimitiveProcessorTextures)
+        -> PipelineAndFixedDynamicState {
+    auto args = INHERITED::pipelineInitArgs(target);
+    args.fUserStencil = fStencilSettings;
+    return this->internalMakePipeline(target, args, numPrimitiveProcessorTextures);
 }
 
 #ifdef SK_DEBUG

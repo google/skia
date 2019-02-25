@@ -308,6 +308,7 @@ private:
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
+        const GrPipeline* fPipeline;
         GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fVertexOffset;
         int fInstancesToFlush;
@@ -319,13 +320,16 @@ private:
         static constexpr int kMaxTextures = GrDistanceFieldPathGeoProc::kMaxTextures;
         GR_STATIC_ASSERT(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
 
-        FlushInfo flushInfo;
-        flushInfo.fFixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
+        auto pipe = fHelper.makePipeline(target, kMaxTextures);
         int numActiveProxies = fAtlas->numActivePages();
         const auto proxies = fAtlas->getProxies();
         for (int i = 0; i < numActiveProxies; ++i) {
-            flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+            pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
         }
+
+        FlushInfo flushInfo;
+        flushInfo.fPipeline = pipe.fPipeline;
+        flushInfo.fFixedDynamicState = pipe.fFixedDynamicState;
 
         // Setup GrGeometryProcessor
         const SkMatrix& ctm = fShapes[0].fViewMatrix;
@@ -794,15 +798,11 @@ private:
             mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerQuad, kVerticesPerQuad,
                                       flushInfo->fInstancesToFlush, maxInstancesPerDraw);
             mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-            target->recordDraw(
-                    flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState, nullptr);
+            target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
+                         flushInfo->fFixedDynamicState, mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
         }
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
     }
 
     const SkPMColor4f& color() const { return fShapes[0].fColor; }

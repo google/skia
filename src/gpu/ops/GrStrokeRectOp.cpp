@@ -217,11 +217,8 @@ private:
         GrMesh* mesh = target->allocMesh(primType);
         mesh->setNonIndexedNonInstanced(vertexCount);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+        auto pipe = fHelper.makePipeline(target);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     // TODO: override onCombineIfPossible
@@ -415,7 +412,6 @@ public:
 
 private:
     void onPrepareDraws(Target*) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -504,11 +500,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
                                            info.fDegenerate,
                                            fHelper.compatibleWithAlphaAsCoverage());
     }
-    helper.recordDraw(target, std::move(gp));
-}
-
-void AAStrokeRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+    auto pipe = fHelper.makePipeline(target);
+    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
 sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,

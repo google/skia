@@ -227,12 +227,10 @@ private:
             return;
         }
         mesh->setVertexData(std::move(vbuffer), vertexOffsetInBuffer);
-        target->recordDraw(std::move(gp), mesh);
-    }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
-    }
+        auto pipe = fHelper.makePipeline(target);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+   }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia", TRACE_FUNC);

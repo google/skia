@@ -284,13 +284,9 @@ private:
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        auto fixedDynamicState = target->makeFixedDynamicState(1);
-        fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
-        helper.recordDraw(target, std::move(gp), fixedDynamicState);
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+        auto pipe = fHelper.makePipeline(target, 1);
+        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

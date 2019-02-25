@@ -453,17 +453,28 @@ private:
                 textureType, config, samplerState, extraSamplerKey,
                 std::move(fTextureColorSpaceXform));
 
+        GrPipeline::InitArgs args;
+        args.fCaps = &target->caps();
+        args.fResourceProvider = target->resourceProvider();
+        args.fFlags = 0;
+        if (aaType == GrAAType::kMSAA) {
+            args.fFlags |= GrPipeline::kHWAntialias_Flag;
+        }
+
+        auto clip = target->detachAppliedClip();
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
         GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
         GrPipeline::FixedDynamicState* fixedDynamicState;
         if (numProxies > 1) {
             dynamicStateArrays = target->allocDynamicStateArrays(numProxies, 1, false);
-            fixedDynamicState = target->makeFixedDynamicState(0);
+            fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 0);
         } else {
-            fixedDynamicState = target->makeFixedDynamicState(1);
+            fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
             fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
+        const auto* pipeline =
+                target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
 
         size_t vertexSize = gp->vertexStride();
 
@@ -514,16 +525,8 @@ private:
         }
         SkASSERT(!numQuadVerticesLeft);
         SkASSERT(!numAllocatedVertices);
-        target->recordDraw(
-                std::move(gp), meshes, numProxies, fixedDynamicState, dynamicStateArrays);
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipelineFlags = (GrAAType::kMSAA == this->aaType())
-                ? GrPipeline::kHWAntialias_Flag
-                : 0;
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, GrProcessorSet::MakeEmptySet(), pipelineFlags);
+        target->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
+                     numProxies);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

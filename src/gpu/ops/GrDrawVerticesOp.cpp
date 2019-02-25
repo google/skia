@@ -47,7 +47,6 @@ private:
     };
 
     void onPrepareDraws(Target*) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     void drawVolatile(Target*);
     void drawNonVolatile(Target*);
@@ -503,11 +502,8 @@ void DrawVerticesOp::drawVertices(Target* target,
         mesh->setNonIndexedNonInstanced(fVertexCount);
     }
     mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-    target->recordDraw(std::move(gp), mesh);
-}
-
-void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+    auto pipe = fHelper.makePipeline(target);
+    target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }
 
 GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {

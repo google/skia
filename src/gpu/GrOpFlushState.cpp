@@ -32,19 +32,8 @@ GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
     return fCommandBuffer->asRTCommandBuffer();
 }
 
-void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
-        const GrOp* op, const SkRect& chainBounds, GrProcessorSet&& processorSet,
-        uint32_t pipelineFlags, const GrUserStencilSettings* stencilSettings) {
+void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& opBounds) {
     SkASSERT(this->rtCommandBuffer());
-
-    GrPipeline::InitArgs pipelineArgs;
-    pipelineArgs.fFlags = pipelineFlags;
-    pipelineArgs.fDstProxy = this->dstProxy();
-    pipelineArgs.fCaps = &this->caps();
-    pipelineArgs.fResourceProvider = this->resourceProvider();
-    pipelineArgs.fUserStencil = stencilSettings;
-    GrPipeline pipeline(pipelineArgs, std::move(processorSet), this->detachAppliedClip());
-
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
         while (fCurrUpload != fInlineUploads.end() &&
@@ -52,10 +41,9 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             this->rtCommandBuffer()->inlineUpload(this, fCurrUpload->fUpload);
             ++fCurrUpload;
         }
-        this->rtCommandBuffer()->draw(
-                *fCurrDraw->fGeometryProcessor, pipeline, fCurrDraw->fFixedDynamicState,
-                fCurrDraw->fDynamicStateArrays, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt,
-                chainBounds);
+        this->rtCommandBuffer()->draw(*fCurrDraw->fGeometryProcessor, *fCurrDraw->fPipeline,
+                                      fCurrDraw->fFixedDynamicState, fCurrDraw->fDynamicStateArrays,
+                                      fCurrDraw->fMeshes, fCurrDraw->fMeshCnt, opBounds);
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }
@@ -110,10 +98,10 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
     return fTokenTracker->nextTokenToFlush();
 }
 
-void GrOpFlushState::recordDraw(
-        sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
-        const GrPipeline::FixedDynamicState* fixedDynamicState,
-        const GrPipeline::DynamicStateArrays* dynamicStateArrays) {
+void GrOpFlushState::draw(sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
+                          const GrPipeline::FixedDynamicState* fixedDynamicState,
+                          const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                          const GrMesh meshes[], int meshCnt) {
     SkASSERT(fOpArgs);
     SkASSERT(fOpArgs->fOp);
     bool firstDraw = fDraws.begin() == fDraws.end();
@@ -131,6 +119,7 @@ void GrOpFlushState::recordDraw(
         }
     }
     draw.fGeometryProcessor = std::move(gp);
+    draw.fPipeline = pipeline;
     draw.fFixedDynamicState = fixedDynamicState;
     draw.fDynamicStateArrays = dynamicStateArrays;
     draw.fMeshes = meshes;

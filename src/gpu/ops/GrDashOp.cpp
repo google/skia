@@ -621,12 +621,9 @@ private:
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             pipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }
-        helper.recordDraw(target, std::move(gp));
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, std::move(fProcessorSet));
+        auto pipe = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
+                                         target->detachAppliedClip());
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
