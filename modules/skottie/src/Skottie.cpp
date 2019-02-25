@@ -227,7 +227,8 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fMarkerObserver(std::move(mobserver))
     , fStats(stats)
     , fDuration(duration)
-    , fFrameRate(framerate) {}
+    , fFrameRate(framerate)
+    , fHasNontrivialBlending(false) {}
 
 std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
     this->dispatchMarkers(jroot["markers"]);
@@ -462,8 +463,18 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
         fLogger->log(Logger::Level::kError, "Could not parse animation.\n");
     }
 
-    return sk_sp<Animation>(
-        new Animation(std::move(scene), std::move(version), size, inPoint, outPoint, duration));
+    uint32_t flags = 0;
+    if (builder.hasNontrivialBlending()) {
+        flags |= Flags::kRequiresTopLevelIsolation;
+    }
+
+    return sk_sp<Animation>(new Animation(std::move(scene),
+                                          std::move(version),
+                                          size,
+                                          inPoint,
+                                          outPoint,
+                                          duration,
+                                          flags));
 }
 
 sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
@@ -474,13 +485,14 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
 }
 
 Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
-                     SkScalar inPoint, SkScalar outPoint, SkScalar duration)
+                     SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags)
     : fScene(std::move(scene))
     , fVersion(std::move(version))
     , fSize(size)
     , fInPoint(inPoint)
     , fOutPoint(outPoint)
-    , fDuration(duration) {
+    , fDuration(duration)
+    , fFlags(flags) {
 
     // In case the client calls render before the first tick.
     this->seek(0);
@@ -495,17 +507,31 @@ void Animation::setShowInval(bool show) {
 }
 
 void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
+    this->render(canvas, dstR, 0);
+}
+
+void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderFlags) const {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
     if (!fScene)
         return;
 
     SkAutoCanvasRestore restore(canvas, true);
+
     const SkRect srcR = SkRect::MakeSize(this->size());
     if (dstR) {
         canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
     }
+
+    if ((fFlags & Flags::kRequiresTopLevelIsolation) &&
+        !(renderFlags & RenderFlag::kSkipTopLevelIsolation)) {
+        // The animation uses non-trivial blending, and needs
+        // to be rendered into a separate/transparent layer.
+        canvas->saveLayer(srcR, nullptr);
+    }
+
     canvas->clipRect(srcR);
+
     fScene->render(canvas);
 }
 

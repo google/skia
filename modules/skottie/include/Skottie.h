@@ -190,13 +190,23 @@ public:
 
     ~Animation();
 
+    enum RenderFlag : uint32_t {
+        // When rendering into a known transparent buffer, clients can pass
+        // this flag to avoid some unnecessary compositing overhead for
+        // animations using layer blend modes.
+        kSkipTopLevelIsolation = 0x01,
+    };
+    using RenderFlags = uint32_t;
+
     /**
      * Draws the current animation frame.
      *
      * @param canvas   destination canvas
      * @param dst      optional destination rect
+     * @param flags    optional RenderFlags
      */
     void render(SkCanvas* canvas, const SkRect* dst = nullptr) const;
+    void render(SkCanvas* canvas, const SkRect* dst, RenderFlags) const;
 
     /**
      * Updates the animation state for |t|.
@@ -217,8 +227,12 @@ public:
     void setShowInval(bool show);
 
 private:
+    enum Flags : uint32_t {
+        kRequiresTopLevelIsolation = 1 << 0, // Needs to draw into a layer due to layer blending.
+    };
+
     Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
-              SkScalar inPoint, SkScalar outPoint, SkScalar duration);
+              SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags = 0);
 
     std::unique_ptr<sksg::Scene> fScene;
     const SkString               fVersion;
@@ -226,6 +240,7 @@ private:
     const SkScalar               fInPoint,
                                  fOutPoint,
                                  fDuration;
+    const uint32_t               fFlags;
 
     typedef SkNVRefCnt<Animation> INHERITED;
 };

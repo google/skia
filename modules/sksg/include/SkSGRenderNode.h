@@ -10,6 +10,7 @@
 
 #include "SkSGNode.h"
 
+#include "SkBlendMode.h"
 #include "SkColorFilter.h"
 
 class SkCanvas;
@@ -44,7 +45,8 @@ protected:
     // draw paints, or whether they require content isolation (applied to a layer).
     struct RenderContext {
         sk_sp<SkColorFilter> fColorFilter;
-        float                fOpacity = 1;
+        float                fOpacity   = 1;
+        SkBlendMode          fBlendMode = SkBlendMode::kSrcOver;
 
         // Returns true if the paint was modified.
         bool modulatePaint(SkPaint*) const;
@@ -73,6 +75,7 @@ protected:
         // Add (cumulative) paint overrides to a render node sub-DAG.
         ScopedRenderContext&& modulateOpacity(float opacity);
         ScopedRenderContext&& modulateColorFilter(sk_sp<SkColorFilter>);
+        ScopedRenderContext&& modulateBlendMode(SkBlendMode);
 
         // Force content isolation for a node sub-DAG by applying the RenderContext
         // overrides via a layer.
