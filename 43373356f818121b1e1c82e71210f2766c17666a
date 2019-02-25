@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf0fa18e_97a5726b",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-25T15:19:05Z",
+      "side": 1,
+      "message": "maybe move before saveLayer\n// saveLayer makes this faster blah blah blah",
+      "range": {
+        "startLine": 533,
+        "startChar": 12,
+        "endLine": 533,
+        "endChar": 20
+      },
+      "revId": "43373356f818121b1e1c82e71210f2766c17666a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2e78262_aa93bed8",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-25T15:19:05Z",
+      "side": 1,
+      "message": "just set bm_index to SRCOVER and fall-through?",
+      "range": {
+        "startLine": 200,
+        "startChar": 18,
+        "endLine": 200,
+        "endChar": 24
+      },
+      "revId": "43373356f818121b1e1c82e71210f2766c17666a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
