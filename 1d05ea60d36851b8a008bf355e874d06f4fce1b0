@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90d13a69_c085b453",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T18:53:10Z",
+      "side": 1,
+      "message": "Fake-gamma and subpixel antialiasing are applied in the shader",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 69
+      },
+      "revId": "1d05ea60d36851b8a008bf355e874d06f4fce1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5d1f1ca_6d512f68",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T18:53:10Z",
+      "side": 1,
+      "message": "extra line?",
+      "revId": "1d05ea60d36851b8a008bf355e874d06f4fce1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48b210ff_06706720",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T18:53:10Z",
+      "side": 1,
+      "message": "can we put this on the previous line now that it wraps anyway?",
+      "range": {
+        "startLine": 514,
+        "startChar": 21,
+        "endLine": 515,
+        "endChar": 16
+      },
+      "revId": "1d05ea60d36851b8a008bf355e874d06f4fce1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7cb1d11_e6bb746f",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T18:53:10Z",
+      "side": 1,
+      "message": "It seems a bit odd that this parenthesis is here when in the other cases it appears to go just before the first parameter.",
+      "range": {
+        "startLine": 824,
+        "startChar": 21,
+        "endLine": 824,
+        "endChar": 22
+      },
+      "revId": "1d05ea60d36851b8a008bf355e874d06f4fce1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fca1a63e_575f7797",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T18:53:10Z",
+      "side": 1,
+      "message": "either this line should out-dent or the next few lines in-dent a bit more.",
+      "range": {
+        "startLine": 849,
+        "startChar": 16,
+        "endLine": 849,
+        "endChar": 20
+      },
+      "revId": "1d05ea60d36851b8a008bf355e874d06f4fce1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
