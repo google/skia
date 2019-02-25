@@ -301,6 +301,24 @@
       "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c95c7d67_5a25c040",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T17:28:13Z",
+      "side": 1,
+      "message": "Using premul or opaque significantly improves things\n\n   10.50% slower in Codec_blast.gif_N32Unpremul\n\n- down from 64.50% slowdown, and the other slowdowns have disappeared.",
+      "parentUuid": "751469a1_0aa19aeb",
+      "revId": "9dc6192c17dff2c5f0aae49b51fc2c6c4050d255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
