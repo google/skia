@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7a7f9d8_8ec23361",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-25T19:53:52Z",
+      "side": 1,
+      "message": "This covers more of the cases where we cannot just use drawing, but it doesn\u0027t take care of 16 bit PNGs, if I recall correctly...\n\nIt also wouldn\u0027t work for incremental decodes if we re-transform the same row, e.g. interlaced or a row was only partially complete the first time.\n\nAlso, this is untested, since GIFs won\u0027t have a profile. Just trying to imagine what this might look like.",
+      "range": {
+        "startLine": 438,
+        "startChar": 0,
+        "endLine": 453,
+        "endChar": 9
+      },
+      "revId": "e37e1c68a50700ef02583b65e22c8b7908d61e61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
