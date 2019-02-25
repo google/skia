@@ -90,9 +90,9 @@ public:
         desc->setStyle(this->fontStyle());
         *serialize = false;
     }
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override {
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fIndex;
-        return this->makeStream().release();
+        return this->makeStream();
     }
     std::unique_ptr<SkFontData> onMakeFontData() const override {
         return skstd::make_unique<SkFontData>(this->makeStream(), fIndex,
@@ -143,9 +143,9 @@ public:
         *serialize = true;
     }
 
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override {
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fData->getIndex();
-        return fData->getStream()->duplicate().release();
+        return fData->getStream()->duplicate();
     }
 
     std::unique_ptr<SkFontData> onMakeFontData() const override {

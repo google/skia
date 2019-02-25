@@ -65,7 +65,7 @@ public:
 
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override {
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
         SK_ABORT("Should never be called.");
         return nullptr;
     }

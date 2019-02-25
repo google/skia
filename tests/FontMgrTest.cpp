@@ -11,6 +11,7 @@
 #include "SkFontMgr.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
+#include "SkStream.h"
 #include "Test.h"
 
 #include <initializer_list>
@@ -122,7 +123,7 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     public:
         TestTypeface(const SkFontStyle& fontStyle) : SkTypeface(fontStyle, false){}
     protected:
-        SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
+        std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
         sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
             return sk_ref_sp(this);
         }
