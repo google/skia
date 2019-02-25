@@ -15,6 +15,7 @@
 #include "SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
+#include "text/GrTextContext.h"
 class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif
@@ -137,12 +138,14 @@ public:
             const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& viewMatrix,
             ProcessPathsT&& processPaths, ARGBFallback&& fallbackARGB);
 
-    template <typename PerSDFT, typename PerPathT>
+#if SK_SUPPORT_GPU
+    template <typename ProcessMasksT, typename ProcessPathsT, typename  CreatorT>
     void drawGlyphRunAsSDFWithARGBFallback(
-            SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textRatio,
-            PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
-
+            const SkPaint& runPaint, const SkFont& runFont, CreatorT&& strikeCreator,
+            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& matrix,
+            const GrTextContext::Options& options,
+            ProcessMasksT&& processMasks, ProcessPathsT&& processPaths, ARGBFallback&& perFallback);
+#endif
     // TODO: Make this the canonical check for Skia.
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
