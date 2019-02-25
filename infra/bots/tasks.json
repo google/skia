@@ -298,6 +298,11 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ]
     },
+    "Build-Debian9-Clang-x86_64-Release-Wuffs": {
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Release-Wuffs"
+      ]
+    },
     "Build-Debian9-EMCC-asmjs-Debug-PathKit": {
       "tasks": [
         "Build-Debian9-EMCC-asmjs-Debug-PathKit"
@@ -1155,6 +1160,11 @@
     "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "tasks": [
         "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER"
+      ]
+    },
+    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs": {
+      "tasks": [
+        "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs"
       ]
     },
     "Perf-Debian9-Clang-GCE-CPU-AVX512-x86_64-Debug-All": {
@@ -10699,6 +10709,135 @@
         "compile",
         "-properties",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian9-Clang-x86_64-Release-Wuffs": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.17.1.chromium15"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:13"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "compile",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-x86_64-Release-Wuffs\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -29726,6 +29865,118 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:39"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:174"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-Wuffs"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -80585,6 +80836,106 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_nano_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
