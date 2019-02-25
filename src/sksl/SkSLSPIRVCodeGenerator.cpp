@@ -98,8 +98,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("findMSB")]     = BY_TYPE_GLSL(FindSMsb, FindSMsb, FindUMsb);
     fIntrinsicMap[String("dFdx")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdx,
                                                            SpvOpUndef, SpvOpUndef, SpvOpUndef);
-    fIntrinsicMap[String("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
-                                                           SpvOpUndef, SpvOpUndef, SpvOpUndef);
+    fIntrinsicMap[String("dFdy")]        = SPECIAL(DFdy);
     fIntrinsicMap[String("fwidth")]      = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpFwidth,
                                                            SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
@@ -915,6 +914,20 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(result, out);
             this->writeWord(args[0], out);
             this->writeWord(args[1], out);
+            break;
+        }
+        case kDFdy_SpecialIntrinsic: {
+            SpvId fn = this->writeExpression(*c.fArguments[0], out);
+            this->writeOpCode(SpvOpDPdy, 4, out);
+            this->writeWord(this->getType(c.fType), out);
+            this->writeWord(result, out);
+            this->writeWord(fn, out);
+            if (fProgram.fSettings.fFlipY) {
+                // Flipping Y also negates the Y derivatives.
+                SpvId flipped = this->nextId();
+                this->writeInstruction(SpvOpFNegate, this->getType(c.fType), flipped, result, out);
+                return flipped;
+            }
             break;
         }
         case kClamp_SpecialIntrinsic: {

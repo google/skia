@@ -460,9 +460,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["abs"]         = FunctionClass::kAbs;
         (*fFunctionClasses)["atan"]        = FunctionClass::kAtan;
         (*fFunctionClasses)["determinant"] = FunctionClass::kDeterminant;
-        (*fFunctionClasses)["dFdx"]        = FunctionClass::kDerivative;
-        (*fFunctionClasses)["dFdy"]        = FunctionClass::kDerivative;
-        (*fFunctionClasses)["fwidth"]      = FunctionClass::kDerivative;
+        (*fFunctionClasses)["dFdx"]        = FunctionClass::kDFdx;
+        (*fFunctionClasses)["dFdy"]        = FunctionClass::kDFdy;
+        (*fFunctionClasses)["fwidth"]      = FunctionClass::kFwidth;
         (*fFunctionClasses)["fma"]         = FunctionClass::kFMA;
         (*fFunctionClasses)["fract"]       = FunctionClass::kFract;
         (*fFunctionClasses)["inverse"]     = FunctionClass::kInverse;
@@ -517,7 +517,15 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     }
                 }
                 break;
-            case FunctionClass::kDerivative:
+            case FunctionClass::kDFdy:
+                if (fProgram.fSettings.fFlipY) {
+                    // Flipping Y also negates the Y derivatives.
+                    this->write("-dFdy");
+                    nameWritten = true;
+                }
+                // fallthru
+            case FunctionClass::kDFdx:
+            case FunctionClass::kFwidth:
                 if (!fFoundDerivatives &&
                     fProgram.fSettings.fCaps->shaderDerivativeExtensionString()) {
                     SkASSERT(fProgram.fSettings.fCaps->shaderDerivativeSupport());

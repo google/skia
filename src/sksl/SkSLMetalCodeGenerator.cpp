@@ -218,7 +218,8 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     } else if (c.fFunction.fBuiltin && "dFdx" == c.fFunction.fName) {
         this->write("dfdx");
     } else if (c.fFunction.fBuiltin && "dFdy" == c.fFunction.fName) {
-        this->write("dfdy");
+        // Flipping Y also negates the Y derivatives.
+        this->write((fProgram.fSettings.fFlipY) ? "-dfdy" : "dfdy");
     } else {
         this->writeName(c.fFunction.fName);
     }
