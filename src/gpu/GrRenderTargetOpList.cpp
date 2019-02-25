@@ -558,7 +558,9 @@ bool GrRenderTargetOpList::resetForFullscreenClear() {
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
     // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
-    if (this->isEmpty() || !fTarget.get()->asRenderTargetProxy()->needsStencil()) {
+    // Additionally, if we previously recorded a wait op, we cannot delete the wait op. Until we
+    // track the wait ops separately from normal ops, we have to avoid clearing out any ops.
+    if (this->isEmpty() || (!fTarget.get()->asRenderTargetProxy()->needsStencil() && !fHasWaitOp)) {
         this->deleteOps();
         fDeferredProxies.reset();
 

@@ -241,6 +241,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     SkASSERT(physicalDeviceVersion <= properties.apiVersion);
 
+    if (extensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME, 1)) {
+        fSupportsSwapchain = true;
+    }
+
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions.hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
         fSupportsPhysicalDeviceProperties2 = true;

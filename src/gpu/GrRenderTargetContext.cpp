@@ -1750,7 +1750,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
                 kAdopt_GrWrapOwnership);
         std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(fContext, std::move(sema),
                                                              fRenderTargetProxy.get()));
-        this->getRTOpList()->addOp(std::move(waitOp), *this->caps());
+        this->getRTOpList()->addWaitOp(std::move(waitOp), *this->caps());
     }
     return true;
 }
