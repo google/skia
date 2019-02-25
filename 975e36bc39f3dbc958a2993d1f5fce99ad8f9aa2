@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "add58cfc_3557275c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T23:11:44Z",
+      "side": 1,
+      "message": "Descriptivist phonology leads to poor orthography :-)",
+      "range": {
+        "startLine": 10,
+        "startChar": 31,
+        "endLine": 10,
+        "endChar": 41
+      },
+      "revId": "975e36bc39f3dbc958a2993d1f5fce99ad8f9aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e9d0945_ddac1eed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T23:11:44Z",
+      "side": 1,
+      "message": "remove the \u0027s\u0027?",
+      "range": {
+        "startLine": 12,
+        "startChar": 55,
+        "endLine": 12,
+        "endChar": 56
+      },
+      "revId": "975e36bc39f3dbc958a2993d1f5fce99ad8f9aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac43c34_8051cdc7",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T23:11:44Z",
+      "side": 1,
+      "message": "Seems this doesn\u0027t fit anymore (and it hasn\u0027t changed?)",
+      "range": {
+        "startLine": 825,
+        "startChar": 100,
+        "endLine": 825,
+        "endChar": 104
+      },
+      "revId": "975e36bc39f3dbc958a2993d1f5fce99ad8f9aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa144c83_58dec378",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T23:11:44Z",
+      "side": 1,
+      "message": "Too bad this isn\u0027t formatted exactly like the \u0027processPaths\u0027 above. I assume that in the future all these will be de-duplicated.",
+      "range": {
+        "startLine": 895,
+        "startChar": 12,
+        "endLine": 904,
+        "endChar": 14
+      },
+      "revId": "975e36bc39f3dbc958a2993d1f5fce99ad8f9aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88bff80c_427a2f3e",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-25T23:11:44Z",
+      "side": 1,
+      "message": "add a space here?",
+      "range": {
+        "startLine": 136,
+        "startChar": 11,
+        "endLine": 136,
+        "endChar": 12
+      },
+      "revId": "975e36bc39f3dbc958a2993d1f5fce99ad8f9aa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
