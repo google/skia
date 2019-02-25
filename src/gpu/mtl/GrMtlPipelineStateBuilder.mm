@@ -17,14 +17,14 @@
 #import <simd/simd.h>
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
+        GrMtlGpu* gpu,
         GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
         const GrPipeline& pipeline,
-        GrProgramDesc* desc,
-        GrMtlGpu* gpu) {
-    GrMtlPipelineStateBuilder builder(renderTarget, origin, primProc, primProcProxies, pipeline,
-                                      desc, gpu);
+        Desc* desc) {
+    GrMtlPipelineStateBuilder builder(gpu, renderTarget, origin, pipeline, primProc,
+                                      primProcProxies, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -32,12 +32,12 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
     return builder.finalize(primProc, pipeline, desc);
 }
 
-GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
+                                                     GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+                                                     const GrPipeline& pipeline,
                                                      const GrPrimitiveProcessor& primProc,
                                                      const GrTextureProxy* const primProcProxies[],
-                                                     const GrPipeline& pipeline,
-                                                     GrProgramDesc* desc,
-                                                     GrMtlGpu* gpu)
+                                                     GrProgramDesc* desc)
         : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fUniformHandler(this)
@@ -316,7 +316,7 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcessor& primProc,
                                                         const GrPipeline& pipeline,
-                                                        GrProgramDesc* desc) {
+                                                        Desc* desc) {
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");

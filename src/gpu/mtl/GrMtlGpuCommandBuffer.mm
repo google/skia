@@ -118,6 +118,8 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
             break;
         }
     }
+
+    // refPipelineState
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, fRenderTarget->config(), primProc, hasPoints,
                               pipeline, fGpu)) {
@@ -132,9 +134,8 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
 
     // TODO: use resource provider for pipeline
     GrMtlPipelineState* pipelineState =
-            GrMtlPipelineStateBuilder::CreatePipelineState(fRenderTarget, fOrigin, primProc,
-                                                           primProcProxies, pipeline,
-                                                           &desc, fGpu);
+            GrMtlPipelineStateBuilder::CreatePipelineState(fGpu, fRenderTarget, fOrigin, pipeline,
+                                                           primProc, primProcProxies, &desc);
     if (!pipelineState) {
         return nullptr;
     }

@@ -13,6 +13,16 @@
 
 #include "SkSLCompiler.h"
 
+
+GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
+    : fGpu(gpu) {
+    fPipelineStateCache = new PipelineStateCache(gpu);
+}
+
+GrMtlResourceProvider::~GrMtlResourceProvider() {
+    delete fPipelineStateCache;
+}
+
 GrMtlCopyPipelineState* GrMtlResourceProvider::findOrCreateCopyPipelineState(
         MTLPixelFormat dstPixelFormat,
         id<MTLFunction> vertexFunction,
@@ -28,4 +38,53 @@ GrMtlCopyPipelineState* GrMtlResourceProvider::findOrCreateCopyPipelineState(
     fCopyPipelineStateCache.emplace_back(GrMtlCopyPipelineState::CreateCopyPipelineState(
              fGpu, dstPixelFormat, vertexFunction, fragmentFunction, vertexDescriptor));
     return fCopyPipelineStateCache.back().get();
+}
+
+GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
+        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
+        const GrTextureProxy* const primProcProxies[], GrPrimitiveType primitiveType) {
+    return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
+                                                 pipeline, primitiveType/*, compatibleRenderPass */);
+}
+
+GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
+        GrRenderTarget* renderTarget,
+        GrSurfaceOrigin origin,
+        const GrPrimitiveProcessor& primProc,
+        const GrTextureProxy* const primProcProxies[],
+        const GrPipeline& pipeline,
+        GrPrimitiveType primitiveType) {
+#ifdef GR_PIPELINE_STATE_CACHE_STATS
+    ++fTotalRequests;
+#endif
+    // Get GrMtlProgramDesc
+    GrMtlPipelineStateBuilder::Desc desc;
+    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, primProc, pipeline, fGpu)) {
+        GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
+        return nullptr;
+    }
+
+    return GrMtlPipelineStateBuilder::CreatePipelineState(
+                                                          fGpu, renderTarget, origin, primProc, primProcProxies, pipeline, &desc);
+
+//    std::unique_ptr<Entry>* entry = fMap.find(desc);
+//    if (!entry) {
+//        // Didn't find an origin-independent version, check with the specific origin
+//        desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+//        entry = fMap.find(desc);
+//    }
+//    if (!entry) {
+//#ifdef GR_PIPELINE_STATE_CACHE_STATS
+//        ++fCacheMisses;
+//#endif
+//        GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
+//                fGpu, renderTarget, origin, primProc, primProcProxies, pipeline, &desc));
+//        if (nullptr == pipelineState) {
+//            return nullptr;
+//        }
+//        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));
+//        return (*entry)->fPipelineState.get();
+//    }
+//    return (*entry)->fPipelineState.get();
 }
