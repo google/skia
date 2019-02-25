@@ -3,7 +3,6 @@
 // and why the below fixes it.
 Module['ready'] = function() {
   return new Promise(function (resolve, reject) {
-    delete Module['then'];
     Module['onAbort'] = reject;
     if (runtimeInitialized) {
       resolve(Module);
@@ -14,5 +13,4 @@ Module['ready'] = function() {
     }
   });
 }
-// TODO(kjlubick): Shut .then() entirely off in 0.4.0 by uncommenting below.
-// delete Module['then'];
+delete Module['then'];
