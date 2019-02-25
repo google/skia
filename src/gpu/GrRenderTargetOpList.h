@@ -72,6 +72,11 @@ public:
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
+    void addWaitOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
+        fHasWaitOp= true;
+        this->addOp(std::move(op), caps);
+    }
+
     void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxy& dstProxy, const GrCaps& caps) {
         auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
@@ -221,6 +226,9 @@ private:
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
     int                            fLastClipNumAnalyticFPs;
+
+    // We must track if we have a wait op so that we don't delete the op when we have a full clear.
+    bool fHasWaitOp = false;;
 
     // For ops/opList we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain, true> fOpChains;

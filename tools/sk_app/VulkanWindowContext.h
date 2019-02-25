@@ -56,10 +56,9 @@ private:
 
     struct BackbufferInfo {
         uint32_t        fImageIndex;          // image this is associated with
-        VkSemaphore     fAcquireSemaphore;    // we signal on this for acquisition of image
         VkSemaphore     fRenderSemaphore;     // we wait on this for rendering to be done
-        VkCommandBuffer fTransitionCmdBuffers[2]; // to transition layout between present and render
-        VkFence         fUsageFences[2];      // used to ensure this data is no longer used on GPU
+        VkCommandBuffer fTransitionCmdBuffer; // to transition layout between present and render
+        VkFence         fUsageFence;          // used to ensure this data is no longer used on GPU
     };
 
     BackbufferInfo* getAvailableBackbuffer();

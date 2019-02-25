@@ -1022,8 +1022,13 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 static bool check_image_info(const GrVkCaps& caps,
                              const GrVkImageInfo& info,
-                             GrPixelConfig config) {
-    if (VK_NULL_HANDLE == info.fImage || VK_NULL_HANDLE == info.fAlloc.fMemory) {
+                             GrPixelConfig config,
+                             bool isWrappedRT) {
+    if (VK_NULL_HANDLE == info.fImage) {
+        return false;
+    }
+
+    if (VK_NULL_HANDLE == info.fAlloc.fMemory && !isWrappedRT) {
         return false;
     }
 
@@ -1031,6 +1036,10 @@ static bool check_image_info(const GrVkCaps& caps,
         if (!caps.supportsYcbcrConversion() || info.fFormat != VK_NULL_HANDLE) {
             return false;
         }
+    }
+
+    if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
+        return false;
     }
 
     SkASSERT(GrVkFormatPixelConfigPairIsValid(info.fFormat, config));
@@ -1045,7 +1054,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config())) {
+    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(), false)) {
         return nullptr;
     }
 
@@ -1071,7 +1080,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config())) {
+    if (!check_image_info(this->vkCaps(), imageInfo, backendTex.config(), false)) {
         return nullptr;
     }
 
@@ -1103,7 +1112,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (VK_NULL_HANDLE == info.fImage) {
+    if (!check_image_info(this->vkCaps(), info, backendRT.config(), true)) {
         return nullptr;
     }
 
@@ -1135,9 +1144,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (VK_NULL_HANDLE == imageInfo.fImage) {
+    if (!check_image_info(this->vkCaps(), imageInfo, tex.config(), false)) {
         return nullptr;
     }
+
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;

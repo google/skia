@@ -8,6 +8,7 @@
 
 #include "VulkanWindowContext.h"
 
+#include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "SkAutoMalloc.h"
@@ -372,7 +373,7 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
     commandBuffersInfo.pNext = nullptr;
     commandBuffersInfo.commandPool = fCommandPool;
     commandBuffersInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    commandBuffersInfo.commandBufferCount = 2;
+    commandBuffersInfo.commandBufferCount = 1;
     VkFenceCreateInfo fenceInfo;
     memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -386,19 +387,13 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
         fBackbuffers[i].fImageIndex = -1;
         GR_VK_CALL_ERRCHECK(fInterface,
                             CreateSemaphore(fDevice, &semaphoreInfo,
-                                            nullptr, &fBackbuffers[i].fAcquireSemaphore));
-        GR_VK_CALL_ERRCHECK(fInterface,
-                            CreateSemaphore(fDevice, &semaphoreInfo,
                                             nullptr, &fBackbuffers[i].fRenderSemaphore));
         GR_VK_CALL_ERRCHECK(fInterface,
                             AllocateCommandBuffers(fDevice, &commandBuffersInfo,
-                                                   fBackbuffers[i].fTransitionCmdBuffers));
+                                                   &fBackbuffers[i].fTransitionCmdBuffer));
         GR_VK_CALL_ERRCHECK(fInterface,
                             CreateFence(fDevice, &fenceInfo, nullptr,
-                                        &fBackbuffers[i].fUsageFences[0]));
-        GR_VK_CALL_ERRCHECK(fInterface,
-                            CreateFence(fDevice, &fenceInfo, nullptr,
-                                        &fBackbuffers[i].fUsageFences[1]));
+                                        &fBackbuffers[i].fUsageFence));
     }
     fCurrentBackbufferIndex = fImageCount;
 }
@@ -408,25 +403,19 @@ void VulkanWindowContext::destroyBuffers() {
     if (fBackbuffers) {
         for (uint32_t i = 0; i < fImageCount + 1; ++i) {
             GR_VK_CALL_ERRCHECK(fInterface,
-                                WaitForFences(fDevice, 2,
-                                              fBackbuffers[i].fUsageFences,
+                                WaitForFences(fDevice, 1,
+                                              &fBackbuffers[i].fUsageFence,
                                               true, UINT64_MAX));
             fBackbuffers[i].fImageIndex = -1;
-            GR_VK_CALL(fInterface,
-                       DestroySemaphore(fDevice,
-                                        fBackbuffers[i].fAcquireSemaphore,
-                                        nullptr));
             GR_VK_CALL(fInterface,
                        DestroySemaphore(fDevice,
                                         fBackbuffers[i].fRenderSemaphore,
                                         nullptr));
             GR_VK_CALL(fInterface,
-                       FreeCommandBuffers(fDevice, fCommandPool, 2,
-                                          fBackbuffers[i].fTransitionCmdBuffers));
+                       FreeCommandBuffers(fDevice, fCommandPool, 1,
+                                          &fBackbuffers[i].fTransitionCmdBuffer));
             GR_VK_CALL(fInterface,
-                       DestroyFence(fDevice, fBackbuffers[i].fUsageFences[0], 0));
-            GR_VK_CALL(fInterface,
-                       DestroyFence(fDevice, fBackbuffers[i].fUsageFences[1], 0));
+                       DestroyFence(fDevice, fBackbuffers[i].fUsageFence, 0));
         }
     }
 
@@ -501,7 +490,7 @@ VulkanWindowContext::BackbufferInfo* VulkanWindowContext::getAvailableBackbuffer
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
     GR_VK_CALL_ERRCHECK(fInterface,
-                        WaitForFences(fDevice, 2, backbuffer->fUsageFences,
+                        WaitForFences(fDevice, 1, &backbuffer->fUsageFence,
                                       true, UINT64_MAX));
     return backbuffer;
 }
@@ -511,99 +500,55 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
     SkASSERT(backbuffer);
 
     // reset the fence
-    GR_VK_CALL_ERRCHECK(fInterface,
-                        ResetFences(fDevice, 2, backbuffer->fUsageFences));
+    GR_VK_CALL_ERRCHECK(fInterface, ResetFences(fDevice, 1, &backbuffer->fUsageFence));
     // semaphores should be in unsignaled state
+
+    VkSemaphoreCreateInfo semaphoreInfo;
+    memset(&semaphoreInfo, 0, sizeof(VkSemaphoreCreateInfo));
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.flags = 0;
+    VkSemaphore semaphore;
+    GR_VK_CALL_ERRCHECK(fInterface, CreateSemaphore(fDevice, &semaphoreInfo,
+                                                    nullptr, &semaphore));
 
     // acquire the image
     VkResult res = fAcquireNextImageKHR(fDevice, fSwapchain, UINT64_MAX,
-                                        backbuffer->fAcquireSemaphore, VK_NULL_HANDLE,
+                                        semaphore, VK_NULL_HANDLE,
                                         &backbuffer->fImageIndex);
     if (VK_ERROR_SURFACE_LOST_KHR == res) {
         // need to figure out how to create a new vkSurface without the platformData*
         // maybe use attach somehow? but need a Window
+        GR_VK_CALL(fInterface, DestroySemaphore(fDevice, semaphore, nullptr));
         return nullptr;
     }
     if (VK_ERROR_OUT_OF_DATE_KHR == res) {
         // tear swapchain down and try again
         if (!this->createSwapchain(-1, -1, fDisplayParams)) {
+            GR_VK_CALL(fInterface, DestroySemaphore(fDevice, semaphore, nullptr));
             return nullptr;
         }
         backbuffer = this->getAvailableBackbuffer();
         GR_VK_CALL_ERRCHECK(fInterface,
-                            ResetFences(fDevice, 2, backbuffer->fUsageFences));
+                            ResetFences(fDevice, 1, &backbuffer->fUsageFence));
 
         // acquire the image
         res = fAcquireNextImageKHR(fDevice, fSwapchain, UINT64_MAX,
-                                   backbuffer->fAcquireSemaphore, VK_NULL_HANDLE,
+                                   semaphore, VK_NULL_HANDLE,
                                    &backbuffer->fImageIndex);
 
         if (VK_SUCCESS != res) {
+            GR_VK_CALL(fInterface, DestroySemaphore(fDevice, semaphore, nullptr));
             return nullptr;
         }
     }
 
-    // set up layout transfer from initial to color attachment
-    VkImageLayout layout = fImageLayouts[backbuffer->fImageIndex];
-    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED == layout || VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout);
-    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkAccessFlags srcAccessMask = 0;
-    VkAccessFlags dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-    VkImageMemoryBarrier imageMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   // sType
-        NULL,                                     // pNext
-        srcAccessMask,                            // outputMask
-        dstAccessMask,                            // inputMask
-        layout,                                   // oldLayout
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // newLayout
-        fPresentQueueIndex,                       // srcQueueFamilyIndex
-        fGraphicsQueueIndex,                      // dstQueueFamilyIndex
-        fImages[backbuffer->fImageIndex],         // image
-        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } // subresourceRange
-    };
-    GR_VK_CALL_ERRCHECK(fInterface,
-                        ResetCommandBuffer(backbuffer->fTransitionCmdBuffers[0], 0));
-    VkCommandBufferBeginInfo info;
-    memset(&info, 0, sizeof(VkCommandBufferBeginInfo));
-    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    info.flags = 0;
-    GR_VK_CALL_ERRCHECK(fInterface,
-                        BeginCommandBuffer(backbuffer->fTransitionCmdBuffers[0], &info));
-
-    GR_VK_CALL(fInterface,
-               CmdPipelineBarrier(backbuffer->fTransitionCmdBuffers[0],
-                                  srcStageMask, dstStageMask, 0,
-                                  0, nullptr,
-                                  0, nullptr,
-                                  1, &imageMemoryBarrier));
-
-    GR_VK_CALL_ERRCHECK(fInterface,
-                        EndCommandBuffer(backbuffer->fTransitionCmdBuffers[0]));
-
-    VkPipelineStageFlags waitDstStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    // insert the layout transfer into the queue and wait on the acquire
-    VkSubmitInfo submitInfo;
-    memset(&submitInfo, 0, sizeof(VkSubmitInfo));
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &backbuffer->fAcquireSemaphore;
-    submitInfo.pWaitDstStageMask = &waitDstStageFlags;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &backbuffer->fTransitionCmdBuffers[0];
-    submitInfo.signalSemaphoreCount = 0;
-
-    GR_VK_CALL_ERRCHECK(fInterface,
-                        QueueSubmit(fGraphicsQueue, 1, &submitInfo,
-                                    backbuffer->fUsageFences[0]));
-
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
-    GrBackendRenderTarget backendRT = surface->getBackendRenderTarget(
-                                                        SkSurface::kFlushRead_BackendHandleAccess);
-    backendRT.setVkImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
+    GrBackendSemaphore beSemaphore;
+    beSemaphore.initVulkan(semaphore);
+
+    surface->wait(1, &beSemaphore);
 
     return sk_ref_sp(surface);
 }
@@ -639,23 +584,24 @@ void VulkanWindowContext::swapBuffers() {
         { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } // subresourceRange
     };
     GR_VK_CALL_ERRCHECK(fInterface,
-                        ResetCommandBuffer(backbuffer->fTransitionCmdBuffers[1], 0));
+                        ResetCommandBuffer(backbuffer->fTransitionCmdBuffer, 0));
     VkCommandBufferBeginInfo info;
     memset(&info, 0, sizeof(VkCommandBufferBeginInfo));
     info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     info.flags = 0;
     GR_VK_CALL_ERRCHECK(fInterface,
-                        BeginCommandBuffer(backbuffer->fTransitionCmdBuffers[1], &info));
+                        BeginCommandBuffer(backbuffer->fTransitionCmdBuffer, &info));
     GR_VK_CALL(fInterface,
-               CmdPipelineBarrier(backbuffer->fTransitionCmdBuffers[1],
+               CmdPipelineBarrier(backbuffer->fTransitionCmdBuffer,
                                   srcStageMask, dstStageMask, 0,
                                   0, nullptr,
                                   0, nullptr,
                                   1, &imageMemoryBarrier));
     GR_VK_CALL_ERRCHECK(fInterface,
-                        EndCommandBuffer(backbuffer->fTransitionCmdBuffers[1]));
+                        EndCommandBuffer(backbuffer->fTransitionCmdBuffer));
 
     fImageLayouts[backbuffer->fImageIndex] = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    backendRT.setVkImageLayout(fImageLayouts[backbuffer->fImageIndex]);
 
     // insert the layout transfer into the queue and wait on the acquire
     VkSubmitInfo submitInfo;
@@ -664,13 +610,13 @@ void VulkanWindowContext::swapBuffers() {
     submitInfo.waitSemaphoreCount = 0;
     submitInfo.pWaitDstStageMask = 0;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &backbuffer->fTransitionCmdBuffers[1];
+    submitInfo.pCommandBuffers = &backbuffer->fTransitionCmdBuffer;
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &backbuffer->fRenderSemaphore;
 
     GR_VK_CALL_ERRCHECK(fInterface,
                         QueueSubmit(fGraphicsQueue, 1, &submitInfo,
-                                    backbuffer->fUsageFences[1]));
+                                    backbuffer->fUsageFence));
 
     // Submit present operation to present queue
     const VkPresentInfoKHR presentInfo =
