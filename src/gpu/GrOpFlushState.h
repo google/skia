@@ -41,9 +41,7 @@ public:
     void doUpload(GrDeferredTextureUploadFn&);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
-    void executeDrawsAndUploadsForMeshDrawOp(
-            const GrOp* op, const SkRect& chainBounds, GrProcessorSet&&, uint32_t pipelineFlags = 0,
-            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+    void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& opBounds);
 
     GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
     // Helper function used by Ops that are only called via RenderTargetOpLists
@@ -81,9 +79,12 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void recordDraw(
-            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
-            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) final;
+    void draw(sk_sp<const GrGeometryProcessor>,
+              const GrPipeline*,
+              const GrPipeline::FixedDynamicState*,
+              const GrPipeline::DynamicStateArrays*,
+              const GrMesh[],
+              int meshCnt) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, sk_sp<const GrBuffer>*, int* startIndex) final;
@@ -96,7 +97,6 @@ public:
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
     GrRenderTargetProxy* proxy() const final { return fOpArgs->fProxy; }
-    const GrAppliedClip* appliedClip() final { return fOpArgs->fAppliedClip; }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxy& dstProxy() const final { return fOpArgs->fDstProxy; }
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
@@ -113,7 +113,7 @@ public:
 
 private:
     /** GrMeshDrawOp::Target override. */
-    SkArenaAlloc* allocator() override { return &fArena; }
+    SkArenaAlloc* pipelineArena() override { return &fArena; }
 
     struct InlineUpload {
         InlineUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
@@ -129,6 +129,7 @@ private:
     struct Draw {
         ~Draw();
         sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+        const GrPipeline* fPipeline = nullptr;
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
         const GrMesh* fMeshes = nullptr;

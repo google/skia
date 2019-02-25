@@ -39,8 +39,7 @@ protected:
                       int indicesPerRepetition, int repeatCount);
 
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>) const;
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>,
+        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>, const GrPipeline*,
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
@@ -73,6 +72,7 @@ protected:
 
 private:
     void onPrepare(GrOpFlushState* state) final;
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) final;
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };
@@ -82,18 +82,18 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void recordDraw(
-            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
-            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) = 0;
-
-    /**
-     * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
-     * scissor clip.
-     */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt = 1) {
-        static constexpr int kZeroPrimProcTextures = 0;
-        auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
-        this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);
+    virtual void draw(sk_sp<const GrGeometryProcessor>,
+                      const GrPipeline*,
+                      const GrPipeline::FixedDynamicState*,
+                      const GrPipeline::DynamicStateArrays*,
+                      const GrMesh[],
+                      int meshCount) = 0;
+    /** Helper for drawing a single GrMesh. */
+    void draw(sk_sp<const GrGeometryProcessor> gp,
+              const GrPipeline* pipeline,
+              const GrPipeline::FixedDynamicState* fixedDynamicState,
+              const GrMesh* mesh) {
+        this->draw(std::move(gp), pipeline, fixedDynamicState, nullptr, mesh, 1);
     }
 
     /**
@@ -135,21 +135,55 @@ public:
     virtual void putBackIndices(int indices) = 0;
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
 
-    GrMesh* allocMesh(GrPrimitiveType primitiveType) {
-        return this->allocator()->make<GrMesh>(primitiveType);
+    /**
+     * Allocate space for a pipeline. The target ensures this pipeline lifetime is at least
+     * as long as any deferred execution of draws added via draw().
+     * @tparam Args
+     * @param args
+     * @return
+     */
+    template <typename... Args>
+    GrPipeline* allocPipeline(Args&&... args) {
+        return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
     }
 
-    GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
+    GrMesh* allocMesh(GrPrimitiveType primitiveType) {
+        return this->pipelineArena()->make<GrMesh>(primitiveType);
+    }
+
+    GrMesh* allocMeshes(int n) { return this->pipelineArena()->makeArray<GrMesh>(n); }
+
+    GrPipeline::FixedDynamicState* allocFixedDynamicState(const SkIRect& rect,
+                                                          int numPrimitiveProcessorTextures = 0);
 
     GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
                                                             int numPrimitiveProcessorTextures,
                                                             bool allocScissors);
 
-    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
+    GrTextureProxy** allocPrimitiveProcessorTextureArray(int n) {
+        SkASSERT(n > 0);
+        return this->pipelineArena()->makeArrayDefault<GrTextureProxy*>(n);
+    }
+
+    // Once we have C++17 structured bindings make this just be a tuple because then we can do:
+    //      auto [pipeline, fixedDynamicState] = target->makePipeline(...);
+    // in addition to:
+    //      std::tie(flushInfo.fPipeline, flushInfo.fFixedState) = target->makePipeline(...);
+    struct PipelineAndFixedDynamicState {
+        const GrPipeline* fPipeline;
+        GrPipeline::FixedDynamicState* fFixedDynamicState;
+    };
+
+    /**
+     * Helper that makes a pipeline targeting the op's render target that incorporates the op's
+     * GrAppliedClip and uses a fixed dynamic state.
+     */
+    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&&,
+                                              GrAppliedClip&&,
+                                              int numPrimitiveProcessorTextures = 0);
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
-    virtual const GrAppliedClip* appliedClip() = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;
 
     virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
@@ -165,7 +199,7 @@ public:
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
 private:
-    virtual SkArenaAlloc* allocator() = 0;
+    virtual SkArenaAlloc* pipelineArena() = 0;
 };
 
 #endif

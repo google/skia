@@ -94,11 +94,9 @@ private:
         }
 
         SkPointPriv::SetRectTriStrip(verts, fRect, sizeof(SkPoint));
-        helper.recordDraw(target, std::move(gp));
-    }
 
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, std::move(fProcessors));
+        auto pipe = target->makePipeline(0, std::move(fProcessors), target->detachAppliedClip());
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     SkPMColor4f fColor;

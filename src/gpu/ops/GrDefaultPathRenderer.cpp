@@ -66,11 +66,14 @@ namespace {
 class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
-                   sk_sp<const GrGeometryProcessor> geometryProcessor)
+                   sk_sp<const GrGeometryProcessor> geometryProcessor, const GrPipeline* pipeline,
+                   const GrPipeline::FixedDynamicState* fixedDynamicState)
             : fPrimitiveType(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
             , fGeometryProcessor(std::move(geometryProcessor))
+            , fPipeline(pipeline)
+            , fFixedDynamicState(fixedDynamicState)
             , fFirstIndex(0)
             , fIndicesInChunk(0)
             , fIndices(nullptr) {
@@ -276,7 +279,7 @@ private:
                                  vertexCount - 1, GrPrimitiveRestart::kNo);
             }
             mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);
-            fTarget->recordDraw(fGeometryProcessor, mesh);
+            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, mesh);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -313,6 +316,8 @@ private:
     GrMeshDrawOp::Target* fTarget;
     size_t fVertexStride;
     sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+    const GrPipeline* fPipeline;
+    const GrPipeline::FixedDynamicState* fFixedDynamicState;
 
     sk_sp<const GrBuffer> fVertexBuffer;
     int fFirstVertex;
@@ -425,17 +430,15 @@ private:
         } else {
             primitiveType = GrPrimitiveType::kTriangles;
         }
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp));
+        auto pipe = fHelper.makePipeline(target);
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp), pipe.fPipeline,
+                                      pipe.fFixedDynamicState);
 
         // fill buffers
         for (int i = 0; i < instanceCount; i++) {
             const PathData& args = fPaths[i];
             pathGeoBuilder.addPath(args.fPath, args.fTolerance);
         }
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

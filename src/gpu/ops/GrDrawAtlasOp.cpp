@@ -48,7 +48,6 @@ public:
 
 private:
     void onPrepareDraws(Target*) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
@@ -207,11 +206,8 @@ void DrawAtlasOp::onPrepareDraws(Target* target) {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    helper.recordDraw(target, std::move(gp));
-}
-
-void DrawAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+    auto pipe = fHelper.makePipeline(target);
+    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
 GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {

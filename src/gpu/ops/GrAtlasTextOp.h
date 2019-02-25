@@ -107,13 +107,13 @@ private:
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor> fGeometryProcessor;
+        const GrPipeline* fPipeline;
         GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fGlyphsToFlush;
         int fVertexOffset;
     };
 
     void onPrepareDraws(Target*) override;
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     GrMaskFormat maskFormat() const {
         switch (fMaskType) {

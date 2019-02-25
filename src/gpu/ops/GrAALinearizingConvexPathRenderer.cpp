@@ -193,8 +193,9 @@ public:
     }
 
 private:
-    void recordDraw(Target* target, sk_sp<const GrGeometryProcessor> gp, int vertexCount,
-                    size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
+    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
+              const GrPipeline::FixedDynamicState* fixedDynamicState, int vertexCount,
+              size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
@@ -220,10 +221,11 @@ private:
         mesh->setIndexed(std::move(indexBuffer), indexCount, firstIndex, 0, vertexCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
+        target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
     void onPrepareDraws(Target* target) override {
+        auto pipe = fHelper.makePipeline(target);
         // Setup GrGeometryProcessor
         sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
                                                            fHelper.compatibleWithAlphaAsCoverage(),
@@ -257,8 +259,8 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->recordDraw(
-                        target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
+                this->draw(target, gp, pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                           vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }
@@ -289,15 +291,11 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->recordDraw(target, std::move(gp), vertexCount, vertexStride, vertices, indexCount,
-                             indices);
+            this->draw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                       vertexStride, vertices, indexCount, indices);
         }
         sk_free(vertices);
         sk_free(indices);
-    }
-
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
