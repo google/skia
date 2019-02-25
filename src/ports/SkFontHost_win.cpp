@@ -259,7 +259,7 @@ public:
     }
 
 protected:
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
@@ -1855,18 +1855,17 @@ static sk_sp<SkTypeface> create_from_stream(std::unique_ptr<SkStreamAsset> strea
     return sk_sp<SkTypeface>(SkCreateFontMemResourceTypefaceFromLOGFONT(lf, fontReference));
 }
 
-SkStreamAsset* LogFontTypeface::onOpenStream(int* ttcIndex) const {
+std::unique_ptr<SkStreamAsset> LogFontTypeface::onOpenStream(int* ttcIndex) const {
     *ttcIndex = 0;
 
-    const DWORD kTTCTag =
-        SkEndian_SwapBE32(SkSetFourByteTag('t', 't', 'c', 'f'));
+    const DWORD kTTCTag = SkEndian_SwapBE32(SkSetFourByteTag('t', 't', 'c', 'f'));
     LOGFONT lf = fLogFont;
 
     HDC hdc = ::CreateCompatibleDC(nullptr);
     HFONT font = CreateFontIndirect(&lf);
     HFONT savefont = (HFONT)SelectObject(hdc, font);
 
-    SkMemoryStream* stream = nullptr;
+    std::unique_ptr<SkStreamAsset> stream;
     DWORD tables[2] = {kTTCTag, 0};
     for (size_t i = 0; i < SK_ARRAY_COUNT(tables); i++) {
         DWORD bufferSize = GetFontData(hdc, tables[i], 0, nullptr, 0);
@@ -1875,12 +1874,11 @@ SkStreamAsset* LogFontTypeface::onOpenStream(int* ttcIndex) const {
             bufferSize = GetFontData(hdc, tables[i], 0, nullptr, 0);
         }
         if (bufferSize != GDI_ERROR) {
-            stream = new SkMemoryStream(bufferSize);
+            stream.reset(new SkMemoryStream(bufferSize));
             if (GetFontData(hdc, tables[i], 0, (void*)stream->getMemoryBase(), bufferSize)) {
                 break;
             } else {
-                delete stream;
-                stream = nullptr;
+                stream.reset();
             }
         }
     }

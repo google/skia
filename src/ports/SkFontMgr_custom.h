@@ -49,7 +49,7 @@ public:
     SkTypeface_Empty() ;
 
 protected:
-    SkStreamAsset* onOpenStream(int*) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int*) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
 
 private:
@@ -64,7 +64,7 @@ public:
                       const SkString familyName);
 
 protected:
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     std::unique_ptr<SkFontData> onMakeFontData() const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
 
@@ -81,7 +81,7 @@ public:
                     const SkString familyName, const char path[], int index);
 
 protected:
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
 
 private:
