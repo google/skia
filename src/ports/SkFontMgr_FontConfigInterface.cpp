@@ -19,7 +19,7 @@
 #include "SkResourceCache.h"
 #include <new>
 
-SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
+std::unique_ptr<SkStreamAsset> SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     *ttcIndex =  this->getIdentity().fTTCIndex;
 
     if (fFontData) {
@@ -27,10 +27,10 @@ SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
         if (!stream) {
             return nullptr;
         }
-        return stream->duplicate().release();
+        return stream->duplicate();
     }
 
-    return fFCI->openStream(this->getIdentity());
+    return std::unique_ptr<SkStreamAsset>(fFCI->openStream(this->getIdentity()));
 }
 
 std::unique_ptr<SkFontData> SkTypeface_FCI::onMakeFontData() const {
