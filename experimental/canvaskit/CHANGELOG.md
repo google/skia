@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
  -  `SkPaint.setTextSize()`, `SkPaint.getTextSize()`, `SkPaint.setTypeface()`
    which should be replaced by using `SkFont`.
+ - Deprecated `CanvasKitInit().then()` interface (see 0.3.1 notes)
 
 
 ### Fixed
