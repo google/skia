@@ -35,12 +35,14 @@
    "Update": [
       {
          "Type": "SkPointForceAffector",
+         "Enabled": true,
          "Point": { "x": 200, "y": 200 },
          "Constant": 0,
          "InvSquare": -50
       },
       {
          "Type": "SkFrameAffector",
+         "Enabled": true,
          "Curve": {
             "XValues": [],
             "Segments": [
