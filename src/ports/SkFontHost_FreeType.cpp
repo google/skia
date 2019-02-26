@@ -698,7 +698,7 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(
     Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                axisValues, name);
     int ttcIndex;
-    auto stream = std::unique_ptr<SkStreamAsset>(this->openStream(&ttcIndex));
+    std::unique_ptr<SkStreamAsset> stream = this->openStream(&ttcIndex);
     return skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, axisValues.get(),
                                           axisDefinitions.count());
 }

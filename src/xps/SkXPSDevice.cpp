@@ -1761,9 +1761,9 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
 
     SkTScopedComPtr<IStream> fontStream;
     int ttcIndex;
-    SkStream* fontData = typeface->openStream(&ttcIndex);
+    std::unique_ptr<SkStreamAsset> fontData = typeface->openStream(&ttcIndex);
     //TODO: cannot handle FON fonts.
-    HRM(SkIStream::CreateFromSkStream(fontData, true, &fontStream),
+    HRM(SkIStream::CreateFromSkStream(fontData.release(), true, &fontStream),
         "Could not create font stream.");
 
     const size_t size =
