@@ -221,6 +221,8 @@
       "Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All",
       "buildbucket_build_id",
       "123454321",
+      "task_id",
+      "task_12345",
       "issue",
       "456789",
       "patchset",

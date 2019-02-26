@@ -913,6 +913,7 @@ def test_steps(api):
     'gitHash',              api.properties['revision'],
     'builder',              api.vars.builder_name,
     'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
+    'task_id',              api.properties['task_id'],
   ]
   if api.vars.is_trybot:
     properties.extend([
@@ -1085,7 +1086,8 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      gold_hashes_url='https://example.com/hashes.txt',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     task_id='task_12345') +
       api.path.exists(
           api.path['start_dir'].join('skia'),
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1124,7 +1126,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   task_id='task_12345') +
     api.properties(patch_storage='gerrit') +
     api.properties.tryserver(
           buildername=builder,
@@ -1151,7 +1154,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   task_id='task_12345') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1173,7 +1177,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   task_id='task_12345') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1196,7 +1201,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   task_id='task_12345') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1222,7 +1228,8 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   task_id='task_12345') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1247,7 +1254,8 @@ def GenTests(api):
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   internal_hardware_label='2') +
+                   internal_hardware_label='2',
+                   task_id='task_12345') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1268,7 +1276,8 @@ def GenTests(api):
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    gold_hashes_url='https://example.com/hashes.txt',
-                   internal_hardware_label='5') +
+                   internal_hardware_label='5',
+                   task_id='task_12345') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

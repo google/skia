@@ -274,6 +274,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		"repository":           specs.PLACEHOLDER_REPO,
 		"revision":             specs.PLACEHOLDER_REVISION,
 		"swarm_out_dir":        outputDir,
+		"task_id":              specs.PLACEHOLDER_TASK_ID,
 	}
 	for k, v := range extraProps {
 		properties[k] = v
