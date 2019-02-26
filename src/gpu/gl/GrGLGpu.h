@@ -286,7 +286,7 @@ private:
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
-    void onFinishFlush(bool insertedSemaphores) override;
+    void onFinishFlush(bool insertedSemaphores, bool forceCPUSync) override;
 
     bool copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                            GrSurface* src, GrSurfaceOrigin srcOrigin,

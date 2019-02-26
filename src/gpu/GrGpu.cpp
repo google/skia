@@ -380,7 +380,8 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 }
 
 GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
-                                         GrBackendSemaphore backendSemaphores[]) {
+                                         GrBackendSemaphore backendSemaphores[],
+                                         bool forceCPUSync) {
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
@@ -401,7 +402,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
             }
         }
     }
-    this->onFinishFlush((numSemaphores > 0 && this->caps()->fenceSyncSupport()));
+    this->onFinishFlush((numSemaphores > 0 && this->caps()->fenceSyncSupport()), forceCPUSync);
     return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }

@@ -10,6 +10,7 @@
 #include <type_traits>
 
 #include "GrAHardwareBufferImageGenerator.h"
+#include "GrAHardwareBufferUtils.h"
 #include "GrBackendSurface.h"
 #include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
@@ -18,6 +19,7 @@
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrDrawingManager.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrProxyProvider.h"
@@ -28,6 +30,7 @@
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 #include "GrTextureAdjuster.h"
+#include "GrTextureContext.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
@@ -581,6 +584,76 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, 
                                                 GrSurfaceOrigin surfaceOrigin) {
     auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, cs, surfaceOrigin);
     return SkImage::MakeFromGenerator(std::move(gen));
+}
+
+sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
+                                                        const SkBitmap& bitmap,
+                                                        AHardwareBuffer* hardwareBuffer,
+                                                        SkAlphaType at,
+                                                        sk_sp<SkColorSpace> cs,
+                                                        GrSurfaceOrigin surfaceOrigin) {
+    AHardwareBuffer_Desc bufferDesc;
+    AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
+
+    if (!SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE)) {
+        return nullptr;
+    }
+
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(context,
+                                                                             hardwareBuffer,
+                                                                             bufferDesc.format,
+                                                                             true);
+
+    if (!backendFormat.isValid()) {
+        return nullptr;
+    }
+
+    GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
+    GrAHardwareBufferUtils::DeleteImageCtx deleteImageCtx = nullptr;
+
+    GrBackendTexture backendTexture =
+            GrAHardwareBufferUtils::MakeBackendTexture(context, hardwareBuffer,
+                                                       bufferDesc.width, bufferDesc.height,
+                                                       &deleteImageProc, &deleteImageCtx,
+                                                       false, backendFormat, true);
+    if (!backendTexture.isValid()) {
+        return nullptr;
+    }
+    SkASSERT(deleteImageProc);
+
+    SkColorType colorType =
+            GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
+
+    sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backendTexture, surfaceOrigin,
+                                                    colorType, at, cs, deleteImageProc,
+                                                    deleteImageCtx);
+    if (!image) {
+        deleteImageProc(deleteImageCtx);
+        return nullptr;
+    }
+
+    GrDrawingManager* drawingManager = context->priv().drawingManager();
+    if (!drawingManager) {
+        return nullptr;
+    }
+
+    sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef();
+    if (proxy) {
+        return nullptr;
+    }
+
+    sk_sp<GrTextureContext> texContext = drawingManager->makeTextureContext(proxy, cs);
+    if (!texContext) {
+        return nullptr;
+    }
+
+    SkImageInfo srcInfo = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType, at,
+                                            std::move(cs));
+    texContext->writePixels(srcInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
+
+    drawingManager->flush(proxy.get(), 0, nullptr, true);
+
+    return image;
 }
 #endif
 
