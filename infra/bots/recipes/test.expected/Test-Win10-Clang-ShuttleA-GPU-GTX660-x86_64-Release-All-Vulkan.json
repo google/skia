@@ -221,6 +221,8 @@
       "Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan",
       "buildbucket_build_id",
       "123454321",
+      "task_id",
+      "task_12345",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",

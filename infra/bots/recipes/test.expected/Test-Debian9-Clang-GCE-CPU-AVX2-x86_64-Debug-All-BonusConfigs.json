@@ -226,6 +226,8 @@
       "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs",
       "buildbucket_build_id",
       "123454321",
+      "task_id",
+      "task_12345",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
