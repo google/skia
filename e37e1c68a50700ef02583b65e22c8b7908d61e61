@@ -22,6 +22,29 @@
       "revId": "e37e1c68a50700ef02583b65e22c8b7908d61e61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbf8729b_dbfb4d57",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-26T11:01:40Z",
+      "side": 1,
+      "message": "If this allocation shows up in pref, you can use SkDraw instead, which just lives on the stack and doesn\u0027t allocate anything. SkCanvas --\u003e SkBitmapDevice --\u003e SkDraw.",
+      "range": {
+        "startLine": 464,
+        "startChar": 13,
+        "endLine": 464,
+        "endChar": 19
+      },
+      "revId": "e37e1c68a50700ef02583b65e22c8b7908d61e61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
