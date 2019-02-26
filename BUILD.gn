@@ -217,12 +217,14 @@ template("opts") {
   visibility = [ ":*" ]
   if (invoker.enabled) {
     source_set(target_name) {
+      check_includes = false
       forward_variables_from(invoker, "*")
       configs += skia_library_configs
     }
   } else {
     # If not enabled, a phony empty target that swallows all otherwise unused variables.
     source_set(target_name) {
+      check_includes = false
       forward_variables_from(invoker,
                              "*",
                              [
@@ -340,6 +342,7 @@ template("optional") {
       }
     }
     source_set(target_name) {
+      check_includes = false
       forward_variables_from(invoker,
                              "*",
                              [
@@ -932,6 +935,12 @@ component("skia") {
   # We clear the filter here for clients who may have set up a global filter.
   set_sources_assignment_filter([])
 
+  public = skia_core_public
+  public += skia_utils_public
+  public += skia_effects_public
+  public += skia_effects_imagefilter_public
+  public += skia_xps_public
+
   sources = []
   sources += skia_core_sources
   sources += skia_utils_sources
@@ -978,6 +987,7 @@ component("skia") {
   defines = []
   if (!skia_enable_skpicture) {
     defines = [ "SK_DISABLE_SKPICTURE" ]
+    public -= skia_skpicture_public
     sources -= skia_skpicture_sources
     sources -= [ "//src/effects/imagefilters/SkPictureImageFilter.cpp" ]
     sources += [ "src/core/SkPicture_none.cpp" ]
@@ -1102,6 +1112,7 @@ if (target_cpu == "wasm") {
 }
 
 static_library("pathkit") {
+  check_includes = false
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
 
@@ -1125,6 +1136,7 @@ static_library("pathkit") {
 
   sources = []
   sources += skia_pathops_sources
+  sources += skia_pathops_public
   sources += [
     "src/core/SkAnalyticEdge.cpp",
     "src/core/SkArenaAlloc.cpp",
@@ -1207,6 +1219,7 @@ if (skia_enable_tools) {
 
   if (target_cpu == "x64") {
     executable("fiddle") {
+      check_includes = false
       libs = []
       sources = [
         "tools/fiddle/draw.cpp",
@@ -1254,6 +1267,7 @@ if (skia_enable_tools) {
     }
     source_set(target_name) {
       forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      check_includes = false
       public_configs = [
         ":" + target_name + "_config",
         ":skia_private",
@@ -1396,6 +1410,7 @@ if (skia_enable_tools) {
       } else {
         _executable = target_name
         executable(_executable) {
+          check_includes = false
           forward_variables_from(invoker, "*", [ "is_shared_library" ])
           configs += [ ":skia_private" ]
           testonly = true
@@ -2303,6 +2318,8 @@ if (skia_enable_tools) {
 
       # For internship expedience, yes, we're rebuilding Skia rather than depending on :skia.
       # At the moment there's no way to use Skia and Skottie/SkShaper unless they're in the same .so.
+      public = skia_core_public
+      public += skia_utils_public
       sources = []
       sources += skia_core_sources
       sources += skia_utils_sources
