@@ -104,7 +104,7 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
     }
 
     int fontIndex;
-    std::unique_ptr<SkStreamAsset> stream(typeface->openStream(&fontIndex));
+    std::unique_ptr<SkStreamAsset> stream = typeface->openStream(&fontIndex);
 
     sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
     sk_sp<SkTypeface> typeface2 = fm->makeFromStream(std::move(stream), fontIndex);
