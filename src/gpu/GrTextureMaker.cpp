@@ -112,7 +112,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     const GrSamplerState::Filter* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
-        // TODo: Here we should force a copy restricted to the constraintRect since MIP maps will
+        // TODO: Here we should force a copy restricted to the constraintRect since MIP maps will
         // read outside the constraint rect. However, as in the adjuster case, we aren't currently
         // doing that.
         // We instead we compute the domain as though were bilerping which is only correct if we
@@ -121,25 +121,20 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         fmForDetermineDomain = &kBilerp;
     }
 
-    GrSamplerState samplerState;
-    if (filterOrNullForBicubic) {
-        samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp, *filterOrNullForBicubic);
-    } else {
-        // Bicubic doesn't use filtering for it's texture accesses.
-        samplerState = GrSamplerState::ClampNearest();
-    }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(samplerState, scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(filterOrNullForBicubic,
+                                                               scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
     SkMatrix adjustedMatrix = textureMatrix;
     adjustedMatrix.postScale(scaleAdjust[0], scaleAdjust[1]);
+
     SkRect domain;
     DomainMode domainMode =
         DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                             proxy.get(), fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
-    return CreateFragmentProcessorForDomainAndFilter(std::move(proxy), adjustedMatrix, domainMode,
-                                                     domain, filterOrNullForBicubic);
+    return this->createFragmentProcessorForDomainAndFilter(
+            std::move(proxy), adjustedMatrix, domainMode, domain, filterOrNullForBicubic);
 }
