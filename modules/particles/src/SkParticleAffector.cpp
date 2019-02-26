@@ -11,6 +11,12 @@
 #include "SkParticleData.h"
 #include "SkRandom.h"
 
+constexpr SkFieldVisitor::EnumStringMapping gParticleFrameMapping[] = {
+    { kWorld_ParticleFrame,    "World" },
+    { kLocal_ParticleFrame,    "Local" },
+    { kVelocity_ParticleFrame, "Velocity" },
+};
+
 void SkParticleAffector::apply(SkParticleUpdateParams& params, SkParticleState ps[], int count) {
     if (fEnabled) {
         this->onApply(params, ps, count);
@@ -53,12 +59,12 @@ public:
 
     void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            float angle = fAngle.eval(ps[i].fAge, ps[i].fStableRandom);
+            float angle = fAngle.eval(ps[i].fAge, ps[i].fRandom);
             SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
             SkVector heading = get_heading(ps[i], static_cast<SkParticleFrame>(fFrame));
             SkScalar c = heading.fX * c_local - heading.fY * s_local;
             SkScalar s = heading.fX * s_local + heading.fY * c_local;
-            float strength = fStrength.eval(ps[i].fAge, ps[i].fStableRandom);
+            float strength = fStrength.eval(ps[i].fAge, ps[i].fRandom);
             SkVector force = { c * strength, s * strength };
             if (fForce) {
                 ps[i].fVelocity.fLinear += force * params.fDeltaTime;
@@ -71,7 +77,7 @@ public:
     void visitFields(SkFieldVisitor* v) override {
         SkParticleAffector::visitFields(v);
         v->visit("Force", fForce);
-        v->visit("Frame", fFrame);
+        v->visit("Frame", fFrame, gParticleFrameMapping, SK_ARRAY_COUNT(gParticleFrameMapping));
         v->visit("Angle", fAngle);
         v->visit("Strength", fStrength);
     }
@@ -93,7 +99,7 @@ public:
 
     void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            float strength = fStrength.eval(ps[i].fAge, ps[i].fStableRandom);
+            float strength = fStrength.eval(ps[i].fAge, ps[i].fRandom);
             if (fForce) {
                 ps[i].fVelocity.fAngular += strength * params.fDeltaTime;
             } else {
@@ -155,7 +161,7 @@ public:
 
     void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            float angle = fAngle.eval(ps[i].fAge, ps[i].fStableRandom);
+            float angle = fAngle.eval(ps[i].fAge, ps[i].fRandom);
             SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
             SkVector heading = get_heading(ps[i], static_cast<SkParticleFrame>(fFrame));
             ps[i].fPose.fHeading.set(heading.fX * c_local - heading.fY * s_local,
@@ -165,7 +171,7 @@ public:
 
     void visitFields(SkFieldVisitor *v) override {
         SkParticleAffector::visitFields(v);
-        v->visit("Frame", fFrame);
+        v->visit("Frame", fFrame, gParticleFrameMapping, SK_ARRAY_COUNT(gParticleFrameMapping));
         v->visit("Angle", fAngle);
     }
 
@@ -182,7 +188,7 @@ public:
 
     void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            ps[i].fPose.fScale = fCurve.eval(ps[i].fAge, ps[i].fStableRandom);
+            ps[i].fPose.fScale = fCurve.eval(ps[i].fAge, ps[i].fRandom);
         }
     }
 
@@ -203,7 +209,7 @@ public:
 
     void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            ps[i].fFrame = fCurve.eval(ps[i].fAge, ps[i].fStableRandom);
+            ps[i].fFrame = fCurve.eval(ps[i].fAge, ps[i].fRandom);
         }
     }
 
@@ -225,7 +231,7 @@ public:
 
     void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            ps[i].fColor = fCurve.eval(ps[i].fAge, ps[i].fStableRandom);
+            ps[i].fColor = fCurve.eval(ps[i].fAge, ps[i].fRandom);
         }
     }
 

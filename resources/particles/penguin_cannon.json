@@ -36,7 +36,7 @@
          "Type": "SkLinearVelocityAffector",
          "Enabled": true,
          "Force": false,
-         "Frame": 0,
+         "Frame": "World",
          "Angle": {
             "XValues": [],
             "Segments": [
@@ -80,7 +80,7 @@
          "Type": "SkLinearVelocityAffector",
          "Enabled": true,
          "Force": true,
-         "Frame": 0,
+         "Frame": "World",
          "Angle": {
             "XValues": [],
             "Segments": [
@@ -121,7 +121,7 @@
       {
          "Type": "SkOrientationAffector",
          "Enabled": true,
-         "Frame": 2,
+         "Frame": "Velocity",
          "Angle": {
             "XValues": [],
             "Segments": [

@@ -14,6 +14,8 @@
 #include "SkString.h"
 #include "SkTArray.h"
 
+#include <string.h>
+
 class SkFieldVisitor;
 class SkRandom;
 
@@ -148,6 +150,13 @@ public:
     virtual void visit(const char*, SkPoint&) = 0;
     virtual void visit(const char*, SkColor4f&) = 0;
 
+    // Accommodation for enums, where caller can supply a value <-> string map
+    struct EnumStringMapping {
+        int         fValue;
+        const char* fName;
+    };
+    virtual void visit(const char*, int&, const EnumStringMapping*, int count) = 0;
+
     // Specific virtual signature for SkCurve, to allow for heavily customized UI in SkGuiVisitor.
     virtual void visit(const char* name, SkCurve& c) {
         this->enterObject(name);
@@ -232,6 +241,23 @@ protected:
             }
         }
     };
+
+    static const char* EnumToString(int value, const EnumStringMapping* map, int count) {
+        for (int i = 0; i < count; ++i) {
+            if (map[i].fValue == value) {
+                return map[i].fName;
+            }
+        }
+        return nullptr;
+    }
+    static int StringToEnum(const char* str, const EnumStringMapping* map, int count) {
+        for (int i = 0; i < count; ++i) {
+            if (0 == strcmp(str, map[i].fName)) {
+                return map[i].fValue;
+            }
+        }
+        return -1;
+    }
 
     virtual void enterObject(const char* name) = 0;
     virtual void exitObject() = 0;
