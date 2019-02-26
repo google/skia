@@ -24,7 +24,6 @@ class SkFontMgr;
 
 namespace skjson {
 class ArrayValue;
-class NumberValue;
 class ObjectValue;
 class Value;
 } // namespace skjson
@@ -98,9 +97,9 @@ private:
     sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*, AttachLayerContext*) const;
     sk_sp<sksg::RenderNode> attachLayerEffects(const skjson::ArrayValue& jeffects, AnimatorScope*,
                                                sk_sp<sksg::RenderNode>) const;
-    sk_sp<sksg::RenderNode> attachBlendMode(const skjson::NumberValue& jbm,
-                                            sk_sp<sksg::RenderNode>) const;
 
+    sk_sp<sksg::RenderNode> attachBlendMode(const skjson::ObjectValue&,
+                                            sk_sp<sksg::RenderNode>) const;
 
     sk_sp<sksg::RenderNode> attachShape(const skjson::ArrayValue*, AttachShapeContext*) const;
     sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&, AnimatorScope*,

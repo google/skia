@@ -18,6 +18,7 @@
 #include "SkSGInvalidationController.h"
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
+#include "SkSGRenderEffect.h"
 #include "SkSGScene.h"
 #include "SkSGTransform.h"
 #include "SkStream.h"
@@ -185,6 +186,52 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValu
 
     // We can ignore constant full opacity.
     return (bound || dispatched) ? std::move(opacityNode) : childNode;
+}
+
+namespace  {
+
+static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
+                                const AnimationBuilder* abuilder) {
+    static constexpr SkBlendMode kBlendModeMap[] = {
+        SkBlendMode::kSrcOver,    // 0:'normal'
+        SkBlendMode::kMultiply,   // 1:'multiply'
+        SkBlendMode::kScreen,     // 2:'screen'
+        SkBlendMode::kOverlay,    // 3:'overlay
+        SkBlendMode::kDarken,     // 4:'darken'
+        SkBlendMode::kLighten,    // 5:'lighten'
+        SkBlendMode::kColorDodge, // 6:'color-dodge'
+        SkBlendMode::kColorBurn,  // 7:'color-burn'
+        SkBlendMode::kHardLight,  // 8:'hard-light'
+        SkBlendMode::kSoftLight,  // 9:'soft-light'
+        SkBlendMode::kDifference, // 10:'difference'
+        SkBlendMode::kExclusion,  // 11:'exclusion'
+        SkBlendMode::kHue,        // 12:'hue'
+        SkBlendMode::kSaturation, // 13:'saturation'
+        SkBlendMode::kColor,      // 14:'color'
+        SkBlendMode::kLuminosity, // 15:'luminosity'
+    };
+
+    const auto bm_index = ParseDefault<size_t>(jobject["bm"], 0);
+    if (bm_index >= SK_ARRAY_COUNT(kBlendModeMap)) {
+            abuilder->log(Logger::Level::kWarning, &jobject,
+                          "Unsupported blend mode %lu\n", bm_index);
+            return SkBlendMode::kSrcOver;
+    }
+
+    return kBlendModeMap[bm_index];
+}
+
+} // namespace
+
+sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectValue& jobject,
+                                                          sk_sp<sksg::RenderNode> child) const {
+    const auto bm = GetBlendMode(jobject, this);
+    if (bm != SkBlendMode::kSrcOver) {
+        fHasNontrivialBlending = true;
+        child = sksg::BlendModeEffect::Make(std::move(child), bm);
+    }
+
+    return child;
 }
 
 sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath,
