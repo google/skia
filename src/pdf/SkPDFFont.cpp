@@ -299,7 +299,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     add_common_font_descriptor_entries(descriptor.get(), metrics, emSize , 0);
 
     int ttcIndex;
-    std::unique_ptr<SkStreamAsset> fontAsset(face->openStream(&ttcIndex));
+    std::unique_ptr<SkStreamAsset> fontAsset = face->openStream(&ttcIndex);
     size_t fontSize = fontAsset ? fontAsset->getLength() : 0;
     if (0 == fontSize) {
         SkDebugf("Error: (SkTypeface)(%p)::openStream() returned "
@@ -325,7 +325,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                         break;
                     }
                     // If subsetting fails, fall back to original font data.
-                    fontAsset.reset(face->openStream(&ttcIndex));
+                    fontAsset = face->openStream(&ttcIndex);
                     SkASSERT(fontAsset);
                     SkASSERT(fontAsset->getLength() == fontSize);
                     if (!fontAsset || fontAsset->getLength() == 0) { break; }
@@ -424,7 +424,7 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
             size_t header SK_INIT_TO_AVOID_WARNING;
             size_t data SK_INIT_TO_AVOID_WARNING;
             size_t trailer SK_INIT_TO_AVOID_WARNING;
-            std::unique_ptr<SkStreamAsset> rawFontData(typeface->openStream(&ttcIndex));
+            std::unique_ptr<SkStreamAsset> rawFontData = typeface->openStream(&ttcIndex);
             sk_sp<SkData> fontData = SkPDFConvertType1FontStream(std::move(rawFontData),
                                                                  &header, &data, &trailer);
             if (fontData) {
