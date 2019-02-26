@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2864477a_708b59f1",
+        "filename": "tools/sk_app/VulkanWindowContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-26T15:45:05Z",
+      "side": 0,
+      "message": "So we don\u0027t need this any more because we\u0027re not doing layout transition?",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 41
+      },
+      "revId": "4da3aa176696c7510dc707435560618726a77ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
