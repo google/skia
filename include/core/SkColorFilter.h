@@ -131,6 +131,10 @@ public:
     static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
                                           float weight);
 
+    using SkRuntimeColorFilterFn = void(*)(float[4], const void*);
+    static sk_sp<SkColorFilter> MakeRuntime(int index, const char* sksl, const void* inputs,
+                                            size_t inputSize, SkRuntimeColorFilterFn cpuFunc);
+
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns
