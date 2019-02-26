@@ -7,7 +7,7 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
-skia_utils_sources = [
+skia_utils_public = [
   "$_include/utils/SkAnimCodecPlayer.h",
   "$_include/utils/SkFrontBufferedStream.h",
   "$_include/utils/SkCamera.h",
@@ -22,7 +22,12 @@ skia_utils_sources = [
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
+  
+  #mac
+  "$_include/utils/mac/SkCGUtils.h",
+]
 
+skia_utils_sources = [
   "$_src/utils/Sk3D.cpp",
   "$_src/utils/SkAnimCodecPlayer.cpp",
   "$_src/utils/SkBase64.cpp",
@@ -72,7 +77,6 @@ skia_utils_sources = [
   "$_src/utils/SkWhitelistTypefaces.cpp",
 
   #mac
-  "$_include/utils/mac/SkCGUtils.h",
   "$_src/utils/mac/SkCreateCGImageRef.cpp",
   "$_src/utils/mac/SkUniqueCFRef.h",
 

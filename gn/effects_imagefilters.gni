@@ -7,6 +7,23 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
+skia_effects_imagefilter_public = [
+  "$_include/effects/SkAlphaThresholdFilter.h",
+  "$_include/effects/SkArithmeticImageFilter.h",
+  "$_include/effects/SkBlurImageFilter.h",
+  "$_include/effects/SkColorFilterImageFilter.h",
+  "$_include/effects/SkDisplacementMapEffect.h",
+  "$_include/effects/SkDropShadowImageFilter.h",
+  "$_include/effects/SkImageSource.h",
+  "$_include/effects/SkLightingImageFilter.h",
+  "$_include/effects/SkMagnifierImageFilter.h",
+  "$_include/effects/SkMorphologyImageFilter.h",
+  "$_include/effects/SkOffsetImageFilter.h",
+  "$_include/effects/SkPaintImageFilter.h",
+  "$_include/effects/SkTileImageFilter.h",
+  "$_include/effects/SkXfermodeImageFilter.h",
+]
+
 skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
   "$_src/effects/imagefilters/SkArithmeticImageFilter.cpp",
@@ -26,19 +43,4 @@ skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkPictureImageFilter.cpp",
   "$_src/effects/imagefilters/SkTileImageFilter.cpp",
   "$_src/effects/imagefilters/SkXfermodeImageFilter.cpp",
-
-  "$_include/effects/SkAlphaThresholdFilter.h",
-  "$_include/effects/SkArithmeticImageFilter.h",
-  "$_include/effects/SkBlurImageFilter.h",
-  "$_include/effects/SkColorFilterImageFilter.h",
-  "$_include/effects/SkDisplacementMapEffect.h",
-  "$_include/effects/SkDropShadowImageFilter.h",
-  "$_include/effects/SkImageSource.h",
-  "$_include/effects/SkLightingImageFilter.h",
-  "$_include/effects/SkMagnifierImageFilter.h",
-  "$_include/effects/SkMorphologyImageFilter.h",
-  "$_include/effects/SkOffsetImageFilter.h",
-  "$_include/effects/SkPaintImageFilter.h",
-  "$_include/effects/SkTileImageFilter.h",
-  "$_include/effects/SkXfermodeImageFilter.h",
 ]
