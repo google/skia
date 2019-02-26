@@ -25,7 +25,6 @@
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
-#include "SkSGRenderEffect.h"
 #include "SkSGTransform.h"
 
 #include <algorithm>
@@ -173,44 +172,6 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
 }
 
 } // namespace
-
-sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::NumberValue& jbm,
-                                                          sk_sp<sksg::RenderNode> child) const {
-    static constexpr SkBlendMode kBlendModeMap[] = {
-        SkBlendMode::kSrcOver,    // 0:'normal'
-        SkBlendMode::kMultiply,   // 1:'multiply'
-        SkBlendMode::kScreen,     // 2:'screen'
-        SkBlendMode::kOverlay,    // 3:'overlay
-        SkBlendMode::kDarken,     // 4:'darken'
-        SkBlendMode::kLighten,    // 5:'lighten'
-        SkBlendMode::kColorDodge, // 6:'color-dodge'
-        SkBlendMode::kColorBurn,  // 7:'color-burn'
-        SkBlendMode::kHardLight,  // 8:'hard-light'
-        SkBlendMode::kSoftLight,  // 9:'soft-light'
-        SkBlendMode::kDifference, // 10:'difference'
-        SkBlendMode::kExclusion,  // 11:'exclusion'
-        SkBlendMode::kHue,        // 12:'hue'
-        SkBlendMode::kSaturation, // 13:'saturation'
-        SkBlendMode::kColor,      // 14:'color'
-        SkBlendMode::kLuminosity, // 15:'luminosity'
-    };
-
-    const auto bm_index = static_cast<size_t>(*jbm);
-    if (bm_index >= SK_ARRAY_COUNT(kBlendModeMap)) {
-        this->log(Logger::Level::kWarning, &jbm, "Unsupported blend mode %lu\n", bm_index);
-        return child;
-    }
-
-    const auto bm = kBlendModeMap[bm_index];
-
-    if (bm == SkBlendMode::kSrcOver) {
-        return child;
-    }
-
-    fHasNontrivialBlending = true;
-
-    return sksg::BlendModeEffect::Make(std::move(child), bm);
-}
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name,
                                                                 AnimatorScope* ascope) const {
@@ -566,9 +527,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     }
 
     // Optional blend mode.
-    if (const skjson::NumberValue* jbm = (*jlayer)["bm"]) {
-        layer = this->attachBlendMode(*jbm, std::move(layer));
-    }
+    layer = this->attachBlendMode(*jlayer, std::move(layer));
 
     class LayerController final : public sksg::GroupAnimator {
     public:
