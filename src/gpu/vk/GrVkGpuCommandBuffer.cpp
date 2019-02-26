@@ -852,6 +852,11 @@ void GrVkGpuRTCommandBuffer::executeDrawable(std::unique_ptr<SkDrawable::GpuDraw
     SkAssertResult(cbInfo.fRenderPass->colorAttachmentIndex(&vkInfo.fColorAttachmentIndex));
     vkInfo.fFormat = targetImage->imageFormat();
     vkInfo.fDrawBounds = &bounds;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    vkInfo.fImage = targetImage->image();
+#else
+    vkInfo.fImage = VK_NULL_HANDLE;
+#endif //SK_BUILD_FOR_ANDROID_FRAMEWORK
 
     GrBackendDrawableInfo info(vkInfo);
 

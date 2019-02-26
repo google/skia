@@ -210,6 +210,8 @@ using GrVkGetProc = std::function<PFN_vkVoidFunction(
  * to render offscreen textures which will be sampled in draws added to the passed in
  * VkCommandBuffer. If this is done the SkDrawable is in charge of adding the required memory
  * barriers to the queue for the sampled images since the Skia backend will not do this.
+ *
+ * The VkImage is informational only and should not be used or modified in any ways.
  */
 struct GrVkDrawableInfo {
     VkCommandBuffer fSecondaryCommandBuffer;
@@ -217,6 +219,7 @@ struct GrVkDrawableInfo {
     VkRenderPass    fCompatibleRenderPass;
     VkFormat        fFormat;
     VkRect2D*       fDrawBounds;
+    VkImage         fImage;
 };
 
 #endif
