@@ -10,6 +10,7 @@ config("public_config") {
 }
 
 component("sksg") {
+  check_includes = false
   import("sksg.gni")
   public_configs = [ ":public_config" ]
   sources = skia_sksg_sources

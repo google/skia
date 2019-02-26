@@ -18,6 +18,7 @@ config("public_config") {
 
 component("skottie") {
   if (skia_enable_skottie) {
+    check_includes = false
     import("skottie.gni")
     public_configs = [ ":public_config" ]
     public = skia_skottie_public
@@ -36,6 +37,7 @@ if (defined(is_skia_standalone)) {
     include_dirs = [ "utils" ]
   }
   source_set("utils") {
+    check_includes = false
     if (skia_enable_skottie) {
       testonly = true
 
@@ -74,6 +76,7 @@ if (defined(is_skia_standalone)) {
 
     source_set("fuzz") {
       if (skia_enable_skottie) {
+        check_includes = false
         testonly = true
 
         configs += [ "../..:skia_private" ]
@@ -102,6 +105,7 @@ if (defined(is_skia_standalone)) {
     }
 
     source_set("tool") {
+      check_includes = false
       testonly = true
 
       configs += [ "../..:skia_private" ]
@@ -122,6 +126,7 @@ if (defined(is_skia_standalone)) {
 
     source_set("gm") {
       if (skia_enable_skottie) {
+        check_includes = false
         testonly = true
 
         # would be nice to have a gm_config
