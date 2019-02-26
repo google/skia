@@ -68,7 +68,6 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 
     SkParticleUpdateParams updateParams;
     updateParams.fDeltaTime = deltaTime;
-    updateParams.fRandom = &fRandom;
 
     // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
@@ -106,7 +105,7 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             fParticles[fCount].fColor = { 1.0f, 1.0f, 1.0f, 1.0f };
             fParticles[fCount].fFrame = 0.0f;
 
-            fParticles[fCount].fStableRandom = fStableRandoms[fCount] = fRandom;
+            fParticles[fCount].fRandom = fStableRandoms[fCount] = fRandom;
             fCount++;
         }
 
@@ -123,7 +122,7 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
 
     // Restore all stable random generators so update affectors get consistent behavior each frame
     for (int i = 0; i < fCount; ++i) {
-        fParticles[i].fStableRandom = fStableRandoms[i];
+        fParticles[i].fRandom = fStableRandoms[i];
     }
 
     // Apply update rules

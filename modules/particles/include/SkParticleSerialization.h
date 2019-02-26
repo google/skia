@@ -31,6 +31,9 @@ public:
     void visit(const char* name, SkString& s) override {
         fWriter.appendString(name, s.c_str());
     }
+    void visit(const char* name, int& i, const EnumStringMapping* map, int count) override {
+        fWriter.appendString(name, EnumToString(i, map, count));
+    }
 
     // Compound types
     void visit(const char* name, SkPoint& p) override {
@@ -86,6 +89,12 @@ public:
     }
     void visit(const char* name, SkString& s) override {
         TryParse(get(name), s);
+    }
+    void visit(const char* name, int& i, const EnumStringMapping* map, int count) override {
+        SkString str;
+        if (TryParse(get(name), str)) {
+            i = StringToEnum(str.c_str(), map, count);
+        }
     }
 
     void visit(const char* name, SkPoint& p) override {
