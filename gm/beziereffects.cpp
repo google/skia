@@ -51,8 +51,9 @@ protected:
         this->setBounds(rect, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    Target::PipelineAndFixedDynamicState makePipeline(Target* target) {
-        return target->makePipeline(0, std::move(fProcessorSet), target->detachAppliedClip());
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                this, chainBounds, std::move(fProcessorSet));
     }
 
     sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }
@@ -115,8 +116,8 @@ private:
             SkPoint3 pt3 = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
             fKLM.mapHomogeneousPoints((SkPoint3* ) verts[v].fKLM, &pt3, 1);
         }
-        auto pipe = this->makePipeline(target);
-        helper.recordDraw(target, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
+
+        helper.recordDraw(target, this->gp());
     }
 
     SkMatrix fKLM;
@@ -322,8 +323,7 @@ private:
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         fDevToUV.apply(verts, 4, sizeof(Vertex), sizeof(SkPoint));
-        auto pipe = this->makePipeline(target);
-        helper.recordDraw(target, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, this->gp());
     }
 
     GrPathUtils::QuadUVMatrix fDevToUV;
