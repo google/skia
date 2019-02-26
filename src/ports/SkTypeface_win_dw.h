@@ -37,6 +37,27 @@ static SkFontStyle get_style(IDWriteFont* font) {
     return SkFontStyle(weight, width, slant);
 }
 
+static SkFontStyle get_style(IDWriteFontFace3* fontFace) {
+    int weight = fontFace->GetWeight();
+    int width = fontFace->GetStretch();
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    switch (fontFace->GetStyle()) {
+        case DWRITE_FONT_STYLE_NORMAL:
+            slant = SkFontStyle::kUpright_Slant;
+            break;
+        case DWRITE_FONT_STYLE_OBLIQUE:
+            slant = SkFontStyle::kOblique_Slant;
+            break;
+        case DWRITE_FONT_STYLE_ITALIC:
+            slant = SkFontStyle::kItalic_Slant;
+            break;
+        default:
+            SkASSERT(false);
+            break;
+    }
+    return SkFontStyle(weight, width, slant);
+}
+
 class DWriteFontTypeface : public SkTypeface {
 private:
     DWriteFontTypeface(const SkFontStyle& style,
@@ -70,6 +91,26 @@ private:
         }
     }
 
+    DWriteFontTypeface(const SkFontStyle& style,
+                       IDWriteFactory* factory,
+                       IDWriteFontFace3* fontFace,
+                       IDWriteFontFileLoader* fontFileLoader = nullptr,
+                       IDWriteFontCollectionLoader* fontCollectionLoader = nullptr)
+            : SkTypeface(style, false)
+            , fFactory(SkRefComPtr(factory))
+            , fDWriteFontCollectionLoader(SkSafeRefComPtr(fontCollectionLoader))
+            , fDWriteFontFileLoader(SkSafeRefComPtr(fontFileLoader))
+            , fDWriteFontFace(SkRefComPtr(fontFace))
+            , fDWriteFontFace2(SkRefComPtr(fontFace))
+            , fDWriteFontFace3(SkRefComPtr(fontFace)) {
+        if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
+        }
+        if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
+            SkASSERT_RELEASE(nullptr == fFactory2.get());
+        }
+    }
+
 public:
     SkTScopedComPtr<IDWriteFactory> fFactory;
     SkTScopedComPtr<IDWriteFactory2> fFactory2;
@@ -80,6 +121,7 @@ public:
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
+    SkTScopedComPtr<IDWriteFontFace3> fDWriteFontFace3;
     SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
 
     static DWriteFontTypeface* Create(IDWriteFactory* factory,
@@ -90,6 +132,14 @@ public:
                                       IDWriteFontCollectionLoader* fontCollectionLoader = nullptr) {
         return new DWriteFontTypeface(get_style(font), factory, fontFace, font, fontFamily,
                                       fontFileLoader, fontCollectionLoader);
+    }
+
+    static DWriteFontTypeface* Create(IDWriteFactory* factory,
+                                      IDWriteFontFace3* fontFace,
+                                      IDWriteFontFileLoader* fontFileLoader = nullptr,
+                                      IDWriteFontCollectionLoader* fontCollectionLoader = nullptr) {
+        return new DWriteFontTypeface(get_style(fontFace), factory, fontFace, fontFileLoader,
+                                      fontCollectionLoader);
     }
 
 protected:

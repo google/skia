@@ -11,6 +11,8 @@
 #include "../private/SkLeanWindows.h"
 #include "SkTypeface.h"
 
+#include <dwrite_3.h>
+
 #ifdef SK_BUILD_FOR_WIN
 
 /**
@@ -49,7 +51,9 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory = NULL
                                                   IDWriteFontCollection* collection = NULL);
 SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
                                                   IDWriteFontCollection* collection,
-                                                  IDWriteFontFallback* fallback);
+                                                  IDWriteFontFallback* fallback,
+                                                  bool useFontSets = FALSE,
+                                                  IDWriteFontSet* fontSet = NULL);
 
 /**
  *  Creates an SkFontMgr which renders using DirectWrite and obtains its data
