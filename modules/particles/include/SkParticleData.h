@@ -43,11 +43,10 @@ struct SkParticleState {
     SkParticleVelocity fVelocity;
     SkColor4f          fColor;
     SkScalar           fFrame;        // Parameter to drawable for animated sprites, etc.
-    SkRandom           fStableRandom;
+    SkRandom           fRandom;
 };
 
 struct SkParticleUpdateParams {
-    SkRandom* fRandom;
     float fDeltaTime;
 };
 

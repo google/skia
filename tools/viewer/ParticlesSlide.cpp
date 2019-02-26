@@ -64,6 +64,19 @@ public:
                              &s);
         }
     }
+    void visit(const char* name, int& i, const EnumStringMapping* map, int count) override {
+        if (fTreeStack.back()) {
+            const char* curStr = EnumToString(i, map, count);
+            if (ImGui::BeginCombo(item(name), curStr ? curStr : "Unknown")) {
+                for (int j = 0; j < count; ++j) {
+                    if (ImGui::Selectable(map[j].fName, i == map[j].fValue)) {
+                        i = map[j].fValue;
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+    }
 
     void visit(const char* name, SkPoint& p) override {
         if (fTreeStack.back()) {
