@@ -173,7 +173,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkRandomTypeface::onGetAdvancedMetric
 }
 
 std::unique_ptr<SkStreamAsset> SkRandomTypeface::onOpenStream(int* ttcIndex) const {
-    return std::unique_ptr<SkStreamAsset>(fProxy->openStream(ttcIndex));
+    return fProxy->openStream(ttcIndex);
 }
 
 sk_sp<SkTypeface> SkRandomTypeface::onMakeClone(const SkFontArguments& args) const {

@@ -262,13 +262,13 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
     return this->onGetTableData(tag, offset, length, data);
 }
 
-SkStreamAsset* SkTypeface::openStream(int* ttcIndex) const {
+std::unique_ptr<SkStreamAsset> SkTypeface::openStream(int* ttcIndex) const {
     int ttcIndexStorage;
     if (nullptr == ttcIndex) {
         // So our subclasses don't need to check for null param
         ttcIndex = &ttcIndexStorage;
     }
-    return this->onOpenStream(ttcIndex).release();
+    return this->onOpenStream(ttcIndex);
 }
 
 std::unique_ptr<SkFontData> SkTypeface::makeFontData() const {

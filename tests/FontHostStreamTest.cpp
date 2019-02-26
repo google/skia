@@ -88,7 +88,7 @@ DEF_TEST(FontHostStream, reporter) {
 
         sk_sp<SkTypeface> typeface = font.refTypefaceOrDefault();
         int ttcIndex;
-        std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
+        std::unique_ptr<SkStreamAsset> fontData = typeface->openStream(&ttcIndex);
         if (!fontData) {
             // We're using a SkTypeface that can't give us a stream.
             // This happens with portable or system fonts.  End the test now.
