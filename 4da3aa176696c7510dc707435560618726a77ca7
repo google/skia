@@ -22,6 +22,30 @@
       "revId": "4da3aa176696c7510dc707435560618726a77ca7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be88403f_45da1536",
+        "filename": "tools/sk_app/VulkanWindowContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-26T16:19:38Z",
+      "side": 0,
+      "message": "So we are using Skia\u0027s SkSurface::wait(semaphore[]) call now. The contract of that call is that Skia takes ownership of the passed in semaphore. So we don\u0027t store that semaphore any more and just make a new one each time to pass to skia (making a semaphore object is cheap).",
+      "parentUuid": "2864477a_708b59f1",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 41
+      },
+      "revId": "4da3aa176696c7510dc707435560618726a77ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
