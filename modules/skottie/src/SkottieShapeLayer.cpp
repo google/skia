@@ -587,6 +587,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
     //
     std::vector<sk_sp<sksg::GeometryNode>> geos;
     std::vector<sk_sp<sksg::RenderNode  >> draws;
+
+    const auto add_draw = [this, &draws](sk_sp<sksg::RenderNode> draw, const ShapeRec& rec) {
+        // All draws can have an optional blend mode.
+        draws.push_back(this->attachBlendMode(rec.fJson, std::move(draw)));
+    };
+
     for (auto rec = recs.rbegin(); rec != recs.rend(); ++rec) {
         const AutoPropertyTracker apt(this, rec->fJson);
 
@@ -620,7 +626,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
                                              ctx->fGeometryEffectStack,
                                              ctx->fCommittedAnimators);
             if (auto subgroup = this->attachShape(rec->fJson["it"], &groupShapeCtx)) {
-                draws.push_back(std::move(subgroup));
+                add_draw(std::move(subgroup), *rec);
                 SkASSERT(groupShapeCtx.fCommittedAnimators >= ctx->fCommittedAnimators);
                 ctx->fCommittedAnimators = groupShapeCtx.fCommittedAnimators;
             }
@@ -647,7 +653,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
                 : drawGeos[0];
 
             SkASSERT(geo);
-            draws.push_back(sksg::Draw::Make(std::move(geo), std::move(paint)));
+            add_draw(sksg::Draw::Make(std::move(geo), std::move(paint)), *rec);
             ctx->fCommittedAnimators = ctx->fScope->size();
         } break;
         case ShapeType::kDrawEffect: {
