@@ -118,11 +118,6 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
             break;
         }
     }
-    GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, fRenderTarget->config(), primProc, hasPoints,
-                              pipeline, fGpu)) {
-        return nullptr;
-    }
 
     const GrTextureProxy* const* primProcProxies = nullptr;
     if (fixedDynamicState) {
@@ -130,11 +125,12 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
     }
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
 
-    // TODO: use resource provider for pipeline
     GrMtlPipelineState* pipelineState =
-            GrMtlPipelineStateBuilder::CreatePipelineState(fRenderTarget, fOrigin, primProc,
-                                                           primProcProxies, pipeline,
-                                                           &desc, fGpu);
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, fOrigin,
+                                                                     pipeline,
+                                                                     primProc,
+                                                                     primProcProxies,
+                                                                     hasPoints);
     if (!pipelineState) {
         return nullptr;
     }
@@ -160,8 +156,9 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         return; // TODO: ScissorRects are not supported.
     }
 
-    std::unique_ptr<GrMtlPipelineState> pipelineState(
-            this->prepareDrawState(primProc, pipeline, fixedDynamicState, meshes, meshCount));
+    GrMtlPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline,
+                                                               fixedDynamicState, meshes,
+                                                               meshCount);
     if (!pipelineState) {
         return;
     }
