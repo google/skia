@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8fd001c_647915a3",
+        "filename": "modules/particles/src/SkParticleAffector.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-26T15:22:36Z",
+      "side": 1,
+      "message": "I\u0027m still noodling over the best way to add enum support to my reflection framework without too much boilerplate.",
+      "revId": "3e65722154627366bd0bd39dd737311d27e3f436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
