@@ -32,8 +32,9 @@
    "Spawn": [
       {
          "Type": "SkLinearVelocityAffector",
+         "Enabled": true,
          "Force": false,
-         "Local": false,
+         "Frame": 0,
          "Angle": {
             "XValues": [],
             "Segments": [
@@ -75,6 +76,7 @@
    "Update": [
       {
          "Type": "SkSizeAffector",
+         "Enabled": true,
          "Curve": {
             "XValues": [],
             "Segments": [

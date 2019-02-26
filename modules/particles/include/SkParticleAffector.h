@@ -17,6 +17,12 @@ struct SkCurve;
 struct SkParticleState;
 struct SkParticleUpdateParams;
 
+enum SkParticleFrame {
+    kWorld_ParticleFrame,     // "Up" is { 0, -1 }
+    kLocal_ParticleFrame,     // "Up" is particle's heading
+    kVelocity_ParticleFrame,  // "Up" is particle's direction of travel
+};
+
 class SkParticleAffector : public SkReflected {
 public:
     REFLECTED_ABSTRACT(SkParticleAffector, SkReflected)
@@ -26,13 +32,21 @@ public:
 
     static void RegisterAffectorTypes();
 
+    // Affectors that can set the linear or angular velocity. Both have a 'force' option to apply
+    // the resulting value as a force, rather than directly setting the velocity.
     static sk_sp<SkParticleAffector> MakeLinearVelocity(const SkCurve& angle,
                                                         const SkCurve& strength,
                                                         bool force,
-                                                        bool local);
+                                                        SkParticleFrame frame);
+    static sk_sp<SkParticleAffector> MakeAngularVelocity(const SkCurve& strength,
+                                                         bool force);
+
+    // Set the orientation of a particle, relative to the world, local, or velocity frame.
+    static sk_sp<SkParticleAffector> MakeOrientation(const SkCurve& angle,
+                                                     SkParticleFrame frame);
+
     static sk_sp<SkParticleAffector> MakePointForce(SkPoint point, SkScalar constant,
                                                     SkScalar invSquare);
-    static sk_sp<SkParticleAffector> MakeOrientAlongVelocity();
 
     static sk_sp<SkParticleAffector> MakeSize(const SkCurve& curve);
     static sk_sp<SkParticleAffector> MakeFrame(const SkCurve& curve);
