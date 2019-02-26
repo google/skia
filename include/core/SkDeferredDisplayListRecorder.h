@@ -58,9 +58,7 @@ public:
     using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
     using PromiseImageTextureDoneProc = void (*)(PromiseImageTextureContext);
 
-    // Deprecated types. To be removed.
-    using LegacyPromiseImageTextureFulfillProc = void (*)(PromiseImageTextureContext,
-                                                          GrBackendTexture*);
+    // Deprecated alias. To be removed.
     using TextureContext = PromiseImageTextureContext;
 
     enum class DelayReleaseCallback : bool { kNo = false, kYes = true };
@@ -136,25 +134,6 @@ public:
                                       PromiseImageTextureContext textureContext,
                                       DelayReleaseCallback delayReleaseCallback);
 
-    /** Deprecated version that assumes DelayReleaseCallback::kNo. */
-    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
-                                      int width,
-                                      int height,
-                                      GrMipMapped mipMapped,
-                                      GrSurfaceOrigin origin,
-                                      SkColorType colorType,
-                                      SkAlphaType alphaType,
-                                      sk_sp<SkColorSpace> colorSpace,
-                                      PromiseImageTextureFulfillProc textureFulfillProc,
-                                      PromiseImageTextureReleaseProc textureReleaseProc,
-                                      PromiseImageTextureDoneProc textureDoneProc,
-                                      PromiseImageTextureContext textureContext) {
-        return this->makePromiseTexture(backendFormat, width, height, mipMapped, origin, colorType,
-                                        alphaType, colorSpace, textureFulfillProc,
-                                        textureReleaseProc, textureDoneProc, textureContext,
-                                        DelayReleaseCallback::kNo);
-    }
-
     /**
         This entry point operates the same as 'makePromiseTexture' except that its
         textureFulfillProc can be called up to four times to fetch the required YUVA
@@ -175,25 +154,6 @@ public:
                                           PromiseImageTextureDoneProc textureDoneProc,
                                           PromiseImageTextureContext textureContexts[],
                                           DelayReleaseCallback delayReleaseCallback);
-
-    /** Deprecated version that assumes DelayReleaseCallback::kNo. */
-    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
-                                          const GrBackendFormat yuvaFormats[],
-                                          const SkISize yuvaSizes[],
-                                          const SkYUVAIndex yuvaIndices[4],
-                                          int imageWidth,
-                                          int imageHeight,
-                                          GrSurfaceOrigin imageOrigin,
-                                          sk_sp<SkColorSpace> imageColorSpace,
-                                          PromiseImageTextureFulfillProc textureFulfillProc,
-                                          PromiseImageTextureReleaseProc textureReleaseProc,
-                                          PromiseImageTextureDoneProc textureDoneProc,
-                                          PromiseImageTextureContext textureContexts[]) {
-        return this->makeYUVAPromiseTexture(
-                yuvColorSpace, yuvaFormats, yuvaSizes, yuvaIndices, imageWidth, imageHeight,
-                imageOrigin, std::move(imageColorSpace), textureFulfillProc, textureReleaseProc,
-                textureDoneProc, textureContexts, DelayReleaseCallback::kNo);
-    }
 
 private:
     bool init();
