@@ -55,7 +55,7 @@ Samples
   <figure>
     <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/28004d8841e7e497013263598241a3c1edc21dc1cf87a679abba307f39fa5fe6"
+      <a href="https://jsfiddle.skia.org/canvaskit/ea89749ae8c90bce807ea2e7e34fb7b09b950cee70d9db0a9cdfd2d67bd48ef0"
           target=_blank rel=noopener>
         Star JSFiddle</a>
     </figcaption>
@@ -96,7 +96,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://unpkg.com/canvaskit-wasm@0.3.1/bin/';
+    locate_file = 'https://unpkg.com/canvaskit-wasm@0.4.0/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
@@ -173,8 +173,9 @@ Samples
 
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
-    textPaint.setTextSize(30);
     textPaint.setAntiAlias(true);
+
+    const textFont = new CanvasKit.SkFont(null, 30);
 
     let i = 0;
 
@@ -196,7 +197,7 @@ Samples
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       canvas.drawPath(path, paint);
-      canvas.drawText('Try Clicking!', 10, 380, textPaint);
+      canvas.drawText('Try Clicking!', 10, 380, textPaint, textFont);
       canvas.flush();
       dpe.delete();
       path.delete();
@@ -216,8 +217,9 @@ Samples
     document.getElementById('patheffect').addEventListener('pointerdown', interact);
     preventScrolling(document.getElementById('patheffect'));
 
-    // A client would need to delete this if it didn't go on for ever.
-    //paint.delete();
+    // A client would need to delete this if it didn't go on forever.
+    // font.delete();
+    // paint.delete();
   }
 
   function InkExample(CanvasKit) {
