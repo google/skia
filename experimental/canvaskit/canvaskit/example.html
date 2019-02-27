@@ -45,6 +45,7 @@
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
+<canvas id=shape2 width=600 height=600></canvas>
 
 <h2> Skottie </h2>
 <canvas id=sk_legos width=300 height=300></canvas>
@@ -97,6 +98,7 @@
     GradiantAPI1(CanvasKit);
 
     TextShapingAPI1(CanvasKit, notoserifData);
+    TextShapingAPI2(CanvasKit, notoserifData);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -146,6 +148,7 @@
     resp.arrayBuffer().then((buffer) => {
       notoserifData = buffer;
       TextShapingAPI1(CanvasKit, notoserifData);
+      TextShapingAPI2(CanvasKit, notoserifData);
     });
   });
 
@@ -1159,5 +1162,68 @@
     shapedText2.delete();
 
     surface.delete();
+  }
+
+  function TextShapingAPI2(CanvasKit, notoserifData) {
+    if (!notoserifData || !CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('shape2');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
+
+    const textPaint = new CanvasKit.SkPaint();
+    const bigFont = new CanvasKit.SkFont(notoSerif, 40);
+    const smallFont = new CanvasKit.SkFont(notoSerif, 25);
+
+    const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac leo vitae ipsum hendrerit euismod quis rutrum nibh. Quisque non suscipit urna. Donec enim urna, facilisis vitae volutpat in, mattis at elit. Sed quis augue et dolor dignissim fringilla. Sed non massa eu neque tristique malesuada. ';
+
+    let X = 80;
+    let Y = 90;
+
+    function drawFrame() {
+      CanvasKit.setCurrentContext(context);
+      canvas.clear(CanvasKit.TRANSPARENT);
+
+      const shapedText = new CanvasKit.ShapedText({
+        font: smallFont,
+        leftToRight: true,
+        text: TEXT,
+        width: (X * 2) - 10,
+      });
+
+      canvas.drawRect(CanvasKit.LTRBRect(10, 10, X*2, Y*2), paint);
+      canvas.drawText(shapedText, 10, 40, textPaint, smallFont);
+      canvas.drawText('Try Clicking!', 10, 480, textPaint, bigFont);
+
+      surface.flush();
+
+      shapedText.delete();
+
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // Make animation interactive
+    let interact = (e) => {
+      if (!e.pressure) {
+        return;
+      }
+      X = e.offsetX;
+      Y = e.offsetY;
+    };
+    document.getElementById('shape2').addEventListener('pointermove', interact);
+    document.getElementById('shape2').addEventListener('pointerdown', interact);
+    preventScrolling(document.getElementById('shape2'));
   }
 </script>
