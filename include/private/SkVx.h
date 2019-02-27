@@ -18,19 +18,19 @@
 // with across translation units.  skvx::Vec<N,T> always has N*sizeof(T) size
 // and alignof(T) alignment and is safe to use across translation units freely.
 
-
-// It'd be nice to not pull in any Skia headers here, in case we want to spin this file off.
+#include "SkTypes.h"         // SK_CPU_SSE_LEVEL*, etc.
 #include <algorithm>         // std::min, std::max
+#include <cmath>             // std::ceil, std::floor, std::trunc, std::round, std::sqrt, etc.
 #include <cstdint>           // intXX_t
 #include <cstring>           // memcpy()
-#include <cmath>             // std::ceil, std::floor, std::trunc, std::round, std::sqrt, etc.
 #include <initializer_list>  // std::initializer_list
 
-#if defined(__SSE__)
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <immintrin.h>
-#elif defined(__ARM_NEON)
+#elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
 #endif
+
 
 namespace skvx {
 
@@ -94,7 +94,7 @@ struct Vec<1,T> {
     }
 };
 
-#if defined(__GNUC__) && !defined(__clang__) && defined(__SSE__)
+#if defined(__GNUC__) && !defined(__clang__) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     // GCC warns about ABI changes when returning >= 32 byte vectors when -mavx is not enabled.
     // This only happens for types like VExt whose ABI we don't care about, not for Vec itself.
     #pragma GCC diagnostic ignored "-Wpsabi"
@@ -389,15 +389,11 @@ static inline skvx::Vec<sizeof...(Ix),T> shuffle(skvx::Vec<N,T> x) {
     return { x[Ix]... };
 }
 
+#if !defined(SKNX_NO_SIMD)
 namespace skvx {
+    // Platform-specific specializations and overloads can now drop in here.
 
-// Platform-specific specializations and overloads can now drop in here.
-
-#if !defined(SKNX_NO_SIMD) && defined(__SSE__)
-    static Vec<2,float>  sqrt(Vec<2,float> x) { return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x))); }
-    static Vec<2,float> rsqrt(Vec<2,float> x) { return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x))); }
-    static Vec<2,float>   rcp(Vec<2,float> x) { return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x))); }
-
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     static Vec<4,float> sqrt(Vec<4,float> x) {
         return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
     }
@@ -407,9 +403,35 @@ namespace skvx {
     static Vec<4,float> rcp(Vec<4,float> x) {
         return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
     }
+
+    static Vec<2,float>  sqrt(Vec<2,float> x) { return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x))); }
+    static Vec<2,float> rsqrt(Vec<2,float> x) { return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x))); }
+    static Vec<2,float>   rcp(Vec<2,float> x) { return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x))); }
+#endif
+
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+    static Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+        return bit_pun<Vec<4,float>>(_mm_blendv_ps(bit_pun<__m128>(e),
+                                                   bit_pun<__m128>(t),
+                                                   bit_pun<__m128>(c)));
+    }
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    static Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+        return bit_pun<Vec<4,float>>(_mm_or_ps(_mm_and_ps   (bit_pun<__m128>(c),
+                                                             bit_pun<__m128>(t)),
+                                               _mm_andnot_ps(bit_pun<__m128>(c),
+                                                             bit_pun<__m128>(e))));
+    }
+#elif defined(SK_ARM_HAS_NEON)
+    static Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+        return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
+                                               bit_pun<float32x4_t>(t),
+                                               bit_pun<float32x4_t>(e)));
+    }
 #endif
 
 }  // namespace skvx
+#endif  // !defined(SKNX_NO_SIMD)
 
 #undef SINT
 #undef SIT
