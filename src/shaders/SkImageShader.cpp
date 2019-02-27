@@ -128,6 +128,10 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    if (!rec.isLegacyCompatible(fImage->colorSpace())) {
+        return nullptr;
+    }
+
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get()), rec, alloc);
 }
