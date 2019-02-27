@@ -764,8 +764,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     const SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
 
     // The legacy blitters cannot handle any of these complex features (anymore).
-    if (device.colorSpace()                                ||
-        device.alphaType() == kUnpremul_SkAlphaType        ||
+    if (device.alphaType() == kUnpremul_SkAlphaType        ||
         matrix.hasPerspective()                            ||
         paint.getColorFilter()                             ||
         paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
@@ -778,6 +777,26 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     // Choosing SkRasterPipelineBlitter will also let us to hit its single-color memset path.
     if (!paint.getShader() && paint.getBlendMode() != SkBlendMode::kSrcOver) {
         return true;
+    }
+
+#ifdef SK_SUPPORT_LEGACY_CHOOSERASTERPIPELINE
+    if (device.colorSpace()) {
+        return true;
+    }
+#endif
+
+    if (auto cs = device.colorSpace()) {
+        if (paint.getShader()) {
+            // TODO: check if the shader's colorspace is the same, in which case we don't need
+            // to force the raster pipeline.
+            return true;
+        }
+        if (!cs->isSRGB()) {
+            // TODO: convert the paint's color into the device colorspace, so we don't need
+            // to force the raster pipeline. (may want to cache the ColorSpaceXformer on the
+            // device.
+            return true;
+        }
     }
 
     // Only kN32 and 565 are handled by legacy blitters now, 565 mostly just for Android.
@@ -843,7 +862,6 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
 
     // Everything but legacy kN32_SkColorType and kRGB_565_SkColorType should already be handled.
-    SkASSERT(!device.colorSpace());
     SkASSERT(device.colorType() == kN32_SkColorType ||
              device.colorType() == kRGB_565_SkColorType);
 
