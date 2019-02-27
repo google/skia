@@ -124,17 +124,6 @@ public:
 
     bool onAccessPixels(SkPixmap*) override;
 
-    // Temporary interface until it gets lifted up to SkDevice and exposed in SkCanvas
-
-    /*
-     * dstClipCounts[] is a parallel array to the image entries, acting like the intended
-     * dstClipCount field in ImageSetEntry.
-     */
-    void tmp_drawImageSetV2(const SkCanvas::ImageSetEntry[], int dstClipCounts[], int count,
-            const SkPoint dstClips[], const SkPaint& paint,
-            SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint);
-    void tmp_drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
-                            SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode);
 protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
@@ -217,13 +206,16 @@ private:
                         bool bicubic,
                         bool needsTextureDomain);
 
-    // If not null, dstClip must be contained inside dst and will also respect the edge AA flags
-    void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
-                       const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags edgeAA,
-                       const SkPaint&, SkCanvas::SrcRectConstraint);
+    void drawPinnedTextureProxy(sk_sp<GrTextureProxy>,
+                                uint32_t pinnedUniqueID,
+                                SkColorSpace*,
+                                SkAlphaType alphaType,
+                                const SkRect* srcRect,
+                                const SkRect* dstRect,
+                                SkCanvas::SrcRectConstraint,
+                                const SkMatrix& viewMatrix,
+                                const SkPaint&);
 
-    // TODO(michaelludwig): This can be removed once drawBitmapRect is removed from SkDevice
-    // so that drawImageQuad is the sole entry point into the draw-single-image op
     void drawTextureProducer(GrTextureProducer*,
                              const SkRect* srcRect,
                              const SkRect* dstRect,
@@ -231,6 +223,14 @@ private:
                              const SkMatrix& viewMatrix,
                              const SkPaint&,
                              bool attemptDrawTexture);
+
+    void drawTextureProducerImpl(GrTextureProducer*,
+                                 const SkRect& clippedSrcRect,
+                                 const SkRect& clippedDstRect,
+                                 SkCanvas::SrcRectConstraint,
+                                 const SkMatrix& viewMatrix,
+                                 const SkMatrix& srcToDstMatrix,
+                                 const SkPaint&);
 
     void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
                              const SkPaint&);

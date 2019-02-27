@@ -195,7 +195,7 @@ public:
         sk_sp<GrTextureProxy> fProxy;
         SkRect fSrcRect;
         SkRect fDstRect;
-        const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
+        SkPoint* fDstClip; // Must be null, or point to an array of 4 points
         float fAlpha;
         GrQuadAAFlags fAAFlags;
     };
