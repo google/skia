@@ -89,6 +89,10 @@ protected:
         return true;
     }
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return IsLegacyCompatible(nullptr, deviceCS);
+    }
+
 private:
     // For serialization.  This will never be called.
     Factory getFactory() const override { return nullptr; }
