@@ -8,7 +8,6 @@
   CanvasKit.onRuntimeInitialized = function() {
     // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
-
     // Add some helpers for matrices. This is ported from SkMatrix.cpp
     // to save complexity and overhead of going back and forth between
     // C++ and JS layers.

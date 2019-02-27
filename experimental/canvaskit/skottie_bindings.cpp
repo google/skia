@@ -6,11 +6,14 @@
  */
 
 #include "SkCanvas.h"
+#include "SkImage.h"
 #include "SkMakeUnique.h"
 #include "SkTypes.h"
+#include "SkString.h"
 #include "Skottie.h"
 
 #include <string>
+#include <map>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -26,13 +29,65 @@ using namespace emscripten;
 #if SK_INCLUDE_MANAGED_SKOTTIE
 namespace {
 
+class SkottieAssetProvider : public skottie::ResourceProvider {
+public:
+    SkottieAssetProvider(): fImgs() {}
+    ~SkottieAssetProvider() {
+        // unrefs all images we've taken ownership of
+        fImgs.clear();
+    }
+
+    static sk_sp<SkottieAssetProvider> Make() {
+        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider());
+    }
+
+    void setImage(const std::string& path, const std::string& name,
+                  sk_sp<SkData> img) {
+        auto combined = SkString(path.c_str());
+        combined.append(name.c_str());
+
+        sk_sp<skottie_utils::MultiFrameImageAsset> asset = skottie_utils::MultiFrameImageAsset::Make(img);
+
+        // Am I doing the right thing to take ownership of img?
+        fImgs.emplace_back(std::make_pair(combined, std::move(asset)));
+    }
+
+    sk_sp<SkData> load(const char[], const char[]) const {
+        return nullptr;
+    }
+
+    sk_sp<skottie::ImageAsset> loadImageAsset(const char path[], const char name[]) const {
+        auto combined = SkString(path);
+        combined.append(name);
+
+        for(int i = 0; i < fImgs.size(); i++) {
+            if (fImgs[i].first == combined) {
+                return fImgs[i].second;
+            }
+        }
+        return nullptr;
+    }
+
+    sk_sp<SkData> loadFont(const char[], const char[]) const {
+        return nullptr;
+    }
+private:
+    // Tried using a map, but that gave strange errros like
+    // https://emscripten.org/docs/porting/guidelines/function_pointer_issues.html#portability-function-pointer-issues
+    // Not entirely sure why, but perhaps the iterator in the map was
+    // confusing enscripten.
+    std::vector<std::pair<SkString, sk_sp<skottie_utils::MultiFrameImageAsset>>> fImgs;
+
+};
+
 class ManagedAnimation final : public SkRefCnt {
 public:
-    static sk_sp<ManagedAnimation> Make(const std::string& json) {
+    static sk_sp<ManagedAnimation> Make(const std::string& json, sk_sp<SkottieAssetProvider> ap) {
         auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
+                            .setResourceProvider(ap)
                             .make(json.c_str(), json.size());
 
         return animation
@@ -147,7 +202,25 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
         .function("getOpacityProps", &ManagedAnimation::getOpacityProps);
 
-    function("MakeManagedAnimation", &ManagedAnimation::Make);
+    class_<SkottieAssetProvider>("SkottieAssetProvider")
+        .smart_ptr<sk_sp<SkottieAssetProvider>>("sk_sp<SkottieAssetProvider>")
+        .function("_setImage", optional_override([](SkottieAssetProvider& self,
+                                                  const std::string& folder, const std::string& path,
+                                                  uintptr_t /* uint8_t*  */ iptr,
+                                                  size_t length) {
+        uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
+        sk_sp<SkData> bytes = SkData::MakeWithoutCopy(imgData, length);
+        self.setImage(folder, path, bytes);
+    }), allow_raw_pointers());
+
+    function("MakeManagedAnimation",  optional_override([](std::string json)->sk_sp<ManagedAnimation> {
+        return ManagedAnimation::Make(json, nullptr);
+    }));
+    function("MakeManagedAnimation",  optional_override([](std::string json, sk_sp<SkottieAssetProvider> ap)
+                                                        ->sk_sp<ManagedAnimation> {
+        return ManagedAnimation::Make(json, ap);
+    }));
+    function("MakeSkottieAssetProvider", SkottieAssetProvider::Make);
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
 }
