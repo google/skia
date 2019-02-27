@@ -164,7 +164,8 @@ protected:
         kBlendFuncExtended_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
-        kLastGLSLPrivateFeature = kNoPerspectiveInterpolation_GLSLPrivateFeature
+        kSampleVariables_GLSLPrivateFeature,
+        kLastGLSLPrivateFeature = kSampleVariables_GLSLPrivateFeature
     };
 
     /*

@@ -132,6 +132,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(dropsTileOnZeroDivide);
     CAP(flatInterpolationSupport);
     CAP(noperspectiveInterpolationSupport);
+    CAP(sampleVariablesSupport);
     CAP(externalTextureSupport);
     CAP(imageLoadStoreSupport);
     CAP(mustEnableAdvBlendEqs);
