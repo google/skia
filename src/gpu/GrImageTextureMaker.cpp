@@ -13,8 +13,8 @@
 #include "effects/GrYUVtoRGBEffect.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
-                                         SkImage::CachingHint chint)
-        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
+                                         SkImage::CachingHint chint, bool useDecal)
+        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
         , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
     SkASSERT(client->isLazyGenerated());
@@ -45,8 +45,9 @@ SkColorSpace* GrImageTextureMaker::colorSpace() const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client )
-    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
+GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
+                                                 bool useDecal)
+    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
     , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
@@ -93,9 +94,11 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     // Check simple cases to see if we need to fall back to flattening the image
     // TODO: See if we can relax this -- for example, if filterConstraint
     //       is kYes_FilterConstraint we still may not need a TextureDomain
-    //       in some cases.
+    //       in some cases. Or allow YUVtoRGBEffect to take a wrap mode to
+    //       handle ClampToBorder when a decal is needed.
     if (!textureMatrix.isIdentity() || kNo_FilterConstraint != filterConstraint ||
-        !coordsLimitedToConstraintRect || !filterOrNullForBicubic) {
+        !coordsLimitedToConstraintRect || !filterOrNullForBicubic ||
+        this->domainNeedsDecal()) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,
                                                         filterConstraint,
                                                         coordsLimitedToConstraintRect,
