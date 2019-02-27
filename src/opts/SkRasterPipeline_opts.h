@@ -2975,11 +2975,11 @@ SI void load_4444_(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16
     from_4444(load<U16>(ptr, tail), r,g,b,a);
 }
 SI void store_4444_(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
-    // Select the top 4 bits of each.
-    U16 R = r >> 4,
-        G = g >> 4,
-        B = b >> 4,
-        A = a >> 4;
+    // Round from [0,255] to [0,15], producing the same value as (x*(15/255.0f) + 0.5f).
+    U16 R = (r + 8) / 17,
+        G = (g + 8) / 17,
+        B = (b + 8) / 17,
+        A = (a + 8) / 17;
     // Pack them back into 15|rrrr gggg bbbb aaaa|0.
     store(ptr, tail, R << 12
                    | G <<  8
