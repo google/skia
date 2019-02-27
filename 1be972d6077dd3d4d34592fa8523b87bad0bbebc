@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "38a375ea_ac312a93",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-27T21:57:15Z",
+      "side": 1,
+      "message": "Rewritten...",
+      "parentUuid": "012862d6_7d6d0906",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "24bc03b7_785c87b6",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2019-02-27T21:02:26Z",
       "side": 1,
       "message": "Isn\u0027t this thwarting what we\u0027re trying to do here?",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 5
+      },
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f8532e8_7e7e09ae",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-27T21:57:15Z",
+      "side": 1,
+      "message": "I\u0027ll add a comment...\n\nI think I want to stage these, and handle imageshader by itself (it accounts for most of the dm diffs)",
+      "parentUuid": "24bc03b7_785c87b6",
       "range": {
         "startLine": 132,
         "startChar": 0,
@@ -71,6 +113,24 @@
       "side": 1,
       "message": "Specifically, SkPMColor4fFitsInBytes in GrColor.h",
       "parentUuid": "00a74f61_1528d15c",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95404116_a5282858",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-27T21:57:15Z",
+      "side": 1,
+      "message": "We chatted a bit. The semantics are a little diff for pmcolors, and gradients (and paints) are always unpremul... correct?",
+      "parentUuid": "2e19c3f6_f1672e1a",
       "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
