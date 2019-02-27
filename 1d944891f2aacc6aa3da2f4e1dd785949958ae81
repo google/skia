@@ -22,6 +22,30 @@
       "revId": "1d944891f2aacc6aa3da2f4e1dd785949958ae81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96562166_d4358285",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T20:10:03Z",
+      "side": 1,
+      "message": "The include\u0027s only necessary if you use the NEON intrinsics directly.  Clang\u0027ll autovectorize without it.  But since we\u0027re now using vbslq_f32 and Foox4_t types, we now need it. :)\n\nI had this include here kind of as a reminder to myself that we might need it, trying to keep everything mapped out at rough parity across platforms.",
+      "parentUuid": "e250dc40_3a264c3e",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 30
+      },
+      "revId": "1d944891f2aacc6aa3da2f4e1dd785949958ae81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
