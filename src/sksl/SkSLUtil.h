@@ -101,6 +101,10 @@ public:
         return true;
     }
 
+    bool sampleVariablesSupport() const {
+        return true;
+    }
+
     bool externalTextureSupport() const {
         return true;
     }
