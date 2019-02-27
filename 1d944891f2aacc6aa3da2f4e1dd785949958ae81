@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e250dc40_3a264c3e",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T19:18:20Z",
+      "side": 1,
+      "message": "This isn\u0027t really related to your change, since arm_neon was already being included, but since there are no specific NEON implementations right now, do we need it? Is the include necessary for clang to auto-vectorize on ARM, or just so that it\u0027s easy in the future to use the neon instructions?\n\nI agree that using the SK_ define for both neon and sse is preferred, although it\u0027s a shame that those are stored in SkPreConfig that must be routed through including SkTypes.  If you wanted to keep SkVx as light as possible, would it make sense to split the SIMD definitions out of pre-config into something that can be included on its own?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 30
+      },
+      "revId": "1d944891f2aacc6aa3da2f4e1dd785949958ae81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
