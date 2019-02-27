@@ -100,17 +100,18 @@ struct Vec<1,T> {
     #pragma GCC diagnostic ignored "-Wpsabi"
 #endif
 
+// Helps tamp down on the repetitive boilerplate.
+#define SINT template <int N, typename T> static inline
+#define SIT  template <       typename T> static inline
+#define SI                                static inline
+
 template <typename D, typename S>
-static inline D bit_pun(S s) {
+SI D bit_pun(S s) {
     static_assert(sizeof(D) == sizeof(S), "");
     D d;
     memcpy(&d, &s, sizeof(D));
     return d;
 }
-
-// Helps tamp down on the repetitive boilerplate.
-#define SINT template <int N, typename T> static inline
-#define SIT  template <typename T> static inline
 
 // Translate from a value type T to its corresponding Mask, the result of a comparison.
 template <typename T> struct Mask { using type = T; };
@@ -150,7 +151,7 @@ SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
 
         // For some reason some (new!) versions of GCC cannot seem to deduce N in the generic
         // to_vec<N,T>() below for N=4 and T=float.  This workaround seems to help...
-        static inline Vec<4,float> to_vec(VExt<4,float> v) { return bit_pun<Vec<4,float>>(v); }
+        SI Vec<4,float> to_vec(VExt<4,float> v) { return bit_pun<Vec<4,float>>(v); }
     #endif
 
     SINT VExt<N,T> to_vext(Vec<N,T> v) { return bit_pun<VExt<N,T>>(v); }
@@ -366,10 +367,10 @@ SINT Vec<N,T>& operator>>=(Vec<N,T>& x, int bits) { return (x = x >> bits); }
 
 // cast() Vec<N,S> to Vec<N,D>, as if applying a C-cast to each lane.
 template <typename D, typename S>
-static inline skvx::Vec<1,D> cast(skvx::Vec<1,S> src) { return (D)src.val; }
+SI skvx::Vec<1,D> cast(skvx::Vec<1,S> src) { return (D)src.val; }
 
 template <typename D, int N, typename S>
-static inline skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
+SI skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
 #if !defined(SKNX_NO_SIMD) && defined(__clang__)
     return skvx::to_vec(__builtin_convertvector(skvx::to_vext(src), skvx::VExt<N,D>));
 #else
@@ -385,7 +386,7 @@ static inline skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
 //    shuffle<3,3,3,3>        (rgba) ~> {A,A,A,A}
 // The only real restriction is that the output also be a legal N=power-of-two sknx::Vec.
 template <int... Ix, int N, typename T>
-static inline skvx::Vec<sizeof...(Ix),T> shuffle(skvx::Vec<N,T> x) {
+SI skvx::Vec<sizeof...(Ix),T> shuffle(skvx::Vec<N,T> x) {
     return { x[Ix]... };
 }
 
@@ -394,36 +395,36 @@ namespace skvx {
     // Platform-specific specializations and overloads can now drop in here.
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
-    static Vec<4,float> sqrt(Vec<4,float> x) {
+    SI Vec<4,float> sqrt(Vec<4,float> x) {
         return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
     }
-    static Vec<4,float> rsqrt(Vec<4,float> x) {
+    SI Vec<4,float> rsqrt(Vec<4,float> x) {
         return bit_pun<Vec<4,float>>(_mm_rsqrt_ps(bit_pun<__m128>(x)));
     }
-    static Vec<4,float> rcp(Vec<4,float> x) {
+    SI Vec<4,float> rcp(Vec<4,float> x) {
         return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
     }
 
-    static Vec<2,float>  sqrt(Vec<2,float> x) { return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x))); }
-    static Vec<2,float> rsqrt(Vec<2,float> x) { return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x))); }
-    static Vec<2,float>   rcp(Vec<2,float> x) { return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x))); }
+    SI Vec<2,float>  sqrt(Vec<2,float> x) { return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x))); }
+    SI Vec<2,float> rsqrt(Vec<2,float> x) { return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x))); }
+    SI Vec<2,float>   rcp(Vec<2,float> x) { return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x))); }
 #endif
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
-    static Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+    SI Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
         return bit_pun<Vec<4,float>>(_mm_blendv_ps(bit_pun<__m128>(e),
                                                    bit_pun<__m128>(t),
                                                    bit_pun<__m128>(c)));
     }
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
-    static Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+    SI Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
         return bit_pun<Vec<4,float>>(_mm_or_ps(_mm_and_ps   (bit_pun<__m128>(c),
                                                              bit_pun<__m128>(t)),
                                                _mm_andnot_ps(bit_pun<__m128>(c),
                                                              bit_pun<__m128>(e))));
     }
 #elif defined(SK_ARM_HAS_NEON)
-    static Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+    SI Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
         return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
                                                bit_pun<float32x4_t>(t),
                                                bit_pun<float32x4_t>(e)));
@@ -435,5 +436,6 @@ namespace skvx {
 
 #undef SINT
 #undef SIT
+#undef SI
 
 #endif//SKVX_DEFINED
