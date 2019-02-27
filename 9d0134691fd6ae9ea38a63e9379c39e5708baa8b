@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5db4a75_20d15aa0",
+        "filename": "src/shaders/SkColorFilterShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T15:35:56Z",
+      "side": 1,
+      "message": "I think we decided that all color filters run in destination color space (input and output) so it may be safe to return true here.\n\nOn the other hand, I believe all color filters are strictly implemented with SkRP, and there\u0027s no onMakeContext() override on SkColorFilterShader, so this kind of seems moot.",
+      "range": {
+        "startLine": 29,
+        "startChar": 1,
+        "endLine": 32,
+        "endChar": 21
+      },
+      "revId": "9d0134691fd6ae9ea38a63e9379c39e5708baa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a76e32e2_c15f78dd",
+        "filename": "src/shaders/SkColorShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T15:35:56Z",
+      "side": 1,
+      "message": "These guys also look moot.  No onMakeContext() override.",
+      "revId": "9d0134691fd6ae9ea38a63e9379c39e5708baa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6e31fef_a7793466",
+        "filename": "src/shaders/SkComposeShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T15:35:56Z",
+      "side": 1,
+      "message": "This shader also appears to be RP-only.",
+      "revId": "9d0134691fd6ae9ea38a63e9379c39e5708baa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3076d136_d04dafec",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T15:35:56Z",
+      "side": 1,
+      "message": "Looks like this shader hasn\u0027t even been ported to SkRasterPipeline, so there\u0027s a fairly good chance that it\u0027s \"safe\" to unconditionally run the legacy code.",
+      "range": {
+        "startLine": 377,
+        "startChar": 2,
+        "endLine": 382,
+        "endChar": 5
+      },
+      "revId": "9d0134691fd6ae9ea38a63e9379c39e5708baa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bec9283_5625c703",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T15:35:56Z",
+      "side": 1,
+      "message": "Might make sense to implement this as { /*conservatively,*/ return false; } as a reminder to future shaders?",
+      "revId": "9d0134691fd6ae9ea38a63e9379c39e5708baa8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
