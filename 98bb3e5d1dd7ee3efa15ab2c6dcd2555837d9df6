@@ -16,6 +16,24 @@
       "revId": "98bb3e5d1dd7ee3efa15ab2c6dcd2555837d9df6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b70de82_08d74896",
+        "filename": "tests/MathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-27T21:07:37Z",
+      "side": 1,
+      "message": "By that token, include 1.0f in the good results? (nextUScalar1() never returns that)",
+      "parentUuid": "77aedb0c_d7a7565d",
+      "revId": "98bb3e5d1dd7ee3efa15ab2c6dcd2555837d9df6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
