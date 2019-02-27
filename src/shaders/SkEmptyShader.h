@@ -37,6 +37,10 @@ protected:
         return false;
     }
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace*) const override {
+        return true;
+    }
+
 private:
     SK_FLATTENABLE_HOOKS(SkEmptyShader)
 

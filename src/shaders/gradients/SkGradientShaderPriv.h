@@ -79,6 +79,10 @@ protected:
 
     bool onAppendStages(const StageRec&) const override;
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return IsLegacyCompatible(fColorSpace.get(), deviceCS);
+    }
+
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
 

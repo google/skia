@@ -25,6 +25,12 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
     bool onAppendStages(const StageRec&) const override;
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        // Conservatively we say false, since we don't know what the colorfilter may do
+        // w.r.t. colorspaces. If we really cared about possibly returning true, we
+        // may need to extend colorfilters to help us decide.
+        return false;
+    }
 
 private:
     SK_FLATTENABLE_HOOKS(SkColorFilterShader)

@@ -36,6 +36,12 @@ protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const StageRec&) const override;
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace*) const override {
+        // We always rasterize the picture into an image in the device's colorspace
+        // so our resulting image should always be legacy-compatible.
+        return true;
+    }
+
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif

@@ -44,6 +44,10 @@ private:
 
     bool onAppendStages(const StageRec&) const override;
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return IsLegacyCompatible(fImage->colorSpace(), deviceCS);
+    }
+
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
         return xformer->apply(fImage.get())->makeShader(fTileModeX, fTileModeY,
                                                         &this->getLocalMatrix());
