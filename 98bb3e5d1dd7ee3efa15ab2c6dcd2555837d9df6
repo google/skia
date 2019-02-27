@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77aedb0c_d7a7565d",
+        "filename": "tests/MathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-27T21:06:26Z",
+      "side": 1,
+      "message": "For boundary conditions: Check -0.0f as a good value? (And -epsilon as a bad value)?",
+      "revId": "98bb3e5d1dd7ee3efa15ab2c6dcd2555837d9df6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
