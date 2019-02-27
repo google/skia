@@ -45,6 +45,10 @@ private:
 
     bool onAppendStages(const StageRec&) const override;
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return IsLegacyCompatible(nullptr, deviceCS);
+    }
+
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
         return SkShader::MakeColorShader(xformer->apply(fColor));
     }
@@ -69,6 +73,9 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const StageRec&) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return IsLegacyCompatible(fColorSpace.get(), deviceCS);
+    }
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;

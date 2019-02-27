@@ -195,6 +195,15 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
     return false;
 }
 
+bool SkShaderBase::IsLegacyCompatible(SkColorSpace* shaderCS, SkColorSpace* deviceCS) {
+    if (!shaderCS) {
+        // A null for shader's colorspace means it contains SkColors and/or is implicitly
+        // in srgb.
+        return deviceCS->isSRGB();
+    }
+    return SkColorSpace::Equals(shaderCS, deviceCS);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {

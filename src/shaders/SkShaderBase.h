@@ -150,6 +150,27 @@ public:
     bool asLuminanceColor(SkColor*) const;
 
     /**
+     *  When deciding if we should use the raster-pipeline or the legacy one, we consider the
+     *  device's colorspace. If there is a shader, and it is "compatible" with the device's
+     *  colorspace, then we should be able to use the legacy pipeline, which ignores all
+     *  colorspaces, since that should draw the same as respecting both the shader's and the
+     *  device's (this is the definition of "legacy compatible".
+     *
+     *  In general, subclasses that wrap other shaders just forward the request. Other shaders
+     *  generally call the static helper IsLegacyCompatible(shaderCS, deviceCS) which determines
+     *  if the two spaces are compatible. Shaders that don't explicitly store a colorspace, but
+     *  implicitly output sRGB colors (e.g. SkColorShader) pass null for the first argument to
+     *  IsLegacyCompatible().
+     *
+     *  It is never wrong for a subclass to return false. This will force us into the rasterpipeline
+     *  which is always correct. The reason to possibly return true is just performance, assuming
+     *  that the legacy pipeline is simpler/faster.
+     */
+    bool legacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const {
+        return (deviceCS == nullptr) || this->onLegacyCompatibleWithColorSpace(deviceCS);
+    }
+
+    /**
      *  Returns a shader transformed into a new color space via the |xformer|.
      */
     sk_sp<SkShader> makeColorSpace(SkColorSpaceXformer* xformer) const {
@@ -226,6 +247,10 @@ protected:
 
     // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(const StageRec&) const;
+
+    virtual bool onLegacyCompatibleWithColorSpace(SkColorSpace*) const = 0;
+
+    static bool IsLegacyCompatible(SkColorSpace* shaderCS, SkColorSpace* deviceCS);
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.
