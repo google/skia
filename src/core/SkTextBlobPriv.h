@@ -161,6 +161,9 @@ public:
 
     void validate(const uint8_t* storageTop) const;
 
+    // Regardless of positioning model, populate dstArray with transforms for each glyph.
+    void getXform(SkRSXform* dstArray) const;
+
 private:
     friend class SkTextBlobBuilder;
 
@@ -257,6 +260,10 @@ public:
     }
 
     bool isLCD() const;
+
+    void getXform(SkRSXform* dstArray) const {
+        fCurrentRun->getXform(dstArray);
+    }
 
 private:
     const SkTextBlob::RunRecord* fCurrentRun;

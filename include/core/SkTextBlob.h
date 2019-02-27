@@ -25,6 +25,7 @@
 #include "SkRefCnt.h"
 
 #include <atomic>
+#include <memory>
 
 struct SkRSXform;
 struct SkSerialProcs;
@@ -36,6 +37,7 @@ struct SkDeserialProcs;
     fonts and text rendering are used by run.
 */
 class SK_API SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
+    class RunRecord;
 public:
 
     /** Returns conservative bounding box. Uses SkPaint associated with each glyph to
@@ -199,9 +201,28 @@ public:
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
                                          const SkDeserialProcs& procs);
 
+    // experimental iterator
+    struct Iter {
+        const SkTextBlob::RunRecord* fRec = nullptr;
+        struct Run {
+            const SkFont* fFont;
+            const SkGlyphID* fGlyphs;
+            std::unique_ptr<SkRSXform[]> fPositions;
+            unsigned fGlyphCount;
+        };
+        Run operator*() const;
+        void operator++();
+        bool operator!=(const Iter& other) const { return fRec != other.fRec; }
+    };
+
+    // experimental iterator
+    Iter begin() const;
+
+    // experimental iterator
+    Iter end() const { return Iter{}; }
+
 private:
     friend class SkNVRefCnt<SkTextBlob>;
-    class RunRecord;
 
     enum GlyphPositioning : uint8_t;
 

@@ -961,3 +961,59 @@ bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
     }
     return fGlyphs < fStop;
 }
+
+void SkTextBlob::RunRecord::getXform(SkRSXform* dstArray) const {
+    SkASSERT(dstArray);
+    SkPoint p = this->offset();
+    switch (this->positioning()) {
+        case kDefault_Positioning: {
+            SkAutoSTMalloc<16, SkScalar> widths((size_t)this->glyphCount());
+            this->font().getWidths(this->glyphBuffer(), this->glyphCount(), widths.get());
+            for (uint32_t i = 0; i < this->glyphCount(); ++i) {
+                dstArray[i] = {1, 0, p.x(), p.y()};
+                p.fX += widths[i];
+            }
+            return;
+        }
+        case kHorizontal_Positioning: {
+            SkASSERT(p.x() == 0);
+            const SkScalar* pos = this->posBuffer();
+            for (uint32_t i = 0; i < this->glyphCount(); ++i) {
+                p.fX = pos[i];
+                dstArray[i] = {1, 0, pos[i], p.y()};
+            }
+            return;
+        }
+        case kFull_Positioning: {
+            SkASSERT((p == SkPoint{0, 0}));
+            const SkPoint* pts = this->pointBuffer();
+             for (uint32_t i = 0; i < this->glyphCount(); ++i) {
+                dstArray[i] = {1, 0, pts[i].x(), pts[i].y()};
+            }
+            return;
+        }
+        case kRSXform_Positioning:
+            memcpy(dstArray, this->xformBuffer(), sizeof(SkRSXform) * this->glyphCount());
+            return;
+    }
+}
+
+SkTextBlob::Iter SkTextBlob::begin() const {
+    SkTextBlob::Iter it;
+    it.fRec = SkTextBlob::RunRecord::First(this);
+    return it;
+}
+
+SkTextBlob::Iter::Run SkTextBlob::Iter::operator*() const {
+    SkTextBlob::Iter::Run result{nullptr, nullptr, nullptr, 0};
+    if (fRec) {
+        result.fFont = &fRec->font();
+        result.fGlyphs = fRec->glyphBuffer();
+        result.fGlyphCount = fRec->glyphCount();
+        result.fPositions.reset(new SkRSXform[result.fGlyphCount]);
+        fRec->getXform(result.fPositions.get());
+    }
+    return result;
+}
+
+void SkTextBlob::Iter::operator++() { if (fRec) { fRec = SkTextBlob::RunRecord::Next(fRec); } }
