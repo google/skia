@@ -46,6 +46,30 @@
       "revId": "337449caa74905fbd7602fb259471298c3a2060d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebe93164_fe63f07b",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 8918
+      },
+      "writtenOn": "2019-02-27T19:24:05Z",
+      "side": 1,
+      "message": "I tried your latest patch and it works fine for me, both for Android targets and host targets. Let me know what error you run into and maybe I can help.\nAlso the Windows version is cross-compiled from Linux whenever \"enabled: true\" is set for Windows targets. So there is nothing to check compilation-wise on Windows.",
+      "parentUuid": "8b9e9506_e68fa791",
+      "range": {
+        "startLine": 221,
+        "startChar": 8,
+        "endLine": 221,
+        "endChar": 21
+      },
+      "revId": "337449caa74905fbd7602fb259471298c3a2060d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
