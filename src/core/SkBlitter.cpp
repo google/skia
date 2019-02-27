@@ -786,11 +786,6 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
 #endif
 
     if (auto cs = device.colorSpace()) {
-        if (paint.getShader()) {
-            // TODO: check if the shader's colorspace is the same, in which case we don't need
-            // to force the raster pipeline.
-            return true;
-        }
         if (!cs->isSRGB()) {
             // TODO: convert the paint's color into the device colorspace, so we don't need
             // to force the raster pipeline. (may want to cache the ColorSpaceXformer on the
