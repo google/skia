@@ -22,6 +22,30 @@
       "revId": "337449caa74905fbd7602fb259471298c3a2060d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b9e9506_e68fa791",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-27T16:00:42Z",
+      "side": 1,
+      "message": "Ah, it seems the Android build system defines WIN32_LEAN_AND_MEAN. Added a check in patch set 5, though this doesn\u0027t fix the enabled issue.",
+      "parentUuid": "58008968_e724c5ac",
+      "range": {
+        "startLine": 221,
+        "startChar": 8,
+        "endLine": 221,
+        "endChar": 21
+      },
+      "revId": "337449caa74905fbd7602fb259471298c3a2060d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
