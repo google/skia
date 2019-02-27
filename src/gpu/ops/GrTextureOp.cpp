@@ -322,11 +322,11 @@ private:
             }
 
             // Use dstRect unless dstClip is provided, which is assumed to be a quad
-            auto quad = set[p].fDstClip == nullptr ?
+            auto quad = set[p].fDstClipQuad == nullptr ?
                     GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix) :
-                    GrPerspQuad::MakeFromSkQuad(set[p].fDstClip, viewMatrix);
+                    GrPerspQuad::MakeFromSkQuad(set[p].fDstClipQuad, viewMatrix);
             GrQuadType quadType = baseQuadType;
-            if (set[p].fDstClip && baseQuadType != GrQuadType::kPerspective) {
+            if (set[p].fDstClipQuad && baseQuadType != GrQuadType::kPerspective) {
                 quadType = GrQuadType::kStandard;
             }
 
@@ -348,11 +348,11 @@ private:
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
             int srcQuadIndex = -1;
-            if (set[p].fDstClip) {
+            if (set[p].fDstClipQuad) {
                 // Derive new source coordinates that match dstClip's relative locations in dstRect,
                 // but with respect to srcRect
                 SkPoint srcQuad[4];
-                GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClip, srcQuad, 4);
+                GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClipQuad, srcQuad, 4);
                 fSrcQuads.push_back(GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
                                     GrQuadType::kStandard);
                 srcQuadIndex = fSrcQuads.count() - 1;
