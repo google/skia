@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58008968_e724c5ac",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-27T15:50:40Z",
+      "side": 1,
+      "message": "With enabled set to true, I\u0027m building on my linux box which is \"lunch\"-ed to an Android target. But it comes up with build errors which complain about include/config/win/SkUserConfig.h. Setting this to false builds for the Android target (and succeeds), as I expect.\n\nI could imagine that the same build error might show up on Windows even when we fix this problem. Unfortunately, I don\u0027t have a Windows machine to test. The error is:\n\nIn file included from external/skia/include/core/SkTypes.h:13:\nexternal/skia/include/config/win/SkUserConfig.h:17:9: error: \u0027WIN32_LEAN_AND_MEAN\u0027 macro redefined [-Werror,-Wmacro-redefined]\n#define WIN32_LEAN_AND_MEAN\n        ^\n\u003ccommand line\u003e:2:9: note: previous definition is here\n#define WIN32_LEAN_AND_MEAN 1\n        ^\n1 error generated.",
+      "range": {
+        "startLine": 221,
+        "startChar": 8,
+        "endLine": 221,
+        "endChar": 21
+      },
+      "revId": "337449caa74905fbd7602fb259471298c3a2060d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
