@@ -44,6 +44,8 @@ float4   Abs(float4 x) { return   abs(x); }
 float4 Min(float4 x, float4 y) { return min(x,y); }
 float4 Max(float4 x, float4 y) { return max(x,y); }
 
+float4 IfThenElse(int4 c, float4 t, float4 e) { return if_then_else(c,t,e); }
+
 DEF_TEST(SkVx, r) {
     static_assert(sizeof(float2) ==  8, "");
     static_assert(sizeof(float4) == 16, "");
