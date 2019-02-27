@@ -759,10 +759,10 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
                                                      wuffs_base__image_config* imgcfg,
                                                      wuffs_base__io_buffer*    b,
                                                      SkStream*                 s) {
-    memset(decoder, 0, sizeof__wuffs_gif__decoder());
-    const char* status = decoder->check_wuffs_version(sizeof__wuffs_gif__decoder(), WUFFS_VERSION);
+    // Calling decoder->initialize will memset it to zero.
+    const char* status = decoder->initialize(sizeof__wuffs_gif__decoder(), WUFFS_VERSION, 0);
     if (status != nullptr) {
-        SkCodecPrintf("check_wuffs_version: %s", status);
+        SkCodecPrintf("initialize: %s", status);
         return SkCodec::kInternalError;
     }
     while (true) {
