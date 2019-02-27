@@ -51,11 +51,11 @@ Samples
 </style>
 
 <div id=demo>
-  <h3>An Interactive Path</h3>
+  <h3>Go beyond the HTML Canvas2D</h3>
   <figure>
     <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/28004d8841e7e497013263598241a3c1edc21dc1cf87a679abba307f39fa5fe6"
+      <a href="https://jsfiddle.skia.org/canvaskit/ea89749ae8c90bce807ea2e7e34fb7b09b950cee70d9db0a9cdfd2d67bd48ef0"
           target=_blank rel=noopener>
         Star JSFiddle</a>
     </figcaption>
@@ -66,6 +66,14 @@ Samples
       <a href="https://jsfiddle.skia.org/canvaskit/43475699d6d7d3d7dad1004c29f84015752a6a6dee2bb90f2e891b53e31d45cc"
           target=_blank rel=noopener>
         Ink JSFiddle</a>
+    </figcaption>
+  </figure>
+    <figure>
+    <canvas id=shaping width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://jsfiddle.skia.org/canvaskit/d5c61a106d57ff4ada119a46ddc3bfa479d343330d0c9e50da21f4ef113d0dee"
+          target=_blank rel=noopener>
+        Text Shaping JSFiddle</a>
     </figcaption>
   </figure>
 
@@ -96,7 +104,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://unpkg.com/canvaskit-wasm@0.3.1/bin/';
+    locate_file = 'https://unpkg.com/canvaskit-wasm@0.4.0/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
@@ -116,6 +124,7 @@ Samples
     CanvasKit = CK;
     DrawingExample(CanvasKit);
     InkExample(CanvasKit);
+    ShapingExample(CanvasKit);
      // Set bounds to fix the 4:3 resolution of the legos
     SkottieExample(CanvasKit, 'sk_legos', legoJSON, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
     // Re-size to fit
@@ -173,8 +182,9 @@ Samples
 
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
-    textPaint.setTextSize(30);
     textPaint.setAntiAlias(true);
+
+    const textFont = new CanvasKit.SkFont(null, 30);
 
     let i = 0;
 
@@ -196,7 +206,7 @@ Samples
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       canvas.drawPath(path, paint);
-      canvas.drawText('Try Clicking!', 10, 380, textPaint);
+      canvas.drawText('Try Clicking!', 10, 380, textPaint, textFont);
       canvas.flush();
       dpe.delete();
       path.delete();
@@ -216,8 +226,9 @@ Samples
     document.getElementById('patheffect').addEventListener('pointerdown', interact);
     preventScrolling(document.getElementById('patheffect'));
 
-    // A client would need to delete this if it didn't go on for ever.
-    //paint.delete();
+    // A client would need to delete this if it didn't go on forever.
+    // font.delete();
+    // paint.delete();
   }
 
   function InkExample(CanvasKit) {
@@ -291,6 +302,66 @@ Samples
     document.getElementById('ink').addEventListener('lostpointercapture', interact);
     document.getElementById('ink').addEventListener('pointerup', interact);
     preventScrolling(document.getElementById('ink'));
+    window.requestAnimationFrame(drawFrame);
+  }
+
+  function ShapingExample(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('shaping');
+    if (!surface) {
+      console.log('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const skcanvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const textPaint = new CanvasKit.SkPaint();
+    const bigFont = new CanvasKit.SkFont(null, 36);
+    const smallFont = new CanvasKit.SkFont(null, 14);
+
+    const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac leo vitae ipsum hendrerit euismod quis rutrum nibh. Quisque non suscipit urna. Donec enim urna, facilisis vitae volutpat in, mattis at elit. Sed quis augue et dolor dignissim fringilla. Sed non massa eu neque tristique malesuada. ';
+
+    let X = 180;
+    let Y = 190;
+
+    function drawFrame() {
+      CanvasKit.setCurrentContext(context);
+      skcanvas.clear(CanvasKit.TRANSPARENT);
+
+      const shapedText = new CanvasKit.ShapedText({
+        font: smallFont,
+        leftToRight: true,
+        text: TEXT,
+        width: X - 10,
+      });
+
+      skcanvas.drawRect(CanvasKit.LTRBRect(10, 10, X, Y), paint);
+      skcanvas.drawText(shapedText, 10, 10, textPaint, smallFont);
+      skcanvas.drawText('Try dragging the box!', 10, 480, textPaint, bigFont);
+
+      surface.flush();
+
+      shapedText.delete();
+
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // Make animation interactive
+    let interact = (e) => {
+      if (!e.pressure) {
+        return;
+      }
+      X = e.offsetX;
+      Y = e.offsetY;
+    };
+    document.getElementById('shaping').addEventListener('pointermove', interact);
+    document.getElementById('shaping').addEventListener('pointerdown', interact);
+    document.getElementById('shaping').addEventListener('lostpointercapture', interact);
+    document.getElementById('shaping').addEventListener('pointerup', interact);
+    preventScrolling(document.getElementById('shaping'));
     window.requestAnimationFrame(drawFrame);
   }
 
