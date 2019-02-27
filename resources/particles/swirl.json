@@ -6,17 +6,11 @@
       "XValues": [],
       "Segments": [
          {
-            "Constant": true,
+            "Type": "Constant",
             "Ranged": true,
             "Bidirectional": false,
             "A0": 1,
-            "B0": 0,
-            "C0": 0,
-            "D0": 0,
-            "A1": 3,
-            "B1": 0,
-            "C1": 0,
-            "D1": 0
+            "A1": 3
          }
       ]
    },
@@ -39,17 +33,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": -10,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 10,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A1": 10
                }
             ]
          },
@@ -57,17 +45,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": 50,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 60,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A1": 60
                }
             ]
          }
@@ -83,17 +65,10 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": false,
                   "Bidirectional": false,
-                  "A0": 90,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 0,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A0": 90
                }
             ]
          },
@@ -101,17 +76,13 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": false,
+                  "Type": "Cubic",
                   "Ranged": false,
                   "Bidirectional": true,
                   "A0": 180,
                   "B0": -90,
                   "C0": -120,
-                  "D0": -200,
-                  "A1": 0,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "D0": -200
                }
             ]
          }
@@ -123,17 +94,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": false,
+                  "Type": "Linear",
                   "Ranged": false,
                   "Bidirectional": false,
                   "A0": 3,
-                  "B0": 2.5,
-                  "C0": 2,
-                  "D0": 1.5,
-                  "A1": 0,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "D0": 1.5
                }
             ]
          }
@@ -145,15 +110,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": false,
+                  "Type": "Linear",
                   "Ranged": true,
                   "A0": [ 0.0999616, 0.140218, 0.784314, 1 ],
-                  "B0": [ 0.183679, 0.183692, 0.764706, 1 ],
-                  "C0": [ 0.242647, 0.43925, 0.916667, 1 ],
                   "D0": [ 0.523837, 0.886396, 0.980392, 1 ],
                   "A1": [ 0.378665, 0.121107, 0.705882, 1 ],
-                  "B1": [ 0.538658, 0.162534, 0.872549, 1 ],
-                  "C1": [ 0.672143, 0.259443, 0.867647, 1 ],
                   "D1": [ 0.934257, 0.229599, 0.955882, 1 ]
                }
             ]

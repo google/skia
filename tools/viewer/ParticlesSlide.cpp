@@ -90,59 +90,6 @@ public:
 
 #undef IF_OPEN
 
-    void visit(const char* name, SkCurve& c) override {
-        this->enterObject(item(name));
-        if (fTreeStack.back()) {
-            // Get vertical extents of the curve
-            SkScalar extents[2];
-            c.getExtents(extents);
-
-            // Grow the extents by 10%, at least 1.0f
-            SkScalar grow = SkTMax((extents[1] - extents[0]) * 0.1f, 1.0f);
-            extents[0] -= grow;
-            extents[1] += grow;
-
-            {
-                ImGui::DragCanvas dc(&c, { 0.0f, extents[1] }, { 1.0f, extents[0] }, 0.5f);
-                dc.fillColor(IM_COL32(0, 0, 0, 128));
-
-                for (int i = 0; i < c.fSegments.count(); ++i) {
-                    SkSTArray<8, ImVec2, true> pts;
-                    SkScalar rangeMin = (i == 0) ? 0.0f : c.fXValues[i - 1];
-                    SkScalar rangeMax = (i == c.fXValues.count()) ? 1.0f : c.fXValues[i];
-                    auto screenPoint = [&](int idx, bool useMax) {
-                        SkScalar xVal = rangeMin + (idx / 3.0f) * (rangeMax - rangeMin);
-                        SkScalar* yVals = useMax ? c.fSegments[i].fMax : c.fSegments[i].fMin;
-                        SkScalar yVal = yVals[c.fSegments[i].fConstant ? 0 : idx];
-                        SkPoint pt = dc.fLocalToScreen.mapXY(xVal, yVal);
-                        return ImVec2(pt.fX, pt.fY);
-                    };
-                    for (int i = 0; i < 4; ++i) {
-                        pts.push_back(screenPoint(i, false));
-                    }
-                    if (c.fSegments[i].fRanged) {
-                        for (int i = 3; i >= 0; --i) {
-                            pts.push_back(screenPoint(i, true));
-                        }
-                    }
-
-                    if (c.fSegments[i].fRanged) {
-                        dc.fDrawList->PathLineTo(pts[0]);
-                        dc.fDrawList->PathBezierCurveTo(pts[1], pts[2], pts[3]);
-                        dc.fDrawList->PathLineTo(pts[4]);
-                        dc.fDrawList->PathBezierCurveTo(pts[5], pts[6], pts[7]);
-                        dc.fDrawList->PathFillConvex(IM_COL32(255, 255, 255, 128));
-                    } else {
-                        dc.fDrawList->AddBezierCurve(pts[0], pts[1], pts[2], pts[3],
-                                                     IM_COL32(255, 255, 255, 255), 1.0f);
-                    }
-                }
-            }
-            c.visitFields(this);
-        }
-        this->exitObject();
-    }
-
     void visit(sk_sp<SkReflected>& e, const SkReflected::Type* baseType) override {
         if (fTreeStack.back()) {
             const SkReflected::Type* curType = e ? e->getType() : nullptr;
