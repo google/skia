@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10410be7_a1ae3a65",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T16:29:35Z",
+      "side": 1,
+      "message": "Oh, yeah, this is even better than adding a new virtual to the context.",
+      "revId": "0c3db97365e3ab1ce0f05360d31158f8e102b4ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
