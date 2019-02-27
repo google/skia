@@ -1074,7 +1074,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
         // Draw one at a time with GrFillRectOp and a GrPaint that emulates what GrTextureOp does
         for (int i = 0; i < cnt; ++i) {
             float alpha = set[i].fAlpha;
-            if (set[i].fDstClip == nullptr) {
+            if (set[i].fDstClipQuad == nullptr) {
                 // Stick with original rectangles, which allows the ops to know more about what's
                 // being drawn.
                 this->drawTexture(clip, set[i].fProxy, filter, mode, {alpha, alpha, alpha, alpha},
@@ -1083,12 +1083,12 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
             } else {
                 // Generate interpolated texture coordinates to match the dst clip
                 SkPoint srcQuad[4];
-                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClip, srcQuad, 4);
+                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcQuad, 4);
                 // Don't send srcRect as the domain, since the normal case doesn't use a constraint
                 // with the entire srcRect, so sampling into dstRect outside of dstClip will just
                 // keep seams look more correct.
                 this->drawTextureQuad(clip, set[i].fProxy, filter, mode,
-                                      {alpha, alpha, alpha, alpha}, srcQuad, set[i].fDstClip,
+                                      {alpha, alpha, alpha, alpha}, srcQuad, set[i].fDstClipQuad,
                                       aa, set[i].fAAFlags, nullptr, viewMatrix, texXform);
             }
         }
