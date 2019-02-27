@@ -26,6 +26,30 @@
     },
     {
       "key": {
+        "uuid": "dbd881a2_f92deffb",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T16:28:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55b42d6e_0ed623ac",
+      "range": {
+        "startLine": 198,
+        "startChar": 15,
+        "endLine": 198,
+        "endChar": 20
+      },
+      "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0996fcb2_f05ce7a7",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 11
@@ -40,6 +64,24 @@
       "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8aa07c1_2d285d81",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T16:28:47Z",
+      "side": 1,
+      "message": "Went with fDstClipQuad",
+      "parentUuid": "0996fcb2_f05ce7a7",
+      "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -107,6 +149,24 @@
     },
     {
       "key": {
+        "uuid": "964d2af2_0249972e",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T16:28:47Z",
+      "side": 1,
+      "message": "I opted to wrap all of the static helper functions and the enum in the same anonymous namespace, just to keep things together.",
+      "parentUuid": "60ddc0c5_76408fb3",
+      "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6622087c_3eeb78e9",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 11
@@ -127,6 +187,30 @@
       "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1157caa7_ed3d9f2c",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T16:28:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6622087c_3eeb78e9",
+      "range": {
+        "startLine": 298,
+        "startChar": 1,
+        "endLine": 299,
+        "endChar": 10
+      },
+      "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -153,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "458f69ec_baa3eab0",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T16:28:47Z",
+      "side": 1,
+      "message": "I will make this a follow-up CL",
+      "parentUuid": "dfd0d5bf_50fb7937",
+      "range": {
+        "startLine": 512,
+        "startChar": 15,
+        "endLine": 514,
+        "endChar": 77
+      },
+      "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bebe690f_b38370b2",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 11
@@ -174,6 +282,30 @@
       "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ca8530c_ccf576e6",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-02-27T16:28:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bebe690f_b38370b2",
+      "range": {
+        "startLine": 578,
+        "startChar": 0,
+        "endLine": 579,
+        "endChar": 0
+      },
+      "revId": "13acaf96e1ec86b018ed68bd8b182576b27b3213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
