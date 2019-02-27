@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f278886_8e3148ad",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "Sweet, I like this straightforward dictionary api!",
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e44c389_9440a74f",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "The default ctor should work just fine:\n\n  SkottieAssetProvider() \u003d default;\n\nMaybe also make private so we\u0027re not tempted to allocate as raw ptr :)",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 38
+      },
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19974072_72103ca1",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "We shouldn\u0027t need this -- the vector destructor will cleanup up for us.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2906324c_4051431c",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "sk_sp\u003cSkottieAssetProvider\u003e ?",
+      "range": {
+        "startLine": 79,
+        "startChar": 65,
+        "endLine": 79,
+        "endChar": 86
+      },
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fd03ffb_bc9f96ab",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "auto assetProvider \u003d SkottieAssetProvider::Make();",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 213,
+        "endChar": 73
+      },
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "386c6da2_2b4e6481",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "I\u0027m not 100% sure this is safe: MultiFrameImageAsset wraps an SkCodec built from this SkData, and I\u0027m pretty sure our codecs decode on demand - so they must keep a reference to the original data (maybe scroggo can confirm).\n\nIf that\u0027s the case, the animation object will have live references to these arrays.  When are they deleted - are there any guarantees that their lifespan \u003e animation lifespan?",
+      "range": {
+        "startLine": 219,
+        "startChar": 42,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88029540_9debc9d2",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "std::move(assetProvider)",
+      "range": {
+        "startLine": 224,
+        "startChar": 44,
+        "endLine": 224,
+        "endChar": 57
+      },
+      "revId": "cee90a083ef458d9e89a80ea2ab1e25575f3321b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

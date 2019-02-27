@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1471e232_b483b590",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-27T22:41:48Z",
+      "side": 1,
+      "message": "SkToSizeT(pixbuf_len)\n\nfor extra safety checks.",
+      "range": {
+        "startLine": 945,
+        "startChar": 74,
+        "endLine": 945,
+        "endChar": 93
+      },
+      "revId": "fde570145c70a07ab4a1281d3b52b3f41e82dc88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
