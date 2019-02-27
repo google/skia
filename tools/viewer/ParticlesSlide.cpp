@@ -11,7 +11,6 @@
 #include "SkParticleAffector.h"
 #include "SkParticleDrawable.h"
 #include "SkParticleEffect.h"
-#include "SkParticleEmitter.h"
 #include "SkParticleSerialization.h"
 #include "SkReflected.h"
 
@@ -197,7 +196,6 @@ ParticlesSlide::ParticlesSlide() {
     REGISTER_REFLECTED(SkReflected);
     SkParticleAffector::RegisterAffectorTypes();
     SkParticleDrawable::RegisterDrawableTypes();
-    SkParticleEmitter::RegisterEmitterTypes();
     fName = "Particles";
 }
 

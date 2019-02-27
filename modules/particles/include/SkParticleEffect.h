@@ -21,7 +21,6 @@ class SkCanvas;
 class SkFieldVisitor;
 class SkParticleAffector;
 class SkParticleDrawable;
-class SkParticleEmitter;
 
 class SkParticleEffectParams : public SkRefCnt {
 public:
@@ -32,9 +31,6 @@ public:
 
     // Drawable (image, sprite sheet, etc.)
     sk_sp<SkParticleDrawable> fDrawable;
-
-    // Emitter shape & parameters
-    sk_sp<SkParticleEmitter> fEmitter;
 
     // Rules that configure particles at spawn time
     SkTArray<sk_sp<SkParticleAffector>> fSpawnAffectors;
