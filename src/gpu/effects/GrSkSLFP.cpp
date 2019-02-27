@@ -60,6 +60,11 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
             int32_t v = *(int32_t*) (((uint8_t*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(int32_t);
+        } else if (&v->fType == fCompiler.context().fFloat_Type.get()) {
+            offset = SkAlign4(offset);
+            float v = *(float*) (((uint8_t*) inputs) + offset);
+            inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            offset += sizeof(float);
         } else if (&v->fType == fCompiler.context().fBool_Type.get()) {
             bool v = *(((bool*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
@@ -211,10 +216,16 @@ public:
                     pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
                 }
             } else if (&v->fType == context.fInt_Type.get()) {
-                int32_t i = *(int*) (inputs + offset);
+                int32_t i = *(int32_t*) (inputs + offset);
                 offset += sizeof(int32_t);
                 if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
                     pdman.set1i(fUniformHandles[uniformIndex++], i);
+                }
+            } else if (&v->fType == context.fFloat_Type.get()) {
+                float f = *(float*) (inputs + offset);
+                offset += sizeof(float);
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                    pdman.set1f(fUniformHandles[uniformIndex++], f);
                 }
             } else if (&v->fType == context.fBool_Type.get()) {
                 SkASSERT(!(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag));
@@ -315,6 +326,16 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 b->add32(*(int32_t*) (inputs + offset));
             }
             offset += sizeof(int32_t);
+        } else if (&v->fType == context.fFloat_Type.get()) {
+            offset = SkAlign4(offset);
+            if (v->fModifiers.fLayout.fKey) {
+                fKey += inputs[offset + 0];
+                fKey += inputs[offset + 1];
+                fKey += inputs[offset + 2];
+                fKey += inputs[offset + 3];
+                b->add32(*(float*) (inputs + offset));
+            }
+            offset += sizeof(float);
         } else if (&v->fType == context.fFloat4_Type.get() ||
                    &v->fType == context.fHalf4_Type.get()) {
             if (v->fModifiers.fLayout.fKey) {
