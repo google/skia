@@ -758,6 +758,17 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
+    if (kGL_GrGLStandard == standard) {
+        shaderCaps->fSampleVariablesSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+    } else {
+        if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
+            shaderCaps->fSampleVariablesSupport = true;
+        } else if (ctxInfo.hasExtension("GL_OES_sample_variables")) {
+            shaderCaps->fSampleVariablesSupport = true;
+            shaderCaps->fSampleVariablesExtensionString = "GL_OES_sample_variables";
+        }
+    }
+
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
                                                                   shaderCaps->fGLSLGeneration,
                                                                   fIsCoreProfile);

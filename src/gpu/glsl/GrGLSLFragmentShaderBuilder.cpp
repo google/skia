@@ -72,6 +72,7 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fHasCustomColorOutput(false)
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
+    , fHasInitializedSampleMask(false)
     , fForceHighPrecision(false) {
     fSubstageIndices.push_back(0);
 #ifdef SK_DEBUG
@@ -90,6 +91,28 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
     this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
                       coords.c_str());
     return coords2D;
+}
+
+void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(const char* mask, Scope scope) {
+    const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
+    if (!shaderCaps.sampleVariablesSupport()) {
+        SkDEBUGFAIL("Attempted to mask sample coverage without support.");
+        return;
+    }
+    if (const char* extension = shaderCaps.sampleVariablesExtensionString()) {
+        this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
+    }
+
+    if (!fHasInitializedSampleMask && Scope::kTopLevel == scope) {
+        this->codeAppendf("gl_SampleMask[0] = (%s);", mask);
+        fHasInitializedSampleMask = true;
+        return;
+    }
+    if (!fHasInitializedSampleMask) {
+        this->codePrependf("gl_SampleMask[0] = ~0;");
+        fHasInitializedSampleMask = true;
+    }
+    this->codeAppendf("gl_SampleMask[0] &= (%s);", mask);
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
