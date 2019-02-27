@@ -1049,6 +1049,36 @@ component("skia") {
   }
 }
 
+static_library("debugcanvas") {
+  public_configs = [ ":skia_public" ]
+
+  include_dirs = [
+    "include/private",
+    "src/gpu",
+    "src/core",
+    "src/shaders",
+    "src/utils",
+    "tools",
+    "tools/debugger",
+  ]
+
+  sources = [
+    "tools/debugger/SkDebugCanvas.cpp",
+    "tools/debugger/SkDrawCommand.cpp",
+    "tools/debugger/SkJsonWriteBuffer.cpp",
+    "tools/UrlDataManager.cpp"
+  ]
+
+  deps = [
+    #":flags",
+    #":gpu_tool_utils",
+    #":skia",
+    #":tool_utils",
+    #"//third_party/libmicrohttpd",
+    #"//third_party/libpng",
+  ]
+}
+
 static_library("pathkit") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
