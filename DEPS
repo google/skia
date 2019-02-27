@@ -36,7 +36,7 @@ deps = {
   "third_party/externals/Nima-Math-Cpp"   : "https://skia.googlesource.com/external/github.com/2d-inc/Nima-Math-Cpp.git@e0c12772093fa8860f55358274515b86885f0108",
 
   "../src": {
-    "url": "https://chromium.googlesource.com/chromium/src.git@61d99852c46521dc57001161de5ef2575cfe99a5",
+    "url": "https://chromium.googlesource.com/chromium/src.git@aec4d38942bcc355b3a13f4091f26ffb7c9b50e8",
     "condition": "checkout_chromium",
   },
 }
