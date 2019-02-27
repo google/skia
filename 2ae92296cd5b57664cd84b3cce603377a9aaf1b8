@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a85921cf_65529cb6",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "compiler complained about this implicitly going from a 64bit int to a size_t or something like that",
+      "range": {
+        "startLine": 945,
+        "startChar": 74,
+        "endLine": 945,
+        "endChar": 93
+      },
+      "revId": "2ae92296cd5b57664cd84b3cce603377a9aaf1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

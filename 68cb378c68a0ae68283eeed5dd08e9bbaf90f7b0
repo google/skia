@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d763e90_804ef5f6",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "Yeah, I can have this be just the result of a dictionary or something passed in.",
+      "parentUuid": "9d704cba_dbd6d3e7",
+      "range": {
+        "startLine": 41,
+        "startChar": 9,
+        "endLine": 41,
+        "endChar": 18
+      },
+      "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "68ae9e9c_08ef8f60",
         "filename": "experimental/canvaskit/skottie_bindings.cpp",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2019-02-27T16:51:54Z",
       "side": 1,
       "message": "Yeah, LGTM.  You could also inline the factory call in the assignment below (or std::move), to avoid refcount churn.",
+      "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea7eafdf_4f00cc93",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "PTAL now that it\u0027s vectors",
+      "parentUuid": "68ae9e9c_08ef8f60",
       "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7c4aae31_79505b20",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e093ca5_12f80389",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 5
+      },
+      "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8948598_a3014729",
         "filename": "experimental/canvaskit/skottie_bindings.cpp",
         "patchSetId": 1
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "cfba775c_346c7e1c",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8948598_a3014729",
+      "range": {
+        "startLine": 55,
+        "startChar": 89,
+        "endLine": 55,
+        "endChar": 90
+      },
+      "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65e9a11d_fff5918c",
         "filename": "experimental/canvaskit/skottie_bindings.cpp",
         "patchSetId": 1
@@ -102,6 +192,24 @@
       "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "805fa804_59a5b996",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65e9a11d_fff5918c",
+      "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -125,6 +233,30 @@
       "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d3e8958_1ffd6186",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-27T21:28:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f92e6e10_13d999f3",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 5
+      },
+      "revId": "68cb378c68a0ae68283eeed5dd08e9bbaf90f7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
