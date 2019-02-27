@@ -10,24 +10,43 @@
 #include "SkRandom.h"
 #include "SkReflected.h"
 
-static SkScalar eval_cubic(const SkScalar* pts, SkScalar x) {
-    SkScalar ix = (1 - x);
-    return pts[0]*ix*ix*ix + pts[1]*3*ix*ix*x + pts[2]*3*ix*x*x + pts[3]*x*x*x;
-}
+constexpr SkFieldVisitor::EnumStringMapping gCurveSegmentTypeMapping[] = {
+    { kConstant_SegmentType, "Constant" },
+    { kLinear_SegmentType,   "Linear" },
+    { kCubic_SegmentType,    "Cubic" },
+};
 
 static SkColor4f operator+(SkColor4f c1, SkColor4f c2) {
     return { c1.fR + c2.fR, c1.fG + c2.fG, c1.fB + c2.fB, c1.fA + c2.fA };
 }
 
-static SkColor4f eval_cubic(const SkColor4f* pts, SkScalar x) {
+static SkColor4f operator-(SkColor4f c1, SkColor4f c2) {
+    return { c1.fR - c2.fR, c1.fG - c2.fG, c1.fB - c2.fB, c1.fA - c2.fA };
+}
+
+template <typename T>
+static T eval_cubic(const T* pts, SkScalar x) {
     SkScalar ix = (1 - x);
     return pts[0]*(ix*ix*ix) + pts[1]*(3*ix*ix*x) + pts[2]*(3*ix*x*x) + pts[3]*(x*x*x);
 }
 
+template <typename T>
+static T eval_segment(const T* pts, SkScalar x, int type) {
+    switch (type) {
+        case kLinear_SegmentType:
+            return pts[0] + (pts[3] - pts[0]) * x;
+        case kCubic_SegmentType:
+            return eval_cubic(pts, x);
+        case kConstant_SegmentType:
+        default:
+            return pts[0];
+    }
+}
+
 SkScalar SkCurveSegment::eval(SkScalar x, SkScalar t, bool negate) const {
-    SkScalar result = fConstant ? fMin[0] : eval_cubic(fMin, x);
+    SkScalar result = eval_segment(fMin, x, fType);
     if (fRanged) {
-        result += ((fConstant ? fMax[0] : eval_cubic(fMax, x)) - result) * t;
+        result += (eval_segment(fMax, x, fType) - result) * t;
     }
     if (fBidirectional && negate) {
         result = -result;
@@ -36,17 +55,27 @@ SkScalar SkCurveSegment::eval(SkScalar x, SkScalar t, bool negate) const {
 }
 
 void SkCurveSegment::visitFields(SkFieldVisitor* v) {
-    v->visit("Constant", fConstant);
+    v->visit("Type", fType, gCurveSegmentTypeMapping, SK_ARRAY_COUNT(gCurveSegmentTypeMapping));
     v->visit("Ranged", fRanged);
     v->visit("Bidirectional", fBidirectional);
     v->visit("A0", fMin[0]);
-    v->visit("B0", fMin[1]);
-    v->visit("C0", fMin[2]);
-    v->visit("D0", fMin[3]);
-    v->visit("A1", fMax[0]);
-    v->visit("B1", fMax[1]);
-    v->visit("C1", fMax[2]);
-    v->visit("D1", fMax[3]);
+    if (fType == kCubic_SegmentType) {
+        v->visit("B0", fMin[1]);
+        v->visit("C0", fMin[2]);
+    }
+    if (fType != kConstant_SegmentType) {
+        v->visit("D0", fMin[3]);
+    }
+    if (fRanged) {
+        v->visit("A1", fMax[0]);
+        if (fType == kCubic_SegmentType) {
+            v->visit("B1", fMax[1]);
+            v->visit("C1", fMax[2]);
+        }
+        if (fType != kConstant_SegmentType) {
+            v->visit("D1", fMax[3]);
+        }
+    }
 }
 
 SkScalar SkCurve::eval(SkScalar x, SkRandom& random) const {
@@ -88,46 +117,35 @@ void SkCurve::visitFields(SkFieldVisitor* v) {
     }
 }
 
-// TODO: This implementation is extremely conservative, because it uses the position of the control
-// points as the actual range. The curve typically doesn't reach that far. Evaluating the curve at
-// each of [0, 1/3, 2/3, 1] would be tighter, but can be too tight in some cases.
-void SkCurve::getExtents(SkScalar extents[2]) const {
-    extents[0] = INFINITY;
-    extents[1] = -INFINITY;
-    auto extend = [=](SkScalar y) {
-        extents[0] = SkTMin(extents[0], y);
-        extents[1] = SkTMax(extents[1], y);
-    };
-    for (const auto& segment : fSegments) {
-        for (int i = 0; i < (segment.fConstant ? 1 : 4); ++i) {
-            extend(segment.fMin[i]);
-            if (segment.fRanged) {
-                extend(segment.fMax[i]);
-            }
-        }
-    }
-}
-
 SkColor4f SkColorCurveSegment::eval(SkScalar x, SkRandom& random) const {
-    SkColor4f result = fConstant ? fMin[0] : eval_cubic(fMin, x);
+    SkColor4f result = eval_segment(fMin, x, fType);
     if (fRanged) {
-        result = result +
-                ((fConstant ? fMax[0] : eval_cubic(fMax, x)) + (result * -1)) * random.nextF();
+        result = result + (eval_segment(fMax, x, fType) - result) * random.nextF();
     }
     return result;
 }
 
 void SkColorCurveSegment::visitFields(SkFieldVisitor* v) {
-    v->visit("Constant", fConstant);
+    v->visit("Type", fType, gCurveSegmentTypeMapping, SK_ARRAY_COUNT(gCurveSegmentTypeMapping));
     v->visit("Ranged", fRanged);
     v->visit("A0", fMin[0]);
-    v->visit("B0", fMin[1]);
-    v->visit("C0", fMin[2]);
-    v->visit("D0", fMin[3]);
-    v->visit("A1", fMax[0]);
-    v->visit("B1", fMax[1]);
-    v->visit("C1", fMax[2]);
-    v->visit("D1", fMax[3]);
+    if (fType == kCubic_SegmentType) {
+        v->visit("B0", fMin[1]);
+        v->visit("C0", fMin[2]);
+    }
+    if (fType != kConstant_SegmentType) {
+        v->visit("D0", fMin[3]);
+    }
+    if (fRanged) {
+        v->visit("A1", fMax[0]);
+        if (fType == kCubic_SegmentType) {
+            v->visit("B1", fMax[1]);
+            v->visit("C1", fMax[2]);
+        }
+        if (fType != kConstant_SegmentType) {
+            v->visit("D1", fMax[3]);
+        }
+    }
 }
 
 SkColor4f SkColorCurve::eval(SkScalar x, SkRandom& random) const {

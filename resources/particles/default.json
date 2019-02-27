@@ -6,17 +6,11 @@
       "XValues": [],
       "Segments": [
          {
-            "Constant": true,
+            "Type": "Constant",
             "Ranged": true,
             "Bidirectional": false,
             "A0": 1,
-            "B0": 0,
-            "C0": 0,
-            "D0": 0,
-            "A1": 3,
-            "B1": 0,
-            "C1": 0,
-            "D1": 0
+            "A1": 3
          }
       ]
    },
@@ -39,17 +33,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": -30,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 30,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A1": 30
                }
             ]
          },
@@ -57,17 +45,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": 10,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 30,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A1": 30
                }
             ]
          }
@@ -81,16 +63,10 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": false,
+                  "Type": "Linear",
                   "Ranged": false,
                   "A0": [ 1, 0.196078, 0.0784314, 1 ],
-                  "B0": [ 1, 0.392157, 0.0784314, 1 ],
-                  "C0": [ 1, 0.588235, 0.0784314, 1 ],
-                  "D0": [ 1, 0.784314, 0.0784314, 1 ],
-                  "A1": [ 0, 0, 0, 0 ],
-                  "B1": [ 0, 0, 0, 0 ],
-                  "C1": [ 0, 0, 0, 0 ],
-                  "D1": [ 0, 0, 0, 0 ]
+                  "D0": [ 1, 0.784314, 0.0784314, 1 ]
                }
             ]
          }

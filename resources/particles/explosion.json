@@ -6,17 +6,11 @@
       "XValues": [],
       "Segments": [
          {
-            "Constant": true,
+            "Type": "Constant",
             "Ranged": true,
             "Bidirectional": false,
             "A0": 1,
-            "B0": 0,
-            "C0": 0,
-            "D0": 0,
-            "A1": 3,
-            "B1": 0,
-            "C1": 0,
-            "D1": 0
+            "A1": 3
          }
       ]
    },
@@ -47,17 +41,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": false,
+                  "Type": "Linear",
                   "Ranged": false,
                   "Bidirectional": false,
                   "A0": 0,
-                  "B0": 0.333,
-                  "C0": 0.666,
-                  "D0": 1,
-                  "A1": 0,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "D0": 1
                }
             ]
          }

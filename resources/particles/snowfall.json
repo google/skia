@@ -6,17 +6,10 @@
       "XValues": [],
       "Segments": [
          {
-            "Constant": true,
+            "Type": "Constant",
             "Ranged": false,
             "Bidirectional": false,
-            "A0": 10,
-            "B0": 0,
-            "C0": 0,
-            "D0": 0,
-            "A1": 0,
-            "B1": 0,
-            "C1": 0,
-            "D1": 0
+            "A0": 10
          }
       ]
    },
@@ -39,17 +32,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": 170,
-                  "B0": 1,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 190,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A1": 190
                }
             ]
          },
@@ -57,17 +44,11 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": true,
+                  "Type": "Constant",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": 10,
-                  "B0": 0,
-                  "C0": 0,
-                  "D0": 0,
-                  "A1": 30,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
+                  "A1": 30
                }
             ]
          }
@@ -81,7 +62,7 @@
             "XValues": [],
             "Segments": [
                {
-                  "Constant": false,
+                  "Type": "Cubic",
                   "Ranged": true,
                   "Bidirectional": false,
                   "A0": 10,
