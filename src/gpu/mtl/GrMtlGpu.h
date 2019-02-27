@@ -163,8 +163,12 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    void onFinishFlush(bool insertedSemaphores) override {
-        this->submitCommandBuffer(kSkip_SyncQueue);
+    void onFinishFlush(bool insertedSemaphores, bool forceCPUSync) override {
+        if (forceCPUSync) {
+            this->submitCommandBuffer(kForce_SyncQueue);
+        } else {
+            this->submitCommandBuffer(kSkip_SyncQueue);
+        }
     }
 
     // Function that uploads data onto textures with private storage mode (GPU access only).

@@ -566,6 +566,29 @@ public:
             SkAlphaType alphaType = kPremul_SkAlphaType,
             sk_sp<SkColorSpace> colorSpace = nullptr,
             GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
+
+    /** (See Skia bug 7447)
+        Creates SkImage from Android hardware buffer and uploads the data from the SkBitmap to it.
+        Returned SkImage takes a reference on the buffer.
+
+        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+
+        @param bitmap          SkBitmap that contains data to be uploaded to the AHardwareBuffer
+        @param hardwareBuffer  AHardwareBuffer Android hardware buffer
+        @param alphaType       one of:
+                               kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
+                               kUnpremul_SkAlphaType
+        @param colorSpace      range of colors; may be nullptr
+        @param surfaceOrigin   one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @return                created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromAHardwareBufferWithData(
+            GrContext* context,
+            const SkBitmap& bitmap,
+            AHardwareBuffer* hardwareBuffer,
+            SkAlphaType alphaType = kPremul_SkAlphaType,
+            sk_sp<SkColorSpace> colorSpace = nullptr,
+            GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
 #endif
 
     /** Returns pixel count in each row.
