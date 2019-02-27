@@ -1786,10 +1786,14 @@ void GrVkGpu::addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                        barrier);
 }
 
-void GrVkGpu::onFinishFlush(bool insertedSemaphore) {
+void GrVkGpu::onFinishFlush(bool insertedSemaphore, bool forceCPUSync) {
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
-    this->submitCommandBuffer(kSkip_SyncQueue);
+    if (forceCPUSync) {
+        this->submitCommandBuffer(kForce_SyncQueue);
+    } else {
+        this->submitCommandBuffer(kSkip_SyncQueue);
+    }
 }
 
 static int get_surface_sample_cnt(GrSurface* surf) {

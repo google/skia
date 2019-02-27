@@ -148,13 +148,15 @@ private:
 
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 int numSemaphores = 0,
-                                GrBackendSemaphore backendSemaphores[] = nullptr);
+                                GrBackendSemaphore backendSemaphores[] = nullptr,
+                                bool forceCPUSync = false);
 
     SkDEBUGCODE(void validate() const);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
     friend class GrContextPriv; // access to: flush
     friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class
+    friend class SkImage; // for access to: flush
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT

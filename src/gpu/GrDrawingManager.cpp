@@ -205,7 +205,8 @@ void GrDrawingManager::freeGpuResources() {
 // MDB TODO: make use of the 'proxy' parameter.
 GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
                                               int numSemaphores,
-                                              GrBackendSemaphore backendSemaphores[]) {
+                                              GrBackendSemaphore backendSemaphores[],
+                                              bool forceCPUSync) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
@@ -339,7 +340,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     opMemoryPool->isEmpty();
 #endif
 
-    GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
+    GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores, forceCPUSync);
 
     flushState.deinstantiateProxyTracker()->deinstantiateAllProxies();
 
@@ -424,7 +425,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         onFlushOpList = nullptr;
         (*numOpListsExecuted)++;
         if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
-            flushState->gpu()->finishFlush(0, nullptr);
+            flushState->gpu()->finishFlush(0, nullptr, false);
             *numOpListsExecuted = 0;
         }
     }
@@ -441,7 +442,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         }
         (*numOpListsExecuted)++;
         if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
-            flushState->gpu()->finishFlush(0, nullptr);
+            flushState->gpu()->finishFlush(0, nullptr, false);
             *numOpListsExecuted = 0;
         }
     }
