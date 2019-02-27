@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorFilter.h"
+#include "SkColorFilterPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkColorSpaceXformer.h"
@@ -391,4 +392,71 @@ void SkColorFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkModeColorFilter);
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
     SK_REGISTER_FLATTENABLE(SkMixerColorFilter);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "effects/GrSkSLFP.h"
+#include "GrContext.h"
+#include "GrRecordingContext.h"
+
+class SkRuntimeColorFilter : public SkColorFilter {
+public:
+    SkRuntimeColorFilter(int index, const char* sksl, const void* inputs, size_t inputSize,
+                         void (*cpuFunction)(float[4], const void*))
+        : fIndex(index)
+        , fSkSL(sksl)
+        , fInputs(inputs)
+        , fInputSize(inputSize)
+        , fCpuFunction(cpuFunction) {}
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
+        return GrSkSLFP::Make(context, fIndex, "Runtime Color Filter", fSkSL, fInputs, fInputSize);
+    }
+#endif
+
+    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
+                        bool shaderIsOpaque) const override {
+        struct Ctx : public SkRasterPipeline_CallbackCtx {
+            SkRuntimeColorFilterFn cpuFn;
+            const void* inputs;
+        };
+        auto ctx = alloc->make<Ctx>();
+        ctx->inputs = fInputs;
+        ctx->cpuFn = fCpuFunction;
+        ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
+            auto ctx = (Ctx*)arg;
+            for (int i = 0; i < active_pixels; i++) {
+                ctx->cpuFn(ctx->rgba + i * 4, ctx->inputs);
+            }
+        };
+        p->append(SkRasterPipeline::callback, ctx);
+    }
+
+protected:
+    void flatten(SkWriteBuffer& buffer) const override {
+    }
+
+private:
+    SK_FLATTENABLE_HOOKS(SkRuntimeColorFilter)
+
+    int fIndex;
+    const char* fSkSL;
+    const void* fInputs;
+    const size_t fInputSize;
+    SkRuntimeColorFilterFn fCpuFunction;
+
+    typedef SkColorFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
+    return nullptr;
+}
+
+sk_sp<SkColorFilter> sk_make_runtime_color_filter(int index, const char* sksl, const void* inputs,
+                                                  size_t inputSize,
+                                                  SkRuntimeColorFilterFn cpuFunc) {
+    return sk_sp<SkColorFilter>(new SkRuntimeColorFilter(index, sksl, inputs, inputSize, cpuFunc));
 }
