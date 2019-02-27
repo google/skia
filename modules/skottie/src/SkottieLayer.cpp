@@ -324,17 +324,24 @@ AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
                                                            const LayerInfo& layer_info,
                                                            AnimatorScope* ascope) const {
+    SkDebugf("alpha\n");
     const auto* asset_info = this->loadImageAsset(jimage);
+    SkDebugf("beta\n");
     if (!asset_info) {
         return nullptr;
     }
+    SkDebugf("gamma %p\n", asset_info);
     SkASSERT(asset_info->fAsset);
+    SkDebugf("gamma2 %p\n", asset_info->fAsset.get());
 
     auto image = asset_info->fAsset->getFrame(0);
+    SkDebugf("delta\n");
     if (!image) {
+        SkDebugf("inside\n");
         this->log(Logger::Level::kError, nullptr, "Could not load first image asset frame.");
         return nullptr;
     }
+    SkDebugf("epsilon\n");
 
     auto image_node = sksg::Image::Make(image);
 

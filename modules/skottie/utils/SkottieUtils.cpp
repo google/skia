@@ -29,6 +29,11 @@ sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data) {
 MultiFrameImageAsset::MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer> player)
     : fPlayer(std::move(player)) {
     SkASSERT(fPlayer);
+    if (!fPlayer) {
+        SkDebugf("null FPlayer\n");
+    } else {
+        SkDebugf("non-nullFpPlayer\n");
+    }
 }
 
 bool MultiFrameImageAsset::isMultiFrame() {
@@ -36,7 +41,9 @@ bool MultiFrameImageAsset::isMultiFrame() {
 }
 
 sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
+    SkDebugf("alpha_in\n");
     fPlayer->seek(static_cast<uint32_t>(t * 1000));
+    SkDebugf("beta_in\n");
     return fPlayer->getFrame();
 }
 

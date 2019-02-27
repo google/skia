@@ -53,6 +53,7 @@ fi
 
 # TODO(fmalita,kjlubick): reduce this list to one item by fixing
 # the libskottie.a and libsksg.a builds
+SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
 SKOTTIE_BINDINGS="$BASE_DIR/skottie_bindings.cpp\
   src/core/SkColorMatrixFilterRowMajor255.cpp \
   src/core/SkCubicMap.cpp \
@@ -68,6 +69,7 @@ SKOTTIE_LIB="$BUILD_DIR/libskottie.a \
 
 if [[ $@ == *no_skottie* ]]; then
   echo "Omitting Skottie"
+  SKOTTIE_JS=""
   SKOTTIE_LIB=""
   SKOTTIE_BINDINGS=""
 fi
@@ -221,6 +223,7 @@ ${EMCXX} \
     --pre-js $BASE_DIR/interface.js \
     --post-js $BASE_DIR/ready.js \
     $HTML_CANVAS_API \
+    $SKOTTIE_JS \
     $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
     $SKOTTIE_BINDINGS \
