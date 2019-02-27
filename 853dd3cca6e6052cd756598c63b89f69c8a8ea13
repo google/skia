@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84b04e78_f530d9ad",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T22:19:41Z",
+      "side": 1,
+      "message": "I think we may be overloading the word \"legacy\" here...",
+      "revId": "853dd3cca6e6052cd756598c63b89f69c8a8ea13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

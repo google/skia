@@ -134,6 +134,24 @@
       "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88f4d313_d755c951",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-27T22:19:41Z",
+      "side": 1,
+      "message": "Yeah, I think that\u0027s true.  I don\u0027t think this is important now, but it\u0027s worth keeping an eye on if we ever get any more complexity into this logic.  It\u0027d probably want to be shared then.",
+      "parentUuid": "95404116_a5282858",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
