@@ -87,6 +87,11 @@ protected:
 #endif
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        // Do we need to consider the lights themselves?
+        return as_SB(fDiffuseShader)->legacyCompatibleWithColorSpace(deviceCS);
+    }
+
 private:
     SK_FLATTENABLE_HOOKS(SkLightingShaderImpl)
 

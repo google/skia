@@ -40,6 +40,10 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
     bool onAppendStages(const StageRec&) const override;
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return as_SB(fDst)->legacyCompatibleWithColorSpace(deviceCS) &&
+               as_SB(fSrc)->legacyCompatibleWithColorSpace(deviceCS);
+    }
 
 private:
     SK_FLATTENABLE_HOOKS(SkComposeShader)

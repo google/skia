@@ -49,6 +49,10 @@ protected:
 
     bool onAppendStages(const StageRec&) const override;
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        return as_SB(fProxyShader)->legacyCompatibleWithColorSpace(deviceCS);
+    }
+
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
         return as_SB(fProxyShader)->makeColorSpace(xformer)->makeWithLocalMatrix(
             this->getLocalMatrix());

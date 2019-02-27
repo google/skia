@@ -149,6 +149,10 @@ public:
      */
     bool asLuminanceColor(SkColor*) const;
 
+    bool legacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const {
+        return (deviceCS == nullptr) || this->onLegacyCompatibleWithColorSpace(deviceCS);
+    }
+
     /**
      *  Returns a shader transformed into a new color space via the |xformer|.
      */
@@ -226,6 +230,10 @@ protected:
 
     // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(const StageRec&) const;
+
+    virtual bool onLegacyCompatibleWithColorSpace(SkColorSpace*) const = 0;
+
+    static bool IsLegacyCompatible(SkColorSpace* shaderCS, SkColorSpace* deviceCS);
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.

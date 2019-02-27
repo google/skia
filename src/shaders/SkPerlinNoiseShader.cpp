@@ -374,6 +374,13 @@ protected:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif
 
+    bool onLegacyCompatibleWithColorSpace(SkColorSpace* deviceCS) const override {
+        // Who knows. Does Perlin always operate in the device colorspace? Does it alawys operate
+        // in sRGB? Return false for now until we either delete this, or have a clearer picture
+        // of how it should behave.
+        return false;
+    }
+
 private:
     SK_FLATTENABLE_HOOKS(SkPerlinNoiseShaderImpl)
 
