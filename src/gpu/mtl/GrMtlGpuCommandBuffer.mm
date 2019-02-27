@@ -108,21 +108,8 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
-        const GrMesh meshes[],
-        int meshCount) {
+        GrPrimitiveType primType) {
     // TODO: resolve textures and regenerate mipmaps as needed
-    bool hasPoints = false;
-    for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == GrPrimitiveType::kPoints) {
-            hasPoints = true;
-            break;
-        }
-    }
-    GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, fRenderTarget->config(), primProc, hasPoints,
-                              pipeline, fGpu)) {
-        return nullptr;
-    }
 
     const GrTextureProxy* const* primProcProxies = nullptr;
     if (fixedDynamicState) {
@@ -130,11 +117,12 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
     }
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
 
-    // TODO: use resource provider for pipeline
     GrMtlPipelineState* pipelineState =
-            GrMtlPipelineStateBuilder::CreatePipelineState(fRenderTarget, fOrigin, primProc,
-                                                           primProcProxies, pipeline,
-                                                           &desc, fGpu);
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, fOrigin,
+                                                                     pipeline,
+                                                                     primProc,
+                                                                     primProcProxies,
+                                                                     primType);
     if (!pipelineState) {
         return nullptr;
     }
@@ -160,8 +148,9 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         return; // TODO: ScissorRects are not supported.
     }
 
-    std::unique_ptr<GrMtlPipelineState> pipelineState(
-            this->prepareDrawState(primProc, pipeline, fixedDynamicState, meshes, meshCount));
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+    GrMtlPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline,
+                                                               fixedDynamicState, primitiveType);
     if (!pipelineState) {
         return;
     }
@@ -176,9 +165,25 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        SkASSERT(fActiveRenderCmdEncoder);
+        SkASSERT(nil != fActiveRenderCmdEncoder);
+//        if (mesh.primitiveType() != primitiveType) {
+//            SkDEBUGCODE(pipelineState = nullptr);
+////            primitiveType = mesh.primitiveType();
+////            pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
+////                                                   primitiveType);
+////            if (!pipelineState) {
+////                return;
+////            }
+////            // TODO: Move to prepareDrawState?
+//            pipelineState->bind(fActiveRenderCmdEncoder);
+//            pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
+//                                             pipeline.getXferProcessor());
+//            pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
+//        }
+
         mesh.sendToGpu(this);
     }
+
     this->internalEnd();
     fCommandBufferInfo.fBounds.join(bounds);
 }
