@@ -70,6 +70,30 @@
       "revId": "337449caa74905fbd7602fb259471298c3a2060d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c4df18a_5346237c",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-02-27T20:03:11Z",
+      "side": 1,
+      "message": "\u003e I tried your latest patch and it works fine for me, both for Android targets and host targets. Let me know what error you run into and maybe I can help.\n\nIt\u0027s the error I ran into above - ah, but I had\u0027t tried it after I fixed the issue (by removing WIN32_LEAN_AND_MEAN from our defines in patch set 5).\n\n\u003e Also the Windows version is cross-compiled from Linux whenever \"enabled: true\" is set for Windows targets. So there is nothing to check compilation-wise on Windows.\n\nAh, interesting. So it\u0027s correct that I\u0027m building the Windows version from my linux machine. That explains why I was seeing the error.",
+      "parentUuid": "ebe93164_fe63f07b",
+      "range": {
+        "startLine": 221,
+        "startChar": 8,
+        "endLine": 221,
+        "endChar": 21
+      },
+      "revId": "337449caa74905fbd7602fb259471298c3a2060d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
