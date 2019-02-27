@@ -2930,10 +2930,12 @@ SI void load_565_(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
     from_565(load<U16>(ptr, tail), r,g,b);
 }
 SI void store_565_(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b) {
-    // Select the top 5,6,5 bits.
-    U16 R = r >> 3,
-        G = g >> 2,
-        B = b >> 3;
+    // Round from [0,255] to [0,31] or [0,63], as if x * (31/255.0f) + 0.5f.
+    // (Don't feel like you need to find some fundamental truth in these...
+    // they were brute-force searched.)
+    U16 R = (r *  9 + 36) / 74,   //  9/74 ≈ 31/255, plus 36/74, about half.
+        G = (g * 21 + 42) / 85,   // 21/85 = 63/255 exactly.
+        B = (b *  9 + 36) / 74;
     // Pack them back into 15|rrrrr gggggg bbbbb|0.
     store(ptr, tail, R << 11
                    | G <<  5
@@ -2975,11 +2977,11 @@ SI void load_4444_(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16
     from_4444(load<U16>(ptr, tail), r,g,b,a);
 }
 SI void store_4444_(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
-    // Select the top 4 bits of each.
-    U16 R = r >> 4,
-        G = g >> 4,
-        B = b >> 4,
-        A = a >> 4;
+    // Round from [0,255] to [0,15], producing the same value as (x*(15/255.0f) + 0.5f).
+    U16 R = (r + 8) / 17,
+        G = (g + 8) / 17,
+        B = (b + 8) / 17,
+        A = (a + 8) / 17;
     // Pack them back into 15|rrrr gggg bbbb aaaa|0.
     store(ptr, tail, R << 12
                    | G <<  8
