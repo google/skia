@@ -128,6 +128,11 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    // legacy behavior for now. We should/will check the image's colorspace...
+    if (rec.fDstColorSpace) {
+        return nullptr;
+    }
+
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get()), rec, alloc);
 }
