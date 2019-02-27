@@ -2,7 +2,7 @@
 // Specifically, the code that emulates the HTML Canvas interface
 // (which is called HTMLCanvas or similar to avoid confusion with
 // SkCanvas).
-(function(CanvasKit) {
+(function() {
 
   // This allows us to expose internal functions (e.g. color
   // parsing) for unit-testing, even in the minified version.
