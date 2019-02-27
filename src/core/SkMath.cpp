@@ -97,3 +97,13 @@ size_t SkSafeMath::Mul(size_t x, size_t y) {
     size_t prod = tmp.mul(x, y);
     return tmp.ok() ? prod : SIZE_MAX;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool sk_floats_are_unit(const float array[], size_t count) {
+    bool is_unit = true;
+    for (size_t i = 0; i < count; ++i) {
+        is_unit &= (array[i] >= 0) & (array[i] <= 1);
+    }
+    return is_unit;
+}
