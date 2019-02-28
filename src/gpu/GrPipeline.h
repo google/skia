@@ -195,6 +195,9 @@ public:
         return SkString("No pipeline flags\n");
     }
 
+    // Used by Vulkan and Metal to cache their respective pipeline objects
+    uint32_t getBlendInfoKey() const;
+
 private:
     void markAsBad() { fFlags |= kIsBad_Flag; }
 
