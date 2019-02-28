@@ -29,8 +29,7 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfa
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
-        , fConfig(renderTarget->config())
-        , fNumColorSamples(renderTarget->numColorSamples())
+        , fRenderTarget(renderTarget)
         , fOrigin(origin)
         , fPipeline(pipeline)
         , fPrimProc(primProc)
@@ -306,13 +305,18 @@ bool GrGLSLProgramBuilder::checkSamplerCounts() {
 
 #ifdef SK_DEBUG
 void GrGLSLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
-}
-
-void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
-    SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
+    SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == gp.requestedFeatures());
 }
 
 void GrGLSLProgramBuilder::verify(const GrFragmentProcessor& fp) {
+    SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == fp.requestedFeatures());
+}
+
+void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
+    SkASSERT(xp.willReadDstColor() == fFS.fHasReadDstColorThisStage_DebugOnly);
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == xp.requestedFeatures());
 }
 #endif
 
