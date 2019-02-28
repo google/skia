@@ -26,8 +26,9 @@ public:
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
 protected:
-    GrTextureMaker(GrRecordingContext* context, int width, int height, bool isAlphaOnly)
-        : INHERITED(context, width, height, isAlphaOnly) {}
+    GrTextureMaker(GrRecordingContext* context, int width, int height, bool isAlphaOnly,
+                   bool domainNeedsLocal)
+        : INHERITED(context, width, height, isAlphaOnly, domainNeedsLocal) {}
 
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any

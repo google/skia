@@ -24,6 +24,171 @@ static AI Sk4f fma(const Sk4f& f, const Sk4f& m, const Sk4f& a) {
     return SkNx_fma<4, float>(f, m, a);
 }
 
+// Calculate area of intersection between quad (xs, ys) and a pixel at 'pixelCenter'.
+// a, b, c are edge equations of the quad, flipped is true if the line equations had their normals
+// reversed to correct for matrix transforms.
+static float get_exact_coverage(const SkPoint& pixelCenter, const Sk4f& xs, const Sk4f& ys,
+                                const Sk4f& a, const Sk4f& b, const Sk4f& c, bool flipped) {
+     // Ordering of vertices given default tri-strip that produces CCW points
+    static const int kCCW[] = {0, 1, 3, 2};
+    // Ordering of vertices given inverted tri-strip that produces CCW
+    static const int kFlippedCCW[] = {0, 2, 3, 1};
+
+    // Edge boundaries of the pixel
+    float left = pixelCenter.fX - 0.5f;
+    float right = pixelCenter.fX + 0.5f;
+    float top = pixelCenter.fY - 0.5f;
+    float bot = pixelCenter.fY + 0.5f;
+
+    // Whether or not the 4 corners of the pixel are inside the quad geometry. Variable names are
+    // intentional to work easily with the helper macros.
+    bool topleftInside = ((a * left + b * top + c) >= 0.f).allTrue();
+    bool botleftInside = ((a * left + b * bot + c) >= 0.f).allTrue();
+    bool botrightInside = ((a * right + b * bot + c) >= 0.f).allTrue();
+    bool toprightInside = ((a * right + b * top + c) >= 0.f).allTrue();
+    if (topleftInside && botleftInside && botrightInside && toprightInside) {
+        // Quad fully contains the pixel, so we know the area will be 1.f
+        return 1.f;
+    }
+
+    // Track whether or not the quad vertices in (xs, ys) are on the proper sides of l, t, r, and b
+    Sk4i leftValid = SkNx_cast<int32_t>(xs >= left);
+    Sk4i rightValid = SkNx_cast<int32_t>(xs <= right);
+    Sk4i topValid = SkNx_cast<int32_t>(ys >= top);
+    Sk4i botValid = SkNx_cast<int32_t>(ys <= bot);
+
+    // Intercepts of quad lines with the 4 pixel edges
+    Sk4f leftCross = -(c + a * left) / b;
+    Sk4f rightCross = -(c + a * right) / b;
+    Sk4f topCross = -(c + b * top) / a;
+    Sk4f botCross = -(c + b * bot) / a;
+
+    // State for implicitly tracking the intersection boundary and area
+    SkPoint firstPoint = {0.f, 0.f};
+    SkPoint lastPoint = {0.f, 0.f};
+    bool intersected = false;
+    float area = 0.f;
+
+    // Adds a point to the intersection hull, remembering first point (for closing) and the
+    // current point, and updates the running area total.
+    // See http://mathworld.wolfram.com/PolygonArea.html
+    auto accumulate = [&](const SkPoint& p) {
+        if (intersected) {
+            float da = lastPoint.fX * p.fY - p.fX * lastPoint.fY;
+            area += da;
+        } else {
+            firstPoint = p;
+            intersected = true;
+        }
+        lastPoint = p;
+    };
+
+    // Used during iteration over the quad points to check if edge intersections are valid and
+    // should be accumulated.
+#define ADD_EDGE_CROSSING_X(SIDE) \
+    if (SIDE##Cross[ei] >= top && SIDE##Cross[ei] <= bot) { \
+        accumulate({SIDE, SIDE##Cross[ei]}); \
+        addedIntersection = true; \
+    }
+#define ADD_EDGE_CROSSING_Y(SIDE) \
+    if (SIDE##Cross[ei] >= left && SIDE##Cross[ei] <= right) { \
+        accumulate({SIDE##Cross[ei], SIDE}); \
+        addedIntersection = true; \
+    }
+#define TEST_EDGES(SIDE, AXIS, I, NI) \
+    if (!SIDE##Valid[I] && SIDE##Valid[NI]) { \
+        ADD_EDGE_CROSSING_##AXIS(SIDE); \
+        crossedEdges = true; \
+    }
+    // Used during iteration over the quad points to check if a pixel corner should be included
+    // in the intersection boundary
+#define ADD_CORNER(CHECK, SIDE_LR, SIDE_TB) \
+    if (!CHECK##Valid[i] || !CHECK##Valid[ni]) { \
+        if (SIDE_TB##SIDE_LR##Inside) { \
+            accumulate({SIDE_LR, SIDE_TB}); \
+        } \
+    }
+#define TEST_CORNER_X(SIDE, I, NI) \
+    if (!SIDE##Valid[I] && SIDE##Valid[NI]) { \
+        ADD_CORNER(top, SIDE, top) else ADD_CORNER(bot, SIDE, bot); \
+    }
+#define TEST_CORNER_Y(SIDE, I, NI) \
+    if (!SIDE##Valid[I] && SIDE##Valid[NI]) { \
+        ADD_CORNER(left, left, SIDE) else ADD_CORNER(right, right, SIDE); \
+    }
+
+    // Iterate over the 4 points of the quad, adding valid intersections with the pixel edges
+    // or adding interior pixel corners as it goes. This automatically keeps all accumulated points
+    // in CCW ordering so the area can be calculated on the fly and there's no need to store the
+    // list of hull points. This is somewhat inspired by the Sutherland-Hodgman algorithm but since
+    // there are only 4 points in each source polygon, there is no point list maintenance.
+    for (int j = 0; j < 4; ++j) {
+        // Current vertex
+        int i = flipped ? kFlippedCCW[j] : kCCW[j];
+        // Moving to this vertex
+        int ni = flipped ? kFlippedCCW[(j + 1) % 4] : kCCW[(j + 1) % 4];
+        // Index in edge vectors corresponding to move from i to ni
+        int ei = flipped ? ni : i;
+
+        bool crossedEdges = false;
+        bool addedIntersection = false;
+
+        // First check if there are any outside -> inside edge crossings. There can be 0, 1, or 2.
+        // 2 can occur if one crossing is still outside the pixel, or if they both go through
+        // the corner (in which case a duplicate point is added, but that doesn't change area).
+
+        // Outside to inside crossing
+        TEST_EDGES(left, X, i, ni);
+        TEST_EDGES(right, X, i, ni);
+        TEST_EDGES(top, Y, i, ni);
+        TEST_EDGES(bot, Y, i, ni);
+        // Inside to outside crossing (swapping ni and i in the boolean test)
+        TEST_EDGES(left, X, ni, i);
+        TEST_EDGES(right, X, ni, i);
+        TEST_EDGES(top, Y, ni, i);
+        TEST_EDGES(bot, Y, ni, i);
+
+        // If we crossed edges but didn't add any intersections, check the corners of the pixel.
+        // If the pixel corners are inside the quad, include them in the boundary.
+        if (crossedEdges && !addedIntersection) {
+            // This can lead to repeated points, but those just accumulate zero area
+            TEST_CORNER_X(left, i, ni);
+            TEST_CORNER_X(right, i, ni);
+            TEST_CORNER_Y(top, i, ni);
+            TEST_CORNER_Y(bot, i, ni);
+
+            TEST_CORNER_X(left, ni, i);
+            TEST_CORNER_X(right, ni, i);
+            TEST_CORNER_Y(top, ni, i);
+            TEST_CORNER_Y(bot, ni, i);
+        }
+
+        // Lastly, if the next point is completely inside the pixel it gets included in the boundary
+        if (leftValid[ni] && rightValid[ni] && topValid[ni] && botValid[ni]) {
+            accumulate({xs[ni], ys[ni]});
+        }
+    }
+
+#undef TEST_CORNER_Y
+#undef TEST_CORNER_X
+#undef ADD_CORNER
+
+#undef TEST_EDGES
+#undef ADD_EDGE_CROSSING_Y
+#undef ADD_EDGE_CROSSING_X
+
+    // After all points have been considered, close the boundary to get final area. If we never
+    // added any points, it means the quad didn't intersect the pixel rectangle.
+    if (intersected) {
+        // Final equation for area of convex polygon is to multiply by -1/2 (minus since the points
+        // were in CCW order).
+        accumulate(firstPoint);
+        return -0.5f * area;
+    } else {
+        return 0.f;
+    }
+}
+
 // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
 // order.
 static AI Sk4f nextCW(const Sk4f& v) {
@@ -54,17 +219,14 @@ static AI void compute_edge_vectors(const Sk4f& x, const Sk4f& y, const Sk4f& xn
     *ydiff *= *invLengths;
 }
 
-// outset and outsetCW are provided separately to allow for different magnitude outsets for
-// with-edge and "perpendicular" edge shifts. This is needed when one axis cannot be inset the full
-// half pixel without crossing over the other side.
-static AI void outset_masked_vertices(const Sk4f& outset, const Sk4f& outsetCW, const Sk4f& xdiff,
-                                      const Sk4f& ydiff, const Sk4f& invLengths, const Sk4f& mask,
+static AI void outset_masked_vertices(const Sk4f& outset, const Sk4f& xdiff, const Sk4f& ydiff,
+                                      const Sk4f& invLengths, const Sk4f& mask,
                                       Sk4f* x, Sk4f* y, Sk4f* u, Sk4f* v, Sk4f* r, int uvrCount) {
     // The mask is rotated compared to the outsets and edge vectors, since if the edge is "on"
     // both its points need to be moved along their other edge vectors.
     auto maskedOutset = -outset * nextCW(mask);
-    auto maskedOutsetCW = outsetCW * mask;
-    // x = x + outsetCW * mask * nextCW(xdiff) - outset * nextCW(mask) * xdiff
+    auto maskedOutsetCW = outset * mask;
+    // x = x + outset * mask * nextCW(xdiff) - outset * nextCW(mask) * xdiff
     *x += fma(maskedOutsetCW, nextCW(xdiff), maskedOutset * xdiff);
     *y += fma(maskedOutsetCW, nextCW(ydiff), maskedOutset * ydiff);
     if (uvrCount > 0) {
@@ -82,15 +244,15 @@ static AI void outset_masked_vertices(const Sk4f& outset, const Sk4f& outsetCW, 
     }
 }
 
-static AI void outset_vertices(const Sk4f& outset, const Sk4f& outsetCW, const Sk4f& xdiff,
-                               const Sk4f& ydiff, const Sk4f& invLengths,
-                               Sk4f* x, Sk4f* y, Sk4f* u, Sk4f* v, Sk4f* r, int uvrCount) {
-    // x = x + outsetCW * nextCW(xdiff) - outset * xdiff (as above, but where mask = (1,1,1,1))
-    *x += fma(outsetCW, nextCW(xdiff), -outset * xdiff);
-    *y += fma(outsetCW, nextCW(ydiff), -outset * ydiff);
+static AI void outset_vertices(const Sk4f& outset, const Sk4f& xdiff, const Sk4f& ydiff,
+                               const Sk4f& invLengths, Sk4f* x, Sk4f* y, Sk4f* u, Sk4f* v, Sk4f* r,
+                               int uvrCount) {
+    // x = x + outset * nextCW(xdiff) - outset * xdiff (as above, but where mask = (1,1,1,1))
+    *x += fma(outset, nextCW(xdiff), -outset * xdiff);
+    *y += fma(outset, nextCW(ydiff), -outset * ydiff);
     if (uvrCount > 0) {
         Sk4f t = -outset * invLengths; // Bake minus sign in here
-        Sk4f tCW = outsetCW * nextCW(invLengths);
+        Sk4f tCW = outset * nextCW(invLengths);
         Sk4f udiff = nextCCW(*u) - *u;
         Sk4f vdiff = nextCCW(*v) - *v;
         *u += fma(tCW, nextCW(udiff), t * udiff);
@@ -102,15 +264,202 @@ static AI void outset_vertices(const Sk4f& outset, const Sk4f& outsetCW, const S
     }
 }
 
+// Updates (x,y,w) to be at (x2d,y2d) once projected. Updates (u,v,r) to match if provided.
+// Gracefully handles 2D content if *w holds all 1s. Doesn't need aa flags since (x2d,y2d)
+// encodes that information already.
+static void outset_projected_vertices(const Sk4f& x2d, const Sk4f& y2d, Sk4f* x, Sk4f* y, Sk4f* w,
+                                      Sk4f* u, Sk4f* v, Sk4f* r, int uvrCount) {
+    // Calculate 3D quad edges, but don't bother normalizing since the lengths will be baked into
+    // the solved equations.
+    Sk4f ex = nextCCW(*x) - *x;
+    Sk4f ey = nextCCW(*y) - *y;
+    Sk4f ew = nextCCW(*w) - *w;
+    // Can only move along -e and nextCW(e) to reach the new 2D point, which means we have
+    // x2d = (x - a*ex + b*cw(ex)) / (w - a*ew + b*cw(ew)) and
+    // y2d = (y - a*ey + b*cw(ey)) / (w - a*ew + b*cw(ew)) for some a, b.
+    // Solve for a and b to get scale factors when adding edges to (x,y,w) to get the outset point.
+    Sk4f c1x = x2d * ew - ex;
+    Sk4f c1y = y2d * ew - ey;
+    Sk4f c2x = nextCW(ex) - x2d * nextCW(ew);
+    Sk4f c2y = nextCW(ey) - y2d * nextCW(ew);
+    Sk4f c3x = *x - x2d * (*w);
+    Sk4f c3y = *y - y2d * (*w);
+
+    // a * c1x + b * c2x + c3x = 0, a * c1y + b * c2y + c3y = 0, solved for a,b
+    Sk4f denom = c1x * c2y - c2x * c1y;
+    Sk4f a = (c2x * c3y - c3x * c2y) / denom;
+    Sk4f b = (c3x * c1y - c1x * c3y) / denom;
+
+    *x = *x - a * ex + b * nextCW(ex);
+    *y = *y - a * ey + b * nextCW(ey);
+    *w = *w - a * ew + b * nextCW(ew);
+
+    // Now outset the texture coordinates to match new positions
+    if (uvrCount > 0) {
+        Sk4f eu = nextCCW(*u) - *u;
+        Sk4f ev = nextCCW(*v) - *v;
+        *u = *u - a * eu + b * nextCW(eu);
+        *v = *v - a * ev + b * nextCW(ev);
+        if (uvrCount == 3) {
+            Sk4f er = nextCCW(*r) - *r;
+            *r = *r - a * er + b * nextCW(er);
+        }
+    }
+}
+
 // Updates outset in place to account for non-90 degree angles of the quad edges stored in
-// xdiff, ydiff (which are assumed to be normalized).
-static void adjust_non_rectilinear_outset(const Sk4f& xdiff, const Sk4f& ydiff, Sk4f* outset) {
+// xdiff, ydiff (which are assumed to be normalized). Returns true if the fast path for
+// inset/outsetting is still appropriate.
+static bool adjust_non_rectilinear_outset(const Sk4f& xdiff, const Sk4f& ydiff, Sk4f* outset) {
     // The distance the point needs to move is outset/sqrt(1-cos^2(theta)), where theta is the angle
     // between the two edges at that point. cos(theta) is equal to dot(xydiff, nextCW(xydiff)),
     Sk4f cosTheta = fma(xdiff, nextCW(xdiff), ydiff * nextCW(ydiff));
     *outset *= (1.f - cosTheta * cosTheta).rsqrt();
     // But clamp to make sure we don't expand by a giant amount if the sheer is really high
-    *outset = Sk4f::Max(-3.f, Sk4f::Min(*outset, 3.f));
+    *outset = Sk4f::Max(-100.f, Sk4f::Min(*outset, 100.f));
+}
+
+static constexpr float kTolerance = 1e-2f;
+
+// Assumes no zero-length edges. Returns true if the normals have been flipped.
+static bool get_edge_equations(const Sk4f& xs, const Sk4f& ys, const Sk4f& dx, const Sk4f& dy,
+                               Sk4f* a, Sk4f* b, Sk4f* c) {
+    *c = fma(dx, ys, -dy * xs);
+    // Make sure normals point into the shape
+    Sk4f test = fma(dy, nextCW(xs), fma(-dx, nextCW(ys), *c));
+    if ((test < -kTolerance).anyTrue()) {
+        // Flip
+        *a = -dy;
+        *b = dx;
+        *c = -*c;
+
+        return true;
+    } else {
+        *a = dy;
+        *b = -dx;
+
+        return false;
+    }
+}
+
+// Outsets or insets xs/ys in place. To be used when the interior is very small, edges are near
+// parallel, or edges are very short/zero-length. Returns coverage for each vertex.
+// FIXME take the u, v, r pointers and call outset_projected_vertices before rewriting xs,ys
+// with the new points.
+static Sk4f compute_degenerate_quad_vertices(Sk4f* xs, Sk4f* ys, const Sk4f& xdiff,
+                                             const Sk4f& ydiff, const Sk4f& lengths,
+                                             GrQuadAAFlags aaFlags, bool outset) {
+    Sk4f mask = compute_edge_mask(aaFlags);
+
+    Sk4f badEdge = lengths < kTolerance;
+    // Correct for bad edges by copying adjacent edge information into the bad component
+    // Sk4f edgeLengths = badEdge.thenElse(nextCW(lengths), lengths);
+    Sk4f dx = badEdge.thenElse(nextCW(xdiff), xdiff);
+    Sk4f dy = badEdge.thenElse(nextCW(ydiff), ydiff);
+
+    // Calculate original edge equations, correcting for any winding inversion from transform then
+    // adjust by insetting or outsetting.
+    Sk4f a, b, c; // ax + by + c = 0
+    bool flipped = get_edge_equations(*xs, *ys, dx, dy, &a, &b, &c);
+
+    // Shift distance from the line to get the supporting lines of the convex polygon
+    c += mask * (outset ? 0.5f : -0.5f);
+
+    // There are 6 points that we care about to determine the final shape of the polygon, which
+    // are the intersections between (e0,e2), (e1,e0), (e2,e3), (e3,e1) (corresponding to the
+    // 4 corners), and (e1, e2), (e0, e3) (representing the intersections of opposite edges).
+    Sk4f denom = a * nextCW(b) - b * nextCW(a);
+    Sk4f px = (b * nextCW(c) - c * nextCW(b)) / denom;
+    Sk4f py = (c * nextCW(a) - a * nextCW(c)) / denom;
+    // The original empty edges have their edge equations replaced with the CW line, so their
+    // intersection point will be invalid. Replace with the *CCW* point.
+    badEdge = denom.abs() < kTolerance;
+    px = badEdge.thenElse(nextCCW(px), px);
+    py = badEdge.thenElse(nextCCW(py), py);
+
+    // Calculate the signed distances from these 4 corners to the other two edges that did not
+    // define the intersection. So p(0) is compared to e3,e1, p(1) to e3,e2 , p(2) to e0,e1, and
+    // p(3) to e0,e2
+    Sk4f dists1 = px * SkNx_shuffle<3, 3, 0, 0>(a) + py * SkNx_shuffle<3, 3, 0, 0>(b) +
+                  SkNx_shuffle<3, 3, 0, 0>(c);
+    Sk4f dists2 = px * SkNx_shuffle<1, 2, 1, 2>(a) + py * SkNx_shuffle<1, 2, 1, 2>(b) +
+                  SkNx_shuffle<1, 2, 1, 2>(c);
+
+    // If all the distances are >= 0, the 4 corners form a valid quadrilateral, so use them as
+    // the 4 points. If any point is on the wrong side of both edges, the interior has collapsed
+    // and we need to use a central point to represent it. If all four points are only on the
+    // wrong side of 1 edge, one edge has crossed over another and we use a line to represent it.
+    // Otherwise, use a triangle that replaces the bad points with the intersections of
+    // (e1, e2) or (e0, e3) as needed.
+    Sk4f d1v0 = dists1 < kTolerance;
+    Sk4f d2v0 = dists2 < kTolerance;
+    // FIXME(michaelludwig): Sk4f has anyTrue() and allTrue(), but not & or |. Sk4i has & or | but
+    // not anyTrue() and allTrue(). Moving to SkVx from SkNx will clean this up.
+    Sk4i d1And2 = SkNx_cast<int32_t>(d1v0) & SkNx_cast<int32_t>(d2v0);
+    Sk4i d1Or2 = SkNx_cast<int32_t>(d1v0) | SkNx_cast<int32_t>(d2v0);
+    if (!d1Or2[0] && !d1Or2[1] && !d1Or2[2] && !d1Or2[3]) {
+        // Every dists1 and dists2 >= kTolerance so it's not degenerate and use all 4 corners.
+        *xs = px;
+        *ys = py;
+        return 1.f;
+    } else if (d1And2[0] || d1And2[1] || d1And2[2] || d1And2[2]) {
+        // A point failed against two edges, so reduce the shape to a single point, which we take as
+        // the center of the original quad to ensure it is contained in the intended geometry. Since
+        // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
+        SkPoint center = {0.25f * ((*xs)[0] + (*xs)[1] + (*xs)[2] + (*xs)[3]),
+                          0.25f * ((*ys)[0] + (*ys)[1] + (*ys)[2] + (*ys)[3])};
+                          // FIXME undo adjustment to c since this should be original edge equations
+        float maxCoverage = get_exact_coverage(center, *xs, *ys, a, b, c, flipped);
+        *xs = center.fX;
+        *ys = center.fY;
+        return maxCoverage;
+    } else if (d1Or2[0] && d1Or2[1] && d1Or2[2] && d1Or2[3]) {
+        // Degenerates to a line. Compare p[2] and p[3] to edge 0. If they are on the wrong side,
+        // that means edge 0 and 3 crossed, and otherwise edge 1 and 2 crossed.
+        if (dists1[2] < kTolerance && dists1[3] < kTolerance) {
+            // Edges 0 and 3 have crossed over, so make the line from average of (p0,p2) and (p1,p3)
+            SkPoint p1 = {0.5f * (px[0] + px[2]), 0.5f * (py[0] + py[2])};
+            SkPoint p2 = {0.5f * (px[1] + px[3]), 0.5f * (py[1] + py[3])};
+            // FIXME undo adjustment to c
+            float mc02 = get_exact_coverage(p1, *xs, *ys, a, b, c, flipped);
+            float mc13 = get_exact_coverage(p2, *xs, *ys, a, b, c, flipped);
+            *xs = Sk4f(p1.fX, p2.fX, p1.fX, p2.fX);
+            *ys = Sk4f(p1.fY, p2.fY, p1.fY, p2.fY);
+            return Sk4f(mc02, mc13, mc02, mc13);
+        } else {
+            // Edges 1 and 2 have crossed over, so make the line from average of (p0,p1) and (p2,p3)
+            SkPoint p1 = {0.5f * (px[0] + px[1]), 0.5f * (py[0] + py[1])};
+            SkPoint p2 = {0.5f * (px[2] + px[3]), 0.5f * (py[2] + py[3])};
+            // FIXME undo adjustment to c
+            float mc01 = get_exact_coverage(p1, *xs, *ys, a, b, c, flipped);
+            float mc23 = get_exact_coverage(p2, *xs, *ys, a, b, c, flipped);
+            *xs = Sk4f(p1.fX, p1.fX, p2.fX, p2.fX);
+            *ys = Sk4f(p1.fY, p1.fY, p2.fY, p2.fY);
+            return Sk4f(mc01, mc01, mc23, mc23);
+        }
+    } else {
+        // This turns into a triangle. Replace corners as needed with the intersections between
+        // (e0,e3) and (e1,e2), which must now be calculated
+        Sk2f eDenom = SkNx_shuffle<0, 1>(a) * SkNx_shuffle<3, 2>(b) -
+                      SkNx_shuffle<0, 1>(b) * SkNx_shuffle<3, 2>(a);
+        Sk2f ex = (SkNx_shuffle<0, 1>(b) * SkNx_shuffle<3, 2>(c) -
+                   SkNx_shuffle<0, 1>(c) * SkNx_shuffle<3, 2>(b)) / eDenom;
+        Sk2f ey = (SkNx_shuffle<0, 1>(c) * SkNx_shuffle<3, 2>(a) -
+                   SkNx_shuffle<0, 1>(a) * SkNx_shuffle<3, 2>(c)) / eDenom;
+
+        if (SkScalarAbs(eDenom[0]) > kTolerance) {
+            px = d1v0.thenElse(ex[0], px);
+            py = d1v0.thenElse(ey[0], py);
+        }
+        if (SkScalarAbs(eDenom[1]) > kTolerance) {
+            px = d2v0.thenElse(ex[1], px);
+            py = d2v0.thenElse(ey[1], py);
+        }
+
+        *xs = px;
+        *ys = py;
+        return 1.f;
+    }
 }
 
 // Computes the vertices for the two nested quads used to create AA edges. The original single quad
@@ -118,7 +467,7 @@ static void adjust_non_rectilinear_outset(const Sk4f& xdiff, const Sk4f& ydiff, 
 // (controlled by uvrChannelCount).  While the values should be duplicated, they should be separate
 // pointers. The outset quad is written in-place back to x1, y1, etc. and the inset inner quad is
 // written to x2, y2, etc.
-static float compute_nested_quad_vertices(GrQuadAAFlags aaFlags, Sk4f* x1, Sk4f* y1,
+static Sk4f compute_nested_quad_vertices(GrQuadAAFlags aaFlags, Sk4f* x1, Sk4f* y1,
         Sk4f* u1, Sk4f* v1, Sk4f* r1, Sk4f* x2, Sk4f* y2, Sk4f* u2, Sk4f* v2, Sk4f* r2,
         int uvrCount, bool rectilinear) {
     SkASSERT(uvrCount == 0 || uvrCount == 2 || uvrCount == 3);
@@ -129,63 +478,34 @@ static float compute_nested_quad_vertices(GrQuadAAFlags aaFlags, Sk4f* x1, Sk4f*
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
     Sk4f xdiff, ydiff, invLengths;
     compute_edge_vectors(*x1, *y1, xnext, ynext, &xdiff, &ydiff, &invLengths);
+    Sk4f lengths = invLengths.invert();
 
     // When outsetting, we want the new edge to be .5px away from the old line, which means the
-    // corners may need to be adjusted by more than .5px if the matrix had sheer.
+    // corners may need to be adjusted by more than .5px if the matrix had sheer. This adjustment
+    // is only computed if there are no empty edges, and it may signal going through the slow path.
     Sk4f outset = 0.5f;
-    if (!rectilinear) {
-        adjust_non_rectilinear_outset(xdiff, ydiff, &outset);
+    if ((lengths < 1.f).anyTrue() ||
+        (!rectilinear && !adjust_non_rectilinear_outset(xdiff, ydiff, &outset))) {
+        // Go through the slow path, returning the coverage for the inner quad
+        // FIXME must correctly outset/inset the uvr coords for each too
+        compute_degenerate_quad_vertices(x1, y1, xdiff, ydiff, lengths, aaFlags, true);
+        return compute_degenerate_quad_vertices(x2, y2, xdiff, ydiff, lengths, aaFlags, false);
     }
 
-    // When insetting, cap the inset amount to be half of the edge length, except that each edge
-    // has to remain parallel, so we separately limit LR and TB to half of the smallest of the
-    // opposing edges.
-    Sk4f lengths = invLengths.invert();
-    Sk2f sides(SkMinScalar(lengths[0], lengths[3]), SkMinScalar(lengths[1], lengths[2]));
-    Sk4f edgeLimits = 0.5f * SkNx_shuffle<0, 1, 1, 0>(sides);
-
-    if ((edgeLimits < 0.5f).anyTrue()) {
-        // Dealing with a subpixel rectangle, so must calculate clamped insets and padded outsets.
-        // The outsets are padded to ensure that the quad spans 2 pixels for improved interpolation.
-        Sk4f inset = -Sk4f::Min(outset, edgeLimits);
-        Sk4f insetCW = -Sk4f::Min(outset, nextCW(edgeLimits));
-
-        // The parallel distance shift caused by outset is currently 0.5, but need to scale it up to
-        // 0.5*(2 - side) so that (side + 2*shift) = 2px. Thus scale outsets for thin edges by
-        // (2 - side) since it already has the 1/2.
-        Sk4f outsetScale = 2.f - 2.f * Sk4f::Min(edgeLimits, 0.5f); // == 1 for non-thin edges
-        Sk4f outsetCW = outset * nextCW(outsetScale);
-        outset *= outsetScale;
-
-        if (aaFlags != GrQuadAAFlags::kAll) {
-            Sk4f mask = compute_edge_mask(aaFlags);
-            outset_masked_vertices(outset, outsetCW, xdiff, ydiff, invLengths, mask, x1, y1,
-                                   u1, v1, r1, uvrCount);
-            outset_masked_vertices(inset, insetCW, xdiff, ydiff, invLengths, mask, x2, y2,
-                                   u2, v2, r2, uvrCount);
-        } else {
-            outset_vertices(outset, outsetCW, xdiff, ydiff, invLengths, x1, y1, u1, v1, r1, uvrCount);
-            outset_vertices(inset, insetCW, xdiff, ydiff, invLengths, x2, y2, u2, v2, r2, uvrCount);
-        }
+    // Since it's not subpixel, outsetting and insetting are trivial vector additions.
+    Sk4f inset = -outset;
+    if (aaFlags != GrQuadAAFlags::kAll) {
+        Sk4f mask = compute_edge_mask(aaFlags);
+        outset_masked_vertices(outset, xdiff, ydiff, invLengths, mask, x1, y1,
+                               u1, v1, r1, uvrCount);
+        outset_masked_vertices(inset, xdiff, ydiff, invLengths, mask, x2, y2,
+                               u2, v2, r2, uvrCount);
     } else {
-        // Since it's not subpixel, the inset is just the opposite of the outset and there's no
-        // difference between CCW and CW behavior.
-        Sk4f inset = -outset;
-        if (aaFlags != GrQuadAAFlags::kAll) {
-            Sk4f mask = compute_edge_mask(aaFlags);
-            outset_masked_vertices(outset, outset, xdiff, ydiff, invLengths, mask, x1, y1,
-                                   u1, v1, r1, uvrCount);
-            outset_masked_vertices(inset, inset, xdiff, ydiff, invLengths, mask, x2, y2,
-                                   u2, v2, r2, uvrCount);
-        } else {
-            outset_vertices(outset, outset, xdiff, ydiff, invLengths, x1, y1, u1, v1, r1, uvrCount);
-            outset_vertices(inset, inset, xdiff, ydiff, invLengths, x2, y2, u2, v2, r2, uvrCount);
-        }
+        outset_vertices(outset, xdiff, ydiff, invLengths, x1, y1, u1, v1, r1, uvrCount);
+        outset_vertices(inset, xdiff, ydiff, invLengths, x2, y2, u2, v2, r2, uvrCount);
     }
 
-    // An approximation of the pixel area covered by the quad
-    sides = Sk2f::Min(1.f, sides);
-    return sides[0] * sides[1];
+    return 1.f;
 }
 
 // For each device space corner, devP, label its left/right or top/bottom opposite device space
@@ -213,6 +533,7 @@ static Sk4f get_projected_interpolant(const Sk4f& len, const Sk4f& outsets, floa
 // the original un-outset device position. r is the local coordinate's w component. However, since
 // the projected edges will be different for inner and outer quads, there isn't much reuse between
 // the calculations, so it's easier to just have this operate on one quad a time.
+// FIXME take both inner and outer quad data
 static float compute_quad_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
         Sk4f* w, Sk4f* u, Sk4f* v, Sk4f* r, int uvrCount, bool inset) {
     SkASSERT(uvrCount == 0 || uvrCount == 2 || uvrCount == 3);
@@ -220,6 +541,15 @@ static float compute_quad_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y
     auto iw = (*w).invert();
     auto x2d = (*x) * iw;
     auto y2d = (*y) * iw;
+
+    // FIXME get the projected inner and outer 2d quads by calling compute_nexted_quad_vertices,
+    // but with no uvs specified.
+
+    // Then call outset_projected_vertices for both, but pass in the original w's instead of 1s
+    // and pass in the uvs this time as well.
+    // Then should be able to delete all of the code below, and get_projected_interpolant.
+
+    // Should return the max coverage returned from the inner 2d quad "outset".
 
     // Must compute non-rectilinear outset quantity using the projected 2d edge vectors
     Sk4f xdiff, ydiff, invLengths;
