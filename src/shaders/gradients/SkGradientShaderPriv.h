@@ -112,7 +112,15 @@ public:
         return fOrigColors4f[i].toSkColor();
     }
 
-    SkColor4f*          fOrigColors4f; // original colors, as linear floats
+    bool colorsCanConvertToSkColor() const {
+        bool canConvert = true;
+        for (int i = 0; i < fColorCount; ++i) {
+            canConvert &= fOrigColors4f[i].fitsInBytes();
+        }
+        return canConvert;
+    }
+
+    SkColor4f*          fOrigColors4f; // original colors, as floats
     SkScalar*           fOrigPos;      // original positions
     int                 fColorCount;
     sk_sp<SkColorSpace> fColorSpace;   // color space of gradient stops

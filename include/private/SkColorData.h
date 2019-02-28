@@ -432,6 +432,11 @@ static inline uint32_t Sk4f_toL32(const Sk4f& px) {
     return l32;
 }
 
+// Helpful to know if we can safely convert to SkColor (bytes)
+static inline bool SkColor4f_isUnit(const SkColor4f& c) {
+    return sk_floats_are_unit((const float*)&c, 4);
+}
+
 using SkPMColor4f = SkRGBA4f<kPremul_SkAlphaType>;
 
 constexpr SkPMColor4f SK_PMColor4fTRANSPARENT = { 0, 0, 0, 0 };
