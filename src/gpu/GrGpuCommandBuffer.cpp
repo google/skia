@@ -42,7 +42,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         SkASSERT(!GrPrimTypeRequiresGeometryShaderSupport(meshes[i].primitiveType()) ||
                  this->gpu()->caps()->shaderCaps()->geometryShaderSupport());
         SkASSERT(primProc.hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(primProc.hasInstanceAttributes() == meshes[i].isInstanced());
+        SkASSERT(primProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 #endif
     SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
