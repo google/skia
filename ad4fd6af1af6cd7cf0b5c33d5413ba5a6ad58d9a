@@ -16,6 +16,24 @@
       "revId": "ad4fd6af1af6cd7cf0b5c33d5413ba5a6ad58d9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40459b83_c9408afb",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-02-28T15:09:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cda9a2c_0d0fda49",
+      "revId": "ad4fd6af1af6cd7cf0b5c33d5413ba5a6ad58d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
