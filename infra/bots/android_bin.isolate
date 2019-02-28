@@ -1,11 +1,7 @@
 {
-  'conditions': [
-    ['OS=="Android"', {
-      'variables': {
-        'files': [
-          '../../platform_tools/android/bin/',
-        ],
-      },
-    }],
-  ],
+  'variables': {
+    'files': [
+      '../../platform_tools/android/bin/',
+    ],
+  },
 }
