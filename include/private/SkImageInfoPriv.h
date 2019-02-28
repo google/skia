@@ -25,18 +25,19 @@ enum SkColorTypeComponentFlag {
 
 static inline uint32_t SkColorTypeComponentFlags(SkColorType ct) {
     switch (ct) {
-        case kUnknown_SkColorType:      return 0;
-        case kAlpha_8_SkColorType:      return kAlpha_SkColorTypeComponentFlag;
-        case kRGB_565_SkColorType:      return kRGB_SkColorTypeComponentFlags;
-        case kARGB_4444_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_8888_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
-        case kRGB_888x_SkColorType:     return kRGB_SkColorTypeComponentFlags;
-        case kBGRA_8888_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_1010102_SkColorType: return kRGBA_SkColorTypeComponentFlags;
-        case kRGB_101010x_SkColorType:  return kRGB_SkColorTypeComponentFlags;
-        case kGray_8_SkColorType:       return kGray_SkColorTypeComponentFlag;
-        case kRGBA_F16_SkColorType:     return kRGBA_SkColorTypeComponentFlags;
-        case kRGBA_F32_SkColorType:     return kRGBA_SkColorTypeComponentFlags;
+        case kUnknown_SkColorType:          return 0;
+        case kAlpha_8_SkColorType:          return kAlpha_SkColorTypeComponentFlag;
+        case kRGB_565_SkColorType:          return kRGB_SkColorTypeComponentFlags;
+        case kARGB_4444_SkColorType:        return kRGBA_SkColorTypeComponentFlags;
+        case kRGBA_8888_SkColorType:        return kRGBA_SkColorTypeComponentFlags;
+        case kRGB_888x_SkColorType:         return kRGB_SkColorTypeComponentFlags;
+        case kBGRA_8888_SkColorType:        return kRGBA_SkColorTypeComponentFlags;
+        case kRGBA_1010102_SkColorType:     return kRGBA_SkColorTypeComponentFlags;
+        case kRGB_101010x_SkColorType:      return kRGB_SkColorTypeComponentFlags;
+        case kGray_8_SkColorType:           return kGray_SkColorTypeComponentFlag;
+        case kRGBA_F16Norm_SkColorType:     return kRGBA_SkColorTypeComponentFlags;
+        case kRGBA_F16_SkColorType:         return kRGBA_SkColorTypeComponentFlags;
+        case kRGBA_F32_SkColorType:         return kRGBA_SkColorTypeComponentFlags;
     }
     return 0;
 }
@@ -58,18 +59,19 @@ static inline bool SkColorTypeIsGray(SkColorType ct) {
 
 static int SkColorTypeShiftPerPixel(SkColorType ct) {
     switch (ct) {
-        case kUnknown_SkColorType:      return 0;
-        case kAlpha_8_SkColorType:      return 0;
-        case kRGB_565_SkColorType:      return 1;
-        case kARGB_4444_SkColorType:    return 1;
-        case kRGBA_8888_SkColorType:    return 2;
-        case kRGB_888x_SkColorType:     return 2;
-        case kBGRA_8888_SkColorType:    return 2;
-        case kRGBA_1010102_SkColorType: return 2;
-        case kRGB_101010x_SkColorType:  return 2;
-        case kGray_8_SkColorType:       return 0;
-        case kRGBA_F16_SkColorType:     return 3;
-        case kRGBA_F32_SkColorType:     return 4;
+        case kUnknown_SkColorType:          return 0;
+        case kAlpha_8_SkColorType:          return 0;
+        case kRGB_565_SkColorType:          return 1;
+        case kARGB_4444_SkColorType:        return 1;
+        case kRGBA_8888_SkColorType:        return 2;
+        case kRGB_888x_SkColorType:         return 2;
+        case kBGRA_8888_SkColorType:        return 2;
+        case kRGBA_1010102_SkColorType:     return 2;
+        case kRGB_101010x_SkColorType:      return 2;
+        case kGray_8_SkColorType:           return 0;
+        case kRGBA_F16Norm_SkColorType:     return 3;
+        case kRGBA_F16_SkColorType:         return 3;
+        case kRGBA_F32_SkColorType:         return 4;
     }
     return 0;
 }

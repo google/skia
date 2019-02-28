@@ -1344,6 +1344,7 @@ static inline GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kRGB_888x_SkColorType:     return GrColorType::kRGB_888x;
         case kBGRA_8888_SkColorType:    return GrColorType::kBGRA_8888;
         case kGray_8_SkColorType:       return GrColorType::kGray_8;
+        case kRGBA_F16Norm_SkColorType: return GrColorType::kRGBA_F16;  // TODO(brianosman)
         case kRGBA_F16_SkColorType:     return GrColorType::kRGBA_F16;
         case kRGBA_1010102_SkColorType: return GrColorType::kRGBA_1010102;
         case kRGB_101010x_SkColorType:  return GrColorType::kUnknown;
