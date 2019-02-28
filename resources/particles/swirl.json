@@ -18,12 +18,13 @@
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "Emitter": {
-      "Type": "SkLineEmitter",
-      "P1": { "x": 200, "y": 200 },
-      "P2": { "x": 250, "y": 200 }
-   },
    "Spawn": [
+      {
+         "Type": "SkPositionOnPathAffector",
+         "Enabled": true,
+         "SetHeading": true,
+         "Path": "h50"
+      },
       {
          "Type": "SkLinearVelocityAffector",
          "Enabled": true,

@@ -18,11 +18,6 @@
       "Type": "SkCircleDrawable",
       "Radius": 1
    },
-   "Emitter": {
-      "Type": "SkTextEmitter",
-      "Text": "SKIA",
-      "FontSize": 96
-   },
    "Spawn": [
       {
          "Type": "SkLinearVelocityAffector",
@@ -53,6 +48,13 @@
                }
             ]
          }
+      },
+      {
+         "Type": "SkPositionOnTextAffector",
+         "Enabled": true,
+         "SetHeading": true,
+         "Text": "SKIA",
+         "FontSize": 96
       }
    ],
    "Update": [

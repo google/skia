@@ -14,7 +14,6 @@
 #include "SkPaint.h"
 #include "SkParticleAffector.h"
 #include "SkParticleDrawable.h"
-#include "SkParticleEmitter.h"
 #include "SkReflected.h"
 #include "SkRSXform.h"
 
@@ -25,7 +24,6 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("Life", fLifetime);
 
     v->visit("Drawable", fDrawable);
-    v->visit("Emitter", fEmitter);
 
     v->visit("Spawn", fSpawnAffectors);
     v->visit("Update", fUpdateAffectors);
@@ -86,7 +84,7 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     int numToSpawn = sk_float_round2int(desired);
     fSpawnRemainder = desired - numToSpawn;
     numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
-    if (fParams->fEmitter) {
+    if (numToSpawn) {
         // This isn't "particle" t, it's effect t.
         float t = static_cast<float>((now - fSpawnTime) / fParams->fEffectDuration);
         t = fLooping ? fmodf(t, 1.0f) : SkTPin(t, 0.0f, 1.0f);
@@ -99,7 +97,9 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             fParticles[fCount].fAge = t;
             fParticles[fCount].fInvLifetime =
                     sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(t, fRandom));
-            fParticles[fCount].fPose = fParams->fEmitter->emit(fRandom);
+            fParticles[fCount].fPose.fPosition = { 0.0f, 0.0f };
+            fParticles[fCount].fPose.fHeading = { 0.0f, -1.0f };
+            fParticles[fCount].fPose.fScale = 1.0f;
             fParticles[fCount].fVelocity.fLinear = { 0.0f, 0.0f };
             fParticles[fCount].fVelocity.fAngular = 0.0f;
             fParticles[fCount].fColor = { 1.0f, 1.0f, 1.0f, 1.0f };
