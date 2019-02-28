@@ -2227,7 +2227,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
 
     rec->fFlags &= ~flagsWeDontSupport;
 
-    SmoothBehavior smoothBehavior = smooth_behavior();
+    const SmoothBehavior smoothBehavior = smooth_behavior();
 
     // Only two levels of hinting are supported.
     // kNo_Hinting means avoid CoreGraphics outline dilation (smoothing).
@@ -2288,7 +2288,26 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         rec->ignorePreBlend();
 #endif
     } else {
-        //CoreGraphics dialates smoothed text as needed.
+#ifndef SK_IGNORE_MAC_BLENDING_MATCH_FIX
+        SkColor color = rec->getLuminanceColor();
+        if (smoothBehavior == SmoothBehavior::some) {
+            // CoreGraphics smoothed text without subpixel coverage blitting goes from a gamma of
+            // 2.0 for black foreground to a gamma of 1.0 for white foreground. Emulate this
+            // through the mask gamma by reducing the color values to 1/2.
+            color = SkColorSetRGB(SkColorGetR(color) * 1/2,
+                                  SkColorGetG(color) * 1/2,
+                                  SkColorGetB(color) * 1/2);
+        } else if (smoothBehavior == SmoothBehavior::subpixel) {
+            // CoreGraphics smoothed text with subpixel coverage blitting goes from a gamma of
+            // 2.0 for black foreground to a gamma of ~1.4? for white foreground. Emulate this
+            // through the mask gamma by reducing the color values to 3/4.
+            color = SkColorSetRGB(SkColorGetR(color) * 3/4,
+                                  SkColorGetG(color) * 3/4,
+                                  SkColorGetB(color) * 3/4);
+        }
+        rec->setLuminanceColor(color);
+#endif
+        // CoreGraphics dialates smoothed text to provide contrast.
         rec->setContrast(0);
     }
 }
