@@ -2994,6 +2994,11 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
+        case kRGBA_F16Norm_SkColorType:  // TODO(brianosman): anything here?
+            if (GR_GL_RGBA16F == format) {
+                return kRGBA_half_GrPixelConfig;
+            }
+            break;
         case kRGBA_F16_SkColorType:
             if (GR_GL_RGBA16F == format) {
                 return kRGBA_half_GrPixelConfig;

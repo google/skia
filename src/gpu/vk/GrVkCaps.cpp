@@ -800,6 +800,11 @@ static GrPixelConfig validate_image_info(VkFormat format, SkColorType ct, bool h
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
+        case kRGBA_F16Norm_SkColorType:  // TODO(brianosman): ?
+            if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
+                return kRGBA_half_GrPixelConfig;
+            }
+            break;
         case kRGBA_F16_SkColorType:
             if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
                 return kRGBA_half_GrPixelConfig;
