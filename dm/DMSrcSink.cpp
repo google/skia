@@ -1957,15 +1957,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
 
-    // When we're only doing one replay we exercise the code path that delays calling release
-    // until the SkImage is destroyed.
-    SkDeferredDisplayListRecorder::DelayReleaseCallback delayReleaseCallback;
-    if (fNumReplays > 1) {
-        delayReleaseCallback = SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo;
-    } else {
-        delayReleaseCallback = SkDeferredDisplayListRecorder::DelayReleaseCallback::kYes;
-    }
-    DDLPromiseImageHelper promiseImageHelper(delayReleaseCallback);
+    DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
         return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
@@ -1978,10 +1970,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
 
         // This is here bc this is the first point where we have access to the context
         promiseImageHelper.uploadAllToGPU(context);
-        // We draw N times, with a clear between. Between each run we invalidate and delete half of
-        // the textures backing promise images. So half the images exercise reusing a cached
-        // GrTexture and the other half exercise the case whem the client provides a different
-        // backing texture in fulfill.
+        // We draw N times, with a clear between.
         for (int replay = 0; replay < fNumReplays; ++replay) {
             if (replay > 0) {
                 // Clear the drawing of the previous replay
@@ -2003,11 +1992,6 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
                 // This drops the promiseImageHelper's refs on all the promise images if we're in
                 // the last run.
                 promiseImageHelper.reset();
-            } else {
-                // This ought to ensure that all promise image textures from the last pass are
-                // released.
-                context->priv().getGpu()->testingOnly_flushGpuAndSync();
-                promiseImageHelper.replaceEveryOtherPromiseTexture(context);
             }
 
             // Fourth, synchronously render the display lists into the dest tiles

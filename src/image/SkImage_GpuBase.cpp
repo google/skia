@@ -371,8 +371,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         PromiseImageTextureFulfillProc fulfillProc,
         PromiseImageTextureReleaseProc releaseProc,
         PromiseImageTextureDoneProc doneProc,
-        PromiseImageTextureContext textureContext,
-        DelayReleaseCallback delayReleaseCallback) {
+        PromiseImageTextureContext textureContext) {
     SkASSERT(context);
     SkASSERT(width > 0 && height > 0);
     SkASSERT(doneProc);
@@ -414,11 +413,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                        PromiseImageTextureReleaseProc releaseProc,
                                        PromiseImageTextureDoneProc doneProc,
                                        PromiseImageTextureContext context,
-                                       DelayReleaseCallback delayReleaseCallback,
                                        GrPixelConfig config)
-                : fFulfillProc(fulfillProc)
-                , fConfig(config)
-                , fDelayReleaseCallback(delayReleaseCallback) {
+                : fFulfillProc(fulfillProc), fConfig(config) {
             auto doneHelper = sk_make_sp<GrReleaseProcHelper>(doneProc, context);
             fReleaseContext = sk_make_sp<IdleContext::PromiseImageReleaseContext>(
                     releaseProc, context, std::move(doneHelper));
@@ -427,24 +423,11 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         ~PromiseLazyInstantiateCallback() = default;
 
         sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) {
-            if (fDelayedReleaseTexture) {
-                return fDelayedReleaseTexture;
+            if (fTexture) {
+                return fTexture;
             }
 
             sk_sp<GrTexture> cachedTexture;
-            SkASSERT(fLastFulfilledKey.isValid() == (fLastFulfillID > 0));
-            if (fLastFulfilledKey.isValid()) {
-                auto surf = resourceProvider->findByUniqueKey<GrSurface>(fLastFulfilledKey);
-                if (surf) {
-                    cachedTexture = sk_ref_sp(surf->asTexture());
-                    SkASSERT(cachedTexture);
-                }
-            }
-            // If the release callback hasn't been called already by releasing the GrTexture
-            // then we can be sure that won't happen so long as we have a ref to the texture.
-            if (cachedTexture && !fReleaseContext->isReleased()) {
-                return std::move(cachedTexture);
-            }
             GrBackendTexture backendTexture;
             sk_sp<SkPromiseImageTexture> promiseTexture =
                     fFulfillProc(fReleaseContext->textureContext());
@@ -453,16 +436,6 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 fReleaseContext->release();
                 return sk_sp<GrTexture>();
             }
-            bool same = promiseTexture->uniqueID() == fLastFulfillID;
-            SkASSERT(!same || fLastFulfilledKey.isValid());
-            if (same && cachedTexture) {
-                SkASSERT(fReleaseContext->unique());
-                this->addToIdleContext(cachedTexture.get());
-                return std::move(cachedTexture);
-            } else if (cachedTexture) {
-                cachedTexture->resourcePriv().removeUniqueKey();
-            }
-            fLastFulfillID = promiseTexture->uniqueID();
 
             backendTexture = promiseTexture->backendTexture();
             backendTexture.fConfig = fConfig;
@@ -475,21 +448,22 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
             sk_sp<GrTexture> tex;
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-            GrUniqueKey::Builder builder(&fLastFulfilledKey, kDomain, 2, "promise");
+            GrUniqueKey key;
+            GrUniqueKey::Builder builder(&key, kDomain, 2, "promise");
             builder[0] = promiseTexture->uniqueID();
             builder[1] = fConfig;
             builder.finish();
             // A texture with this key may already exist from a different instance of this lazy
             // callback. This could happen if the client fulfills a promise image with a texture
             // that was previously used to fulfill a different promise image.
-            if (auto surf = resourceProvider->findByUniqueKey<GrSurface>(fLastFulfilledKey)) {
+            if (auto surf = resourceProvider->findByUniqueKey<GrSurface>(key)) {
                 tex = sk_ref_sp(surf->asTexture());
                 SkASSERT(tex);
             } else {
                 if ((tex = resourceProvider->wrapBackendTexture(
                              backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
                              kRead_GrIOType))) {
-                    tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
+                    tex->resourcePriv().setUniqueKey(key);
                 } else {
                     // Even though we failed to wrap the backend texture, we must call the release
                     // proc to keep our contract of always calling Fulfill and Release in pairs.
@@ -498,14 +472,11 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 }
             }
             this->addToIdleContext(tex.get());
-            if (fDelayReleaseCallback == DelayReleaseCallback::kYes) {
-                fDelayedReleaseTexture = tex;
-            }
-            tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
+            fTexture = tex;
             SkASSERT(fContextID == SK_InvalidUniqueID ||
                      fContextID == tex->getContext()->priv().contextID());
             fContextID = tex->getContext()->priv().contextID();
-            promiseTexture->addKeyToInvalidate(fContextID, fLastFulfilledKey);
+            promiseTexture->addKeyToInvalidate(fContextID, key);
             return std::move(tex);
         }
 
@@ -584,17 +555,13 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         }
 
         sk_sp<IdleContext::PromiseImageReleaseContext> fReleaseContext;
-        sk_sp<GrTexture> fDelayedReleaseTexture;
+        sk_sp<GrTexture> fTexture;
         PromiseImageTextureFulfillProc fFulfillProc;
         GrPixelConfig fConfig;
-        DelayReleaseCallback fDelayReleaseCallback;
 
-        // ID of the last SkPromiseImageTexture given to us by the client.
-        uint32_t fLastFulfillID = 0;
         // ID of the GrContext that we are interacting with.
         uint32_t fContextID = SK_InvalidUniqueID;
-        GrUniqueKey fLastFulfilledKey;
-    } callback(fulfillProc, releaseProc, doneProc, textureContext, delayReleaseCallback, config);
+    } callback(fulfillProc, releaseProc, doneProc, textureContext, config);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
