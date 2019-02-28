@@ -942,7 +942,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
 
     const char* status = pixbuf.set_from_slice(&imgcfg.pixcfg, ((wuffs_base__slice_u8){
                                                                    .ptr = pixbuf_ptr.get(),
-                                                                   .len = pixbuf_len,
+                                                                   .len = SkToSizeT(pixbuf_len),
                                                                }));
     if (status != nullptr) {
         SkCodecPrintf("set_from_slice: %s", status);

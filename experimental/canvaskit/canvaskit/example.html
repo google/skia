@@ -52,6 +52,7 @@
 <canvas id=sk_drinks width=500 height=500></canvas>
 <canvas id=sk_party width=500 height=500></canvas>
 <canvas id=sk_onboarding width=500 height=500></canvas>
+<canvas id=sk_animated_gif width=500 height=500></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -62,12 +63,14 @@
   var drinksJSON = null;
   var confettiJSON = null;
   var onboardingJSON = null;
+  var multiFrameJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
   var notoserifData = null;
 
   var bonesImageData = null;
+  var flightAnimGif = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).ready().then((CK) => {
@@ -82,6 +85,7 @@
     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+    SkottieAssetExample(CanvasKit, multiFrameJSON, flightAnimGif);
 
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -130,10 +134,24 @@
     });
   });
 
+  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_multiframe.json').then((resp) => {
+    resp.text().then((str) => {
+      multiFrameJSON = str;
+      SkottieAssetExample(CanvasKit, multiFrameJSON, flightAnimGif);
+    });
+  });
+
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       bonesImageData = buffer;
       VertexAPI2(CanvasKit, bonesImageData);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/flightAnim.gif').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      flightAnimGif = buffer;
+      SkottieAssetExample(CanvasKit, multiFrameJSON, flightAnimGif);
     });
   });
 
@@ -422,6 +440,49 @@
     window.requestAnimationFrame(drawFrame);
 
     //animation.delete();
+    return surface;
+  }
+
+  function SkottieAssetExample(CanvasKit, jsonStr, imgdata) {
+    if (!CanvasKit || !jsonStr || !imgdata) {
+      return;
+    }
+    const animation = CanvasKit.MakeManagedAnimation(jsonStr, {
+      'images/image_0.png': imgdata,
+    });
+    const duration = animation.duration() * 1000;
+    const size = animation.size();
+    let c = document.getElementById('sk_animated_gif');
+
+    const surface = CanvasKit.MakeCanvasSurface('sk_animated_gif');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    const textPaint = new CanvasKit.SkPaint();
+    const textFont = new CanvasKit.SkFont(null, 20);
+
+    let firstFrame = Date.now();
+
+    function drawFrame() {
+      let seek = ((Date.now() - firstFrame) / duration) % 1.0;
+      CanvasKit.setCurrentContext(context);
+      animation.seek(seek);
+      canvas.clear(CanvasKit.WHITE);
+      animation.render(canvas, fullBounds);
+      canvas.drawText('Embed an animated gif and transforming it',
+                    5, 20, textPaint, textFont)
+      surface.flush();
+
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // animation.delete();
+    // assetProvider.delete(); // This will clean up anything we passed in.
     return surface;
   }
 

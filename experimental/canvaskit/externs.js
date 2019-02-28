@@ -44,6 +44,7 @@ var CanvasKit = {
 	MakePathFromSVGString: function() {},
 	MakeRadialGradientShader: function() {},
 	MakeSWCanvasSurface: function() {},
+	MakeManagedAnimation: function() {},
 	MakeSkDashPathEffect: function() {},
 	MakeSkVertices: function() {},
 	MakeSurface: function() {},
@@ -63,6 +64,7 @@ var CanvasKit = {
 	_MakeLinearGradientShader: function() {},
 	_MakePathFromCmds: function() {},
 	_MakeRadialGradientShader: function() {},
+	_MakeManagedAnimation: function() {},
 	_MakeSkDashPathEffect: function() {},
 	_MakeSkVertices: function() {},
 	_MakeTwoPointConicalGradientShader: function() {},
@@ -438,7 +440,10 @@ var CanvasKit = {
 	 * @type {Int32Array}
 	 */
 	HEAP32: {},
-
+	/**
+	 * @type {Uint32Array}
+	 */
+	HEAPU32: {},
 	_malloc: function() {},
 	_free: function() {},
 	onRuntimeInitialized: function() {},
