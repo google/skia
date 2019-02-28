@@ -18,7 +18,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
-    if (this->classID() != that.classID()) {
+    if (fClassID != that.fClassID || fRequestedFeatures != that.fRequestedFeatures) {
         return false;
     }
     if (this->numTextureSamplers() != that.numTextureSamplers()) {
@@ -104,6 +104,7 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
     if (child->usesLocalCoords()) {
         fFlags |= kUsesLocalCoords_Flag;
     }
+    fRequestedFeatures |= child->fRequestedFeatures;
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(std::move(child));
