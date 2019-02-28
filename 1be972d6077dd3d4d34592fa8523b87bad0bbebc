@@ -170,6 +170,24 @@
       "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "966a7070_4b72cbe6",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-28T15:18:35Z",
+      "side": 1,
+      "message": "Yeah, the PM-ness of the argument to SkPMColor4fFitsInBytes() isn\u0027t really in play right now, though perhaps that\u0027s a bug.  All the checks are [0,1], not [0,a].  It should generalize to any SkRGBA4f as-is.",
+      "parentUuid": "540a725f_066f4f89",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
