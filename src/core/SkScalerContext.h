@@ -96,6 +96,7 @@ public:
     }
 
     SkScalar getContrast() const {
+        sk_ignore_unused_variable(fReservedAlign);
         return SkIntToScalar(fContrast) / ((1 << 8) - 1);
     }
     void setContrast(SkScalar c) {
@@ -206,11 +207,6 @@ public:
         return static_cast<SkMask::Format>(fMaskFormat);
     }
 
-private:
-    // TODO: get rid of these bad friends.
-    friend class SkScalerContext;
-    friend class SkScalerContext_DW;
-
     SkColor getLuminanceColor() const {
         return fLumBits;
     }
@@ -219,6 +215,10 @@ private:
     void setLuminanceColor(SkColor c) {
         fLumBits = c;
     }
+
+private:
+    // TODO: remove
+    friend class SkScalerContext;
 };
 SK_END_REQUIRE_DENSE
 
