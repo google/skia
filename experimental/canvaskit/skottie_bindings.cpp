@@ -33,54 +33,52 @@ class SkottieAssetProvider : public skottie::ResourceProvider {
 public:
     ~SkottieAssetProvider() override = default;
 
-    static sk_sp<SkottieAssetProvider> Make() {
-        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider());
-    }
-
-    void addImage(const SkString& name, sk_sp<SkData> img) {
-        sk_sp<skottie_utils::MultiFrameImageAsset> asset =
-                    skottie_utils::MultiFrameImageAsset::Make(std::move(img));
-        fImgs.emplace_back(std::make_pair(name, std::move(asset)));
-    }
-
-    void addFont(const SkString& name, sk_sp<SkData> fontData) {
-        fFonts.emplace_back(std::make_pair(name, std::move(fontData)));
-    }
-
-    sk_sp<skottie::ImageAsset> loadImageAsset(const char path[],
-                                              const char name[]) const override {
-        auto combined = SkString(path);
-        combined.append(name);
-
-        for(int i = 0; i < fImgs.size(); i++) {
-            if (fImgs[i].first == combined) {
-                return fImgs[i].second;
-            }
-        }
-        SkDebugf("Could not find %s\n", combined.c_str());
-        return nullptr;
-    }
-
-    sk_sp<SkData> loadFont(const char name[], const char url[]) const override {
-        for(int i = 0; i < fFonts.size(); i++) {
-            if (fFonts[i].first.equals(name)) {
-                return fFonts[i].second;
-            }
-        }
-        SkDebugf("Could not find %s (%s)\n", name, url);
-        return nullptr;
-    }
-
-private:
-    SkottieAssetProvider() = default;
-
     // Tried using a map, but that gave strange errors like
     // https://emscripten.org/docs/porting/guidelines/function_pointer_issues.html
     // Not entirely sure why, but perhaps the iterator in the map was
     // confusing enscripten.
-    std::vector<std::pair<SkString, sk_sp<skottie_utils::MultiFrameImageAsset>>> fImgs;
-    std::vector<std::pair<SkString, sk_sp<SkData>>> fFonts;
+    using AssetVec = std::vector<std::pair<SkString, sk_sp<SkData>>>;
 
+    static sk_sp<SkottieAssetProvider> Make(AssetVec assets) {
+        if (assets.empty()) {
+            return nullptr;
+        }
+
+        return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets)));
+    }
+
+    sk_sp<skottie::ImageAsset> loadImageAsset(const char path[],
+                                              const char name[]) const override {
+        // TODO: ignore image path, search by name only?
+        auto combined = SkString(path);
+        combined.append(name);
+
+        if (auto data = this->findAsset(combined.c_str())) {
+            return skottie_utils::MultiFrameImageAsset::Make(std::move(data));
+        }
+
+        return nullptr;
+    }
+
+    sk_sp<SkData> loadFont(const char name[], const char[]) const override {
+        return this->findAsset(name);
+    }
+
+private:
+    explicit SkottieAssetProvider(AssetVec assets) : fAssets(std::move(assets)) {}
+
+    sk_sp<SkData> findAsset(const char name[]) const {
+        for (const auto& asset : fAssets) {
+            if (asset.first.equals(name)) {
+                return asset.second;
+            }
+        }
+
+        SkDebugf("Could not find %s\n", name);
+        return nullptr;
+    }
+
+    const AssetVec fAssets;
 };
 
 class ManagedAnimation final : public SkRefCnt {
@@ -208,40 +206,25 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("getOpacityProps", &ManagedAnimation::getOpacityProps);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
-                                                           size_t imageCount,
-                                                           uintptr_t /* char**  */ inptr,
-                                                           uintptr_t /* uint8_t**  */ idptr,
-                                                           uintptr_t /* size_t*  */ isptr,
-                                                           size_t fontCount,
-                                                           uintptr_t /* char**  */ fnptr,
-                                                           uintptr_t /* uint8_t**  */ fdptr,
-                                                           uintptr_t /* uint8_t*  */ fsptr)
+                                                           size_t assetCount,
+                                                           uintptr_t /* char**     */ nptr,
+                                                           uintptr_t /* uint8_t**  */ dptr,
+                                                           uintptr_t /* size_t*    */ sptr)
                                                         ->sk_sp<ManagedAnimation> {
-        if (imageCount == 0 && fontCount == 0) {
-            return ManagedAnimation::Make(json, nullptr);
-        }
-        auto assetProvider = SkottieAssetProvider::Make();
-        char** imgNames = reinterpret_cast<char**>(inptr);
-        uint8_t** imgDatas = reinterpret_cast<uint8_t**>(idptr);
-        size_t* imgSizes = reinterpret_cast<size_t*>(isptr);
-        for (int i = 0; i < imageCount; i++) {
-            SkString name = SkString(imgNames[i]);
-            sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgDatas[i],
-                                                         imgSizes[i]);
-            assetProvider->addImage(name, std::move(bytes));
+        const auto assetNames = reinterpret_cast<char**   >(nptr);
+        const auto assetDatas = reinterpret_cast<uint8_t**>(dptr);
+        const auto assetSizes = reinterpret_cast<size_t*  >(sptr);
+
+        SkottieAssetProvider::AssetVec assets;
+        assets.reserve(assetCount);
+
+        for (size_t i = 0; i < assetCount; i++) {
+            auto name  = SkString(assetNames[i]);
+            auto bytes = SkData::MakeFromMalloc(assetDatas[i], assetSizes[i]);
+            assets.push_back(std::make_pair(std::move(name), std::move(bytes)));
         }
 
-        char** fontNames = reinterpret_cast<char**>(fnptr);
-        uint8_t** fontDatas = reinterpret_cast<uint8_t**>(fdptr);
-        size_t* fontSizes = reinterpret_cast<size_t*>(fsptr);
-        for (int i = 0; i < fontCount; i++) {
-            SkString name = SkString(fontNames[i]);
-            sk_sp<SkData> bytes = SkData::MakeFromMalloc(fontDatas[i],
-                                                         fontSizes[i]);
-            assetProvider->addFont(name, std::move(bytes));
-        }
-
-        return ManagedAnimation::Make(json, std::move(assetProvider));
+        return ManagedAnimation::Make(json, SkottieAssetProvider::Make(std::move(assets)));
     }));
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
