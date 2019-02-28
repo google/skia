@@ -53,6 +53,7 @@
 <canvas id=sk_party width=500 height=500></canvas>
 <canvas id=sk_onboarding width=500 height=500></canvas>
 <canvas id=sk_animated_gif width=500 height=500></canvas>
+<canvas id=sk_webfont width=500 height=500></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -64,6 +65,7 @@
   var confettiJSON = null;
   var onboardingJSON = null;
   var multiFrameJSON = null;
+  var webfontJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
@@ -86,6 +88,7 @@
     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     SkottieAssetExample(CanvasKit, multiFrameJSON, flightAnimGif);
+    SkottieAssetExample2(CanvasKit, webfontJSON, robotoData);
 
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -141,6 +144,13 @@
     });
   });
 
+  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_webfont.json').then((resp) => {
+    resp.text().then((str) => {
+      webfontJSON = str;
+      SkottieAssetExample2(CanvasKit, webfontJSON, robotoData);
+    });
+  });
+
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       bonesImageData = buffer;
@@ -159,6 +169,7 @@
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
       DrawingExample(CanvasKit, robotoData);
+      SkottieAssetExample2(CanvasKit, webfontJSON, robotoData);
     });
   });
 
@@ -452,7 +463,6 @@
     });
     const duration = animation.duration() * 1000;
     const size = animation.size();
-    let c = document.getElementById('sk_animated_gif');
 
     const surface = CanvasKit.MakeCanvasSurface('sk_animated_gif');
     if (!surface) {
@@ -482,7 +492,42 @@
     window.requestAnimationFrame(drawFrame);
 
     // animation.delete();
-    // assetProvider.delete(); // This will clean up anything we passed in.
+    return surface;
+  }
+
+  function SkottieAssetExample2(CanvasKit, jsonStr, fontData) {
+    if (!CanvasKit || !jsonStr || !fontData) {
+      return;
+    }
+    const animation = CanvasKit.MakeManagedAnimation(jsonStr, {}, {
+      'Roboto-Regular': fontData,
+    });
+    const duration = animation.duration() * 1000;
+    const size = animation.size();
+
+    const surface = CanvasKit.MakeCanvasSurface('sk_webfont');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    let firstFrame = Date.now();
+
+    function drawFrame() {
+      let seek = ((Date.now() - firstFrame) / duration) % 1.0;
+      CanvasKit.setCurrentContext(context);
+      animation.seek(seek);
+      canvas.clear(CanvasKit.WHITE);
+      animation.render(canvas, fullBounds);
+      surface.flush();
+
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // animation.delete();
     return surface;
   }
 
