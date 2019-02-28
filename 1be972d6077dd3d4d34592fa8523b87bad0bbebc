@@ -188,6 +188,24 @@
       "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6290f45b_0055bad0",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-28T22:11:01Z",
+      "side": 1,
+      "message": "OK, I\u0027ll try adding a version to RGBA4f, but try to leave a trail reminding us that the PM specialization might want to override it.",
+      "parentUuid": "966a7070_4b72cbe6",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
