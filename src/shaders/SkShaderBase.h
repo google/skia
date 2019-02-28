@@ -75,6 +75,8 @@ public:
         const SkMatrix* fLocalMatrix;      // optional local matrix
         SkColorType     fDstColorType;     // the color type of the dest surface
         SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
+
+        bool isLegacyCompatible(SkColorSpace* shadersColorSpace) const;
     };
 
     class Context : public ::SkNoncopyable {
