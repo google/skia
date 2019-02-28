@@ -18,7 +18,7 @@
  *  pt[3] is implicitly { 1, 1 }
  *  pts[1,2] are inside the unit square
  */
-class SkCubicMap {
+class SK_API SkCubicMap {
 public:
     SkCubicMap() {} // must call setPts() before using
 
