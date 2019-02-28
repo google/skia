@@ -44,11 +44,10 @@ public:
 
     void textureParamsModified() override {}
 
-    void setIdleProc(IdleProc proc, void* context) override {
-        fIdleProc = proc;
-        fIdleProcContext = context;
+    void addIdleProc(sk_sp<GrRefCntedCallback> callback) override {
+        callback->addChild(std::move(fIdleCallback));
+        fIdleCallback = std::move(callback);
     }
-    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     // constructor for subclasses
@@ -72,21 +71,14 @@ protected:
 
     // protected so that GrMockTextureRenderTarget can call this to avoid "inheritance via
     // dominance" warning.
-    void willRemoveLastRefOrPendingIO() override {
-        if (fIdleProc) {
-            fIdleProc(fIdleProcContext);
-            fIdleProc = nullptr;
-            fIdleProcContext = nullptr;
-        }
-    }
+    void willRemoveLastRefOrPendingIO() override { fIdleCallback.reset(); }
 
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     GrMockTextureInfo fInfo;
-    sk_sp<GrReleaseProcHelper> fReleaseHelper;
-    IdleProc* fIdleProc = nullptr;
-    void* fIdleProcContext = nullptr;
+    sk_sp<GrRefCntedCallback> fReleaseHelper;
+    sk_sp<GrRefCntedCallback> fIdleCallback;
 
     typedef GrTexture INHERITED;
 };
@@ -139,7 +131,7 @@ protected:
             : GrSurface(gpu, desc), INHERITED(gpu, desc), fInfo(info) {}
 
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     GrMockRenderTargetInfo fInfo;
 
@@ -178,7 +170,7 @@ public:
     }
 
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     void onAbandon() override {
         GrRenderTarget::onAbandon();
