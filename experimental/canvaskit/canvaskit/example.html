@@ -91,8 +91,8 @@
     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
       'images/image_0.png': flightAnimGif,
-    }, null);
-    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, null, {
+    });
+    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
       'Roboto-Regular': robotoData,
     });
 
@@ -155,7 +155,7 @@
   fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_webfont.json').then((resp) => {
     resp.text().then((str) => {
       webfontJSON = str;
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, null, {
+      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
         'Roboto-Regular': robotoData,
       });
     });
@@ -181,7 +181,7 @@
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
       DrawingExample(CanvasKit, robotoData);
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, null, {
+      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
         'Roboto-Regular': robotoData,
       });
     });
@@ -428,11 +428,11 @@
     return frameTimes.length / total;
   }
 
-  function SkottieExample(CanvasKit, id, jsonStr, bounds, images, fonts) {
+  function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
       return;
     }
-    const animation = CanvasKit.MakeManagedAnimation(jsonStr, images, fonts);
+    const animation = CanvasKit.MakeManagedAnimation(jsonStr, assets);
     const duration = animation.duration() * 1000;
     const size = animation.size();
     let c = document.getElementById(id);
