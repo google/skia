@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17b5a8ed_92a9c775",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-28T15:46:10Z",
+      "side": 1,
+      "message": "can we make this a unique ptr so we don\u0027t have to delete it manually in dtor?",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 23
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "922d8ca8_7c47d622",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-28T15:46:10Z",
+      "side": 1,
+      "message": "The VulkanPipelineCache has some code to attach a stencil here. Is this not needed in metal? Is it not needed anymore in Vulkan?",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 27
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
