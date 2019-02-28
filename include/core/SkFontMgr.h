@@ -123,6 +123,8 @@ public:
 
     sk_sp<SkTypeface> legacyMakeTypeface(const char familyName[], SkFontStyle style) const;
 
+    SkTypeface* makeEudcTypeface(const char familyName[], const SkFontStyle&) const;
+
     /** Return the default fontmgr. */
     static sk_sp<SkFontMgr> RefDefault();
 
@@ -151,6 +153,7 @@ protected:
     virtual sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const = 0;
+    virtual SkTypeface* onMakeEudcTypeface(const char familyName[], const SkFontStyle&) const;
 
 private:
 

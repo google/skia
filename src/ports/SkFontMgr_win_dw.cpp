@@ -303,6 +303,7 @@ protected:
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override;
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const override;
+    SkTypeface* onMakeEudcTypeface(const char familyName[], const SkFontStyle& fontstyle) const override;
 
 private:
     HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily) const;
@@ -1078,6 +1079,33 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onLegacyMakeTypeface(const char familyN
     return this->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
 }
 
+SkTypeface* SkFontMgr_DirectWrite::onMakeEudcTypeface(const char familyName[],
+                                                      const SkFontStyle& fontstyle) const {
+    if (fFactory2.get()) {
+        SkSMallocWCHAR dwFamilyName;
+        HRN(sk_cstring_to_wchar(familyName, &dwFamilyName));
+
+        SkTScopedComPtr<IDWriteFontCollection> eudcCollection;
+        HRNM(fFactory2->GetEudcFontCollection(&eudcCollection, FALSE),
+             "Could not get system EUDC font collection.");
+
+        BOOL familyFound;
+        UINT32 index;
+        HRNM(eudcCollection->FindFamilyName(dwFamilyName.get(), &index, &familyFound),
+            "Could not find eudc font family for given name.");
+
+        if (familyFound) {
+            SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+            HRNM(eudcCollection->GetFontFamily(index, &fontFamily), "Could not get font family.");
+
+            sk_sp<SkFontStyleSet> set(new SkFontStyleSet_DirectWrite(this, fontFamily.get()));
+            if (set != nullptr && set->count() > 0) {
+                return set->matchStyle(fontstyle);
+            }
+        }
+    }
+    return nullptr;
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkFontStyleSet_DirectWrite::count() {

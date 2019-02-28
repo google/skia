@@ -82,6 +82,9 @@ protected:
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char [], SkFontStyle) const override {
         return nullptr;
     }
+    SkTypeface* onMakeEudcTypeface(const char[], const SkFontStyle&) const override {
+        return nullptr;
+    }
 };
 
 static SkFontStyleSet* emptyOnNull(SkFontStyleSet* fsset) {
@@ -170,6 +173,16 @@ sk_sp<SkTypeface> SkFontMgr::onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>
 }
 sk_sp<SkTypeface> SkFontMgr::onMakeFromFontData(std::unique_ptr<SkFontData> data) const {
     return this->makeFromStream(data->detachStream(), data->getIndex());
+}
+
+SkTypeface* SkFontMgr::makeEudcTypeface(const char familyName[], const SkFontStyle& fs) const {
+    return this->onMakeEudcTypeface(familyName, fs);
+}
+
+// This parent version of function should never be called unless a non-EUDC compatible
+// font manager tries to create an EUDC typeface
+SkTypeface* SkFontMgr::onMakeEudcTypeface(const char familyName[], const SkFontStyle& fs) const {
+    return nullptr;
 }
 
 // A global function pointer that's not declared, but can be overriden at startup by test tools.
