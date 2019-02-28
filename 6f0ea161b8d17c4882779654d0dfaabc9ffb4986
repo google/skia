@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14faf9dc_b923cccb",
+        "filename": "src/shaders/SkLights.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-28T17:56:41Z",
+      "side": 1,
+      "message": "* (1/255.0f)?",
+      "range": {
+        "startLine": 58,
+        "startChar": 71,
+        "endLine": 58,
+        "endChar": 72
+      },
+      "revId": "6f0ea161b8d17c4882779654d0dfaabc9ffb4986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
