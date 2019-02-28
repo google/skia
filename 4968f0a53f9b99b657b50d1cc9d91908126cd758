@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb3c9354_63fba1ef",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-28T20:57:31Z",
+      "side": 1,
+      "message": "Looks like we could consolidate this with SkottieAssetExample, and maybe even with SkottieExample, if we passed in the (optional) asset dictionary.",
+      "range": {
+        "startLine": 498,
+        "startChar": 11,
+        "endLine": 498,
+        "endChar": 31
+      },
+      "revId": "4968f0a53f9b99b657b50d1cc9d91908126cd758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0067fbd_0e5854c5",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-28T20:57:31Z",
+      "side": 1,
+      "message": "I think we could even consolidate these, if we stored images as SkData (create MultiFrameImageAssets on the fly, as the callback only fires once per image).  Then we could funnel both loadFont and loadImageAsset through a common loadAsset helper that does a lookup in the consolidated dictionary.\n\nDon\u0027t worry about it for now, I can take a stab later.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 59
+      },
+      "revId": "4968f0a53f9b99b657b50d1cc9d91908126cd758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
