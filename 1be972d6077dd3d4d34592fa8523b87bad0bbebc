@@ -206,6 +206,24 @@
       "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7a170e2_7482edac",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-28T22:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6290f45b_0055bad0",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
