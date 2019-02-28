@@ -13,6 +13,7 @@
 
 #include "SkSLBoolLiteral.h"
 #include "SkSLExpression.h"
+#include "SkSLFloatLiteral.h"
 #include "SkSLIntLiteral.h"
 #include "SkSLModifiers.h"
 #include "SkSLProgramElement.h"
@@ -46,6 +47,10 @@ struct Program {
             : fKind(kInt_Kind)
             , fValue(i) {}
 
+            Value(float f)
+            : fKind(kFloat_Kind)
+            , fValue(f) {}
+
             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
                     case Program::Settings::Value::kBool_Kind:
@@ -54,6 +59,10 @@ struct Program {
                                                                            fValue));
                     case Program::Settings::Value::kInt_Kind:
                         return std::unique_ptr<Expression>(new IntLiteral(context,
+                                                                          offset,
+                                                                          fValue));
+                    case Program::Settings::Value::kFloat_Kind:
+                        return std::unique_ptr<Expression>(new FloatLiteral(context,
                                                                           offset,
                                                                           fValue));
                     default:
@@ -65,6 +74,7 @@ struct Program {
             enum {
                 kBool_Kind,
                 kInt_Kind,
+                kFloat_Kind,
             } fKind;
 
             int fValue;
