@@ -11,6 +11,5 @@ skia_particle_sources = [
   "$_src/SkParticleAffector.cpp",
   "$_src/SkParticleDrawable.cpp",
   "$_src/SkParticleEffect.cpp",
-  "$_src/SkParticleEmitter.cpp",
   "$_src/SkReflected.cpp",
 ]

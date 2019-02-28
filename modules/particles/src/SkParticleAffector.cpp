@@ -7,9 +7,15 @@
 
 #include "SkParticleAffector.h"
 
+#include "SkContourMeasure.h"
 #include "SkCurve.h"
+#include "SkParsePath.h"
 #include "SkParticleData.h"
+#include "SkPath.h"
 #include "SkRandom.h"
+#include "SkTextUtils.h"
+
+#include "sk_tool_utils.h"
 
 constexpr SkFieldVisitor::EnumStringMapping gParticleFrameMapping[] = {
     { kWorld_ParticleFrame,    "World" },
@@ -180,6 +186,208 @@ private:
     int     fFrame;
 };
 
+class SkPositionInCircleAffector : public SkParticleAffector {
+public:
+    SkPositionInCircleAffector(const SkCurve& x = 0.0f, const SkCurve& y = 0.0f,
+                               const SkCurve& radius = 0.0f, bool setHeading = true)
+        : fX(x)
+        , fY(y)
+        , fRadius(radius)
+        , fSetHeading(setHeading) {}
+
+    REFLECTED(SkPositionInCircleAffector, SkParticleAffector)
+
+    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        for (int i = 0; i < count; ++i) {
+            SkVector v;
+            do {
+                v.fX = ps[i].fRandom.nextSScalar1();
+                v.fY = ps[i].fRandom.nextSScalar1();
+            } while (v.dot(v) > 1);
+
+            SkPoint center = { fX.eval(ps[i].fAge, ps[i].fRandom),
+                               fY.eval(ps[i].fAge, ps[i].fRandom) };
+            SkScalar radius = fRadius.eval(ps[i].fAge, ps[i].fRandom);
+            ps[i].fPose.fPosition = center + (v * radius);
+            if (fSetHeading) {
+                if (!v.normalize()) {
+                    v.set(0, -1);
+                }
+                ps[i].fPose.fHeading = v;
+            }
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkParticleAffector::visitFields(v);
+        v->visit("SetHeading", fSetHeading);
+        v->visit("X", fX);
+        v->visit("Y", fY);
+        v->visit("Radius", fRadius);
+    }
+
+private:
+    SkCurve fX;
+    SkCurve fY;
+    SkCurve fRadius;
+    bool    fSetHeading;
+};
+
+class SkPositionOnPathAffector : public SkParticleAffector {
+public:
+    SkPositionOnPathAffector(const char* path = "", bool setHeading = true, bool random = true)
+            : fPath(path)
+            , fSetHeading(setHeading)
+            , fRandom(random) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkPositionOnPathAffector, SkParticleAffector)
+
+    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        if (fContours.empty()) {
+            return;
+        }
+
+        for (int i = 0; i < count; ++i) {
+            float t = fRandom ? ps[i].fRandom.nextF() : ps[i].fAge;
+            SkScalar len = fTotalLength * t;
+            int idx = 0;
+            while (idx < fContours.count() && len > fContours[idx]->length()) {
+                len -= fContours[idx++]->length();
+            }
+            SkVector localXAxis;
+            if (!fContours[idx]->getPosTan(len, &ps[i].fPose.fPosition, &localXAxis)) {
+                ps[i].fPose.fPosition = { 0, 0 };
+                localXAxis = { 1, 0 };
+            }
+            if (fSetHeading) {
+                ps[i].fPose.fHeading.set(localXAxis.fY, -localXAxis.fX);
+            }
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldPath = fPath;
+
+        SkParticleAffector::visitFields(v);
+        v->visit("SetHeading", fSetHeading);
+        v->visit("Random", fRandom);
+        v->visit("Path", fPath);
+
+        if (fPath != oldPath) {
+            this->rebuild();
+        }
+    }
+
+private:
+    SkString fPath;
+    bool     fSetHeading;
+    bool     fRandom;
+
+    void rebuild() {
+        SkPath path;
+        if (!SkParsePath::FromSVGString(fPath.c_str(), &path)) {
+            return;
+        }
+
+        fTotalLength = 0;
+        fContours.reset();
+
+        SkContourMeasureIter iter(path, false);
+        while (auto contour = iter.next()) {
+            fContours.push_back(contour);
+            fTotalLength += contour->length();
+        }
+    }
+
+    // Cached
+    SkScalar                          fTotalLength;
+    SkTArray<sk_sp<SkContourMeasure>> fContours;
+};
+
+class SkPositionOnTextAffector : public SkParticleAffector {
+public:
+    SkPositionOnTextAffector(const char* text = "", SkScalar fontSize = 96, bool setHeading = true,
+                             bool random = true)
+            : fText(text)
+            , fFontSize(fontSize)
+            , fSetHeading(setHeading)
+            , fRandom(random) {
+        this->rebuild();
+    }
+
+    REFLECTED(SkPositionOnTextAffector, SkParticleAffector)
+
+    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        if (fContours.empty()) {
+            return;
+        }
+
+        // TODO: Refactor to share code with PositionOnPathAffector
+        for (int i = 0; i < count; ++i) {
+            float t = fRandom ? ps[i].fRandom.nextF() : ps[i].fAge;
+            SkScalar len = fTotalLength * t;
+            int idx = 0;
+            while (idx < fContours.count() && len > fContours[idx]->length()) {
+                len -= fContours[idx++]->length();
+            }
+            SkVector localXAxis;
+            if (!fContours[idx]->getPosTan(len, &ps[i].fPose.fPosition, &localXAxis)) {
+                ps[i].fPose.fPosition = { 0, 0 };
+                localXAxis = { 1, 0 };
+            }
+            if (fSetHeading) {
+                ps[i].fPose.fHeading.set(localXAxis.fY, -localXAxis.fX);
+            }
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkString oldText = fText;
+        SkScalar oldSize = fFontSize;
+
+        SkParticleAffector::visitFields(v);
+        v->visit("SetHeading", fSetHeading);
+        v->visit("Random", fRandom);
+        v->visit("Text", fText);
+        v->visit("FontSize", fFontSize);
+
+        if (fText != oldText || fFontSize != oldSize) {
+            this->rebuild();
+        }
+    }
+
+private:
+    SkString fText;
+    SkScalar fFontSize;
+    bool     fSetHeading;
+    bool     fRandom;
+
+    void rebuild() {
+        fTotalLength = 0;
+        fContours.reset();
+
+        if (fText.isEmpty()) {
+            return;
+        }
+
+        SkFont font(sk_tool_utils::create_portable_typeface());
+        font.setSize(fFontSize);
+        SkPath path;
+        SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding, 0, 0, font, &path);
+        SkContourMeasureIter iter(path, false);
+        while (auto contour = iter.next()) {
+            fContours.push_back(contour);
+            fTotalLength += contour->length();
+        }
+    }
+
+    // Cached
+    SkScalar                          fTotalLength;
+    SkTArray<sk_sp<SkContourMeasure>> fContours;
+};
+
 class SkSizeAffector : public SkParticleAffector {
 public:
     SkSizeAffector(const SkCurve& curve = 1.0f) : fCurve(curve) {}
@@ -250,6 +458,9 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkAngularVelocityAffector);
     REGISTER_REFLECTED(SkPointForceAffector);
     REGISTER_REFLECTED(SkOrientationAffector);
+    REGISTER_REFLECTED(SkPositionInCircleAffector);
+    REGISTER_REFLECTED(SkPositionOnPathAffector);
+    REGISTER_REFLECTED(SkPositionOnTextAffector);
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);

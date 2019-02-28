@@ -18,11 +18,6 @@
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "Emitter": {
-      "Type": "SkCircleEmitter",
-      "Center": { "x": 0, "y": 0 },
-      "Radius": 0
-   },
    "Spawn": [
       {
          "Type": "SkLinearVelocityAffector",

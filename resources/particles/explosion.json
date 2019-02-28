@@ -20,12 +20,46 @@
       "Columns": 4,
       "Rows": 4
    },
-   "Emitter": {
-      "Type": "SkCircleEmitter",
-      "Center": { "x": 200, "y": 200 },
-      "Radius": 60
-   },
-   "Spawn": [],
+   "Spawn": [
+      {
+         "Type": "SkPositionInCircleAffector",
+         "Enabled": true,
+         "SetHeading": true,
+         "X": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               }
+            ]
+         },
+         "Y": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               }
+            ]
+         },
+         "Radius": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 60
+               }
+            ]
+         }
+      }
+   ],
    "Update": [
       {
          "Type": "SkPointForceAffector",

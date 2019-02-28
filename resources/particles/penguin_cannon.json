@@ -19,11 +19,6 @@
       "Columns": 1,
       "Rows": 1
    },
-   "Emitter": {
-      "Type": "SkLineEmitter",
-      "P1": { "x": 237, "y": 396 },
-      "P2": { "x": 214, "y": 398 }
-   },
    "Spawn": [
       {
          "Type": "SkLinearVelocityAffector",

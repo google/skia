@@ -17,17 +17,51 @@
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
-   "Emitter": {
-      "Type": "SkCircleEmitter",
-      "Center": { "x": 380.8, "y": 273.92 },
-      "Radius": 43
-   },
-   "Spawn": [],
+   "Spawn": [
+      {
+         "Type": "SkPositionInCircleAffector",
+         "Enabled": true,
+         "SetHeading": true,
+         "X": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               }
+            ]
+         },
+         "Y": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               }
+            ]
+         },
+         "Radius": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 40
+               }
+            ]
+         }
+      }
+   ],
    "Update": [
       {
          "Type": "SkPointForceAffector",
          "Enabled": true,
-         "Point": { "x": 375, "y": 273 },
+         "Point": { "x": 0, "y": 0 },
          "Constant": -10,
          "InvSquare": 0
       },
