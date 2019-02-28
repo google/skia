@@ -36,11 +36,10 @@ public:
 
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
-    void setIdleProc(IdleProc proc, void* context) override {
-        fIdleProc = proc;
-        fIdleProcContext = context;
+    void addIdleProc(sk_sp<GrRefCntedCallback> callback) override {
+        callback->setChild(std::move(fIdleCallback));
+        fIdleCallback = std::move(callback);
     }
-    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
@@ -68,13 +67,7 @@ private:
     // the GPU. Thus we do nothing special here with the releaseHelper.
     void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
 
-    void willRemoveLastRefOrPendingIO() override {
-        if (fIdleProc) {
-            fIdleProc(fIdleProcContext);
-            fIdleProc = nullptr;
-            fIdleProcContext = nullptr;
-        }
-    }
+    void willRemoveLastRefOrPendingIO() override { fIdleCallback.reset(); }
 
     GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
                  GrMipMapsStatus);
@@ -84,8 +77,7 @@ private:
 
     id<MTLTexture> fTexture;
     sk_sp<GrReleaseProcHelper> fReleaseHelper;
-    IdleProc* fIdleProc = nullptr;
-    void* fIdleProcContext = nullptr;
+    sk_sp<GrRefCntedCallback> fIdleCallback;
 
     typedef GrTexture INHERITED;
 };
