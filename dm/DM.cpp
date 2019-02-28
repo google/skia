@@ -942,6 +942,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK( "rec2020",  RasterSink, kRGBA_8888_SkColorType, rec2020() );
         SINK("erec2020",  RasterSink,  kRGBA_F16_SkColorType, rec2020() );
 
+        SINK("f16norm",  RasterSink,  kRGBA_F16Norm_SkColorType, srgb);
+
         SINK(    "f32",  RasterSink,  kRGBA_F32_SkColorType, srgbLinear);
     }
 #undef SINK
