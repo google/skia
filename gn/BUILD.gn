@@ -318,6 +318,7 @@ config("warnings") {
 
   if (is_clang) {
     cflags += [
+      "-fcolor-diagnostics",
       "-Weverything",
       "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
     ]
