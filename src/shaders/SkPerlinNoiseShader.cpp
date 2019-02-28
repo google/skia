@@ -654,6 +654,7 @@ SkPMColor SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shade(
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(const ContextRec& rec,
                                                               SkArenaAlloc* alloc) const {
+    // should we pay attention to rec's device-colorspace?
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
 #endif
