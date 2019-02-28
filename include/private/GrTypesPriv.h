@@ -1562,9 +1562,24 @@ public:
     GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {
         SkASSERT(proc);
     }
-    ~GrReleaseProcHelper() override { fReleaseProc(fReleaseCtx); }
+    ~GrReleaseProcHelper() override { fReleaseProc ? fReleaseProc(fReleaseCtx) : void(); }
+
+    // After abandon is called the release proc will no longer be called in the destructor.
+    // This does not recurse on child release procs.
+    void abandon(bool abandonChildren = false) {
+        fReleaseProc = nullptr;
+        fReleaseCtx = nullptr;
+    }
+
+    void setChild(sk_sp<GrReleaseProcHelper> next) {
+        SkASSERT(!fNext);
+        fNext = std::move(next);
+    }
+
+    ReleaseCtx context() const { return fReleaseCtx; }
 
 private:
+    sk_sp<GrReleaseProcHelper> fNext;
     ReleaseProc fReleaseProc;
     ReleaseCtx  fReleaseCtx;
 };
