@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6daf16a8_eb95e677",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-28T15:15:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "97e226d7_a9d54567",
+      "range": {
+        "startLine": 116,
+        "startChar": 82,
+        "endLine": 116,
+        "endChar": 89
+      },
+      "revId": "6566a4ac1a4a38650ff263b2b82c7578f3dff3c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

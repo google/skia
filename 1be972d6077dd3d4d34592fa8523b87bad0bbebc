@@ -152,6 +152,24 @@
       "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "540a725f_066f4f89",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-28T15:15:30Z",
+      "side": 1,
+      "message": "If we\u0027re all ok moving that check to SkRGBA4f, I\u0027ll do it, so it can be explicitly shared between SkPMColor4f and SkColor4f...",
+      "parentUuid": "88f4d313_d755c951",
+      "revId": "1be972d6077dd3d4d34592fa8523b87bad0bbebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
