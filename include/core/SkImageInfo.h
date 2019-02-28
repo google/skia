@@ -92,7 +92,8 @@ enum SkColorType {
     kRGBA_1010102_SkColorType, //!< 10 bits for red, green, blue; 2 bits for alpha; in 32-bit word
     kRGB_101010x_SkColorType,  //!< pixel with 10 bits each for red, green, blue; in 32-bit word
     kGray_8_SkColorType,       //!< pixel with grayscale level in 8-bit byte
-    kRGBA_F16_SkColorType,   //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
+    kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for red, green, blue, alpha; in 64-bit word
+    kRGBA_F16_SkColorType,     //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
     kRGBA_F32_SkColorType,     //!< pixel using C float for red, green, blue, alpha; in 128-bit word
     kLastEnum_SkColorType     = kRGBA_F32_SkColorType,//!< last valid value
 
