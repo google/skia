@@ -51,13 +51,13 @@ sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
 
 static SkColor3f xform_color(const SkColor3f& color, SkColorSpaceXformer* xformer) {
     SkColor origColor = SkColorSetARGB(0xFF,
-                                       SkScalarRoundToInt(color.fX),
-                                       SkScalarRoundToInt(color.fY),
-                                       SkScalarRoundToInt(color.fZ));
+                                       SkScalarRoundToInt(color.fX * 255.0f),
+                                       SkScalarRoundToInt(color.fY * 255.0f),
+                                       SkScalarRoundToInt(color.fZ * 255.0f));
     SkColor xformedColor = xformer->apply(origColor);
-    return SkColor3f::Make(SkIntToScalar(SkGetPackedR32(xformedColor)),
-                           SkIntToScalar(SkGetPackedG32(xformedColor)),
-                           SkIntToScalar(SkGetPackedB32(xformedColor)));
+    return SkColor3f::Make(SkIntToScalar(SkGetPackedR32(xformedColor)) * (1/255.0f),
+                           SkIntToScalar(SkGetPackedG32(xformedColor)) * (1/255.0f),
+                           SkIntToScalar(SkGetPackedB32(xformedColor)) * (1/255.0f));
 }
 
 sk_sp<SkLights> SkLights::makeColorSpace(SkColorSpaceXformer* xformer) const {
