@@ -34,8 +34,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContext,
-        DelayReleaseCallback delayReleaseCallback) {
+        PromiseImageTextureContext textureContext) {
     return nullptr;
 }
 
@@ -51,8 +50,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContexts[],
-        DelayReleaseCallback delayReleaseCallback) {
+        PromiseImageTextureContext textureContexts[]) {
     return nullptr;
 }
 
@@ -222,8 +220,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContext,
-        DelayReleaseCallback delayReleaseCallback) {
+        PromiseImageTextureContext textureContext) {
     if (!fContext) {
         return nullptr;
     }
@@ -240,8 +237,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            textureFulfillProc,
                                            textureReleaseProc,
                                            textureDoneProc,
-                                           textureContext,
-                                           delayReleaseCallback);
+                                           textureContext);
 }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
@@ -256,8 +252,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContexts[],
-        DelayReleaseCallback delayReleaseCallback) {
+        PromiseImageTextureContext textureContexts[]) {
     if (!fContext) {
         return nullptr;
     }
@@ -274,8 +269,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                                                    textureFulfillProc,
                                                    textureReleaseProc,
                                                    textureDoneProc,
-                                                   textureContexts,
-                                                   delayReleaseCallback);
+                                                   textureContexts);
 }
 
 #endif
