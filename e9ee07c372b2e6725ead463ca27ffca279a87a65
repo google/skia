@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3781b01c_c09ffb58",
+        "filename": "infra/bots/android_bin.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-02-28T16:45:00Z",
+      "side": 1,
+      "message": "This is 4.1MB and seems to be unused.  Can we just delete it instead?",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 6
+      },
+      "revId": "e9ee07c372b2e6725ead463ca27ffca279a87a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
