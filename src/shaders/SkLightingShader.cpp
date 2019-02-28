@@ -478,7 +478,7 @@ sk_sp<SkShader> SkLightingShaderImpl::onMakeColorSpace(SkColorSpaceXformer* xfor
     sk_sp<SkShader> xformedDiffuseShader =
             fDiffuseShader ? xformer->apply(fDiffuseShader.get()) : nullptr;
     return SkLightingShader::Make(std::move(xformedDiffuseShader), fNormalSource,
-                                  fLights->makeColorSpace(xformer));
+                                  fLights);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
