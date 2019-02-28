@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
- - Optional arguments to `MakeManagedAnimation` for supplying external assets (like images).
+ - Optional arguments to `MakeManagedAnimation` for supplying external assets (like images, fonts).
 
 ## [0.4.0] - 2019-02-25
 
