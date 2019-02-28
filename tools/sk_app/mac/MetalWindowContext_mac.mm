@@ -57,7 +57,9 @@ bool MetalWindowContext_mac::onInitializeContext() {
         return false;
     }
 
+    fMTKView.autoResizeDrawable = NO;
     fMTKView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    fMTKView.drawableSize = rect.size;
 
     if (fDisplayParams.fMSAASampleCount > 1) {
         if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {

@@ -247,8 +247,15 @@ void Window_mac::handleEvent(const NSEvent* event) {
         case NSEventTypeLeftMouseDown: {
             const NSPoint pos = [event locationInWindow];
             const NSRect rect = [fWindow.contentView frame];
-            this->onMouse(pos.x, rect.size.height - pos.y, Window::kDown_InputState,
-                          get_modifiers(event));
+            if (NSPointInRect(pos, rect)) {
+                // This might be a resize event -- until we know we'll store the event
+                // and reset later if need be
+                fIsMouseDown = true;
+                fMouseDownPos = pos;
+                fMouseModifiers = get_modifiers(event);
+                this->onMouse(pos.x, rect.size.height - pos.y, Window::kDown_InputState,
+                              fMouseModifiers);
+            }
             break;
         }
         case NSEventTypeLeftMouseUp: {
@@ -276,6 +283,16 @@ void Window_mac::handleEvent(const NSEvent* event) {
     }
 }
 
+void Window_mac::resetMouse() {
+    if (fIsMouseDown) {
+        // We're resizing so just send a mouse up event in the same place
+        const NSRect rect = [fWindow.contentView frame];
+        this->onMouse(fMouseDownPos.x, rect.size.height - fMouseDownPos.y, Window::kUp_InputState,
+                      fMouseModifiers);
+        fIsMouseDown = false;
+    }
+}
+
 }   // namespace sk_app
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -294,6 +311,7 @@ void Window_mac::handleEvent(const NSEvent* event) {
     const NSRect mainRect = [fWindow->window().contentView bounds];
 
     fWindow->onResize(mainRect.size.width, mainRect.size.height);
+    fWindow->resetMouse();
 }
 
 - (BOOL)windowShouldClose:(NSWindow*)sender {
