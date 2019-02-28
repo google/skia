@@ -270,7 +270,21 @@ template("gcc_like_toolchain") {
 
       rspfile = "{{output}}.rsp"
       rspfile_content = "{{inputs}}"
-      command = "$cc_wrapper $cxx -shared {{ldflags}} @$rspfile {{solibs}} {{libs}} $rpath -o {{output}}"
+
+      # --start-group/--end-group let us link multiple .a {{inputs}}
+      # without worrying about their relative order on the link line.
+      #
+      # This is mostly important for traditional linkers like GNU ld and Gold.
+      # The Mac/iOS linker neither needs nor accepts these flags.
+      # LLD doesn't need these flags, but accepts and ignores them.
+      _start_group = "-Wl,--start-group"
+      _end_group = "-Wl,--end-group"
+      if (is_mac || is_ios) {
+        _start_group = ""
+        _end_group = ""
+      }
+
+      command = "$cc_wrapper $cxx -shared {{ldflags}} $_start_group @$rspfile {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
       outputs = [
         "{{root_out_dir}}/$soname",
       ]
