@@ -32,6 +32,8 @@ public:
 
     ~VulkanWindowContext_mac() override;
 
+    void resize(int w, int h) override;
+
 private:
     MTKView*              fMTKView;
 
@@ -56,6 +58,14 @@ VulkanWindowContext_mac::~VulkanWindowContext_mac() {
     fMTKView = nil;
 }
 
+void VulkanWindowContext_mac::resize(int w, int h) {
+    CGSize newSize;
+    newSize.width = w;
+    newSize.height = h;
+    fMTKView.drawableSize = newSize;
+    this->INHERITED::resize(w, h);
+}
+
 namespace window_context_factory {
 
 WindowContext* NewVulkanForMac(const MacWindowInfo& info, const DisplayParams& displayParams) {
@@ -72,7 +82,9 @@ WindowContext* NewVulkanForMac(const MacWindowInfo& info, const DisplayParams& d
         return nullptr;
     }
 
+    mtkView.autoResizeDrawable = NO;
     mtkView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    mtkView.drawableSize = rect.size;
 
 //    if (fDisplayParams.fMSAASampleCount > 1) {
 //        if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
