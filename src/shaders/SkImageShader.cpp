@@ -358,6 +358,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             case kARGB_4444_SkColorType:    p->append(SkRasterPipeline::gather_4444,    ctx); break;
             case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx); break;
             case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::gather_1010102, ctx); break;
+            // TODO: clamp here if we decide to clamp F16Norm on loads?
+            case kRGBA_F16Norm_SkColorType: p->append(SkRasterPipeline::gather_f16,     ctx); break;
             case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::gather_f16,     ctx); break;
             case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::gather_f32,     ctx); break;
 
@@ -373,7 +375,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx);
                                             p->append(SkRasterPipeline::swap_rb            ); break;
 
-            default: SkASSERT(false);
+            case kUnknown_SkColorType: SkASSERT(false);
         }
         if (decal_ctx) {
             p->append(SkRasterPipeline::check_decal_mask, decal_ctx);

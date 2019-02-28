@@ -165,6 +165,8 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
         case kARGB_4444_SkColorType:    this->append(load_4444,    ctx); break;
         case kRGBA_8888_SkColorType:    this->append(load_8888,    ctx); break;
         case kRGBA_1010102_SkColorType: this->append(load_1010102, ctx); break;
+        // TODO: clamp F16Norm to [0,1] after loading, or assume/trust?
+        case kRGBA_F16Norm_SkColorType: this->append(load_f16,     ctx); break;
         case kRGBA_F16_SkColorType:     this->append(load_f16,     ctx); break;
         case kRGBA_F32_SkColorType:     this->append(load_f32,     ctx); break;
 
@@ -195,6 +197,8 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
         case kARGB_4444_SkColorType:    this->append(load_4444_dst,    ctx); break;
         case kRGBA_8888_SkColorType:    this->append(load_8888_dst,    ctx); break;
         case kRGBA_1010102_SkColorType: this->append(load_1010102_dst, ctx); break;
+        // TODO: clamp F16Norm to [0,1] after loading, or assume/trust?
+        case kRGBA_F16Norm_SkColorType: this->append(load_f16_dst,     ctx); break;
         case kRGBA_F16_SkColorType:     this->append(load_f16_dst,     ctx); break;
         case kRGBA_F32_SkColorType:     this->append(load_f32_dst,     ctx); break;
 
@@ -225,6 +229,10 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kARGB_4444_SkColorType:    this->append(store_4444,    ctx); break;
         case kRGBA_8888_SkColorType:    this->append(store_8888,    ctx); break;
         case kRGBA_1010102_SkColorType: this->append(store_1010102, ctx); break;
+        // TODO: is clamping here a bad idea?  inconsistent with GPU impl?
+        case kRGBA_F16Norm_SkColorType: this->append(clamp_0);
+                                        this->append(clamp_1);
+                                        this->append(store_f16,     ctx); break;
         case kRGBA_F16_SkColorType:     this->append(store_f16,     ctx); break;
         case kRGBA_F32_SkColorType:     this->append(store_f32,     ctx); break;
 
@@ -247,6 +255,7 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
 }
 
 void SkRasterPipeline::append_gamut_clamp_if_normalized(const SkImageInfo& dstInfo) {
+    // N.B. we _do_ clamp for kRGBA_F16Norm_SkColorType... because it's normalized.
     if (dstInfo.colorType() != kRGBA_F16_SkColorType &&
         dstInfo.colorType() != kRGBA_F32_SkColorType &&
         dstInfo.alphaType() == kPremul_SkAlphaType)
