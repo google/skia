@@ -470,6 +470,8 @@ SkShaderBase::Context* SkLightingShaderImpl::onMakeContext(
         return nullptr;
     }
 
+    // The diffuse shader can inspect the rec and make its decision about rec's colorspace.
+    // What about the lighting shader? Is lighting sensitive to the rec's (device) colorspace?
     return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
 }
 #endif
