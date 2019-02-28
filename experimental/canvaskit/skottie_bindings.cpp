@@ -44,7 +44,7 @@ public:
     }
 
     void addFont(const SkString& name, sk_sp<SkData> fontData) {
-        // TODO(kjlubick)
+        fFonts.emplace_back(std::make_pair(name, std::move(fontData)));
     }
 
     sk_sp<skottie::ImageAsset> loadImageAsset(const char path[],
@@ -61,6 +61,16 @@ public:
         return nullptr;
     }
 
+    sk_sp<SkData> loadFont(const char name[], const char url[]) const override {
+        for(int i = 0; i < fFonts.size(); i++) {
+            if (fFonts[i].first.equals(name)) {
+                return fFonts[i].second;
+            }
+        }
+        SkDebugf("Could not find %s (%s)\n", name, url);
+        return nullptr;
+    }
+
 private:
     SkottieAssetProvider() = default;
 
@@ -69,6 +79,7 @@ private:
     // Not entirely sure why, but perhaps the iterator in the map was
     // confusing enscripten.
     std::vector<std::pair<SkString, sk_sp<skottie_utils::MultiFrameImageAsset>>> fImgs;
+    std::vector<std::pair<SkString, sk_sp<SkData>>> fFonts;
 
 };
 
@@ -218,6 +229,16 @@ EMSCRIPTEN_BINDINGS(Skottie) {
             sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgDatas[i],
                                                          imgSizes[i]);
             assetProvider->addImage(name, std::move(bytes));
+        }
+
+        char** fontNames = reinterpret_cast<char**>(fnptr);
+        uint8_t** fontDatas = reinterpret_cast<uint8_t**>(fdptr);
+        size_t* fontSizes = reinterpret_cast<size_t*>(fsptr);
+        for (int i = 0; i < fontCount; i++) {
+            SkString name = SkString(fontNames[i]);
+            sk_sp<SkData> bytes = SkData::MakeFromMalloc(fontDatas[i],
+                                                         fontSizes[i]);
+            assetProvider->addFont(name, std::move(bytes));
         }
 
         return ManagedAnimation::Make(json, std::move(assetProvider));
