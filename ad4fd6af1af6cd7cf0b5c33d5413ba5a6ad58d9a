@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cda9a2c_0d0fda49",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-28T14:41:08Z",
+      "side": 1,
+      "message": "nit: We tend to mark virtual destructors as \u0027override\u0027 (Skia, Chromium) just to catch cases where the base class forgot to tag its dtor as virtual.  Mostly a style call.",
+      "revId": "ad4fd6af1af6cd7cf0b5c33d5413ba5a6ad58d9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
