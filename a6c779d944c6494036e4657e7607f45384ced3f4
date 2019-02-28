@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62c5db07_b34d9c96",
+        "filename": "experimental/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-02-28T22:56:17Z",
+      "side": 1,
+      "message": "The path component is not particularly useful at this point, and I don\u0027t expect any collisions (all images are in the same dir, and the extension won\u0027t allow for clashes with fonts/etc).\n\nMaybe ignoring the path would also simplify asset upload and management?",
+      "revId": "a6c779d944c6494036e4657e7607f45384ced3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
