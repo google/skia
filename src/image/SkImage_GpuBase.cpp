@@ -10,6 +10,10 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureAdjuster.h"
@@ -20,14 +24,18 @@
 #include "SkTLList.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
-SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
-                                 SkAlphaType at, sk_sp<SkColorSpace> cs)
+SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, int width, int height,
+                                 uint32_t uniqueID, SkAlphaType at, sk_sp<SkColorSpace> cs)
         : INHERITED(width, height, uniqueID)
         , fContext(std::move(context))
         , fAlphaType(at)
         , fColorSpace(std::move(cs)) {}
 
 SkImage_GpuBase::~SkImage_GpuBase() {}
+
+GrImageContext* SkImage_GpuBase::context1() const {
+    return fContext.get();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,10 +69,14 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
-    if (!fContext->priv().resourceProvider()) {
+
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
+
+    auto resourceProvider = direct->priv().resourceProvider();
 
     const auto desc = SkBitmapCacheDesc::Make(this);
     if (SkBitmapCache::Find(desc, dst)) {
@@ -86,7 +98,7 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
         }
     }
 
-    sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
         this->asTextureProxyRef(),
         fColorSpace);
     if (!sContext) {
@@ -104,7 +116,12 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
+                                             const SkIRect& subset) const {
+    if (!context || !fContext->priv().matches(context)) {
+        return nullptr;
+    }
+
     sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef();
 
     GrSurfaceDesc desc;
@@ -118,7 +135,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     }
 
     // TODO: Should this inherit our proxy's budgeted status?
-    sk_sp<GrSurfaceContext> sContext(fContext->priv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext(context->priv().makeDeferredSurfaceContext(
             format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact,
             proxy->isBudgeted()));
     if (!sContext) {
@@ -158,10 +175,13 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
-    if (!fContext->priv().resourceProvider()) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
+
+    auto resourceProvider = direct->priv().resourceProvider();
 
     if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
         return false;
@@ -180,7 +200,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
         this->asTextureProxyRef(), this->refColorSpace());
     if (!sContext) {
         return false;
@@ -212,7 +232,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* con
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(), fAlphaType,
+    GrTextureAdjuster adjuster(context, this->asTextureProxyRef(), fAlphaType,
                                this->uniqueID(), fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
@@ -222,13 +242,18 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
     SkASSERT(proxy);
 
-    if (!fContext->priv().resourceProvider() && !proxy->isInstantiated()) {
-        // This image was created with a DDL context and cannot be instantiated.
-        return GrBackendTexture();
-}
+    if (!proxy->isInstantiated()) {
+        auto direct = fContext->priv().asDirectContext();
+        if (!direct) {
+            // This image was created with a DDL context and cannot be instantiated.
+            return GrBackendTexture();
+        }
 
-    if (!proxy->instantiate(fContext->priv().resourceProvider())) {
-        return GrBackendTexture(); // invalid
+        auto resourceProvider = direct->priv().resourceProvider();
+
+        if (!proxy->instantiate(resourceProvider)) {
+            return GrBackendTexture(); // invalid
+        }
     }
 
     GrTexture* texture = proxy->peekTexture();
@@ -266,11 +291,11 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->abandoned()) {
+    if (fContext->priv().abandoned()) {
         return false;
     }
 
-    if (context && context != fContext.get()) {
+    if (context && !fContext->priv().matches(context)) {
         return false;
     }
 
