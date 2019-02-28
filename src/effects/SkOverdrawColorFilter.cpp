@@ -21,7 +21,7 @@ layout(ctype=SkPMColor) in uniform half4 color3;
 layout(ctype=SkPMColor) in uniform half4 color4;
 layout(ctype=SkPMColor) in uniform half4 color5;
 
-void main(int x, int y, inout half4 color) {
+void main(inout half4 color) {
     half alpha = 255.0 * color.a;
     if (alpha < 0.5) {
         color = color0;
