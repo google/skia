@@ -561,8 +561,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
-        sk_sp<SkData> bytes = SkData::MakeWithoutCopy(imgData, length);
-        return SkImage::MakeFromEncoded(bytes);
+        sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgData, length);
+        return SkImage::MakeFromEncoded(std::move(bytes));
     }), allow_raw_pointers());
     function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
                                                              uintptr_t /* uint8_t*  */ pPtr,
