@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "41297776_a588e25c",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-28T22:40:50Z",
+      "side": 1,
+      "message": "I added this as a method in GrPipeline -- building with both Metal and Vulkan enabled was reporting duplicate symbols.",
+      "range": {
+        "startLine": 404,
+        "startChar": 9,
+        "endLine": 404,
+        "endChar": 27
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17b5a8ed_92a9c775",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
         "patchSetId": 10
@@ -25,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "6e7386b5_73b2c008",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-28T22:40:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17b5a8ed_92a9c775",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 23
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "922d8ca8_7c47d622",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
         "patchSetId": 10
@@ -36,6 +83,30 @@
       "writtenOn": "2019-02-28T15:46:10Z",
       "side": 1,
       "message": "The VulkanPipelineCache has some code to attach a stencil here. Is this not needed in metal? Is it not needed anymore in Vulkan?",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 27
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cd3978d_73997227",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-02-28T22:40:50Z",
+      "side": 1,
+      "message": "The stencil state that GrStencilSettings encapsulates is sent to the GPU in Metal via the MTLRenderCommandEncoder, so they\u0027re not baked into the MTLRenderPipelineState. The only thing the pipeline includes is the stencil pixelFormat. I\u0027m not sure if that\u0027s true for Vulkan.",
+      "parentUuid": "922d8ca8_7c47d622",
       "range": {
         "startLine": 104,
         "startChar": 4,
