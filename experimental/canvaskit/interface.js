@@ -546,13 +546,7 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   var img = CanvasKit._decodeImage(iptr, data.byteLength);
   if (!img) {
     SkDebug('Could not decode image');
-    CanvasKit._free(iptr);
     return null;
-  }
-  var realDelete = img.delete.bind(img);
-  img.delete = function() {
-    CanvasKit._free(iptr);
-    realDelete();
   }
   return img;
 }
