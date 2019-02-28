@@ -10,6 +10,7 @@
 #include "SkAntiRun.h"
 #include "SkArenaAlloc.h"
 #include "SkColor.h"
+#include "SkColorData.h"
 #include "SkColorFilter.h"
 #include "SkMask.h"
 #include "SkMaskFilterBase.h"
@@ -785,16 +786,11 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     }
 #endif
 
-    if (auto cs = device.colorSpace()) {
-        if (paint.getShader()) {
-            // TODO: check if the shader's colorspace is the same, in which case we don't need
-            // to force the raster pipeline.
-            return true;
-        }
-        if (!cs->isSRGB()) {
-            // TODO: convert the paint's color into the device colorspace, so we don't need
-            // to force the raster pipeline. (may want to cache the ColorSpaceXformer on the
-            // device.
+    auto cs = device.colorSpace();
+    // We check (indirectly via makeContext()) later on if the shader can handle the colorspace
+    // in legacy mode, so here we just focus on if a single color needs raster-pipeline.
+    if (cs && !paint.getShader()) {
+        if (!paint.getColor4f().fitsInBytes() || !cs->isSRGB()) {
             return true;
         }
     }

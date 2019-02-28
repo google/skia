@@ -322,6 +322,14 @@ struct SkRGBA4f {
         return fA == 1.0f;
     }
 
+    /** Returns true if all channels are in [0, 1]. */
+    bool fitsInBytes() const {
+        SkASSERT(fA >= 0.0f && fA <= 1.0f);
+        return fR >= 0.0f && fR <= 1.0f &&
+               fG >= 0.0f && fG <= 1.0f &&
+               fB >= 0.0f && fB <= 1.0f;
+    }
+
     /** Returns closest SkRGBA4f to SkColor. Only allowed if SkRGBA4f is unpremultiplied.
 
         @param color   Color with Alpha, red, blue, and green components

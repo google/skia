@@ -109,6 +109,19 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 
 SkShaderBase::Context::~Context() {}
 
+bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace) const {
+    // Compatible means that the shader's (unmodified) colors will blend correctly with the
+    // device in the legacy mode where the colorspaces (of src and dst) are ignored.
+    if (fDstColorSpace == nullptr) {
+        return true;    // untagged dst is by definition compatible with untagged/ignored src
+    }
+    if (shaderColorSpace == nullptr) {
+        // we treat untagged src as being srgb (e.g. SkColor)
+        return fDstColorSpace->isSRGB();
+    }
+    return SkColorSpace::Equals(shaderColorSpace, fDstColorSpace);
+}
+
 const SkMatrix& SkShader::getLocalMatrix() const {
     return as_SB(this)->getLocalMatrix();
 }

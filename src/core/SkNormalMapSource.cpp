@@ -147,11 +147,15 @@ SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShaderBase::
         return nullptr;
     }
 
+    // Normals really aren't colors, so to ensure we can always make the context, we ignore
+    // the rec's colorspace
+    SkColorSpace* dstColorSpace = nullptr;
+
     // Overriding paint's alpha because we need the normal map's RGB channels to be unpremul'd
     SkPaint overridePaint {*(rec.fPaint)};
     overridePaint.setAlpha(0xFF);
     SkShaderBase::ContextRec overrideRec(overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
-                                         rec.fDstColorType, rec.fDstColorSpace);
+                                         rec.fDstColorType, dstColorSpace);
 
     auto* context = as_SB(fMapShader)->makeContext(overrideRec, alloc);
     if (!context) {
