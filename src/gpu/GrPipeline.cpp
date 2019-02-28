@@ -106,3 +106,20 @@ GrPipeline::GrPipeline(GrScissorTest scissorTest, SkBlendMode blendmode)
         fFlags |= kScissorEnabled_Flag;
     }
 }
+
+uint32_t GrPipeline::getBlendInfoKey() const {
+    GrXferProcessor::BlendInfo blendInfo;
+    this->getXferProcessor().getBlendInfo(&blendInfo);
+
+    static const uint32_t kBlendWriteShift = 1;
+    static const uint32_t kBlendCoeffShift = 5;
+    GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
+    GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
+
+    uint32_t key = blendInfo.fWriteColor;
+    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
+    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
+    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
+
+    return key;
+}

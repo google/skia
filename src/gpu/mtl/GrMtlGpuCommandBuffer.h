@@ -73,8 +73,7 @@ private:
             const GrPrimitiveProcessor& primProc,
             const GrPipeline& pipeline,
             const GrPipeline::FixedDynamicState* fixedDynamicState,
-            const GrMesh meshes[],
-            int meshCount);
+            GrPrimitiveType primType);
 
     void onDraw(const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,
