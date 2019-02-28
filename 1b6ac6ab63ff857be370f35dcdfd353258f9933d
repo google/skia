@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bcffaf49_c5b979ad",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-28T23:05:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "41297776_a588e25c",
+      "range": {
+        "startLine": 404,
+        "startChar": 9,
+        "endLine": 404,
+        "endChar": 27
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17b5a8ed_92a9c775",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
         "patchSetId": 10
@@ -107,6 +131,30 @@
       "side": 1,
       "message": "The stencil state that GrStencilSettings encapsulates is sent to the GPU in Metal via the MTLRenderCommandEncoder, so they\u0027re not baked into the MTLRenderPipelineState. The only thing the pipeline includes is the stencil pixelFormat. I\u0027m not sure if that\u0027s true for Vulkan.",
       "parentUuid": "922d8ca8_7c47d622",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 27
+      },
+      "revId": "1b6ac6ab63ff857be370f35dcdfd353258f9933d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80855acf_32feffc6",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-02-28T23:05:27Z",
+      "side": 1,
+      "message": "Okay yeah Vulkan has all the stencil settings in the pipeline.",
+      "parentUuid": "1cd3978d_73997227",
       "range": {
         "startLine": 104,
         "startChar": 4,
