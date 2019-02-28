@@ -292,7 +292,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(resourceProvider, flushState.deinstantiateProxyTracker());
+        GrResourceAllocator alloc(resourceProvider);
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
                 fDAG.opList(i)->gatherProxyIntervals(&alloc);
@@ -341,8 +341,6 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
 #endif
 
     GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
-
-    flushState.deinstantiateProxyTracker()->deinstantiateAllProxies();
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {

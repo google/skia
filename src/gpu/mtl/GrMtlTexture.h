@@ -36,11 +36,10 @@ public:
 
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
-    void setIdleProc(IdleProc proc, void* context) override {
-        fIdleProc = proc;
-        fIdleProcContext = context;
+    void addIdleProc(sk_sp<GrRefCntedCallback> callback) override {
+        callback->setChild(std::move(fIdleCallback));
+        fIdleCallback = std::move(callback);
     }
-    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
@@ -66,15 +65,9 @@ private:
     // Since all MTLResources are inherently ref counted, we can call the Release proc when we
     // delete the GrMtlTexture without worry of the MTLTexture getting deleted before it is done on
     // the GPU. Thus we do nothing special here with the releaseHelper.
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
-    void willRemoveLastRefOrPendingIO() override {
-        if (fIdleProc) {
-            fIdleProc(fIdleProcContext);
-            fIdleProc = nullptr;
-            fIdleProcContext = nullptr;
-        }
-    }
+    void willRemoveLastRefOrPendingIO() override { fIdleCallback.reset(); }
 
     GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
                  GrMipMapsStatus);
@@ -83,9 +76,8 @@ private:
                  GrWrapCacheable, GrIOType);
 
     id<MTLTexture> fTexture;
-    sk_sp<GrReleaseProcHelper> fReleaseHelper;
-    IdleProc* fIdleProc = nullptr;
-    void* fIdleProcContext = nullptr;
+    sk_sp<GrRefCntedCallback> fReleaseHelper;
+    sk_sp<GrRefCntedCallback> fIdleCallback;
 
     typedef GrTexture INHERITED;
 };
