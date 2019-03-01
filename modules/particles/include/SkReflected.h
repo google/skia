@@ -9,13 +9,13 @@
 #define SkReflected_DEFINED
 
 #include "SkColor.h"
-#include "SkCurve.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkTArray.h"
 
 #include <string.h>
 
+struct SkCurve;
 class SkFieldVisitor;
 class SkRandom;
 
@@ -158,11 +158,7 @@ public:
     virtual void visit(const char*, int&, const EnumStringMapping*, int count) = 0;
 
     // Specific virtual signature for SkCurve, to allow for heavily customized UI in SkGuiVisitor.
-    virtual void visit(const char* name, SkCurve& c) {
-        this->enterObject(name);
-        c.visitFields(this);
-        this->exitObject();
-    }
+    virtual void visit(const char* name, SkCurve& c);
 
     // Default visit function for structs with no special behavior. It is assumed that any such
     // struct implements visitFields(SkFieldVisitor*) to recursively visit each of its fields.

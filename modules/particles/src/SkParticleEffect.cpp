@@ -64,8 +64,15 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
         this->setCapacity(fParams->fMaxCount);
     }
 
+    float effectAge = static_cast<float>((now - fSpawnTime) / fParams->fEffectDuration);
+    effectAge = fLooping ? fmodf(effectAge, 1.0f) : SkTPin(effectAge, 0.0f, 1.0f);
+
     SkParticleUpdateParams updateParams;
     updateParams.fDeltaTime = deltaTime;
+    updateParams.fEffectAge = effectAge;
+
+    // During spawn, values that refer to kAge_Source get the *effect* age
+    updateParams.fAgeSource = SkParticleValue::kEffectAge_Source;
 
     // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
@@ -85,18 +92,12 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     fSpawnRemainder = desired - numToSpawn;
     numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
     if (numToSpawn) {
-        // This isn't "particle" t, it's effect t.
-        float t = static_cast<float>((now - fSpawnTime) / fParams->fEffectDuration);
-        t = fLooping ? fmodf(t, 1.0f) : SkTPin(t, 0.0f, 1.0f);
+        const int spawnBase = fCount;
 
         for (int i = 0; i < numToSpawn; ++i) {
             // Mutate our SkRandom so each particle definitely gets a different stable generator
             fRandom.nextU();
-
-            // Temporarily set our age to the *effect* age, so spawn affectors are driven by that
-            fParticles[fCount].fAge = t;
-            fParticles[fCount].fInvLifetime =
-                    sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(t, fRandom));
+            fParticles[fCount].fAge = 0.0f;
             fParticles[fCount].fPose.fPosition = { 0.0f, 0.0f };
             fParticles[fCount].fPose.fHeading = { 0.0f, -1.0f };
             fParticles[fCount].fPose.fScale = 1.0f;
@@ -104,19 +105,21 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
             fParticles[fCount].fVelocity.fAngular = 0.0f;
             fParticles[fCount].fColor = { 1.0f, 1.0f, 1.0f, 1.0f };
             fParticles[fCount].fFrame = 0.0f;
-
             fParticles[fCount].fRandom = fStableRandoms[fCount] = fRandom;
             fCount++;
         }
 
-        // Apply spawn affectors, then reset our age to 0 (the *particle* age)
+        // Apply spawn affectors
         for (auto affector : fParams->fSpawnAffectors) {
             if (affector) {
-                affector->apply(updateParams, fParticles + (fCount - numToSpawn), numToSpawn);
+                affector->apply(updateParams, fParticles + spawnBase, numToSpawn);
             }
         }
-        for (int i = fCount - numToSpawn; i < fCount; ++i) {
-            fParticles[i].fAge = 0.0f;
+
+        // Now compute particle lifetimes (so the curve can refer to spawn-computed source values)
+        for (int i = spawnBase; i < fCount; ++i) {
+            fParticles[i].fInvLifetime =
+                sk_ieee_float_divide(1.0f, fParams->fLifetime.eval(updateParams, fParticles[i]));
         }
     }
 
@@ -124,6 +127,9 @@ void SkParticleEffect::update(const SkAnimTimer& timer) {
     for (int i = 0; i < fCount; ++i) {
         fParticles[i].fRandom = fStableRandoms[i];
     }
+
+    // During update, values that refer to kAge_Source get the *particle* age
+    updateParams.fAgeSource = SkParticleValue::kParticleAge_Source;
 
     // Apply update rules
     for (auto affector : fParams->fUpdateAffectors) {
@@ -162,4 +168,81 @@ void SkParticleEffect::setCapacity(int capacity) {
 
     fCapacity = capacity;
     fCount = SkTMin(fCount, fCapacity);
+}
+
+constexpr SkFieldVisitor::EnumStringMapping gValueSourceMapping[] = {
+    { SkParticleValue::kAge_Source,             "Age" },
+    { SkParticleValue::kRandom_Source,          "Random" },
+    { SkParticleValue::kParticleAge_Source,     "ParticleAge" },
+    { SkParticleValue::kEffectAge_Source,       "EffectAge" },
+    { SkParticleValue::kPositionX_Source,       "PositionX" },
+    { SkParticleValue::kPositionY_Source,       "PositionY" },
+    { SkParticleValue::kHeading_Source,         "Heading" },
+    { SkParticleValue::kScale_Source,           "Scale" },
+    { SkParticleValue::kVelocityX_Source,       "VelocityX" },
+    { SkParticleValue::kVelocityY_Source,       "VelocityY" },
+    { SkParticleValue::kSpeed_Source,           "Speed" },
+    { SkParticleValue::kVelocityAngular_Source, "VelocityAngular" },
+    { SkParticleValue::kColorR_Source,          "ColorR" },
+    { SkParticleValue::kColorG_Source,          "ColorG" },
+    { SkParticleValue::kColorB_Source,          "ColorB" },
+    { SkParticleValue::kColorA_Source,          "ColorA" },
+    { SkParticleValue::kSpriteFrame_Source,     "SpriteFrame" },
+};
+
+constexpr SkFieldVisitor::EnumStringMapping gValueTileModeMapping[] = {
+    { SkParticleValue::kClamp_TileMode,  "Clamp" },
+    { SkParticleValue::kRepeat_TileMode, "Repeat" },
+    { SkParticleValue::kMirror_TileMode, "Mirror" },
+};
+
+void SkParticleValue::visitFields(SkFieldVisitor* v) {
+    v->visit("Source", fSource, gValueSourceMapping, SK_ARRAY_COUNT(gValueSourceMapping));
+    v->visit("Frame", fFrame, gParticleFrameMapping, SK_ARRAY_COUNT(gParticleFrameMapping));
+    v->visit("Scale", fScale);
+    v->visit("Bias", fBias);
+    v->visit("TileMode", fTileMode, gValueTileModeMapping, SK_ARRAY_COUNT(gValueTileModeMapping));
+}
+
+float SkParticleValue::eval(const SkParticleUpdateParams& params, SkParticleState& ps) const {
+    float v = 0.0f;
+    switch ((kAge_Source == fSource) ? params.fAgeSource : fSource) {
+        case kRandom_Source:      v = ps.fRandom.nextF(); break;
+        case kParticleAge_Source: v = ps.fAge;            break;
+        case kEffectAge_Source:   v = params.fEffectAge;  break;
+
+        case kPositionX_Source: v = ps.fPose.fPosition.fX; break;
+        case kPositionY_Source: v = ps.fPose.fPosition.fY; break;
+        case kHeading_Source:
+            v = sk_float_atan2(ps.fPose.fHeading.fY, ps.fPose.fHeading.fX);
+            break;
+        case kScale_Source:     v = ps.fPose.fScale; break;
+
+        case kVelocityX_Source: v = ps.fVelocity.fLinear.fX; break;
+        case kVelocityY_Source: v = ps.fVelocity.fLinear.fY; break;
+        case kSpeed_Source:     v = ps.fVelocity.fLinear.length(); break;
+        case kVelocityAngular_Source: v = ps.fVelocity.fAngular; break;
+
+        case kColorR_Source:      v = ps.fColor.fR; break;
+        case kColorG_Source:      v = ps.fColor.fG; break;
+        case kColorB_Source:      v = ps.fColor.fB; break;
+        case kColorA_Source:      v = ps.fColor.fA; break;
+        case kSpriteFrame_Source: v = ps.fFrame;    break;
+    }
+
+    v = (v * fScale) + fBias;
+
+    switch (fTileMode) {
+        case kClamp_TileMode:
+            v = SkTPin(v, 0.0f, 1.0f);
+            break;
+        case kRepeat_TileMode:
+            v = sk_float_mod(v, 1.0f);
+            break;
+        case kMirror_TileMode:
+            v = 1.0f - sk_float_abs(sk_float_mod(v, 2.0f) - 1.0f);
+            break;
+    }
+
+    return v;
 }

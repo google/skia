@@ -11,6 +11,7 @@
 #include "SkColor.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
+#include "SkReflected.h"
 #include "SkRSXform.h"
 
 /*
@@ -48,6 +49,66 @@ struct SkParticleState {
 
 struct SkParticleUpdateParams {
     float fDeltaTime;
+    float fEffectAge;
+    int   fAgeSource;
+};
+
+enum SkParticleFrame {
+    kWorld_ParticleFrame,     // "Up" is { 0, -1 }
+    kLocal_ParticleFrame,     // "Up" is particle's heading
+    kVelocity_ParticleFrame,  // "Up" is particle's direction of travel
+};
+
+static constexpr SkFieldVisitor::EnumStringMapping gParticleFrameMapping[] = {
+    { kWorld_ParticleFrame,    "World" },
+    { kLocal_ParticleFrame,    "Local" },
+    { kVelocity_ParticleFrame, "Velocity" },
+};
+
+/**
+ * SkParticleValue selects a specific value to be used when evaluating a curve, position on a path,
+ * or any other affector that needs a scalar float input. An SkParticleValue starts with a source
+ * value taken from the state of the effect or particle. That can be adjusted using a scale and
+ * bias, and then reduced into the desired range (typically [0, 1]) via a chosen tile mode.
+ */
+struct SkParticleValue {
+    enum Source {
+        // Either the particle or effect age, depending on spawn or update
+        kAge_Source,
+
+        kRandom_Source,
+        kParticleAge_Source,
+        kEffectAge_Source,
+        kPositionX_Source,
+        kPositionY_Source,
+        kHeading_Source,
+        kScale_Source,
+        kVelocityX_Source,
+        kVelocityY_Source,
+        kSpeed_Source,
+        kVelocityAngular_Source,
+        kColorR_Source,
+        kColorG_Source,
+        kColorB_Source,
+        kColorA_Source,
+        kSpriteFrame_Source,
+    };
+
+    enum TileMode {
+        kClamp_TileMode,
+        kRepeat_TileMode,
+        kMirror_TileMode,
+    };
+
+    void visitFields(SkFieldVisitor* v);
+    float eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
+
+    int   fSource   = kAge_Source;
+    int   fFrame    = kWorld_ParticleFrame;
+    float fScale    = 1.0f;
+    float fBias     = 0.0f;
+    int   fTileMode = kRepeat_TileMode;
+
 };
 
 #endif // SkParticleData_DEFINED
