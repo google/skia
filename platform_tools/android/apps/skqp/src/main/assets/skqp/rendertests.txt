@@ -25,7 +25,7 @@ anisotropic_hq,-1
 annotated_text,0
 arccirclegap,-1
 arcofzorro,-1
-arcs_as_paths,0
+arcs_as_paths,-1
 arcto,-1
 arithmode,0
 atlastext,0
@@ -482,7 +482,7 @@ offsetimagefilter,0
 onebadarc,0
 orientation,0
 ovals,-1
-ovals_as_paths,0
+ovals_as_paths,-1
 overdrawcolorfilter,0
 p3_ovals,-1
 parsedpaths,-1
