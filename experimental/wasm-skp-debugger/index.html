@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Simple template</title>
+  <script src="debugger.js"></script>
+  <script>
+var index = 0;
+
+DebuggerInit({
+  locateFile: (file) => file,
+}).ready().then((CK) => {
+  var surface = CK.MakeSWCanvasSurface('debugger_view');
+  var player = new CK.SkpDebugPlayer();
+  player.loadSkp();
+
+
+  var intervalID = setInterval(function(){
+      if (index < 789){
+        player.drawTo(surface, index);
+        surface.flush();
+        index++;
+        console.log("index = "+index);
+      }
+  }, 10);
+
+  // for (var i = 0; i < 789; i++) {
+  //   player.drawTo(surface, i);
+  //   surface.flush();
+  // }
+});
+  </script>
+  </head>
+  <body>
+    <canvas id=debugger_view width=720 height=1280></canvas>
+  </body>
+</html>
