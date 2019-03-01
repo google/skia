@@ -12,6 +12,7 @@
 #include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
 #include "SkRectPriv.h"
+#include "SkSurface.h"
 #include "SkTextBlob.h"
 #include "SkClipOpPriv.h"
 
@@ -89,16 +90,17 @@ void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
     fCommandVector.push_back(command);
 }
 
-void SkDebugCanvas::draw(SkCanvas* canvas) {
+void SkDebugCanvas::draw(SkSurface* surface) {
     if (!fCommandVector.isEmpty()) {
-        this->drawTo(canvas, fCommandVector.count() - 1);
+        this->drawTo(surface, fCommandVector.count() - 1);
     }
 }
 
-void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
+void SkDebugCanvas::drawTo(SkSurface* originalSurface, int index, int m) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
 
+    SkCanvas* originalCanvas = originalSurface->getCanvas();
     int saveCount = originalCanvas->save();
 
     SkRect windowRect = SkRect::MakeWH(SkIntToScalar(originalCanvas->getBaseLayerSize().width()),
@@ -116,14 +118,14 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     GrAuditTrail* at = nullptr;
     if (fDrawGpuOpBounds || m != -1) {
         // The audit trail must be obtained from the original canvas.
-        at = this->getAuditTrail(originalCanvas);
+        at = this->getAuditTrail(originalSurface);
     }
 
     for (int i = 0; i <= index; i++) {
         // We need to flush any pending operations, or they might combine with commands below.
         // Previous operations were not registered with the audit trail when they were
         // created, so if we allow them to combine, the audit trail will fail to find them.
-        filterCanvas.flush();
+        originalSurface->flush();
 
         GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
@@ -159,7 +161,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         // just in case there is global reordering, we flush the canvas before querying
         // GrAuditTrail
         GrAuditTrail::AutoEnable ae(at);
-        filterCanvas.flush();
+        originalSurface->flush();
 
         // we pick three colorblind-safe colors, 75% alpha
         static const SkColor kTotalBounds = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
@@ -201,7 +203,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             }
         }
     }
-    this->cleanupAuditTrail(originalCanvas);
+    this->cleanupAuditTrail(originalSurface);
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {
@@ -215,18 +217,21 @@ SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
     return fCommandVector[index];
 }
 
-GrAuditTrail* SkDebugCanvas::getAuditTrail(SkCanvas* canvas) {
+GrAuditTrail* SkDebugCanvas::getAuditTrail(SkSurface* surface) {
     GrAuditTrail* at = nullptr;
-    GrContext* ctx = canvas->getGrContext();
+
+    GrContext* ctx = surface->getCanvas()->getGrContext();
     if (ctx) {
         at = ctx->priv().auditTrail();
     }
     return at;
 }
 
-void SkDebugCanvas::drawAndCollectOps(int n, SkCanvas* canvas) {
-    GrAuditTrail* at = this->getAuditTrail(canvas);
+void SkDebugCanvas::drawAndCollectOps(int n, SkSurface* surface) {
+    GrAuditTrail* at = this->getAuditTrail(surface);
     if (at) {
+        SkCanvas* canvas = surface->getCanvas();
+
         // loop over all of the commands and draw them, this is to collect reordering
         // information
         for (int i = 0; i < this->getSize() && i <= n; i++) {
@@ -237,13 +242,13 @@ void SkDebugCanvas::drawAndCollectOps(int n, SkCanvas* canvas) {
         // in case there is some kind of global reordering
         {
             GrAuditTrail::AutoEnable ae(at);
-            canvas->flush();
+            surface->flush();
         }
     }
 }
 
-void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
-    GrAuditTrail* at = this->getAuditTrail(canvas);
+void SkDebugCanvas::cleanupAuditTrail(SkSurface* surface) {
+    GrAuditTrail* at = this->getAuditTrail(surface);
     if (at) {
         GrAuditTrail::AutoEnable ae(at);
         at->fullReset();
@@ -251,11 +256,11 @@ void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
 }
 
 void SkDebugCanvas::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager, int n,
-                           SkCanvas* canvas) {
-    this->drawAndCollectOps(n, canvas);
+                           SkSurface* surface) {
+    this->drawAndCollectOps(n, surface);
 
     // now collect json
-    GrAuditTrail* at = this->getAuditTrail(canvas);
+    GrAuditTrail* at = this->getAuditTrail(surface);
     writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
     writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
@@ -271,13 +276,13 @@ void SkDebugCanvas::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager,
     }
 
     writer.endArray(); // commands
-    this->cleanupAuditTrail(canvas);
+    this->cleanupAuditTrail(surface);
 }
 
-void SkDebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkCanvas* canvas) {
-    this->drawAndCollectOps(n, canvas);
+void SkDebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkSurface* surface) {
+    this->drawAndCollectOps(n, surface);
 
-    GrAuditTrail* at = this->getAuditTrail(canvas);
+    GrAuditTrail* at = this->getAuditTrail(surface);
     if (at) {
         GrAuditTrail::AutoManageOpList enable(at);
         at->toJson(writer);
@@ -285,7 +290,7 @@ void SkDebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkCanvas* canvas) 
         writer.beginObject();
         writer.endObject();
     }
-    this->cleanupAuditTrail(canvas);
+    this->cleanupAuditTrail(surface);
 }
 
 void SkDebugCanvas::setOverdrawViz(bool overdrawViz) {

@@ -78,7 +78,7 @@ void Window::onPaint() {
         this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
         this->visitLayers([=](Layer* layer) { layer->onPaint(canvas); });
 
-        canvas->flush();
+        backbuffer->flush();
 
         fWindowContext->swapBuffers();
     } else {

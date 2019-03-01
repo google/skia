@@ -62,7 +62,6 @@ SkCanvas* SkXPSDocument::onBeginPage(SkScalar width, SkScalar height) {
 
 void SkXPSDocument::onEndPage() {
     SkASSERT(fCanvas.get());
-    fCanvas->flush();
     fCanvas.reset(nullptr);
     fDevice.endSheet();
 }

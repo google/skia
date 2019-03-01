@@ -48,12 +48,11 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     return buffer.detachAsData();
 }
 
-SkCanvas* Request::getCanvas() {
-    GrContextFactory* factory = fContextFactory;
-    GLTestContext* gl = factory->getContextInfo(GrContextFactory::kGL_ContextType,
+SkSurface* Request::getSurface() {
+    GLTestContext* gl = fContextFactory->getContextInfo(GrContextFactory::kGL_ContextType,
             GrContextFactory::ContextOverrides::kNone).glContext();
     if (!gl) {
-        gl = factory->getContextInfo(GrContextFactory::kGLES_ContextType,
+        gl = fContextFactory->getContextInfo(GrContextFactory::kGLES_ContextType,
                                      GrContextFactory::ContextOverrides::kNone).glContext();
     }
     if (gl) {
@@ -65,8 +64,12 @@ SkCanvas* Request::getCanvas() {
     if (!fSurface) {
         this->enableGPU(fGPUEnabled);
     }
-    SkCanvas* target = fSurface->getCanvas();
-    return target;
+    return fSurface.get();
+}
+
+SkCanvas* Request::getCanvas() {
+    SkSurface* surface = this->getSurface();
+    return surface->getCanvas();
 }
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
@@ -179,7 +182,7 @@ bool Request::enableGPU(bool enable) {
             // TODO understand what is actually happening here
             if (fDebugCanvas) {
                 fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-                this->getCanvas()->flush();
+                this->getSurface()->flush();
             }
 
             return true;
@@ -209,7 +212,7 @@ bool Request::initPictureFromStream(SkStream* stream) {
 
     // for some reason we need to 'flush' the debug canvas by drawing all of the ops
     fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-    this->getCanvas()->flush();
+    this->getSurface()->flush();
     return true;
 }
 
