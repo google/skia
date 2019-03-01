@@ -1154,6 +1154,13 @@ struct Task {
                         } else {
                             hash.write(bitmap.getPixels(), bitmap.computeByteSize());
                         }
+
+                        // Even with identical pixel values,
+                        // two images with different color spaces are different.
+                        SkColorSpace* cs = bitmap.colorSpace() ? bitmap.colorSpace()
+                                                               : sk_srgb_singleton();
+                        uint64_t cs_hash = cs->hash();
+                        hash.write(&cs_hash, sizeof(cs_hash));
                     }
                     SkMD5::Digest digest;
                     hash.finish(digest);
