@@ -61,7 +61,7 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
         return nullptr;
     }
     // Can't use legacy blit if we can't represent our colors as SkColors
-    if (!this->colorsCanConvertToSkColor()) {
+    if (rec.fDstColorSpace && !this->colorsCanConvertToSkColor()) {
         return nullptr;
     }
 
