@@ -231,7 +231,7 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     }
 }
 
-GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
+GrBackendTexture SkSurface::getBackendTexture2(BackendHandleAccess access) {
     return asSB(this)->onGetBackendTexture(access);
 }
 

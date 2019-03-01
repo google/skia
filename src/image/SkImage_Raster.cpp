@@ -86,7 +86,7 @@ public:
 #endif
 
     bool getROPixels(SkBitmap*, CachingHint) const override;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect&) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -101,7 +101,8 @@ public:
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*, SkColorType,
+                                                sk_sp<SkColorSpace>) const override;
 
     bool onIsValid(GrContext* context) const override { return true; }
     void notifyAddedToRasterCache() const override {
@@ -231,7 +232,7 @@ void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
 }
 #endif
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(GrRecordingContext*, const SkIRect& subset) const {
     SkImageInfo info = fBitmap.info().makeWH(subset.width(), subset.height());
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(info)) {
@@ -337,7 +338,8 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Raster::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+sk_sp<SkImage> SkImage_Raster::onMakeColorTypeAndColorSpace(GrRecordingContext*,
+                                                            SkColorType targetCT,
                                                             sk_sp<SkColorSpace> targetCS) const {
     SkPixmap src;
     SkAssertResult(fBitmap.peekPixels(&src));
