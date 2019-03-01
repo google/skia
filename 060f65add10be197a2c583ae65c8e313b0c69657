@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9059ac24_8f031b6c",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T19:39:31Z",
+      "side": 1,
+      "message": "awkward - maybe \"back to its original type\" ?",
+      "range": {
+        "startLine": 741,
+        "startChar": 50,
+        "endLine": 741,
+        "endChar": 81
+      },
+      "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
