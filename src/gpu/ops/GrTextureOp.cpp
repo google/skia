@@ -307,11 +307,12 @@ private:
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         bool mustFilter = false;
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
-        // All dst rects are transformed by the same view matrix, so their quad types are identical,
-        // unless an entry provides a dstClip that forces quad type to be at least standard.
-        GrQuadType baseQuadType = GrQuadTypeForTransformedRect(viewMatrix);
-        fQuads.reserve(cnt, baseQuadType);
+        // Most dst rects are transformed by the same view matrix, so their quad types start
+        // identical, unless an entry provides a dstClip or additional transform that changes it.
+        // The quad list will automatically adapt to that.
+        fQuads.reserve(cnt, GrQuadTypeForTransformedRect(viewMatrix));
 
+        SkMatrix ctm;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -321,12 +322,17 @@ private:
                 fCanSkipAllocatorGather = static_cast<unsigned>(false);
             }
 
+            ctm = viewMatrix;
+            if (set[p].fPreViewXform) {
+                ctm.preConcat(*set[p].fPreViewXform);
+            }
+
             // Use dstRect unless dstClip is provided, which is assumed to be a quad
             auto quad = set[p].fDstClipQuad == nullptr ?
-                    GrPerspQuad::MakeFromRect(set[p].fDstRect, viewMatrix) :
-                    GrPerspQuad::MakeFromSkQuad(set[p].fDstClipQuad, viewMatrix);
-            GrQuadType quadType = baseQuadType;
-            if (set[p].fDstClipQuad && baseQuadType != GrQuadType::kPerspective) {
+                    GrPerspQuad::MakeFromRect(set[p].fDstRect, ctm) :
+                    GrPerspQuad::MakeFromSkQuad(set[p].fDstClipQuad, ctm);
+            GrQuadType quadType = GrQuadTypeForTransformedRect(ctm);
+            if (set[p].fDstClipQuad && quadType != GrQuadType::kPerspective) {
                 quadType = GrQuadType::kStandard;
             }
 
@@ -342,7 +348,7 @@ private:
             }
             if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
                 mustFilter = quadType != GrQuadType::kRect ||
-                             GrTextureOp::GetFilterHasEffect(viewMatrix, set[p].fSrcRect,
+                             GrTextureOp::GetFilterHasEffect(ctm, set[p].fSrcRect,
                                                              set[p].fDstRect);
             }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);

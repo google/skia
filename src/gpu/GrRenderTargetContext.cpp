@@ -1072,14 +1072,20 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
     if (mode != SkBlendMode::kSrcOver ||
         !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
         // Draw one at a time with GrFillRectOp and a GrPaint that emulates what GrTextureOp does
+        SkMatrix ctm;
         for (int i = 0; i < cnt; ++i) {
             float alpha = set[i].fAlpha;
+            ctm = viewMatrix;
+            if (set[i].fPreViewXform) {
+                ctm.preConcat(*set[i].fPreViewXform);
+            }
+
             if (set[i].fDstClipQuad == nullptr) {
                 // Stick with original rectangles, which allows the ops to know more about what's
                 // being drawn.
                 this->drawTexture(clip, set[i].fProxy, filter, mode, {alpha, alpha, alpha, alpha},
                                   set[i].fSrcRect, set[i].fDstRect, aa, set[i].fAAFlags,
-                                  SkCanvas::kFast_SrcRectConstraint, viewMatrix, texXform);
+                                  SkCanvas::kFast_SrcRectConstraint, ctm, texXform);
             } else {
                 // Generate interpolated texture coordinates to match the dst clip
                 SkPoint srcQuad[4];
@@ -1089,7 +1095,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
                 // keep seams look more correct.
                 this->drawTextureQuad(clip, set[i].fProxy, filter, mode,
                                       {alpha, alpha, alpha, alpha}, srcQuad, set[i].fDstClipQuad,
-                                      aa, set[i].fAAFlags, nullptr, viewMatrix, texXform);
+                                      aa, set[i].fAAFlags, nullptr, ctm, texXform);
             }
         }
     } else {
