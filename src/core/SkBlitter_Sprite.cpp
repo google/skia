@@ -56,10 +56,10 @@ void SkSpriteBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 class SkSpriteBlitter_Memcpy final : public SkSpriteBlitter {
 public:
     static bool Supports(const SkPixmap& dst, const SkPixmap& src, const SkPaint& paint) {
+        // the caller has already inspected the colorspace on src and dst
+        SkASSERT(sk_can_use_legacy_blits(src.colorSpace(), dst.colorSpace()));
+
         if (dst.colorType() != src.colorType()) {
-            return false;
-        }
-        if (!SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
             return false;
         }
         if (paint.getMaskFilter() || paint.getColorFilter() || paint.getImageFilter()) {
@@ -184,22 +184,24 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     SkSpriteBlitter* blitter = nullptr;
 
-    if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
-        blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
-    }
-    if (!blitter && !dst.colorSpace()) {
-        switch (dst.colorType()) {
-            case kN32_SkColorType:
-                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
-                break;
-            case kRGB_565_SkColorType:
-                blitter = SkSpriteBlitter::ChooseL565(source, paint, allocator);
-                break;
-            case kAlpha_8_SkColorType:
-                blitter = SkSpriteBlitter::ChooseLA8(source, paint, allocator);
-                break;
-            default:
-                break;
+    if (sk_can_use_legacy_blits(source.colorSpace(), dst.colorSpace())) {
+        if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
+            blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
+        }
+        if (!blitter) {
+            switch (dst.colorType()) {
+                case kN32_SkColorType:
+                    blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
+                    break;
+                case kRGB_565_SkColorType:
+                    blitter = SkSpriteBlitter::ChooseL565(source, paint, allocator);
+                    break;
+                case kAlpha_8_SkColorType:
+                    blitter = SkSpriteBlitter::ChooseLA8(source, paint, allocator);
+                    break;
+                default:
+                    break;
+            }
         }
     }
     if (!blitter && !paint.getMaskFilter()) {
