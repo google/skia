@@ -456,7 +456,7 @@ void SkQP::makeReport() {
         }
         const char* backendName = SkQP::GetBackendName(run.fBackend);
         std::string gmName = SkQP::GetGMName(run.fGM);
-        SkQP::RenderOutcome outcome;
+        const SkQP::RenderOutcome& outcome = run.fOutcome;
         auto str = SkStringPrintf("\"%s\",\"%s\",%d,%d,%" PRId64, backendName, gmName.c_str(),
                                   outcome.fMaxError, outcome.fBadPixelCount, outcome.fTotalError);
         write(&csvOut, SkStringPrintf("%s\n", str.c_str()));
