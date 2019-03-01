@@ -24,6 +24,15 @@ WindowContext* NewGLForWin(HWND, const DisplayParams&);
 
 WindowContext* NewANGLEForWin(HWND, const DisplayParams&);
 
+#ifdef SK_DAWN
+#ifdef SK_DAWN_OPENGL
+WindowContext* NewDawnGLForWin(HWND, const DisplayParams&);
+#endif
+#ifdef SK_DAWN_D3D12
+WindowContext* NewDawnD3D12ForWin(HWND, const DisplayParams&);
+#endif
+#endif
+
 WindowContext* NewRasterForWin(HWND, const DisplayParams&);
 
 }  // namespace window_context_factory
