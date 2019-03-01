@@ -150,7 +150,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     }
 
     sk_sp<SkImage> mainImage = mainSurface->makeImageSnapshot();
-    GrBackendTexture backendTexture = mainImage->getBackendTexture(false);
+    GrBackendTexture backendTexture = mainImage->getBackendTexture1(false);
 
     draw_child(reporter, childInfo1, backendTexture, semaphores[0]);
 
