@@ -286,13 +286,13 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
                                              nullptr/*local matrix*/));
         canvas->drawRect({10,10,70,70}, paint);
         canvas->save();
-            compare_pixel("PM P3 gradient, P3 red",
+            compare_pixel("PM sRGB gradient, P3 red",
                           canvas, 10,10,
                           {1,0,0,1}, p3.get());
 
             canvas->translate(180, 0);
 
-            compare_pixel("PM P3 gradient, P3 green",
+            compare_pixel("PM sRGB gradient, P3 green",
                           canvas, 69,69,
                           {0,1,0,1}, p3.get());
         canvas->restore();
