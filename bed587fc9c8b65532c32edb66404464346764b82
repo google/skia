@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e7e2b2a_291b3ad3",
+        "filename": "src/core/SkColorFilterPriv.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7896
+      },
+      "writtenOn": "2019-03-01T20:40:41Z",
+      "side": 1,
+      "message": "Thanks for the comment. This will be helpful.",
+      "revId": "bed587fc9c8b65532c32edb66404464346764b82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
