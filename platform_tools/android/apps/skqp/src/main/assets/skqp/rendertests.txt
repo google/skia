@@ -259,7 +259,7 @@ encode-platform,0
 encode-srgb-jpg,0
 encode-srgb-png,0
 encode-srgb-webp,0
-etc1,0
+etc1,-1
 extractalpha,0
 extractbitmap,-1
 fadefilter,0
