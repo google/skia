@@ -123,6 +123,24 @@
       "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19e47f9e_294d631d",
+        "filename": "src/core/SkColorFilterPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7896
+      },
+      "writtenOn": "2019-03-01T20:38:37Z",
+      "side": 1,
+      "message": "Ignore this. Was a gerrit failure.",
+      "parentUuid": "0f9fd3b0_948fc7f8",
+      "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
