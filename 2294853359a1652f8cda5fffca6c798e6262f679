@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d8cd240_06d8ce5d",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-01T14:25:42Z",
+      "side": 1,
+      "message": "nit: can we change this (and the underlying sample_multiframe) to be .gif?  It doesn\u0027t really matter, just might alleviate some confusion.\n\nOr, does After Effects always call these .png?",
+      "range": {
+        "startLine": 175,
+        "startChar": 17,
+        "endLine": 175,
+        "endChar": 20
+      },
+      "revId": "2294853359a1652f8cda5fffca6c798e6262f679",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
