@@ -57,8 +57,6 @@ private:
     struct BackbufferInfo {
         uint32_t        fImageIndex;          // image this is associated with
         VkSemaphore     fRenderSemaphore;     // we wait on this for rendering to be done
-        VkCommandBuffer fTransitionCmdBuffer; // to transition layout between present and render
-        VkFence         fUsageFence;          // used to ensure this data is no longer used on GPU
     };
 
     BackbufferInfo* getAvailableBackbuffer();
@@ -112,7 +110,6 @@ private:
     VkImage*               fImages;         // images in the swapchain
     VkImageLayout*         fImageLayouts;   // layouts of these images when not color attachment
     sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
-    VkCommandPool          fCommandPool;
     BackbufferInfo*        fBackbuffers;
     uint32_t               fCurrentBackbufferIndex;
 };

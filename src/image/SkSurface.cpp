@@ -244,12 +244,18 @@ void SkSurface::prepareForExternalIO() {
 }
 
 void SkSurface::flush() {
-    asSB(this)->onFlush(0, nullptr);
+    asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_FlushFlags, 0, nullptr);
+}
+
+GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, FlushFlags flags,
+                                       int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
+    return asSB(this)->onFlush(access, flags, numSemaphores, signalSemaphores);
 }
 
 GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
                                                           GrBackendSemaphore signalSemaphores[]) {
-    return asSB(this)->onFlush(numSemaphores, signalSemaphores);
+    return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_FlushFlags,
+                               numSemaphores, signalSemaphores);
 }
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {

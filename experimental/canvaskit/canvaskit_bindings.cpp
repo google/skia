@@ -943,7 +943,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
         .function("width", &SkSurface::width)
         .function("height", &SkSurface::height)
-        .function("_flush", &SkSurface::flush)
+        .function("_flush", select_overload<void()>(&SkSurface::flush))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());

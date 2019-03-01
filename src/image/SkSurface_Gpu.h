@@ -32,7 +32,7 @@ public:
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
-    GrSemaphoresSubmitted onFlush(int numSemaphores,
+    GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, FlushFlags flags, int numSemaphores,
                                   GrBackendSemaphore signalSemaphores[]) override;
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
