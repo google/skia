@@ -1,0 +1,387 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e58003d_9f1a4bc4",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "rm this ?",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 33
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cd52ce8_404e8730",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 1572,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "extra \u0027 \u0027 ?",
+      "range": {
+        "startLine": 1572,
+        "startChar": 7,
+        "endLine": 1572,
+        "endChar": 8
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9591068e_e5037be8",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "Just: tex-\u003esetRlease(deleteImageProc, deleteImageCtx); ?",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 55
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05e18d9b_4675b6c5",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "Hmmm",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 31
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e529b88_01eeac28",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "I don\u0027t think we need this out here.",
+      "range": {
+        "startLine": 491,
+        "startChar": 30,
+        "endLine": 491,
+        "endChar": 44
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f3a9357_72ca4591",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "Just: tex-\u003esetRelease(releaseProc, releaseCtx); ?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "315ebf7b_4cf910a8",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea2c8039_de10557d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad7b4140_98136a96",
+        "filename": "src/gpu/gl/GrGLRenderTarget.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "// onSetRelease exists to allow different backends (i.e., Vulkan) to propagate the releaseHelper to backend-specific objects.\n\n??",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3d81344_e48ab58a",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "// onSetRelease exists to allow different backends (i.e., Vulkan) to propagate the releaseHelper to backend-specific objects.\n\n??",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4d822da_75dbef00",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "// Trigger execution of the idleCallback chain\n\n?\n\nShould we have an isUnique assert here?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d7f7167_3ead5e5c",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "Can this be moved to the base class ?",
+      "range": {
+        "startLine": 133,
+        "startChar": 30,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcdc90f1_e17c42ad",
+        "filename": "src/gpu/gl/GrGLTextureRenderTarget.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "// here too ?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b02a18d_1d774e06",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "same comments here ?\n\nCan this be moved to the base class ?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49663b1d_bf7295dc",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "Doesn\u0027t GrSurface already have this member?",
+      "range": {
+        "startLine": 80,
+        "startChar": 30,
+        "endLine": 80,
+        "endChar": 44
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e39db171_0af9dffe",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "What about making this the default implementation and having only Vulkan override it?",
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c7d32dd_e0c4ce6c",
+        "filename": "src/gpu/mtl/GrMtlTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 79,
+        "startChar": 30,
+        "endLine": 79,
+        "endChar": 45
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6ca7805_b39579ed",
+        "filename": "src/gpu/vk/GrVkImage.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 280,
+        "startChar": 24,
+        "endLine": 280,
+        "endChar": 31
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddbdc3e9_1c0d126a",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-01T16:02:03Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 42,
+        "startChar": 9,
+        "endLine": 42,
+        "endChar": 16
+      },
+      "revId": "d7a4ee49ef35b3b6bc468b8f4e3aa27a048e3424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
