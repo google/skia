@@ -659,7 +659,6 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     make_bm(&replayBM, 100, 100, SK_ColorBLACK, false);
     SkCanvas replayCanvas(replayBM);
     picture->playback(&replayCanvas);
-    replayCanvas.flush();
 
     // With the bug present, at (55, 55) we would get a fully opaque red
     // intead of a dark red.
@@ -835,7 +834,6 @@ DEF_TEST(Picture_RecordsFlush, r) {
         for (int j = 0; j < 10; j++) {
             canvas->drawRect(SkRect::MakeXYWH(i*10,j*10,10,10), SkPaint());
         }
-        canvas->flush();
     }
 
     // Did we record the flushes?
