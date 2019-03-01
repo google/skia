@@ -106,7 +106,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     auto proxyProvider = context->priv().proxyProvider();
 
     fBorrowingMutex.acquire();
-    sk_sp<GrReleaseProcHelper> releaseProcHelper;
+    sk_sp<GrRefCntedCallback> releaseProcHelper;
     if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
         if (fRefHelper->fBorrowingContextID != context->priv().contextID()) {
             fBorrowingMutex.release();
@@ -119,10 +119,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     } else {
         SkASSERT(!fRefHelper->fBorrowingContextReleaseProc);
         // The ref we add to fRefHelper here will be passed into and owned by the
-        // GrReleaseProcHelper.
+        // GrRefCntedCallback.
         fRefHelper->ref();
-        releaseProcHelper.reset(new GrReleaseProcHelper(ReleaseRefHelper_TextureReleaseProc,
-                                                        fRefHelper));
+        releaseProcHelper.reset(
+                new GrRefCntedCallback(ReleaseRefHelper_TextureReleaseProc, fRefHelper));
         fRefHelper->fBorrowingContextReleaseProc = releaseProcHelper.get();
     }
     fRefHelper->fBorrowingContextID = context->priv().contextID();
