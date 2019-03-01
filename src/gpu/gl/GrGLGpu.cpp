@@ -4279,10 +4279,14 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-void GrGLGpu::onFinishFlush(bool insertedSemaphore) {
+void GrGLGpu::onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+                            SkSurface::FlushFlags flags, bool insertedSemaphore) {
     // If we inserted semaphores during the flush, we need to call GLFlush.
     if (insertedSemaphore) {
         GL_CALL(Flush());
+    }
+    if (flags & SkSurface::kSyncCpu_FlushFlag) {
+        GL_CALL(Finish());
     }
 }
 

@@ -100,7 +100,8 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    void onFinishFlush(bool insertedSemaphores) override {}
+    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+                       SkSurface::FlushFlags flags, bool insertedSemaphores) override {}
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

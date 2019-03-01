@@ -379,7 +379,9 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     }
 }
 
-GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
+GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
+                                         SkSurface::BackendSurfaceAccess access,
+                                         SkSurface::FlushFlags flags, int numSemaphores,
                                          GrBackendSemaphore backendSemaphores[]) {
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
@@ -401,7 +403,8 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
             }
         }
     }
-    this->onFinishFlush((numSemaphores > 0 && this->caps()->fenceSyncSupport()));
+    this->onFinishFlush(proxy, access, flags,
+                        (numSemaphores > 0 && this->caps()->fenceSyncSupport()));
     return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }

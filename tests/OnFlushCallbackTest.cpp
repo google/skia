@@ -581,7 +581,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
     }
 
-    rtc->prepareForExternalIO(0, nullptr);
+    rtc->prepareForExternalIO(SkSurface::BackendSurfaceAccess::kNoAccess,
+                              SkSurface::kNone_FlushFlags, 0, nullptr);
 
     SkBitmap readBack;
     readBack.allocN32Pixels(kFinalWidth, kFinalHeight);
