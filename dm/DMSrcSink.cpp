@@ -378,7 +378,6 @@ static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixe
     bitmap.installPixels(info, pixels, rowBytes);
     swap_rb_if_necessary(bitmap, dstColorType);
     canvas->drawBitmap(bitmap, left, top);
-    canvas->flush();
 }
 
 // For codec srcs, we want the "draw" step to be a memcpy.  Any interesting color space or
@@ -1483,7 +1482,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!err.isEmpty()) {
         return err;
     }
-    canvas->flush();
+    surface->flush();
     if (FLAGS_gpuStats) {
         canvas->getGrContext()->priv().dumpCacheStats(log);
         canvas->getGrContext()->priv().dumpGpuStats(log);
@@ -1705,11 +1704,11 @@ Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) cons
     if (!err.isEmpty()) {
         return err;
     }
-    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
+    auto nullSurface = SkSurface::MakeNull(1, 1);
     UrlDataManager dataManager(SkString("data"));
     SkJSONWriter writer(dst, SkJSONWriter::Mode::kPretty);
     writer.beginObject(); // root
-    debugCanvas.toJSON(writer, dataManager, debugCanvas.getSize(), nullCanvas.get());
+    debugCanvas.toJSON(writer, dataManager, debugCanvas.getSize(), nullSurface.get());
     writer.endObject(); // root
     writer.flush();
     return "";

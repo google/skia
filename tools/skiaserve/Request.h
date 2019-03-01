@@ -39,6 +39,7 @@ struct Request {
     sk_sp<SkData> drawToPng(int n, int m = -1);
     sk_sp<SkData> writeOutSkp();
     SkCanvas* getCanvas();
+    SkSurface* getSurface();
     bool enableGPU(bool enable);
     bool setOverdraw(bool enable);
     bool setColorMode(int mode);

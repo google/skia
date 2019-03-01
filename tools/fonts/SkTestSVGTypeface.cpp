@@ -655,7 +655,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
             surface->peekPixels(&pix);
             canvas->drawSimpleText(&gid, sizeof(gid), kGlyphID_SkTextEncoding,
                                    -bounds.fLeft, -bounds.fTop, font, paint);
-            canvas->flush();
+            surface->flush();
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 
@@ -871,7 +871,7 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
             surface->peekPixels(&pix);
             canvas->drawSimpleText(&gid, sizeof(gid), kGlyphID_SkTextEncoding,
                                    -bounds.fLeft, -bounds.fTop, font, paint);
-            canvas->flush();
+            surface->flush();
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 

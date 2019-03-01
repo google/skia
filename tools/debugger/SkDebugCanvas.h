@@ -49,7 +49,7 @@ public:
         Executes all draw calls to the canvas.
         @param canvas  The canvas being drawn to
      */
-    void draw(SkCanvas *canvas);
+    void draw(SkSurface*);
 
     /**
         Executes the draw calls up to the specified index.
@@ -57,7 +57,7 @@ public:
         @param index  The index of the final command being executed
         @param m an optional Mth gpu op to highlight, or -1
      */
-    void drawTo(SkCanvas *canvas, int index, int m = -1);
+    void drawTo(SkSurface*, int index, int m = -1);
 
     /**
         Returns the most recently calculated transformation matrix
@@ -103,9 +103,9 @@ public:
         SkDebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such
         as images, referring to them via URLs embedded in the JSON.
      */
-    void toJSON(SkJSONWriter& writer, UrlDataManager &urlDataManager, int n, SkCanvas *);
+    void toJSON(SkJSONWriter& writer, UrlDataManager &urlDataManager, int n, SkSurface*);
 
-    void toJSONOpList(SkJSONWriter& writer, int n, SkCanvas*);
+    void toJSONOpList(SkJSONWriter& writer, int n, SkSurface*);
 
     void detachCommands(SkTDArray<SkDrawCommand*>* dst) {
         fCommandVector.swap(*dst);
@@ -181,10 +181,10 @@ private:
      */
     void addDrawCommand(SkDrawCommand* command);
 
-    GrAuditTrail* getAuditTrail(SkCanvas*);
+    GrAuditTrail* getAuditTrail(SkSurface*);
 
-    void drawAndCollectOps(int n, SkCanvas*);
-    void cleanupAuditTrail(SkCanvas*);
+    void drawAndCollectOps(int n, SkSurface*);
+    void cleanupAuditTrail(SkSurface*);
 
     typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
 };

@@ -48,12 +48,11 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     return buffer.detachAsData();
 }
 
-SkCanvas* Request::getCanvas() {
-    GrContextFactory* factory = fContextFactory;
-    GLTestContext* gl = factory->getContextInfo(GrContextFactory::kGL_ContextType,
+SkSurface* Request::getSurface() {
+    GLTestContext* gl = fContextFactory->getContextInfo(GrContextFactory::kGL_ContextType,
             GrContextFactory::ContextOverrides::kNone).glContext();
     if (!gl) {
-        gl = factory->getContextInfo(GrContextFactory::kGLES_ContextType,
+        gl = fContextFactory->getContextInfo(GrContextFactory::kGLES_ContextType,
                                      GrContextFactory::ContextOverrides::kNone).glContext();
     }
     if (gl) {
@@ -65,13 +64,17 @@ SkCanvas* Request::getCanvas() {
     if (!fSurface) {
         this->enableGPU(fGPUEnabled);
     }
-    SkCanvas* target = fSurface->getCanvas();
-    return target;
+    return fSurface.get();
+}
+
+SkCanvas* Request::getCanvas() {
+    SkSurface* surface = this->getSurface();
+    return surface->getCanvas();
 }
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
     //fDebugCanvas->setOverdrawViz(true);
-    fDebugCanvas->drawTo(this->getCanvas(), n, m);
+    fDebugCanvas->drawTo(this->getSurface(), n, m);
     //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
@@ -178,8 +181,8 @@ bool Request::enableGPU(bool enable) {
             // draw once to flush the pipe
             // TODO understand what is actually happening here
             if (fDebugCanvas) {
-                fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-                this->getCanvas()->flush();
+                fDebugCanvas->drawTo(this->getSurface(), this->getLastOp());
+                this->getSurface()->flush();
             }
 
             return true;
@@ -208,13 +211,12 @@ bool Request::initPictureFromStream(SkStream* stream) {
     fDebugCanvas->drawPicture(fPicture);
 
     // for some reason we need to 'flush' the debug canvas by drawing all of the ops
-    fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-    this->getCanvas()->flush();
+    fDebugCanvas->drawTo(this->getSurface(), this->getLastOp());
+    this->getSurface()->flush();
     return true;
 }
 
 sk_sp<SkData> Request::getJsonOps(int n) {
-    SkCanvas* canvas = this->getCanvas();
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
     writer.beginObject(); // root
@@ -222,7 +224,7 @@ sk_sp<SkData> Request::getJsonOps(int n) {
     writer.appendString("mode", fGPUEnabled ? "gpu" : "cpu");
     writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
     writer.appendS32("colorMode", fColorMode);
-    fDebugCanvas->toJSON(writer, fUrlDataManager, n, canvas);
+    fDebugCanvas->toJSON(writer, fUrlDataManager, n, this->getSurface());
 
     writer.endObject(); // root
     writer.flush();
@@ -230,12 +232,11 @@ sk_sp<SkData> Request::getJsonOps(int n) {
 }
 
 sk_sp<SkData> Request::getJsonOpList(int n) {
-    SkCanvas* canvas = this->getCanvas();
     SkASSERT(fGPUEnabled);
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
 
-    fDebugCanvas->toJSONOpList(writer, n, canvas);
+    fDebugCanvas->toJSONOpList(writer, n, this->getSurface());
 
     writer.flush();
     return stream.detachAsData();
@@ -244,10 +245,9 @@ sk_sp<SkData> Request::getJsonOpList(int n) {
 sk_sp<SkData> Request::getJsonInfo(int n) {
     // drawTo
     sk_sp<SkSurface> surface(this->createCPUSurface());
-    SkCanvas* canvas = surface->getCanvas();
 
     // TODO this is really slow and we should cache the matrix and clip
-    fDebugCanvas->drawTo(canvas, n);
+    fDebugCanvas->drawTo(surface.get(), n);
 
     // make some json
     SkDynamicMemoryWStream stream;
