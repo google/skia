@@ -264,11 +264,7 @@ SkFontStyleSet* SkFontMgr_Fuchsia::onMatchFamily(const char familyName[]) const 
     if (result != ZX_OK || !familyInfo) return nullptr;
 
     std::vector<SkFontStyle> styles;
-#ifdef USE_STD_FOR_NON_NULLABLE_FIDL_FIELDS
     for (auto& style : familyInfo->styles) {
-#else
-    for (auto& style : *(familyInfo->styles)) {
-#endif
         styles.push_back(SkFontStyle(style.weight, style.width, FuchsiaToSkSlant(style.slant)));
     }
 
@@ -331,11 +327,7 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::FetchTypeface(const char familyName[],
     request.weight = style.weight();
     request.width = style.width();
     request.slant = SkToFuchsiaSlant(style.slant());
-#ifdef USE_STD_FOR_NON_NULLABLE_FIDL_FIELDS
     request.language.reset(std::vector<std::string>(bcp47, bcp47 + bcp47Count));
-#else
-    request.language.reset(std::vector<fidl::StringPtr>(bcp47, bcp47 + bcp47Count));
-#endif
     request.character = character;
     request.fallback_group = GetFallbackGroupByName(familyName);
 
