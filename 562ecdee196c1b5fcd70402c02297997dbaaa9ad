@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8366e017_76a9c564",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1160,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-01T21:52:18Z",
+      "side": 1,
+      "message": "Seems like this should be uint32_t.",
+      "range": {
+        "startLine": 1160,
+        "startChar": 24,
+        "endLine": 1160,
+        "endChar": 27
+      },
+      "revId": "562ecdee196c1b5fcd70402c02297997dbaaa9ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
