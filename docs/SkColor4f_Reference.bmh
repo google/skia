@@ -237,6 +237,22 @@ if Alpha not valid.
 
 # ------------------------------------------------------------------------------
 
+#Method bool fitsInBytes() const
+#In Utility_Functions
+#Line # returns if r,g,b are all in [0..1] ##
+
+Returns true if the Red, Green, and Blue component are all in [0..1].
+Asserts the Alpha is [0..1]
+
+#Return true Red, Green, and Blue component are all in [0..1] ##
+
+#NoExample
+##
+
+##
+
+# ------------------------------------------------------------------------------
+
 #Method static SkRGBA4f FromColor(SkColor color)
 #In Utility_Functions
 #Line # sets components from Color ##
