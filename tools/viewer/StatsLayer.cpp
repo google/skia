@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkString.h"
+#include "SkSurface.h"
 #include "SkTime.h"
 
 StatsLayer::StatsLayer()
@@ -50,7 +51,7 @@ double StatsLayer::getLastTime(Timer timer) {
     return fTimers[timer].fTimes[idx];
 }
 
-void StatsLayer::onPaint(SkCanvas* canvas) {
+void StatsLayer::onPaint(SkSurface* surface) {
     // Advance our timing bookkeeping
     for (int i = 0; i < fTimers.count(); ++i) {
         fCumulativeMeasurementTime += fTimers[i].fTimes[fCurrentMeasurement];
@@ -79,6 +80,7 @@ void StatsLayer::onPaint(SkCanvas* canvas) {
     static const int kGraphPadding = 3;
     static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
 
+    auto canvas = surface->getCanvas();
     SkISize canvasSize = canvas->getBaseLayerSize();
     SkRect rect = SkRect::MakeXYWH(SkIntToScalar(canvasSize.fWidth-kDisplayWidth-kDisplayPadding),
                                    SkIntToScalar(kDisplayPadding),

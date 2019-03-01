@@ -908,7 +908,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             sk_sp<SkImage> refImg(imageMaker(ctx));
 
             canvas->drawImage(refImg, 0, 0);
-            canvas->flush();
+            surface->flush();
 
             refImg.reset(nullptr); // force a release of the image
         }
@@ -920,7 +920,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             canvas->drawImage(refImg, 0, 0);
             refImg.reset(nullptr); // force a release of the image
 
-            canvas->flush();
+            surface->flush();
         }
 
         // Configure second context
@@ -945,7 +945,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
-            canvas->flush();
+            surface->flush();
 
             testContext->makeCurrent();
             refImg.reset(nullptr); // force a release of the image
@@ -963,7 +963,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             refImg.reset(nullptr); // force a release of the image
 
             otherTestContext->makeCurrent();
-            canvas->flush();
+            surface->flush();
 
             // This is specifically here for vulkan to guarantee the command buffer will finish
             // which is when we call the ReleaseProc.
