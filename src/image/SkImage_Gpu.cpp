@@ -19,8 +19,12 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrImageTextureMaker.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
@@ -43,7 +47,7 @@
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
 
-SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(std::move(context), proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
                     at, colorSpace)
@@ -60,13 +64,18 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
     return SkImageInfo::Make(fProxy->width(), fProxy->height(), colorType, fAlphaType, fColorSpace);
 }
 
-sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* context,
+                                                         SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS) const {
+    if (!context || fContext->priv().matches(context)) {
+        return nullptr;
+    }
+
     auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
                                                targetCS.get(), fAlphaType);
     SkASSERT(xform || targetCT != this->colorType());
 
-    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef1();
 
     GrBackendFormat format = proxy->backendFormat().makeTexture2D();
     if (!format.isValid()) {
@@ -74,7 +83,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->priv().makeDeferredRenderTargetContextWithFallback(
+        context->priv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kExact, this->width(), this->height(),
             SkColorType2GrPixelConfig(targetCT), nullptr));
     if (!renderTargetContext) {
@@ -201,7 +210,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     }
 
     const SkRect rect = SkRect::MakeIWH(size.width(), size.height());
-    if (!RenderYUVAToRGBA(ctx, renderTargetContext, rect, yuvColorSpace, nullptr,
+    if (!RenderYUVAToRGBA(renderTargetContext, rect, yuvColorSpace, nullptr,
                           tempTextureProxies, yuvaIndices)) {
         return nullptr;
     }
@@ -352,11 +361,11 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
     }
 
     if (this->isTextureBacked()) {
-        if (!as_IB(this)->context()->priv().matches(context)) {
+        if (!as_IB(this)->context1()->priv().matches(context)) {
             return nullptr;
         }
 
-        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef1();
         SkASSERT(proxy);
         if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
             return sk_ref_sp(const_cast<SkImage*>(this));
@@ -620,7 +629,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
     if (!image->unique() || !texture->surfacePriv().hasUniqueRef() ||
         texture->resourcePriv().refsWrappedObjects()) {
         // onMakeSubset will always copy the image.
-        image = as_IB(image)->onMakeSubset(image->bounds());
+        image = as_IB(image)->onMakeSubset(ctx, image->bounds());
         if (!image) {
             return false;
         }

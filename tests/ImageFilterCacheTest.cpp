@@ -233,7 +233,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
 
     GrSurfaceOrigin readBackOrigin;
-    GrBackendTexture readBackBackendTex = srcImage->getBackendTexture(false, &readBackOrigin);
+    GrBackendTexture readBackBackendTex = srcImage->getBackendTexture1(false, &readBackOrigin);
     if (!GrBackendTexture::TestingOnly_Equals(readBackBackendTex, backendTex)) {
         ERRORF(reporter, "backend mismatch\n");
     }

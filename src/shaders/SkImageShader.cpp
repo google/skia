@@ -218,7 +218,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, samplerState,
+    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef2(args.fContext, samplerState,
                                                                  scaleAdjust));
     if (!proxy) {
         return nullptr;

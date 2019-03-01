@@ -45,25 +45,27 @@ SkColorSpace* GrImageTextureMaker::colorSpace() const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
+GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context,
+                                                 const SkImage* client,
                                                  bool useDecal)
-    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
-    , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
+        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
+        , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
                          SkIRect::MakeWH(this->width(), this->height()));
 }
 
-sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(
+                                                                   bool willBeMipped,
                                                                    AllowedTexGenType onlyIfFast) {
     if (AllowedTexGenType::kCheap == onlyIfFast) {
         return nullptr;
     }
 
     if (willBeMipped) {
-        return fImage->asMippedTextureProxyRef();
+        return fImage->asMippedTextureProxyRef(this->context());
     } else {
-        return fImage->asTextureProxyRef();
+        return fImage->asTextureProxyRef1();
     }
 }
 
@@ -108,7 +110,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     // Check to see if the client has given us pre-mipped textures or we can generate them
     // If not, fall back to bilerp
     GrSamplerState::Filter filter = *filterOrNullForBicubic;
-    if (GrSamplerState::Filter::kMipMap == filter && !fImage->setupMipmapsForPlanes()) {
+    if (GrSamplerState::Filter::kMipMap == filter &&
+        !fImage->setupMipmapsForPlanes(this->context())) {
         filter = GrSamplerState::Filter::kBilerp;
     }
 

@@ -36,6 +36,7 @@ class SkImageFilter;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
+class GrRecordingContext;
 class SkString;
 class SkSurface;
 class GrBackendTexture;
@@ -727,7 +728,7 @@ public:
                                         kBottomLeft_GrSurfaceOrigin; or nullptr
         @return                         back-end API texture handle; invalid on failure
     */
-    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
+    GrBackendTexture getBackendTexture1(bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin = nullptr) const;
 
     /** \enum SkImage::CachingHint
@@ -899,7 +900,7 @@ public:
         @param subset  bounds of returned SkImage
         @return        partial or full SkImage, or nullptr
     */
-    sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
+    sk_sp<SkImage> makeSubset(GrContext* context, const SkIRect& subset) const;
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
@@ -965,12 +966,13 @@ public:
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
-
+#if 0
     /** To be deprecated.
     */
     sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
+#endif
 
     /** Defines a callback function, taking one parameter of type GrBackendTexture with
         no return value. Function is called when back-end texture is to be released.
@@ -1039,7 +1041,7 @@ public:
         @param target  SkColorSpace describing color range of returned SkImage
         @return        created SkImage in target SkColorSpace
     */
-    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
+    sk_sp<SkImage> makeColorSpace(GrRecordingContext*, sk_sp<SkColorSpace> target) const;
 
     /** Experimental.
         Creates SkImage in target SkColorType and SkColorSpace.
@@ -1051,7 +1053,8 @@ public:
         @param targetColorSpace SkColorSpace of returned SkImage
         @return                 created SkImage in target SkColorType and SkColorSpace
     */
-    sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
+    sk_sp<SkImage> makeColorTypeAndColorSpace(GrRecordingContext*,
+                                              SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetColorSpace) const;
 
 private:

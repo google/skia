@@ -24,24 +24,25 @@ class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     friend class GrYUVAImageTextureMaker;
 
-    SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], int numProxies, const SkYUVAIndex[4],
-                    GrSurfaceOrigin, sk_sp<SkColorSpace>);
+    SkImage_GpuYUVA(sk_sp<GrImageContext>, int width, int height, uint32_t uniqueID,
+                    SkYUVColorSpace, sk_sp<GrTextureProxy> proxies[], int numProxies,
+                    const SkYUVAIndex[4], GrSurfaceOrigin, sk_sp<SkColorSpace>);
     ~SkImage_GpuYUVA() override;
 
     SkImageInfo onImageInfo() const override;
 
-    GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef().get(); }
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override;
+    GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef1().get(); }
+    sk_sp<GrTextureProxy> asTextureProxyRef1() const override;
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
+                                                SkColorType, sk_sp<SkColorSpace>) const final;
 
-    virtual bool isYUVA() const override { return true; }
-    virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy> proxies[4],
-                                         SkYUVAIndex yuvaIndices[4],
-                                         SkYUVColorSpace* yuvColorSpace) const override {
+    bool isYUVA() const override { return true; }
+    bool asYUVATextureProxiesRef3(sk_sp<GrTextureProxy> proxies[4],
+                                  SkYUVAIndex yuvaIndices[4],
+                                  SkYUVColorSpace* yuvColorSpace) const override {
         for (int i = 0; i < 4; ++i) {
             proxies[i] = fProxies[i];
             yuvaIndices[i] = fYUVAIndices[i];
@@ -50,10 +51,10 @@ public:
         return true;
     }
 
-    bool setupMipmapsForPlanes() const;
+    bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
     // Returns a ref-ed texture proxy with miplevels
-    sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
+    sk_sp<GrTextureProxy> asMippedTextureProxyRef(GrRecordingContext*) const;
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.

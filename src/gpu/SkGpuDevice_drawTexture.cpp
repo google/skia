@@ -11,7 +11,12 @@
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
+#include "GrContextPriv.h"
 #include "GrImageTextureMaker.h"
+#include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
+#include "GrRect.h"
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrStyle.h"
@@ -231,7 +236,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
-static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc,
+static void draw_texture_producer(GrRecordingContext* context, GrRenderTargetContext* rtc,
                                   const GrClip& clip, const SkMatrix& ctm,
                                   const SkPaint& paint, GrTextureProducer* producer,
                                   const SkRect& src, const SkRect& dst, const SkPoint dstClip[4],
@@ -518,7 +523,7 @@ void SkGpuDevice::tmp_drawImageSetV2(const SkCanvas::ImageSetEntry set[], int ds
             // send it to drawImageQuad (which uses a special effect for YUV)
             textures[i].fProxy =
                     as_IB(set[i].fImage.get())
-                            ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(),
+                            ->asTextureProxyRef2(fContext.get(), GrSamplerState::ClampBilerp(),
                                                 nullptr);
             // If we failed to make a proxy then flush the accumulated set and reset for the next
             // image.

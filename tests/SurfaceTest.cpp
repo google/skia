@@ -291,10 +291,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu, reporter, ctxIn
 
 static void test_backend_texture_access_copy_on_write(
     skiatest::Reporter* reporter, SkSurface* surface, SkSurface::BackendHandleAccess access) {
-    GrBackendTexture tex1 = surface->getBackendTexture(access);
+    GrBackendTexture tex1 = surface->getBackendTexture2(access);
     sk_sp<SkImage> snap1(surface->makeImageSnapshot());
 
-    GrBackendTexture tex2 = surface->getBackendTexture(access);
+    GrBackendTexture tex2 = surface->getBackendTexture2(access);
     sk_sp<SkImage> snap2(surface->makeImageSnapshot());
 
     // If the access mode triggers CoW, then the backend objects should reflect it.
@@ -364,7 +364,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceBackendHandleAccessIDs_Gpu, reporter, 
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         {
             auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
-            test_backend_unique_id<GrBackendTexture, &SkSurface::getBackendTexture>(reporter,
+            test_backend_unique_id<GrBackendTexture, &SkSurface::getBackendTexture2>(reporter,
                                                                                     surface.get());
         }
         {
@@ -516,11 +516,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
         sk_sp<SkImage> image(surface->makeImageSnapshot());
 
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendTexture backendTex = image->getBackendTexture(false);
+        GrBackendTexture backendTex = image->getBackendTexture1(false);
         REPORTER_ASSERT(reporter, backendTex.isValid());
         surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
         REPORTER_ASSERT(reporter, as_IB(image)->isTextureBacked());
-        GrBackendTexture backendTex2 = image->getBackendTexture(false);
+        GrBackendTexture backendTex2 = image->getBackendTexture1(false);
         REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(backendTex, backendTex2));
     }
 }
@@ -776,11 +776,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         [] (SkSurface* s){
             return sk_ref_sp(s->getCanvas()->internal_private_accessTopLayerRenderTargetContext());
         },
-        [] (SkSurface* s){
+        [context] (SkSurface* s){
             sk_sp<SkImage> i(s->makeImageSnapshot());
             SkImage_Gpu* gpuImage = (SkImage_Gpu *) as_IB(i);
-            sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef();
-            GrContext* context = gpuImage->context();
+            sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef1();
             return context->priv().makeWrappedSurfaceContext(std::move(proxy),
                                                              gpuImage->refColorSpace());
         }
