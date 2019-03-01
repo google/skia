@@ -22,6 +22,30 @@
       "revId": "436d47d5bde9849dbec03579d8d99a6df33c380f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "816d6f39_120c2a49",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T22:19:32Z",
+      "side": 0,
+      "message": "oh, what i\u0027m proposing here will make this much more common.  kind of the idea of this approach",
+      "parentUuid": "bd27d436_c2de7aaa",
+      "range": {
+        "startLine": 1145,
+        "startChar": 59,
+        "endLine": 1145,
+        "endChar": 79
+      },
+      "revId": "436d47d5bde9849dbec03579d8d99a6df33c380f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
