@@ -19,6 +19,58 @@
     },
     {
       "key": {
+        "uuid": "45830e40_56c01e20",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T20:54:53Z",
+      "side": 1,
+      "message": "Might make sense to nest it down under the if (skia_enable_tools) check?  Once it\u0027s safely down there, almost anything that builds will lgtm.  :)",
+      "parentUuid": "1b2ff94f_aa7945c3",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2448e64_98590ce5",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T20:54:53Z",
+      "side": 1,
+      "message": "I bet we want to make all the targets that build these sources instead depend on this new target you\u0027ve created.",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3a1acd1_7ec2d926",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T20:54:53Z",
+      "side": 1,
+      "message": "This is kind of a surprising dependency that crosses abstraction layers a bit.  Are you sure you need it, and if so, let\u0027s add a note about what\u0027s going on here?",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ad880fb_a885fee0",
         "filename": "experimental/wasm-skp-debugger/NotoMono-Regular.ttf.cpp",
         "patchSetId": 4
