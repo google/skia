@@ -90,7 +90,7 @@
     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-      'images/image_0.png': flightAnimGif,
+      'image_0.png': flightAnimGif,
     });
     SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
       'Roboto-Regular': robotoData,
@@ -147,7 +147,7 @@
     resp.text().then((str) => {
       multiFrameJSON = str;
       SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'images/image_0.png': flightAnimGif,
+        'image_0.png': flightAnimGif,
       });
     });
   });
@@ -172,7 +172,7 @@
     resp.arrayBuffer().then((buffer) => {
       flightAnimGif = buffer;
       SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'images/image_0.png': flightAnimGif,
+        'image_0.png': flightAnimGif,
       });
     });
   });

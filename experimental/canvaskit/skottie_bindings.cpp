@@ -47,20 +47,18 @@ public:
         return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets)));
     }
 
-    sk_sp<skottie::ImageAsset> loadImageAsset(const char path[],
+    sk_sp<skottie::ImageAsset> loadImageAsset(const char[] /* path */,
                                               const char name[]) const override {
-        // TODO: ignore image path, search by name only?
-        auto combined = SkString(path);
-        combined.append(name);
-
-        if (auto data = this->findAsset(combined.c_str())) {
+        // For CK/Skottie we ignore paths and identify images based solely on name.
+        if (auto data = this->findAsset(name)) {
             return skottie_utils::MultiFrameImageAsset::Make(std::move(data));
         }
 
         return nullptr;
     }
 
-    sk_sp<SkData> loadFont(const char name[], const char[]) const override {
+    sk_sp<SkData> loadFont(const char name[], const char[] /* url */) const override {
+        // Same as images paths, we ignore font URLs.
         return this->findAsset(name);
     }
 
