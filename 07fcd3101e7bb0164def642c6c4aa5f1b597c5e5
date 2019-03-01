@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e88da1b_33c66347",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 3325,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-01T16:49:38Z",
+      "side": 1,
+      "message": "Is there a risk of underflow here? It feels like we\u0027re summing a bunch of independently computed values (at different precision), and hoping that the sum remains less than 1?",
+      "revId": "07fcd3101e7bb0164def642c6c4aa5f1b597c5e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
