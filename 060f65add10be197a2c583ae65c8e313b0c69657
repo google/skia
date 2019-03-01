@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d7a6fbec_a773deb5",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-01T20:03:20Z",
+      "side": 1,
+      "message": "Is the idea that this will be expanded to have the read/write/discard stuff?",
+      "range": {
+        "startLine": 721,
+        "startChar": 15,
+        "endLine": 721,
+        "endChar": 35
+      },
+      "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f93d710_2b5e36a2",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 2
@@ -36,6 +59,30 @@
       "writtenOn": "2019-03-01T19:39:31Z",
       "side": 1,
       "message": "awkward - maybe \"back to its original type\" ?",
+      "range": {
+        "startLine": 741,
+        "startChar": 50,
+        "endLine": 741,
+        "endChar": 81
+      },
+      "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24e52c1e_be917970",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-01T20:03:20Z",
+      "side": 1,
+      "message": "Or less passive: \"the VkImage that backs the SkSurface will be transferred back to it\u0027s original queue\".",
+      "parentUuid": "9059ac24_8f031b6c",
       "range": {
         "startLine": 741,
         "startChar": 50,
