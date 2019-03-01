@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "d862929c_553a5492",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T17:05:02Z",
+      "side": 1,
+      "message": "Thanks for the explanation. I\u0027m not stressed about this, just wanted to understand the necessity.",
+      "parentUuid": "145deaee_69f57bff",
+      "range": {
+        "startLine": 190,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 75
+      },
+      "revId": "7d598d9448d0574e9c42ce33456071d3e2abc8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ddc6e482_e8751690",
         "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
         "patchSetId": 3
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "It could be, if we come up with a mechanism to tell SkSL the sample locations.\n\nHowever I also have plans to experiment with making this a float4x2 msaa4, so if that works out we\u0027d have to decide how to customize all that with SkSL built-ins.",
       "parentUuid": "ddc6e482_e8751690",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "7d598d9448d0574e9c42ce33456071d3e2abc8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51672169_92d91a85",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T17:05:02Z",
+      "side": 1,
+      "message": "I feel like this should be revisited, but I don\u0027t have a problem with landing it as-is for now.",
+      "parentUuid": "c74d7a0c_e2528db4",
       "range": {
         "startLine": 55,
         "startChar": 4,
