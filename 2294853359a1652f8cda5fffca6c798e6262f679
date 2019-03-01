@@ -22,6 +22,30 @@
       "revId": "2294853359a1652f8cda5fffca6c798e6262f679",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "076d8b2d_63d1e16d",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-01T14:35:51Z",
+      "side": 1,
+      "message": "Heh, good catch - I think AE/BM doesn\u0027t normally support animated GIFs, this is me hacking one of the existing jsons and botching the extension.\n\nWe should fix, but I\u0027m not sure how to update both the skia-cdn json and this file atomically...",
+      "parentUuid": "3d8cd240_06d8ce5d",
+      "range": {
+        "startLine": 175,
+        "startChar": 17,
+        "endLine": 175,
+        "endChar": 20
+      },
+      "revId": "2294853359a1652f8cda5fffca6c798e6262f679",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
