@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84847e76_2db58e09",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3339,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T17:07:40Z",
+      "side": 1,
+      "message": "Now that I\u0027m looking at this again and remembering 4444/565, I\u0027m wondering if it makes sense to round here when scaling off bias, e.g.\n\n  r \u003d (r + bias/2) / bias;\n\nIt does seem to decrease the diff against head slightly.",
+      "revId": "215ce780bb44b1fb9397fa021d92cd2277bf0529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
