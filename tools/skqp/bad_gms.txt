@@ -1,4 +1,6 @@
+arcs_as_paths
 drawbitmaprect
 drawbitmaprect-imagerect
+ovals_as_paths
 p3
 skbug1719
