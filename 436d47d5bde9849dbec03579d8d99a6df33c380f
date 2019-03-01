@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd27d436_c2de7aaa",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-01T22:15:40Z",
+      "side": 0,
+      "message": "I think if we don\u0027t keep this behavior, people will file bugs on Gold complaining that two identical images have different hashes.",
+      "range": {
+        "startLine": 1145,
+        "startChar": 59,
+        "endLine": 1145,
+        "endChar": 79
+      },
+      "revId": "436d47d5bde9849dbec03579d8d99a6df33c380f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

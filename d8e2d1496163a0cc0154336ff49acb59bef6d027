@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1237455a_a6b5fefe",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-01T22:15:40Z",
+      "side": 1,
+      "message": "Probably want uint32_t (so that if 32-bit and 64-bit produce the same bitmap, they get the same hash).",
+      "range": {
+        "startLine": 1150,
+        "startChar": 30,
+        "endLine": 1150,
+        "endChar": 33
+      },
+      "revId": "d8e2d1496163a0cc0154336ff49acb59bef6d027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
