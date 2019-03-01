@@ -127,7 +127,7 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
+sk_sp<SkImage> SkImage::makeSubset(GrContext* context, const SkIRect& subset) const {
     if (subset.isEmpty()) {
         return nullptr;
     }
@@ -141,7 +141,7 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
     if (bounds == subset) {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
-    return as_IB(this)->onMakeSubset(subset);
+    return as_IB(this)->onMakeSubset(context, subset);
 }
 
 #if SK_SUPPORT_GPU
@@ -152,7 +152,7 @@ GrTexture* SkImage::getTexture() const {
 
 bool SkImage::isTextureBacked() const { return as_IB(this)->onIsTextureBacked(); }
 
-GrBackendTexture SkImage::getBackendTexture(bool flushPendingGrContextIO,
+GrBackendTexture SkImage::getBackendTexture1(bool flushPendingGrContextIO,
                                             GrSurfaceOrigin* origin) const {
     return as_IB(this)->onGetBackendTexture(flushPendingGrContextIO, origin);
 }
@@ -249,13 +249,15 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
                                                                std::move(colorSpace)));
 }
 
+#if 0
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
-    GrContext* context = as_IB(this)->context();
+    GrImageContext* context = as_IB(this)->context1();
 
     return this->makeWithFilter(context, filter, subset, clipBounds, outSubset, offset);
 }
+#endif
 
 sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
                                        const SkImageFilter* filter, const SkIRect& subset,
@@ -305,7 +307,8 @@ bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
 }
 
-sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
+sk_sp<SkImage> SkImage::makeColorSpace(GrRecordingContext* context,
+                                       sk_sp<SkColorSpace> target) const {
     if (!target) {
         return nullptr;
     }
@@ -321,10 +324,11 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target) const {
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    return as_IB(this)->onMakeColorTypeAndColorSpace(this->colorType(), std::move(target));
+    return as_IB(this)->onMakeColorTypeAndColorSpace(context, this->colorType(), std::move(target));
 }
 
-sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
+sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(GrRecordingContext* context,
+                                                   SkColorType targetColorType,
                                                    sk_sp<SkColorSpace> targetColorSpace) const {
     if (kUnknown_SkColorType == targetColorType || !targetColorSpace) {
         return nullptr;
@@ -340,7 +344,8 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
-    return as_IB(this)->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetColorSpace));
+    return as_IB(this)->onMakeColorTypeAndColorSpace(context, targetColorType,
+                                                     std::move(targetColorSpace));
 }
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {

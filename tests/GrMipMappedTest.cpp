@@ -64,7 +64,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                  kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType, nullptr,
                                                  nullptr, nullptr);
-                proxy = as_IB(image)->asTextureProxyRef();
+                proxy = as_IB(image)->asTextureProxyRef1(context);
             }
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {
@@ -116,7 +116,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                                                             kPremul_SkAlphaType, nullptr,
                                                             nullptr, nullptr);
 
-            GrTextureProxy* proxy = as_IB(image)->peekProxy();
+            GrTextureProxy* proxy = as_IB(image)->peekProxy7();
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
@@ -267,7 +267,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             if (!image) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
             }
-            texProxy = as_IB(image)->peekProxy();
+            texProxy = as_IB(image)->peekProxy7();
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
             texProxy->instantiate(resourceProvider);

@@ -22,22 +22,23 @@ struct SkYUVAIndex;
 
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
-    SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
+    SkImage_Gpu(sk_sp<GrImageContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
                 sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override;
 
-    GrTextureProxy* peekProxy() const override {
+    GrTextureProxy* peekProxy7() const override {
         return fProxy.get();
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override {
+    sk_sp<GrTextureProxy> asTextureProxyRef1(GrRecordingContext*) const override {
         return fProxy;
     }
 
     bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*, SkColorType,
+                                                sk_sp<SkColorSpace>) const final;
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makePromiseImage.

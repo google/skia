@@ -143,7 +143,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     sk_sp<SkImage> image(this->refCachedImage());
     SkASSERT(image);
 
-    GrSurfaceProxy* imageProxy = ((SkImage_Base*) image.get())->peekProxy();
+    GrSurfaceProxy* imageProxy = ((SkImage_Base*) image.get())->peekProxy7();
     SkASSERT(imageProxy);
 
     if (rtc->asSurfaceProxy()->underlyingUniqueID() == imageProxy->underlyingUniqueID()) {
@@ -324,9 +324,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context->priv().backdoor(),
-                                                sk_ref_sp(sc->asRenderTargetContext()),
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, sk_ref_sp(sc->asRenderTargetContext()),
                                                 c.width(), c.height(),
                                                 SkGpuDevice::kClear_InitContents));
     if (!device) {
@@ -345,7 +343,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 }
 
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                              bool shouldCreateWithMips) {
