@@ -166,6 +166,16 @@ static Window::BackendType backend_type_for_window(Window::BackendType backendTy
     return Window::kRaster_BackendType == backendType ? Window::kNativeGL_BackendType : backendType;
 }
 
+class NullSlide : public Slide {
+    SkISize getDimensions() const override {
+        return SkISize::Make(640, 480);
+    }
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xffff11ff);
+    }
+};
+
 const char* kName = "name";
 const char* kValue = "value";
 const char* kOptions = "options";
@@ -524,8 +534,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
-    this->setCurrentSlide(this->startupSlide());
     fWindow->attach(backend_type_for_window(fBackendType));
+    this->setCurrentSlide(this->startupSlide());
 }
 
 void Viewer::initSlides() {
@@ -664,6 +674,11 @@ void Viewer::initSlides() {
                 dirSlides.reset();  // NOLINT(bugprone-use-after-move)
             }
         }
+    }
+
+    if (!fSlides.count()) {
+        sk_sp<Slide> slide(new NullSlide());
+        fSlides.push_back(std::move(slide));
     }
 }
 
@@ -1132,6 +1147,10 @@ public:
 };
 
 void Viewer::drawSlide(SkCanvas* canvas) {
+    if (fCurrentSlide < 0) {
+        return;
+    }
+
     SkAutoCanvasRestore autorestore(canvas, false);
 
     // By default, we render directly into the window's surface/canvas
