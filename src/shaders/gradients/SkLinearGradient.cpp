@@ -60,8 +60,15 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
     if (!rec.isLegacyCompatible(fColorSpace.get())) {
         return nullptr;
     }
-    // Can't use legacy blit if we can't represent our colors as SkColors
-    if (!this->colorsCanConvertToSkColor()) {
+
+    /*  Legacy mode always clamped the colors to bytes before interpolation. This is not necessarily
+     *  correct/better, but it is what we did. In the tagged world, we choose to go "modern" and
+     *  keep all src colors in unclamped floats until the very last step.
+     *
+     *  Thus, we can still be "legacy" in a tagged device if our colors don't require any clamping.
+     *  If we are untagged, we go legacy no matter what.
+     */
+    if (rec.fDstColorSpace && !this->colorsCanConvertToSkColor()) {
         return nullptr;
     }
 
