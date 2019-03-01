@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "2e97c4d8_aeea5a30",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-01T19:55:41Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s really orthogonal.... install the returned SkColorFilter on a SkPaint and pass the paint to any draw that takes a SkImage such as drawImageRect. Or call SkImage::makeShader() and set the returned SkShader to the SkPaint, and draw any geometry, e.g. drawPath.",
+      "parentUuid": "c95d8353_bb379428",
+      "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96beed7b_8f59e4af",
         "filename": "src/core/SkColorFilterPriv.h",
         "patchSetId": 10
