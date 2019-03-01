@@ -58,8 +58,7 @@ public:
      * (e.g. GrContext::abandonContext()).
      */
     using IdleProc = void(void*);
-    virtual void setIdleProc(IdleProc, void* context) = 0;
-    virtual void* idleContext() const = 0;
+    virtual void addIdleProc(sk_sp<GrRefCntedCallback>) = 0;
 
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
