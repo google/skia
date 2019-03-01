@@ -21,7 +21,7 @@ public:
     void onIdle() override;
 
     void onBackendCreated() override;
-    void onPaint(SkCanvas* canvas) override;
+    void onPaint(SkSurface*) override;
     bool onChar(SkUnichar c, uint32_t modifiers) override;
 
 private:
