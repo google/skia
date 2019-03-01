@@ -718,6 +718,19 @@ public:
     */
     void flush();
 
+    enum class BackendSurfaceAccess {
+        kNoAccess,  //!< back-end object will not be used by client
+        kPresent,   //!< back-end surface will be used for presenting to screen
+    };
+
+    enum FlushFlags {
+        kNone_FlushFlags = 0,
+        kSyncCpu_FlushFlag = 0x1,
+    };
+
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, FlushFlags flags,
+                                int numSemaphores, GrBackendSemaphore signalSemaphores[]);
+
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
         After issuing all commands, signalSemaphores of count numSemaphores semaphores
         are signaled by the GPU.
@@ -747,6 +760,7 @@ public:
     */
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
+
 
     /** Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
         executing any more commands on the GPU for this surface. Skia will take ownership of the

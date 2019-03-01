@@ -13,6 +13,7 @@
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
 #include "GrResourceCache.h"
+#include "SkSurface.h"
 #include "SkTArray.h"
 #include "text/GrTextContext.h"
 
@@ -73,6 +74,8 @@ public:
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
+                                                      SkSurface::BackendSurfaceAccess access,
+                                                      SkSurface::FlushFlags flags,
                                                       int numSemaphores,
                                                       GrBackendSemaphore backendSemaphores[]);
 
@@ -147,8 +150,10 @@ private:
     bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
-                                int numSemaphores = 0,
-                                GrBackendSemaphore backendSemaphores[] = nullptr);
+                                SkSurface::BackendSurfaceAccess access,
+                                SkSurface::FlushFlags flags,
+                                int numSemaphores,
+                                GrBackendSemaphore backendSemaphores[]);
 
     SkDEBUGCODE(void validate() const);
 
