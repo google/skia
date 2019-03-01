@@ -65,15 +65,16 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
         p->append(SkRasterPipeline::unpremul);
     }
 
-    if (!dstCS) {
-        // In legacy draws this effect approximately linearizes by squaring.
-        // When non-legacy, we're already (better) linearized.
-        auto square = alloc->make<skcms_TransferFunction>();
-        square->g = 2.0f; square->a = 1.0f;
-        square->b = square->c = square->d = square->e = square->f = 0;
-
-        p->append(SkRasterPipeline::parametric, square);
+    // Linearize before applying high-contrast filter.
+    auto tf = alloc->make<skcms_TransferFunction>();
+    if (dstCS) {
+        dstCS->transferFn(&tf->g);
+    } else {
+        // Historically we approximate untagged destinations as gamma 2.
+        // TODO: sRGB?
+        *tf = {2,1, 0,0,0,0,0};
     }
+    p->append(SkRasterPipeline::parametric, tf);
 
     if (fConfig.fGrayscale) {
         float r = SK_LUM_COEFF_R;
@@ -113,14 +114,15 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
     p->append(SkRasterPipeline::clamp_0);
     p->append(SkRasterPipeline::clamp_1);
 
-    if (!dstCS) {
-        // See the previous if(!dstCS) { ... }
-        auto sqrt = alloc->make<skcms_TransferFunction>();
-        sqrt->g = 0.5f; sqrt->a = 1.0f;
-        sqrt->b = sqrt->c = sqrt->d = sqrt->e = sqrt->f = 0;
-
-        p->append(SkRasterPipeline::parametric, sqrt);
+    // Re-encode back from linear.
+    auto invTF = alloc->make<skcms_TransferFunction>();
+    if (dstCS) {
+        dstCS->invTransferFn(&invTF->g);
+    } else {
+        // See above... historically untagged == gamma 2 in this filter.
+        *invTF ={0.5f,1, 0,0,0,0,0};
     }
+    p->append(SkRasterPipeline::parametric, invTF);
 
     if (!shaderIsOpaque) {
         p->append(SkRasterPipeline::premul);
