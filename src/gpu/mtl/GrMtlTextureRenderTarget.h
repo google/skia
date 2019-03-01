@@ -76,7 +76,7 @@ private:
                                       numColorSamples, GrMipMapped::kNo, false);
     }
 
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 };
 
 #endif
