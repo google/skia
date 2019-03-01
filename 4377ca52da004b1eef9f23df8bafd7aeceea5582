@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8338b5be_ba9999ee",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-01T14:30:34Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14c8ba70_ea5fc7c6",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-01T14:30:34Z",
+      "side": 1,
+      "message": "I\u0027m wondering whether something like this:\n\nsk_sp\u003cSkRuntimeColorFilterFactory\u003e factory \u003d \nSkRuntimeColorFilter::MakeFactory(SkString(SKSL_TEST_SRC), runtimeCpuFun);\n\nsk_sp\u003cSkColorFilter\u003e filter \u003d factory-\u003emake(SkData::MakeWithoutCopy(\u0026b, sizeof(b)));\n\nwould be a better API. In terms of the current implementation, the SkRuntimeColorFilterFactory would embody the GrSkSLP index.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 59
+      },
+      "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4191d92_7260e1f9",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-01T14:30:34Z",
+      "side": 1,
+      "message": "static constexpr size_t kBufferSize \u003d 512;?",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 27
+      },
+      "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
