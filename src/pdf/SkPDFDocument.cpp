@@ -265,7 +265,6 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
 
 void SkPDFDocument::onEndPage() {
     SkASSERT(!fCanvas.imageInfo().dimensions().isZero());
-    fCanvas.flush();
     reset_object(&fCanvas);
     SkASSERT(fPageDevice);
 

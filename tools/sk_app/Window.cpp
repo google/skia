@@ -76,9 +76,9 @@ void Window::onPaint() {
         SkCanvas* canvas = backbuffer->getCanvas();
 
         this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
-        this->visitLayers([=](Layer* layer) { layer->onPaint(canvas); });
+        this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
-        canvas->flush();
+        backbuffer->flush();
 
         fWindowContext->swapBuffers();
     } else {
