@@ -22,6 +22,29 @@
       "revId": "934cb58639ffeaaa610a705b53dcef9122e7527b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd8b79c0_cea8d155",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1155,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-01T21:45:04Z",
+      "side": 1,
+      "message": "One other question -- are there platform differences in this conversion? I.e. if x86 and arm produce the same 8888 data, will the F32 data be bitwise-identical?",
+      "range": {
+        "startLine": 1155,
+        "startChar": 32,
+        "endLine": 1155,
+        "endChar": 43
+      },
+      "revId": "934cb58639ffeaaa610a705b53dcef9122e7527b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
