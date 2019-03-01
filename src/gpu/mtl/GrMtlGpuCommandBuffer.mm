@@ -119,8 +119,7 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
         }
     }
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, fRenderTarget->config(), primProc, hasPoints,
-                              pipeline, fGpu)) {
+    if (!GrProgramDesc::Build(&desc, fRenderTarget, primProc, hasPoints, pipeline, fGpu)) {
         return nullptr;
     }
 
