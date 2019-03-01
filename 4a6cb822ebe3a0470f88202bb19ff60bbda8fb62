@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c95d8353_bb379428",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T18:47:48Z",
+      "side": 1,
+      "message": "I asked Brian Osman about this and was told it would \"just work\", that the YUV will be flattened to RGB before it hits the color filter.",
+      "parentUuid": "7099d3ef_00d90564",
+      "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96beed7b_8f59e4af",
         "filename": "src/core/SkColorFilterPriv.h",
         "patchSetId": 10
@@ -33,6 +51,24 @@
       "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc770e79_89eafc91",
+        "filename": "src/core/SkColorFilterPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T18:47:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96beed7b_8f59e4af",
+      "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

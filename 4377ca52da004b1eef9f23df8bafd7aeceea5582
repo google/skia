@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a846d5b0_b75fbe14",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T18:47:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd9dd1d1_e609c4bb",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14c8ba70_ea5fc7c6",
         "filename": "gm/runtimecolorfilter.cpp",
         "patchSetId": 9
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "58fc180c_fc96e83f",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T18:47:48Z",
+      "side": 1,
+      "message": "Good suggestion. I ended up just constructing SkRuntimeColorFilterFactory directly, rather than using your suggested SkRuntimeColorFilter::MakeFactory, so as to not have to make SkRuntimeColorFilter visible just for that one function. I figure we\u0027ll be changing the API eventually anyway when it becomes public, so hopefully it\u0027s not a big deal.",
+      "parentUuid": "14c8ba70_ea5fc7c6",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 59
+      },
+      "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4191d92_7260e1f9",
         "filename": "gm/runtimecolorfilter.cpp",
         "patchSetId": 9
@@ -92,6 +140,30 @@
       "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b14a1873_e8bbb415",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T18:47:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4191d92_7260e1f9",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 27
+      },
+      "revId": "4377ca52da004b1eef9f23df8bafd7aeceea5582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
