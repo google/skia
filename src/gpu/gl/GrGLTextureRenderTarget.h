@@ -67,7 +67,7 @@ private:
 
     size_t onGpuMemorySize() const override;
 
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 };
 
 #ifdef SK_BUILD_FOR_WIN
