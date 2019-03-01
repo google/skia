@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e85fd67d_98c07355",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/hello_ar_application.cc",
+        "patchSetId": 40
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-03-01T00:14:20Z",
+      "side": 1,
+      "message": "I don\u0027t think this is going to work as the code is hoping.  With \u0027text\u0027 as a function parameter, it\u0027s going to be seen as a pointer, and not as a sized array.  That is, \"sizeof(text)\" will always be \"sizeof(const char *)\", no matter what string is passed in.  So this code is going to print exactly 4 characters on a 32-bit platform, and 8 characters on a 64-bit platform, regardless of the actual length of \u0027text\u0027 (and the behavior is worse if \u0027text\u0027 is shorter than this).\n\nIf we can assume \u0027text\u0027 is NUL terminated then there\u0027s logic we could change this to use (although if we expect \u0027text\u0027 to end with \u0027\\0\u0027, note that this logic, if it had worked the way the code had hoped, would perform an iteration with the \u0027\\0\u0027 character, which might not have been intended).\n\nAlternatively, since it looks like nothing calls this, we could just delete the function.  It at least keeps people from copy/pasting this example code into their own app.",
+      "revId": "bceddbcb72605343aca01638f64d7a8e8cb9792d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
