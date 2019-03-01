@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f40e874_334af90a",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T18:49:40Z",
+      "side": 1,
+      "message": "Are we sure that in those potential other use cases we\u0027re always going to want pm/pm here?  Maybe inline this in the shader until we do need it somewhere else?",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 183,
+        "endChar": 44
+      },
+      "revId": "30d7b800f7be468f1ee469b470fd2fac33e6dc45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
