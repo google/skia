@@ -1951,9 +1951,6 @@ void BmhParser::parseHashLine(Definition* definition) {
         return this->reportError<void>("expect lower case start");
     }
     string contents = string(start, end - start);
-    if (string::npos != contents.find('.')) {
-        return this->reportError<void>("expect phrase, not sentence");
-    }
     size_t firstSpace = contents.find(' ');
     if (string::npos == firstSpace || 0 == firstSpace || 's' != start[firstSpace - 1]) {
         if (MarkType::kMethod == fParent->fMarkType && "experimental" != contents
