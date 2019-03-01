@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c99c33ae_0e87d615",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T21:58:25Z",
+      "side": 1,
+      "message": "I\u0027ve done this in PS 5.\n\nBut that got me thinking about whether any of this is a good idea,\nand now I\u0027ve got PS 6 up to as a counter point to everything before it here.",
+      "parentUuid": "7fa428a4_9a56cf3c",
+      "range": {
+        "startLine": 1149,
+        "startChar": 64,
+        "endLine": 1149,
+        "endChar": 73
+      },
+      "revId": "934cb58639ffeaaa610a705b53dcef9122e7527b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd8b79c0_cea8d155",
         "filename": "dm/DM.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-01T21:45:04Z",
       "side": 1,
       "message": "One other question -- are there platform differences in this conversion? I.e. if x86 and arm produce the same 8888 data, will the F32 data be bitwise-identical?",
+      "range": {
+        "startLine": 1155,
+        "startChar": 32,
+        "endLine": 1155,
+        "endChar": 43
+      },
+      "revId": "934cb58639ffeaaa610a705b53dcef9122e7527b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "762a6baf_4fcd1759",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T21:58:25Z",
+      "side": 1,
+      "message": "Yeah, I think F32 has the best chance of anything to get bit exact results.",
+      "parentUuid": "dd8b79c0_cea8d155",
       "range": {
         "startLine": 1155,
         "startChar": 32,
