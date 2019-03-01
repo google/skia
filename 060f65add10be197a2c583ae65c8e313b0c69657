@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e5bc2571_dbba62b7",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-01T20:25:07Z",
+      "side": 1,
+      "message": "Yes it will be expanded to have those as well. I didn\u0027t want to add them yet since this change wouldn\u0027t actually support them.",
+      "parentUuid": "d7a6fbec_a773deb5",
+      "range": {
+        "startLine": 721,
+        "startChar": 15,
+        "endLine": 721,
+        "endChar": 35
+      },
+      "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f93d710_2b5e36a2",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2285326_71708bb4",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-01T20:25:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f93d710_2b5e36a2",
+      "range": {
+        "startLine": 733,
+        "startChar": 76,
+        "endLine": 733,
+        "endChar": 86
+      },
+      "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -92,6 +140,30 @@
       "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f38b3ac_3d5623ba",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-01T20:25:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24e52c1e_be917970",
+      "range": {
+        "startLine": 741,
+        "startChar": 50,
+        "endLine": 741,
+        "endChar": 81
+      },
+      "revId": "060f65add10be197a2c583ae65c8e313b0c69657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
