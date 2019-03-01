@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7ec8f368_ae2438b8",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1149,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2019-03-01T22:00:06Z",
+      "side": 1,
+      "message": "I don\u0027t know enough about the underlying process to comment whether that\u0027s necessary, but IMO it\u0027s preferable to only hash pixels. If necessary we transform them to a space where we capture  the differences between color spaces, like here.",
+      "parentUuid": "7fa428a4_9a56cf3c",
+      "range": {
+        "startLine": 1149,
+        "startChar": 64,
+        "endLine": 1149,
+        "endChar": 73
+      },
+      "revId": "934cb58639ffeaaa610a705b53dcef9122e7527b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd8b79c0_cea8d155",
         "filename": "dm/DM.cpp",
         "patchSetId": 4
