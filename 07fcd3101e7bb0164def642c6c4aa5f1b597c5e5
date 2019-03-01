@@ -16,6 +16,24 @@
       "revId": "07fcd3101e7bb0164def642c6c4aa5f1b597c5e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92f65e51_e29f9747",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 3325,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-01T16:53:45Z",
+      "side": 1,
+      "message": "If I remember this right, and I may not, there was a risk of ending up with remaining \u003e 0 at the end of the loop before we added the twist of just assigning all the remaining area to the last sample at +.5,+.5.  It\u0027s now three independent calculations and a safety slop-up.\n\nI think I would feel more comfortable though with some asserts that that\u0027s all working properly.  Let me see if they\u0027re easy to add.",
+      "parentUuid": "5e88da1b_33c66347",
+      "revId": "07fcd3101e7bb0164def642c6c4aa5f1b597c5e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
