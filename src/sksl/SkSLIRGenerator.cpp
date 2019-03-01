@@ -697,17 +697,28 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
 
     if (f.fName == "main") {
         if (fKind == Program::kPipelineStage_Kind) {
-            bool valid = parameters.size() == 3 &&
-                         parameters[0]->fType == *fContext.fInt_Type &&
-                         parameters[0]->fModifiers.fFlags == 0 &&
-                         parameters[1]->fType == *fContext.fInt_Type &&
-                         parameters[1]->fModifiers.fFlags == 0 &&
-                         parameters[2]->fType == *fContext.fHalf4_Type &&
-                         parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                              Modifiers::kOut_Flag);
+            bool valid;
+            switch (parameters.size()) {
+                case 3:
+                    valid = parameters[0]->fType == *fContext.fInt_Type &&
+                            parameters[0]->fModifiers.fFlags == 0 &&
+                            parameters[1]->fType == *fContext.fInt_Type &&
+                            parameters[1]->fModifiers.fFlags == 0 &&
+                            parameters[2]->fType == *fContext.fHalf4_Type &&
+                            parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
+                                                                 Modifiers::kOut_Flag);
+                    break;
+                case 1:
+                    valid = parameters[0]->fType == *fContext.fHalf4_Type &&
+                            parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
+                                                                 Modifiers::kOut_Flag);
+                    break;
+                default:
+                    valid = false;
+            }
             if (!valid) {
                 fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
-                                         "int, inout half4)");
+                                         "int, inout half4) or main(inout half4)");
                 return;
             }
         } else if (parameters.size()) {
@@ -786,9 +797,14 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
         if (f.fName == "main" && fKind == Program::kPipelineStage_Kind) {
-            parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
-            parameters[1]->fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
-            parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            if (parameters.size() == 3) {
+                parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_X_BUILTIN;
+                parameters[1]->fModifiers.fLayout.fBuiltin = SK_MAIN_Y_BUILTIN;
+                parameters[2]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            } else {
+                SkASSERT(parameters.size() == 1);
+                parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            }
         }
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
