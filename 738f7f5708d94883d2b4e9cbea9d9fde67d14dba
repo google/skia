@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa41ce96_921879ff",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1094,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-03-01T08:01:33Z",
+      "side": 1,
+      "message": "Unfortunately, as mentioned in https://chromium-review.googlesource.com/c/chromium/src/+/1493199 - I have doubts this works reliably within the sandbox for the reasons we discussed in our meeting. DWrite may be unable to retrieve the collection or members of the collection after it has run into issues reconnecting to the FontManager, but I may be wrong about that.",
+      "revId": "738f7f5708d94883d2b4e9cbea9d9fde67d14dba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
