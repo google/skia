@@ -174,3 +174,28 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     }
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
+
+//////////////
+
+static bool oldway(SkColorSpace* src, SkColorSpace* dst) {
+    if (dst == nullptr) {
+        return true;    // untagged dst is by definition compatible with untagged/ignored src
+    }
+    if (src == nullptr) {
+        // we treat untagged src as being srgb (e.g. SkColor)
+        return dst->isSRGB();
+    }
+    return SkColorSpace::Equals(src, dst);
+}
+
+bool sk_can_use_legacy_blits(SkColorSpace* src, SkColorSpace* dst) {
+    // When considering legacy blits, we only supported premul, so set those here
+    SkAlphaType srcAT = kPremul_SkAlphaType;
+    SkAlphaType dstAT = kPremul_SkAlphaType;
+
+    bool new_way = SkColorSpaceXformSteps(src, srcAT, dst, dstAT).flags.mask() == 0;
+    bool old_way = oldway(src, dst);
+
+    SkASSERT(new_way == old_way);
+    return new_way;
+}
