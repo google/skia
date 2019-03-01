@@ -1142,18 +1142,19 @@ struct Task {
                         hash.writeStream(data, data->getLength());
                         data->rewind();
                     } else {
-                        // If we're BGRA (Linux, Windows), swizzle over to RGBA (Mac, Android).
-                        // This helps eliminate multiple 0-pixel-diff hashes on gold.skia.org.
-                        // (Android's general slow speed breaks the tie arbitrarily in RGBA's favor.)
-                        // We might consider promoting 565 to RGBA too.
-                        if (bitmap.colorType() == kBGRA_8888_SkColorType) {
-                            SkBitmap swizzle;
-                            SkAssertResult(sk_tool_utils::copy_to(&swizzle, kRGBA_8888_SkColorType,
-                                                                  bitmap));
-                            hash.write(swizzle.getPixels(), swizzle.computeByteSize());
-                        } else {
-                            hash.write(bitmap.getPixels(), bitmap.computeByteSize());
-                        }
+                        // We convert everything up to a common format before hashing
+                        // so that identical colors produce identical hashes.
+                        //
+                        // Note I've intentionally left out a call to .makeAlphaType()
+                        // here... I'm not really sure which of kUnpremul or kPremul
+                        // would be best, so I've just let bitmap's original alpha type
+                        // pass through.  This shouldn't come up often, if at all.
+                        SkBitmap to_hash;
+                        to_hash.allocPixels(bitmap.info().makeColorType(kRGBA_F32_SkColorType)
+                                                         .makeColorSpace(SkColorSpace::MakeSRGB()));
+                        to_hash.writePixels(bitmap.pixmap(), 0,0);
+
+                        hash.write(to_hash.getPixels(), to_hash.computeByteSize());
                     }
                     SkMD5::Digest digest;
                     hash.finish(digest);
