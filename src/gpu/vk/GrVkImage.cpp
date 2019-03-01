@@ -93,7 +93,8 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     VkImageLayout currentLayout = this->currentLayout();
 
-    if (releaseFamilyQueue && fInfo.fCurrentQueueFamily == fInitialQueueFamily) {
+    if (releaseFamilyQueue && fInfo.fCurrentQueueFamily == fInitialQueueFamily &&
+        newLayout == currentLayout) {
         // We never transfered the image to this queue and we are releasing it so don't do anything.
         return;
     }
@@ -218,6 +219,17 @@ void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
 GrVkImage::~GrVkImage() {
     // should have been released or abandoned first
     SkASSERT(!fResource);
+}
+
+void GrVkImage::prepareForPresent(GrVkGpu* gpu) {
+    VkImageLayout layout = this->currentLayout();
+    if (fInitialQueueFamily != VK_QUEUE_FAMILY_EXTERNAL &&
+        fInitialQueueFamily != VK_QUEUE_FAMILY_FOREIGN_EXT) {
+        if (gpu->vkCaps().supportsSwapchain()) {
+            layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        }
+    }
+    this->setImageLayout(gpu, layout, 0, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, false, true);
 }
 
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
