@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7099d3ef_00d90564",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7896
+      },
+      "writtenOn": "2019-03-01T16:24:12Z",
+      "side": 1,
+      "message": "How does this work with SkImage instances built from MakeFromYUVATextures? Maybe you could add a YUV example if this is sensible.",
+      "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96beed7b_8f59e4af",
+        "filename": "src/core/SkColorFilterPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7896
+      },
+      "writtenOn": "2019-03-01T16:24:12Z",
+      "side": 1,
+      "message": "drive by comment: Would it be possible to have some docs on these methods since I presume that we\u0027ll be using this?",
+      "revId": "4a6cb822ebe3a0470f88202bb19ff60bbda8fb62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
