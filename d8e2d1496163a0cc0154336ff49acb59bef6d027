@@ -70,6 +70,29 @@
       "revId": "d8e2d1496163a0cc0154336ff49acb59bef6d027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32ee78a9_9dfa2b16",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1156,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2019-03-01T23:56:26Z",
+      "side": 1,
+      "message": "Hashing the meta data does not seem like a clean solution to me. Is there no transformation that will more or less uniquely distribute a color over a range that allows us to account for the different colorspaces ?\nOr that represents to some degree what the user would see ?",
+      "range": {
+        "startLine": 1151,
+        "startChar": 0,
+        "endLine": 1156,
+        "endChar": 52
+      },
+      "revId": "d8e2d1496163a0cc0154336ff49acb59bef6d027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
