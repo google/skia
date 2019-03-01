@@ -73,7 +73,7 @@ private:
         // texture are finished on the borrowing context before we open this back up to other
         // contexts. In general a ref to this release proc is owned by all proxies and gpu uses of
         // the backend texture.
-        GrReleaseProcHelper* fBorrowingContextReleaseProc;
+        GrRefCntedCallback*  fBorrowingContextReleaseProc;
         uint32_t             fBorrowingContextID;
     };
 
