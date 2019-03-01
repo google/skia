@@ -179,8 +179,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                 }
 
                 if (deleteImageProc) {
-                    sk_sp<GrReleaseProcHelper> releaseProcHelper(
-                            new GrReleaseProcHelper(deleteImageProc, deleteImageCtx));
+                    sk_sp<GrRefCntedCallback> releaseProcHelper(
+                            new GrRefCntedCallback(deleteImageProc, deleteImageCtx));
                     tex->setRelease(releaseProcHelper);
                 }
 
