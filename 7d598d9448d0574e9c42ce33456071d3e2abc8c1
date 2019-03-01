@@ -22,6 +22,52 @@
       "revId": "7d598d9448d0574e9c42ce33456071d3e2abc8c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e92ed0b_7daef431",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T14:57:56Z",
+      "side": 1,
+      "message": "CustomFeatures feels a whole like like SkSL::Program::Inputs, in that (as I understand it) it provides a means for a shader to communicate that it requires a particular piece of information to be provided to it. Do we really need a second channel for this sort of thing?",
+      "range": {
+        "startLine": 190,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 75
+      },
+      "revId": "7d598d9448d0574e9c42ce33456071d3e2abc8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddc6e482_e8751690",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-03-01T14:57:56Z",
+      "side": 1,
+      "message": "Could this just be sk_SampleOffsets or similar?",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "7d598d9448d0574e9c42ce33456071d3e2abc8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
