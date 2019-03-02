@@ -3,6 +3,12 @@
    "Duration": 1,
    "Rate": 0.5,
    "Life": {
+      "Input": {
+         "Source": "Age",
+         "Scale": 1,
+         "Bias": 0,
+         "TileMode": "Repeat"
+      },
       "XValues": [],
       "Segments": [
          {
@@ -26,6 +32,12 @@
          "Force": false,
          "Frame": "World",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "Scale": 1,
+               "Bias": 0,
+               "TileMode": "Repeat"
+            },
             "XValues": [],
             "Segments": [
                {
@@ -38,6 +50,12 @@
             ]
          },
          "Strength": {
+            "Input": {
+               "Source": "Age",
+               "Scale": 1,
+               "Bias": 0,
+               "TileMode": "Repeat"
+            },
             "XValues": [],
             "Segments": [
                {
@@ -58,6 +76,12 @@
          "Force": true,
          "Frame": "World",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "Scale": 1,
+               "Bias": 0,
+               "TileMode": "Repeat"
+            },
             "XValues": [],
             "Segments": [
                {
@@ -69,6 +93,12 @@
             ]
          },
          "Strength": {
+            "Input": {
+               "Source": "Age",
+               "Scale": 1,
+               "Bias": 0,
+               "TileMode": "Repeat"
+            },
             "XValues": [],
             "Segments": [
                {
@@ -85,6 +115,12 @@
          "Enabled": true,
          "Frame": "Velocity",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "Scale": 1,
+               "Bias": 0,
+               "TileMode": "Repeat"
+            },
             "XValues": [],
             "Segments": [
                {
