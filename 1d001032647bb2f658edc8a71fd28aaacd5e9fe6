@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62f97247_129809d2",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-02T03:02:57Z",
+      "side": 1,
+      "message": "Please confirm: an independent frame (requiredFrame \u003d\u003d kNoFrame) means we start from a zero-initialized buffer, not an uninitialized buffer, right?\n\nI think that my earlier confusion re requiredFrames was basically that I thought independent meant that we could start from an uninitialized buffer. Theoretically, we could identify \"super-independent\" frames, a subset of independent frames, that could start from an uninitialized pixel buffer (if fully received), and therefore skip some redundant zero-initialization, but Skia doesn\u0027t already have this concept, right?",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "852d1e35_0df15a8b",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-02T03:02:57Z",
+      "side": 1,
+      "message": "These comments are based on your https://skia-review.googlesource.com/c/skia/+/193470/1/src/codec/SkWuffsCodec.cpp#491 with some renumbering: your {1, 2, 3, 4} references become {IND4, IND3, IND6, IND7}.",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
