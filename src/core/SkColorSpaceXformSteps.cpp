@@ -174,13 +174,3 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     }
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
-
-//////////////
-
-bool sk_can_use_legacy_blits(SkColorSpace* src, SkColorSpace* dst) {
-    // When considering legacy blits, we only supported premul, so set those here
-    SkAlphaType srcAT = kPremul_SkAlphaType;
-    SkAlphaType dstAT = kPremul_SkAlphaType;
-
-    return SkColorSpaceXformSteps(src, srcAT, dst, dstAT).flags.mask() == 0;
-}
