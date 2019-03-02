@@ -732,6 +732,45 @@ static bool restore_bg(const SkFrame& frame) {
     return frame.getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor;
 }
 
+// As its name suggests, this method computes a frame's alpha (e.g. completely
+// opaque, unpremul, binary) and its required frame (a preceding frame that
+// this frame depends on, to draw the complete image at this frame's point in
+// the animation stream), and calls this frame's setter methods with that
+// computed information.
+//
+// A required frame of kNoFrame means that this frame is independent: drawing
+// the complete image at this frame's point in in the animation stream does not
+// require first preparing the pixel buffer based on another frame. Instead,
+// drawing can start from a pixel buffer that has been initialized to a uniform
+// background color (such as to transparent black). Pixels outside of an
+// independent frame's rect will remain this background color after drawing
+// this frame.
+//
+// Determining kNoFrame or otherwise involves testing a number of conditions
+// sequentially. The first satisfied condition results in setting the required
+// frame to kNoFrame (an "INDx" condition) or to a non-negative frame number (a
+// "DEPx" condition), and the function returning early. Those "INDx" and "DEPx"
+// labels also map to comments in the function body.
+//
+//  - IND1: this frame is the first frame.
+//  - IND2: this frame fills out the whole image, and it is completely opaque
+//          or it overwrites (not blends with) the previous frame.
+//  - IND3: all preceding frames' disposals are kRestorePrevious.
+//  - IND4: the prevFrame's disposal is kRestoreBGColor, and it fills out the
+//          whole image or it is itself otherwise independent.
+//  - DEP5: this frame reports alpha (it is not completely opaque) and it
+//          blends with (not overwrites) the previous frame.
+//  - IND6: this frame's rect covers the rects of all preceding frames up to
+//          and including the most recent independent frame before this frame.
+//  - IND7: the same as IND4. The IND7 condition is admittedly possibly
+//          redundant, given the earlier IND4 condition.
+//  - DEP8: the prevFrame's disposal is kRestoreBGColor, but the rest of IND7
+//          does not apply.
+//  - DEP9: unconditional.
+//
+// The "prevFrame" variable initially points to the previous frame (also known
+// as the prior frame), but that variable may iterate further backwards over
+// the course of this computation.
 void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     const bool reportsAlpha = frame->reportedAlpha() != SkEncodedInfo::kOpaque_Alpha;
     const auto screenRect = SkIRect::MakeWH(fScreenWidth, fScreenHeight);
@@ -740,7 +779,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     const int i = frame->frameId();
     if (0 == i) {
         frame->setHasAlpha(reportsAlpha || frameRect != screenRect);
-        frame->setRequiredFrame(SkCodec::kNoFrame);
+        frame->setRequiredFrame(SkCodec::kNoFrame);  // IND1
         return;
     }
 
@@ -748,7 +787,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     const bool blendWithPrevFrame = frame->getBlend() == SkCodecAnimation::Blend::kPriorFrame;
     if ((!reportsAlpha || !blendWithPrevFrame) && frameRect == screenRect) {
         frame->setHasAlpha(reportsAlpha);
-        frame->setRequiredFrame(SkCodec::kNoFrame);
+        frame->setRequiredFrame(SkCodec::kNoFrame);  // IND2
         return;
     }
 
@@ -757,7 +796,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
         const int prevId = prevFrame->frameId();
         if (0 == prevId) {
             frame->setHasAlpha(true);
-            frame->setRequiredFrame(SkCodec::kNoFrame);
+            frame->setRequiredFrame(SkCodec::kNoFrame);  // IND3
             return;
         }
 
@@ -770,7 +809,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     if (clearPrevFrame) {
         if (prevFrameRect == screenRect || independent(*prevFrame)) {
             frame->setHasAlpha(true);
-            frame->setRequiredFrame(SkCodec::kNoFrame);
+            frame->setRequiredFrame(SkCodec::kNoFrame);  // IND4
             return;
         }
     }
@@ -780,7 +819,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
         // to background color and covers its required frame (and that
         // frame is independent), prevFrame could be marked independent.
         // Would this extra complexity be worth it?
-        frame->setRequiredFrame(prevFrame->frameId());
+        frame->setRequiredFrame(prevFrame->frameId());  // DEP5
         frame->setHasAlpha(prevFrame->hasAlpha() || clearPrevFrame);
         return;
     }
@@ -788,7 +827,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     while (frameRect.contains(prevFrameRect)) {
         const int prevRequiredFrame = prevFrame->getRequiredFrame();
         if (prevRequiredFrame == SkCodec::kNoFrame) {
-            frame->setRequiredFrame(SkCodec::kNoFrame);
+            frame->setRequiredFrame(SkCodec::kNoFrame);  // IND6
             frame->setHasAlpha(true);
             return;
         }
@@ -800,18 +839,18 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     if (restore_bg(*prevFrame)) {
         frame->setHasAlpha(true);
         if (prevFrameRect == screenRect || independent(*prevFrame)) {
-            frame->setRequiredFrame(SkCodec::kNoFrame);
+            frame->setRequiredFrame(SkCodec::kNoFrame);  // IND7
         } else {
             // Note: As above, frame could still be independent, e.g. if
             // prevFrame covers its required frame and that frame is
             // independent.
-            frame->setRequiredFrame(prevFrame->frameId());
+            frame->setRequiredFrame(prevFrame->frameId());  // DEP8
         }
         return;
     }
 
     SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kKeep);
-    frame->setRequiredFrame(prevFrame->frameId());
+    frame->setRequiredFrame(prevFrame->frameId());  // DEP9
     frame->setHasAlpha(prevFrame->hasAlpha() || (reportsAlpha && !blendWithPrevFrame));
 }
 
