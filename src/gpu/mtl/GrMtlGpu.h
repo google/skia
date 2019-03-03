@@ -165,11 +165,11 @@ private:
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
                        SkSurface::FlushFlags flags, bool insertedSemaphores) override {
-        if (flags & SkSurface::kSyncCpu_FlushFlag) {
-            this->submitCommandBuffer(kForce_SyncQueue);
-        } else {
+   //     if (flags & SkSurface::kSyncCpu_FlushFlag) {
+    //        this->submitCommandBuffer(kForce_SyncQueue);
+     //   } else {
             this->submitCommandBuffer(kSkip_SyncQueue);
-        }
+     //   }
     }
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
