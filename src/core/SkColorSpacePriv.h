@@ -122,4 +122,17 @@ static inline bool is_almost_linear(const skcms_TransferFunction& coeffs) {
 SkColorSpace* sk_srgb_singleton();
 SkColorSpace* sk_srgb_linear_singleton();
 
+/**
+ *  Returns true if the combination of src and dst colorspaces result in basically a no-op,
+ *  and thus we will generate correct results if we ignore both colorspaces (as we did in the
+ *  legacy world of blits).
+ *
+ *  Some examples:
+ *    dst == null           returns true: this is the classic definition of our legacy blits
+ *    dst == src            returns true: going through the new process is effectively a no-op
+ *    src == null           treats src as sRGB...
+ */
+bool sk_can_use_legacy_blits(SkColorSpace* src, SkColorSpace* dst);
+
+
 #endif  // SkColorSpacePriv_DEFINED
