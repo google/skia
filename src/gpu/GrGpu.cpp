@@ -403,6 +403,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
             }
         }
     }
+    SkASSERT(flags == SkSurface::kNone_FlushFlags);
     this->onFinishFlush(proxy, access, flags,
                         (numSemaphores > 0 && this->caps()->fenceSyncSupport()));
     return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
