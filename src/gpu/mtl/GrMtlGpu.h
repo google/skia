@@ -164,13 +164,7 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                       SkSurface::FlushFlags flags, bool insertedSemaphores) override {
-        if (flags & SkSurface::kSyncCpu_FlushFlag) {
-            this->submitCommandBuffer(kForce_SyncQueue);
-        } else {
-            this->submitCommandBuffer(kSkip_SyncQueue);
-        }
-    }
+                       SkSurface::FlushFlags flags, bool insertedSemaphores) override;
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,

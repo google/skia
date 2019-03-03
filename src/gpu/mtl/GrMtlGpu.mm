@@ -807,3 +807,11 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     return true;
 }
 
+void GrMtlGpu::onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+                             SkSurface::FlushFlags flags, bool insertedSemaphores) override {
+    if (flags & SkSurface::kSyncCpu_FlushFlag) {
+        this->submitCommandBuffer(kForce_SyncQueue);
+    } else {
+        this->submitCommandBuffer(kSkip_SyncQueue);
+    }
+}
