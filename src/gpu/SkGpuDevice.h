@@ -118,9 +118,7 @@ public:
     sk_sp<SkSpecialImage> snapBackImage(const SkIRect&) override;
 
     void flush() override;
-    GrSemaphoresSubmitted flushAndSignalSemaphores(SkSurface::BackendSurfaceAccess access,
-                                                   SkSurface::FlushFlags flags,
-                                                   int numSemaphores,
+    GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 

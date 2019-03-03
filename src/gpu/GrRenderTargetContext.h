@@ -17,7 +17,6 @@
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkRefCnt.h"
-#include "SkSurface.h"
 #include "SkSurfaceProps.h"
 #include "text/GrTextTarget.h"
 
@@ -405,8 +404,7 @@ public:
      * After this returns any pending surface IO will be issued to the backend 3D API and
      * if the surface has MSAA it will be resolved.
      */
-    GrSemaphoresSubmitted prepareForExternalIO(SkSurface::BackendSurfaceAccess access,
-                                               SkSurface::FlushFlags flags, int numSemaphores,
+    GrSemaphoresSubmitted prepareForExternalIO(int numSemaphores,
                                                GrBackendSemaphore backendSemaphores[]);
 
     /**

@@ -17,7 +17,6 @@
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"
-#include "SkSurface.h"
 #include "SkTArray.h"
 #include <map>
 
@@ -267,9 +266,7 @@ public:
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
-    GrSemaphoresSubmitted finishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                                      SkSurface::FlushFlags flags, int numSemaphores,
-                                      GrBackendSemaphore backendSemaphores[]);
+    GrSemaphoresSubmitted finishFlush(int numSemaphores, GrBackendSemaphore backendSemaphores[]);
 
     virtual void submit(GrGpuCommandBuffer*) = 0;
 
@@ -511,8 +508,7 @@ private:
                                const SkIRect& srcRect, const SkIPoint& dstPoint,
                                bool canDiscardOutsideDstRect) = 0;
 
-    virtual void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                               SkSurface::FlushFlags flags, bool insertedSemaphores) = 0;
+    virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}

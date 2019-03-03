@@ -237,8 +237,7 @@ void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
 
-    this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  SkSurface::kNone_FlushFlags, 0, nullptr);
+    this->drawingManager()->flush(nullptr);
 }
 
 GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
@@ -248,9 +247,7 @@ GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                         SkSurface::kNone_FlushFlags, numSemaphores,
-                                         signalSemaphores);
+    return this->drawingManager()->flush(nullptr, numSemaphores, signalSemaphores);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
