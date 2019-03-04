@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "d674342a_8d7e6285",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T15:46:51Z",
+      "side": 1,
+      "message": "need to depend on fontmgr_win here.",
+      "revId": "0c3c1431fc2d5dad2dd42190c9a7f2e473ea1fa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7f0a372_bed4c9dc",
         "filename": "gn/gn_to_bp_utils.py",
         "patchSetId": 1
