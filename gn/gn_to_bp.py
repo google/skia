@@ -301,6 +301,8 @@ def generate_args(target_os, enable_gpu):
     'skia_enable_fontmgr_custom':         'false',
     'skia_enable_fontmgr_custom_empty':   'true',
     'skia_enable_fontmgr_android':        'false',
+    'skia_enable_fontmgr_win':            'false',
+    'skia_enable_fontmgr_win_gdi':        'false',
     'skia_use_fonthost_mac':              'false',
 
     'skia_use_freetype':                  'true',
