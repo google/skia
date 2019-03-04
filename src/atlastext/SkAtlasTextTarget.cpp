@@ -219,7 +219,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
     SkExclusiveStrikePtr autoGlyphCache;
     auto& context = target->context()->internal();
-    auto glyphCache = context.grContext()->priv().getGlyphCache();
+    auto glyphCache = context.grContext()->priv().getGrStrikeCache();
     auto atlasManager = context.grContext()->priv().getAtlasManager();
     auto resourceProvider = context.grContext()->priv().resourceProvider();
 
