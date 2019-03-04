@@ -9,6 +9,10 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrClip.h"
+#include "GrContext.h"
+#include "GrRect.h"
+#include "GrRenderTargetContextPriv.h"
 #include "Resources.h"
 #include "SkColorMatrixFilter.h"
 #include "SkFont.h"
