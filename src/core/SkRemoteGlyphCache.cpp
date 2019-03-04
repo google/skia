@@ -197,7 +197,10 @@ SkTextBlobCacheDiffCanvas::TrackLayerDevice::TrackLayerDevice(
     : SkNoPixelsDevice(bounds, props, std::move(colorSpace))
     , fStrikeServer(server)
     , fSettings(settings)
-    , fPainter{props, kUnknown_SkColorType, SkScalerContextFlags::kFakeGammaAndBoostContrast} {
+    , fPainter{props,
+               kUnknown_SkColorType,
+               SkScalerContextFlags::kFakeGammaAndBoostContrast,
+               fStrikeServer} {
     SkASSERT(fStrikeServer);
 }
 
