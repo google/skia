@@ -42,6 +42,52 @@
     },
     {
       "key": {
+        "uuid": "46746054_00c55c79",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T16:06:39Z",
+      "side": 1,
+      "message": "This should go with fontmgr_win too, at least for now.",
+      "range": {
+        "startLine": 980,
+        "startChar": 6,
+        "endLine": 980,
+        "endChar": 45
+      },
+      "revId": "0c3c1431fc2d5dad2dd42190c9a7f2e473ea1fa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd5ed8f6_c4c82fc7",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T16:06:39Z",
+      "side": 1,
+      "message": "This should go with fontmgr_win too, at least for now.",
+      "range": {
+        "startLine": 982,
+        "startChar": 6,
+        "endLine": 982,
+        "endChar": 40
+      },
+      "revId": "0c3c1431fc2d5dad2dd42190c9a7f2e473ea1fa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7f0a372_bed4c9dc",
         "filename": "gn/gn_to_bp_utils.py",
         "patchSetId": 1
