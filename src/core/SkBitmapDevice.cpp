@@ -19,6 +19,7 @@
 #include "SkRasterHandleAllocator.h"
 #include "SkShader.h"
 #include "SkSpecialImage.h"
+#include "SkStrikeCache.h"
 #include "SkSurface.h"
 #include "SkTLazy.h"
 #include "SkVertices.h"
@@ -226,7 +227,10 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
     , fBitmap(bitmap)
     , fRCStack(bitmap.width(), bitmap.height())
-    , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
+    , fGlyphPainter(this->surfaceProps(),
+                    bitmap.colorType(),
+                    scaler_context_flags(bitmap),
+                    SkStrikeCache::GlobalStrikeCache())
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
@@ -241,7 +245,10 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
     , fBitmap(bitmap)
     , fRasterHandle(hndl)
     , fRCStack(bitmap.width(), bitmap.height())
-    , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
+    , fGlyphPainter(this->surfaceProps(),
+                    bitmap.colorType(),
+                    scaler_context_flags(bitmap),
+                    SkStrikeCache::GlobalStrikeCache())
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 
