@@ -250,8 +250,8 @@ public:
     bool fSerializeAsStream;
     bool fCanBeLCD;
 
-    static LogFontTypeface* Create(const LOGFONT& lf) {
-        return new LogFontTypeface(get_style(lf), lf, false);
+    static sk_sp<LogFontTypeface> Make(const LOGFONT& lf) {
+        return sk_sp<LogFontTypeface>(new LogFontTypeface(get_style(lf), lf, false));
     }
 
     static void EnsureAccessible(const SkTypeface* face) {
@@ -292,8 +292,9 @@ public:
     /**
      *  The created FontMemResourceTypeface takes ownership of fontMemResource.
      */
-    static FontMemResourceTypeface* Create(const LOGFONT& lf, HANDLE fontMemResource) {
-        return new FontMemResourceTypeface(get_style(lf), lf, fontMemResource);
+    static sk_sp<FontMemResourceTypeface> Make(const LOGFONT& lf, HANDLE fontMemResource) {
+        return sk_sp<FontMemResourceTypeface>(
+            new FontMemResourceTypeface(get_style(lf), lf, fontMemResource));
     }
 
 protected:
@@ -335,22 +336,22 @@ static bool FindByLogFont(SkTypeface* face, void* ctx) {
 SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
     LOGFONT lf = origLF;
     make_canonical(&lf);
-    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByLogFont, &lf);
-    if (nullptr == face) {
-        face = LogFontTypeface::Create(lf);
+    sk_sp<SkTypeface> face = SkTypefaceCache::FindByProcAndRef(FindByLogFont, &lf);
+    if (!face) {
+        face = LogFontTypeface::Make(lf);
         SkTypefaceCache::Add(face);
     }
-    return face;
+    return face.release();
 }
 
 /**
  *  The created SkTypeface takes ownership of fontMemResource.
  */
-SkTypeface* SkCreateFontMemResourceTypefaceFromLOGFONT(const LOGFONT& origLF, HANDLE fontMemResource) {
+sk_sp<SkTypeface> SkCreateFontMemResourceTypefaceFromLOGFONT(const LOGFONT& origLF, HANDLE fontMemResource) {
     LOGFONT lf = origLF;
     make_canonical(&lf);
     // We'll never get a cache hit, so no point in putting this in SkTypefaceCache.
-    return FontMemResourceTypeface::Create(lf, fontMemResource);
+    return FontMemResourceTypeface::Make(lf, fontMemResource);
 }
 
 /**

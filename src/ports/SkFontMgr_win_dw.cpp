@@ -460,14 +460,14 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::makeTypefaceFromDWriteFont(
         IDWriteFontFamily* fontFamily) const {
     SkAutoMutexAcquire ama(fTFCacheMutex);
     ProtoDWriteTypeface spec = { fontFace, font, fontFamily };
-    SkTypeface* face = fTFCache.findByProcAndRef(FindByDWriteFont, &spec);
+    sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(FindByDWriteFont, &spec);
     if (nullptr == face) {
-        face = DWriteFontTypeface::Create(fFactory.get(), fontFace, font, fontFamily);
+        face = DWriteFontTypeface::Make(fFactory.get(), fontFace, font, fontFamily);
         if (face) {
             fTFCache.add(face);
         }
     }
-    return sk_sp<SkTypeface>(face);
+    return face;
 }
 
 int SkFontMgr_DirectWrite::onCountFamilies() const {
@@ -917,10 +917,10 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamIndex(std::unique_ptr<S
 
             int faceIndex = fontFace->GetIndex();
             if (faceIndex == ttcIndex) {
-                return sk_sp<SkTypeface>(DWriteFontTypeface::Create(fFactory.get(),
-                                                  fontFace.get(), font.get(), fontFamily.get(),
-                                                  autoUnregisterFontFileLoader.detatch(),
-                                                  autoUnregisterFontCollectionLoader.detatch()));
+                return DWriteFontTypeface::Make(fFactory.get(),
+                                                fontFace.get(), font.get(), fontFamily.get(),
+                                                autoUnregisterFontFileLoader.detatch(),
+                                                autoUnregisterFontCollectionLoader.detatch());
             }
         }
     }
@@ -1005,10 +1005,10 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
 
 #endif
 
-            return sk_sp<SkTypeface>(DWriteFontTypeface::Create(
+            return DWriteFontTypeface::Make(
                     fFactory.get(), fontFace.get(), font.get(), fontFamily.get(),
                     autoUnregisterFontFileLoader.detatch(),
-                    autoUnregisterFontCollectionLoader.detatch()));
+                    autoUnregisterFontCollectionLoader.detatch());
         }
     }
 

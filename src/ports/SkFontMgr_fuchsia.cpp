@@ -390,14 +390,14 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::GetOrCreateTypeface(TypefaceId id,
                                                          const fuchsia::mem::Buffer& buffer) const {
     SkAutoMutexAcquire mutexLock(fCacheMutex);
 
-    SkTypeface* cached = fTypefaceCache.findByProcAndRef(FindByTypefaceId, &id);
-    if (cached) return sk_sp<SkTypeface>(cached);
+    sk_sp<SkTypeface> cached = fTypefaceCache.findByProcAndRef(FindByTypefaceId, &id);
+    if (cached) return cached;
 
     sk_sp<SkData> data = GetOrCreateSkData(id.bufferId, buffer);
     if (!data) return nullptr;
 
     auto result = CreateTypefaceFromSkData(std::move(data), id);
-    fTypefaceCache.add(result.get());
+    fTypefaceCache.add(result);
     return result;
 }
 

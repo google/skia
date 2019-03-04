@@ -271,7 +271,7 @@ static bool count_proc(SkTypeface* face, void* ctx) {
 }
 static int count(skiatest::Reporter* reporter, const SkTypefaceCache& cache) {
     int count = 0;
-    SkTypeface* none = cache.findByProcAndRef(count_proc, &count);
+    sk_sp<SkTypeface> none = cache.findByProcAndRef(count_proc, &count);
     REPORTER_ASSERT(reporter, none == nullptr);
     return count;
 }
@@ -283,9 +283,9 @@ DEF_TEST(TypefaceCache, reporter) {
         REPORTER_ASSERT(reporter, count(reporter, cache) == 0);
         {
             sk_sp<SkTypeface> t0(SkTestEmptyTypeface::Make());
-            cache.add(t0.get());
+            cache.add(t0);
             REPORTER_ASSERT(reporter, count(reporter, cache) == 1);
-            cache.add(t1.get());
+            cache.add(t1);
             REPORTER_ASSERT(reporter, count(reporter, cache) == 2);
             cache.purgeAll();
             REPORTER_ASSERT(reporter, count(reporter, cache) == 2);

@@ -103,9 +103,8 @@ public:
 
 private:
     struct Result : public SkResourceCache::Rec {
-        Result(Request* request, SkTypeface* typeface)
-            : fRequest(request)
-            , fFace(SkSafeRef(typeface)) {}
+        Result(Request* request, sk_sp<SkTypeface> typeface)
+            : fRequest(request), fFace(std::move(typeface)) {}
         Result(Result&&) = default;
         Result& operator=(Result&&) = default;
 
@@ -124,20 +123,20 @@ public:
     SkFontRequestCache(size_t maxSize) : fCachedResults(maxSize) {}
 
     /** Takes ownership of request. It will be deleted when no longer needed. */
-    void add(SkTypeface* face, Request* request) {
-        fCachedResults.add(new Result(request, face));
+    void add(sk_sp<SkTypeface> face, Request* request) {
+        fCachedResults.add(new Result(request, std::move(face)));
     }
     /** Does not take ownership of request. */
-    SkTypeface* findAndRef(Request* request) {
-        SkTypeface* face = nullptr;
+    sk_sp<SkTypeface> findAndRef(Request* request) {
+        sk_sp<SkTypeface> face;
         fCachedResults.find(*request, [](const SkResourceCache::Rec& rec, void* context) -> bool {
             const Result& result = static_cast<const Result&>(rec);
-            SkTypeface** face = static_cast<SkTypeface**>(context);
+            sk_sp<SkTypeface>* face = static_cast<sk_sp<SkTypeface>*>(context);
 
-            *face = result.fFace.get();
+            *face = result.fFace;
             return true;
         }, &face);
-        return SkSafeRef(face);
+        return face;
     }
 };
 
@@ -206,13 +205,13 @@ protected:
         }
 
         // Check if a typeface with this FontIdentity is already in the FontIdentity cache.
-        SkTypeface* face = fTFCache.findByProcAndRef(find_by_FontIdentity, &identity);
+        sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(find_by_FontIdentity, &identity);
         if (!face) {
-            face = SkTypeface_FCI::Create(fFCI, identity, std::move(outFamilyName), outStyle);
+            face.reset(SkTypeface_FCI::Create(fFCI, identity, std::move(outFamilyName), outStyle));
             // Add this FontIdentity to the FontIdentity cache.
             fTFCache.add(face);
         }
-        return face;
+        return face.release();
     }
 
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
@@ -300,7 +299,7 @@ protected:
         // Check if this request is already in the request cache.
         using Request = SkFontRequestCache::Request;
         std::unique_ptr<Request> request(Request::Create(requestedFamilyName, requestedStyle));
-        SkTypeface* face = fCache.findAndRef(request.get());
+        sk_sp<SkTypeface> face = fCache.findAndRef(request.get());
         if (face) {
             return sk_sp<SkTypeface>(face);
         }
@@ -317,14 +316,14 @@ protected:
         // Check if a typeface with this FontIdentity is already in the FontIdentity cache.
         face = fTFCache.findByProcAndRef(find_by_FontIdentity, &identity);
         if (!face) {
-            face = SkTypeface_FCI::Create(fFCI, identity, std::move(outFamilyName), outStyle);
+            face.reset(SkTypeface_FCI::Create(fFCI, identity, std::move(outFamilyName), outStyle));
             // Add this FontIdentity to the FontIdentity cache.
             fTFCache.add(face);
         }
         // Add this request to the request cache.
         fCache.add(face, request.release());
 
-        return sk_sp<SkTypeface>(face);
+        return face;
     }
 };
 
