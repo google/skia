@@ -257,7 +257,7 @@ void GrVkImage::abandonImage() {
     }
 }
 
-void GrVkImage::setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
+void GrVkImage::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
     SkASSERT(fResource);
     // Forward the release proc on to GrVkImage::Resource
     fResource->setRelease(std::move(releaseHelper));
@@ -270,11 +270,10 @@ void GrVkImage::Resource::freeGPUData(GrVkGpu* gpu) const {
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
 }
 
-void GrVkImage::Resource::setIdleProc(GrVkTexture* owner, GrTexture::IdleProc proc,
-                                      void* context) const {
+void GrVkImage::Resource::replaceIdleProc(
+        GrVkTexture* owner, sk_sp<GrRefCntedCallback> idleCallback) const {
     fOwningTexture = owner;
-    fIdleProc = proc;
-    fIdleProcContext = context;
+    fIdleCallback = std::move(idleCallback);
 }
 
 void GrVkImage::Resource::removeOwningTexture() const { fOwningTexture = nullptr; }
@@ -283,22 +282,16 @@ void GrVkImage::Resource::notifyAddedToCommandBuffer() const { ++fNumCommandBuff
 
 void GrVkImage::Resource::notifyRemovedFromCommandBuffer() const {
     SkASSERT(fNumCommandBufferOwners);
-    if (--fNumCommandBufferOwners || !fIdleProc) {
+    if (--fNumCommandBufferOwners || !fIdleCallback) {
         return;
     }
-    if (fOwningTexture && fOwningTexture->resourcePriv().hasRefOrPendingIO()) {
-        return;
-    }
-    fIdleProc(fIdleProcContext);
     if (fOwningTexture) {
-        fOwningTexture->setIdleProc(nullptr, nullptr);
-        // Changing the texture's proc should change ours.
-        SkASSERT(!fIdleProc);
-        SkASSERT(!fIdleProc);
-    } else {
-        fIdleProc = nullptr;
-        fIdleProcContext = nullptr;
+        if (fOwningTexture->resourcePriv().hasRefOrPendingIO()) {
+            return;
+        }
+        fOwningTexture->removeIdleProc();
     }
+    fIdleCallback.reset();
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(GrVkGpu* gpu) const {

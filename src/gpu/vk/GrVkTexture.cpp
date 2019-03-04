@@ -124,8 +124,7 @@ void GrVkTexture::onRelease() {
     // who will handle it. If the resource is still tied to a command buffer we let it handle it.
     // Otherwise, we handle it.
     if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
-        fIdleProc = nullptr;
-        fIdleProcContext = nullptr;
+        fIdleCallback.reset();
     }
 
     // we create this and don't hand it off, so we should always destroy it
@@ -144,8 +143,7 @@ void GrVkTexture::onAbandon() {
     // who will handle it. If the resource is still tied to a command buffer we let it handle it.
     // Otherwise, we handle it.
     if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
-        fIdleProc = nullptr;
-        fIdleProcContext = nullptr;
+        fIdleCallback.reset();
     }
 
     // we create this and don't hand it off, so we should always destroy it
@@ -171,28 +169,25 @@ const GrVkImageView* GrVkTexture::textureView() {
     return fTextureView;
 }
 
-void GrVkTexture::setIdleProc(IdleProc proc, void* context) {
-    fIdleProc = proc;
-    fIdleProcContext = context;
+void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> callback) {
+    INHERITED::addIdleProc(callback);
     if (auto* resource = this->resource()) {
-        resource->setIdleProc(proc ? this : nullptr, proc, context);
+        resource->replaceIdleProc(this, fIdleCallback);
     }
 }
 
 void GrVkTexture::willRemoveLastRefOrPendingIO() {
-    if (!fIdleProc) {
+    if (!fIdleCallback) {
         return;
     }
     // This is called when the GrTexture is purgeable. However, we need to check whether the
     // Resource is still owned by any command buffers. If it is then it will call the proc.
     auto* resource = this->hasResource() ? this->resource() : nullptr;
-    if (resource && resource->isOwnedByCommandBuffer()) {
-        return;
-    }
-    fIdleProc(fIdleProcContext);
-    fIdleProc = nullptr;
-    fIdleProcContext = nullptr;
     if (resource) {
-        resource->setIdleProc(nullptr, nullptr, nullptr);
+        if (resource->isOwnedByCommandBuffer()) {
+            return;
+        }
+        resource->replaceIdleProc(this, nullptr);
     }
+    fIdleCallback.reset();
 }

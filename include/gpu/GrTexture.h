@@ -57,9 +57,10 @@ public:
      * will always be called before the texture is destroyed, even in unusual shutdown scenarios
      * (e.g. GrContext::abandonContext()).
      */
-    using IdleProc = void(void*);
-    virtual void setIdleProc(IdleProc, void* context) = 0;
-    virtual void* idleContext() const = 0;
+    virtual void addIdleProc(sk_sp<GrRefCntedCallback> callback) {
+        callback->addChild(std::move(fIdleCallback));
+        fIdleCallback = std::move(callback);
+    }
 
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
@@ -70,7 +71,15 @@ protected:
 
     virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;
 
+    sk_sp<GrRefCntedCallback> fIdleCallback;
+
+    void willRemoveLastRefOrPendingIO() override {
+        // We're about to be idle in the resource cache. Do our part to trigger the idle callback.
+        fIdleCallback.reset();
+    }
+
 private:
+
     void computeScratchKey(GrScratchKey*) const override;
     size_t onGpuMemorySize() const override;
     void markMipMapsDirty();

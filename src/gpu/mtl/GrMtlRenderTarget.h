@@ -81,7 +81,7 @@ private:
 
     bool completeStencilAttachment() override;
 
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     typedef GrRenderTarget INHERITED;
 };

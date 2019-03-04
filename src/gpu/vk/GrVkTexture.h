@@ -38,8 +38,8 @@ public:
 
     const GrVkImageView* textureView();
 
-    void setIdleProc(IdleProc, void* context) override;
-    void* idleContext() const override { return fIdleProcContext; }
+    void addIdleProc(sk_sp<GrRefCntedCallback>) override;
+    void removeIdleProc() { fIdleCallback.reset(); }
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
@@ -54,6 +54,8 @@ protected:
         return false;
     }
 
+    void willRemoveLastRefOrPendingIO() override;
+
 private:
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&, const GrVkImageInfo&,
                 sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView,
@@ -64,16 +66,12 @@ private:
 
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {
         // Forward the release proc on to GrVkImage
         this->setResourceRelease(std::move(releaseHelper));
     }
 
-    void willRemoveLastRefOrPendingIO() override;
-
     const GrVkImageView* fTextureView;
-    GrTexture::IdleProc* fIdleProc = nullptr;
-    void* fIdleProcContext = nullptr;
 
     typedef GrTexture INHERITED;
 };

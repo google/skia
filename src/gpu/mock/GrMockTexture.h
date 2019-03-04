@@ -44,12 +44,6 @@ public:
 
     void textureParamsModified() override {}
 
-    void setIdleProc(IdleProc proc, void* context) override {
-        fIdleProc = proc;
-        fIdleProcContext = context;
-    }
-    void* idleContext() const override { return fIdleProcContext; }
-
 protected:
     // constructor for subclasses
     GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
@@ -70,23 +64,10 @@ protected:
         return false;
     }
 
-    // protected so that GrMockTextureRenderTarget can call this to avoid "inheritance via
-    // dominance" warning.
-    void willRemoveLastRefOrPendingIO() override {
-        if (fIdleProc) {
-            fIdleProc(fIdleProcContext);
-            fIdleProc = nullptr;
-            fIdleProcContext = nullptr;
-        }
-    }
-
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     GrMockTextureInfo fInfo;
-    sk_sp<GrReleaseProcHelper> fReleaseHelper;
-    IdleProc* fIdleProc = nullptr;
-    void* fIdleProcContext = nullptr;
 
     typedef GrTexture INHERITED;
 };
@@ -139,7 +120,7 @@ protected:
             : GrSurface(gpu, desc), INHERITED(gpu, desc), fInfo(info) {}
 
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     GrMockRenderTargetInfo fInfo;
 
@@ -177,8 +158,12 @@ public:
         return GrMockTexture::backendFormat();
     }
 
+protected:
+    // This avoids an inherits via dominance warning on MSVC.
+    void willRemoveLastRefOrPendingIO() override { GrTexture::willRemoveLastRefOrPendingIO(); }
+
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     void onAbandon() override {
         GrRenderTarget::onAbandon();
@@ -189,9 +174,6 @@ private:
         GrRenderTarget::onRelease();
         GrMockTexture::onRelease();
     }
-
-    // We implement this to avoid the inheritance via dominance warning.
-    void willRemoveLastRefOrPendingIO() override { GrMockTexture::willRemoveLastRefOrPendingIO(); }
 
     size_t onGpuMemorySize() const override {
         int numColorSamples = this->numColorSamples();

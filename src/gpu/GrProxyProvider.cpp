@@ -488,11 +488,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    sk_sp<GrReleaseProcHelper> releaseHelper;
     if (releaseProc) {
-        releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
-        // This gives the texture a ref on the releaseHelper
-        tex->setRelease(std::move(releaseHelper));
+        tex->setRelease(releaseProc, releaseCtx);
     }
 
     SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
@@ -529,11 +526,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         return nullptr;
     }
 
-    sk_sp<GrReleaseProcHelper> releaseHelper;
     if (releaseProc) {
-        releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
-        // This gives the texture a ref on the releaseHelper
-        tex->setRelease(std::move(releaseHelper));
+        tex->setRelease(releaseProc, releaseCtx);
     }
 
     SkASSERT(tex->asRenderTarget());  // A GrTextureRenderTarget
@@ -563,9 +557,9 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         return nullptr;
     }
 
-    sk_sp<GrReleaseProcHelper> releaseHelper;
+    sk_sp<GrRefCntedCallback> releaseHelper;
     if (releaseProc) {
-        releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
+        releaseHelper.reset(new GrRefCntedCallback(releaseProc, releaseCtx));
         // This gives the render target a ref on the releaseHelper
         rt->setRelease(std::move(releaseHelper));
     }

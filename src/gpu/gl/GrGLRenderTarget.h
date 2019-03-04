@@ -95,7 +95,7 @@ private:
 
     size_t onGpuMemorySize() const override;
 
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     int msaaSamples() const;
     // The number total number of samples, including both MSAA and resolve texture samples.

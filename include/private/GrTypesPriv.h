@@ -1554,20 +1554,44 @@ static inline GrPixelConfig GrColorTypeToPixelConfig(GrColorType config,
     return kUnknown_GrPixelConfig;
 }
 
-class GrReleaseProcHelper : public SkRefCnt {
+/**
+ * Ref-counted object that calls a callback from its destructor. These can be chained together. Any
+ * owner can cancel calling the callback via abandon().
+ */
+class GrRefCntedCallback : public SkRefCnt {
 public:
-    // These match the definitions in SkImage, from whence they came
-    typedef void* ReleaseCtx;
-    typedef void (*ReleaseProc)(ReleaseCtx);
+    using Context = void*;
+    using Callback = void (*)(Context);
 
-    GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {
+    GrRefCntedCallback(Callback proc, Context ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {
         SkASSERT(proc);
     }
-    ~GrReleaseProcHelper() override { fReleaseProc(fReleaseCtx); }
+    ~GrRefCntedCallback() override { fReleaseProc ? fReleaseProc(fReleaseCtx) : void(); }
+
+    /**
+     * After abandon is called the release proc will no longer be called in the destructor. This
+     * does not recurse on child release procs or unref them.
+     */
+    void abandon() {
+        fReleaseProc = nullptr;
+        fReleaseCtx = nullptr;
+    }
+
+    /** Adds another GrRefCntedCallback that this will unref in its destructor. */
+    void addChild(sk_sp<GrRefCntedCallback> next) {
+        if (!fNext) {
+            fNext = std::move(next);
+            return;
+        }
+        fNext->addChild(std::move(next));
+    }
+
+    Context context() const { return fReleaseCtx; }
 
 private:
-    ReleaseProc fReleaseProc;
-    ReleaseCtx  fReleaseCtx;
+    sk_sp<GrRefCntedCallback> fNext;
+    Callback fReleaseProc;
+    Context fReleaseCtx;
 };
 
 #endif

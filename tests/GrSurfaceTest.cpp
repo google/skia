@@ -362,7 +362,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, bool renderable
         delete releaseContext;
     };
     texture->setRelease(
-            sk_make_sp<GrReleaseProcHelper>(release, new ReleaseContext{context, backendTexture}));
+            sk_make_sp<GrRefCntedCallback>(release, new ReleaseContext{context, backendTexture}));
     return texture;
 }
 
@@ -424,7 +424,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // Makes a texture, possibly adds a key, and sets the callback.
                 auto make = [&m, &keyAdder, &proc, &idleIDs](GrContext* context, int num) {
                     sk_sp<GrTexture> texture = m(context);
-                    texture->setIdleProc(proc, new Context{&idleIDs, num});
+                    texture->addIdleProc(
+                            sk_make_sp<GrRefCntedCallback>(proc, new Context{&idleIDs, num}));
                     keyAdder(texture.get());
                     return texture;
                 };
@@ -487,28 +488,6 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // Now that the draw is fully consumed by the GPU, the texture should be idle.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) != idleIDs.end());
 
-                // Make a proxy that should deinstantiate even if we keep a ref on it.
-                auto deinstantiateLazyCB = [&make, &context](GrResourceProvider* rp) {
-                    return make(context, 3);
-                };
-                proxy = context->priv().proxyProvider()->createLazyProxy(
-                        deinstantiateLazyCB, backendFormat, desc,
-                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                        GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
-                        GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
-                rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
-                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
-                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
-                // At this point the proxy shouldn't even be instantiated, there is no texture with
-                // id 3.
-                REPORTER_ASSERT(reporter, idleIDs.find(3) == idleIDs.end());
-                context->flush();
-                context->priv().getGpu()->testingOnly_flushGpuAndSync();
-                // Now that the draw is fully consumed, we should have deinstantiated the proxy and
-                // the texture it made should be idle.
-                REPORTER_ASSERT(reporter, idleIDs.find(3) != idleIDs.end());
-
                 // Make sure we make the call during various shutdown scenarios where the texture
                 // might persist after context is destroyed, abandoned, etc. We test three
                 // variations of each scenario. One where the texture is just created. Another,
@@ -522,7 +501,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 if (api == GrBackendApi::kVulkan) {
                     continue;
                 }
-                int id = 4;
+                int id = 3;
                 enum class DrawType {
                     kNoDraw,
                     kDraw,
@@ -610,7 +589,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcCacheManipulationTest, reporter, con
             auto idleTexture = idleMaker(context, false);
             auto otherTexture = otherMaker(context, false);
             otherTexture->ref();
-            idleTexture->setIdleProc(idleProc, otherTexture.get());
+            idleTexture->addIdleProc(sk_make_sp<GrRefCntedCallback>(idleProc, otherTexture.get()));
             otherTexture.reset();
             idleTexture.reset();
         }
@@ -627,7 +606,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 
     for (const auto& idleMaker : {make_wrapped_texture, make_normal_texture}) {
         auto idleTexture = idleMaker(context, false);
-        idleTexture->setIdleProc(idleProc, context);
+        idleTexture->addIdleProc(sk_make_sp<GrRefCntedCallback>(idleProc, context));
         auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
         auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 1, nullptr);
         // We'll draw two images to the canvas. One is a normal texture-backed image. The other is
@@ -660,7 +639,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcRerefTest, reporter, contextInfo) {
     // called).
     idleTexture->resourcePriv().removeScratchKey();
     context->flush();
-    idleTexture->setIdleProc(idleProc, idleTexture.get());
+    idleTexture->addIdleProc(sk_make_sp<GrRefCntedCallback>(idleProc, idleTexture.get()));
     idleTexture->setRelease(releaseProc, &isReleased);
     auto* raw = idleTexture.get();
     idleTexture.reset();
