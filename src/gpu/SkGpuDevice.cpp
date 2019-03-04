@@ -82,7 +82,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
                                      sk_sp<GrRenderTargetContext> renderTargetContext,
                                      int width, int height,
                                      InitContents init) {
-    if (!renderTargetContext || context->abandoned()) {
+    if (!renderTargetContext || context->priv().abandoned()) {
         return nullptr;
     }
     unsigned flags;
@@ -720,6 +720,10 @@ static void determine_clipped_src_rect(int width, int height,
     }
 }
 
+const GrCaps* SkGpuDevice::caps() const {
+    return fContext->priv().caps();
+}
+
 bool SkGpuDevice::shouldTileImageID(uint32_t imageID,
                                     const SkIRect& imageRect,
                                     const SkMatrix& viewMatrix,
@@ -1010,7 +1014,7 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSprite", fContext.get());
 
-    if (fContext->abandoned()) {
+    if (fContext->priv().abandoned()) {
         return;
     }
 
