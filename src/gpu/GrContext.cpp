@@ -72,7 +72,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
 
     SkASSERT(this->drawingManager());
     SkASSERT(this->caps());
-    SkASSERT(this->getGlyphCache());
+    SkASSERT(this->getGrStrikeCache());
     SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
@@ -160,7 +160,7 @@ void GrContext::freeGpuResources() {
 
     // TODO: the glyph cache doesn't hold any GpuResources so this call should not be needed here.
     // Some slack in the GrTextBlob's implementation requires it though. That could be fixed.
-    this->getGlyphCache()->freeAll();
+    this->getGrStrikeCache()->freeAll();
 
     this->drawingManager()->freeGpuResources();
 

@@ -23,7 +23,10 @@ template <size_t N> static size_t sk_align(size_t s) {
     return ((s + (N-1)) / N) * N;
 }
 
-sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount, GrColor color) {
+sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
+                                   int runCount,
+                                   GrColor color,
+                                   GrStrikeCache* strikeCache) {
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
@@ -40,7 +43,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount, GrColor color) 
         sk_bzero(allocation, size);
     }
 
-    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{}};
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache}};
     blob->fSize = size;
 
     // setup offsets for vertices / glyphs

@@ -55,7 +55,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
         return false;
     }
 
-    fGlyphCache.reset(new GrStrikeCache(this->caps(),
+    fStrikeCache.reset(new GrStrikeCache(this->caps(),
                                         this->options().fGlyphCacheTextureMaximumBytes));
 
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
@@ -102,7 +102,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
 void GrRecordingContext::abandonContext() {
     INHERITED::abandonContext();
 
-    fGlyphCache->freeAll();
+    fStrikeCache->freeAll();
     fTextBlobCache->freeAll();
 }
 

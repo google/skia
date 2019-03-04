@@ -55,8 +55,7 @@ public:
 
     class VertexRegenerator;
 
-    void generateFromGlyphRunList(GrStrikeCache* glyphCache,
-                                  const GrShaderCaps& shaderCaps,
+    void generateFromGlyphRunList(const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
                                   SkScalerContextFlags scalerContextFlags,
@@ -65,7 +64,11 @@ public:
                                   const SkGlyphRunList& glyphRunList,
                                   SkGlyphRunListPainter* glyphPainter);
 
-    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount, GrColor color);
+    static sk_sp<GrTextBlob> Make(
+            int glyphCount,
+            int runCount,
+            GrColor color,
+            GrStrikeCache* strikeCache);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -250,10 +253,7 @@ public:
                                           GrTextTarget*);
 
 private:
-    GrTextBlob()
-        : fMaxMinScale(-SK_ScalarMax)
-        , fMinMaxScale(SK_ScalarMax)
-        , fTextType(0) {}
+    GrTextBlob(GrStrikeCache* strikeCache) : fStrikeCache{strikeCache} { }
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -532,6 +532,10 @@ private:
     char* fVertices;
     GrGlyph** fGlyphs;
     Run* fRuns;
+
+    // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
+    // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
+    GrStrikeCache* const fStrikeCache;
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
@@ -545,11 +549,11 @@ private:
     // We can reuse distance field text, but only if the new viewmatrix would not result in
     // a mip change.  Because there can be multiple runs in a blob, we track the overall
     // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
-    SkScalar fMaxMinScale;
-    SkScalar fMinMaxScale;
+    SkScalar fMaxMinScale{-SK_ScalarMax};
+    SkScalar fMinMaxScale{SK_ScalarMax};
     int fRunCount{0};
     int fRunCountLimit;
-    uint8_t fTextType;
+    uint8_t fTextType{0};
 };
 
 /**
