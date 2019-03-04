@@ -164,7 +164,6 @@ sk_sp<SkImage> make_not_native32_color_wheel() {
     n32bitmap.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas n32canvas(n32bitmap);
     color_wheel_native(&n32canvas);
-    n32canvas.flush();
     #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
         const SkColorType ct = kRGBA_8888_SkColorType;
     #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)

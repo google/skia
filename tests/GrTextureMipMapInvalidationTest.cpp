@@ -33,7 +33,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInf
         auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
-        surf1->getCanvas()->flush();
+        surf1->flush();
 
         // No mipmaps initially
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);

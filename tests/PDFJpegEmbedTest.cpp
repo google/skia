@@ -65,7 +65,6 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     sk_sp<SkImage> im2(SkImage::MakeFromEncoded(cmykData));
     canvas->drawImage(im2.get(), 0.0, 512.0, nullptr);
 
-    canvas->flush();
     document->endPage();
     document->close();
     sk_sp<SkData> pdfData = pdf.detachAsData();

@@ -73,12 +73,10 @@ void Window::onPaint() {
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer) {
         // draw into the canvas of this surface
-        SkCanvas* canvas = backbuffer->getCanvas();
-
         this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
-        this->visitLayers([=](Layer* layer) { layer->onPaint(canvas); });
+        this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
-        canvas->flush();
+        backbuffer->flush();
 
         fWindowContext->swapBuffers();
     } else {

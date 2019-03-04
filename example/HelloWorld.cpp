@@ -7,11 +7,11 @@
 
 #include "HelloWorld.h"
 
-#include "GrContext.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
+#include "SkSurface.h"
 
 using namespace sk_app;
 
@@ -54,7 +54,9 @@ void HelloWorld::onBackendCreated() {
     fWindow->inval();
 }
 
-void HelloWorld::onPaint(SkCanvas* canvas) {
+void HelloWorld::onPaint(SkSurface* surface) {
+    auto canvas = surface->getCanvas();
+
     // Clear background
     canvas->clear(SK_ColorWHITE);
 

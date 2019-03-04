@@ -695,7 +695,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
     SkDeferredDisplayListRecorder recorder(characterization);
     SkCanvas* canvas = recorder.getCanvas();
 
-    canvas->flush();
     canvas->getGrContext()->flush();
 }
 

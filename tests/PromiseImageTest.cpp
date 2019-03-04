@@ -171,7 +171,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                                              reporter));
 
     bool isVulkan = GrBackendApi::kVulkan == ctx->backend();
-    canvas->flush();
+    surface->flush();
     expectedFulfillCnt++;
     // Because we've delayed release, we expect a +1 balance.
     balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg, 0, 0);
 
-    canvas->flush();
+    surface->flush();
 
     gpu->testingOnly_flushGpuAndSync();
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
@@ -207,7 +207,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                                              reporter));
 
     canvas->drawImage(refImg, 0, 0);
-    canvas->flush();
+    surface->flush();
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
                                                              balanceExpecation,
                                                              expectedFulfillCnt,
@@ -228,7 +228,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                                              expectedDoneCnt,
                                                              reporter));
 
-    canvas->flush();
+    surface->flush();
     gpu->testingOnly_flushGpuAndSync();
     // We released the image already and we flushed and synced.
     balanceExpecation = ReleaseBalanceExpecation::kBalanced;
@@ -292,7 +292,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
 
     canvas->drawImage(alphaImg, 0, 0);
     canvas->drawImage(grayImg, 1, 1);
-    canvas->flush();
+    surface->flush();
     gpu->testingOnly_flushGpuAndSync();
 
     int expectedFulfillCnt = 2;
@@ -450,17 +450,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     // Relying on the asserts in the promiseImageChecker to ensure that fulfills and releases are
     // properly ordered.
     canvas->drawImage(image, 0, 0);
-    canvas->flush();
+    surface->flush();
     canvas->drawImage(image, 1, 0);
-    canvas->flush();
+    surface->flush();
     canvas->drawImage(image, 2, 0);
-    canvas->flush();
+    surface->flush();
     canvas->drawImage(image, 3, 0);
-    canvas->flush();
+    surface->flush();
     canvas->drawImage(image, 4, 0);
-    canvas->flush();
+    surface->flush();
     canvas->drawImage(image, 5, 0);
-    canvas->flush();
+    surface->flush();
     // Must call this to ensure that all callbacks are performed before the checker is destroyed.
     gpu->testingOnly_flushGpuAndSync();
     gpu->deleteTestingOnlyBackendTexture(backendTex);

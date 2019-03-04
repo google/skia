@@ -152,7 +152,7 @@ public:
         virtual bool onTouch(intptr_t owner, InputState state, float x, float y) { return false; }
         virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
         virtual void onPrePaint() {}
-        virtual void onPaint(SkCanvas*) {}
+        virtual void onPaint(SkSurface*) {}
         virtual void onResize(int width, int height) {}
 
     private:

@@ -120,7 +120,6 @@ class TestExtractAlphaGM : public skiagm::GM {
         paint.setStrokeWidth(20);
 
         canvas.drawCircle(50, 50, 39, paint);
-        canvas.flush();
 
         fBitmap.extractAlpha(&fAlpha);
     }

@@ -1951,7 +1951,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         canvas->setMatrix(offsetMatrix);
         canvas->drawImage(imageSubset.image(), 0, 0);
         // Make sure the final bits are in the bitmap.
-        canvas->flush();
+        surface->flush();
 
         // In the new space, we use the identity matrix translated
         // and scaled to reflect DPI.

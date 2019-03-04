@@ -24,7 +24,7 @@ public:
     void endTiming(Timer);
     double getLastTime(Timer);
 
-    void onPaint(SkCanvas* canvas) override;
+    void onPaint(SkSurface*) override;
 
     void setDisplayScale(float scale) { fDisplayScale = scale; }
 

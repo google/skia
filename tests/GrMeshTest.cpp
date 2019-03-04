@@ -131,8 +131,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }
     }
 
-    goldCanvas.flush();
-
     // ---- tests ----------
 
 #define VALIDATE(buff)                           \

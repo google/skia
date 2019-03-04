@@ -30,7 +30,7 @@ public:
     void onIdle() override;
 
     void onBackendCreated() override;
-    void onPaint(SkCanvas* canvas) override;
+    void onPaint(SkSurface*) override;
     void onResize(int width, int height) override;
     bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y) override;
     bool onMouse(int x, int y, sk_app::Window::InputState state, uint32_t modifiers) override;
@@ -103,7 +103,7 @@ private:
 
     void updateUIState();
 
-    void drawSlide(SkCanvas* canvs);
+    void drawSlide(SkSurface* surface);
     void drawImGui();
 
     void changeZoomLevel(float delta);
