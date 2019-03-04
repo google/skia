@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ad07e7d6_41834f1d",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "When trying to place it within enable_tools_check, I get a gn error.\nERROR Unresolved dependencies.\n//:viewer(//gn/toolchain:gcc_like)\n  needs //:samples(//gn/toolchain:gcc_like)",
+      "parentUuid": "45830e40_56c01e20",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2448e64_98590ce5",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -48,6 +66,24 @@
       "writtenOn": "2019-03-01T20:54:53Z",
       "side": 1,
       "message": "I bet we want to make all the targets that build these sources instead depend on this new target you\u0027ve created.",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59142a7e_8cad5607",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "that would be tool_utils, fuzz, and mdbviz. Is it OK for those to inherit the fontmgr_wasm dependency?",
+      "parentUuid": "c2448e64_98590ce5",
       "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "4f87db2e_09f2df6b",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "A font manager appears to be necessary to draw text from SKP files. It looked like there were many to choose from and this looked the most relevant and it worked.\n\nCould you explain why this is a surprising dependency?",
+      "parentUuid": "d3a1acd1_7ec2d926",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ad880fb_a885fee0",
         "filename": "experimental/wasm-skp-debugger/NotoMono-Regular.ttf.cpp",
         "patchSetId": 4
@@ -85,6 +139,24 @@
       "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d280951_8f9d05a9",
+        "filename": "experimental/wasm-skp-debugger/NotoMono-Regular.ttf.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ad880fb_a885fee0",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "7ff67df4_e3563cfa",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ddb5e93_57878ffb",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 84
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbc80d69_b7cf683f",
         "filename": "experimental/wasm-skp-debugger/compile.sh",
         "patchSetId": 4
@@ -122,6 +218,30 @@
       "writtenOn": "2019-03-01T19:57:19Z",
       "side": 1,
       "message": "You may want this one - same for skia_enable_wuffs so we can render .gif",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 24
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aeda3df_29abad3d",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbc80d69_b7cf683f",
       "range": {
         "startLine": 52,
         "startChar": 19,
@@ -157,6 +277,30 @@
     },
     {
       "key": {
+        "uuid": "b0d96d00_85839355",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17940e3d_6eb3d173",
+      "range": {
+        "startLine": 105,
+        "startChar": 14,
+        "endLine": 105,
+        "endChar": 22
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "949e30b6_625a67df",
         "filename": "experimental/wasm-skp-debugger/compile.sh",
         "patchSetId": 4
@@ -180,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "77b7ac2c_d2299ab4",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "I meant having this script generate it.",
+      "parentUuid": "949e30b6_625a67df",
+      "range": {
+        "startLine": 128,
+        "startChar": 16,
+        "endLine": 128,
+        "endChar": 94
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f3500bf_c84d2634",
         "filename": "experimental/wasm-skp-debugger/cpu.js",
         "patchSetId": 4
@@ -200,6 +368,30 @@
       "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58ed317e_a5873a4a",
+        "filename": "experimental/wasm-skp-debugger/cpu.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f3500bf_c84d2634",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 60,
+        "endChar": 19
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -249,6 +441,54 @@
     },
     {
       "key": {
+        "uuid": "32287441_4711b59c",
+        "filename": "experimental/wasm-skp-debugger/debugger.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97b72ad0_fd81b9c8",
+      "range": {
+        "startLine": 33,
+        "startChar": 45,
+        "endLine": 33,
+        "endChar": 46
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01827d83_e99a4324",
+        "filename": "experimental/wasm-skp-debugger/debugger.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b48f306c_1f4734a4",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 5
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "779b243b_d8e45fbe",
         "filename": "experimental/wasm-skp-debugger/debugger.cpp",
         "patchSetId": 4
@@ -269,6 +509,30 @@
       "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb3ccc9e_fa4e41d8",
+        "filename": "experimental/wasm-skp-debugger/debugger.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "779b243b_d8e45fbe",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 2
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -295,6 +559,30 @@
     },
     {
       "key": {
+        "uuid": "c67c02da_9b40d842",
+        "filename": "experimental/wasm-skp-debugger/debugger.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b227990f_673097a2",
+      "range": {
+        "startLine": 66,
+        "startChar": 35,
+        "endLine": 66,
+        "endChar": 36
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "824a7e25_ed48ae40",
         "filename": "experimental/wasm-skp-debugger/externs.js",
         "patchSetId": 4
@@ -315,6 +603,30 @@
       "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1097333a_a2b6bda4",
+        "filename": "experimental/wasm-skp-debugger/externs.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "824a7e25_ed48ae40",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 1
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -341,6 +653,30 @@
     },
     {
       "key": {
+        "uuid": "1d8be244_ab87ef7a",
+        "filename": "experimental/wasm-skp-debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eb1b57d_41674f41",
+      "range": {
+        "startLine": 5,
+        "startChar": 11,
+        "endLine": 5,
+        "endChar": 26
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1243a45_7199047d",
         "filename": "experimental/wasm-skp-debugger/index.html",
         "patchSetId": 4
@@ -364,6 +700,30 @@
     },
     {
       "key": {
+        "uuid": "87bd30ff_5543c3e4",
+        "filename": "experimental/wasm-skp-debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Just had to see it to believe it ;)",
+      "parentUuid": "d1243a45_7199047d",
+      "range": {
+        "startLine": 27,
+        "startChar": 3,
+        "endLine": 30,
+        "endChar": 6
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab58ffc6_9248547c",
         "filename": "experimental/wasm-skp-debugger/ready.js",
         "patchSetId": 4
@@ -384,6 +744,30 @@
       "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dd63dc3_087cd84c",
+        "filename": "experimental/wasm-skp-debugger/ready.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T16:56:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab58ffc6_9248547c",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
