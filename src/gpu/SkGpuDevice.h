@@ -168,7 +168,7 @@ private:
 
     GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
 
-    const GrCaps* caps() const { return fContext->priv().caps(); }
+    const GrCaps* caps() const;
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
