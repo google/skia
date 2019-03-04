@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3c0eb3d_dbb6e0b1",
+        "filename": "BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T22:25:01Z",
+      "side": 1,
+      "message": "skia_use_harfbuzz?",
+      "range": {
+        "startLine": 725,
+        "startChar": 6,
+        "endLine": 725,
+        "endChar": 18
+      },
+      "revId": "fb1f970d6e38545c8d9a9920639b9941ba668b63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1466073d_77ab95f7",
+        "filename": "gn/skia.gni",
+        "patchSetId": 15
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T22:25:01Z",
+      "side": 1,
+      "message": "This doesn\u0027t depend on anything else, so doesn\u0027t need to go in a separate block. I suppose it could be set by default to skia_use_harfbuzz here though.",
+      "range": {
+        "startLine": 18,
+        "startChar": 2,
+        "endLine": 18,
+        "endChar": 34
+      },
+      "revId": "fb1f970d6e38545c8d9a9920639b9941ba668b63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a412eaa_6ec560c1",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T22:25:01Z",
+      "side": 1,
+      "message": "looks like we will need to add these to Chromium\u0027s HarfBuzz build.",
+      "revId": "fb1f970d6e38545c8d9a9920639b9941ba668b63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
