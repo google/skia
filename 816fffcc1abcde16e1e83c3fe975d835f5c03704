@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1688fe4_5beffd28",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-04T22:20:35Z",
+      "side": 1,
+      "message": "Line length",
+      "range": {
+        "startLine": 770,
+        "startChar": 50,
+        "endLine": 770,
+        "endChar": 66
+      },
+      "revId": "816fffcc1abcde16e1e83c3fe975d835f5c03704",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
