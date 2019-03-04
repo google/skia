@@ -98,6 +98,10 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+GrTextureProxy* SkImage_GpuYUVA::peekProxy() const {
+    return fRGBProxy.get();
+}
+
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     if (!fRGBProxy) {
         const GrBackendFormat format =

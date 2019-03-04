@@ -13,6 +13,7 @@
 #include "SkCachedData.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
+#include "SkImage_GpuYUVA.h"
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
 
@@ -215,6 +216,14 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
                                                  contexts);
         for (int i = 0; i < textureCount; ++i) {
             curImage.callbackContext(i)->wasAddedToImage();
+        }
+
+        {
+            // By the peekProxy contract this image should not have a single backing proxy so
+            // should return null. The call should also not trigger the conversion to RGBA.
+            SkImage_GpuYUVA* yuva = reinterpret_cast<SkImage_GpuYUVA*>(image.get());
+            SkASSERT(!yuva->peekProxy());
+            SkASSERT(!yuva->peekProxy());  // the first call didn't force a conversion to RGBA
         }
     } else {
         const GrBackendTexture& backendTex = curImage.promiseTexture(0)->backendTexture();
