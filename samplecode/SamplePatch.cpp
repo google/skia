@@ -326,7 +326,110 @@ protected:
 private:
     typedef Sample INHERITED;
 };
+DEF_SAMPLE( return new PatchView(); )
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new PatchView(); )
+#include "SkContourMeasure.h"
+#include "SkTDArray.h"
+
+static sk_sp<SkVertices> make_verts(const SkPath& path, SkScalar width) {
+    auto meas = SkContourMeasureIter(path, false).next();
+    if (!meas) {
+        return nullptr;
+    }
+
+    const SkPoint src[2] = {
+        { 0, -width/2 }, { 0, width/2 },
+    };
+    SkTDArray<SkPoint> pts;
+
+    const SkScalar step = 2;
+    for (SkScalar distance = 0; distance < meas->length(); distance += step) {
+        SkMatrix mx;
+        if (!meas->getMatrix(distance, &mx)) {
+            continue;
+        }
+        SkPoint* dst = pts.append(2);
+        mx.mapPoints(dst, src, 2);
+    }
+
+    int vertCount = pts.count();
+    int indexCount = 0; // no texture
+    unsigned flags = SkVertices::kHasColors_BuilderFlag |
+                     SkVertices::kIsNonVolatile_BuilderFlag;
+    SkVertices::Builder builder(SkVertices::kTriangleStrip_VertexMode,
+                                vertCount, indexCount, flags);
+    memcpy(builder.positions(), pts.begin(), vertCount * sizeof(SkPoint));
+    SkRandom rand;
+    for (int i = 0; i < vertCount; ++i) {
+        builder.colors()[i] = rand.nextU() | 0xFF000000;
+    }
+    SkDebugf("vert count = %d\n", vertCount);
+
+    return builder.detach();
+}
+
+class PseudoInkView : public Sample {
+    SkPath            fPath;
+    sk_sp<SkVertices> fVertices;
+    SkPaint           fSkeletonP, fStrokeP, fVertsP;
+
+public:
+    PseudoInkView() {
+        fSkeletonP.setStyle(SkPaint::kStroke_Style);
+        fSkeletonP.setAntiAlias(true);
+
+        fStrokeP.setStyle(SkPaint::kStroke_Style);
+        fStrokeP.setStrokeWidth(30);
+        fStrokeP.setColor(0x44888888);
+    }
+
+protected:
+    bool onQuery(Sample::Event* evt)  override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "PseudoInk");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        return true;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (!fVertices) {
+            fVertices = make_verts(fPath, 30);
+        }
+        for (int i = 0; i < 10; ++i) {
+            canvas->drawVertices(fVertices, SkBlendMode::kSrc, fVertsP);
+            canvas->translate(10, 10);
+        }
+//        canvas->drawPath(fPath, fStrokeP);
+ //       canvas->drawPath(fPath, fSkeletonP);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        Click* click = new Click(this);
+        fPath.reset();
+        fPath.moveTo(x, y);
+        return click;
+    }
+
+    bool onClick(Click* click) override {
+        switch (click->fState) {
+            case Click::kMoved_State:
+                fPath.lineTo(click->fCurr);
+                fVertices.reset();
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+DEF_SAMPLE( return new PseudoInkView(); )
