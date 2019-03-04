@@ -45,7 +45,7 @@ public:
 
     virtual GrBackendFormat backendFormat() const = 0;
 
-    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
+    void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
         this->onSetRelease(releaseHelper);
         fReleaseHelper = std::move(releaseHelper);
     }
@@ -55,7 +55,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
-        sk_sp<GrReleaseProcHelper> helper(new GrReleaseProcHelper(proc, ctx));
+        sk_sp<GrRefCntedCallback> helper(new GrRefCntedCallback(proc, ctx));
         this->setRelease(std::move(helper));
     }
 
@@ -132,7 +132,7 @@ protected:
 private:
     const char* getResourceType() const override { return "Surface"; }
 
-    virtual void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) = 0;
+    virtual void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) = 0;
     void invokeReleaseProc() {
         // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
         // ReleaseProc to be called.
@@ -143,7 +143,7 @@ private:
     int                        fWidth;
     int                        fHeight;
     GrInternalSurfaceFlags     fSurfaceFlags;
-    sk_sp<GrReleaseProcHelper> fReleaseHelper;
+    sk_sp<GrRefCntedCallback>  fReleaseHelper;
 
     typedef GrGpuResource INHERITED;
 };

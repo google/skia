@@ -139,7 +139,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    void setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper);
+    void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
 
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
@@ -182,7 +182,7 @@ private:
             SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
         }
 #endif
-        void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
+        void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
             fReleaseHelper = std::move(releaseHelper);
         }
 
@@ -192,7 +192,7 @@ private:
          * referring to the Resource then it calls the proc. Otherwise, the Resource calls it
          * when the last command buffer reference goes away and the GrVkTexture is purgeable.
          */
-        void setIdleProc(GrVkTexture* owner, GrTexture::IdleProc, void* context) const;
+        void replaceIdleProc(GrVkTexture* owner, sk_sp<GrRefCntedCallback>) const;
         void removeOwningTexture() const;
 
         /**
@@ -204,7 +204,7 @@ private:
         bool isOwnedByCommandBuffer() const { return fNumCommandBufferOwners > 0; }
 
     protected:
-        mutable sk_sp<GrReleaseProcHelper> fReleaseHelper;
+        mutable sk_sp<GrRefCntedCallback> fReleaseHelper;
 
         void invokeReleaseProc() const {
             if (fReleaseHelper) {
@@ -225,8 +225,7 @@ private:
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
         mutable int fNumCommandBufferOwners = 0;
-        mutable GrTexture::IdleProc* fIdleProc = nullptr;
-        mutable void* fIdleProcContext = nullptr;
+        mutable sk_sp<GrRefCntedCallback> fIdleCallback;
         mutable GrVkTexture* fOwningTexture = nullptr;
 
         typedef GrVkResource INHERITED;
