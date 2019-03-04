@@ -62,6 +62,24 @@
       "revId": "fb1f970d6e38545c8d9a9920639b9941ba668b63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d3451d6_dc2f1f51",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 15
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-04T23:35:56Z",
+      "side": 1,
+      "message": "https://chromium-review.googlesource.com/c/chromium/src/+/1500850",
+      "parentUuid": "2a412eaa_6ec560c1",
+      "revId": "fb1f970d6e38545c8d9a9920639b9941ba668b63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
