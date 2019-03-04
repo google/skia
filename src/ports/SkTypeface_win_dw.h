@@ -82,14 +82,17 @@ public:
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
     SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
 
-    static DWriteFontTypeface* Create(IDWriteFactory* factory,
-                                      IDWriteFontFace* fontFace,
-                                      IDWriteFont* font,
-                                      IDWriteFontFamily* fontFamily,
-                                      IDWriteFontFileLoader* fontFileLoader = nullptr,
-                                      IDWriteFontCollectionLoader* fontCollectionLoader = nullptr) {
-        return new DWriteFontTypeface(get_style(font), factory, fontFace, font, fontFamily,
-                                      fontFileLoader, fontCollectionLoader);
+    static sk_sp<DWriteFontTypeface> Make(
+        IDWriteFactory* factory,
+        IDWriteFontFace* fontFace,
+        IDWriteFont* font,
+        IDWriteFontFamily* fontFamily,
+        IDWriteFontFileLoader* fontFileLoader = nullptr,
+        IDWriteFontCollectionLoader* fontCollectionLoader = nullptr)
+    {
+        return sk_sp<DWriteFontTypeface>(
+            new DWriteFontTypeface(get_style(font), factory, fontFace, font, fontFamily,
+                                   fontFileLoader, fontCollectionLoader));
     }
 
 protected:
