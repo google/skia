@@ -53,6 +53,9 @@ public:
     virtual GrContext* context() const { return nullptr; }
 
 #if SK_SUPPORT_GPU
+    // Return the proxy if this image is backed by a single proxy. For YUVA images, this
+    // will return nullptr unless the YUVA planes have been converted to RGBA in which case
+    // that single backing proxy will be returned.
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
