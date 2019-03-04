@@ -96,6 +96,24 @@
     },
     {
       "key": {
+        "uuid": "5bd29a69_ba9343dd",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-04T21:11:26Z",
+      "side": 1,
+      "message": "\u003e I do not understand what a \"super-independent\" frame is\n\nSo, the zero-init is currently done by SkWuffsCodec. \"Super-independent\" would mean that that zero-initting could be skipped, as Wuffs will overwrite the whole buffer. For example, (frame_rect \u003d\u003d image_rect) and opaque and fully received and no decoding errors. That\u0027s what I meant by the \"super-independent\" concept, although that last clause makes it a non-trivial concept to implement, in practice.\n\n\n\u003e Yep! Thanks for catching :)\n\nOK, I\u0027ll think about how to re-word the proposed comments to make that distinction clearer. I\u0027ll ping the review when it\u0027s ready.",
+      "parentUuid": "030276e1_12160c34",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "852d1e35_0df15a8b",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
