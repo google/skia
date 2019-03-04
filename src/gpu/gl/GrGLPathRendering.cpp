@@ -92,7 +92,7 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     SkISize size = SkISize::Make(rt->width(), rt->height());
     this->setProjectionMatrix(*args.fViewMatrix, size, args.fProxy->origin());
     gpu->flushScissor(*args.fScissor, rt->getViewport(), args.fProxy->origin());
-    gpu->flushHWAAState(rt, args.fUseHWAA, true);
+    gpu->flushHWAAState(rt, args.fUseHWAA);
     gpu->flushRenderTarget(rt);
 
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);

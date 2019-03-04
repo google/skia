@@ -989,14 +989,6 @@
 /*  ARM specific define for MSAA support on framebuffer fetch */
 #define GR_GL_FETCH_PER_SAMPLE                              0x8F65
 
-/* GL_EXT_raster_multisample */
-#define GR_GL_RASTER_MULTISAMPLE                            0x9327
-#define GR_GL_RASTER_SAMPLES                                0x9328
-#define GR_GL_MAX_RASTER_SAMPLES                            0x9329
-#define GR_GL_RASTER_FIXED_SAMPLE_LOCATIONS                 0x932A
-#define GR_GL_MULTISAMPLE_RASTERIZATION_ALLOWED             0x932B
-#define GR_GL_EFFECTIVE_RASTER_SAMPLES                      0x932C
-
 /* GL_KHR_debug */
 #define GR_GL_DEBUG_OUTPUT                                  0x92E0
 #define GR_GL_DEBUG_OUTPUT_SYNCHRONOUS                      0x8242
