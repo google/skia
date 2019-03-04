@@ -401,7 +401,8 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
         // Sanity checks that are detected by function definition in sksl_fp.inc
         SkASSERT(c.fArguments.size() == 1 || c.fArguments.size() == 2);
-        SkASSERT("fragmentProcessor" == c.fArguments[0]->fType.name());
+        SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
+                 "fragmentProcessor?" == c.fArguments[0]->fType.name());
 
         // Actually fail during compilation if arguments with valid types are
         // provided that are not variable references, since process() is a
@@ -446,7 +447,15 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         addExtraEmitCodeLine("this->emitChild(_outer." + String(child.fName) + "_index()" +
                              inputArg + ", &" + childName + ", args);");
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            addExtraEmitCodeLine("}");
+            // Null FPs are not emitted, but their output can still be referenced in dependent
+            // expressions - thus we always declare the variable.
+            // Note: this is essentially dead code required to satisfy the compiler, because
+            // 'process' function calls should always be guarded at a higher level, in the .fp
+            // source.
+            addExtraEmitCodeLine(
+                "} else {"
+                "   fragBuilder->codeAppendf(\"half4 %s;\", " + childName + ".c_str());"
+                "}");
         }
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");

@@ -627,3 +627,27 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "this->registerChildProcessor(src.childProcessor(fChild_index).clone());"
          });
 }
+
+DEF_TEST(SkSLFPNullableChildProcessor, r) {
+    test(r,
+         "in fragmentProcessor? child;"
+         "void main() {"
+         "    if (child != null) {"
+         "        sk_OutColor = process(child);"
+         "    } else {"
+         "        sk_OutColor = half4(0.5);"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {},
+         {
+            "SkString _child0(\"_child0\");",
+            "if (_outer.child_index() >= 0) {",
+                "this->emitChild(_outer.child_index(), &_child0, args);",
+            "} else {",
+                "fragBuilder->codeAppendf(\"half4 %s;\", _child0.c_str());",
+            "}",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\""
+                    ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
+         });
+}
