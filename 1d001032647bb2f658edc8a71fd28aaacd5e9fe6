@@ -60,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "99949dc3_c1a24ddb",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-04T20:58:24Z",
+      "side": 1,
+      "message": "\u003e It is intended that SkCodec will initialize all pixels\n\nAh, there might be a second misunderstanding... I\u0027m focusing on the initialization obligations between SkCodec (including its SkWuffsCodec subclass) and the GIF library (i.e. Wuffs). I think you\u0027re focusing on between SkCodec\u0027s caller and SkCodec...\n\nStill, to clarify, suppose frame #0 has a frame rect that is smaller than the image rect. The pixels outside the frame rect still need to be zero-initialized, right? Who should do the initializing: the GIF library, SkCodec or the SkCodec\u0027s caller? Is this frame #0 still considered independent?",
+      "parentUuid": "ce42fc1b_90ad6cf4",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "852d1e35_0df15a8b",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
