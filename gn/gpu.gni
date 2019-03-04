@@ -345,6 +345,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrMagnifierEffect.h",
   "$_src/gpu/effects/GrMatrixConvolutionEffect.cpp",
   "$_src/gpu/effects/GrMatrixConvolutionEffect.h",
+  "$_src/gpu/effects/GrMixerEffect.cpp",
+  "$_src/gpu/effects/GrMixerEffect.h",
   "$_src/gpu/effects/GrOvalEffect.cpp",
   "$_src/gpu/effects/GrOvalEffect.h",
   "$_src/gpu/effects/GrPorterDuffXferProcessor.cpp",
