@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "026da5db_45c844e4",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T21:26:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "426c0322_4e0f7858",
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "830f703f_b849d637",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 7
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "911b7702_1d1583a0",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T21:26:33Z",
+      "side": 1,
+      "message": "I have configured it.",
+      "parentUuid": "1876a8b6_cc2d1b36",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 2
+      },
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b41f46df_4b6a7bee",
         "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
         "patchSetId": 7
@@ -85,6 +127,30 @@
       "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1766ec0_953c117f",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T21:26:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b41f46df_4b6a7bee",
+      "range": {
+        "startLine": 81,
+        "startChar": 6,
+        "endLine": 81,
+        "endChar": 8
+      },
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
