@@ -57,11 +57,6 @@ protected:
 private:
     enum Wrapped { kWrapped };
 
-    // Since all MTLResources are inherently ref counted, we can call the Release proc when we
-    // delete the GrMtlTexture without worry of the MTLTexture getting deleted before it is done on
-    // the GPU. Thus we do nothing special here with the releaseHelper.
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
-
     GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
                  GrMipMapsStatus);
 
