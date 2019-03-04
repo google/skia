@@ -31,7 +31,7 @@ cat > platform_tools/android/apps/skqp/src/main/Android.mk <<- "EOM"
 	LOCAL_MULTILIB := both
 	LOCAL_USE_AAPT2 := true
 	LOCAL_STATIC_ANDROID_LIBRARIES := android-support-design
-	LOCAL_STATIC_JAVA_LIBRARIES := ctstestrunner
+	LOCAL_STATIC_JAVA_LIBRARIES := ctstestrunner-axt
 	LOCAL_SRC_FILES := $(call all-java-files-under, java)
 	LOCAL_PACKAGE_NAME := CtsSkQPTestCases
 	LOCAL_SDK_VERSION := test_current
