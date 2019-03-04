@@ -247,21 +247,24 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
 
 GrTexture* SkImage_GpuBase::onGetTexture() const {
     GrTextureProxy* proxy = this->peekProxy();
-    if (!proxy) {
-        return nullptr;
+    if (proxy && proxy->isInstantiated()) {
+        return proxy->peekTexture();
     }
 
-    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef();
-    if (!fContext->priv().resourceProvider() && !proxyRef->isInstantiated()) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
         // This image was created with a DDL context and cannot be instantiated.
         return nullptr;
     }
 
-    if (!proxy->instantiate(fContext->priv().resourceProvider())) {
+    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef();
+    SkASSERT(proxyRef && !proxyRef->isInstantiated());
+
+    if (!proxyRef->instantiate(direct->priv().resourceProvider())) {
         return nullptr;
     }
 
-    return proxy->peekTexture();
+    return proxyRef->peekTexture();
 }
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {

@@ -31,7 +31,9 @@ public:
 
     SkImageInfo onImageInfo() const override;
 
-    GrTextureProxy* peekProxy() const override { return this->asTextureProxyRef().get(); }
+    // This returns the single backing proxy if the YUV channels have already been flattened but
+    // nullptr if they have not.
+    GrTextureProxy* peekProxy() const override;
     sk_sp<GrTextureProxy> asTextureProxyRef() const override;
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
