@@ -133,6 +133,8 @@ fi
 # Re-enable error checking
 set -e
 
+./bin/fetch-gn
+
 echo "Compiling bitcode"
 
 # Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
