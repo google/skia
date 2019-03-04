@@ -15,6 +15,7 @@ uniform half blurRadius;
 @header {
     #include "GrCaps.h"
     #include "GrClip.h"
+    #include "GrContext.h"
     #include "GrPaint.h"
     #include "GrProxyProvider.h"
     #include "GrRecordingContext.h"

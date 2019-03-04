@@ -8,6 +8,7 @@
 #include "GrRecordingContext.h"
 
 #include "GrCaps.h"
+#include "GrContext.h"
 #include "GrDrawingManager.h"
 #include "GrMemoryPool.h"
 #include "GrProxyProvider.h"
@@ -92,7 +93,6 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
                                                textContextOptions,
-                                               this->singleOwner(),
                                                this->explicitlyAllocateGPUResources(),
                                                this->options().fSortRenderTargets,
                                                this->options().fReduceOpListSplitting));

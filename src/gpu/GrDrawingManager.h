@@ -23,7 +23,6 @@ class GrOpFlushState;
 class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
-class GrSingleOWner;
 class GrRenderTargetOpList;
 class GrSoftwarePathRenderer;
 class GrTextureContext;
@@ -138,7 +137,7 @@ private:
     };
 
     GrDrawingManager(GrRecordingContext*, const GrPathRendererChain::Options&,
-                     const GrTextContext::Options&, GrSingleOwner*,
+                     const GrTextContext::Options&,
                      bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets,
                      GrContextOptions::Enable reduceOpListSplitting);
 
@@ -171,8 +170,6 @@ private:
     // This cache is used by both the vertex and index pools. It reuses memory across multiple
     // flushes.
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
-    // In debug builds we guard against improper thread handling
-    GrSingleOwner*                    fSingleOwner;
 
     OpListDAG                         fDAG;
     GrOpList*                         fActiveOpList = nullptr;

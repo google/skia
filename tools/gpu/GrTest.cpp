@@ -89,7 +89,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
         return;
     }
     SkDEBUGCODE(fRenderTargetContext->validate());
-    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->auditTrail(),
                               "GrRenderTargetContext::testingOnly_addDrawOp");
     fRenderTargetContext->addDrawOp(clip, std::move(op), willAddFn);
 }

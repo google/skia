@@ -18,13 +18,9 @@
 #define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
 
 GrTextureContext::GrTextureContext(GrRecordingContext* context,
-                                   GrDrawingManager* drawingMgr,
                                    sk_sp<GrTextureProxy> textureProxy,
-                                   sk_sp<SkColorSpace> colorSpace,
-                                   GrAuditTrail* auditTrail,
-                                   GrSingleOwner* singleOwner)
-        : GrSurfaceContext(context, drawingMgr, textureProxy->config(), std::move(colorSpace),
-                           auditTrail, singleOwner)
+                                   sk_sp<SkColorSpace> colorSpace)
+        : GrSurfaceContext(context, textureProxy->config(), std::move(colorSpace))
         , fTextureProxy(std::move(textureProxy))
         , fOpList(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)

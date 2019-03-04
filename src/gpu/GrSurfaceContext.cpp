@@ -23,27 +23,36 @@
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
-                                   GrDrawingManager* drawingMgr,
                                    GrPixelConfig config,
-                                   sk_sp<SkColorSpace> colorSpace,
-                                   GrAuditTrail* auditTrail,
-                                   GrSingleOwner* singleOwner)
+                                   sk_sp<SkColorSpace> colorSpace)
         : fContext(context)
-        , fAuditTrail(auditTrail)
-        , fColorSpaceInfo(std::move(colorSpace), config)
-        , fDrawingManager(drawingMgr)
-#ifdef SK_DEBUG
-        , fSingleOwner(singleOwner)
-#endif
-{
+        , fColorSpaceInfo(std::move(colorSpace), config) {
 }
+
+GrAuditTrail* GrSurfaceContext::auditTrail() {
+    return fContext->priv().auditTrail();
+}
+
+GrDrawingManager* GrSurfaceContext::drawingManager() {
+    return fContext->priv().drawingManager();
+}
+
+const GrDrawingManager* GrSurfaceContext::drawingManager() const {
+    return fContext->priv().drawingManager();
+}
+
+#ifdef SK_DEBUG
+GrSingleOwner* GrSurfaceContext::singleOwner() {
+    return fContext->priv().singleOwner();
+}
+#endif
 
 bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                                   size_t dstRowBytes, int x, int y, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::readPixels");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
 
     // TODO: this seems to duplicate code in SkImage_Gpu::onReadPixels
     if (kUnpremul_SkAlphaType == dstInfo.alphaType() &&
@@ -70,7 +79,7 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::writePixels");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::writePixels");
 
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
         flags |= GrContextPriv::kUnpremul_PixelOpsFlag;
@@ -94,7 +103,7 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::copy");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::copy");
 
     if (!fContext->priv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
                                                         dstPoint)) {
