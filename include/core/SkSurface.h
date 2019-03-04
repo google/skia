@@ -718,11 +718,13 @@ public:
     */
     void flush();
 
+    /** Access options to pass to flush(). */
     enum class BackendSurfaceAccess {
         kNoAccess,  //!< back-end object will not be used by client
         kPresent,   //!< back-end surface will be used for presenting to screen
     };
 
+    /** Flags to pass to flush9). */
     enum FlushFlags {
         kNone_FlushFlags = 0,
         // flush will wait till all submitted GPU work is finished before returning.
