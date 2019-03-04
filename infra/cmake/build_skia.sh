@@ -23,6 +23,7 @@ rm -rf $SKIA_DIR/out/CMAKE
 mkdir --mode=0777 -p $SKIA_DIR/out/CMAKE
 
 cd $SKIA_DIR
+./bin/fetch-gn
 gn gen out/CMAKE --args='is_debug=false' --ide=json --json-ide-script=../../gn/gn_to_cmake.py
 
 cd $SKIA_DIR/out/CMAKE
