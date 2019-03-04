@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "426c0322_4e0f7858",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-04T21:12:39Z",
+      "side": 1,
+      "message": "You did this, yeah?",
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "830f703f_b849d637",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-04T21:12:39Z",
+      "side": 1,
+      "message": "Name this variable Debug or something",
+      "range": {
+        "startLine": 12,
+        "startChar": 17,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1876a8b6_cc2d1b36",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-04T21:12:39Z",
+      "side": 1,
+      "message": "We don\u0027t use tabs in Skia code - I\u0027d recommend configuring Sublime to convert tabs to spaces (except on Makefiles) and also to show you when you have tabs.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 2
+      },
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b41f46df_4b6a7bee",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-04T21:12:39Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 81,
+        "startChar": 6,
+        "endLine": 81,
+        "endChar": 8
+      },
+      "revId": "573b43023a002d13d8ebc911ebb1237ad5b47ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
