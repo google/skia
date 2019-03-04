@@ -11,11 +11,49 @@
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"
+#include "SkData.h"
+#include "SkJSON.h"
 #include "SkPaint.h"
 #include "SkParticleAffector.h"
 #include "SkParticleDrawable.h"
+#include "SkParticleSerialization.h"
 #include "SkReflected.h"
 #include "SkRSXform.h"
+
+sk_sp<SkParticleEffectLibrary> SkParticleEffectLibrary::MakeFromFileName(const char* filename) {
+    auto data = SkData::MakeFromFileName(filename);
+    if (!data) {
+        return nullptr;
+    }
+
+    skjson::DOM dom(static_cast<const char*>(data->data()), data->size());
+    if (dom.root().is<skjson::NullValue>()) {
+        return nullptr;
+    }
+
+    SkFromJsonVisitor fromJson(dom.root());
+    sk_sp<SkParticleEffectLibrary> library(new SkParticleEffectLibrary());
+    library->visitFields(&fromJson);
+    return library;
+}
+
+sk_sp<SkParticleEffectParams> SkParticleEffectLibrary::findEffect(const char* name) const {
+    for (const auto& entry : fEffects) {
+        if (entry.fName.equals(name)) {
+            return entry.fEffect;
+        }
+    }
+    return nullptr;
+}
+
+void SkParticleEffectLibrary::visitFields(SkFieldVisitor* v) {
+    v->visit("Effects", fEffects);
+}
+
+void SkParticleEffectLibrary::Entry::visitFields(SkFieldVisitor* v) {
+    v->visit("Name", fName);
+    v->visit("Effect", fEffect);
+}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
     v->visit("MaxCount", fMaxCount);
