@@ -741,7 +741,6 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             untiledCanvas.scale(SkIntToScalar(scale), SkIntToScalar(scale));
             untiledCanvas.drawString(text, 0, yPos, font, combinedPaint);
             untiledCanvas.restore();
-            untiledCanvas.flush();
 
             tiledCanvas.clear(SK_ColorTRANSPARENT);
             for (int y = 0; y < height; y += tileSize) {
@@ -763,7 +762,6 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
                     tiledCanvas.restore();
                 }
             }
-            tiledCanvas.flush();
 
             if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult)) {
                 REPORTER_ASSERT(reporter, false, filters.getName(i));

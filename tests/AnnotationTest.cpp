@@ -101,7 +101,6 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
         sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com"));
         SkAnnotateRectWithURL(canvas.get(), r, data.get());
 
-        canvas->flush();
         sk_sp<SkData> out = outStream.detachAsData();
         const char* rawOutput = (const char*)out->data();
 
@@ -119,7 +118,6 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
         sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com/#NamedDestination"));
         SkAnnotateLinkToDestination(canvas.get(), r, data.get());
 
-        canvas->flush();
         sk_sp<SkData> out = outStream.detachAsData();
         const char* rawOutput = (const char*)out->data();
 
