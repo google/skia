@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24904686_1baddb96",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-04T18:04:48Z",
+      "side": 1,
+      "message": "SkPixmap",
+      "range": {
+        "startLine": 570,
+        "startChar": 83,
+        "endLine": 570,
+        "endChar": 91
+      },
+      "revId": "ef98f9b1a4fd727ad3c59c3b68605af2a661c13a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
