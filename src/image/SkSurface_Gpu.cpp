@@ -624,9 +624,15 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         SkColorType colorType =
                 GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
-        return SkSurface::MakeFromBackendTexture(context, backendTexture, origin, 0,
-                                                 colorType, std::move(colorSpace),
-                                                 surfaceProps, deleteImageProc, deleteImageCtx);
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
+                origin, 0, colorType, std::move(colorSpace), surfaceProps, deleteImageProc,
+                deleteImageCtx);
+
+        if (!surface) {
+            SkASSERT(deleteImageProc);
+            deleteImageProc(deleteImageCtx);
+        }
+        return surface;
     } else {
         return nullptr;
     }
