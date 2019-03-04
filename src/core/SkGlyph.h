@@ -8,11 +8,11 @@
 #ifndef SkGlyph_DEFINED
 #define SkGlyph_DEFINED
 
-#include "SkChecksum.h"
-#include "SkFixed.h"
+#include "../private/SkChecksum.h"
+#include "../private/SkFixed.h"
 #include "SkMask.h"
 #include "SkPath.h"
-#include "SkTo.h"
+#include "../private/SkTo.h"
 #include "SkTypes.h"
 
 class SkArenaAlloc;
