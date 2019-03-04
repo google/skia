@@ -188,9 +188,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
 
     GET_PROC(PixelStorei);
     GET_PROC(PolygonMode);
-    if (extensions.has("GL_EXT_raster_multisample")) {
-        GET_PROC_SUFFIX(RasterSamples, EXT);
-    }
     GET_PROC(ReadBuffer);
     GET_PROC(ReadPixels);
     GET_PROC(Scissor);
@@ -558,10 +555,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     GET_PROC(PixelStorei);
-
-    if (extensions.has("GL_EXT_raster_multisample")) {
-        GET_PROC_SUFFIX(RasterSamples, EXT);
-    }
 
     if (version >= GR_GL_VER(3,0)) {
         GET_PROC(ReadBuffer);

@@ -148,8 +148,6 @@ public:
         return fMaxTileSize;
     }
 
-    int maxRasterSamples() const { return fMaxRasterSamples; }
-
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
     // Returns whether mixed samples is supported for the given backend render target.
@@ -381,7 +379,6 @@ protected:
     int fMaxVertexAttributes;
     int fMaxTextureSize;
     int fMaxTileSize;
-    int fMaxRasterSamples;
     int fMaxWindowRectangles;
     int fMaxClipAnalyticFPs;
 

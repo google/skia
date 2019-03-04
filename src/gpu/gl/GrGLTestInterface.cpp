@@ -125,7 +125,6 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fPopGroupMarker = bind_to_member(this, &GrGLTestInterface::popGroupMarker);
     fFunctions.fPushGroupMarker = bind_to_member(this, &GrGLTestInterface::pushGroupMarker);
     fFunctions.fQueryCounter = bind_to_member(this, &GrGLTestInterface::queryCounter);
-    fFunctions.fRasterSamples = bind_to_member(this, &GrGLTestInterface::rasterSamples);
     fFunctions.fReadBuffer = bind_to_member(this, &GrGLTestInterface::readBuffer);
     fFunctions.fReadPixels = bind_to_member(this, &GrGLTestInterface::readPixels);
     fFunctions.fRenderbufferStorage = bind_to_member(this, &GrGLTestInterface::renderbufferStorage);

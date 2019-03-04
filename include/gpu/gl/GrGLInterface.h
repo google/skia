@@ -195,7 +195,6 @@ public:
         GrGLFunction<GrGLPopGroupMarkerFn> fPopGroupMarker;
         GrGLFunction<GrGLPushGroupMarkerFn> fPushGroupMarker;
         GrGLFunction<GrGLQueryCounterFn> fQueryCounter;
-        GrGLFunction<GrGLRasterSamplesFn> fRasterSamples;
         GrGLFunction<GrGLReadBufferFn> fReadBuffer;
         GrGLFunction<GrGLReadPixelsFn> fReadPixels;
         GrGLFunction<GrGLRenderbufferStorageFn> fRenderbufferStorage;

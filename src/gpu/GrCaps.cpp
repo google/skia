@@ -51,7 +51,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxRenderTargetSize = 1;
     fMaxPreferredRenderTargetSize = 1;
     fMaxTextureSize = 1;
-    fMaxRasterSamples = 0;
     fMaxWindowRectangles = 0;
 
     // An default count of 4 was chosen because of the common pattern in Blink of:
@@ -220,7 +219,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Texture Size", fMaxTextureSize);
     writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
-    writer->appendS32("Max Raster Samples", fMaxRasterSamples);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
     writer->appendS32("Max Clip Analytic Fragment Processors", fMaxClipAnalyticFPs);
 
