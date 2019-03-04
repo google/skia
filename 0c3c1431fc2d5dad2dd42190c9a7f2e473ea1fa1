@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7f0a372_bed4c9dc",
+        "filename": "gn/gn_to_bp_utils.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-04T15:28:15Z",
+      "side": 1,
+      "message": "Alternatively, I considered modifying the gn file here [1] so that we optionally don\u0027t define these. I don\u0027t know that that is any better.\n\n[1] https://skia.googlesource.com/skia/+/5800f2e8a920ed57c66cde8f6f29c1af376e7661/gn/BUILD.gn#49",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 39
+      },
+      "revId": "0c3c1431fc2d5dad2dd42190c9a7f2e473ea1fa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
