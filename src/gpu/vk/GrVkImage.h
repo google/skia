@@ -187,12 +187,15 @@ private:
         }
 
         /**
-         * These are used to coordinate calling the idle proc between the GrVkTexture and the
-         * Resource. If the GrVkTexture becomes purgeable and if there are no command buffers
-         * referring to the Resource then it calls the proc. Otherwise, the Resource calls it
-         * when the last command buffer reference goes away and the GrVkTexture is purgeable.
+         * These are used to coordinate calling the "finished" idle procs between the GrVkTexture
+         * and the Resource. If the GrVkTexture becomes purgeable and if there are no command
+         * buffers referring to the Resource then it calls the procs. Otherwise, the Resource calls
+         * them when the last command buffer reference goes away and the GrVkTexture is purgeable.
          */
-        void replaceIdleProc(GrVkTexture* owner, sk_sp<GrRefCntedCallback>) const;
+        void addIdleProc(GrVkTexture*, sk_sp<GrRefCntedCallback>) const;
+        int idleProcCnt() const;
+        sk_sp<GrRefCntedCallback> idleProc(int) const;
+        void resetIdleProcs() const;
         void removeOwningTexture() const;
 
         /**
@@ -225,7 +228,7 @@ private:
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
         mutable int fNumCommandBufferOwners = 0;
-        mutable sk_sp<GrRefCntedCallback> fIdleCallback;
+        mutable SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
         mutable GrVkTexture* fOwningTexture = nullptr;
 
         typedef GrVkResource INHERITED;
