@@ -75,12 +75,6 @@ public:
         fNonSamplerParams.invalidate();
     }
 
-    void setIdleProc(IdleProc proc, void* context) override {
-        fIdleProc = proc;
-        fIdleProcContext = context;
-    }
-    void* idleContext() const override { return fIdleProcContext; }
-
     // These functions are used to track the texture parameters associated with the texture.
     GrGpu::ResetTimestamp getCachedParamsTimestamp() const { return fParamsTimestamp; }
     const SamplerParams& getCachedSamplerParams() const { return fSamplerParams; }
@@ -124,21 +118,11 @@ protected:
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override;
 
 private:
-    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
-
-    void willRemoveLastRefOrPendingIO() override {
-        if (fIdleProc) {
-            fIdleProc(fIdleProcContext);
-            fIdleProc = nullptr;
-            fIdleProcContext = nullptr;
-        }
-    }
+    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
 
     SamplerParams fSamplerParams;
     NonSamplerParams fNonSamplerParams;
     GrGpu::ResetTimestamp fParamsTimestamp;
-    IdleProc* fIdleProc = nullptr;
-    void* fIdleProcContext = nullptr;
     GrGLuint fID;
     GrGLenum fFormat;
     GrBackendObjectOwnership fTextureIDOwnership;
