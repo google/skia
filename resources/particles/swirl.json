@@ -3,6 +3,12 @@
    "Duration": 1,
    "Rate": 400,
    "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
       "XValues": [],
       "Segments": [
          {
@@ -22,6 +28,12 @@
       {
          "Type": "SkPositionOnPathAffector",
          "Enabled": true,
+         "Input": {
+            "Source": "Random",
+            "TileMode": "Clamp",
+            "Left": 0,
+            "Right": 1
+         },
          "SetHeading": true,
          "Path": "h50"
       },
@@ -31,6 +43,12 @@
          "Force": false,
          "Frame": "World",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -43,6 +61,12 @@
             ]
          },
          "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -63,6 +87,12 @@
          "Force": true,
          "Frame": "World",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -74,6 +104,12 @@
             ]
          },
          "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -92,6 +128,12 @@
          "Type": "SkSizeAffector",
          "Enabled": true,
          "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -108,6 +150,12 @@
          "Type": "SkColorAffector",
          "Enabled": true,
          "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
