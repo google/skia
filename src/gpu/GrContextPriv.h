@@ -66,7 +66,7 @@ public:
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
-    GrStrikeCache* getGlyphCache() { return fContext->getGlyphCache(); }
+    GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
     /**
