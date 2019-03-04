@@ -1074,7 +1074,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
 
     auto creator = [this]
             (const SkDescriptor& desc, SkScalerContextEffects effects, const SkTypeface& typeface) {
-        return SkScopedStrike{fStrikeServer->getOrCreateCache(desc, typeface, effects)};
+        return fStrikeServer->findOrCreateScopedStrike(desc, effects, typeface);
     };
 
     auto processMasks = [] (
@@ -1099,7 +1099,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
 
     auto creator = [this]
             (const SkDescriptor& desc, SkScalerContextEffects effects, const SkTypeface& typeface) {
-        return SkScopedStrike{fStrikeServer->getOrCreateCache(desc, typeface, effects)};
+        return fStrikeServer->findOrCreateScopedStrike(desc, effects, typeface);
     };
 
     // This processor is empty because all changes to the cache are tracked through
@@ -1160,7 +1160,7 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
 
     auto creator = [this]
             (const SkDescriptor& desc, SkScalerContextEffects effects, const SkTypeface& typeface) {
-        return SkScopedStrike{fStrikeServer->getOrCreateCache(desc, typeface, effects)};
+        return fStrikeServer->findOrCreateScopedStrike(desc, effects, typeface);
     };
 
     fPainter.drawGlyphRunAsSDFWithARGBFallback(
