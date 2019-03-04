@@ -803,7 +803,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         font.setTypeface(serverTf);
-        auto* cacheState = server.getOrCreateCache(
+        auto cacheState = server.getOrCreateCache(
                 paint, font, SkSurfacePropsCopyOrDefault(nullptr),
                 SkMatrix::I(), flags, &effects);
         cacheState->addGlyph(lostGlyphID, false);

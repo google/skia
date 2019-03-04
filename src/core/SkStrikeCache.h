@@ -39,12 +39,22 @@ public:
     virtual bool canDelete() = 0;
 };
 
-class SkStrikeCache {
+using SkScopedStrike = std::unique_ptr<SkStrikeInterface, SkStrikeInterface::Deleter>;
+
+class SkStrikeCacheInterface {
+public:
+    virtual ~SkStrikeCacheInterface() = default;
+    virtual SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                    const SkScalerContextEffects& effects,
+                                                    const SkTypeface& typeface) = 0;
+};
+
+class SkStrikeCache final : public SkStrikeCacheInterface {
     class Node;
 
 public:
     SkStrikeCache() = default;
-    ~SkStrikeCache();
+    ~SkStrikeCache() override;
 
     class ExclusiveStrikePtr {
     public:
@@ -116,7 +126,7 @@ public:
 
     SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
                                             const SkScalerContextEffects& effects,
-                                            const SkTypeface& typeface);
+                                            const SkTypeface& typeface) override;
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
             const SkFont& font,
