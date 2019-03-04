@@ -194,10 +194,10 @@ struct StrikeSpec {
 SkTextBlobCacheDiffCanvas::TrackLayerDevice::TrackLayerDevice(
         const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
         sk_sp<SkColorSpace> colorSpace, const SkTextBlobCacheDiffCanvas::Settings& settings)
-    : SkNoPixelsDevice(bounds, props, std::move(colorSpace))
-    , fStrikeServer(server)
-    , fSettings(settings)
-    , fPainter{props, kUnknown_SkColorType, SkScalerContextFlags::kFakeGammaAndBoostContrast} {
+        : SkNoPixelsDevice(bounds, props, std::move(colorSpace))
+        , fStrikeServer(server)
+        , fSettings(settings)
+        , fPainter{props, kUnknown_SkColorType, imageInfo().colorSpace()} {
     SkASSERT(fStrikeServer);
 }
 
