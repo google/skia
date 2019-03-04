@@ -65,6 +65,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     ASSERT_SINGLE_OWNER
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
     SkASSERT(this->proxyProvider());
+    SkASSERT(this->caps());  // needs to have been initialized by derived classes
+    SkASSERT(this->threadSafeProxy()); // needs to have been initialized by derived classes
 
     if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
         return false;
@@ -103,6 +105,154 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+#if 0
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
+                                                   const GrContextOptions& options,
+                                                   uint32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
+
+}
+
+#if 0
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
+                                                   GrBackendApi backend,
+                                                   const GrContextOptions& options,
+                                                   sk_sp<GrSkSLFPFactoryCache> cache)
+        : fCaps(std::move(caps))
+        , fContextUniqueID(uniqueID)
+        , fBackend(backend)
+        , fOptions(options)
+        , fFPFactoryCache(std::move(cache)) {}
+#endif
+
+GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
+
+//sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
+//    return fThreadSafeProxy;
+//}
+
+SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
+                                     size_t cacheMaxResourceBytes,
+                                     const SkImageInfo& ii, const GrBackendFormat& backendFormat,
+                                     int sampleCnt, GrSurfaceOrigin origin,
+                                     const SkSurfaceProps& surfaceProps,
+                                     bool isMipMapped, bool willUseGLFBO0) {
+    if (!backendFormat.isValid()) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (GrBackendApi::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
+        // The willUseGLFBO0 flags can only be used for a GL backend.
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    const GrCaps* caps = this->caps();
+
+    if (!caps->mipMapSupport()) {
+        isMipMapped = false;
+    }
+
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendFormat, ii.colorType());
+    if (config == kUnknown_GrPixelConfig) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (!SkSurface_Gpu::Valid(caps, config, ii.colorSpace())) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, config);
+    if (!sampleCnt) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    GrFSAAType FSAAType = GrFSAAType::kNone;
+    if (sampleCnt > 1) {
+        FSAAType = caps->usesMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
+    }
+
+    // This surface characterization factory assumes that the resulting characterization is
+    // textureable.
+    if (!caps->isConfigTexturable(config)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
+                                     cacheMaxResourceBytes, ii,
+                                     origin, config, FSAAType, sampleCnt,
+                                     SkSurfaceCharacterization::Textureable(true),
+                                     SkSurfaceCharacterization::MipMapped(isMipMapped),
+                                     SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
+                                     SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+                                     surfaceProps);
+}
+
+#include "SkImage_Gpu.h"
+#include "SkImage_GpuYUVA.h"
+#include "SkYUVAIndex.h"
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
+    return SkImage_Gpu::MakePromiseTexture(sk_make_sp<GrContext_Base>(this),
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           std::move(colorSpace),
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           promiseDoneProc,
+                                           textureContext);
+}
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makeYUVAPromiseTexture(
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendFormat yuvaFormats[],
+        const SkISize yuvaSizes[],
+        const SkYUVAIndex yuvaIndices[4],
+        int imageWidth,
+        int imageHeight,
+        GrSurfaceOrigin imageOrigin,
+        sk_sp<SkColorSpace> imageColorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContexts[]) {
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(sk_make_sp<GrContext_Base>(this),
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaSizes,
+                                                   yuvaIndices,
+                                                   imageWidth,
+                                                   imageHeight,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   promiseDoneProc,
+                                                   textureContexts);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+#endif
 
 void GrContext::abandonContext() {
     if (this->abandoned()) {
@@ -260,8 +410,6 @@ void GrContext::storeVkPipelineCacheData() {
         fGpu->storeVkPipelineCacheData();
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> GrContext::createPMToUPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {

@@ -13,7 +13,7 @@
 
 static constexpr int kMaxKeyDataCountU32 = 256;  // 1kB of uint32_t's.
 
-DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key>);
+DECLARE_SKMESSAGEBUS_MESSAGE(sk_sp<GrCCPathCache::Key100>);
 
 static inline uint32_t next_path_cache_id() {
     static std::atomic<uint32_t> gNextID(1);
@@ -26,7 +26,7 @@ static inline uint32_t next_path_cache_id() {
 }
 
 static inline bool SkShouldPostMessageToBus(
-        const sk_sp<GrCCPathCache::Key>& key, uint32_t msgBusUniqueID) {
+        const sk_sp<GrCCPathCache::Key100>& key, uint32_t msgBusUniqueID) {
     return key->pathCacheUniqueID() == msgBusUniqueID;
 }
 
@@ -65,35 +65,35 @@ inline static bool fuzzy_equals(const GrCCPathCache::MaskTransform& a,
     return true;
 }
 
-sk_sp<GrCCPathCache::Key> GrCCPathCache::Key::Make(uint32_t pathCacheUniqueID,
+sk_sp<GrCCPathCache::Key100> GrCCPathCache::Key100::Make(uint32_t pathCacheUniqueID,
                                                    int dataCountU32, const void* data) {
-    void* memory = ::operator new (sizeof(Key) + dataCountU32 * sizeof(uint32_t));
-    sk_sp<GrCCPathCache::Key> key(new (memory) Key(pathCacheUniqueID, dataCountU32));
+    void* memory = ::operator new (sizeof(Key100) + dataCountU32 * sizeof(uint32_t));
+    sk_sp<GrCCPathCache::Key100> key(new (memory) Key100(pathCacheUniqueID, dataCountU32));
     if (data) {
         memcpy(key->data(), data, key->dataSizeInBytes());
     }
     return key;
 }
 
-const uint32_t* GrCCPathCache::Key::data() const {
+const uint32_t* GrCCPathCache::Key100::data() const {
     // The shape key is a variable-length footer to the entry allocation.
-    return reinterpret_cast<const uint32_t*>(reinterpret_cast<const char*>(this) + sizeof(Key));
+    return reinterpret_cast<const uint32_t*>(reinterpret_cast<const char*>(this) + sizeof(Key100));
 }
 
-uint32_t* GrCCPathCache::Key::data() {
+uint32_t* GrCCPathCache::Key100::data() {
     // The shape key is a variable-length footer to the entry allocation.
-    return reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(this) + sizeof(Key));
+    return reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(this) + sizeof(Key100));
 }
 
-void GrCCPathCache::Key::onChange() {
+void GrCCPathCache::Key100::onChange() {
     // Our key's corresponding path was invalidated. Post a thread-safe eviction message.
-    SkMessageBus<sk_sp<Key>>::Post(sk_ref_sp(this));
+    SkMessageBus<sk_sp<Key100>>::Post(sk_ref_sp(this));
 }
 
 GrCCPathCache::GrCCPathCache(uint32_t contextUniqueID)
         : fContextUniqueID(contextUniqueID)
         , fInvalidatedKeysInbox(next_path_cache_id())
-        , fScratchKey(Key::Make(fInvalidatedKeysInbox.uniqueID(), kMaxKeyDataCountU32)) {
+        , fScratchKey(Key100::Make(fInvalidatedKeysInbox.uniqueID(), kMaxKeyDataCountU32)) {
 }
 
 GrCCPathCache::~GrCCPathCache() {
@@ -105,12 +105,12 @@ GrCCPathCache::~GrCCPathCache() {
     // Now take all the atlas textures we just invalidated and purge them from the GrResourceCache.
     // We just purge via message bus since we don't have any access to the resource cache right now.
     for (sk_sp<GrTextureProxy>& proxy : fInvalidatedProxies) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                GrUniqueKeyInvalidatedMessage(proxy->getUniqueKey(), fContextUniqueID));
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(
+                GrUniqueKeyInvalidatedMessage17(proxy->getUniqueKey(), fContextUniqueID));
     }
     for (const GrUniqueKey& key : fInvalidatedProxyUniqueKeys) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                GrUniqueKeyInvalidatedMessage(key, fContextUniqueID));
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(
+                GrUniqueKeyInvalidatedMessage17(key, fContextUniqueID));
     }
 }
 
@@ -204,7 +204,7 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
         }
 
         // Create a new entry in the cache.
-        sk_sp<Key> permanentKey = Key::Make(fInvalidatedKeysInbox.uniqueID(),
+        sk_sp<Key100> permanentKey = Key100::Make(fInvalidatedKeysInbox.uniqueID(),
                                             writeKeyHelper.allocCountU32(), fScratchKey->data());
         SkASSERT(*permanentKey == *fScratchKey);
         SkASSERT(!fHashTable.find(*permanentKey));
@@ -245,7 +245,7 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
     return OnFlushEntryRef::OnFlushRef(entry);
 }
 
-void GrCCPathCache::evict(const GrCCPathCache::Key& key, GrCCPathCacheEntry* entry) {
+void GrCCPathCache::evict(const GrCCPathCache::Key100& key, GrCCPathCacheEntry* entry) {
     if (!entry) {
         HashNode* node = fHashTable.find(key);
         SkASSERT(node);
@@ -317,9 +317,9 @@ void GrCCPathCache::purgeInvalidatedAtlasTextures(GrProxyProvider* proxyProvider
 }
 
 void GrCCPathCache::evictInvalidatedCacheKeys() {
-    SkTArray<sk_sp<Key>> invalidatedKeys;
+    SkTArray<sk_sp<Key100>> invalidatedKeys;
     fInvalidatedKeysInbox.poll(&invalidatedKeys);
-    for (const sk_sp<Key>& key : invalidatedKeys) {
+    for (const sk_sp<Key100>& key : invalidatedKeys) {
         bool isInCache = !key->shouldUnregisterFromPath();  // Gets set upon exiting the cache.
         if (isInCache) {
             this->evict(*key);

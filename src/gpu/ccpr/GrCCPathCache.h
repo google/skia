@@ -28,9 +28,9 @@ public:
     GrCCPathCache(uint32_t contextUniqueID);
     ~GrCCPathCache();
 
-    class Key : public SkPathRef::GenIDChangeListener {
+    class Key100 : public SkPathRef::GenIDChangeListener2 {
     public:
-        static sk_sp<Key> Make(uint32_t pathCacheUniqueID, int dataCountU32,
+        static sk_sp<Key100> Make(uint32_t pathCacheUniqueID, int dataCountU32,
                                const void* data = nullptr);
 
         uint32_t pathCacheUniqueID() const { return fPathCacheUniqueID; }
@@ -44,7 +44,7 @@ public:
         }
         uint32_t* data();
 
-        bool operator==(const Key& that) const {
+        bool operator==(const Key100& that) const {
             return fDataSizeInBytes == that.fDataSizeInBytes &&
                    !memcmp(this->data(), that.data(), fDataSizeInBytes);
         }
@@ -53,7 +53,7 @@ public:
         void onChange() override;
 
     private:
-        Key(uint32_t pathCacheUniqueID, int dataCountU32)
+        Key100(uint32_t pathCacheUniqueID, int dataCountU32)
                 : fPathCacheUniqueID(pathCacheUniqueID)
                 , fDataSizeInBytes(dataCountU32 * sizeof(uint32_t))
                 SkDEBUGCODE(, fDataReserveCountU32(dataCountU32)) {
@@ -127,13 +127,13 @@ private:
     // the hash table. We take that opportunity to remove it from the LRU list and do some cleanup.
     class HashNode : SkNoncopyable {
     public:
-        static const Key& GetKey(const HashNode&);
-        inline static uint32_t Hash(const Key& key) {
+        static const Key100& GetKey(const HashNode&);
+        inline static uint32_t Hash(const Key100& key) {
             return GrResourceKeyHash(key.data(), key.dataSizeInBytes());
         }
 
         HashNode() = default;
-        HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrShape&);
+        HashNode(GrCCPathCache*, sk_sp<Key100>, const MaskTransform&, const GrShape&);
         HashNode(HashNode&& node)
                 : fPathCache(node.fPathCache), fEntry(std::move(node.fEntry)) {
             SkASSERT(!node.fEntry);
@@ -158,7 +158,7 @@ private:
         return fPerFlushTimestamp;
     }
 
-    void evict(const GrCCPathCache::Key&, GrCCPathCacheEntry* = nullptr);
+    void evict(const GrCCPathCache::Key100&, GrCCPathCacheEntry* = nullptr);
 
     // Evicts all the cache entries whose keys have been queued up in fInvalidatedKeysInbox via
     // SkPath listeners.
@@ -166,10 +166,10 @@ private:
 
     const uint32_t fContextUniqueID;
 
-    SkTHashTable<HashNode, const Key&> fHashTable;
+    SkTHashTable<HashNode, const Key100&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
-    SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
-    sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
+    SkMessageBus<sk_sp<Key100>>::Inbox fInvalidatedKeysInbox;
+    sk_sp<Key100> fScratchKey;  // Reused for creating a temporary key in the find() method.
 
     // We only read the clock once per flush, and cache it in this variable. This prevents us from
     // excessive clock reads for cache timestamps that might degrade performance.
@@ -184,7 +184,7 @@ private:
     friend class GrCCCachedAtlas;  // To append to fInvalidatedProxies, fInvalidatedProxyUniqueKeys.
 
 public:
-    const SkTHashTable<HashNode, const Key&>& testingOnly_getHashTable() const;
+    const SkTHashTable<HashNode, const Key100&>& testingOnly_getHashTable() const;
     const SkTInternalLList<GrCCPathCacheEntry>& testingOnly_getLRU() const;
 };
 
@@ -202,7 +202,7 @@ public:
         SkASSERT(0 == fOnFlushRefCnt);
     }
 
-    const GrCCPathCache::Key& cacheKey() const { SkASSERT(fCacheKey); return *fCacheKey; }
+    const GrCCPathCache::Key100& cacheKey() const { SkASSERT(fCacheKey); return *fCacheKey; }
 
     // The number of flushes during which this specific entry (path + matrix combination) has been
     // pulled from the path cache. If a path is pulled from the cache more than once in a single
@@ -241,7 +241,7 @@ public:
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
 
-    GrCCPathCacheEntry(sk_sp<GrCCPathCache::Key> cacheKey, const MaskTransform& maskTransform)
+    GrCCPathCacheEntry(sk_sp<GrCCPathCache::Key100> cacheKey, const MaskTransform& maskTransform)
             : fCacheKey(std::move(cacheKey)), fMaskTransform(maskTransform) {
     }
 
@@ -251,7 +251,8 @@ private:
     // resource cache if needed.
     ReleaseAtlasResult releaseCachedAtlas(GrCCPathCache*);
 
-    sk_sp<GrCCPathCache::Key> fCacheKey;
+    sk_sp<GrCCPathCache::Key100> fCacheKey;
+
     GrStdSteadyClock::time_point fTimestamp;
     int fHitCount = 0;
     SkIRect fHitRect = SkIRect::MakeEmpty();
@@ -337,15 +338,15 @@ public:
 };
 
 
-inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* pathCache, sk_sp<Key> key,
+inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* pathCache, sk_sp<Key100> key,
                                          const MaskTransform& m, const GrShape& shape)
         : fPathCache(pathCache)
         , fEntry(new GrCCPathCacheEntry(key, m)) {
     SkASSERT(shape.hasUnstyledKey());
-    shape.addGenIDChangeListener(std::move(key));
+    shape.addGenIDChangeListener3(std::move(key));
 }
 
-inline const GrCCPathCache::Key& GrCCPathCache::HashNode::GetKey(
+inline const GrCCPathCache::Key100& GrCCPathCache::HashNode::GetKey(
         const GrCCPathCache::HashNode& node) {
     return *node.entry()->fCacheKey;
 }

@@ -72,33 +72,33 @@ SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorSpaceInfo&, const GrCaps&)
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
 bool SkPaintToGrPaint(GrRecordingContext*,
                       const GrColorSpaceInfo& dstColorSpaceInfo,
-                      const SkPaint& skPaint,
+                      const SkPaint&,
                       const SkMatrix& viewM,
-                      GrPaint* grPaint);
+                      GrPaint*);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrRecordingContext*,
                               const GrColorSpaceInfo& dstColorSpaceInfo,
-                              const SkPaint& skPaint,
-                              GrPaint* grPaint);
+                              const SkPaint&,
+                              GrPaint*);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
     should expect an unpremul input color and produce a premultiplied output color. There is
     no primitive color. */
 bool SkPaintToGrPaintReplaceShader(GrRecordingContext*,
                                    const GrColorSpaceInfo& dstColorSpaceInfo,
-                                   const SkPaint& skPaint,
+                                   const SkPaint&,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
-                                   GrPaint* grPaint);
+                                   GrPaint*);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
     GrOp's GrPrimitiveProcesssor. */
 bool SkPaintToGrPaintWithXfermode(GrRecordingContext*,
                                   const GrColorSpaceInfo& dstColorSpaceInfo,
-                                  const SkPaint& skPaint,
+                                  const SkPaint&,
                                   const SkMatrix& viewM,
                                   SkBlendMode primColorMode,
-                                  GrPaint* grPaint);
+                                  GrPaint*);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
     the expectation is that the primitive color will be premultiplied, though it really should be
@@ -116,11 +116,11 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrRecordingContext* context,
     lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
 bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
                                  const GrColorSpaceInfo& dstColorSpaceInfo,
-                                 const SkPaint& skPaint,
+                                 const SkPaint&,
                                  const SkMatrix& viewM,
-                                 std::unique_ptr<GrFragmentProcessor> fp,
+                                 std::unique_ptr<GrFragmentProcessor>,
                                  bool textureIsAlphaOnly,
-                                 GrPaint* grPaint);
+                                 GrPaint*);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Misc Sk to Gr type conversions

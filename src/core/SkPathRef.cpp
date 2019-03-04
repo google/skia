@@ -703,7 +703,7 @@ uint32_t SkPathRef::genID() const {
     return fGenerationID;
 }
 
-void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
+void SkPathRef::addGenIDChangeListener2(sk_sp<GenIDChangeListener2> listener) {
     if (nullptr == listener || this == gEmpty) {
         return;
     }
@@ -725,7 +725,7 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
     SkAutoMutexAcquire lock(fGenIDChangeListenersMutex);
-    for (GenIDChangeListener* listener : fGenIDChangeListeners) {
+    for (GenIDChangeListener2* listener : fGenIDChangeListeners) {
         if (!listener->shouldUnregisterFromPath()) {
             listener->onChange();
         }

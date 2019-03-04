@@ -24,7 +24,7 @@ GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkIm
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    AllowedTexGenType onlyIfFast) {
-    return fImage->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
+    return fImage->lockTextureProxy(fContext3, fOriginalKey, fCachingHint,
                                     willBeMipped, onlyIfFast);
 }
 
@@ -45,7 +45,7 @@ SkColorSpace* GrImageTextureMaker::colorSpace() const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
+GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                                  bool useDecal)
     : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
     , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
