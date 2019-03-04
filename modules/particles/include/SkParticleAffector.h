@@ -10,24 +10,17 @@
 
 #include "SkReflected.h"
 
+#include "SkParticleData.h"
 #include "SkPoint.h"
 
 struct SkColorCurve;
 struct SkCurve;
-struct SkParticleState;
-struct SkParticleUpdateParams;
-
-enum SkParticleFrame {
-    kWorld_ParticleFrame,     // "Up" is { 0, -1 }
-    kLocal_ParticleFrame,     // "Up" is particle's heading
-    kVelocity_ParticleFrame,  // "Up" is particle's direction of travel
-};
 
 class SkParticleAffector : public SkReflected {
 public:
     REFLECTED_ABSTRACT(SkParticleAffector, SkReflected)
 
-    void apply(SkParticleUpdateParams& params, SkParticleState ps[], int count);
+    void apply(const SkParticleUpdateParams& params, SkParticleState ps[], int count);
     void visitFields(SkFieldVisitor* v) override;
 
     static void RegisterAffectorTypes();
@@ -53,7 +46,7 @@ public:
     static sk_sp<SkParticleAffector> MakeColor(const SkColorCurve& curve);
 
 private:
-    virtual void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) = 0;
+    virtual void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) = 0;
 
     bool fEnabled = true;
 };

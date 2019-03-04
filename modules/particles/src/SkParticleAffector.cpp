@@ -17,13 +17,8 @@
 
 #include "sk_tool_utils.h"
 
-constexpr SkFieldVisitor::EnumStringMapping gParticleFrameMapping[] = {
-    { kWorld_ParticleFrame,    "World" },
-    { kLocal_ParticleFrame,    "Local" },
-    { kVelocity_ParticleFrame, "Velocity" },
-};
-
-void SkParticleAffector::apply(SkParticleUpdateParams& params, SkParticleState ps[], int count) {
+void SkParticleAffector::apply(const SkParticleUpdateParams& params,
+                               SkParticleState ps[], int count) {
     if (fEnabled) {
         this->onApply(params, ps, count);
     }
@@ -31,23 +26,6 @@ void SkParticleAffector::apply(SkParticleUpdateParams& params, SkParticleState p
 
 void SkParticleAffector::visitFields(SkFieldVisitor* v) {
     v->visit("Enabled", fEnabled);
-}
-
-static inline SkVector get_heading(const SkParticleState& ps, SkParticleFrame frame) {
-    switch (frame) {
-        case kLocal_ParticleFrame:
-            return ps.fPose.fHeading;
-        case kVelocity_ParticleFrame: {
-            SkVector heading = ps.fVelocity.fLinear;
-            if (!heading.normalize()) {
-                heading.set(0, -1);
-            }
-            return heading;
-        }
-        case kWorld_ParticleFrame:
-        default:
-            return SkVector{ 0, -1 };
-    }
 }
 
 class SkLinearVelocityAffector : public SkParticleAffector {
@@ -63,14 +41,14 @@ public:
 
     REFLECTED(SkLinearVelocityAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            float angle = fAngle.eval(ps[i].fAge, ps[i].fRandom);
+            float angle = fAngle.eval(params, ps[i]);
             SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
-            SkVector heading = get_heading(ps[i], static_cast<SkParticleFrame>(fFrame));
+            SkVector heading = ps[i].getFrameHeading(static_cast<SkParticleFrame>(fFrame));
             SkScalar c = heading.fX * c_local - heading.fY * s_local;
             SkScalar s = heading.fX * s_local + heading.fY * c_local;
-            float strength = fStrength.eval(ps[i].fAge, ps[i].fRandom);
+            float strength = fStrength.eval(params, ps[i]);
             SkVector force = { c * strength, s * strength };
             if (fForce) {
                 ps[i].fVelocity.fLinear += force * params.fDeltaTime;
@@ -103,9 +81,9 @@ public:
 
     REFLECTED(SkAngularVelocityAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            float strength = fStrength.eval(ps[i].fAge, ps[i].fRandom);
+            float strength = fStrength.eval(params, ps[i]);
             if (fForce) {
                 ps[i].fVelocity.fAngular += strength * params.fDeltaTime;
             } else {
@@ -133,7 +111,7 @@ public:
 
     REFLECTED(SkPointForceAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             SkVector toPoint = fPoint - ps[i].fPose.fPosition;
             SkScalar lenSquare = toPoint.dot(toPoint);
@@ -165,11 +143,11 @@ public:
 
     REFLECTED(SkOrientationAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            float angle = fAngle.eval(ps[i].fAge, ps[i].fRandom);
+            float angle = fAngle.eval(params, ps[i]);
             SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
-            SkVector heading = get_heading(ps[i], static_cast<SkParticleFrame>(fFrame));
+            SkVector heading = ps[i].getFrameHeading(static_cast<SkParticleFrame>(fFrame));
             ps[i].fPose.fHeading.set(heading.fX * c_local - heading.fY * s_local,
                                      heading.fX * s_local + heading.fY * c_local);
         }
@@ -197,7 +175,7 @@ public:
 
     REFLECTED(SkPositionInCircleAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             SkVector v;
             do {
@@ -205,9 +183,8 @@ public:
                 v.fY = ps[i].fRandom.nextSScalar1();
             } while (v.dot(v) > 1);
 
-            SkPoint center = { fX.eval(ps[i].fAge, ps[i].fRandom),
-                               fY.eval(ps[i].fAge, ps[i].fRandom) };
-            SkScalar radius = fRadius.eval(ps[i].fAge, ps[i].fRandom);
+            SkPoint center = { fX.eval(params, ps[i]), fY.eval(params, ps[i]) };
+            SkScalar radius = fRadius.eval(params, ps[i]);
             ps[i].fPose.fPosition = center + (v * radius);
             if (fSetHeading) {
                 if (!v.normalize()) {
@@ -235,22 +212,23 @@ private:
 
 class SkPositionOnPathAffector : public SkParticleAffector {
 public:
-    SkPositionOnPathAffector(const char* path = "", bool setHeading = true, bool random = true)
+    SkPositionOnPathAffector(const char* path = "", bool setHeading = true,
+                             SkParticleValue input = SkParticleValue())
             : fPath(path)
-            , fSetHeading(setHeading)
-            , fRandom(random) {
+            , fInput(input)
+            , fSetHeading(setHeading) {
         this->rebuild();
     }
 
     REFLECTED(SkPositionOnPathAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         if (fContours.empty()) {
             return;
         }
 
         for (int i = 0; i < count; ++i) {
-            float t = fRandom ? ps[i].fRandom.nextF() : ps[i].fAge;
+            float t = fInput.eval(params, ps[i]);
             SkScalar len = fTotalLength * t;
             int idx = 0;
             while (idx < fContours.count() && len > fContours[idx]->length()) {
@@ -271,8 +249,8 @@ public:
         SkString oldPath = fPath;
 
         SkParticleAffector::visitFields(v);
+        v->visit("Input", fInput);
         v->visit("SetHeading", fSetHeading);
-        v->visit("Random", fRandom);
         v->visit("Path", fPath);
 
         if (fPath != oldPath) {
@@ -281,9 +259,9 @@ public:
     }
 
 private:
-    SkString fPath;
-    bool     fSetHeading;
-    bool     fRandom;
+    SkString        fPath;
+    SkParticleValue fInput;
+    bool            fSetHeading;
 
     void rebuild() {
         SkPath path;
@@ -309,24 +287,24 @@ private:
 class SkPositionOnTextAffector : public SkParticleAffector {
 public:
     SkPositionOnTextAffector(const char* text = "", SkScalar fontSize = 96, bool setHeading = true,
-                             bool random = true)
+                             SkParticleValue input = SkParticleValue())
             : fText(text)
             , fFontSize(fontSize)
-            , fSetHeading(setHeading)
-            , fRandom(random) {
+            , fInput(input)
+            , fSetHeading(setHeading) {
         this->rebuild();
     }
 
     REFLECTED(SkPositionOnTextAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         if (fContours.empty()) {
             return;
         }
 
         // TODO: Refactor to share code with PositionOnPathAffector
         for (int i = 0; i < count; ++i) {
-            float t = fRandom ? ps[i].fRandom.nextF() : ps[i].fAge;
+            float t = fInput.eval(params, ps[i]);
             SkScalar len = fTotalLength * t;
             int idx = 0;
             while (idx < fContours.count() && len > fContours[idx]->length()) {
@@ -348,8 +326,8 @@ public:
         SkScalar oldSize = fFontSize;
 
         SkParticleAffector::visitFields(v);
+        v->visit("Input", fInput);
         v->visit("SetHeading", fSetHeading);
-        v->visit("Random", fRandom);
         v->visit("Text", fText);
         v->visit("FontSize", fFontSize);
 
@@ -359,10 +337,10 @@ public:
     }
 
 private:
-    SkString fText;
-    SkScalar fFontSize;
-    bool     fSetHeading;
-    bool     fRandom;
+    SkString        fText;
+    SkScalar        fFontSize;
+    SkParticleValue fInput;
+    bool            fSetHeading;
 
     void rebuild() {
         fTotalLength = 0;
@@ -394,9 +372,9 @@ public:
 
     REFLECTED(SkSizeAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            ps[i].fPose.fScale = fCurve.eval(ps[i].fAge, ps[i].fRandom);
+            ps[i].fPose.fScale = fCurve.eval(params, ps[i]);
         }
     }
 
@@ -415,9 +393,9 @@ public:
 
     REFLECTED(SkFrameAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            ps[i].fFrame = fCurve.eval(ps[i].fAge, ps[i].fRandom);
+            ps[i].fFrame = fCurve.eval(params, ps[i]);
         }
     }
 
@@ -437,9 +415,9 @@ public:
 
     REFLECTED(SkColorAffector, SkParticleAffector)
 
-    void onApply(SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
-            ps[i].fColor = fCurve.eval(ps[i].fAge, ps[i].fRandom);
+            ps[i].fColor = fCurve.eval(params, ps[i]);
         }
     }
 

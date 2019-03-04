@@ -7,6 +7,7 @@
 
 #include "SkCurve.h"
 
+#include "SkParticleData.h"
 #include "SkRandom.h"
 #include "SkReflected.h"
 
@@ -78,8 +79,10 @@ void SkCurveSegment::visitFields(SkFieldVisitor* v) {
     }
 }
 
-SkScalar SkCurve::eval(SkScalar x, SkRandom& random) const {
+SkScalar SkCurve::eval(const SkParticleUpdateParams& params, SkParticleState& ps) const {
     SkASSERT(fSegments.count() == fXValues.count() + 1);
+
+    float x = fInput.eval(params, ps);
 
     int i = 0;
     for (; i < fXValues.count(); ++i) {
@@ -98,12 +101,13 @@ SkScalar SkCurve::eval(SkScalar x, SkRandom& random) const {
 
     // Always pull t and negate here, so that the stable generator behaves consistently, even if
     // our segments use an inconsistent feature-set.
-    SkScalar t = random.nextF();
-    bool negate = random.nextBool();
+    SkScalar t = ps.fRandom.nextF();
+    bool negate = ps.fRandom.nextBool();
     return fSegments[i].eval(segmentX, t, negate);
 }
 
 void SkCurve::visitFields(SkFieldVisitor* v) {
+    v->visit("Input", fInput);
     v->visit("XValues", fXValues);
     v->visit("Segments", fSegments);
 
@@ -117,10 +121,10 @@ void SkCurve::visitFields(SkFieldVisitor* v) {
     }
 }
 
-SkColor4f SkColorCurveSegment::eval(SkScalar x, SkRandom& random) const {
+SkColor4f SkColorCurveSegment::eval(SkScalar x, SkScalar t) const {
     SkColor4f result = eval_segment(fMin, x, fType);
     if (fRanged) {
-        result = result + (eval_segment(fMax, x, fType) - result) * random.nextF();
+        result = result + (eval_segment(fMax, x, fType) - result) * t;
     }
     return result;
 }
@@ -148,8 +152,10 @@ void SkColorCurveSegment::visitFields(SkFieldVisitor* v) {
     }
 }
 
-SkColor4f SkColorCurve::eval(SkScalar x, SkRandom& random) const {
+SkColor4f SkColorCurve::eval(const SkParticleUpdateParams& params, SkParticleState& ps) const {
     SkASSERT(fSegments.count() == fXValues.count() + 1);
+
+    float x = fInput.eval(params, ps);
 
     int i = 0;
     for (; i < fXValues.count(); ++i) {
@@ -165,10 +171,11 @@ SkColor4f SkColorCurve::eval(SkScalar x, SkRandom& random) const {
         segmentX = rangeMin;
     }
     SkASSERT(0.0f <= segmentX && segmentX <= 1.0f);
-    return fSegments[i].eval(segmentX, random);
+    return fSegments[i].eval(segmentX, ps.fRandom.nextF());
 }
 
 void SkColorCurve::visitFields(SkFieldVisitor* v) {
+    v->visit("Input", fInput);
     v->visit("XValues", fXValues);
     v->visit("Segments", fSegments);
 

@@ -9,6 +9,7 @@
 #define SkCurve_DEFINED
 
 #include "SkColor.h"
+#include "SkParticleData.h"
 #include "SkScalar.h"
 #include "SkTArray.h"
 
@@ -73,9 +74,11 @@ struct SkCurve {
         fSegments.push_back().setConstant(c);
     }
 
-    // Evaluate this curve at x, using random for curves that have ranged or bidirectional segments.
-    SkScalar eval(SkScalar x, SkRandom& random) const;
+    SkScalar eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
     void visitFields(SkFieldVisitor* v);
+
+    // Parameters that determine our x-value during evaluation
+    SkParticleValue                fInput;
 
     // It should always be true that (fXValues.count() + 1) == fSegments.count()
     SkTArray<SkScalar, true>       fXValues;
@@ -96,7 +99,7 @@ struct SkColorCurveSegment {
         }
     }
 
-    SkColor4f eval(SkScalar x, SkRandom& random) const;
+    SkColor4f eval(SkScalar x, SkScalar t) const;
     void visitFields(SkFieldVisitor* v);
 
     void setConstant(SkColor4f c) {
@@ -117,9 +120,10 @@ struct SkColorCurve {
         fSegments.push_back().setConstant(c);
     }
 
-    SkColor4f eval(SkScalar x, SkRandom& random) const;
+    SkColor4f eval(const SkParticleUpdateParams& params, SkParticleState& ps) const;
     void visitFields(SkFieldVisitor* v);
 
+    SkParticleValue                     fInput;
     SkTArray<SkScalar, true>            fXValues;
     SkTArray<SkColorCurveSegment, true> fSegments;
 };

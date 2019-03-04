@@ -3,6 +3,12 @@
    "Duration": 1,
    "Rate": 30,
    "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
       "XValues": [],
       "Segments": [
          {
@@ -24,6 +30,12 @@
          "Force": false,
          "Frame": "World",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -36,6 +48,12 @@
             ]
          },
          "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -51,6 +69,12 @@
       {
          "Type": "SkPositionOnPathAffector",
          "Enabled": true,
+         "Input": {
+            "Source": "Random",
+            "TileMode": "Clamp",
+            "Left": 0,
+            "Right": 1
+         },
          "SetHeading": false,
          "Path": "h500"
       }
@@ -60,6 +84,12 @@
          "Type": "SkSizeAffector",
          "Enabled": true,
          "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
