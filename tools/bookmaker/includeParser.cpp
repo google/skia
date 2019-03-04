@@ -777,7 +777,7 @@ void IncludeParser::checkTokens(list<Definition>& tokens, string key, string cla
                         }
                     } else {
                         this->suggestFix(Suggest::kMethodMissing, token, root, nullptr);
-                        fFailed = true;
+                        //fFailed = true;
                     }
                     break;
                 }
@@ -940,7 +940,7 @@ void IncludeParser::checkTokens(list<Definition>& tokens, string key, string cla
                     if (!def) {
                         if (!token.fUndocumented) {
                             SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
+                            //fFailed = true;
                         }
                         break;
                     }
