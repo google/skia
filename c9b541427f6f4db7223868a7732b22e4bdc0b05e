@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "06938593_72829e86",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-04T17:54:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbbc9cec_65451326",
+      "range": {
+        "startLine": 575,
+        "startChar": 8,
+        "endLine": 575,
+        "endChar": 96
+      },
+      "revId": "c9b541427f6f4db7223868a7732b22e4bdc0b05e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "372aade2_50bf3956",
         "filename": "include/core/SkImage.h",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "c9b541427f6f4db7223868a7732b22e4bdc0b05e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fbf0a92_7859f6cd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-04T17:54:40Z",
+      "side": 1,
+      "message": "Query from the pixmap now.",
+      "parentUuid": "372aade2_50bf3956",
+      "range": {
+        "startLine": 577,
+        "startChar": 8,
+        "endLine": 580,
+        "endChar": 62
+      },
+      "revId": "c9b541427f6f4db7223868a7732b22e4bdc0b05e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
