@@ -65,8 +65,6 @@ protected:
     }
 
 private:
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
-
     GrMockTextureInfo fInfo;
 
     typedef GrTexture INHERITED;
@@ -120,8 +118,6 @@ protected:
             : GrSurface(gpu, desc), INHERITED(gpu, desc), fInfo(info) {}
 
 private:
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
-
     GrMockRenderTargetInfo fInfo;
 
     typedef GrRenderTarget INHERITED;
@@ -163,8 +159,6 @@ protected:
     void willRemoveLastRefOrPendingIO() override { GrTexture::willRemoveLastRefOrPendingIO(); }
 
 private:
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
-
     void onAbandon() override {
         GrRenderTarget::onAbandon();
         GrMockTexture::onAbandon();

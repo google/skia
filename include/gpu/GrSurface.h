@@ -132,7 +132,10 @@ protected:
 private:
     const char* getResourceType() const override { return "Surface"; }
 
-    virtual void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) = 0;
+    // Unmanaged backends (e.g. Vulkan) may want to specially handle the release proc in order to
+    // ensure it isn't called until GPU work related to the resource is completed.
+    virtual void onSetRelease(sk_sp<GrRefCntedCallback>) {}
+
     void invokeReleaseProc() {
         // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
         // ReleaseProc to be called.
