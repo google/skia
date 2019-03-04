@@ -82,24 +82,31 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(
         , fColorType{colorType}
         , fScalerContextFlags{flags} {}
 
-#if SK_SUPPORT_GPU
-
 // TODO: unify with code in GrTextContext.cpp
-static SkScalerContextFlags compute_scaler_context_flags(
-        const GrColorSpaceInfo& colorSpaceInfo) {
+static SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs) {
     // If we're doing linear blending, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
     // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
-    if (colorSpaceInfo.isLinearlyBlended()) {
+    if (cs && cs->gammaIsLinear()) {
         return SkScalerContextFlags::kBoostContrast;
     } else {
         return SkScalerContextFlags::kFakeGammaAndBoostContrast;
     }
 }
 
-SkGlyphRunListPainter::SkGlyphRunListPainter(
-        const SkSurfaceProps& props, const GrColorSpaceInfo& csi)
-        : SkGlyphRunListPainter(props, kUnknown_SkColorType, compute_scaler_context_flags(csi)) {}
+SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
+                                             const SkColorSpace* cs)
+        : fDeviceProps{props}
+        , fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
+        , fColorType{colorType}
+        , fScalerContextFlags{compute_scaler_context_flags(cs)} {}
+
+#if SK_SUPPORT_GPU
+
+SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
+                                             const GrColorSpaceInfo& csi)
+        : SkGlyphRunListPainter(props, kUnknown_SkColorType,
+                                compute_scaler_context_flags(csi.colorSpace())) {}
 
 SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
         : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}

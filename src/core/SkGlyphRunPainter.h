@@ -79,6 +79,9 @@ public:
     SkGlyphRunListPainter(
             const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags);
 
+    SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
+                          const SkColorSpace* cs);
+
 #if SK_SUPPORT_GPU
     SkGlyphRunListPainter(const SkSurfaceProps&, const GrColorSpaceInfo&);
     explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
