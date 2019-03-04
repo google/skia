@@ -22,6 +22,7 @@ declare_args() {
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
+  skia_use_fonthost_win = is_win
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_fixed_gamma_text = is_android
   skia_use_libjpeg_turbo = true
@@ -68,6 +69,7 @@ declare_args() {
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
   skia_enable_fontmgr_fuchsia = is_fuchsia
+  skia_enable_fontmgr_win = is_win
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
@@ -383,6 +385,16 @@ optional("fontmgr_android") {
     "src/ports/SkFontMgr_android.cpp",
     "src/ports/SkFontMgr_android_factory.cpp",
     "src/ports/SkFontMgr_android_parser.cpp",
+  ]
+}
+
+optional("fontmgr_win") {
+  enabled = skia_enable_fontmgr_win
+
+  sources = [
+    "src/fonts/SkFontMgr_indirect.cpp",
+    "src/ports/SkFontMgr_win_dw.cpp",
+    "src/ports/SkFontMgr_win_dw_factory.cpp",
   ]
 }
 
@@ -960,11 +972,7 @@ component("skia") {
 
   if (is_win) {
     sources += [
-      "src/fonts/SkFontMgr_indirect.cpp",
       "src/ports/SkDebug_win.cpp",
-      "src/ports/SkFontHost_win.cpp",
-      "src/ports/SkFontMgr_win_dw.cpp",
-      "src/ports/SkFontMgr_win_dw_factory.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
       "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
@@ -1012,6 +1020,10 @@ component("skia") {
 
   if (skia_use_fonthost_mac) {
     sources += [ "src/ports/SkFontHost_mac.cpp" ]
+  }
+
+  if (skia_use_fonthost_win) {
+    sources += [ "src/ports/SkFontHost_win.cpp" ]
   }
 
   if (is_mac) {
