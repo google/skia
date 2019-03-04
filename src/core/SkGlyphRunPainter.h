@@ -20,45 +20,6 @@ class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif
 
-class SkStrikeSpec {
-public:
-    SkStrikeSpec(const SkDescriptor& desc,
-                 const SkTypeface& typeface,
-                 const SkScalerContextEffects& effects)
-            : fDesc{desc}
-            , fTypeface{typeface}
-            , fEffects{effects} {}
-
-
-    const SkDescriptor& desc() const { return fDesc; }
-    const SkTypeface& typeface() const { return fTypeface; }
-    SkScalerContextEffects effects() const {return fEffects; }
-
-private:
-    const SkDescriptor& fDesc;
-    const SkTypeface& fTypeface;
-    const SkScalerContextEffects fEffects;
-};
-
-class SkStrikeInterface {
-public:
-    virtual ~SkStrikeInterface() = default;
-    virtual SkVector rounding() const = 0;
-    virtual const SkDescriptor& getDescriptor() const = 0;
-    virtual SkStrikeSpec strikeSpec() const = 0;
-    virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
-    virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
-    virtual void onAboutToExitScope() = 0;
-
-    struct Deleter {
-        void operator()(SkStrikeInterface* ptr) const {
-            ptr->onAboutToExitScope();
-        }
-    };
-};
-
-using SkScopedStrike = std::unique_ptr<SkStrikeInterface, SkStrikeInterface::Deleter>;
-
 class SkStrikeCommon {
 public:
     static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);

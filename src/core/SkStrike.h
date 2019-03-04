@@ -16,6 +16,7 @@
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
+#include "SkStrikeInterface.h"
 #include "SkTemplates.h"
 #include <memory>
 
