@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a0824537_cdaa5e94",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-04T20:17:11Z",
+      "side": 1,
+      "message": "This is what we always want. Because this is used exclusively by the GPU code.",
+      "parentUuid": "ab88a0ce_a9f57260",
+      "revId": "ad4ff2ab55f0e047d62f8fb9ed2362690e617521",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0d95757_346949de",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "ad4ff2ab55f0e047d62f8fb9ed2362690e617521",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fa32a72_a8402341",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-04T20:17:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0d95757_346949de",
+      "revId": "ad4ff2ab55f0e047d62f8fb9ed2362690e617521",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
