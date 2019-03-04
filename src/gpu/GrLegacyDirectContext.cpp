@@ -85,7 +85,7 @@ protected:
             allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
         }
 
-        GrStrikeCache* glyphCache = this->priv().getGlyphCache();
+        GrStrikeCache* glyphCache = this->priv().getGrStrikeCache();
         GrProxyProvider* proxyProvider = this->priv().proxyProvider();
 
         fAtlasManager = new GrAtlasManager(proxyProvider, glyphCache,

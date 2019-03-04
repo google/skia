@@ -55,7 +55,7 @@ public:
 
     class VertexRegenerator;
 
-    void generateFromGlyphRunList(GrStrikeCache* glyphCache,
+    void generateFromGlyphRunList(GrStrikeCache* grStrikeCache,
                                   const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
@@ -65,7 +65,13 @@ public:
                                   const SkGlyphRunList& glyphRunList,
                                   SkGlyphRunListPainter* glyphPainter);
 
-    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount, GrColor color);
+    static sk_sp<GrTextBlob> Make(
+            int glyphCount,
+            int runCount,
+            GrColor color,
+            GrStrikeCache* strikeCache);
+
+    sk_sp<GrTextStrike> findOrMakeStrike(const SkDescriptor& desc);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -250,10 +256,7 @@ public:
                                           GrTextTarget*);
 
 private:
-    GrTextBlob()
-        : fMaxMinScale(-SK_ScalarMax)
-        , fMinMaxScale(SK_ScalarMax)
-        , fTextType(0) {}
+    GrTextBlob(GrStrikeCache* strikeCache) : fStrikeCache{strikeCache} { }
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -532,6 +535,7 @@ private:
     char* fVertices;
     GrGlyph** fGlyphs;
     Run* fRuns;
+    GrStrikeCache* const fStrikeCache;
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
@@ -545,11 +549,11 @@ private:
     // We can reuse distance field text, but only if the new viewmatrix would not result in
     // a mip change.  Because there can be multiple runs in a blob, we track the overall
     // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
-    SkScalar fMaxMinScale;
-    SkScalar fMinMaxScale;
+    SkScalar fMaxMinScale{-SK_ScalarMax};
+    SkScalar fMinMaxScale{SK_ScalarMax};
     int fRunCount{0};
     int fRunCountLimit;
-    uint8_t fTextType;
+    uint8_t fTextType{0};
 };
 
 /**
