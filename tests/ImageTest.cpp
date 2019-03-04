@@ -412,7 +412,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get(),
                                                                 mipMapped));
                 if (!texImage) {
-                    GrContext* imageContext = as_IB(image)->context();
+                    auto imageContext = as_IB(image)->context1();
 
                     // We expect to fail if image comes from a different GrContext.
                     if (!image->isTextureBacked() || imageContext == context) {

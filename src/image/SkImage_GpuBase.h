@@ -9,22 +9,22 @@
 #define SkImage_GpuBase_DEFINED
 
 #include "GrBackendSurface.h"
-#include "GrContext.h"
 #include "GrTypesPriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
 #include "SkYUVAIndex.h"
 
 class GrColorSpaceXform;
+class GrImageContext;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
-    SkImage_GpuBase(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkAlphaType,
+    SkImage_GpuBase(sk_sp<GrImageContext>, int width, int height, uint32_t uniqueID, SkAlphaType,
                     sk_sp<SkColorSpace>);
     ~SkImage_GpuBase() override;
 
-    GrContext* context() const final { return fContext.get(); }
+    GrImageContext* context1() const final;
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;
@@ -86,13 +86,13 @@ protected:
             GrMipMapped, PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext);
 
-    static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
+    static bool RenderYUVAToRGBA(GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const sk_sp<GrTextureProxy> proxies[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
-    sk_sp<GrContext>      fContext;
+    sk_sp<GrImageContext> fContext;
     const SkAlphaType     fAlphaType;  // alpha type for final image
     sk_sp<SkColorSpace>   fColorSpace; // color space for final image
 

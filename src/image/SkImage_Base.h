@@ -16,6 +16,7 @@
 #include "GrTextureProxy.h"
 #include "SkTDArray.h"
 
+class GrImageContext;
 class GrRecordingContext;
 class GrTexture;
 #endif
@@ -50,7 +51,7 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
-    virtual GrContext* context() const { return nullptr; }
+    virtual GrImageContext* context1() const { return nullptr; }
 
 #if SK_SUPPORT_GPU
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
