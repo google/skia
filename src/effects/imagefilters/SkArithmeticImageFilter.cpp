@@ -36,7 +36,7 @@ in uniform half4 k;
 layout(key) const in bool enforcePMColor;
 in fragmentProcessor child;
 
-void main(int x, int y, inout half4 color) {
+void main(inout half4 color) {
     half4 dst = process(child);
     color = saturate(k.x * color * dst + k.y * color + k.z * dst + k.w);
     if (enforcePMColor) {
