@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab88a0ce_a9f57260",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-04T20:11:35Z",
+      "side": 1,
+      "message": "Is this a TODO, or always what we\u0027ll want?",
+      "revId": "ad4ff2ab55f0e047d62f8fb9ed2362690e617521",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0d95757_346949de",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-04T20:11:35Z",
+      "side": 1,
+      "message": "This might be slightly clearer here in context as fStrikeServer?",
+      "revId": "ad4ff2ab55f0e047d62f8fb9ed2362690e617521",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
