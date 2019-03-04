@@ -124,7 +124,7 @@ void GrVkTexture::onRelease() {
     // who will handle it. If the resource is still tied to a command buffer we let it handle it.
     // Otherwise, we handle it.
     if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
-        fIdleCallback.reset();
+        fIdleProcs.reset();
     }
 
     // we create this and don't hand it off, so we should always destroy it
@@ -143,7 +143,7 @@ void GrVkTexture::onAbandon() {
     // who will handle it. If the resource is still tied to a command buffer we let it handle it.
     // Otherwise, we handle it.
     if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
-        fIdleCallback.reset();
+        fIdleProcs.reset();
     }
 
     // we create this and don't hand it off, so we should always destroy it
@@ -169,25 +169,50 @@ const GrVkImageView* GrVkTexture::textureView() {
     return fTextureView;
 }
 
-void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> callback) {
-    INHERITED::addIdleProc(callback);
-    if (auto* resource = this->resource()) {
-        resource->replaceIdleProc(this, fIdleCallback);
+void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc, IdleState type) {
+    INHERITED::addIdleProc(idleProc, type);
+    if (type == IdleState::kFinished) {
+        if (auto* resource = this->resource()) {
+            resource->addIdleProc(this, std::move(idleProc));
+        }
     }
 }
 
+void GrVkTexture::callIdleProcsOnBehalfOfResource() {
+    // If we got here then the resource is being removed from its last command buffer and the
+    // texture is idle in the cache. Any kFlush idle procs should already have been called. So
+    // the texture and resource should have the same set of procs.
+    SkASSERT(this->resource());
+    SkASSERT(this->resource()->idleProcCnt() == fIdleProcs.count());
+#ifdef SK_DEBUG
+    for (int i = 0; i < fIdleProcs.count(); ++i) {
+        SkASSERT(fIdleProcs[i] == this->resource()->idleProc(i));
+    }
+#endif
+    fIdleProcs.reset();
+    this->resource()->resetIdleProcs();
+}
+
 void GrVkTexture::willRemoveLastRefOrPendingIO() {
-    if (!fIdleCallback) {
+    if (!fIdleProcs.count()) {
         return;
     }
     // This is called when the GrTexture is purgeable. However, we need to check whether the
     // Resource is still owned by any command buffers. If it is then it will call the proc.
     auto* resource = this->hasResource() ? this->resource() : nullptr;
-    if (resource) {
-        if (resource->isOwnedByCommandBuffer()) {
-            return;
+    bool callFinishProcs = !resource || !resource->isOwnedByCommandBuffer();
+    if (callFinishProcs) {
+        // Everything must go!
+        fIdleProcs.reset();
+        resource->resetIdleProcs();
+    } else {
+        // The procs that should be called on flush but not finish are those that are owned
+        // by the GrVkTexture and not the Resource. We do this by copying the resource's array
+        // and thereby dropping refs to procs we own but the resource does not.
+        SkASSERT(resource);
+        fIdleProcs.reset(resource->idleProcCnt());
+        for (int i = 0; i < fIdleProcs.count(); ++i) {
+            fIdleProcs[i] = resource->idleProc(i);
         }
-        resource->replaceIdleProc(this, nullptr);
     }
-    fIdleCallback.reset();
 }

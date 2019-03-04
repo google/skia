@@ -192,7 +192,10 @@ private:
          * referring to the Resource then it calls the proc. Otherwise, the Resource calls it
          * when the last command buffer reference goes away and the GrVkTexture is purgeable.
          */
-        void replaceIdleProc(GrVkTexture* owner, sk_sp<GrRefCntedCallback>) const;
+        void addIdleProc(GrVkTexture*, sk_sp<GrRefCntedCallback>) const;
+        int idleProcCnt() const;
+        sk_sp<GrRefCntedCallback> idleProc(int) const;
+        void resetIdleProcs() const;
         void removeOwningTexture() const;
 
         /**
@@ -225,7 +228,7 @@ private:
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
         mutable int fNumCommandBufferOwners = 0;
-        mutable sk_sp<GrRefCntedCallback> fIdleCallback;
+        mutable SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
         mutable GrVkTexture* fOwningTexture = nullptr;
 
         typedef GrVkResource INHERITED;
