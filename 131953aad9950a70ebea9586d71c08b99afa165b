@@ -296,6 +296,30 @@
     },
     {
       "key": {
+        "uuid": "b1f3ce5b_c7341a68",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-04T18:28:43Z",
+      "side": 1,
+      "message": "Thanks for checking. I ran into trouble here and meant to ask you but forgot.\nWhen setting skia_use_libwebp I get\n\n../../src/images/SkWebpEncoder.cpp:40:10: fatal error: \u0027webp/encode.h\u0027 file not found\n#include \"webp/encode.h\"\n\nAdding third_party/libwebp to the include_dirs of debugcanvas doesn\u0027t help.\nDo you know where I should include it?\n\nfor Wuffs I got \"Wuffs version is too old. Upgrade to the latest version.\"",
+      "parentUuid": "89d38f77_a853bfd7",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 24
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17940e3d_6eb3d173",
         "filename": "experimental/wasm-skp-debugger/compile.sh",
         "patchSetId": 4
