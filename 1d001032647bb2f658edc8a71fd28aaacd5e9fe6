@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b86b6dc7_2d083942",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-04T20:33:06Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 742,
+        "startChar": 44,
+        "endLine": 742,
+        "endChar": 49
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "62f97247_129809d2",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -13,6 +36,24 @@
       "writtenOn": "2019-03-02T03:02:57Z",
       "side": 1,
       "message": "Please confirm: an independent frame (requiredFrame \u003d\u003d kNoFrame) means we start from a zero-initialized buffer, not an uninitialized buffer, right?\n\nI think that my earlier confusion re requiredFrames was basically that I thought independent meant that we could start from an uninitialized buffer. Theoretically, we could identify \"super-independent\" frames, a subset of independent frames, that could start from an uninitialized pixel buffer (if fully received), and therefore skip some redundant zero-initialization, but Skia doesn\u0027t already have this concept, right?",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce42fc1b_90ad6cf4",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-04T20:33:06Z",
+      "side": 1,
+      "message": "\u003e Please confirm: an independent frame (requiredFrame \u003d\u003d kNoFrame) means we start from a zero-initialized buffer, not an uninitialized buffer, right?\n\nNo. It is intended that SkCodec will initialize all pixels, unless some are expected to have been initialized by the prior frame (e.g. the new frame is not independent). That doesn\u0027t mean we don\u0027t have a bug.\n\n\u003e \n\u003e I think that my earlier confusion re requiredFrames was basically that I thought independent meant that we could start from an uninitialized buffer.\n\nThat is the intent.\n\n\u003e Theoretically, we could identify \"super-independent\" frames, a subset of independent frames, that could start from an uninitialized pixel buffer (if fully received), and therefore skip some redundant zero-initialization, but Skia doesn\u0027t already have this concept, right?\n\nI do not understand what a \"super-independent\" frame is, but I think it depends on the misunderstanding above.",
+      "parentUuid": "62f97247_129809d2",
       "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -33,6 +74,75 @@
       "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b32ba6a5_54eedd5e",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-04T20:33:06Z",
+      "side": 1,
+      "message": "I think \"up\" is a little misleading. I tend to think of \"up to\" as meaning forward, whereas I think of this as going backwards. \"Back to and including\"?",
+      "range": {
+        "startLine": 763,
+        "startChar": 71,
+        "endLine": 763,
+        "endChar": 73
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed859140_85472263",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-04T20:33:06Z",
+      "side": 1,
+      "message": "Looking at this some more, I almost thought this might not be redundant. Although it\u0027s a similar check, it could be checking a different frame. Let\u0027s say we have the following frames:\n\n0: restore bg, fills the canvas\n1: restore bg, smaller than the canvas\n2: \u003cany disposal method\u003e, larger than frame 1\n\nWe\u0027re checking to see whether 2 is independent. It doesn\u0027t hit IND4 condition, because that is checking frame 1. But then we update prevFrame to be 1\u0027s required frame. We still couldn\u0027t hit IND7. 0 won\u0027t be 1\u0027s required frame, unless it is not restore bg, or it doesn\u0027t fill the canvas.",
+      "range": {
+        "startLine": 765,
+        "startChar": 30,
+        "endLine": 766,
+        "endChar": 56
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1bf7c90_8c56450f",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-04T20:33:06Z",
+      "side": 1,
+      "message": "I\u0027d support removing this check, or at least putting in a FIXME that it cannot happen.",
+      "range": {
+        "startLine": 841,
+        "startChar": 0,
+        "endLine": 842,
+        "endChar": 64
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
