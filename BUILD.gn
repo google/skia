@@ -68,6 +68,8 @@ declare_args() {
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
   skia_enable_fontmgr_fuchsia = is_fuchsia
+  skia_enable_fontmgr_win = is_win
+  skia_enable_fontmgr_win_gdi = is_win
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
@@ -402,29 +404,16 @@ optional("fontmgr_custom") {
   ]
 }
 
-optional("fontmgr_wasm") {
-  enabled = target_cpu == "wasm"
+optional("fontmgr_custom_empty") {
+  enabled = skia_enable_fontmgr_custom_empty
 
   deps = [
     ":typeface_freetype",
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
-    "src/ports/SkFontMgr_custom.h",
-    "src/ports/SkFontMgr_custom_embedded.cpp",
-    "src/ports/SkFontMgr_custom_embedded_factory.cpp",
-  ]
-}
-
-optional("fontmgr_fuchsia") {
-  enabled = skia_enable_fontmgr_fuchsia
-
-  deps = [
-    "//sdk/fidl/fuchsia.fonts",
-  ]
-  sources = [
-    "src/ports/SkFontMgr_fuchsia.cpp",
-    "src/ports/SkFontMgr_fuchsia.h",
+    "src/ports/SkFontMgr_custom_empty.cpp",
+    "src/ports/SkFontMgr_custom_empty_factory.cpp",
   ]
 }
 
@@ -452,17 +441,51 @@ optional("fontmgr_fontconfig") {
   ]
 }
 
-optional("fontmgr_custom_empty") {
-  enabled = skia_enable_fontmgr_custom_empty
+optional("fontmgr_fuchsia") {
+  enabled = skia_enable_fontmgr_fuchsia
+
+  deps = [
+    "//sdk/fidl/fuchsia.fonts",
+  ]
+  sources = [
+    "src/ports/SkFontMgr_fuchsia.cpp",
+    "src/ports/SkFontMgr_fuchsia.h",
+  ]
+}
+
+optional("fontmgr_wasm") {
+  enabled = target_cpu == "wasm"
 
   deps = [
     ":typeface_freetype",
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
-    "src/ports/SkFontMgr_custom_empty.cpp",
-    "src/ports/SkFontMgr_custom_empty_factory.cpp",
+    "src/ports/SkFontMgr_custom.h",
+    "src/ports/SkFontMgr_custom_embedded.cpp",
+    "src/ports/SkFontMgr_custom_embedded_factory.cpp",
   ]
+}
+
+optional("fontmgr_win") {
+  enabled = skia_enable_fontmgr_win
+
+  sources = [
+    "src/fonts/SkFontMgr_indirect.cpp",
+    "src/ports/SkFontMgr_win_dw.cpp",
+    "src/ports/SkFontMgr_win_dw_factory.cpp",
+    "src/ports/SkScalerContext_win_dw.cpp",
+    "src/ports/SkTypeface_win_dw.cpp",
+  ]
+}
+
+optional("fontmgr_win_gdi") {
+  enabled = skia_enable_fontmgr_win_gdi
+
+  sources = [
+    "src/ports/SkFontHost_win.cpp",
+  ]
+  libs = [ "Gdi32.lib" ]
 }
 
 if (skia_lex) {
@@ -880,6 +903,8 @@ component("skia") {
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":fontmgr_wasm",
+    ":fontmgr_win",
+    ":fontmgr_win_gdi",
     ":gif",
     ":heif",
     ":hsw",
@@ -960,22 +985,15 @@ component("skia") {
 
   if (is_win) {
     sources += [
-      "src/fonts/SkFontMgr_indirect.cpp",
       "src/ports/SkDebug_win.cpp",
-      "src/ports/SkFontHost_win.cpp",
-      "src/ports/SkFontMgr_win_dw.cpp",
-      "src/ports/SkFontMgr_win_dw_factory.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
       "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
       "src/ports/SkOSLibrary_win.cpp",
-      "src/ports/SkScalerContext_win_dw.cpp",
       "src/ports/SkTLS_win.cpp",
-      "src/ports/SkTypeface_win_dw.cpp",
     ]
     libs += [
       "FontSub.lib",
-      "Gdi32.lib",
       "Ole32.lib",
       "OleAut32.lib",
       "User32.lib",
