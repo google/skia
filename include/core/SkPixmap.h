@@ -185,6 +185,16 @@ public:
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
+    /** Returns smart pointer to SkColorSpace, the range of colors, associated with
+        SkImageInfo. The smart pointer tracks the number of objects sharing this
+        SkColorSpace reference so the memory is released when the owners destruct.
+
+        The returned SkColorSpace is immutable.
+
+        @return  SkColorSpace in SkImageInfo wrapped in a smart pointer
+    */
+    sk_sp<SkColorSpace> refColorSpace() const { return fInfo.refColorSpace(); }
+
     /** Returns true if SkAlphaType is kOpaque_SkAlphaType.
         Does not check if SkColorType allows alpha, or if any pixel value has
         transparency.
