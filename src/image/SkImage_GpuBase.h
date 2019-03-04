@@ -9,40 +9,41 @@
 #define SkImage_GpuBase_DEFINED
 
 #include "GrBackendSurface.h"
-#include "GrContext.h"
 #include "GrTypesPriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
 #include "SkYUVAIndex.h"
 
 class GrColorSpaceXform;
+class GrImageContext;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
-    SkImage_GpuBase(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkAlphaType,
+    SkImage_GpuBase(sk_sp<GrImageContext>, int width, int height, uint32_t uniqueID, SkAlphaType,
                     sk_sp<SkColorSpace>);
     ~SkImage_GpuBase() override;
 
-    GrContext* context() const final { return fContext.get(); }
+    GrImageContext* context1() const final;
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
-    sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;
+    sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect& subset) const final;
 
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                       int srcX, int srcY, CachingHint) const override;
 
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override {
+    sk_sp<GrTextureProxy> asTextureProxyRef1(GrRecordingContext* ctx) const override {
         // we shouldn't end up calling this
         SkASSERT(false);
-        return this->INHERITED::asTextureProxyRef();
+        return this->INHERITED::asTextureProxyRef1(ctx);
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
+    sk_sp<GrTextureProxy> asTextureProxyRef2(GrRecordingContext*, const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const final;
 
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const final {
+    sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext* ctx,
+                                                uint32_t* uniqueID) const final {
         *uniqueID = this->uniqueID();
-        return this->asTextureProxyRef();
+        return this->asTextureProxyRef1(ctx);
     }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
@@ -86,13 +87,13 @@ protected:
             GrMipMapped, PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
             PromiseImageTextureDoneProc, PromiseImageTextureContext);
 
-    static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
+    static bool RenderYUVAToRGBA(GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const sk_sp<GrTextureProxy> proxies[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
-    sk_sp<GrContext>      fContext;
+    sk_sp<GrImageContext> fContext;
     const SkAlphaType     fAlphaType;  // alpha type for final image
     sk_sp<SkColorSpace>   fColorSpace; // color space for final image
 

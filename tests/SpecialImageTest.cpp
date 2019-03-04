@@ -129,7 +129,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
         REPORTER_ASSERT(reporter, tightSurf->width() == subset.width());
         REPORTER_ASSERT(reporter, tightSurf->height() == subset.height());
-        GrBackendTexture backendTex = tightSurf->getBackendTexture(
+        GrBackendTexture backendTex = tightSurf->getBackendTexture2(
                                                     SkSurface::kDiscardWrite_BackendHandleAccess);
         REPORTER_ASSERT(reporter, isGPUBacked == backendTex.isValid());
         SkPixmap tmpPixmap;

@@ -351,7 +351,7 @@ public:
         @param shouldCreateWithMips  hint that SkSurface will host mip map images
         @return                      SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo,
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
@@ -379,7 +379,7 @@ public:
                             fonts; may be nullptr
         @return             SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* props) {
         return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
@@ -400,7 +400,7 @@ public:
                           of raster surface; width, or height, or both, may be zero
         @return           SkSurface if all parameters are valid; otherwise, nullptr
     */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo) {
         if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
@@ -499,7 +499,7 @@ public:
                                     kDiscardWrite_BackendHandleAccess
         @return                     GPU texture reference; invalid on failure
     */
-    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+    GrBackendTexture getBackendTexture2(BackendHandleAccess backendHandleAccess);
 
     /** Retrieves the back-end render target. If SkSurface has no back-end render target, an invalid
         object is returned. Call GrBackendRenderTarget::isValid to determine if the result
