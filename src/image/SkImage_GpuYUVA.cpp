@@ -13,6 +13,8 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProducer.h"
@@ -115,7 +117,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         auto colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(), fAlphaType,
                                                        fTargetColorSpace.get(), fAlphaType);
         const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
-        if (!RenderYUVAToRGBA(fContext.get(), renderTargetContext.get(), rect, fYUVColorSpace,
+        if (!RenderYUVAToRGBA(renderTargetContext.get(), rect, fYUVColorSpace,
                               std::move(colorSpaceXform), fProxies, fYUVAIndices)) {
             return nullptr;
         }

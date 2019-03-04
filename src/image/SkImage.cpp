@@ -252,7 +252,7 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
-    GrContext* context = as_IB(this)->context();
+    GrImageContext* context = as_IB(this)->context1();
 
     return this->makeWithFilter(context, filter, subset, clipBounds, outSubset, offset);
 }

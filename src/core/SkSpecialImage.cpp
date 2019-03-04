@@ -18,6 +18,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrProxyProvider.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
@@ -194,7 +196,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
 
 #if SK_SUPPORT_GPU
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef()) {
-        if (!as_IB(image)->context()->priv().matches(context)) {
+        if (!as_IB(image)->context1()->priv().matches(context)) {
             return nullptr;
         }
 
