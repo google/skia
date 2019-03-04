@@ -659,7 +659,6 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     make_bm(&replayBM, 100, 100, SK_ColorBLACK, false);
     SkCanvas replayCanvas(replayBM);
     picture->playback(&replayCanvas);
-    replayCanvas.flush();
 
     // With the bug present, at (55, 55) we would get a fully opaque red
     // intead of a dark red.
