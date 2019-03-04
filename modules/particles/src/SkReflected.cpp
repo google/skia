@@ -7,6 +7,8 @@
 
 #include "SkReflected.h"
 
+#include "SkCurve.h"
+
 SkSTArray<16, const SkReflected::Type*, true> SkReflected::gTypes;
 
 void SkReflected::VisitTypes(std::function<void(const Type*)> visitor, const Type* baseType) {
@@ -15,4 +17,10 @@ void SkReflected::VisitTypes(std::function<void(const Type*)> visitor, const Typ
             visitor(type);
         }
     }
+}
+
+void SkFieldVisitor::visit(const char* name, SkCurve& c) {
+    this->enterObject(name);
+    c.visitFields(this);
+    this->exitObject();
 }

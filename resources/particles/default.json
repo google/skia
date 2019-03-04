@@ -3,6 +3,12 @@
    "Duration": 1,
    "Rate": 1000,
    "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
       "XValues": [],
       "Segments": [
          {
@@ -25,6 +31,12 @@
          "Force": false,
          "Frame": "World",
          "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -37,6 +49,12 @@
             ]
          },
          "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
@@ -52,6 +70,12 @@
       {
          "Type": "SkPositionOnTextAffector",
          "Enabled": true,
+         "Input": {
+            "Source": "Random",
+            "TileMode": "Clamp",
+            "Left": 0,
+            "Right": 1
+         },
          "SetHeading": true,
          "Text": "SKIA",
          "FontSize": 96
@@ -62,6 +86,12 @@
          "Type": "SkColorAffector",
          "Enabled": true,
          "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
             "XValues": [],
             "Segments": [
                {
