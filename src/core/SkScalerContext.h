@@ -19,6 +19,7 @@
 #include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkStrikeInterface.h"
 #include "SkSurfacePriv.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
@@ -35,18 +36,6 @@ enum SkScalerContextFlags : uint32_t {
     kFakeGamma                 = 1 << 0,
     kBoostContrast             = 1 << 1,
     kFakeGammaAndBoostContrast = kFakeGamma | kBoostContrast,
-};
-
-struct SkScalerContextEffects {
-    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
-    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
-        : fPathEffect(pe), fMaskFilter(mf) {}
-    explicit SkScalerContextEffects(const SkPaint& paint)
-        : fPathEffect(paint.getPathEffect())
-        , fMaskFilter(paint.getMaskFilter()) {}
-
-    SkPathEffect*   fPathEffect;
-    SkMaskFilter*   fMaskFilter;
 };
 
 enum SkAxisAlignment : uint32_t {
