@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "320aa088_4d54cae1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-04T16:28:58Z",
+      "side": 0,
+      "message": "Moved to maintain method order the same as the .h",
+      "range": {
+        "startLine": 384,
+        "startChar": 0,
+        "endLine": 384,
+        "endChar": 45
+      },
+      "revId": "5800f2e8a920ed57c66cde8f6f29c1af376e7661",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
