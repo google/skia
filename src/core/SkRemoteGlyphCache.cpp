@@ -315,6 +315,24 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
 
 }
 
+SkScopedStrike SkStrikeServer::findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                        const SkScalerContextEffects& effects,
+                                                        const SkTypeface& typeface) {
+    return SkScopedStrike{this->getOrCreateCache(desc, typeface, effects)};
+}
+
+void SkStrikeServer::checkForDeletedEntries() {
+    auto it = fRemoteGlyphStateMap.begin();
+    while (fRemoteGlyphStateMap.size() > fMaxEntriesInDescriptorMap &&
+           it != fRemoteGlyphStateMap.end()) {
+        if (fDiscardableHandleManager->isHandleDeleted(it->second->discardableHandleId())) {
+            it = fRemoteGlyphStateMap.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         const SkDescriptor& desc, const SkTypeface& typeface, SkScalerContextEffects effects) {
 
@@ -379,18 +397,6 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
 
     cacheStatePtr->setTypefaceAndEffects(&typeface, effects);
     return cacheStatePtr;
-}
-
-void SkStrikeServer::checkForDeletedEntries() {
-    auto it = fRemoteGlyphStateMap.begin();
-    while (fRemoteGlyphStateMap.size() > fMaxEntriesInDescriptorMap &&
-           it != fRemoteGlyphStateMap.end()) {
-        if (fDiscardableHandleManager->isHandleDeleted(it->second->discardableHandleId())) {
-            it = fRemoteGlyphStateMap.erase(it);
-        } else {
-            ++it;
-        }
-    }
 }
 
 // -- SkGlyphCacheState ----------------------------------------------------------------------------

@@ -1,0 +1,68 @@
+/*
+ * Copyright 2019 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkStrikeInterface_DEFINED
+#define SkStrikeInterface_DEFINED
+
+#include <memory>
+
+#include "SkPoint.h"
+#include "SkScalerContext.h"
+#include "SkTypes.h"
+
+class SkDescriptor;
+class SkGlyph;
+class SkTypeface;
+
+class SkStrikeSpec {
+public:
+    SkStrikeSpec(const SkDescriptor& desc,
+                 const SkTypeface& typeface,
+                 const SkScalerContextEffects& effects)
+            : fDesc{desc}
+            , fTypeface{typeface}
+            , fEffects{effects} {}
+
+
+    const SkDescriptor& desc() const { return fDesc; }
+    const SkTypeface& typeface() const { return fTypeface; }
+    SkScalerContextEffects effects() const {return fEffects; }
+
+private:
+    const SkDescriptor& fDesc;
+    const SkTypeface& fTypeface;
+    const SkScalerContextEffects fEffects;
+};
+
+class SkStrikeInterface {
+public:
+    virtual ~SkStrikeInterface() = default;
+    virtual SkVector rounding() const = 0;
+    virtual const SkDescriptor& getDescriptor() const = 0;
+    virtual SkStrikeSpec strikeSpec() const = 0;
+    virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
+    virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
+    virtual void onAboutToExitScope() = 0;
+
+    struct Deleter {
+        void operator()(SkStrikeInterface* ptr) const {
+            ptr->onAboutToExitScope();
+        }
+    };
+};
+
+using SkScopedStrike = std::unique_ptr<SkStrikeInterface, SkStrikeInterface::Deleter>;
+
+class SkStrikeCacheInterface {
+public:
+    virtual ~SkStrikeCacheInterface() = default;
+    virtual SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                    const SkScalerContextEffects& effects,
+                                                    const SkTypeface& typeface) = 0;
+};
+
+#endif  //SkStrikeInterface_DEFINED
