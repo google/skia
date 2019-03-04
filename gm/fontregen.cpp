@@ -76,12 +76,12 @@ protected:
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 225, paint);
-        canvas->flush();
+        context->flush();
 
         paint.setColor(0xFF010101);
         canvas->drawTextBlob(fBlobs[0], 10, 305, paint);
@@ -90,8 +90,8 @@ protected:
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
-            if (auto ctx = canvas->getGrContext()) {
-                auto img = ctx->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
+            if (context) {
+                auto img = context->priv().testingOnly_getFontAtlasImage(kA8_GrMaskFormat);
                 canvas->drawImage(img, 200, 0);
             }
         }
