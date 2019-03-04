@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "f70e6f2f_f3a48491",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-04T17:12:36Z",
+      "side": 1,
+      "message": "Getting access to skia_enable_tools is currently difficult because we do \"is_official_build\".  It\u0027s likely not necessary, but if we learn the trick to do it for debugger, we should also do it for CanvasKit",
+      "parentUuid": "45830e40_56c01e20",
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2448e64_98590ce5",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -242,6 +260,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fbc80d69_b7cf683f",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 24
+      },
+      "revId": "131953aad9950a70ebea9586d71c08b99afa165b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89d38f77_a853bfd7",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-04T17:12:36Z",
+      "side": 1,
+      "message": "I don\u0027t see it in PS5",
+      "parentUuid": "5aeda3df_29abad3d",
       "range": {
         "startLine": 52,
         "startChar": 19,
