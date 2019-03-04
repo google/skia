@@ -1146,15 +1146,16 @@ public:
     Viewer::SkFontFields* fFontOverrides;
 };
 
-void Viewer::drawSlide(SkCanvas* canvas) {
+void Viewer::drawSlide(SkSurface* surface) {
     if (fCurrentSlide < 0) {
         return;
     }
 
-    SkAutoCanvasRestore autorestore(canvas, false);
+    SkAutoCanvasRestore autorestore(surface->getCanvas(), false);
 
     // By default, we render directly into the window's surface/canvas
-    SkCanvas* slideCanvas = canvas;
+    SkSurface* slideSurface = surface;
+    SkCanvas* slideCanvas = surface->getCanvas();
     fLastImage.reset();
 
     // If we're in any of the color managed modes, construct the color space we're going to use
@@ -1179,14 +1180,15 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     // Grab some things we'll need to make surfaces (for tiling or general offscreen rendering)
     SkColorType colorType = (ColorMode::kColorManagedF16 == fColorMode) ? kRGBA_F16_SkColorType
                                                                         : kN32_SkColorType;
-    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-    canvas->getProps(&props);
 
     auto make_surface = [=](int w, int h) {
+        SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+        slideCanvas->getProps(&props);
+
         SkImageInfo info = SkImageInfo::Make(w, h, colorType, kPremul_SkAlphaType, colorSpace);
         return Window::kRaster_BackendType == this->fBackendType
                 ? SkSurface::MakeRaster(info, &props)
-                : canvas->makeSurface(info, &props);
+                : slideCanvas->makeSurface(info, &props);
     };
 
     // We need to render offscreen if we're...
@@ -1200,6 +1202,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         colorSpace != nullptr) {
 
         offscreenSurface = make_surface(fWindow->width(), fWindow->height());
+        slideSurface = offscreenSurface.get();
         slideCanvas = offscreenSurface->getCanvas();
     }
 
@@ -1250,13 +1253,14 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // Force a flush so we can time that, too
     fStatsLayer.beginTiming(fFlushTimer);
-    slideCanvas->flush();
+    slideSurface->flush();
     fStatsLayer.endTiming(fFlushTimer);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
         fLastImage = offscreenSurface->makeImageSnapshot();
 
+        SkCanvas* canvas = surface->getCanvas();
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         int prePerspectiveCount = canvas->save();
@@ -1275,10 +1279,10 @@ void Viewer::onBackendCreated() {
     fWindow->show();
 }
 
-void Viewer::onPaint(SkCanvas* canvas) {
-    this->drawSlide(canvas);
+void Viewer::onPaint(SkSurface* surface) {
+    this->drawSlide(surface);
 
-    fCommands.drawHelp(canvas);
+    fCommands.drawHelp(surface->getCanvas());
 
     this->drawImGui();
 
