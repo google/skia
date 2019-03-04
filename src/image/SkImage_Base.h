@@ -16,6 +16,7 @@
 #include "GrTextureProxy.h"
 #include "SkTDArray.h"
 
+class GrImageContext;
 class GrRecordingContext;
 class GrTexture;
 #endif
@@ -50,21 +51,22 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
-    virtual GrContext* context() const { return nullptr; }
+    virtual GrImageContext* context1() const { return nullptr; }
 
 #if SK_SUPPORT_GPU
     // Return the proxy if this image is backed by a single proxy. For YUVA images, this
     // will return nullptr unless the YUVA planes have been converted to RGBA in which case
     // that single backing proxy will be returned.
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef1(GrRecordingContext*) const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                                     SkScalar scaleAdjust[2]) const = 0;
-    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
+    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext*,
+                                                        uint32_t* uniqueID) const {
         return nullptr;
     }
     virtual bool isYUVA() const { return false; }
-    virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy>[4], SkYUVAIndex[4],
+    virtual bool asYUVATextureProxiesRef3(sk_sp<GrTextureProxy>[4], SkYUVAIndex[4],
                                          SkYUVColorSpace*) const { return false; }
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
@@ -75,7 +77,7 @@ public:
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
+    virtual sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect&) const = 0;
 
     virtual sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                           SkYUVColorSpace*, const void* planes[4]);
@@ -100,7 +102,8 @@ public:
     virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
-    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const = 0;
+    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*, SkColorType,
+                                                        sk_sp<SkColorSpace>) const = 0;
 protected:
     SkImage_Base(int width, int height, uint32_t uniqueID);
 
