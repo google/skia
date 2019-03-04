@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Debugger Demo</title>
+  <script src="bin/debugger.js"></script>
+  <script>
+var index = 0;
+
+DebuggerInit({
+  locateFile: (file) => '/node_modules/debugger/bin/'+file,
+}).ready().then((Debugger) => {
+  var surface = Debugger.MakeSWCanvasSurface('debugger_view');
+  var player = new Debugger.SkpDebugPlayer();
+  player.loadSkp();
+
+
+  var intervalID = setInterval(function(){
+      if (index < 789){
+        player.drawTo(surface, index);
+        surface.flush();
+        index++;
+        console.log("index = "+index);
+      }
+  }, 50);
+});
+  </script>
+  </head>
+  <body>
+    <canvas id=debugger_view width=720 height=1280></canvas>
+  </body>
+</html>
