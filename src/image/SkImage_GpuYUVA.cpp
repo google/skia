@@ -102,7 +102,9 @@ GrTextureProxy* SkImage_GpuYUVA::peekProxy() const {
     return fRGBProxy.get();
 }
 
-sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
+sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef1(GrRecordingContext* context) const {
+    // check!
+
     if (!fRGBProxy) {
         const GrBackendFormat format =
             fContext->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
@@ -130,9 +132,11 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     return fRGBProxy;
 }
 
-sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef() const {
+sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContext* context) const {
+    // Check!
+
     // if invalid or already has miplevels
-    auto proxy = this->asTextureProxyRef();
+    auto proxy = this->asTextureProxyRef1(context);
     if (!proxy || GrMipMapped::kYes == fRGBProxy->mipMapped()) {
         return proxy;
     }

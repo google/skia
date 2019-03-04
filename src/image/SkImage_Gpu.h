@@ -31,7 +31,7 @@ public:
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override {
+    sk_sp<GrTextureProxy> asTextureProxyRef1(GrRecordingContext*) const override {
         return fProxy;
     }
 

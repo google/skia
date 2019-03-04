@@ -57,10 +57,11 @@ public:
     // will return nullptr unless the YUVA planes have been converted to RGBA in which case
     // that single backing proxy will be returned.
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef1(GrRecordingContext*) const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                                     SkScalar scaleAdjust[2]) const = 0;
-    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
+    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext*,
+                                                        uint32_t* uniqueID) const {
         return nullptr;
     }
     virtual bool isYUVA() const { return false; }
