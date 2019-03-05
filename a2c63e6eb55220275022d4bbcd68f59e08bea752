@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea4b9383_ae160efa",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-05T18:38:33Z",
+      "side": 1,
+      "message": "Add // Vulkan overrides this method and looks at the state\n\n?",
+      "revId": "a2c63e6eb55220275022d4bbcd68f59e08bea752",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
