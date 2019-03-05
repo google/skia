@@ -23,6 +23,8 @@
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrResourceProviderPriv.h"
@@ -63,13 +65,18 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
     return SkImageInfo::Make(fProxy->width(), fProxy->height(), colorType, fAlphaType, fColorSpace);
 }
 
-sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* context,
+                                                         SkColorType targetCT,
                                                          sk_sp<SkColorSpace> targetCS) const {
+    if (!context || !fContext->priv().matches(context)) {
+        return nullptr;
+    }
+
     auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
                                                targetCS.get(), fAlphaType);
     SkASSERT(xform || targetCT != this->colorType());
 
-    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(context);
 
     GrBackendFormat format = proxy->backendFormat().makeTexture2D();
     if (!format.isValid()) {
@@ -77,7 +84,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->priv().makeDeferredRenderTargetContextWithFallback(
+        context->priv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kExact, this->width(), this->height(),
             SkColorType2GrPixelConfig(targetCT), nullptr));
     if (!renderTargetContext) {
@@ -359,7 +366,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
             return nullptr;
         }
 
-        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef(context);
         SkASSERT(proxy);
         if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
             return sk_ref_sp(const_cast<SkImage*>(this));
@@ -706,7 +713,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
     if (!image->unique() || !texture->surfacePriv().hasUniqueRef() ||
         texture->resourcePriv().refsWrappedObjects()) {
         // onMakeSubset will always copy the image.
-        image = as_IB(image)->onMakeSubset(image->bounds());
+        image = as_IB(image)->onMakeSubset(ctx, image->bounds());
         if (!image) {
             return false;
         }
