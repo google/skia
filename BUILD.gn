@@ -1052,6 +1052,35 @@ component("skia") {
   }
 }
 
+# DebugCanvas used in experimental/wasm-skp-debugger
+if (target_cpu == "wasm") {
+  static_library("debugcanvas") {
+    public_configs = [ ":skia_public" ]
+
+    include_dirs = [
+      "include/gpu",
+      "include/private",
+      "src/gpu",
+      "src/core",
+      "src/shaders",
+      "src/utils",
+      "tools",
+      "tools/debugger",
+    ]
+
+    sources = [
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/SkDebugCanvas.cpp",
+      "tools/debugger/SkDrawCommand.cpp",
+      "tools/debugger/SkJsonWriteBuffer.cpp",
+    ]
+
+    deps = [
+      ":fontmgr_wasm",
+    ]
+  }
+}
+
 static_library("pathkit") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
