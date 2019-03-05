@@ -183,7 +183,7 @@ echo "Compiling bitcode"
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a $SHAPER_TARGETS
+${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a libparticles.a $SHAPER_TARGETS
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -209,6 +209,7 @@ ${EMCXX} \
     -Imodules/skottie/utils \
     -Imodules/sksg/include \
     -Imodules/skshaper/include \
+    -Imodules/particles/include \
     -Isrc/core/ \
     -Isrc/gpu/ \
     -Isrc/sfnt/ \
@@ -231,11 +232,14 @@ ${EMCXX} \
     --post-js $BASE_DIR/ready.js \
     $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
+    $BASE_DIR/particles_bindings.cpp \
+    src/utils/SkTextUtils.cpp \
     $SKOTTIE_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
     $BUILD_DIR/libskia.a \
     $SKOTTIE_LIB \
     $BUILD_DIR/libskshaper.a \
+    $BUILD_DIR/libparticles.a \
     $SHAPER_LIB \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \

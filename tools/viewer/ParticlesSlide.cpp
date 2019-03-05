@@ -203,6 +203,7 @@ ParticlesSlide::ParticlesSlide() {
 void ParticlesSlide::load(SkScalar winWidth, SkScalar winHeight) {
     fEffect.reset(new SkParticleEffect(LoadEffectParams("particles/default.json"),
                                        fRandom));
+    fEffect->dump();
 }
 
 void ParticlesSlide::draw(SkCanvas* canvas) {
@@ -220,6 +221,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
         if (ImGui::Button("Load")) {
             if (auto newParams = LoadEffectParams(filename)) {
                 fEffect.reset(new SkParticleEffect(std::move(newParams), fRandom));
+                fEffect->dump();
             }
         }
         ImGui::SameLine();

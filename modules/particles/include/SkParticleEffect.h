@@ -46,10 +46,23 @@ public:
     SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
 
     void start(const SkAnimTimer& timer, bool looping = false);
+    void start(double now, bool looping = false);
     void update(const SkAnimTimer& timer);
+    void update(double now);
     void draw(SkCanvas* canvas);
 
     bool isAlive() { return fSpawnTime >= 0; }
+
+    void dump() {
+        SkDebugf("animation is alive: %d\n", this->isAlive());
+        SkDebugf("animation is looping: %d\n", this->fLooping);
+        SkDebugf("animation's spawn time: %f\n", this->fSpawnTime);
+        SkDebugf("animation's last time: %f\n", this->fLastTime);
+
+        SkDebugf("animation has a drawable? %p\n", this->fParams->fDrawable.get());
+        SkDebugf("animation has %d spawn affectors\n", this->fParams->fSpawnAffectors.count());
+        SkDebugf("animation has %d update affectors\n", this->fParams->fUpdateAffectors.count());
+    }
 
     SkParticleEffectParams* getParams() { return fParams.get(); }
 
