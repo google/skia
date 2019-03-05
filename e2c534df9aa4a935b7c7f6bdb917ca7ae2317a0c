@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d757fa11_c6e3bdf0",
+        "filename": "experimental/wasm-skp-debugger/karma.conf.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-05T17:24:24Z",
+      "side": 1,
+      "message": "What is this file?",
+      "range": {
+        "startLine": 14,
+        "startChar": 31,
+        "endLine": 14,
+        "endChar": 44
+      },
+      "revId": "e2c534df9aa4a935b7c7f6bdb917ca7ae2317a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aec70d8c_d025f0af",
+        "filename": "experimental/wasm-skp-debugger/tests/startup.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-05T17:24:24Z",
+      "side": 1,
+      "message": "use const where possible.  let where it is not.",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 15
+      },
+      "revId": "e2c534df9aa4a935b7c7f6bdb917ca7ae2317a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
