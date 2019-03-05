@@ -15,14 +15,13 @@ config("public_config") {
   }
 }
 
-source_set("particles") {
+static_library("particles") {
   if (skia_enable_particles) {
-    testonly = true
     import("particles.gni")
     public_configs = [ ":public_config" ]
+    include_dirs = [ "../../tools/timer" ]
     deps = [
       "../..:skia",
-      "../..:tool_utils",
     ]
     sources = skia_particle_sources
     configs += [ "../../:skia_private" ]

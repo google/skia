@@ -1167,6 +1167,7 @@ static_library("pathkit") {
 
 group("modules") {
   deps = [
+    "modules/particles",
     "modules/skottie",
     "modules/skshaper",
   ]

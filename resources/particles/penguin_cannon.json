@@ -21,7 +21,7 @@
    },
    "Drawable": {
       "Type": "SkImageDrawable",
-      "Path": "images/baby_tux.png",
+      "Path": "resources/images/baby_tux.png",
       "Columns": 1,
       "Rows": 1
    },
