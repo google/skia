@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3a953c0_ebcfd05e",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-05T14:54:36Z",
+      "side": 1,
+      "message": "Think it makes sense to make this constructor private now?",
+      "revId": "9eeb4d9b35ee1de8a482b603f5b258a29d476630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
