@@ -228,7 +228,7 @@ public:
     }
 #endif
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
         for (unsigned p = 0; p < fProxyCnt; ++p) {

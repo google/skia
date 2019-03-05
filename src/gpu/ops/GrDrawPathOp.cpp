@@ -14,6 +14,16 @@
 #include "GrRenderTargetPriv.h"
 #include "SkTemplates.h"
 
+static constexpr GrUserStencilSettings kCoverPass{
+        GrUserStencilSettings::StaticInit<
+                0x0000,
+                GrUserStencilTest::kNotEqual,
+                0xffff,
+                GrUserStencilOp::kZero,
+                GrUserStencilOp::kKeep,
+                0xffff>()
+};
+
 GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&& paint,
                                    GrPathRendering::FillType fill, GrAAType aaType)
         : INHERITED(classID)
@@ -33,15 +43,6 @@ SkString GrDrawPathOp::dumpInfo() const {
 #endif
 
 GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
-    static constexpr GrUserStencilSettings kCoverPass{
-            GrUserStencilSettings::StaticInit<
-                    0x0000,
-                    GrUserStencilTest::kNotEqual,
-                    0xffff,
-                    GrUserStencilOp::kZero,
-                    GrUserStencilOp::kKeep,
-                    0xffff>()
-    };
     GrPipeline::InitArgs args;
     if (GrAATypeIsHW(fAAType)) {
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
@@ -51,6 +52,14 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;
     return args;
+}
+
+const GrProcessorSet::Analysis& GrDrawPathOpBase::doProcessorAnalysis(
+        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) {
+    fAnalysis = fProcessorSet.finalize(
+            fInputColor, GrProcessorAnalysisCoverage::kNone, clip, &kCoverPass, fsaaType, caps,
+            &fInputColor);
+    return fAnalysis;
 }
 
 //////////////////////////////////////////////////////////////////////////////

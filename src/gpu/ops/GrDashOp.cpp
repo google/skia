@@ -257,14 +257,16 @@ public:
         return flags;
     }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
         GrProcessorAnalysisCoverage coverage;
         if (AAMode::kNone == fAAMode && !clip->numClipCoverageFragmentProcessors()) {
             coverage = GrProcessorAnalysisCoverage::kNone;
         } else {
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
         }
-        auto analysis = fProcessorSet.finalize(fColor, coverage, clip, false, caps, &fColor);
+        auto analysis = fProcessorSet.finalize(
+                fColor, coverage, clip, fStencilSettings, fsaaType, caps, &fColor);
         fUsesLocalCoords = analysis.usesLocalCoords();
         return analysis;
     }
