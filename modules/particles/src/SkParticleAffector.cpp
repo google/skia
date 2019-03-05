@@ -15,8 +15,6 @@
 #include "SkRandom.h"
 #include "SkTextUtils.h"
 
-#include "sk_tool_utils.h"
-
 constexpr SkFieldVisitor::EnumStringMapping gParticleFrameMapping[] = {
     { kWorld_ParticleFrame,    "World" },
     { kLocal_ParticleFrame,    "Local" },
@@ -372,8 +370,8 @@ private:
             return;
         }
 
-        SkFont font(sk_tool_utils::create_portable_typeface());
-        font.setSize(fFontSize);
+        // Use the font manager's default font
+        SkFont font(nullptr, fFontSize);
         SkPath path;
         SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding, 0, 0, font, &path);
         SkContourMeasureIter iter(path, false);
