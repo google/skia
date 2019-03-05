@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e77d0f2d_cf53ead4",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 983,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-05T20:34:15Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "0102708c_588ebacf",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff5162d1_3610b3d3",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4bb137c_a899da36",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-05T20:34:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff5162d1_3610b3d3",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "390de825_e72f8b0e",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-05T20:34:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22ef39af_6b7a68ce",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c074b52_4c639c17",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 3
@@ -67,6 +121,24 @@
       "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4d61f77_12f2d906",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-05T20:34:15Z",
+      "side": 1,
+      "message": "Sorry. this is just cleaning up the GrTextBlob ctor.",
+      "parentUuid": "9c074b52_4c639c17",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
