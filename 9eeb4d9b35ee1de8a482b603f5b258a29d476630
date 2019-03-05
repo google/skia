@@ -16,6 +16,24 @@
       "revId": "9eeb4d9b35ee1de8a482b603f5b258a29d476630",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ad31acc_330e46eb",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-03-05T19:20:22Z",
+      "side": 1,
+      "message": "Good idea. Avoids this duplication in the SkBitmapDevice code as well. Done.",
+      "parentUuid": "c3a953c0_ebcfd05e",
+      "revId": "9eeb4d9b35ee1de8a482b603f5b258a29d476630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
