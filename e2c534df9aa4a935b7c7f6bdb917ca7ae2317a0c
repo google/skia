@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d9542caf_9c665d15",
+        "filename": "experimental/wasm-skp-debugger/karma.conf.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-05T18:11:26Z",
+      "side": 1,
+      "message": "this is the skp data that emscripten packaged with --preload-file\nI\u0027ll change this after implemnting the interface for bringing the skp in from javascript.",
+      "parentUuid": "d757fa11_c6e3bdf0",
+      "range": {
+        "startLine": 14,
+        "startChar": 31,
+        "endLine": 14,
+        "endChar": 44
+      },
+      "revId": "e2c534df9aa4a935b7c7f6bdb917ca7ae2317a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aec70d8c_d025f0af",
         "filename": "experimental/wasm-skp-debugger/tests/startup.spec.js",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "e2c534df9aa4a935b7c7f6bdb917ca7ae2317a0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e1a9653_25cb168b",
+        "filename": "experimental/wasm-skp-debugger/tests/startup.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-05T18:11:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aec70d8c_d025f0af",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 15
+      },
+      "revId": "e2c534df9aa4a935b7c7f6bdb917ca7ae2317a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
