@@ -361,8 +361,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, bool renderable
         }
         delete releaseContext;
     };
-    texture->setRelease(
-            sk_make_sp<GrRefCntedCallback>(release, new ReleaseContext{context, backendTexture}));
+    texture->setRelease(release, new ReleaseContext{context, backendTexture});
     return texture;
 }
 
