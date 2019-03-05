@@ -23,12 +23,13 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
                                                        int height,
                                                        int sampleCnt,
                                                        const Format& format) {
-    MTLTextureDescriptor* desc = [MTLTextureDescriptor
-                              texture2DDescriptorWithPixelFormat:MTLPixelFormatStencil8
-                              width:width
-                              height:height
-                              mipmapped:NO];
+    MTLTextureDescriptor* desc =
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
+                                                           width:width
+                                                          height:height
+                                                       mipmapped:NO];
     desc.resourceOptions = MTLResourceStorageModePrivate;
+    desc.usage = MTLTextureUsageRenderTarget;
     return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:desc]);
 }
 
