@@ -94,6 +94,12 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
+    void drawFilledRect(
+            const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& m, const SkRect& rect,
+            const GrUserStencilSettings* ss = nullptr) {
+        fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, m, rect, ss);
+    }
+
     SkBudgeted isBudgeted() const;
 
     int maxWindowRectangles() const;
