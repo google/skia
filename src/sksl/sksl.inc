@@ -292,6 +292,7 @@ $genIType findLSB($genUType value);
 $genIType findMSB($genIType value);
 $genIType findMSB($genUType value);
 
+sampler2D makeSampler2D(texture2D texture, sampler sampler);
 /*
 //$genUType uaddCarry($genUType x, $genUType y, out $genUType carry);
 //$genUType usubBorrow($genUType x, $genUType y, out $genUType borrow);
