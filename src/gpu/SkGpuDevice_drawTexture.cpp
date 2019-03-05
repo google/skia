@@ -389,7 +389,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Pinned texture proxies can be rendered directly as textures, or with relatively simple
     // adjustments applied to the image content (scaling, mipmaps, color space, etc.)
     uint32_t pinnedUniqueID;
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
+                                                                          &pinnedUniqueID)) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(this->ctm(), srcToDst, paint.getFilterQuality());
 
@@ -509,7 +510,8 @@ void SkGpuDevice::tmp_drawImageSetV2(const SkCanvas::ImageSetEntry set[], int ds
         }
 
         uint32_t uniqueID;
-        textures[i].fProxy = as_IB(set[i].fImage.get())->refPinnedTextureProxy(&uniqueID);
+        textures[i].fProxy = as_IB(set[i].fImage.get())->refPinnedTextureProxy(this->context(),
+                                                                               &uniqueID);
         if (!textures[i].fProxy) {
             // FIXME(michaelludwig) - If asTextureProxyRef fails, does going through drawImageQuad
             // make sense? Does that catch the lazy-image cases then?
