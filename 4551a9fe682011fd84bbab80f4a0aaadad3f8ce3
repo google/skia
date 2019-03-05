@@ -1,0 +1,268 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ddb0287_436c8a3f",
+        "filename": "samplecode/SampleDegenerateQuads.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "The coverage displayed for the GPU mesh mode is not a scaled-up image of what the GPU rasterized, but simulates that rasterization given the mesh structure matching how GrQuadPerEdgeAA tessellates its nested quads.",
+      "range": {
+        "startLine": 188,
+        "startChar": 16,
+        "endLine": 188,
+        "endChar": 35
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9f70e49_863fb033",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "Using the opposite edge, over the CW or CCW edge, is a key component to calculating the as-correct-as possible edges. If the degenerate edge should be AA\u0027ed, copying the opposite edge\u0027s direction lets us inset to match adjacent quads that must be AA\u0027ed on the same side.",
+      "range": {
+        "startLine": 70,
+        "startChar": 11,
+        "endLine": 70,
+        "endChar": 30
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4f2b013_f976099a",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "I experimented with calculating dx and dy using a consistent left/right and top/bottom subtraction order (and then correcting signs to preserve CCW order), but it did not improve or hurt the seaming behavior in the compositor GMs.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 49
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "400567b6_73eb46ff",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "It is likely that we could pick a conservative constant instead of calculating the actual edge lengths that would result. Would then trade off faster decision time for more quads going through the degenerate quad processing path.",
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12bce66e_acb7731d",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "This is one of the critical components of reducing the visible seaming between degenerate quads. Solving the system of equations for (a,b) can find a solution that uses two non-zero coefficients and then the final vertex corners for adjacent quads would have more substantial differences.",
+      "range": {
+        "startLine": 217,
+        "startChar": 11,
+        "endLine": 217,
+        "endChar": 73
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94c627b2_2ec64dd3",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "Kind of ugly and maybe non-standard formatting, but it was the best way I came up with for formatting this complex if-then-else-ifx2-else series.",
+      "range": {
+        "startLine": 235,
+        "startChar": 8,
+        "endLine": 246,
+        "endChar": 41
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab20f00b_68fdf85e",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "This one function accounts for a large fraction of the code change to GrQuadPerEdgeAA. It could be replaced with something similar to get_area_coverage in SampleDegenerateQuad (see above, but would not need to include the non-AA handling).\n\nHowever, when using any CTM other than translating, or non-axis-aligned geometry, this function is about 30X faster than the much smaller code relying on SkPath and an intersection op.\n\nMaybe that means it\u0027s worth exposing somewhere in the GPU folder, but I don\u0027t know if there are other places that would need the intersection of a rectangle and a quad. Its structure is definitely tied strictly to those geometric assumptions.",
+      "range": {
+        "startLine": 280,
+        "startChar": 13,
+        "endLine": 280,
+        "endChar": 31
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2eb4ac0_5dadcba5",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "An unfortunate consequence of  relying on edge intersections to calculate the new coordinates is that two adjacent quads now calculate their shared corner based one shared edge, and one \"parallel\" edge from a corner the other quad cannot know about.\n\noutset_projected_vertices helps counteract this by solving for edge coefficients to get to the intersection, but still respect the AA edge mask. Unfortunately, it\u0027s possible for two adjacent quads to calculate their projected corners in slightly different locations and still cause pixel acne along their edge. At this point it is very rare, though.",
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bef853df_74cf518e",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "While the code is heavily modified from before (due to the struct refactoring), the logic here is mostly the same. The only other major deviation is the manner in which degenerate quads are handled. \n\nTo work correctly with the AA tiling needs in SkiaRenderer, the thin line AA approach of outsetting to a fixed 2px doesn\u0027t really work. The implementation also relied strongly on a rectangular shape assumption. So, anything too small or with bad angles goes through the degenerate code path.",
+      "range": {
+        "startLine": 542,
+        "startChar": 12,
+        "endLine": 542,
+        "endChar": 40
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ece8bf30_0a5dfe99",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "It may make sense for get_optimized_outset to return if the optimized outset procedure can be used for the outer and inner quads separately. In most cases, the optimal path can always be used. In most cases where the degenerate code path will be needed, it\u0027s to handle just the inset.",
+      "range": {
+        "startLine": 553,
+        "startChar": 8,
+        "endLine": 553,
+        "endChar": 28
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c09333ad_57effcad",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "This is a pretty substantial rewrite from what was there before for perspective quads. Given the complexities of handling degenerate quads in 2D, I found it better to route all projected perspective quads through that shared code and then resolve the matching initial shape. The alternative would have been to implement an equivalent 3D degenerate function.",
+      "range": {
+        "startLine": 572,
+        "startChar": 12,
+        "endLine": 572,
+        "endChar": 46
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "560ea74c_a0be41fc",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-05T20:51:09Z",
+      "side": 1,
+      "message": "While the geometry processor already correctly handled varying per-vertex coverage (0 for outer vertices, 1 for inner vertices), the changes that use lines for the degenerate interior can have distinct non-zero coverage values.",
+      "range": {
+        "startLine": 631,
+        "startChar": 66,
+        "endLine": 631,
+        "endChar": 77
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
