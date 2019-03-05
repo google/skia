@@ -58,12 +58,6 @@ public:
     using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
     using PromiseImageTextureDoneProc = void (*)(PromiseImageTextureContext);
 
-    // Deprecated alias. To be removed.
-    using TextureContext = PromiseImageTextureContext;
-
-    // Legacy enum. To be removed.
-    enum class DelayReleaseCallback { kYes = true };
-
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
         difference is that the client doesn't have the backend texture on the gpu yet but they know
@@ -120,33 +114,6 @@ public:
                                       PromiseImageTextureReleaseProc textureReleaseProc,
                                       PromiseImageTextureDoneProc textureDoneProc,
                                       PromiseImageTextureContext textureContext);
-    // Legacy API bridge version. To be removed.
-    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
-                                      int width,
-                                      int height,
-                                      GrMipMapped mipMapped,
-                                      GrSurfaceOrigin origin,
-                                      SkColorType colorType,
-                                      SkAlphaType alphaType,
-                                      sk_sp<SkColorSpace> colorSpace,
-                                      PromiseImageTextureFulfillProc textureFulfillProc,
-                                      PromiseImageTextureReleaseProc textureReleaseProc,
-                                      PromiseImageTextureDoneProc textureDoneProc,
-                                      PromiseImageTextureContext textureContext,
-                                      DelayReleaseCallback) {
-        return this->makePromiseTexture(backendFormat,
-                                        width,
-                                        height,
-                                        mipMapped,
-                                        origin,
-                                        colorType,
-                                        alphaType,
-                                        colorSpace,
-                                        textureFulfillProc,
-                                        textureReleaseProc,
-                                        textureDoneProc,
-                                        textureContext);
-    }
 
     /**
         This entry point operates the same as 'makePromiseTexture' except that its
@@ -167,33 +134,6 @@ public:
                                           PromiseImageTextureReleaseProc textureReleaseProc,
                                           PromiseImageTextureDoneProc textureDoneProc,
                                           PromiseImageTextureContext textureContexts[]);
-    // Legacy API bridge version. To be removed.
-    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
-                                          const GrBackendFormat yuvaFormats[],
-                                          const SkISize yuvaSizes[],
-                                          const SkYUVAIndex yuvaIndices[4],
-                                          int imageWidth,
-                                          int imageHeight,
-                                          GrSurfaceOrigin imageOrigin,
-                                          sk_sp<SkColorSpace> imageColorSpace,
-                                          PromiseImageTextureFulfillProc textureFulfillProc,
-                                          PromiseImageTextureReleaseProc textureReleaseProc,
-                                          PromiseImageTextureDoneProc textureDoneProc,
-                                          PromiseImageTextureContext textureContexts[],
-                                          DelayReleaseCallback) {
-        return this->makeYUVAPromiseTexture(yuvColorSpace,
-                                            yuvaFormats,
-                                            yuvaSizes,
-                                            yuvaIndices,
-                                            imageWidth,
-                                            imageHeight,
-                                            imageOrigin,
-                                            imageColorSpace,
-                                            textureFulfillProc,
-                                            textureReleaseProc,
-                                            textureDoneProc,
-                                            textureContexts);
-    }
 
 private:
     bool init();
