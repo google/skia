@@ -1,0 +1,911 @@
+{
+   "Effects": [
+      {
+         "Name": "default",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 4096,
+            "Duration": 1,
+            "Rate": 1000,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": true,
+                     "Bidirectional": false,
+                     "A0": 1,
+                     "A1": 3
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkCircleDrawable",
+               "Radius": 1
+            },
+            "Spawn": [
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": false,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": -30,
+                           "A1": 30
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 10,
+                           "A1": 30
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "SkPositionOnTextAffector",
+                  "Enabled": true,
+                  "Input": {
+                     "Source": "Random",
+                     "TileMode": "Clamp",
+                     "Left": 0,
+                     "Right": 1
+                  },
+                  "SetHeading": true,
+                  "Text": "SKIA",
+                  "FontSize": 96
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkColorAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": false,
+                           "A0": [ 1, 0.196078, 0.0784314, 1 ],
+                           "D0": [ 1, 0.784314, 0.0784314, 1 ]
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "Name": "Explosion",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 32,
+            "Duration": 1,
+            "Rate": 8,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": true,
+                     "Bidirectional": false,
+                     "A0": 1,
+                     "A1": 3
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkImageDrawable",
+               "Path": "resources/images/explosion_sprites.png",
+               "Columns": 4,
+               "Rows": 4
+            },
+            "Spawn": [
+               {
+                  "Type": "SkPositionInCircleAffector",
+                  "Enabled": true,
+                  "SetHeading": true,
+                  "X": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0
+                        }
+                     ]
+                  },
+                  "Y": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0
+                        }
+                     ]
+                  },
+                  "Radius": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 60
+                        }
+                     ]
+                  }
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkPointForceAffector",
+                  "Enabled": true,
+                  "Point": { "x": 200, "y": 200 },
+                  "Constant": 0,
+                  "InvSquare": -50
+               },
+               {
+                  "Type": "SkFrameAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0,
+                           "D0": 1
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "Name": "PenguinCannon",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 32,
+            "Duration": 1,
+            "Rate": 0.5,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": false,
+                     "Bidirectional": false,
+                     "A0": 20
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkImageDrawable",
+               "Path": "resources/images/baby_tux.png",
+               "Columns": 1,
+               "Rows": 1
+            },
+            "Spawn": [
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": false,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 10,
+                           "A1": 70
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 140,
+                           "A1": 200
+                        }
+                     ]
+                  }
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": true,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 180
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 50
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "SkOrientationAffector",
+                  "Enabled": true,
+                  "Frame": "Velocity",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "Name": "Snowfall",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 4096,
+            "Duration": 1,
+            "Rate": 30,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": false,
+                     "Bidirectional": false,
+                     "A0": 10
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkCircleDrawable",
+               "Radius": 1
+            },
+            "Spawn": [
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": false,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 170,
+                           "A1": 190
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 10,
+                           "A1": 30
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "SkPositionOnPathAffector",
+                  "Enabled": true,
+                  "Input": {
+                     "Source": "Random",
+                     "TileMode": "Clamp",
+                     "Left": 0,
+                     "Right": 1
+                  },
+                  "SetHeading": false,
+                  "Path": "h500"
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkSizeAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Cubic",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 10,
+                           "B0": 10,
+                           "C0": 10,
+                           "D0": 0,
+                           "A1": 10,
+                           "B1": 0,
+                           "C1": 0,
+                           "D1": 0
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "Name": "Spiral",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 800,
+            "Duration": 4,
+            "Rate": 120,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": true,
+                     "Bidirectional": false,
+                     "A0": 2,
+                     "A1": 3
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkCircleDrawable",
+               "Radius": 2
+            },
+            "Spawn": [
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": false,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0,
+                           "D0": 1080
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 50,
+                           "A1": 60
+                        }
+                     ]
+                  }
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkSizeAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0.5,
+                           "D0": 2
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "SkColorAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": true,
+                           "A0": [ 0.0999616, 0.140218, 0.784314, 1 ],
+                           "D0": [ 0.523837, 0.886396, 0.980392, 1 ],
+                           "A1": [ 0.378665, 0.121107, 0.705882, 1 ],
+                           "D1": [ 0.934257, 0.229599, 0.955882, 1 ]
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "Name": "Swirl",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 4096,
+            "Duration": 1,
+            "Rate": 400,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": true,
+                     "Bidirectional": false,
+                     "A0": 1,
+                     "A1": 3
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkCircleDrawable",
+               "Radius": 2
+            },
+            "Spawn": [
+               {
+                  "Type": "SkPositionOnPathAffector",
+                  "Enabled": true,
+                  "Input": {
+                     "Source": "Random",
+                     "TileMode": "Clamp",
+                     "Left": 0,
+                     "Right": 1
+                  },
+                  "SetHeading": true,
+                  "Path": "h50"
+               },
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": false,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": -10,
+                           "A1": 10
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": true,
+                           "Bidirectional": false,
+                           "A0": 50,
+                           "A1": 60
+                        }
+                     ]
+                  }
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkLinearVelocityAffector",
+                  "Enabled": true,
+                  "Force": true,
+                  "Frame": "World",
+                  "Angle": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 90
+                        }
+                     ]
+                  },
+                  "Strength": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Cubic",
+                           "Ranged": false,
+                           "Bidirectional": true,
+                           "A0": 180,
+                           "B0": -90,
+                           "C0": -120,
+                           "D0": -200
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "SkSizeAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 3,
+                           "D0": 1.5
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "SkColorAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": true,
+                           "A0": [ 0.0999616, 0.140218, 0.784314, 1 ],
+                           "D0": [ 0.523837, 0.886396, 0.980392, 1 ],
+                           "A1": [ 0.378665, 0.121107, 0.705882, 1 ],
+                           "D1": [ 0.934257, 0.229599, 0.955882, 1 ]
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "Name": "Warp",
+         "Effect": {
+            "Type": "SkParticleEffectParams",
+            "MaxCount": 4096,
+            "Duration": 1,
+            "Rate": 90,
+            "Life": {
+               "Input": {
+                  "Source": "Age",
+                  "TileMode": "Repeat",
+                  "Left": 0,
+                  "Right": 1
+               },
+               "XValues": [],
+               "Segments": [
+                  {
+                     "Type": "Constant",
+                     "Ranged": false,
+                     "Bidirectional": false,
+                     "A0": 30
+                  }
+               ]
+            },
+            "Drawable": {
+               "Type": "SkCircleDrawable",
+               "Radius": 2
+            },
+            "Spawn": [
+               {
+                  "Type": "SkPositionInCircleAffector",
+                  "Enabled": true,
+                  "SetHeading": true,
+                  "X": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0
+                        }
+                     ]
+                  },
+                  "Y": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0
+                        }
+                     ]
+                  },
+                  "Radius": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Constant",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 40
+                        }
+                     ]
+                  }
+               }
+            ],
+            "Update": [
+               {
+                  "Type": "SkPointForceAffector",
+                  "Enabled": true,
+                  "Point": { "x": 0, "y": 0 },
+                  "Constant": -10,
+                  "InvSquare": 0
+               },
+               {
+                  "Type": "SkSizeAffector",
+                  "Enabled": true,
+                  "Curve": {
+                     "Input": {
+                        "Source": "Age",
+                        "TileMode": "Repeat",
+                        "Left": 0,
+                        "Right": 1
+                     },
+                     "XValues": [],
+                     "Segments": [
+                        {
+                           "Type": "Linear",
+                           "Ranged": false,
+                           "Bidirectional": false,
+                           "A0": 0.25,
+                           "D0": 3
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      }
+   ]
+}

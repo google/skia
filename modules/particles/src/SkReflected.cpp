@@ -13,7 +13,7 @@ SkSTArray<16, const SkReflected::Type*, true> SkReflected::gTypes;
 
 void SkReflected::VisitTypes(std::function<void(const Type*)> visitor, const Type* baseType) {
     for (const Type* type : gTypes) {
-        if (type->isDerivedFrom(baseType)) {
+        if (type == baseType || type->isDerivedFrom(baseType)) {
             visitor(type);
         }
     }
