@@ -62,6 +62,11 @@ public:
         if (dst.colorType() != src.colorType()) {
             return false;
         }
+#ifdef SK_SUPPORT_LEGACY_CHOOSERASTERPIPELINE
+        if (!SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
+            return false;
+        }
+#endif
         if (paint.getMaskFilter() || paint.getColorFilter() || paint.getImageFilter()) {
             return false;
         }
@@ -184,6 +189,26 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     SkSpriteBlitter* blitter = nullptr;
 
+#ifdef SK_SUPPORT_LEGACY_CHOOSERASTERPIPELINE
+    if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
+        blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
+    }
+    if (!blitter && !dst.colorSpace()) {
+        switch (dst.colorType()) {
+            case kN32_SkColorType:
+                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
+                break;
+            case kRGB_565_SkColorType:
+                blitter = SkSpriteBlitter::ChooseL565(source, paint, allocator);
+                break;
+            case kAlpha_8_SkColorType:
+                blitter = SkSpriteBlitter::ChooseLA8(source, paint, allocator);
+                break;
+            default:
+                break;
+        }
+    }
+#else
     if (sk_can_use_legacy_blits(source.colorSpace(), dst.colorSpace())) {
         if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
             blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
@@ -204,6 +229,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
             }
         }
     }
+#endif
     if (!blitter && !paint.getMaskFilter()) {
         blitter = allocator->make<SkRasterPipelineSpriteBlitter>(source, allocator);
     }
