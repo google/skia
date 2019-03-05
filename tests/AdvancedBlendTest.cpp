@@ -31,7 +31,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
         GrProcessorSet procs(std::move(paint));
         SkPMColor4f overrideColor;
         GrProcessorSet::Analysis processorAnalysis =
-                procs.finalize(opaque, coverage, nullptr, false, caps, &overrideColor);
+                procs.finalize(
+                        opaque, coverage, nullptr, &GrUserStencilSettings::kUnused,
+                        GrFSAAType::kNone, caps, &overrideColor);
 
         if (caps.advancedBlendEquationSupport() &&
                 !caps.isAdvancedBlendEquationBlacklisted(blendEquation)) {

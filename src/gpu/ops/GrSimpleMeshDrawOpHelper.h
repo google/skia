@@ -68,18 +68,21 @@ public:
      *                      this may be set to a known color in which case the op must output this
      *                      color from its geometry processor instead.
      */
-    GrProcessorSet::Analysis finalizeProcessors(const GrCaps& caps, const GrAppliedClip*,
-                                                GrProcessorAnalysisCoverage geometryCoverage,
-                                                GrProcessorAnalysisColor* geometryColor);
+    GrProcessorSet::Analysis finalizeProcessors(
+            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+            GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor) {
+        return this->finalizeProcessors(caps, clip, &GrUserStencilSettings::kUnused, fsaaType,
+                                        geometryCoverage, geometryColor);
+    }
 
     /**
      * Version of above that can be used by ops that have a constant color geometry processor
      * output. The op passes this color as 'geometryColor' and after return if 'geometryColor' has
      * changed the op must override its geometry processor color output with the new color.
      */
-    GrProcessorSet::Analysis finalizeProcessors(const GrCaps&, const GrAppliedClip*,
-                                                GrProcessorAnalysisCoverage geometryCoverage,
-                                                SkPMColor4f* geometryColor);
+    GrProcessorSet::Analysis finalizeProcessors(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType,
+            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor);
 
     bool isTrivial() const {
       return fProcessors == nullptr;
@@ -121,6 +124,10 @@ public:
 protected:
     uint32_t pipelineFlags() const { return fPipelineFlags; }
 
+    GrProcessorSet::Analysis finalizeProcessors(
+            const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType,
+            GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor);
+
     GrProcessorSet* fProcessors;
     unsigned fPipelineFlags : 8;
     unsigned fAAType : 2;
@@ -155,10 +162,20 @@ public:
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
+    GrProcessorSet::Analysis finalizeProcessors(
+            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+            GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor) {
+        return this->INHERITED::finalizeProcessors(
+                caps, clip, fStencilSettings, fsaaType, geometryCoverage, geometryColor);
+    }
+
+    GrProcessorSet::Analysis finalizeProcessors(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType,
+            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor);
+
     using GrSimpleMeshDrawOpHelper::aaType;
     using GrSimpleMeshDrawOpHelper::setAAType;
     using GrSimpleMeshDrawOpHelper::isTrivial;
-    using GrSimpleMeshDrawOpHelper::finalizeProcessors;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
     using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
 

@@ -59,9 +59,11 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, false, caps,
-                                    &fColor);
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+        return fProcessors.finalize(
+                fColor, GrProcessorAnalysisCoverage::kNone, clip, &GrUserStencilSettings::kUnused,
+                fsaaType, caps, &fColor);
     }
 
 private:

@@ -33,10 +33,11 @@
  */
 
 enum GrStencilFlags {
-    kDisabled_StencilFlag         = 0x1,
-    kNoModifyStencil_StencilFlag  = 0x2,
-    kNoWrapOps_StencilFlag        = 0x4,
-    kSingleSided_StencilFlag      = 0x8,
+    kDisabled_StencilFlag         = (1 << 0),
+    kTestAlwaysPasses_StencilFlag = (1 << 1),
+    kNoModifyStencil_StencilFlag  = (1 << 2),
+    kNoWrapOps_StencilFlag        = (1 << 3),
+    kSingleSided_StencilFlag      = (1 << 4),
 
     kLast_StencilFlag = kSingleSided_StencilFlag,
     kAll_StencilFlags = kLast_StencilFlag | (kLast_StencilFlag - 1)
@@ -188,6 +189,9 @@ struct GrUserStencilSettings {
     bool isDisabled(bool hasStencilClip) const {
         return this->flags(hasStencilClip) & kDisabled_StencilFlag;
     }
+    bool testAlwaysPasses(bool hasStencilClip) const {
+        return this->flags(hasStencilClip) & kTestAlwaysPasses_StencilFlag;
+    }
     bool isTwoSided(bool hasStencilClip) const {
         return !(this->flags(hasStencilClip) & kSingleSided_StencilFlag);
     }
@@ -235,6 +239,7 @@ struct GrUserStencilSettings::Attrs {
     }
     constexpr static uint16_t Flags(bool hasStencilClip) {
         return (IsDisabled(hasStencilClip) ? kDisabled_StencilFlag : 0) |
+               (TestAlwaysPasses(hasStencilClip) ? kTestAlwaysPasses_StencilFlag : 0) |
                (DoesNotModifyStencil(hasStencilClip) ? kNoModifyStencil_StencilFlag : 0) |
                (UsesWrapOps() ? 0 : kNoWrapOps_StencilFlag);
     }
