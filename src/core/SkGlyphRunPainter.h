@@ -39,7 +39,7 @@ public:
     // Constructor for SkBitmpapDevice.
     SkGlyphRunListPainter(const SkSurfaceProps& props,
                           SkColorType colorType,
-                          SkScalerContextFlags flags,
+                          SkColorSpace* cs,
                           SkStrikeCacheInterface* strikeCache);
 
 #if SK_SUPPORT_GPU
@@ -119,6 +119,9 @@ public:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
 private:
+    SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
+                          SkScalerContextFlags flags, SkStrikeCacheInterface* strikeCache);
+
     struct ScopedBuffers {
         ScopedBuffers(SkGlyphRunListPainter* painter, int size);
         ~ScopedBuffers();
