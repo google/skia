@@ -215,7 +215,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
         if (fTimer && ImGui::Button("Play")) {
             fEffect->start(*fTimer, looped);
         }
-        static char filename[64] = "resources/particles/default.json";
+        static char filename[64] = "particles/default.json";
         ImGui::InputText("Filename", filename, sizeof(filename));
         if (ImGui::Button("Load")) {
             if (auto newParams = LoadEffectParams(filename)) {
