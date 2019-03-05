@@ -932,7 +932,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                  p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
 
         SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
-        SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
+        SINK(    "srgb",  RasterSink,       kN32_SkColorType, srgb      );
         SINK(   "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
         SINK(   "esgbr",  RasterSink,  kRGBA_F16_SkColorType, rgb_to_gbr());
         SINK(  "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
