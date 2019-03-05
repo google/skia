@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "65f2891c_fbf76500",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T21:58:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8985d5ac_958c7017",
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e7db9e92_59a2dfc0",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5d26ec3_004ef20b",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T21:58:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7db9e92_59a2dfc0",
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "69e59cc6_4f0561ef",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T21:58:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "891e28d7_cb7fb4e7",
+      "range": {
+        "startLine": 186,
+        "startChar": 64,
+        "endLine": 186,
+        "endChar": 87
+      },
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72867ff9_5eed1cc4",
         "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
         "patchSetId": 1
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "d80ffc88_4e324b89",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T21:58:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72867ff9_5eed1cc4",
+      "range": {
+        "startLine": 123,
+        "startChar": 36,
+        "endLine": 123,
+        "endChar": 38
+      },
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92c07d7f_6b931744",
         "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
         "patchSetId": 1
@@ -93,6 +177,24 @@
       "writtenOn": "2019-02-21T14:21:00Z",
       "side": 1,
       "message": "Can we have a unit test that exercises this stuff? In particular, the (in)compatibility of characterizations and that drawing a DDL into a 2ndary CB actually works?",
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aae39dd_dad87bae",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T21:58:26Z",
+      "side": 1,
+      "message": "The plan is to add tests for drawing in a follow on CL. I want to do a thing where I pipe all the draws from the GM from one GrCotext, export it out and then import it back in. However, I need to filter out all the GMs that draw content that is not supported by GrVkSecondaryCBContexts. We should then be able to combine this path with the DDL path to test both at once.",
+      "parentUuid": "92c07d7f_6b931744",
       "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -119,6 +221,30 @@
       "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f2f7c68_c5c078e1",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T21:58:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7dc86b3e_4bdeec9e",
+      "range": {
+        "startLine": 102,
+        "startChar": 82,
+        "endLine": 102,
+        "endChar": 87
+      },
+      "revId": "0b290c4730918b6835c9aa19b01f8a712a885fee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
