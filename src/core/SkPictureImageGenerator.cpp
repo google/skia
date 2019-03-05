@@ -119,7 +119,7 @@ sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
     if (!image) {
         return nullptr;
     }
-    sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(ctx);
     SkASSERT(!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped());
     return proxy;
 }

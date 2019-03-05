@@ -10,6 +10,8 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureAdjuster.h"
@@ -88,8 +90,7 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(),
-        fColorSpace);
+        this->asTextureProxyRef(direct), fColorSpace);
     if (!sContext) {
         return false;
     }
@@ -105,8 +106,13 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
-    sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef();
+sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
+                                             const SkIRect& subset) const {
+    if (!context || !fContext->priv().matches(context)) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef(context);
 
     GrSurfaceDesc desc;
     desc.fWidth = subset.width();
@@ -119,7 +125,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     }
 
     // TODO: Should this inherit our proxy's budgeted status?
-    sk_sp<GrSurfaceContext> sContext(fContext->priv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext(context->priv().makeDeferredSurfaceContext(
             format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact,
             proxy->isBudgeted()));
     if (!sContext) {
@@ -183,7 +189,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(), this->refColorSpace());
+        this->asTextureProxyRef(direct), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -209,12 +215,12 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* context,
                                                          const GrSamplerState& params,
                                                          SkScalar scaleAdjust[2]) const {
-    if (!fContext->priv().matches(context)) {
+    if (!context || !fContext->priv().matches(context)) {
         SkASSERT(0);
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(), fAlphaType,
+    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context), fAlphaType,
                                this->uniqueID(), fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
@@ -224,10 +230,10 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
         // This image was created with a DDL context and cannot be instantiated.
-        return GrBackendTexture();
+        return GrBackendTexture(); // invalid
     }
 
-    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(direct);
     SkASSERT(proxy);
 
     if (!proxy->isInstantiated()) {
@@ -239,7 +245,6 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     }
 
     GrTexture* texture = proxy->peekTexture();
-
     if (texture) {
         if (flushPendingGrContextIO) {
             direct->priv().prepareSurfaceForExternalIO(proxy.get());
@@ -264,7 +269,7 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef(direct);
     SkASSERT(proxyRef && !proxyRef->isInstantiated());
 
     if (!proxyRef->instantiate(direct->priv().resourceProvider())) {
