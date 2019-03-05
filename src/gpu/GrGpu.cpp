@@ -379,6 +379,23 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     }
 }
 
+int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget, const GrPipeline& pipeline) {
+    SkASSERT(this->caps()->sampleLocationsSupport());
+    SkASSERT(renderTarget->numStencilSamples() > 1);
+    SkASSERT(pipeline.isHWAntialiasState());
+
+    GrStencilSettings stencil;
+    if (pipeline.isStencilEnabled()) {
+        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
+        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+                      renderTarget->renderTargetPriv().numStencilBits());
+    }
+
+    SkSTArray<16, SkPoint> sampleLocations;
+    this->querySampleLocations(renderTarget, stencil, &sampleLocations);
+    return fSamplePatternDictionary.findOrAssignSamplePatternKey(sampleLocations);
+}
+
 GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
                                          SkSurface::BackendSurfaceAccess access,
                                          SkSurface::FlushFlags flags, int numSemaphores,
