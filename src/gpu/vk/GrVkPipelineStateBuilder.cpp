@@ -331,15 +331,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             this->storeShadersInCache(vert, vertInputs, frag, fragInputs, geom, geomInputs);
         }
     }
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(this->numColorSamples(),
-                                                             fPrimProc,
-                                                             fPipeline,
-                                                             stencil,
-                                                             shaderStageInfo,
-                                                             numShaderStages,
-                                                             primitiveType,
-                                                             compatibleRenderPass,
-                                                             pipelineLayout);
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(
+            this->renderTarget()->numColorSamples(), fPrimProc, fPipeline, stencil, shaderStageInfo,
+            numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), vertShaderModule,
                                                         nullptr));
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), fragShaderModule,
@@ -381,7 +375,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
-    if (!INHERITED::Build(desc, renderTarget->config(), primProc,
+    if (!INHERITED::Build(desc, renderTarget, primProc,
                           primitiveType == GrPrimitiveType::kPoints, pipeline, gpu)) {
         return false;
     }

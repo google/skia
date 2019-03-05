@@ -158,6 +158,7 @@ public:
         kQuadPerEdgeAAGeometryProcessor_ClassID,
         kReplaceInputFragmentProcessor_ClassID,
         kRRectsGaussianEdgeFP_ClassID,
+        kSampleLocationsTestProcessor_ClassID,
         kSeriesFragmentProcessor_ClassID,
         kShaderPDXferProcessor_ClassID,
         kFwidthSquircleTestProcessor_ClassID,
@@ -187,6 +188,20 @@ public:
     SkString dumpInfo() const { return SkString("<Processor information unavailable>"); }
 #endif
 
+    /**
+     * Custom shader features provided by the framework. These require special handling when
+     * preparing shaders, so a processor must call setWillUseCustomFeature() from its constructor if
+     * it intends to use one.
+     */
+    enum class CustomFeatures {
+        kNone = 0,
+        kSampleLocations = 1 << 0,
+    };
+
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures);
+
+    CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
+
     void* operator new(size_t size);
     void operator delete(void* target);
 
@@ -204,12 +219,15 @@ public:
 
 protected:
     GrProcessor(ClassID classID) : fClassID(classID) {}
-
-private:
     GrProcessor(const GrProcessor&) = delete;
     GrProcessor& operator=(const GrProcessor&) = delete;
 
-    ClassID fClassID;
+    void setWillUseCustomFeature(CustomFeatures feature) { fRequestedFeatures |= feature; }
+
+    const ClassID fClassID;
+    CustomFeatures fRequestedFeatures = CustomFeatures::kNone;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrProcessor::CustomFeatures);
 
 #endif
