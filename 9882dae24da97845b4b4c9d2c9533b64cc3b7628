@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e724faf9_a8db91d4",
+        "filename": "gm/fontregen.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-03-05T14:41:31Z",
+      "side": 1,
+      "message": "Here we\u0027re unconditionally dereferencing \u0027context\u0027...",
+      "revId": "9882dae24da97845b4b4c9d2c9533b64cc3b7628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5b8fe4a_fc2a3db5",
+        "filename": "gm/fontregen.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-03-05T14:41:31Z",
+      "side": 1,
+      "message": "...but here we\u0027re checking to see if \u0027context\u0027 is NULL prior to dereferencing.  If \u0027context\u0027 is NULL here, it seems like we\u0027ll already have crashed.  Is this check unnecessary, or should we have a check earlier in the function as well?",
+      "revId": "9882dae24da97845b4b4c9d2c9533b64cc3b7628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
