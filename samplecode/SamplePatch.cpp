@@ -371,9 +371,11 @@ static sk_sp<SkVertices> make_verts(const SkPath& path, SkScalar width) {
 }
 
 class PseudoInkView : public Sample {
+    enum { N = 100 };
     SkPath            fPath;
-    sk_sp<SkVertices> fVertices;
+    sk_sp<SkVertices> fVertices[N];
     SkPaint           fSkeletonP, fStrokeP, fVertsP;
+    bool              fDirty = true;
 
 public:
     PseudoInkView() {
@@ -399,12 +401,15 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        if (!fVertices) {
-            fVertices = make_verts(fPath, 30);
+        if (fDirty) {
+            for (int i = 0; i < N; ++i) {
+                fVertices[i] = make_verts(fPath, 30);
+            }
+            fDirty = false;
         }
-        for (int i = 0; i < 10; ++i) {
-            canvas->drawVertices(fVertices, SkBlendMode::kSrc, fVertsP);
-            canvas->translate(10, 10);
+        for (int i = 0; i < N; ++i) {
+            canvas->drawVertices(fVertices[i], SkBlendMode::kSrc, fVertsP);
+            canvas->translate(1, 1);
         }
 //        canvas->drawPath(fPath, fStrokeP);
  //       canvas->drawPath(fPath, fSkeletonP);
@@ -421,7 +426,7 @@ protected:
         switch (click->fState) {
             case Click::kMoved_State:
                 fPath.lineTo(click->fCurr);
-                fVertices.reset();
+                fDirty = true;
                 break;
             default:
                 break;
