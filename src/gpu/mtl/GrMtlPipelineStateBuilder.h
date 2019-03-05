@@ -72,7 +72,8 @@ private:
                               const GrTextureProxy* const primProcProxies[],
                               GrProgramDesc*);
 
-    GrMtlPipelineState* finalize(const GrPrimitiveProcessor& primProc,
+    GrMtlPipelineState* finalize(GrRenderTarget* renderTarget,
+                                 const GrPrimitiveProcessor& primProc,
                                  const GrPipeline& pipeline,
                                  Desc*);
 

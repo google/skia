@@ -14,6 +14,8 @@
 #include "GrMtlPipelineState.h"
 #include "GrMtlUtil.h"
 
+#include "GrRenderTargetPriv.h"
+
 #import <simd/simd.h>
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
@@ -29,7 +31,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
-    return builder.finalize(primProc, pipeline, desc);
+    return builder.finalize(renderTarget, primProc, pipeline, desc);
 }
 
 GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
@@ -315,7 +317,8 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
     return offset + offsetDiff;
 }
 
-GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcessor& primProc,
+GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
+                                                        const GrPrimitiveProcessor& primProc,
                                                         const GrPipeline& pipeline,
                                                         Desc* desc) {
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
@@ -356,10 +359,11 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(primProc);
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(this->config(), pipeline);
+    bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
     pipelineDescriptor.stencilAttachmentPixelFormat =
-        pipeline.isStencilEnabled() ? mtlCaps->preferredStencilFormat().fInternalFormat
-                                    : MTLPixelFormatInvalid;
+        hasStencilAttachment ? mtlCaps->preferredStencilFormat().fInternalFormat
+                             : MTLPixelFormatInvalid;
 
     SkASSERT(pipelineDescriptor.vertexFunction);
     SkASSERT(pipelineDescriptor.fragmentFunction);
@@ -420,8 +424,10 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
 
     b.add32(renderTarget->config());
     b.add32(renderTarget->numColorSamples());
-    b.add32(pipeline.isStencilEnabled() ? gpu->mtlCaps().preferredStencilFormat().fInternalFormat
-                                        : MTLPixelFormatInvalid);
+    bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
+    b.add32(hasStencilAttachment ? gpu->mtlCaps().preferredStencilFormat().fInternalFormat
+                                 : MTLPixelFormatInvalid);
+    b.add32((uint32_t)pipeline.isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
     b.add32(pipeline.getBlendInfoKey());
