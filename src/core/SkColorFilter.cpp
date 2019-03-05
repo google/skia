@@ -21,7 +21,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
-#include "effects/GrMixerEffect.h"
 #endif
 
 bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
@@ -326,11 +325,8 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
-        return GrMixerEffect::Make(
-                fCF0->asFragmentProcessor(context, dstColorSpaceInfo),
-                fCF1 ? fCF1->asFragmentProcessor(context, dstColorSpaceInfo) : nullptr,
-                fWeight);
+            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
+        return nullptr;
     }
 #endif
 

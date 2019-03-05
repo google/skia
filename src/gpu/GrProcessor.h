@@ -120,7 +120,6 @@ public:
         kGrMatrixConvolutionEffect_ClassID,
         kGrMeshTestProcessor_ClassID,
         kGrMorphologyEffect_ClassID,
-        kGrMixerEffect_ClassID,
         kGrOverdrawFragmentProcessor_ClassID,
         kGrPathProcessor_ClassID,
         kGrPerlinNoise2Effect_ClassID,
