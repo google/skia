@@ -14,6 +14,7 @@
 #include "SkTemplates.h"
 #include "GrXferProcessor.h"
 
+struct GrUserStencilSettings;
 class GrAppliedClip;
 class GrXPFactory;
 
@@ -132,9 +133,9 @@ public:
      * that owns a processor set is recorded to ensure pending and writes are propagated to
      * resources referred to by the processors. Otherwise, data hazards may occur.
      */
-    Analysis finalize(const GrProcessorAnalysisColor& colorInput,
-                      const GrProcessorAnalysisCoverage coverageInput, const GrAppliedClip*,
-                      bool isMixedSamples, const GrCaps&, SkPMColor4f* inputColorOverride);
+    Analysis finalize(const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage,
+                      const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType, const GrCaps&,
+                      SkPMColor4f* inputColorOverride);
 
     bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 
