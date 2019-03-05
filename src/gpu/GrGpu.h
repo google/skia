@@ -11,6 +11,7 @@
 #include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrProgramDesc.h"
+#include "GrSamplePatternDictionary.h"
 #include "GrSwizzle.h"
 #include "GrAllocator.h"
 #include "GrTextureProducer.h"
@@ -252,6 +253,22 @@ public:
                      const SkIPoint& dstPoint,
                      bool canDiscardOutsideDstRect = false);
 
+    // Queries the per-pixel HW sample locations for the given render target, and then finds or
+    // assigns a key that uniquely identifies the sample pattern. The actual sample locations can be
+    // retrieved with retrieveSampleLocations().
+    //
+    // NOTE: The pipeline argument is required in order for us to flush draw state prior to querying
+    // multisample info. The pipeline itself is not expected to affect sample locations.
+    int findOrAssignSamplePatternKey(GrRenderTarget*, const GrPipeline&);
+
+    // Retrieves the per-pixel HW sample locations for the given sample pattern key, and, as a
+    // by-product, the actual number of samples in use. (This may differ from the number of samples
+    // requested by the render target.) Sample locations are returned as 0..1 offsets relative to
+    // the top-left corner of the pixel.
+    const SkTArray<SkPoint>& retrieveSampleLocations(int samplePatternKey) const {
+        return fSamplePatternDictionary.retrieveSampleLocations(samplePatternKey);
+    }
+
     // Returns a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the destination.
     virtual GrGpuRTCommandBuffer* getCommandBuffer(
@@ -454,8 +471,6 @@ protected:
     // Subclass must initialize this in its constructor.
     sk_sp<const GrCaps>              fCaps;
 
-    typedef SkTArray<SkPoint, true> SamplePattern;
-
 private:
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -463,6 +478,11 @@ private:
 
     // Implementation of resetTextureBindings.
     virtual void onResetTextureBindings() {}
+
+    // Queries the effective number of samples in use by the hardware for the given render target,
+    // and queries the individual sample locations.
+    virtual void querySampleLocations(
+            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) = 0;
 
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
@@ -528,6 +548,7 @@ private:
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
+    GrSamplePatternDictionary fSamplePatternDictionary;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;
