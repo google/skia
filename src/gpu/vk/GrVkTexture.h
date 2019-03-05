@@ -38,8 +38,8 @@ public:
 
     const GrVkImageView* textureView();
 
-    void addIdleProc(sk_sp<GrRefCntedCallback>) override;
-    void removeIdleProc() { fIdleCallback.reset(); }
+    void addIdleProc(sk_sp<GrRefCntedCallback>, IdleState) override;
+    void callIdleProcsOnBehalfOfResource();
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
@@ -70,6 +70,8 @@ private:
         // Forward the release proc on to GrVkImage
         this->setResourceRelease(std::move(releaseHelper));
     }
+
+    void removeFinishIdleProcs();
 
     const GrVkImageView* fTextureView;
 
