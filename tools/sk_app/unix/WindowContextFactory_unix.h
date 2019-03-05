@@ -9,6 +9,10 @@
 #ifndef WindowContextFactory_unix_DEFINED
 #define WindowContextFactory_unix_DEFINED
 
+// dawncpp.h and X.h don't get along. Include this first, before X11 defines None, Success etc.
+#ifdef SK_DAWN
+#include "dawn/dawncpp.h"
+#endif
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 typedef Window XWindow;
@@ -32,6 +36,14 @@ struct XlibWindowInfo {
 WindowContext* NewVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
 
 WindowContext* NewGLForXlib(const XlibWindowInfo&, const DisplayParams&);
+
+#ifdef SK_DAWN
+#if defined(SK_DAWN_OPENGL)
+WindowContext* NewDawnGLForXlib(const XlibWindowInfo&, const DisplayParams&);
+#elif defined(SK_DAWN_VULKAN)
+WindowContext* NewDawnVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
+#endif
+#endif
 
 WindowContext* NewRasterForXlib(const XlibWindowInfo&, const DisplayParams&);
 
