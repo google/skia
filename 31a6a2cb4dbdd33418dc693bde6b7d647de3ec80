@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0102708c_588ebacf",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 983,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-05T19:23:47Z",
+      "side": 1,
+      "message": "Maybe we should start leaving some notes about why methods of SomeTypeFoo aren\u0027t implemented in SomeTypeFoo.cpp?  That way if we ever start moving them around we make sure to move them around together?\n\n// Implemented here so it can inline into its one caller, GrTextBlob::generateFromGlyphRunList() above.",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff5162d1_3610b3d3",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-05T19:23:47Z",
+      "side": 1,
+      "message": "Why do we have this method at all?  Is it just the closures?  that blob-\u003efStrikeCache-\u003egetStrike(...) reads funny in a way that fStrikeCache-\u003egetStrike(...) doesn\u0027t?",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22ef39af_6b7a68ce",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-05T19:23:47Z",
+      "side": 1,
+      "message": "Want to add a comment describing the lifetimes here?  Is it,\n\n  // unowned, always outlives this GrTextBlob\n\n?",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c074b52_4c639c17",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-05T19:23:47Z",
+      "side": 1,
+      "message": "Is all this stuff unrelated?",
+      "revId": "31a6a2cb4dbdd33418dc693bde6b7d647de3ec80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
