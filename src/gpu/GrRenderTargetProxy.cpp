@@ -39,12 +39,13 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          LazyInstantiationType lazyType,
                                          const GrBackendFormat& format, const GrSurfaceDesc& desc,
                                          GrSurfaceOrigin origin,  SkBackingFit fit,
-                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags,
+                                         WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
                     surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
-        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
 }
 

@@ -71,6 +71,8 @@ protected:
     GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
                         GrSurfaceOrigin, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
+    enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
+
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
     //   basic knowledge - width, height, config, samples, origin are known
@@ -83,10 +85,10 @@ protected:
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
                         const GrBackendFormat&, const GrSurfaceDesc&, GrSurfaceOrigin,
-                        SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
+                        SkBackingFit, SkBudgeted, GrInternalSurfaceFlags,
+                        WrapsVkSecondaryCB wrapsVkSecondaryCB);
 
     // Wrapped version
-    enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin,
                         WrapsVkSecondaryCB wrapsVkSecondaryCB = WrapsVkSecondaryCB::kNo);
 
