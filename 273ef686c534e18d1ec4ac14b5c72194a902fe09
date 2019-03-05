@@ -22,6 +22,30 @@
       "revId": "273ef686c534e18d1ec4ac14b5c72194a902fe09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63c18b8b_e3e85047",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-05T18:29:46Z",
+      "side": 0,
+      "message": "Seems so -- I couldn\u0027t find the actual place, but if I removed it some GMs broke.",
+      "parentUuid": "168bd2e5_59aee8e0",
+      "range": {
+        "startLine": 361,
+        "startChar": 8,
+        "endLine": 361,
+        "endChar": 35
+      },
+      "revId": "273ef686c534e18d1ec4ac14b5c72194a902fe09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
