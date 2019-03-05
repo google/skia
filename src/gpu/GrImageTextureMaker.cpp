@@ -108,7 +108,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     // Check to see if the client has given us pre-mipped textures or we can generate them
     // If not, fall back to bilerp
     GrSamplerState::Filter filter = *filterOrNullForBicubic;
-    if (GrSamplerState::Filter::kMipMap == filter && !fImage->setupMipmapsForPlanes()) {
+    if (GrSamplerState::Filter::kMipMap == filter &&
+        !fImage->setupMipmapsForPlanes(this->context())) {
         filter = GrSamplerState::Filter::kBilerp;
     }
 

@@ -52,10 +52,10 @@ public:
         return true;
     }
 
-    bool setupMipmapsForPlanes() const;
+    bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
     // Returns a ref-ed texture proxy with miplevels
-    sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
+    sk_sp<GrTextureProxy> asMippedTextureProxyRef(GrRecordingContext*) const;
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
