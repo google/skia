@@ -22,8 +22,10 @@ class SkFieldVisitor;
 class SkParticleAffector;
 class SkParticleDrawable;
 
-class SkParticleEffectParams : public SkRefCnt {
+class SkParticleEffectParams : public SkReflected {
 public:
+    REFLECTED(SkParticleEffectParams, SkReflected)
+
     int       fMaxCount = 128;
     float     fEffectDuration = 1.0f;
     float     fRate = 8.0f;
@@ -39,6 +41,27 @@ public:
     SkTArray<sk_sp<SkParticleAffector>> fUpdateAffectors;
 
     void visitFields(SkFieldVisitor* v);
+};
+
+class SkParticleEffectLibrary : public SkRefCnt {
+public:
+    SkParticleEffectLibrary() {}
+
+    sk_sp<SkParticleEffectParams> findEffect(const char* name) const;
+
+    static sk_sp<SkParticleEffectLibrary> MakeFromFileName(const char* filename);
+    void visitFields(SkFieldVisitor* v);
+
+private:
+
+    struct Entry {
+        SkString fName;
+        sk_sp<SkParticleEffectParams> fEffect;
+
+        void visitFields(SkFieldVisitor* v);
+    };
+
+    SkTArray<Entry> fEffects;
 };
 
 class SkParticleEffect : public SkRefCnt {
