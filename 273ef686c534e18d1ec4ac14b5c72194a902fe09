@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "168bd2e5_59aee8e0",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-05T17:23:55Z",
+      "side": 0,
+      "message": "I\u0027m assuming we still use this elsewhere when actually setting the stencil state?",
+      "range": {
+        "startLine": 361,
+        "startChar": 8,
+        "endLine": 361,
+        "endChar": 35
+      },
+      "revId": "273ef686c534e18d1ec4ac14b5c72194a902fe09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
