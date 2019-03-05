@@ -355,7 +355,8 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
                                 const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
-                                const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+                                const SkMatrix* preViewMatrix, const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
@@ -372,15 +373,21 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     bool useDecal = mode == ImageDrawMode::kDecal;
     bool attemptDrawTexture = !useDecal; // rtc->drawTexture() only clamps
 
+    // Get final CTM matrix
+    SkMatrix ctm = this->ctm();
+    if (preViewMatrix) {
+        ctm.preConcat(*preViewMatrix);
+    }
+
     // YUVA images can be stored in multiple images with different plane resolutions, so this
     // uses an effect to combine them dynamically on the GPU. This is done before requesting a
     // pinned texture proxy because YUV images force-flatten to RGBA in that scenario.
     if (as_IB(image)->isYUVA()) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-        LogDrawScaleFactor(this->ctm(), srcToDst, paint.getFilterQuality());
+        LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
         GrYUVAImageTextureMaker maker(fContext.get(), image, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), this->ctm(),
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               /* attempt draw texture */ false);
         return;
@@ -392,20 +399,20 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-        LogDrawScaleFactor(this->ctm(), srcToDst, paint.getFilterQuality());
+        LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
         SkAlphaType alphaType = image->alphaType();
         SkColorSpace* colorSpace = as_IB(image)->colorSpace();
 
         if (attemptDrawTexture && can_use_draw_texture(paint)) {
-            draw_texture(fRenderTargetContext.get(), this->clip(), this->ctm(), paint, src,  dst,
+            draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
                          dstClip, aa, aaFlags, constraint, std::move(proxy), alphaType, colorSpace);
             return;
         }
 
         GrTextureAdjuster adjuster(fContext.get(), std::move(proxy), alphaType, pinnedUniqueID,
                                    colorSpace, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), this->ctm(),
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
                               constraint, /* attempt draw_texture */ false);
         return;
@@ -415,8 +422,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // TODO (michaelludwig): Implement this with per-edge AA flags to handle seaming properly
     // instead of going through drawBitmapRect (which will be removed from SkDevice in the future)
     SkBitmap bm;
-    if (this->shouldTileImage(image, &src, constraint, paint.getFilterQuality(), this->ctm(),
-                              srcToDst)) {
+    if (this->shouldTileImage(image, &src, constraint, paint.getFilterQuality(), ctm, srcToDst)) {
         // only support tiling as bitmap at the moment, so force raster-version
         if (!as_IB(image)->getROPixels(&bm)) {
             return;
@@ -427,20 +433,20 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
     // This is the funnel for all non-tiled bitmap/image draw calls. Log a histogram entry.
     SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-    LogDrawScaleFactor(this->ctm(), srcToDst, paint.getFilterQuality());
+    LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
     if (image->isLazyGenerated()) {
         GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), this->ctm(),
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               attemptDrawTexture);
         return;
     }
     if (as_IB(image)->getROPixels(&bm)) {
         GrBitmapTextureMaker maker(fContext.get(), bm, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), this->ctm(),
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               attemptDrawTexture);
     }
@@ -450,8 +456,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
 // For ease-of-use, the temporary API treats null dstClipCounts as if it were the proper sized
 // array, filled with all 0s (so dstClips can be null too)
-void SkGpuDevice::tmp_drawImageSetV2(const SkCanvas::ImageSetEntry set[], int dstClipCounts[],
-                                     int count, const SkPoint dstClips[], const SkPaint& paint,
+void SkGpuDevice::tmp_drawImageSetV3(const SkCanvas::ImageSetEntry set[], int dstClipCounts[],
+                                     int preViewMatrixIdx[], int count, const SkPoint dstClips[],
+                                     const SkMatrix preViewMatrices[], const SkPaint& paint,
                                      SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
 
@@ -461,10 +468,15 @@ void SkGpuDevice::tmp_drawImageSetV2(const SkCanvas::ImageSetEntry set[], int ds
         for (int i = 0; i < count; ++i) {
             // Only no clip or quad clip are supported
             SkASSERT(!dstClipCounts || dstClipCounts[i] == 0 || dstClipCounts[i] == 4);
+
+            int xform = preViewMatrixIdx ? preViewMatrixIdx[i] : -1;
+            SkASSERT(xform < 0 || preViewMatrices);
+
             // Always send GrAA::kYes to preserve seaming across tiling in MSAA
             this->drawImageQuad(set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
                     (dstClipCounts && dstClipCounts[i] > 0) ? dstClips + dstClipIndex : nullptr,
-                    GrAA::kYes, SkToGrQuadAAFlags(set[i].fAAFlags), paint, constraint);
+                    GrAA::kYes, SkToGrQuadAAFlags(set[i].fAAFlags),
+                    xform < 0 ? nullptr : preViewMatrices + xform, paint, constraint);
             if (dstClipCounts) {
                 dstClipIndex += dstClipCounts[i];
             }
@@ -531,9 +543,14 @@ void SkGpuDevice::tmp_drawImageSetV2(const SkCanvas::ImageSetEntry set[], int ds
                 continue;
             }
         }
+
+        int xform = preViewMatrixIdx ? preViewMatrixIdx[i] : -1;
+        SkASSERT(xform < 0 || preViewMatrices);
+
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fDstClipQuad = clip;
+        textures[i].fPreViewMatrix = xform < 0 ? nullptr : preViewMatrices + xform;
         textures[i].fAlpha = set[i].fAlpha * paint.getAlphaf();
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
 

@@ -1298,8 +1298,8 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
                                 const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
     GrQuadAAFlags aaFlags = paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
-    this->drawImageQuad(
-            image, src, &dst, nullptr, GrAA(paint.isAntiAlias()), aaFlags, paint, constraint);
+    this->drawImageQuad(image, src, &dst, nullptr, GrAA(paint.isAntiAlias()), aaFlags, nullptr,
+                        paint, constraint);
 }
 
 // When drawing nine-patches or n-patches, cap the filter quality at kBilerp.
@@ -1410,7 +1410,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
     paint.setBlendMode(mode);
     paint.setFilterQuality(filterQuality);
     paint.setAntiAlias(true);
-    this->tmp_drawImageSetV2(set, nullptr, count, nullptr, paint,
+    this->tmp_drawImageSetV3(set, nullptr, nullptr, count, nullptr, nullptr, paint,
                              SkCanvas::kFast_SrcRectConstraint);
 }
 

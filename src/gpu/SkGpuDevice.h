@@ -130,10 +130,12 @@ public:
 
     /*
      * dstClipCounts[] is a parallel array to the image entries, acting like the intended
-     * dstClipCount field in ImageSetEntry.
+     * dstClipCount field in ImageSetEntry. Similarly, preViewMatrixIdx is parallel and will
+     * become an index field in ImageSetEntry that specifies an entry in the matrix array.
      */
-    void tmp_drawImageSetV2(const SkCanvas::ImageSetEntry[], int dstClipCounts[], int count,
-            const SkPoint dstClips[], const SkPaint& paint,
+    void tmp_drawImageSetV3(const SkCanvas::ImageSetEntry[],
+            int dstClipCounts[], int preViewMatrixIdx[], int count,
+            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint& paint,
             SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint);
     void tmp_drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
                             SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode);
@@ -219,10 +221,11 @@ private:
                         bool bicubic,
                         bool needsTextureDomain);
 
-    // If not null, dstClip must be contained inside dst and will also respect the edge AA flags
+    // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
+    // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
     void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
                        const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
-                       const SkPaint&, SkCanvas::SrcRectConstraint);
+                       const SkMatrix* preViewMatrix, const SkPaint&, SkCanvas::SrcRectConstraint);
 
     // TODO(michaelludwig): This can be removed once drawBitmapRect is removed from SkDevice
     // so that drawImageQuad is the sole entry point into the draw-single-image op

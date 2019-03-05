@@ -197,6 +197,7 @@ public:
         SkRect fSrcRect;
         SkRect fDstRect;
         const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
+        const SkMatrix* fPreViewMatrix; // If not null, entry's CTM is 'viewMatrix' * fPreViewMatrix
         float fAlpha;
         GrQuadAAFlags fAAFlags;
     };
