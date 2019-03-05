@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5d7a79a_b163d26e",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-05T20:38:15Z",
+      "side": 1,
+      "message": "... and the GrTextBlob cache which owns this GrTextBlob ... ?\n\nOr is the GrTextBlob the cache itself?  If so, maybe drop \"cache\"?",
+      "revId": "1ba2df2a386903944581e1c40e66190916044d68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
