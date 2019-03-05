@@ -1188,7 +1188,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     SkPixmap pm;
     if (image->isTextureBacked()) {
-        sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef();
+        sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(fContext.get());
 
         return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                    SkIRect::MakeWH(image->width(), image->height()),
@@ -1312,7 +1312,8 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     auto iter = skstd::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
+                                                                          &pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
@@ -1372,7 +1373,8 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     auto iter = skstd::make_unique<SkLatticeIter>(lattice, dst);
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
+                                                                          &pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());

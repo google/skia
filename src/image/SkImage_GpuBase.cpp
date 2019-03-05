@@ -61,7 +61,8 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
-    if (!fContext->priv().resourceProvider()) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
@@ -86,9 +87,8 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
         }
     }
 
-    sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(),
-        fColorSpace);
+    sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
+        this->asTextureProxyRef(direct), fColorSpace);
     if (!sContext) {
         return false;
     }
@@ -104,8 +104,9 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
-    sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef();
+sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
+                                             const SkIRect& subset) const {
+    sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef(context);
 
     GrSurfaceDesc desc;
     desc.fWidth = subset.width();
@@ -158,7 +159,8 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
-    if (!fContext->priv().resourceProvider()) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
@@ -180,8 +182,8 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(), this->refColorSpace());
+    sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
+        this->asTextureProxyRef(direct), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -212,20 +214,26 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* con
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(), fAlphaType,
+    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context), fAlphaType,
                                this->uniqueID(), fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,
                                                       GrSurfaceOrigin* origin) const {
-    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        // This image was created with a DDL context and cannot be instantiated.
+        return GrBackendTexture(); // invalid
+    }
+
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(direct);
     SkASSERT(proxy);
 
     if (!fContext->priv().resourceProvider() && !proxy->isInstantiated()) {
         // This image was created with a DDL context and cannot be instantiated.
         return GrBackendTexture();
-}
+    }
 
     if (!proxy->instantiate(fContext->priv().resourceProvider())) {
         return GrBackendTexture(); // invalid
@@ -257,7 +265,7 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef();
+    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef(direct);
     SkASSERT(proxyRef && !proxyRef->isInstantiated());
 
     if (!proxyRef->instantiate(direct->priv().resourceProvider())) {

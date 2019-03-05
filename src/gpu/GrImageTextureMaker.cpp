@@ -61,9 +61,9 @@ sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool will
     }
 
     if (willBeMipped) {
-        return fImage->asMippedTextureProxyRef();
+        return fImage->asMippedTextureProxyRef(this->context());
     } else {
-        return fImage->asTextureProxyRef();
+        return fImage->asTextureProxyRef(this->context());
     }
 }
 

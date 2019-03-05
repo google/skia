@@ -27,22 +27,23 @@ public:
     GrContext* context() const final { return fContext.get(); }
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
-    sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;
+    sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect& subset) const final;
 
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                       int srcX, int srcY, CachingHint) const override;
 
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override {
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext* context) const override {
         // we shouldn't end up calling this
         SkASSERT(false);
-        return this->INHERITED::asTextureProxyRef();
+        return this->INHERITED::asTextureProxyRef(context);
     }
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const final;
 
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const final {
+    sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext* context,
+                                                uint32_t* uniqueID) const final {
         *uniqueID = this->uniqueID();
-        return this->asTextureProxyRef();
+        return this->asTextureProxyRef(context);
     }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,

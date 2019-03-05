@@ -34,11 +34,12 @@ public:
     // This returns the single backing proxy if the YUV channels have already been flattened but
     // nullptr if they have not.
     GrTextureProxy* peekProxy() const override;
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override;
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const override;
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
+                                                SkColorType, sk_sp<SkColorSpace>) const final;
 
     virtual bool isYUVA() const override { return true; }
     virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy> proxies[4],
@@ -55,7 +56,7 @@ public:
     bool setupMipmapsForPlanes() const;
 
     // Returns a ref-ed texture proxy with miplevels
-    sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
+    sk_sp<GrTextureProxy> asMippedTextureProxyRef(GrRecordingContext*) const;
 
     /**
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.

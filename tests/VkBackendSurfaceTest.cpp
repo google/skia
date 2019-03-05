@@ -63,7 +63,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
                                                            kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage.get());
 
-    sk_sp<GrTextureProxy> texProxy = as_IB(wrappedImage)->asTextureProxyRef();
+    sk_sp<GrTextureProxy> texProxy = as_IB(wrappedImage)->asTextureProxyRef(context);
     REPORTER_ASSERT(reporter, texProxy.get());
     REPORTER_ASSERT(reporter, texProxy->isInstantiated());
     GrTexture* texture = texProxy->peekTexture();
