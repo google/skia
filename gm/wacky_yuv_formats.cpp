@@ -848,6 +848,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        auto context = canvas->getGrContext();
+
         this->createImages(canvas->getGrContext());
 
         int x = kLabelWidth;
@@ -864,7 +866,7 @@ protected:
                     draw_row_label(canvas, y, format);
                     if (fUseTargetColorSpace && fImages[opaque][cs][format]) {
                         sk_sp<SkImage> csImage =
-                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace);
+                            fImages[opaque][cs][format]->makeColorSpace(context, fTargetColorSpace);
                         canvas->drawImage(csImage, x, y);
                     } else {
                         canvas->drawImage(fImages[opaque][cs][format], x, y);
@@ -875,7 +877,7 @@ protected:
                 x += kTileWidthHeight + kPad;
             }
         }
-        if (auto context = canvas->getGrContext()) {
+        if (context) {
             if (!context->abandoned()) {
                 context->flush();
                 GrGpu* gpu = context->priv().getGpu();
@@ -998,17 +1000,17 @@ protected:
                 int y = kPad;
 
                 auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
-                    ->makeColorSpace(fTargetColorSpace);
+                    ->makeColorSpace(context, fTargetColorSpace);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 
-                auto yuv = fImages[opaque][tagged]->makeColorSpace(fTargetColorSpace);
+                auto yuv = fImages[opaque][tagged]->makeColorSpace(context, fTargetColorSpace);
                 SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
                 canvas->drawImage(yuv, x, y);
                 y += kTileWidthHeight + kPad;
 
-                auto subset = yuv->makeSubset(SkIRect::MakeWH(kTileWidthHeight / 2,
-                                                              kTileWidthHeight / 2));
+                auto subset = yuv->makeSubset(context, SkIRect::MakeWH(kTileWidthHeight / 2,
+                                                                       kTileWidthHeight / 2));
                 canvas->drawImage(subset, x, y);
                 y += kTileWidthHeight + kPad;
 
