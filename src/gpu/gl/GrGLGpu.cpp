@@ -3918,6 +3918,23 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     return true;
 }
 
+void GrGLGpu::querySampleLocations(
+        GrRenderTarget* renderTarget, const GrStencilSettings& stencilSettings,
+        SkTArray<SkPoint>* sampleLocations) {
+    this->flushStencil(stencilSettings);
+    this->flushHWAAState(renderTarget, true);
+    this->flushRenderTarget(static_cast<GrGLRenderTarget*>(renderTarget));
+
+    int effectiveSampleCnt;
+    GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, &effectiveSampleCnt);
+    SkASSERT(effectiveSampleCnt >= renderTarget->numStencilSamples());
+
+    sampleLocations->reset(effectiveSampleCnt);
+    for (int i = 0; i < effectiveSampleCnt; ++i) {
+        GL_CALL(GetMultisamplefv(GR_GL_SAMPLE_POSITION, i, &(*sampleLocations)[i].fX));
+    }
+}
+
 void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     SkASSERT(type);
     switch (type) {

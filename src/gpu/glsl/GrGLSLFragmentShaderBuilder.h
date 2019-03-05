@@ -47,6 +47,13 @@ public:
     /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
     GrGLSLFPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
 
+    /**
+     * Returns the variable name that holds the array of sample offsets from pixel center to each
+     * sample location. Before this is called, a processor must have advertised that it will use
+     * CustomFeatures::kSampleLocations.
+     */
+    virtual const char* sampleOffsets() = 0;
+
     enum class Scope : bool {
         kTopLevel,
         kInsideLoopOrBranch
@@ -111,6 +118,7 @@ public:
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
 
     // GrGLSLFPFragmentBuilder interface.
+    const char* sampleOffsets() override;
     void maskOffMultisampleCoverage(const char* mask, Scope) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
@@ -124,6 +132,8 @@ public:
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:
+    using CustomFeatures = GrProcessor::CustomFeatures;
+
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
     void enableCustomOutput();
     void enableSecondaryOutput();
@@ -134,9 +144,13 @@ private:
 #ifdef SK_DEBUG
     // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
-    bool hasReadDstColor() const { return fHasReadDstColor; }
-    void resetVerification() {
-        fHasReadDstColor = false;
+    bool fHasReadDstColorThisStage_DebugOnly = false;
+    CustomFeatures fUsedProcessorFeaturesThisStage_DebugOnly = CustomFeatures::kNone;
+    CustomFeatures fUsedProcessorFeaturesAllStages_DebugOnly = CustomFeatures::kNone;
+
+    void debugOnly_resetPerStageVerification() {
+        fHasReadDstColorThisStage_DebugOnly = false;
+        fUsedProcessorFeaturesThisStage_DebugOnly = CustomFeatures::kNone;
     }
 #endif
 
@@ -169,18 +183,12 @@ private:
      */
     SkString fMangleString;
 
-    bool fSetupFragPosition;
-    bool fHasCustomColorOutput;
-    int fCustomColorOutputIndex;
-    bool fHasSecondaryOutput;
-    bool fHasInitializedSampleMask;
-    bool fForceHighPrecision;
-
-#ifdef SK_DEBUG
-    // some state to verify shaders and effects are consistent, this is reset between effects by
-    // the program creator
-    bool fHasReadDstColor;
-#endif
+    bool fSetupFragPosition = false;
+    bool fHasCustomColorOutput = false;
+    int fCustomColorOutputIndex = -1;
+    bool fHasSecondaryOutput = false;
+    bool fHasInitializedSampleMask = false;
+    bool fForceHighPrecision = false;
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;

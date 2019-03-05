@@ -95,15 +95,19 @@ GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& 
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrScissorTest scissorTest, SkBlendMode blendmode)
+GrPipeline::GrPipeline(GrScissorTest scissorTest, SkBlendMode blendmode, uint32_t flags,
+                       const GrUserStencilSettings* userStencil)
         : fWindowRectsState()
-        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-        , fFlags()
+        , fUserStencilSettings(userStencil)
+        , fFlags(flags)
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
         , fFragmentProcessors()
         , fNumColorProcessors(0) {
     if (GrScissorTest::kEnabled == scissorTest) {
         fFlags |= kScissorEnabled_Flag;
+    }
+    if (!userStencil->isDisabled(false)) {
+        fFlags |= kStencilEnabled_Flag;
     }
 }
 
