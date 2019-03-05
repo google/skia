@@ -147,7 +147,7 @@ public:
         }
 
         fRunCount++;
-        return &fRuns[fRunCount - 1];
+        return this->currentRun();
     }
 
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
@@ -511,11 +511,39 @@ private:
         GrColor fColor;
     };  // Run
 
-    inline std::unique_ptr<GrAtlasTextOp> makeOp(
+    std::unique_ptr<GrAtlasTextOp> makeOp(
             const SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
+
+    // currentRun, startRun, and the process* calls are all used by the SkGlyphRunPainter, and
+    // live in SkGlyphRunPainter.cpp file.
+    Run* currentRun();
+    void startRun(const SkGlyphRun& glyphRun);
+
+    void processMasksDevice(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+                            SkStrikeInterface* strike);
+
+    void processPathsSource(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths,
+                            SkStrikeInterface* strike, SkScalar textScale);
+    void processPathsDevice(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths);
+
+    void processSDFTSource(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+                           SkStrikeInterface* strike,
+                           const SkFont& runFont,
+                           SkScalar textScale,
+                           SkScalar minScale,
+                           SkScalar maxScale,
+                           bool hasWCoord);
+
+    void processFallbackSource(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+                               SkStrikeInterface* strike,
+                               SkScalar strikeToSourceRatio,
+                               bool hasW);
+
+    void processFallbackDevice(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+                               SkStrikeInterface* strike);
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
