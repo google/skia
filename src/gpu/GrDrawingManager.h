@@ -29,6 +29,12 @@ class GrTextureContext;
 class GrTextureOpList;
 class SkDeferredDisplayList;
 
+class GrFoo {
+public:
+
+
+};
+
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
 //
@@ -53,7 +59,7 @@ public:
     sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managedOpList);
     sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
 
-    GrRecordingContext* getContext() { return fContext; }
+    //GrContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();
 
@@ -72,7 +78,7 @@ public:
 
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
-    GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
+    GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrContext* direct, GrSurfaceProxy*,
                                                       SkSurface::BackendSurfaceAccess access,
                                                       SkSurface::FlushFlags flags,
                                                       int numSemaphores,
@@ -146,17 +152,18 @@ private:
     void cleanup();
 
     // return true if any opLists were actually executed; false otherwise
-    bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
+    bool executeOpLists(GrContext* direct,
+                        int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
-    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
+    GrSemaphoresSubmitted flush(GrContext* context, GrSurfaceProxy* proxy,
                                 SkSurface::BackendSurfaceAccess access,
                                 SkSurface::FlushFlags flags,
                                 int numSemaphores,
                                 GrBackendSemaphore backendSemaphores[]);
-
     SkDEBUGCODE(void validate() const);
 
     friend class GrContext; // access to: flush & cleanup
+    friend class GrDirectContext;
     friend class GrContextPriv; // access to: flush
     friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class
     friend class GrRecordingContext;  // access to: ctor

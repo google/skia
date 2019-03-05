@@ -41,7 +41,11 @@ class SkSurface;
 class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
+class GrDirectContext;
+class GrImageContext;
+class GrRecordingContext;
 class GrTexture;
+class GrContext_Base;
 
 struct SkYUVAIndex;
 
@@ -194,7 +198,7 @@ public:
         @param type     type of compression used
         @return         created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
+    static sk_sp<SkImage> MakeFromCompressed(GrImageContext* context, sk_sp<SkData> data,
                                              int width, int height, CompressionType type);
 
     /** User function called when supplied texture may be deleted.
@@ -728,7 +732,7 @@ public:
         @param context  GPU context
         @return         true if SkImage can be drawn
     */
-    bool isValid(GrContext* context) const;
+    bool isValid(GrRecordingContext* context) const;
 
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
@@ -931,7 +935,7 @@ public:
         @param mipMapped      whether created SkImage texture must allocate mip map levels
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+    sk_sp<SkImage> makeTextureImage(GrContext_Base* context, SkColorSpace* dstColorSpace,
                                     GrMipMapped mipMapped = GrMipMapped::kNo) const;
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
@@ -977,7 +981,7 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    sk_sp<SkImage> makeWithFilter(GrContext* context,
+    sk_sp<SkImage> makeWithFilter(GrImageContext* context,
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
@@ -1014,7 +1018,7 @@ public:
         @param backendTextureReleaseProc  storage for clean up function
         @return                           true if back-end texture was created
     */
-    static bool MakeBackendTextureFromSkImage(GrContext* context,
+    static bool MakeBackendTextureFromSkImage(GrDirectContext* context,
                                               sk_sp<SkImage> image,
                                               GrBackendTexture* backendTexture,
                                               BackendTextureReleaseProc* backendTextureReleaseProc);

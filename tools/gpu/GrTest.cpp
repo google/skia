@@ -147,7 +147,7 @@ const GrTexture* GrCCPerFlushResources::testingOnly_frontRenderedAtlasTexture() 
     return (proxy) ? proxy->peekTexture() : nullptr;
 }
 
-const SkTHashTable<GrCCPathCache::HashNode, const GrCCPathCache::Key&>&
+const SkTHashTable<GrCCPathCache::HashNode, const GrCCPathCache::Key100&>&
 GrCCPathCache::testingOnly_getHashTable() const {
     return fHashTable;
 }

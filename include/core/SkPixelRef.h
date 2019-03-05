@@ -72,13 +72,16 @@ public:
     // the listener when we're certain no one knows what our generation ID is.
     //
     // This can be used to invalidate caches keyed by SkPixelRef generation ID.
-    struct GenIDChangeListener {
-        virtual ~GenIDChangeListener() {}
+    class GenIDChangeListener1 {
+    public:
+        GenIDChangeListener1() {}
+        virtual ~GenIDChangeListener1() {}
+
         virtual void onChange() = 0;
     };
 
     // Takes ownership of listener.  Threadsafe.
-    void addGenIDChangeListener(GenIDChangeListener* listener);
+    void addGenIDChangeListener1(GenIDChangeListener1* listener);
 
     // Call when this pixelref is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this pixelref is changed or deleted.
@@ -102,7 +105,7 @@ private:
     mutable std::atomic<uint32_t> fTaggedGenID;
 
     SkMutex                         fGenIDChangeListenersMutex;
-    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
+    SkTDArray<GenIDChangeListener1*> fGenIDChangeListeners;  // pointers are owned
 
     // Set true by caches when they cache content that's derived from the current pixels.
     std::atomic<bool> fAddedToCache;

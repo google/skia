@@ -1708,31 +1708,31 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* conte
     SkIPoint offset;
     sk_sp<SkImage> result;
 
-    result = sourceImage->makeWithFilter(nullptr, subset, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, nullptr, subset, clipBounds, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, nullptr, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, nullptr, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, nullptr);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, &outSubset, nullptr);
     REPORTER_ASSERT(reporter, !result);
 
     SkIRect bigSubset = SkIRect::MakeXYWH(-10000, -10000, 20000, 20000);
-    result = sourceImage->makeWithFilter(filter.get(), bigSubset, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), bigSubset, clipBounds, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
     SkIRect empty = SkIRect::MakeEmpty();
-    result = sourceImage->makeWithFilter(filter.get(), empty, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), empty, clipBounds, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, empty, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, empty, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
     SkIRect leftField = SkIRect::MakeXYWH(-1000, 0, 100, 100);
-    result = sourceImage->makeWithFilter(filter.get(), subset, leftField, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, leftField, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, &outSubset, &offset);
 
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->bounds().contains(outSubset));
@@ -1747,7 +1747,7 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* conte
         subset.setXYWH(0, 0, 160, 90);
 
         filter = SkXfermodeImageFilter::Make(SkBlendMode::kSrc, nullptr);
-        result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
+        result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, &outSubset, &offset);
         REPORTER_ASSERT(reporter, result);
     }
 }

@@ -32,13 +32,15 @@ public:
 
     virtual void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
 
-    virtual void drawShape(const GrClip&, const SkPaint&,
+    virtual void drawShape1(const GrClip&, const SkPaint&,
                            const SkMatrix& viewMatrix, const GrShape&) = 0;
 
     virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                              GrPaint*) = 0;
 
+#if 0
     virtual GrRecordingContext* getContext() = 0;
+#endif
 
     virtual SkGlyphRunListPainter* glyphPainter() = 0;
 

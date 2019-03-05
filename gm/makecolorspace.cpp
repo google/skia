@@ -12,6 +12,8 @@
 #include "SkImage.h"
 #include "SkImagePriv.h"
 
+#include "GrContext.h"
+
 sk_sp<SkImage> make_raster_image(const char* path) {
     sk_sp<SkData> resourceData = GetResourceAsData(path);
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(resourceData);

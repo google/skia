@@ -14,14 +14,14 @@
 namespace sk_gpu_test {
 
 /** Makes a texture proxy containing the passed in color data. */
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext*, bool isRT, int width, int height,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrRecordingContext*, bool isRT,
+                                               int width, int height,
                                                GrColorType, GrSRGBEncoded, GrSurfaceOrigin,
                                                const void* data, size_t rowBytes);
 
 /** Version that assumes GrSRGBEncoded::kNo. */
-inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
-                                                      bool isRT, int width,
-                                                      int height, GrColorType ct,
+inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrRecordingContext* context, bool isRT,
+                                                      int width, int height, GrColorType ct,
                                                       GrSurfaceOrigin origin, const void* data,
                                                       size_t rowBytes) {
     return MakeTextureProxyFromData(context, isRT, width, height, ct, GrSRGBEncoded::kNo, origin,
@@ -29,9 +29,8 @@ inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 }
 
 /** Version that takes SkColorType rather than GrColorType and assumes GrSRGBEncoded::kNo. */
-inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
-                                                      bool isRT, int width,
-                                                      int height, SkColorType ct,
+inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrRecordingContext* context, bool isRT,
+                                                      int width, int height, SkColorType ct,
                                                       GrSurfaceOrigin origin, const void* data,
                                                       size_t rowBytes) {
     return MakeTextureProxyFromData(context, isRT, width, height, SkColorTypeToGrColorType(ct),

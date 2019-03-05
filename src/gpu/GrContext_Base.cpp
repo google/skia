@@ -36,11 +36,11 @@ GrContext_Base::GrContext_Base(GrBackendApi backend,
 
 GrContext_Base::~GrContext_Base() { }
 
-bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
-    SkASSERT(caps && FPFactoryCache);
+bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> cache) {
+    SkASSERT(caps && cache);
 
-    fCaps = caps;
-    fFPFactoryCache = FPFactoryCache;
+    fCaps = std::move(caps);
+    fFPFactoryCache = std::move(cache);
     return true;
 }
 

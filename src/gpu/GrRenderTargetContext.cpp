@@ -75,9 +75,9 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawShape(const GrClip& clip, const SkPaint& paint,
+    void drawShape1(const GrClip& clip, const SkPaint& paint,
                   const SkMatrix& viewMatrix, const GrShape& shape) override {
-        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+        GrBlurUtils::drawShapeWithMaskFilter1(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
 
@@ -92,9 +92,11 @@ public:
         }
     }
 
+#if 0
     GrRecordingContext* getContext() override {
         return fRenderTargetContext->fContext;
     }
+#endif
 
     SkGlyphRunListPainter* glyphPainter() override {
         return &fGlyphPainter;
