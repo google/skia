@@ -86,6 +86,7 @@ public:
 
 private:
     friend class SkSurface_Gpu; // for 'set' & 'config'
+    friend class GrVkSecondaryCBDrawContext; // for 'set' & 'config'
     friend class GrContextThreadSafeProxy; // for private ctor
     friend class SkDeferredDisplayListRecorder; // for 'config'
     friend class SkSurface; // for 'config'

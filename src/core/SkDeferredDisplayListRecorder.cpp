@@ -115,6 +115,18 @@ bool SkDeferredDisplayListRecorder::init() {
         }
     }
 
+    if (fCharacterization.vulkanSecondaryCBCompatible()) {
+        // Because of the restrictive API allowed for a GrVkSecondaryCBDrawContext, we know ahead
+        // of time that we don't be able to support certain parameter combinations. Specifially we
+        // fail on usesGLFBO0 since we can't mix GL and Vulkan. We can't have a texturable object.
+        // And finally the GrVkSecondaryCBDrawContext always assumes a top left origin.
+        if (usesGLFBO0 ||
+            fCharacterization.isTextureable() ||
+            fCharacterization.origin() == kBottomLeft_GrSurfaceOrigin) {
+            return false;
+        }
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
@@ -163,7 +175,8 @@ bool SkDeferredDisplayListRecorder::init() {
             surfaceFlags,
             optionalTextureInfo,
             SkBackingFit::kExact,
-            SkBudgeted::kYes);
+            SkBudgeted::kYes,
+            fCharacterization.vulkanSecondaryCBCompatible());
 
     sk_sp<GrSurfaceContext> c = fContext->priv().makeWrappedSurfaceContext(
                                                                  std::move(proxy),

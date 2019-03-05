@@ -46,7 +46,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&&
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
         , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, format, desc, origin, fit,
-                              budgeted, surfaceFlags)
+                              budgeted, surfaceFlags, WrapsVkSecondaryCB::kNo)
         , GrTextureProxy(LazyInstantiateCallback(), lazyType, format, desc, origin, mipMapped,
                          fit, budgeted, surfaceFlags) {}
 

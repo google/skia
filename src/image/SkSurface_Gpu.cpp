@@ -212,6 +212,10 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
         return false;
     }
 
+    if (characterization.vulkanSecondaryCBCompatible()) {
+        return false;
+    }
+
     // As long as the current state if the context allows for greater or equal resources,
     // we allow the DDL to be replayed.
     // DDL TODO: should we just remove the resource check and ignore the cache limits on playback?
