@@ -22,7 +22,7 @@
    },
    "Drawable": {
       "Type": "SkImageDrawable",
-      "Path": "images/explosion_sprites.png",
+      "Path": "resources/images/explosion_sprites.png",
       "Columns": 4,
       "Rows": 4
    },

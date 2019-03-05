@@ -7,7 +7,6 @@
 
 #include "SkParticleEffect.h"
 
-#include "Resources.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"

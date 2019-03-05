@@ -7,7 +7,6 @@
 
 #include "SkParticleDrawable.h"
 
-#include "Resources.h"
 #include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
@@ -137,8 +136,11 @@ private:
     }
 
     void rebuild() {
-        fImage = GetResourceAsImage(fPath.c_str());
+        fImage = SkImage::MakeFromEncoded(SkData::MakeFromFileName(fPath.c_str()));
         if (!fImage) {
+            if (!fPath.isEmpty()) {
+                SkDebugf("Could not load image \"%s\"\n", fPath.c_str());
+            }
             fImage = make_circle_image(1);
         }
     }
