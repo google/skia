@@ -1,0 +1,21 @@
+{
+  "name": "debugger-local",
+  "version": "0.0.0",
+  "description": "private",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "is-docker": "~1.1.0",
+    "jasmine-core": "~3.1.0",
+    "karma": "~3.0.0",
+    "karma-chrome-launcher": "~2.2.0",
+    "karma-jasmine": "~1.1.2",
+    "requirejs": "~2.3.5"
+  },
+  "scripts": {
+    "test": "make test-continuous"
+  },
+  "author": "",
+  "license": "BSD-3-Clause"
+}
