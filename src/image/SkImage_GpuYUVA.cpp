@@ -80,7 +80,11 @@ SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
                              fAlphaType, fTargetColorSpace ? fTargetColorSpace : fColorSpace);
 }
 
-bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
+bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
+    if (!context || !fContext->priv().matches(context)) {
+        return false;
+    }
+
     for (int i = 0; i < fNumProxies; ++i) {
         GrTextureProducer::CopyParams copyParams;
         int mipCount = SkMipMap::ComputeLevelCount(fProxies[i]->width(), fProxies[i]->height());
@@ -88,7 +92,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
-            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), fProxies[i].get());
+            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fProxies[i].get());
             if (!mippedProxy) {
                 return false;
             }
@@ -149,7 +153,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContex
     }
 
     // need to generate mips for the proxy
-    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), proxy.get())) {
+    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, proxy.get())) {
         fRGBProxy = mippedProxy;
         return mippedProxy;
     }
