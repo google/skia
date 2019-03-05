@@ -626,7 +626,7 @@ private:
             pipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }
         flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, std::move(fProcessorSet), pipelineFlags);
+                this, chainBounds, std::move(fProcessorSet), pipelineFlags, fStencilSettings);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
