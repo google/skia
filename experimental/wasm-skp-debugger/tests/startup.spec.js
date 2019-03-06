@@ -10,7 +10,7 @@ describe('Debugger\'s Startup Behavior', function() {
             resolve();
         } else {
             DebuggerInit({
-                locateFile: (file) => '/debugger/'+file,
+                locateFile: (file) => '/debugger/bin/'+file,
             }).ready().then((_Debugger) => {
                 Debugger = _Debugger;
                 resolve();
@@ -22,14 +22,38 @@ describe('Debugger\'s Startup Behavior', function() {
     document.body.appendChild(container);
     container.innerHTML = `<canvas id=debugger_view width=720 height=1280></canvas>`;
 
-    it('can load the built in skp sample', function(done) {
+    it('can load and draw a skp file', function(done) {
         LoadDebugger.then(catchException(done, () => {
             const surface = Debugger.MakeSWCanvasSurface('debugger_view');
             const player = new Debugger.SkpDebugPlayer();
-            player.loadSkp();
-            player.drawTo(surface, 789); // number of commands in sample file
-            surface.flush();
-            done();
+
+            fetch('/debugger/sample.skp').then(function(response) {
+                // Load test file
+                if (!response.ok) {
+                  throw new Error("HTTP error, status = " + response.status);
+                }
+                response.arrayBuffer().then(function(buffer) {
+                    let fileContents = new Uint8Array(buffer);
+                    console.log('fetched /debugger/sample.skp');
+                    const size = fileContents.byteLength;
+                    expect(size).toEqual(662976);
+
+                    // Allocate memory in wasm to hold the skp file selected by the user.
+                    const fileMemPtr = Debugger._malloc(size);
+                    // Make a typed array view of that memory
+                    let fileMem = new Uint8Array(Debugger.buffer, fileMemPtr, size);
+                    // Copy the file into it
+                    fileMem.set(fileContents);
+                    // Hand off pointer to wasm
+                    player.loadSkp(fileMemPtr, size);
+                    // Draw picture
+                    player.drawTo(surface, 789); // number of commands in sample file
+                    surface.flush();
+
+                    console.log('drew picture to canvas element');
+                    done();
+                });
+              });
         }));
     });
 });

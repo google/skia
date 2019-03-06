@@ -44,8 +44,8 @@ echo "Compiling bitcode"
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\"
   ] \
-  is_debug=true \
-  is_official_build=false \
+  is_debug=false \
+  is_official_build=true \
   is_component_build=false \
   target_cpu=\"wasm\" \
   \
@@ -129,7 +129,6 @@ ${EMCXX} \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
-    -o $BUILD_DIR/debugger.js \
-    --preload-file experimental/wasm-skp-debugger/sample.skp
+    -o $BUILD_DIR/debugger.js
 
 # TODO(nifong): write unit tests
