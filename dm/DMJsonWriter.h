@@ -31,6 +31,8 @@ public:
         SkString ext;             // Extension of file we wrote: "png", "pdf", ...
         SkString gamut;
         SkString transferFn;
+        SkString colorType;
+        SkString alphaType;
     };
 
     /**

@@ -1251,7 +1251,6 @@ struct Task {
                             const char* ext,
                             SkStream* data, size_t len,
                             const SkBitmap* bitmap) {
-        SkColorSpace* cs = bitmap ? bitmap->info().colorSpace() : nullptr;
 
         JsonWriter::BitmapResult result;
         result.name          = task.src->name();
@@ -1259,9 +1258,13 @@ struct Task {
         result.sourceType    = task.src.tag;
         result.sourceOptions = task.src.options;
         result.ext           = ext;
-        result.gamut         = identify_gamut(cs);
-        result.transferFn    = identify_transfer_fn(cs);
         result.md5           = md5;
+        if (bitmap) {
+            result.gamut         = identify_gamut               (bitmap->colorSpace());
+            result.transferFn    = identify_transfer_fn         (bitmap->colorSpace());
+            result.colorType     = sk_tool_utils::colortype_name(bitmap->colorType ());
+            result.alphaType     = sk_tool_utils::alphatype_name(bitmap->alphaType ());
+        }
         JsonWriter::AddBitmapResult(result);
 
         // If an MD5 is uninteresting, we want it noted in the JSON file,
