@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c5942e6_6957a2f3",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-06T17:01:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75825e9b_d733051d",
+      "range": {
+        "startLine": 140,
+        "startChar": 48,
+        "endLine": 140,
+        "endChar": 56
+      },
+      "revId": "c24c39fbe108f70dee8f5603ccec843bcdbd5996",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
