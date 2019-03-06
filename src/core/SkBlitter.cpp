@@ -780,12 +780,6 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 
-#ifdef SK_SUPPORT_LEGACY_CHOOSERASTERPIPELINE
-    if (device.colorSpace()) {
-        return true;
-    }
-#endif
-
     auto cs = device.colorSpace();
     // We check (indirectly via makeContext()) later on if the shader can handle the colorspace
     // in legacy mode, so here we just focus on if a single color needs raster-pipeline.
