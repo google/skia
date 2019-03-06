@@ -58,6 +58,8 @@ public:
     using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
     using PromiseImageTextureDoneProc = void (*)(PromiseImageTextureContext);
 
+    enum class PromiseImageApiVersion { kLegacy, kNew };
+
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
         difference is that the client doesn't have the backend texture on the gpu yet but they know
@@ -113,7 +115,8 @@ public:
                                       PromiseImageTextureFulfillProc textureFulfillProc,
                                       PromiseImageTextureReleaseProc textureReleaseProc,
                                       PromiseImageTextureDoneProc textureDoneProc,
-                                      PromiseImageTextureContext textureContext);
+                                      PromiseImageTextureContext textureContext,
+                                      PromiseImageApiVersion = PromiseImageApiVersion::kLegacy);
 
     /**
         This entry point operates the same as 'makePromiseTexture' except that its
@@ -133,7 +136,8 @@ public:
                                           PromiseImageTextureFulfillProc textureFulfillProc,
                                           PromiseImageTextureReleaseProc textureReleaseProc,
                                           PromiseImageTextureDoneProc textureDoneProc,
-                                          PromiseImageTextureContext textureContexts[]);
+                                          PromiseImageTextureContext textureContexts[],
+                                          PromiseImageApiVersion = PromiseImageApiVersion::kLegacy);
 
 private:
     bool init();
