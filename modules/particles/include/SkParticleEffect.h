@@ -46,7 +46,9 @@ public:
     SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
 
     void start(const SkAnimTimer& timer, bool looping = false);
+    void start(double now, bool looping = false);
     void update(const SkAnimTimer& timer);
+    void update(double now);
     void draw(SkCanvas* canvas);
 
     bool isAlive() { return fSpawnTime >= 0; }

@@ -82,6 +82,15 @@ if [[ $@ == *no_managed_skottie* ]]; then
   MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
+PARTICLES_BINDINGS="$BASE_DIR/particles_bindings.cpp"
+PARTICLES_LIB="$BUILD_DIR/libparticles.a"
+
+if [[ $@ == *no_particles* ]]; then
+  echo "Omitting Particles"
+  PARTICLES_BINDINGS=""
+  PARTICLES_LIB=""
+fi
+
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/util.js \
 --pre-js $BASE_DIR/htmlcanvas/color.js \
@@ -183,7 +192,7 @@ echo "Compiling bitcode"
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a $SHAPER_TARGETS
+${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a libparticles.a $SHAPER_TARGETS
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -209,6 +218,7 @@ ${EMCXX} \
     -Imodules/skottie/utils \
     -Imodules/sksg/include \
     -Imodules/skshaper/include \
+    -Imodules/particles/include \
     -Isrc/core/ \
     -Isrc/gpu/ \
     -Isrc/sfnt/ \
@@ -231,10 +241,12 @@ ${EMCXX} \
     --post-js $BASE_DIR/ready.js \
     $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
+    $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
     $BUILD_DIR/libskia.a \
     $SKOTTIE_LIB \
+    $PARTICLES_LIB \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \
     -s ALLOW_MEMORY_GROWTH=1 \

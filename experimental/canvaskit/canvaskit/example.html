@@ -55,7 +55,10 @@
 <canvas id=sk_animated_gif width=500 height=500
         title='This is an animated gif being animated in Skottie'></canvas>
 <canvas id=sk_webfont width=500 height=500
-        title='This shows loading of a custom font (e.g. WebFon'></canvas>
+        title='This shows loading of a custom font (e.g. WebFont)'></canvas>
+
+<h2> Particles </h2>
+<canvas id=particles width=500 height=500></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -112,6 +115,8 @@
 
     TextShapingAPI1(CanvasKit, notoserifData);
     TextShapingAPI2(CanvasKit, notoserifData);
+
+    ParticlesAPI1(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -1270,4 +1275,143 @@
     document.getElementById('shape2').addEventListener('pointerdown', interact);
     preventScrolling(document.getElementById('shape2'));
   }
+
+  function ParticlesAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('particles');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
+    particles.start(Date.now() / 1000.0, true);
+
+    function drawFrame() {
+      CanvasKit.setCurrentContext(context);
+      canvas.clear(CanvasKit.BLACK);
+
+      particles.update(Date.now() / 1000.0);
+      particles.draw(canvas);
+      surface.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+  }
+
+const snowfall = {
+   "MaxCount": 4096,
+   "Duration": 1,
+   "Rate": 30,
+   "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
+      "XValues": [],
+      "Segments": [
+         {
+            "Type": "Constant",
+            "Ranged": false,
+            "Bidirectional": false,
+            "A0": 10
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "Spawn": [
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Enabled": true,
+         "Force": false,
+         "Frame": "World",
+         "Angle": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 170,
+                  "A1": 190
+               }
+            ]
+         },
+         "Strength": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 10,
+                  "A1": 30
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkPositionOnPathAffector",
+         "Enabled": true,
+         "Input": {
+            "Source": "Random",
+            "TileMode": "Clamp",
+            "Left": 0,
+            "Right": 1
+         },
+         "SetHeading": false,
+         "Path": "h500"
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkSizeAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Cubic",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 10,
+                  "B0": 10,
+                  "C0": 10,
+                  "D0": 0,
+                  "A1": 10,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      }
+   ]
+};
+
 </script>
