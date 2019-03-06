@@ -210,9 +210,21 @@ SkBaseDevice* SkTextBlobCacheDiffCanvas::TrackLayerDevice::onCreateDevice(
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
         const SkGlyphRunList& glyphRunList) {
-    for (auto& glyphRun : glyphRunList) {
-        this->processGlyphRun(glyphRunList.origin(), glyphRun, glyphRunList.paint());
-    }
+
+    #if SK_SUPPORT_GPU
+    GrTextContext::Options options;
+    options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
+    options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
+    GrTextContext::SanitizeOptions(&options);
+
+    fPainter.processGlyphRunList(glyphRunList,
+                                 this->ctm(),
+                                 this->surfaceProps(),
+                                 fSettings.fContextSupportsDistanceFieldText,
+                                 options,
+                                 nullptr);
+    #endif  // SK_SUPPORT_GPU
+
 }
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------

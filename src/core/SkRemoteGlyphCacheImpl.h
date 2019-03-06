@@ -110,23 +110,6 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
 
 private:
-    void processGlyphRun(
-            const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& runPaint);
-
-    void processGlyphRunForMask(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
-            SkPoint origin, const SkPaint& paint);
-
-    void processGlyphRunForPaths(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
-            SkPoint origin, const SkPaint& paint);
-
-#if SK_SUPPORT_GPU
-    bool maybeProcessGlyphRunForDFT(
-            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
-            SkPoint origin, const SkPaint& paint);
-#endif
-
     SkStrikeServer* const fStrikeServer;
     const SkTextBlobCacheDiffCanvas::Settings fSettings;
     SkGlyphRunListPainter fPainter;
