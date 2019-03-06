@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "GrContext.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImage.h"
