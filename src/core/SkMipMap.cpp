@@ -369,6 +369,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_8>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_8>;
             break;
+        case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
