@@ -2626,6 +2626,12 @@ STAGE_PP(clamp_a_dst, Ctx::None) {
 STAGE_PP(clamp_gamut, Ctx::None) {
     // It shouldn't be possible to get out-of-gamut
     // colors when working in lowp.
+    for (size_t i = 0; i < N; i++) {
+        SkASSERT(r[i] <= a[i]);
+        SkASSERT(g[i] <= a[i]);
+        SkASSERT(b[i] <= a[i]);
+        SkASSERT(a[i] <=  255);
+    }
 }
 
 STAGE_PP(premul, Ctx::None) {
