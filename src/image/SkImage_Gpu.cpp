@@ -21,6 +21,8 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrImageTextureMaker.h"
 #include "GrProxyProvider.h"
 #include "GrRecordingContext.h"
@@ -48,7 +50,7 @@
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
 
-SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(std::move(context), proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
                     at, colorSpace)
@@ -211,7 +213,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     }
 
     const SkRect rect = SkRect::MakeIWH(size.width(), size.height());
-    if (!RenderYUVAToRGBA(ctx, renderTargetContext, rect, yuvColorSpace, nullptr,
+    if (!RenderYUVAToRGBA(renderTargetContext, rect, yuvColorSpace, nullptr,
                           tempTextureProxies, yuvaIndices)) {
         return nullptr;
     }
