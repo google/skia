@@ -66,7 +66,6 @@ const (
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
 
-	SERVICE_ACCOUNT_BOOKMAKER          = "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_COMPILE            = "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_HOUSEKEEPER        = "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_RECREATE_SKPS      = "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -972,18 +971,6 @@ func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
-// bookmaker generates a Bookmaker task. Returns the name of the last task
-// in the generated chain of tasks, which the Job should add as a dependency.
-func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
-	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
-	task.Caches = append(task.Caches, CACHES_WORKDIR...)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
-	task.Dependencies = append(task.Dependencies, compileTaskName, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
-	timeout(task, 2*time.Hour)
-	b.MustAddTask(name, task)
-	return name
-}
-
 // androidFrameworkCompile generates an Android Framework Compile task. Returns
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
@@ -1347,9 +1334,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if name == "Housekeeper-OnDemand-Presubmit" {
 		priority = 1
 		deps = append(deps, presubmit(b, name))
-	}
-	if strings.Contains(name, "Bookmaker") {
-		deps = append(deps, bookmaker(b, name, compileTaskName))
 	}
 
 	// Common assets needed by the remaining bots.
