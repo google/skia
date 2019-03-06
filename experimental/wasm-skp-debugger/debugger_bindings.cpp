@@ -28,20 +28,37 @@ class SkpDebugPlayer {
   public:
     SkpDebugPlayer() {}
 
-    void loadSkp() {
+
+    /* loadSkp deserializes a skp file that has been copied into the shared WASM memory.
+     * cptr - a pointer to the data to deserialize.
+     * length - length of the data in bytes.
+     * The caller must allocate the memory with M._malloc where M is the wasm module in javascript
+     * and copy the data into M.buffer at the pointer returned by malloc.
+     *
+     * uintptr_t is used here because emscripten will not allow binding of functions with pointers
+     * to primitive types. We can instead pass a number and cast it to whatever kind of
+     * pointer we're expecting.
+     */
+    void loadSkp(uintptr_t cptr, int length) {
+      const auto* data = reinterpret_cast<const uint8_t*>(cptr);
       // todo: pass in bounds
       fDebugCanvas.reset(new SkDebugCanvas(720, 1280));
       SkDebugf("SkDebugCanvas created.\n");
-      // load and parse skp file that was included with --preload-file
-      auto fromfile = SkStream::MakeFromFile("experimental/wasm-skp-debugger/sample.skp");
       // note overloaded = operator that actually does a move
-      fPicture = SkPicture::MakeFromStream(fromfile.get());
-      SkDebugf("parsed skp file.\n");
+      fPicture = SkPicture::MakeFromData(data, length);
+      if (!fPicture) {
+        SkDebugf("Unable to parse SKP file.\n");
+        return;
+      }
+      SkDebugf("Parsed SKP file.\n");
       // Only draw picture to the debug canvas once.
       fDebugCanvas->drawPicture(fPicture);
-      SkDebugf("drew picture with %d commands.\n", fDebugCanvas->getSize());
+      SkDebugf("Added picture with %d commands.\n", fDebugCanvas->getSize());
     }
 
+    /* drawTo asks the debug canvas to draw from the beginning of the picture
+     * to the given command and flush the canvas.
+     */
     void drawTo(SkSurface* surface, int32_t index) {
       fDebugCanvas->drawTo(surface->getCanvas(), index);
       surface->getCanvas()->flush();
@@ -59,7 +76,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
   // The main class that the JavaScript in index.html uses
   class_<SkpDebugPlayer>("SkpDebugPlayer")
     .constructor<>()
-    .function("loadSkp", &SkpDebugPlayer::loadSkp)
+    .function("loadSkp", &SkpDebugPlayer::loadSkp, allow_raw_pointers())
     .function("drawTo", &SkpDebugPlayer::drawTo, allow_raw_pointers());
 
   // Symbols needed by cpu.js to perform surface creation and flushing.
