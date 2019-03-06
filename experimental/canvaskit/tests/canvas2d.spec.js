@@ -1,22 +1,4 @@
-// The increased timeout is especially needed with larger binaries
-// like in the debug/gpu build
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
-
 describe('CanvasKit\'s Canvas 2d Behavior', function() {
-    // Note, don't try to print the CanvasKit object - it can cause Karma/Jasmine to lock up.
-    var CanvasKit = null;
-    const LoadCanvasKit = new Promise(function(resolve, reject) {
-        if (CanvasKit) {
-            resolve();
-        } else {
-            CanvasKitInit({
-                locateFile: (file) => '/canvaskit/'+file,
-            }).ready().then((_CanvasKit) => {
-                CanvasKit = _CanvasKit;
-                resolve();
-            });
-        }
-    });
 
     let container = document.createElement('div');
     document.body.appendChild(container);
