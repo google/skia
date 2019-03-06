@@ -16,7 +16,6 @@
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
-class SkAnimTimer;
 class SkCanvas;
 class SkFieldVisitor;
 class SkParticleAffector;
@@ -45,13 +44,12 @@ class SkParticleEffect : public SkRefCnt {
 public:
     SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
 
-    void start(const SkAnimTimer& timer, bool looping = false);
     void start(double now, bool looping = false);
-    void update(const SkAnimTimer& timer);
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive() { return fSpawnTime >= 0; }
+    bool isAlive() const { return fSpawnTime >= 0; }
+    int getCount() const { return fCount; }
 
     SkParticleEffectParams* getParams() { return fParams.get(); }
 
