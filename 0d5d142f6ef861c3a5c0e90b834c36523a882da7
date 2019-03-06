@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fd6e2901_11a53169",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-06T20:55:52Z",
+      "side": 1,
+      "message": "Ah, cool.  I think we\u0027ll get our testing for any of those from the decode-to-dst half of things.",
+      "parentUuid": "cc74125d_c8d1403a",
+      "range": {
+        "startLine": 18,
+        "startChar": 47,
+        "endLine": 19,
+        "endChar": 9
+      },
+      "revId": "0d5d142f6ef861c3a5c0e90b834c36523a882da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "207969dc_9ef30ae4",
         "filename": "/COMMIT_MSG",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-06T20:47:46Z",
       "side": 1,
       "message": "We removed most support for 4444 a long time ago. On Android, we never respect a request for ARGB_4444; beyond decoding, if you try to create a Bitmap with it, we give you one that is 8888.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 22
+      },
+      "revId": "0d5d142f6ef861c3a5c0e90b834c36523a882da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b6f6ef49_8acc44d5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-06T20:55:52Z",
+      "side": 1,
+      "message": "Gotcha.",
+      "parentUuid": "207969dc_9ef30ae4",
       "range": {
         "startLine": 22,
         "startChar": 0,
