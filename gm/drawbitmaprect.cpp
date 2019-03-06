@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "GrContext.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorPriv.h"
@@ -118,7 +119,7 @@ static void imagesubsetproc(SkCanvas* canvas, SkImage* image, const SkBitmap& bm
         return;
     }
 
-    if (sk_sp<SkImage> subset = image->makeSubset(srcR)) {
+    if (sk_sp<SkImage> subset = image->makeSubset(canvas->getGrContext(), srcR)) {
         canvas->drawImageRect(subset, dstR, paint);
     }
 }
