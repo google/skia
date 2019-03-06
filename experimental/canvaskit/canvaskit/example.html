@@ -1012,7 +1012,8 @@
     let colors = [CanvasKit.RED, CanvasKit.BLUE,
                   CanvasKit.YELLOW, CanvasKit.CYAN];
     let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
-                                            points, null, colors);
+                                            points, null, colors,
+                                            false /*isVolatile*/);
 
     canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
     surface.flush();
