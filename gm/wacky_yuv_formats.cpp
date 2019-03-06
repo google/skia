@@ -619,7 +619,7 @@ static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709" };
+    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "I" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint paint;

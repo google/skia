@@ -31,7 +31,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(50, 300);
+        return SkISize::Make(kBmpSize + 2 * kPad, 390);
     }
 
     void onOnceBeforeDraw() override {
@@ -145,45 +145,41 @@ protected:
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
-        constexpr SkScalar kPad = 10.f;
 
-        SkTArray<sk_sp<SkImage>> images;
-        images.push_back(fRGBImage);
+        // draw the original
+        SkScalar yOffset = kPad;
+        canvas->drawImage(fRGBImage.get(), kPad, yOffset);
+        yOffset += kBmpSize + kPad;
+
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             GrBackendTexture yuvTextures[3];
             this->createYUVTextures(context, yuvTextures);
-            images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
-                                                              static_cast<SkYUVColorSpace>(space),
-                                                              yuvTextures,
-                                                              kTopLeft_GrSurfaceOrigin));
+            auto image = SkImage::MakeFromYUVTexturesCopy(context,
+                                                          static_cast<SkYUVColorSpace>(space),
+                                                          yuvTextures,
+                                                          kTopLeft_GrSurfaceOrigin);
             this->deleteBackendTextures(context, yuvTextures, 3);
-        }
-        for (int i = 0; i < images.count(); ++ i) {
-            SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
-            SkScalar x = kPad;
 
-            canvas->drawImage(images[i].get(), x, y);
+            canvas->drawImage(image.get(), kPad, yOffset);
+            yOffset += kBmpSize + kPad;
         }
 
-        sk_sp<SkImage> image;
-        for (int space = kJPEG_SkYUVColorSpace, i = images.count();
-             space <= kLastEnum_SkYUVColorSpace; ++space, ++i) {
+        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             GrBackendTexture yuvTextures[3];
             GrBackendTexture resultTexture;
             this->createYUVTextures(context, yuvTextures);
             this->createResultTexture(
                     context, yuvTextures[0].width(), yuvTextures[0].height(), &resultTexture);
-            image = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
-                    context,
-                    static_cast<SkYUVColorSpace>(space),
-                    yuvTextures,
-                    kTopLeft_GrSurfaceOrigin,
-                    resultTexture);
+            auto image = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
+                                                          context,
+                                                          static_cast<SkYUVColorSpace>(space),
+                                                          yuvTextures,
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          resultTexture);
 
-            SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
-            SkScalar x = kPad;
+            canvas->drawImage(image.get(), kPad, yOffset);
+            yOffset += kBmpSize + kPad;
 
-            canvas->drawImage(image.get(), x, y);
             GrBackendTexture texturesToDelete[4]{
                     yuvTextures[0],
                     yuvTextures[1],
@@ -198,6 +194,7 @@ private:
     sk_sp<SkImage>  fRGBImage;
     SkBitmap        fYUVBmps[3];
 
+    static constexpr SkScalar kPad = 10.f;
     static constexpr int kBmpSize = 32;
 
     typedef GM INHERITED;
