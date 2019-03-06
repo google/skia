@@ -60,6 +60,7 @@ static const struct {
     { "glnarrow",              "gpu", "api=gl,color=narrow" },
     { "glenarrow",             "gpu", "api=gl,color=enarrow" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
+    { "glf16norm",             "gpu", "api=gl,color=f16norm" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "glesesrgb",             "gpu", "api=gles,color=esrgb" },
     { "glesnarrow",            "gpu", "api=gles,color=narrow" },
@@ -319,6 +320,9 @@ static bool parse_option_gpu_color(const SkString& value,
     } else if (value.equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGBLinear();
+    } else if (value.equals("f16norm")) {
+        *outColorType = kRGBA_F16Norm_SkColorType;
+        *outColorSpace = SkColorSpace::MakeSRGB();
     } else {
         return false;
     }
