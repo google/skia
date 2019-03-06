@@ -26,8 +26,8 @@ public:
         (void)color;
         auto mode = _outer.mode();
         (void)mode;
-        fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                     kDefault_GrSLPrecision, "color");
+        fColorVar =
+                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
                 "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
                 "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "

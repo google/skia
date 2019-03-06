@@ -2712,9 +2712,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     return result;
 }
 
-void SPIRVCodeGenerator::writePrecisionModifier(const Modifiers& modifiers, SpvId id) {
-    if ((modifiers.fFlags & Modifiers::kLowp_Flag) |
-        (modifiers.fFlags & Modifiers::kMediump_Flag)) {
+void SPIRVCodeGenerator::writePrecisionModifier(const Type& type, SpvId id) {
+    if (!type.highPrecision()) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationRelaxedPrecision, fDecorationBuffer);
     }
 }
@@ -2778,7 +2777,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         }
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
-        this->writePrecisionModifier(var->fModifiers, id);
+        this->writePrecisionModifier(var->fType, id);
         if (varDecl.fValue) {
             SkASSERT(!fCurrentBlock);
             fCurrentBlock = -1;
