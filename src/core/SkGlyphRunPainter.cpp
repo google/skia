@@ -356,7 +356,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
                                                               runPaint,
                                                               fDeviceProps,
                                                               fScalerContextFlags,
-                                                              viewMatrix,
+                                                              SkMatrix::I(),
                                                               &ad,
                                                               &effects);
 
