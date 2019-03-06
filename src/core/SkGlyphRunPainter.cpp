@@ -816,10 +816,13 @@ void GrTextBlob::generateFromGlyphRunList(const GrShaderCaps& shaderCaps,
     for (const auto& glyphRun : glyphRunList) {
         const SkFont& runFont = glyphRun.font();
 
-        this->startRun(glyphRun);
+        bool useSDFT = GrTextContext::CanDrawAsDistanceFields(
+                runPaint, runFont, viewMatrix, props, shaderCaps.supportsDistanceFieldText(),
+                options);
 
-        if (GrTextContext::CanDrawAsDistanceFields(runPaint, runFont, viewMatrix, props,
-                                    shaderCaps.supportsDistanceFieldText(), options)) {
+        this->startRun(glyphRun, useSDFT);
+
+        if (useSDFT) {
 
             auto processMasks = [this](SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
                                        SkStrikeInterface* strike,
@@ -904,7 +907,10 @@ GrTextBlob::Run* GrTextBlob::currentRun() {
     return &fRuns[fRunCount - 1];
 }
 
-void GrTextBlob::startRun(const SkGlyphRun& glyphRun) {
+void GrTextBlob::startRun(const SkGlyphRun& glyphRun, bool useSDFT) {
+    if (useSDFT) {
+        this->setHasDistanceField();
+    }
     Run* run = this->pushBackRun();
     run->setRunFontAntiAlias(glyphRun.font().hasSomeAntiAliasing());
 }

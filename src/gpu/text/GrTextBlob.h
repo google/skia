@@ -520,7 +520,7 @@ private:
     // currentRun, startRun, and the process* calls are all used by the SkGlyphRunPainter, and
     // live in SkGlyphRunPainter.cpp file.
     Run* currentRun();
-    void startRun(const SkGlyphRun& glyphRun);
+    void startRun(const SkGlyphRun& glyphRun, bool useSDFT);
 
     void processMasksDevice(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
                             SkStrikeInterface* strike);
