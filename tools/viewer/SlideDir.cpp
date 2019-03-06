@@ -115,9 +115,8 @@ public:
         : fDir(dir)
         , fRect(focusRect)
         , fTarget(nullptr)
+        , fMap(kFocusCtrl1, kFocusCtrl0)
         , fState(State::kIdle) {
-        fMap.setPts(kFocusCtrl1, kFocusCtrl0);
-
         fShadePaint = sksg::Color::Make(kFocusShade);
         fShade = sksg::Draw::Make(sksg::Plane::Make(), fShadePaint);
     }
