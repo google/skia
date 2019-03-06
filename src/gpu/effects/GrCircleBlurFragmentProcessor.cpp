@@ -271,7 +271,7 @@ public:
         auto solidRadius = _outer.solidRadius();
         (void)solidRadius;
         fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                          kDefault_GrSLPrecision, "circleData");
+                                                          "circleData");
         fragBuilder->codeAppendf(
                 "half2 vec = half2(half((sk_FragCoord.x - float(%s.x)) * float(%s.w)), "
                 "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = length(vec) + "

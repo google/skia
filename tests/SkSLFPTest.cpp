@@ -177,7 +177,7 @@ DEF_TEST(SkSLFPUniform, r) {
          },
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                         "kDefault_GrSLPrecision, \"color\");",
+                                                         "\"color\");",
          });
 }
 
@@ -196,7 +196,7 @@ DEF_TEST(SkSLFPInUniform, r) {
          },
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                         "kDefault_GrSLPrecision, \"color\");",
+                                                         "\"color\");",
             "pdman.set4fv(fColorVar, 1, reinterpret_cast<const float*>(&(_outer.color())));"
          });
 }
@@ -214,7 +214,7 @@ DEF_TEST(SkSLFPInUniformCType, r) {
          },
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                         "kDefault_GrSLPrecision, \"color\");",
+                                                         "\"color\");",
             "pdman.set4fv(fColorVar, 1, (_outer.color()).vec());"
          });
 }
@@ -235,7 +235,7 @@ DEF_TEST(SkSLFPTrackedInUniform, r) {
          {
             "SkRect fColorPrev = SkRect::MakeEmpty();",
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                         "kDefault_GrSLPrecision, \"color\");",
+                                                         "\"color\");",
             "const SkRect& colorValue = _outer.color();",
             "if (fColorPrev.isEmpty() || fColorPrev != colorValue) {",
             "fColorPrev = colorValue;",
@@ -257,7 +257,7 @@ DEF_TEST(SkSLFPNonInlinedInUniform, r) {
          },
          {
             "fPointVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "
-                                                         "kDefault_GrSLPrecision, \"point\");",
+                                                         "\"point\");",
             "const SkPoint& pointValue = _outer.point();",
             "pdman.set2f(fPointVar, pointValue.fX, pointValue.fY);"
          });
@@ -285,7 +285,7 @@ DEF_TEST(SkSLFPConditionalInUniform, r) {
             "auto test = _outer.test();",
             "if (test) {",
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
-                                                         "kDefault_GrSLPrecision, \"color\");",
+                                                         "\"color\");",
             "if (fColorVar.isValid()) {",
             "const SkPMColor4f& colorValue = _outer.color();",
             "if (fColorPrev != colorValue) {",

@@ -534,16 +534,6 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
     }
-    const char* precision;
-    if (var.fModifiers.fFlags & Modifiers::kHighp_Flag) {
-        precision = "kHigh_GrSLPrecision";
-    } else if (var.fModifiers.fFlags & Modifiers::kMediump_Flag) {
-        precision = "kMedium_GrSLPrecision";
-    } else if (var.fModifiers.fFlags & Modifiers::kLowp_Flag) {
-        precision = "kLow_GrSLPrecision";
-    } else {
-        precision = "kDefault_GrSLPrecision";
-    }
     const char* type;
     if (var.fType == *fContext.fFloat_Type) {
         type = "kFloat_GrSLType";
@@ -570,7 +560,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     }
     String name(var.fName);
     this->writef("        %sVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, %s, "
-                 "%s, \"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type, precision,
+                 "\"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type,
                  name.c_str());
     if (var.fModifiers.fLayout.fWhen.size()) {
         this->write("        }\n");

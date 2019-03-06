@@ -40,7 +40,7 @@ public:
         auto focalParams = _outer.focalParams();
         (void)focalParams;
         fFocalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                           kDefault_GrSLPrecision, "focalParams");
+                                                           "focalParams");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
