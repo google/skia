@@ -14,7 +14,6 @@
 #include "SkTArray.h"
 
 class SkFieldVisitor;
-class SkRandom;
 
 /**
  * SkCurve implements a keyframed 1D function, useful for animating values over time. This pattern
@@ -37,10 +36,9 @@ class SkRandom;
  *
  * Each segment has two additional features for creating interesting (and varied) animation:
  *   - A segment can be ranged. Ranged segments have two sets of coefficients, and a random value
- *     taken from the SkRandom will be used to lerp betwen them. Typically, the SkRandom passed to
- *     eval will be in the same state at each call, so this value will be stable. That causes a
- *     ranged SkCurve to produce a single smooth cubic function somewhere within the range defined
- *     by fMin and fMax.
+ *     taken from the particle's SkRandom is used to lerp betwen them. Typically, the SkRandom is
+ *     in the same state at each call, so this value is stable. That causes a ranged SkCurve to
+ *     produce a single smooth cubic function somewhere within the range defined by fMin and fMax.
  *   - A segment can be bidirectional. In that case, after a value is computed, it will be negated
  *     50% of the time.
  */
