@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    was for this to be true; some applications may go faster if set to false.
  - `SkCanvas.saveLayer(rect, paint)`
  - `SkCanvas.restoreToCount(int)` which can be used with the output of .save() and .saveLayer().
+ - Optional particles library from modules/particles. `See CanvasKit.MakeParticles(json)`;
 
 ## [0.4.1] - 2019-03-01
 
