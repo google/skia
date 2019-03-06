@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fcf71f3_e1d9b052",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-06T15:34:54Z",
+      "side": 1,
+      "message": "nit: would be nice to give an explanation.",
+      "revId": "0ee38a615dc537c3c5b42d29f751bad51426c7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
