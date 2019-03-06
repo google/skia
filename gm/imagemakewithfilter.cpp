@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "GrContext.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
@@ -45,6 +46,8 @@ protected:
     SkISize onISize() override { return SkISize::Make(440, 530); }
 
     void onDraw(SkCanvas* canvas) override {
+        auto context = canvas->getGrContext();
+
         auto cf = SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkBlendMode::kSrc);
         sk_sp<SkImageFilter> filters[] = {
             SkColorFilterImageFilter::Make(std::move(cf), nullptr),
@@ -80,11 +83,12 @@ protected:
                 SkIRect subset = SkIRect::MakeXYWH(25, 25, 50, 50);
                 SkIRect outSubset;
                 SkIPoint offset;
-                sk_sp<SkImage> result = source->makeWithFilter(filters[i].get(), subset, clipBound,
+                sk_sp<SkImage> result = source->makeWithFilter(context, filters[i].get(),
+                                                               subset, clipBound,
                                                                &outSubset, &offset);
                 SkASSERT(result);
                 SkASSERT(source->isTextureBacked() == result->isTextureBacked());
-                result = result->makeSubset(outSubset);
+                result = result->makeSubset(context, outSubset);
                 canvas->drawImage(result.get(), SkIntToScalar(offset.fX), SkIntToScalar(offset.fY));
                 show_bounds(canvas, SkIRect::MakeXYWH(offset.x(), offset.y(), outSubset.width(),
                                                       outSubset.height()), clipBound);
