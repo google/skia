@@ -76,29 +76,14 @@ public:
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
 
-    void drawGlyphRunAsBMPWithPathFallback(
-            const SkPaint& paint, const SkFont& font,
-            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
-            SkGlyphRunPainterInterface* process);
-
-    // Draw glyphs as paths with fallback to scaled ARGB glyphs if color is needed.
-    // PerPath - perPath(const SkGlyph&, SkPoint position)
-    // FallbackARGB - fallbackARGB(SkSpan<const SkGlyphID>, SkSpan<const SkPoint>)
-    // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
-    // and the position in fallback vectors. After all the glyphs are processed, pass the
-    // fallback glyphIDs and positions to fallbackARGB.
-    void drawGlyphRunAsPathWithARGBFallback(
-            const SkPaint& runPaint, const SkFont& runFont,
-            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& viewMatrix,
-            SkGlyphRunPainterInterface* process);
-
-#if SK_SUPPORT_GPU
-    void drawGlyphRunAsSDFWithARGBFallback(
-            const SkPaint& runPaint, const SkFont& runFont,
-            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& viewMatrix,
-            const GrTextContext::Options& options,
-            SkGlyphRunPainterInterface* process);
-#endif
+    #if SK_SUPPORT_GPU
+    void processGlyphRunList(const SkGlyphRunList& glyphRunList,
+                             const SkMatrix& viewMatrix,
+                             const SkSurfaceProps& props,
+                             bool contextSupportsDistanceFieldText,
+                             const GrTextContext::Options& options,
+                             SkGlyphRunPainterInterface* process);
+    #endif  // SK_SUPPORT_GPU
 
     // TODO: Make this the canonical check for Skia.
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
