@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c20fd48_53763b23",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-06T19:11:05Z",
+      "side": 1,
+      "message": "I think it\u0027d be more standard to write this as:\n\n    do { \\\n        if (SIDE##Cross[ei] \u003e\u003d top \u0026\u0026 SIDE##Cross[ei] \u003c\u003d bot) { \\\n            accumulate({SIDE, SIDE##Cross[ei]}); \\\n            addedIntersection \u003d true; \\\n        } \\\n    } while (false)",
+      "range": {
+        "startLine": 339,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 24
+      },
+      "revId": "e9117ed8c0df8c8bee3b523c3b3af661b0b85edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
