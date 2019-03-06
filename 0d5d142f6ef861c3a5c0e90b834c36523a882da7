@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc74125d_c8d1403a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-06T20:47:46Z",
+      "side": 1,
+      "message": "FWIW, if the image has a profile that cannot be converted to an SkColorSpace, we\u0027ll convert to SRGB at decode time. I don\u0027t know whether any of our colorImages have such profiles.",
+      "range": {
+        "startLine": 18,
+        "startChar": 47,
+        "endLine": 19,
+        "endChar": 9
+      },
+      "revId": "0d5d142f6ef861c3a5c0e90b834c36523a882da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "207969dc_9ef30ae4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-06T20:47:46Z",
+      "side": 1,
+      "message": "We removed most support for 4444 a long time ago. On Android, we never respect a request for ARGB_4444; beyond decoding, if you try to create a Bitmap with it, we give you one that is 8888.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 22
+      },
+      "revId": "0d5d142f6ef861c3a5c0e90b834c36523a882da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
