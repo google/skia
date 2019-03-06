@@ -276,6 +276,11 @@ static SkPMColor convert_yuva_to_rgba_709(uint8_t y, uint8_t u, uint8_t v, uint8
 }
 
 static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, PlaneData* planes) {
+    if (kIdentity_SkYUVColorSpace == yuvColorSpace) {
+        // To test the identity color space we use JPEG YUV planes
+        yuvColorSpace = kJPEG_SkYUVColorSpace;
+    }
+
     SkASSERT(!(bm.width() % 2));
     SkASSERT(!(bm.height() % 2));
 
@@ -561,6 +566,9 @@ protected:
                         case kRec709_SkYUVColorSpace:
                             *fFlattened.getAddr32(x, y) = convert_yuva_to_rgba_709(Y, U, V, A);
                             break;
+                        case kIdentity_SkYUVColorSpace:
+                            *fFlattened.getAddr32(x, y) = SkPremultiplyARGBInline(A, Y, U, V);
+                            break;
                     }
                 }
             }
@@ -619,7 +627,7 @@ static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709" };
+    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "Identity" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint paint;
@@ -704,6 +712,17 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
             bm.rowBytes());
     }
     return tex;
+}
+
+static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
+    static const float kJPEGConversionMatrix[20] = {
+        1.0f,  0.0f,       1.402f,    0.0f, -180.0f,
+        1.0f, -0.344136f, -0.714136f, 0.0f,  136.0f,
+        1.0f,  1.772f,     0.0f,      0.0f, -227.6f,
+        0.0f,  0.0f,       0.0f,      1.0f,    0.0f
+    };
+
+    return SkColorFilter::MakeMatrixFilterRowMajor255(kJPEGConversionMatrix);
 }
 
 namespace skiagm {
@@ -852,6 +871,12 @@ protected:
 
         int x = kLabelWidth;
         for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
+            SkPaint paint;
+            if (kIdentity_SkYUVColorSpace == cs) {
+                // The identity color space needs post processing to appear correctly
+                paint.setColorFilter(yuv_to_rgb_colorfilter());
+            }
+
             for (int opaque : { 0, 1 }) {
                 int y = kLabelHeight;
 
@@ -863,11 +888,14 @@ protected:
                 for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
                     if (fUseTargetColorSpace && fImages[opaque][cs][format]) {
+                        // Making a CS-specific version of a kIdentity_SkYUVColorSpace YUV image
+                        // doesn't make a whole lot of sense. The colorSpace conversion will
+                        // operate on the YUV components rather than the RGB components.
                         sk_sp<SkImage> csImage =
                             fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace);
-                        canvas->drawImage(csImage, x, y);
+                        canvas->drawImage(csImage, x, y, &paint);
                     } else {
-                        canvas->drawImage(fImages[opaque][cs][format], x, y);
+                        canvas->drawImage(fImages[opaque][cs][format], x, y, &paint);
                     }
                     y += kTileWidthHeight + kPad;
                 }

@@ -41,7 +41,8 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(238, 120);
+        int numRows = kLastEnum_SkYUVColorSpace + 1;
+        return SkISize::Make(238, kDrawPad + numRows * kColorSpaceOffset);
     }
 
     void onOnceBeforeDraw() override {
@@ -86,10 +87,6 @@ protected:
             }
         }
 
-        constexpr SkScalar kDrawPad = 10.f;
-        constexpr SkScalar kTestPad = 10.f;
-        constexpr SkScalar kColorSpaceOffset = 36.f;
-
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fImage[0]->width()),
                                                SkIntToScalar(fImage[0]->height()));
@@ -132,6 +129,10 @@ protected:
 private:
     sk_sp<SkImage> fImage[3];
 
+    static constexpr SkScalar kDrawPad = 10.f;
+    static constexpr SkScalar kTestPad = 10.f;
+    static constexpr SkScalar kColorSpaceOffset = 36.f;
+
     typedef GM INHERITED;
 };
 
@@ -151,7 +152,8 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(48, 120);
+        int numRows = kLastEnum_SkYUVColorSpace + 1;
+        return SkISize::Make(48, kDrawPad + numRows * kColorSpaceOffset);
     }
 
     void onOnceBeforeDraw() override {
@@ -211,10 +213,6 @@ protected:
             { -1, SkColorChannel::kA }
         };
 
-        constexpr SkScalar kDrawPad = 10.f;
-        constexpr SkScalar kTestPad = 10.f;
-        constexpr SkScalar kColorSpaceOffset = 36.f;
-
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fImage[0]->width()),
                                                SkIntToScalar(fImage[0]->height()));
@@ -242,6 +240,10 @@ protected:
 
 private:
     sk_sp<SkImage> fImage[2];
+
+    static constexpr SkScalar kDrawPad = 10.f;
+    static constexpr SkScalar kTestPad = 10.f;
+    static constexpr SkScalar kColorSpaceOffset = 36.f;
 
     typedef GM INHERITED;
 };
