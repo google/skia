@@ -9,6 +9,9 @@
 
 #include "ImGuiLayer.h"
 #include "Resources.h"
+#include "SkAnimTimer.h"
+#include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkParticleAffector.h"
 #include "SkParticleDrawable.h"
 #include "SkParticleEffect.h"
@@ -94,12 +97,13 @@ public:
         if (fTreeStack.back()) {
             const SkReflected::Type* curType = e ? e->getType() : nullptr;
             if (ImGui::BeginCombo("Type", curType ? curType->fName : "Null")) {
-                auto visitType = [curType,&e](const SkReflected::Type* t) {
-                    if (ImGui::Selectable(t->fName, curType == t)) {
+                auto visitType = [baseType, curType, &e](const SkReflected::Type* t) {
+                    if (t->fFactory && (t == baseType || t->isDerivedFrom(baseType)) &&
+                        ImGui::Selectable(t->fName, curType == t)) {
                         e = t->fFactory();
                     }
                 };
-                SkReflected::VisitTypes(visitType, baseType);
+                SkReflected::VisitTypes(visitType);
                 ImGui::EndCombo();
             }
         }
@@ -182,66 +186,117 @@ private:
     SkString fScratchLabel;
 };
 
-static sk_sp<SkParticleEffectParams> LoadEffectParams(const char* filename) {
-    sk_sp<SkParticleEffectParams> params(new SkParticleEffectParams());
-    if (auto fileData = GetResourceAsData(filename)) {
-        skjson::DOM dom(static_cast<const char*>(fileData->data()), fileData->size());
-        SkFromJsonVisitor fromJson(dom.root());
-        params->visitFields(&fromJson);
-    }
-    return params;
-}
-
 ParticlesSlide::ParticlesSlide() {
     // Register types for serialization
     REGISTER_REFLECTED(SkReflected);
     SkParticleAffector::RegisterAffectorTypes();
     SkParticleDrawable::RegisterDrawableTypes();
     fName = "Particles";
+    fPlayPosition.set(200.0f, 200.0f);
+}
+
+void ParticlesSlide::loadEffects(const char* dirname) {
+    fLoaded.reset();
+    fRunning.reset();
+    SkOSFile::Iter iter(dirname, ".json");
+    for (SkString file; iter.next(&file); ) {
+        LoadedEffect effect;
+        effect.fName = SkOSPath::Join(dirname, file.c_str());
+        effect.fParams.reset(new SkParticleEffectParams());
+        if (auto fileData = SkData::MakeFromFileName(effect.fName.c_str())) {
+            skjson::DOM dom(static_cast<const char*>(fileData->data()), fileData->size());
+            SkFromJsonVisitor fromJson(dom.root());
+            effect.fParams->visitFields(&fromJson);
+            fLoaded.push_back(effect);
+        }
+    }
 }
 
 void ParticlesSlide::load(SkScalar winWidth, SkScalar winHeight) {
-    fEffect.reset(new SkParticleEffect(LoadEffectParams("particles/default.json"),
-                                       fRandom));
+    this->loadEffects(GetResourcePath("particles").c_str());
 }
 
 void ParticlesSlide::draw(SkCanvas* canvas) {
     canvas->clear(0);
 
     gDragPoints.reset();
-    if (ImGui::Begin("Particles", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
+    gDragPoints.push_back(&fPlayPosition);
+
+    // Window to show all loaded effects, and allow playing them
+    if (ImGui::Begin("Library", nullptr, ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
         static bool looped = true;
         ImGui::Checkbox("Looped", &looped);
-        if (fTimer && ImGui::Button("Play")) {
-            fEffect->start(*fTimer, looped);
+
+        static SkString dirname = GetResourcePath("particles");
+        ImGuiInputTextFlags textFlags = ImGuiInputTextFlags_CallbackResize;
+        ImGui::InputText("Directory", dirname.writable_str(), dirname.size() + 1, textFlags,
+                         InputTextCallback, &dirname);
+
+        if (ImGui::Button("New")) {
+            LoadedEffect effect;
+            effect.fName = SkOSPath::Join(dirname.c_str(), "new.json");
+            effect.fParams.reset(new SkParticleEffectParams());
+            fLoaded.push_back(effect);
         }
-        static char filename[64] = "particles/default.json";
-        ImGui::InputText("Filename", filename, sizeof(filename));
+        ImGui::SameLine();
+
         if (ImGui::Button("Load")) {
-            if (auto newParams = LoadEffectParams(filename)) {
-                fEffect.reset(new SkParticleEffect(std::move(newParams), fRandom));
-            }
+            this->loadEffects(dirname.c_str());
         }
         ImGui::SameLine();
 
         if (ImGui::Button("Save")) {
-            SkString fullPath = GetResourcePath(filename);
-            SkFILEWStream fileStream(fullPath.c_str());
-            if (fileStream.isValid()) {
-                SkJSONWriter writer(&fileStream, SkJSONWriter::Mode::kPretty);
-                SkToJsonVisitor toJson(writer);
-                writer.beginObject();
-                fEffect->getParams()->visitFields(&toJson);
-                writer.endObject();
-                writer.flush();
-                fileStream.flush();
-            } else {
-                SkDebugf("Failed to open file\n");
+            for (const auto& effect : fLoaded) {
+                SkFILEWStream fileStream(effect.fName.c_str());
+                if (fileStream.isValid()) {
+                    SkJSONWriter writer(&fileStream, SkJSONWriter::Mode::kPretty);
+                    SkToJsonVisitor toJson(writer);
+                    writer.beginObject();
+                    effect.fParams->visitFields(&toJson);
+                    writer.endObject();
+                    writer.flush();
+                    fileStream.flush();
+                } else {
+                    SkDebugf("Failed to open %s\n", effect.fName.c_str());
+                }
             }
         }
 
         SkGuiVisitor gui;
-        fEffect->getParams()->visitFields(&gui);
+        for (int i = 0; i < fLoaded.count(); ++i) {
+            ImGui::PushID(i);
+            if (fTimer && ImGui::Button("Play")) {
+                sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams, fRandom));
+                effect->start(fTimer->secs(), looped);
+                fRunning.push_back({ fPlayPosition, fLoaded[i].fName, effect });
+            }
+            ImGui::SameLine();
+
+            ImGui::InputText("##Name", fLoaded[i].fName.writable_str(), fLoaded[i].fName.size() + 1,
+                             textFlags, InputTextCallback, &fLoaded[i].fName);
+
+            if (ImGui::TreeNode("##Details")) {
+                fLoaded[i].fParams->visitFields(&gui);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+    }
+    ImGui::End();
+
+    // Another window to show all the running effects
+    if (ImGui::Begin("Running")) {
+        for (int i = 0; i < fRunning.count(); ++i) {
+            ImGui::PushID(i);
+            bool remove = ImGui::Button("X") || !fRunning[i].fEffect->isAlive();
+            ImGui::SameLine();
+            ImGui::Text("%4g, %4g %5d %s", fRunning[i].fPosition.fX, fRunning[i].fPosition.fY,
+                        fRunning[i].fEffect->getCount(), fRunning[i].fName.c_str());
+            if (remove) {
+                fRunning.removeShuffle(i);
+            }
+            ImGui::PopID();
+        }
     }
     ImGui::End();
 
@@ -259,12 +314,19 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             canvas->drawCircle(*gDragPoints[i], kDragSize, dragHighlight);
         }
     }
-    fEffect->draw(canvas);
+    for (const auto& effect : fRunning) {
+        canvas->save();
+        canvas->translate(effect.fPosition.fX, effect.fPosition.fY);
+        effect.fEffect->draw(canvas);
+        canvas->restore();
+    }
 }
 
 bool ParticlesSlide::animate(const SkAnimTimer& timer) {
     fTimer = &timer;
-    fEffect->update(timer);
+    for (const auto& effect : fRunning) {
+        effect.fEffect->update(timer.secs());
+    }
     return true;
 }
 
