@@ -51,7 +51,8 @@ public:
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive() { return fSpawnTime >= 0; }
+    bool isAlive() const { return fSpawnTime >= 0; }
+    int getCount() const { return fCount; }
 
     SkParticleEffectParams* getParams() { return fParams.get(); }
 
