@@ -10,17 +10,16 @@
 
 #include "SkShader.h"
 
-/** \class SkGradientShader
-
+/**
     SkGradientShader hosts factories for creating subclasses of SkShader that
     render linear and radial gradients. In general, degenerate cases should not
     produce surprising results, but there are several types of degeneracies:
 
-     * A linear gradient made from the same two points.
-     * A radial gradient with a radius of zero.
-     * A sweep gradient where the start and end angle are the same.
-     * A two point conical gradient where the two centers and the two radii are
-       the same.
+    - A linear gradient made from the same two points.
+    - A radial gradient with a radius of zero.
+    - A sweep gradient where the start and end angle are the same.
+    - A two point conical gradient where the two centers and the two radii are
+      the same.
 
     For any degenerate gradient with a decal tile mode, it will draw empty since the interpolating
     region is zero area and the outer region is discarded by the decal mode.

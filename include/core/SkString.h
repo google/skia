@@ -114,11 +114,9 @@ char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
 
 char* SkStrAppendFloat(char buffer[], float);
 
-/** \class SkString
-
-    Light weight class for managing strings. Uses reference
-    counting to make string assignments and copies very fast
-    with no extra RAM cost. Assumes UTF8 encoding.
+/** \class SkString is a light weight class for managing strings. Uses reference
+           counting to make string assignments and copies very fast
+           with no extra RAM cost. Assumes UTF8 encoding.
 */
 class SK_API SkString {
 public:
