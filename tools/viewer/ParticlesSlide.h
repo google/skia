@@ -12,9 +12,11 @@
 
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkTArray.h"
 
 class SkAnimTimer;
 class SkParticleEffect;
+class SkParticleEffectParams;
 
 class ParticlesSlide : public Slide {
 public:
@@ -31,9 +33,24 @@ public:
                  uint32_t modifiers) override;
 
 private:
+    void loadEffects(const char* dirname);
+
     SkRandom fRandom;
     const SkAnimTimer* fTimer;
-    sk_sp<SkParticleEffect>  fEffect;
+    SkPoint fPlayPosition;
+
+    struct LoadedEffect {
+        SkString fName;
+        sk_sp<SkParticleEffectParams> fParams;
+    };
+    SkTArray<LoadedEffect> fLoaded;
+
+    struct RunningEffect {
+        SkPoint fPosition;
+        SkString fName;
+        sk_sp<SkParticleEffect> fEffect;
+    };
+    SkTArray<RunningEffect> fRunning;
 };
 
 #endif

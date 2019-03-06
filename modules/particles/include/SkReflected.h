@@ -27,8 +27,7 @@ class SkRandom;
  *     The Type instance can be used to create additional instances (fFactory), get the name
  *     of the type, and answer queries of the form "is X derived from Y".
  *   - Given a string containing a type name, SkReflected can create an instance of that type.
- *   - SkReflected::VisitTypes can be used to enumerate all Types, or all Types derived from a
- *     particular base class.
+ *   - SkReflected::VisitTypes can be used to enumerate all Types.
  *
  * Together, this simplifies the implementation of serialization and other dynamic type factories.
  *
@@ -89,8 +88,8 @@ public:
 
     virtual void visitFields(SkFieldVisitor*) = 0;
 
-    static void VisitTypes(std::function<void(const Type*)> visitor,
-                           const Type* baseType = nullptr);
+    static void VisitTypes(std::function<void(const Type*)> visitor);
+
 private:
     static SkSTArray<16, const Type*, true> gTypes;
 };
