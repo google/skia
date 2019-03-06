@@ -254,18 +254,13 @@ public:
     }
 #endif
 
-// TODO: The raster implementations of image filters all currently assume that the pixels are
-// legacy N32. Until they actually check the format and operate on sRGB or F16 data appropriately,
-// we can't enable this. (They will continue to produce incorrect results, but less-so).
-#define RASTER_IMAGE_FILTERS_SUPPORT_SRGB_AND_F16 0
-
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
                                           const SkISize& size, SkAlphaType at,
                                           const SkSurfaceProps* props) const override {
-#if RASTER_IMAGE_FILTERS_SUPPORT_SRGB_AND_F16
-        SkColorSpace* colorSpace = outProps.colorSpace();
-#else
+#ifdef SK_SUPPORT_LEGACY_RASTERLAYERCOLORSPACE
         SkColorSpace* colorSpace = nullptr;
+#else
+        SkColorSpace* colorSpace = outProps.colorSpace();
 #endif
         SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
             ? kRGBA_F16_SkColorType : kN32_SkColorType;
@@ -302,10 +297,10 @@ public:
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
                                         const SkISize& size, SkAlphaType at) const override {
-#if RASTER_IMAGE_FILTERS_SUPPORT_SRGB_AND_F16
-        SkColorSpace* colorSpace = outProps.colorSpace();
-#else
+#ifdef SK_SUPPORT_LEGACY_RASTERLAYERCOLORSPACE
         SkColorSpace* colorSpace = nullptr;
+#else
+        SkColorSpace* colorSpace = outProps.colorSpace();
 #endif
         SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
             ? kRGBA_F16_SkColorType : kN32_SkColorType;
