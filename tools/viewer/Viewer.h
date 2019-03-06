@@ -88,6 +88,7 @@ public:
 private:
     enum class ColorMode {
         kLegacy,            // 8888, no color management
+        kSRGB_8888,         // 888 with explicit sRGB gamut and gamma
         kColorManaged8888,  // 8888 with color management
         kColorManagedF16,   // F16 with color management
     };

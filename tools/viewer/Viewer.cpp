@@ -304,6 +304,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('c', "Modes", "Cycle color mode", [this]() {
         switch (fColorMode) {
             case ColorMode::kLegacy:
+                this->setColorMode(ColorMode::kSRGB_8888);
+                break;
+            case ColorMode::kSRGB_8888:
                 this->setColorMode(ColorMode::kColorManaged8888);
                 break;
             case ColorMode::kColorManaged8888:
@@ -799,6 +802,9 @@ void Viewer::updateTitle() {
         case ColorMode::kLegacy:
             title.append(" Legacy 8888");
             break;
+        case ColorMode::kSRGB_8888:
+            title.append(" sRGB");
+            break;
         case ColorMode::kColorManaged8888:
             title.append(" ColorManaged 8888");
             break;
@@ -1161,9 +1167,13 @@ void Viewer::drawSlide(SkSurface* surface) {
     // If we're in any of the color managed modes, construct the color space we're going to use
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (ColorMode::kLegacy != fColorMode) {
-        skcms_Matrix3x3 toXYZ;
-        SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
-        colorSpace = SkColorSpace::MakeRGB(fColorSpaceTransferFn, toXYZ);
+        if (fColorMode == ColorMode::kSRGB_8888) {
+            colorSpace = SkColorSpace::MakeSRGB();
+        } else {
+            skcms_Matrix3x3 toXYZ;
+            SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
+            colorSpace = SkColorSpace::MakeRGB(fColorSpaceTransferFn, toXYZ);
+        }
     }
 
     if (fSaveToSKP) {
@@ -1830,6 +1840,7 @@ void Viewer::drawImGui() {
                 };
 
                 cmButton(ColorMode::kLegacy, "Legacy 8888");
+                cmButton(ColorMode::kSRGB_8888, "sRGB 8888");
                 cmButton(ColorMode::kColorManaged8888, "Color Managed 8888");
                 cmButton(ColorMode::kColorManagedF16, "Color Managed F16");
 
