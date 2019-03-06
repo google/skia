@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7179a45_a0de6a3f",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-06T16:34:51Z",
+      "side": 1,
+      "message": "Maybe add a comment reminding the user what this type is.",
+      "range": {
+        "startLine": 26,
+        "startChar": 42,
+        "endLine": 26,
+        "endChar": 57
+      },
+      "revId": "255e3b14485de5b145d7477cd590db3ce6e1f9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dfaed29_195fc79d",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-06T16:34:51Z",
+      "side": 1,
+      "message": "the shared WASM memory",
+      "range": {
+        "startLine": 32,
+        "startChar": 65,
+        "endLine": 32,
+        "endChar": 82
+      },
+      "revId": "255e3b14485de5b145d7477cd590db3ce6e1f9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c155163_79502d73",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-06T16:34:51Z",
+      "side": 1,
+      "message": "Wrap comments and JS to 100 lines.\n\nAdditionally, I would replace what you have on line 37 with the something like the following (copied from CanvasKit)\n\n// Some type signatures below have uintptr_t instead of a pointer to a primitive\n// type (e.g. SkScalar). This is necessary because we can\u0027t use \"bind\" (EMSCRIPTEN_BINDINGS)\n// and pointers to primitive types (Only bound types like SkPoint). \n// (this gives an error message like \"Cannot call foo due to unbound\n// types Pi, Pf\").  But, we can just pretend they are numbers and cast them to be pointers and\n// the compiler is happy.",
+      "range": {
+        "startLine": 37,
+        "startChar": 7,
+        "endLine": 37,
+        "endChar": 102
+      },
+      "revId": "255e3b14485de5b145d7477cd590db3ce6e1f9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "442a096f_ee7dd559",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-06T16:34:51Z",
+      "side": 1,
+      "message": "uint8_t* should work here",
+      "range": {
+        "startLine": 40,
+        "startChar": 48,
+        "endLine": 40,
+        "endChar": 53
+      },
+      "revId": "255e3b14485de5b145d7477cd590db3ce6e1f9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee0fe3a0_2ba13e3b",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-06T16:34:51Z",
+      "side": 1,
+      "message": "Technically, one should use %p with pointers - but you likely meant to delete this line anyway",
+      "range": {
+        "startLine": 46,
+        "startChar": 40,
+        "endLine": 46,
+        "endChar": 42
+      },
+      "revId": "255e3b14485de5b145d7477cd590db3ce6e1f9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
