@@ -1806,15 +1806,6 @@ typedef enum {
     Op_store_ffff,
 } Op;
 
-// Without this wasm would try to use the N=4 128-bit vector code path,
-// which while ideal, causes tons of compiler problems.  This would be
-// a good thing to revisit as emcc matures (currently 1.38.5).
-#if 1 && defined(__EMSCRIPTEN_major__)
-    #if !defined(SKCMS_PORTABLE)
-        #define  SKCMS_PORTABLE
-    #endif
-#endif
-
 #if defined(__clang__)
     template <int N, typename T> using Vec = T __attribute__((ext_vector_type(N)));
 #elif defined(__GNUC__)
@@ -1829,7 +1820,8 @@ typedef enum {
 // First, instantiate our default exec_ops() implementation using the default compiliation target.
 
 namespace baseline {
-#if defined(SKCMS_PORTABLE) || !(defined(__clang__) || defined(__GNUC__))
+#if defined(SKCMS_PORTABLE) || !(defined(__clang__) || defined(__GNUC__)) \
+                            || (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__))
     #define N 1
     using F   = float;
     using U64 = uint64_t;
