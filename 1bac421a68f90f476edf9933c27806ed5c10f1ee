@@ -1,0 +1,204 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c59d5510_51704748",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "Is this true? Can\u0027t they start fiddling with it after textureReleaseProc is called ?",
+      "range": {
+        "startLine": 76,
+        "startChar": 57,
+        "endLine": 76,
+        "endChar": 96
+      },
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b50ae4_dcd4b057",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "textureDoneProc ?",
+      "range": {
+        "startLine": 114,
+        "startChar": 15,
+        "endLine": 114,
+        "endChar": 30
+      },
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d40f90d_42c63225",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "dupe ?",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 15
+      },
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e26586b_116405a0",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "\u0027a\u0027",
+      "range": {
+        "startLine": 138,
+        "startChar": 40,
+        "endLine": 138,
+        "endChar": 41
+      },
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba1a7a96_52c40714",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "// If we never fulfilled we should never have either released or done\n\n?",
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c6ee0d0_04df7f33",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "\u003d\u003d 1 ?",
+      "range": {
+        "startLine": 115,
+        "startChar": 38,
+        "endLine": 115,
+        "endChar": 46
+      },
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf3141a_65b48f94",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "// If nothing has been fulfilled, there should also have been no release or done calls\n\n?",
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e0fcdb7_7bdb10c4",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "// If only fulfill has been called then the release and done counts should lag behind\n\n?",
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "543fcd94_1b136e18",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "// If we\u0027ve flushed but not synced, Vulkan\u0027s done counts will lag while GL\u0027s done counts should match the fulfills\n\n?",
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee8bfb36_b356bd84",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-06T18:01:57Z",
+      "side": 1,
+      "message": "// If we\u0027re all done then all counts (fulfill, release and done) should match for all the backends ?",
+      "revId": "1bac421a68f90f476edf9933c27806ed5c10f1ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
