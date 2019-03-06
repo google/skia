@@ -808,19 +808,8 @@ static bool gather_srcs() {
     }
 
     for (auto colorImage : colorImages) {
-        ColorCodecSrc* src = new ColorCodecSrc(colorImage, ColorCodecSrc::kBaseline_Mode,
-                                               kN32_SkColorType);
-        push_src("colorImage", "color_codec_baseline", src);
-
-        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_HPZR30w_Mode, kN32_SkColorType);
-        push_src("colorImage", "color_codec_HPZR30w", src);
-        // TODO (msarett):
-        // Should we test this Dst in F16 mode (even though the Dst gamma is 2.2 instead of sRGB)?
-
-        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_sRGB_Mode, kN32_SkColorType);
-        push_src("colorImage", "color_codec_sRGB_kN32", src);
-        src = new ColorCodecSrc(colorImage, ColorCodecSrc::kDst_sRGB_Mode, kRGBA_F16_SkColorType);
-        push_src("colorImage", "color_codec_sRGB_kF16", src);
+        push_src("colorImage", "decode_native", new ColorCodecSrc(colorImage, false));
+        push_src("colorImage", "decode_to_dst", new ColorCodecSrc(colorImage,  true));
     }
 
     return true;
