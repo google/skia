@@ -671,12 +671,6 @@
         "Upload-Calmbench-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
-    "Housekeeper-Nightly-Bookmaker": {
-      "tasks": [
-        "Housekeeper-Nightly-Bookmaker"
-      ],
-      "trigger": "nightly"
-    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "tasks": [
         "Housekeeper-Nightly-RecreateSKPs_Canary"
@@ -699,11 +693,6 @@
     "Housekeeper-PerCommit": {
       "tasks": [
         "Housekeeper-PerCommit"
-      ]
-    },
-    "Housekeeper-PerCommit-Bookmaker": {
-      "tasks": [
-        "Housekeeper-PerCommit-Bookmaker"
       ]
     },
     "Housekeeper-PerCommit-BundleRecipes": {
@@ -20199,121 +20188,6 @@
         "perf"
       ]
     },
-    "Housekeeper-Nightly-Bookmaker": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.17.1.chromium15"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "bookmaker",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-Nightly-Bookmaker\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-IsolateGoDeps"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 7200000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
-    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "caches": [
         {
@@ -20792,121 +20666,6 @@
       "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "service_account": "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Housekeeper-PerCommit-Bookmaker": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.17.1.chromium15"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "bookmaker",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-PerCommit-Bookmaker\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-IsolateGoDeps"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 7200000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-BundleRecipes": {
       "cipd_packages": [

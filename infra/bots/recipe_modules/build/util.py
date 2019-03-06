@@ -7,7 +7,6 @@
 
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST = [
-  'bookmaker',
   'dm',
   'dm.exe',
   'dm.app',
