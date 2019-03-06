@@ -14,6 +14,7 @@ module.exports = function(config) {
       { pattern: 'perf/assets/*', included:false, served:true},
       '../../modules/pathkit/perf/perfReporter.js',
       'canvaskit/bin/canvaskit.js',
+      'tests/canvaskitinit.js',
       'perf/*.bench.js'
     ],
 
