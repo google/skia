@@ -25,6 +25,7 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
 #endif
         , fColorLoadAndStoreInfo(colorInfo)
         , fStencilLoadAndStoreInfo(stencilInfo)
+        , fActiveRenderCmdEncoder(nullptr)
         , fRenderPassDesc(this->createRenderPassDesc()) {
     (void)fStencilLoadAndStoreInfo; // Silence unused var warning
     const GrMtlStencilAttachment* stencil = static_cast<GrMtlStencilAttachment*>(
@@ -66,17 +67,15 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
 }
 
 GrMtlGpuRTCommandBuffer::~GrMtlGpuRTCommandBuffer() {
-    SkASSERT(fActiveRenderCmdEncoder == nil);
+    SkASSERT(!fActiveRenderCmdEncoder);
 }
 
 void GrMtlGpuRTCommandBuffer::addNullCommand() {
-    SkASSERT(fActiveRenderCmdEncoder == nil);
-    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
-                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
-    SkASSERT(fActiveRenderCmdEncoder);
-    [fActiveRenderCmdEncoder endEncoding];
-    fActiveRenderCmdEncoder = nil;
-    SkASSERT(fActiveRenderCmdEncoder == nil);
+    SkASSERT(!fActiveRenderCmdEncoder);
+    id<MTLRenderCommandEncoder> cmdEncoder = [fGpu->commandBuffer()
+                                              renderCommandEncoderWithDescriptor:fRenderPassDesc];
+    SkASSERT(cmdEncoder);
+    [cmdEncoder endEncoding];
 }
 
 void GrMtlGpuRTCommandBuffer::submit() {
@@ -148,22 +147,23 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         return;
     }
 
-    SkASSERT(fActiveRenderCmdEncoder == nil);
-    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
-                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
-    SkASSERT(fActiveRenderCmdEncoder);
+    SkASSERT(!fActiveRenderCmdEncoder);
+    id<MTLRenderCommandEncoder> cmdEncoder = [fGpu->commandBuffer()
+                                              renderCommandEncoderWithDescriptor:fRenderPassDesc];
+    SkASSERT(cmdEncoder);
+    fActiveRenderCmdEncoder = (__bridge void*) cmdEncoder;
     // TODO: can we set this once somewhere at the beginning of the draw?
-    [fActiveRenderCmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
+    [cmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 
-    [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
-    pipelineState->bind(fActiveRenderCmdEncoder);
-    pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
+    [cmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
+    pipelineState->bind(cmdEncoder);
+    pipelineState->setBlendConstants(cmdEncoder, fRenderTarget->config(),
                                      pipeline.getXferProcessor());
-    pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
+    pipelineState->setDepthStencilState(cmdEncoder);
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        SkASSERT(nil != fActiveRenderCmdEncoder);
+        SkASSERT(nil != cmdEncoder);
         if (mesh.primitiveType() != primitiveType) {
             SkDEBUGCODE(pipelineState = nullptr);
             primitiveType = mesh.primitiveType();
@@ -173,18 +173,19 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                 return;
             }
 
-            [fActiveRenderCmdEncoder setRenderPipelineState: pipelineState->mtlPipelineState()];
-            pipelineState->bind(fActiveRenderCmdEncoder);
-            pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
+            [cmdEncoder setRenderPipelineState: pipelineState->mtlPipelineState()];
+            pipelineState->bind(cmdEncoder);
+            pipelineState->setBlendConstants(cmdEncoder, fRenderTarget->config(),
                                              pipeline.getXferProcessor());
-            pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
+            pipelineState->setDepthStencilState(cmdEncoder);
         }
 
         mesh.sendToGpu(this);
     }
 
-    [fActiveRenderCmdEncoder endEncoding];
-    fActiveRenderCmdEncoder = nil;
+    [cmdEncoder endEncoding];
+    cmdEncoder = nil;
+    fActiveRenderCmdEncoder = nullptr;
     fCommandBufferInfo.fBounds.join(bounds);
 }
 
@@ -276,13 +277,14 @@ static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
 void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
                                            const GrBuffer* instanceBuffer) {
     size_t bufferIndex = GrMtlUniformHandler::kLastUniformBinding + 1;
+    id<MTLRenderCommandEncoder> cmdEncoder = (__bridge id<MTLRenderCommandEncoder>) fActiveRenderCmdEncoder;
     if (vertexBuffer) {
         SkASSERT(!vertexBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
 
         auto mtlVertexBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer)->mtlBuffer();
         SkASSERT(mtlVertexBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer: mtlVertexBuffer
+        [cmdEncoder setVertexBuffer: mtlVertexBuffer
                                           offset: 0
                                          atIndex: bufferIndex++];
     }
@@ -292,7 +294,7 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
 
         auto mtlInstanceBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer)->mtlBuffer();
         SkASSERT(mtlInstanceBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer: mtlInstanceBuffer
+        [cmdEncoder setVertexBuffer: mtlInstanceBuffer
                                           offset: 0
                                          atIndex: bufferIndex++];
     }
@@ -308,7 +310,8 @@ void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveTy
     this->bindGeometry(vertexBuffer, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
-    [fActiveRenderCmdEncoder drawPrimitives: gr_to_mtl_primitive(primitiveType)
+    id<MTLRenderCommandEncoder> cmdEncoder = (__bridge id<MTLRenderCommandEncoder>) fActiveRenderCmdEncoder;
+    [cmdEncoder drawPrimitives: gr_to_mtl_primitive(primitiveType)
                                 vertexStart: baseVertex
                                 vertexCount: vertexCount
                               instanceCount: instanceCount
@@ -338,7 +341,8 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
     }
 
     SkASSERT(restart == GrPrimitiveRestart::kNo);
-    [fActiveRenderCmdEncoder drawIndexedPrimitives: gr_to_mtl_primitive(primitiveType)
+    id<MTLRenderCommandEncoder> cmdEncoder = (__bridge id<MTLRenderCommandEncoder>) fActiveRenderCmdEncoder;
+    [cmdEncoder drawIndexedPrimitives: gr_to_mtl_primitive(primitiveType)
                                         indexCount: indexCount
                                          indexType: MTLIndexTypeUInt16
                                        indexBuffer: mtlIndexBuffer
