@@ -10,14 +10,14 @@
 
 #include "SkColor.h"
 #include "SkRefCnt.h"
-#include "SkString.h"
 #include "SkTArray.h"
 
 #include <string.h>
 
 struct SkCurve;
 class SkFieldVisitor;
-class SkRandom;
+struct SkPoint;
+class SkString;
 
 /**
  * Classes and macros for a lightweight reflection system.
@@ -122,8 +122,6 @@ private:
 #define REGISTER_REFLECTED(TYPE) TYPE::GetType()
 
 ///////////////////////////////////////////////////////////////////////////////
-
-struct SkPoint;
 
 /**
  * SkFieldVisitor is an interface that can be implemented by any class to visit all fields of

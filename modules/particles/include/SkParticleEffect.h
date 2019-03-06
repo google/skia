@@ -9,9 +9,7 @@
 #define SkParticleEffect_DEFINED
 
 #include "SkAutoMalloc.h"
-#include "SkColor.h"
 #include "SkCurve.h"
-#include "SkParticleData.h"
 #include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -20,6 +18,7 @@ class SkCanvas;
 class SkFieldVisitor;
 class SkParticleAffector;
 class SkParticleDrawable;
+struct SkParticleState;
 
 class SkParticleEffectParams : public SkRefCnt {
 public:
