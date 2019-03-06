@@ -15,6 +15,7 @@
 
 namespace sksg {
 
+class BlurImageFilter;
 class Color;
 class Draw;
 class DropShadowImageFilter;
@@ -238,6 +239,21 @@ private:
     void apply();
 
     const sk_sp<sksg::DropShadowImageFilter> fDropShadow;
+};
+
+class GaussianBlurEffectAdapter final : public SkNVRefCnt<GaussianBlurEffectAdapter> {
+public:
+    explicit GaussianBlurEffectAdapter(sk_sp<sksg::BlurImageFilter>);
+    ~GaussianBlurEffectAdapter();
+
+    ADAPTER_PROPERTY(Blurriness, SkScalar, 0)
+    ADAPTER_PROPERTY(Dimensions, SkScalar, 1)
+    ADAPTER_PROPERTY(RepeatEdge, SkScalar, 0)
+
+private:
+    void apply();
+
+    const sk_sp<sksg::BlurImageFilter> fBlur;
 };
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {

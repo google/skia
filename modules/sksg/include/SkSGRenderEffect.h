@@ -108,6 +108,28 @@ private:
 };
 
 /**
+ * SkBlurImageFilter node.
+ */
+class BlurImageFilter final : public ImageFilter {
+public:
+    ~BlurImageFilter() override;
+
+    static sk_sp<BlurImageFilter> Make(sk_sp<ImageFilter> input = nullptr);
+
+    SG_ATTRIBUTE(Sigma, SkVector, fSigma)
+
+protected:
+    sk_sp<SkImageFilter> onRevalidateFilter() override;
+
+private:
+    explicit BlurImageFilter(sk_sp<ImageFilter> input);
+
+    SkVector fSigma = { 0, 0 };
+
+    using INHERITED = ImageFilter;
+};
+
+/**
  * Applies a SkBlendMode to descendant render nodes.
  */
 class BlendModeEffect final : public EffectNode {
