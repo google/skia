@@ -274,15 +274,50 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawDRRect(outer, inner, *paint);
             }
         } break;
-        case DRAW_EDGEAA_RECT: {
+        case DRAW_EDGEAA_QUAD: {
             SkRect rect;
             reader->readRect(&rect);
             SkCanvas::QuadAAFlags aaFlags = static_cast<SkCanvas::QuadAAFlags>(reader->read32());
             SkColor color = reader->read32();
             SkBlendMode blend = static_cast<SkBlendMode>(reader->read32());
+            int clipCount = reader->readInt();
+            SkTArray<SkPoint> clipPoints;
+            reader->readPointArray(clipPoints.push_back_n(clipCount), clipCount);
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->experimental_DrawEdgeAARectV1(rect, aaFlags, color, blend);
+            canvas->experimental_DrawEdgeAAQuad(rect, clipPoints.begin(), clipCount,
+                                                aaFlags, color, blend);
+        } break;
+        case DRAW_EDGEAA_IMAGE_SET: {
+            int cnt = reader->readInt();
+            if (!reader->validate(cnt >= 0)) {
+                break;
+            }
+            const SkPaint* paint = fPictureData->getPaint(reader);
+            SkCanvas::SrcRectConstraint constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
+            SkAutoTArray<SkCanvas::ImageSetEntry> set(cnt);
+            for (int i = 0; i < cnt; ++i) {
+                set[i].fImage = sk_ref_sp(fPictureData->getImage(reader));
+                reader->readRect(&set[i].fSrcRect);
+                reader->readRect(&set[i].fDstRect);
+                set[i].fDstClipCount = reader->readInt();
+                set[i].fMatrixIndex = reader->readInt();
+                set[i].fAlpha = reader->readScalar();
+                set[i].fAAFlags = reader->readUInt();
+            }
+
+            int dstClipCount = reader->readInt();
+            SkTArray<SkPoint> dstClips;
+            reader->readPointArray(dstClips.push_back_n(dstClipCount), dstClipCount);
+            int matrixCount = reader->readInt();
+            SkTArray<SkMatrix> matrices(matrixCount);
+            for (int i = 0; i < matrixCount; ++i) {
+                reader->readMatrix(&matrices.push_back());
+            }
+            BREAK_ON_READ_ERROR(reader);
+
+            canvas->experimental_DrawEdgeAAImageSet(set.get(), cnt, dstClips.begin(),
+                                                    matrices.begin(), paint, constraint);
         } break;
         case DRAW_IMAGE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
@@ -330,25 +365,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
-        } break;
-        case DRAW_IMAGE_SET: {
-            int cnt = reader->readInt();
-            if (!reader->validate(cnt >= 0)) {
-                break;
-            }
-            SkFilterQuality filterQuality = (SkFilterQuality)reader->readUInt();
-            SkBlendMode mode = (SkBlendMode)reader->readUInt();
-            SkAutoTArray<SkCanvas::ImageSetEntry> set(cnt);
-            for (int i = 0; i < cnt; ++i) {
-                set[i].fImage = sk_ref_sp(fPictureData->getImage(reader));
-                reader->readRect(&set[i].fSrcRect);
-                reader->readRect(&set[i].fDstRect);
-                set[i].fAlpha = reader->readScalar();
-                set[i].fAAFlags = reader->readUInt();
-            }
-            BREAK_ON_READ_ERROR(reader);
-
-            canvas->experimental_DrawImageSetV1(set.get(), cnt, filterQuality, mode);
         } break;
         case DRAW_OVAL: {
             const SkPaint* paint = fPictureData->getPaint(reader);

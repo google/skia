@@ -467,18 +467,6 @@ void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
-                                       SkColor color, SkBlendMode mode) {
-    // op + rect + aa flags + color + mode
-    size_t size = 4 * kUInt32Size + sizeof(rect);
-    size_t initialOffset = this->addDraw(DRAW_EDGEAA_RECT, &size);
-    this->addRect(rect);
-    this->addInt((int) aa);
-    this->addInt((int) color);
-    this->addInt((int) mode);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     // op + paint index + region
     size_t regionBytes = region.writeToMemory(nullptr);
@@ -571,25 +559,6 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     this->addImage(image);
     (void)SkCanvasPriv::WriteLattice(fWriter.reservePad(latticeSize), lattice);
     this->addRect(dst);
-    this->validate(initialOffset, size);
-}
-
-void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
-                                     SkFilterQuality filterQuality, SkBlendMode mode) {
-    // op + count + alpha + fq + mode + (image index, src rect, dst rect, alpha, aa flags) * cnt
-    size_t size =
-            4 * kUInt32Size + (2 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count;
-    size_t initialOffset = this->addDraw(DRAW_IMAGE_SET, &size);
-    this->addInt(count);
-    this->addInt((int)filterQuality);
-    this->addInt((int)mode);
-    for (int i = 0; i < count; ++i) {
-        this->addImage(set[i].fImage.get());
-        this->addRect(set[i].fSrcRect);
-        this->addRect(set[i].fDstRect);
-        this->addScalar(set[i].fAlpha);
-        this->addInt((int)set[i].fAAFlags);
-    }
     this->validate(initialOffset, size);
 }
 
@@ -759,6 +728,57 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
     this->addRect(rect);
     fWriter.writeString(key);
     fWriter.writeData(value);
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint dstClip[],
+                                       int dstClipCount, SkCanvas::QuadAAFlags aa,
+                                       SkColor color, SkBlendMode mode) {
+
+    // op + rect + aa flags + color + mode + dstClipCount + clipCount*points
+    size_t size = 5 * kUInt32Size + sizeof(rect) + dstClipCount * sizeof(SkPoint);
+    size_t initialOffset = this->addDraw(DRAW_EDGEAA_QUAD, &size);
+    this->addRect(rect);
+    this->addInt((int) aa);
+    this->addInt((int) color);
+    this->addInt((int) mode);
+    this->addInt(dstClipCount);
+    this->addPoints(dstClip, dstClipCount);
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                           const SkPoint dstClips[],
+                                           const SkMatrix preViewMatrices[],
+                                           const SkPaint* paint,
+                                           SkCanvas::SrcRectConstraint constraint) {
+    // op + count + paint + constraint + (image index, src rect, dst rect, alpha, aa flags,
+    // dstClipCount, matrixIndex) * cnt + totalClipCount + dstClips + totalMatrixCount + matrices
+    int totalDstClipCount, totalMatrixCount;
+    SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
+
+    size_t size = 6 * kUInt32Size + sizeof(SkPoint) * totalDstClipCount +
+                  sizeof(SkMatrix) * totalMatrixCount +
+                  (4 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count;
+    size_t initialOffset = this->addDraw(DRAW_EDGEAA_IMAGE_SET, &size);
+    this->addInt(count);
+    this->addPaintPtr(paint);
+    this->addInt((int) constraint);
+    for (int i = 0; i < count; ++i) {
+        this->addImage(set[i].fImage.get());
+        this->addRect(set[i].fSrcRect);
+        this->addRect(set[i].fDstRect);
+        this->addInt(set[i].fDstClipCount);
+        this->addInt(set[i].fMatrixIndex);
+        this->addScalar(set[i].fAlpha);
+        this->addInt((int)set[i].fAAFlags);
+    }
+    this->addInt(totalDstClipCount);
+    this->addPoints(dstClips, totalDstClipCount);
+    this->addInt(totalMatrixCount);
+    for (int i = 0; i < totalMatrixCount; ++i) {
+        this->addMatrix(preViewMatrices[i]);
+    }
     this->validate(initialOffset, size);
 }
 
