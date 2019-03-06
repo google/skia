@@ -45,7 +45,7 @@ private:
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
 class GrYUVAImageTextureMaker : public GrTextureMaker {
 public:
-    GrYUVAImageTextureMaker(GrContext* context, const SkImage* client, bool useDecal = false);
+    GrYUVAImageTextureMaker(GrRecordingContext*, const SkImage* client, bool useDecal = false);
 
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
