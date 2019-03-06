@@ -372,6 +372,10 @@ public:
         return fIsSampled;
     }
 
+    bool highPrecision() const {
+        return false;
+    }
+
     /**
      * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.

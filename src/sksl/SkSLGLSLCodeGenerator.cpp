@@ -1140,17 +1140,6 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kPLSOut_Flag) {
         this->write("__pixel_local_outEXT ");
     }
-    if (usesPrecisionModifiers()) {
-        if (modifiers.fFlags & Modifiers::kLowp_Flag) {
-            this->write("lowp ");
-        }
-        if (modifiers.fFlags & Modifiers::kMediump_Flag) {
-            this->write("mediump ");
-        }
-        if (modifiers.fFlags & Modifiers::kHighp_Flag) {
-            this->write("highp ");
-        }
-    }
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
@@ -1568,14 +1557,20 @@ bool GLSLCodeGenerator::generateCode() {
         Layout layout;
         switch (fProgram.fKind) {
             case Program::kVertex_Kind: {
-                Modifiers modifiers(layout, Modifiers::kOut_Flag | Modifiers::kHighp_Flag);
+                Modifiers modifiers(layout, Modifiers::kOut_Flag);
                 this->writeModifiers(modifiers, true);
+                if (this->usesPrecisionModifiers()) {
+                    this->write("highp ");
+                }
                 this->write("vec4 sk_FragCoord_Workaround;\n");
                 break;
             }
             case Program::kFragment_Kind: {
-                Modifiers modifiers(layout, Modifiers::kIn_Flag | Modifiers::kHighp_Flag);
+                Modifiers modifiers(layout, Modifiers::kIn_Flag);
                 this->writeModifiers(modifiers, true);
+                if (this->usesPrecisionModifiers()) {
+                    this->write("highp ");
+                }
                 this->write("vec4 sk_FragCoord_Workaround;\n");
                 break;
             }

@@ -535,12 +535,8 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
         return;
     }
     const char* precision;
-    if (var.fModifiers.fFlags & Modifiers::kHighp_Flag) {
+    if (var.fType.highPrecision()) {
         precision = "kHigh_GrSLPrecision";
-    } else if (var.fModifiers.fFlags & Modifiers::kMediump_Flag) {
-        precision = "kMedium_GrSLPrecision";
-    } else if (var.fModifiers.fFlags & Modifiers::kLowp_Flag) {
-        precision = "kLow_GrSLPrecision";
     } else {
         precision = "kDefault_GrSLPrecision";
     }
