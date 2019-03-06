@@ -1063,10 +1063,10 @@ public:
             const SkTextBlobBuilder::RunBuffer& runBuffer
                 = it.positioning() == SkTextBlobRunIterator::kDefault_Positioning
                     ? SkTextBlobBuilderPriv::AllocRunText(&builder, font,
-                        it.offset().x(),it.offset().y(), it.glyphCount(), it.textSize(), SkString())
+                        it.glyphCount(), it.offset().x(),it.offset().y(), it.textSize(), SkString())
                 : it.positioning() == SkTextBlobRunIterator::kHorizontal_Positioning
                     ? SkTextBlobBuilderPriv::AllocRunTextPosH(&builder, font,
-                        it.offset().y(), it.glyphCount(), it.textSize(), SkString())
+                        it.glyphCount(), it.offset().y(), it.textSize(), SkString())
                 : it.positioning() == SkTextBlobRunIterator::kFull_Positioning
                     ? SkTextBlobBuilderPriv::AllocRunTextPos(&builder, font,
                         it.glyphCount(), it.textSize(), SkString())
