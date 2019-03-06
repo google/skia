@@ -80,17 +80,6 @@ public:
             const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
             MasksT&& processMasks, PathsT&& processPaths);
 
-    enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
-
-    using ARGBFallback =
-    std::function<void(const SkPaint& fallbackPaint, // The run paint maybe with a new text size
-                       const SkFont& fallbackFont,
-                       SkSpan<const SkGlyphID> fallbackGlyphIDs, // Colored glyphs
-                       SkSpan<const SkPoint> fallbackPositions,  // Positions of above glyphs
-                       SkScalar fallbackTextScale,               // Scale factor for glyph
-                       const SkMatrix& glyphCacheMatrix,         // Matrix of glyph cache
-                       NeedsTransform handleTransformLater)>;    // Positions / glyph transformed
-
     // Draw glyphs as paths with fallback to scaled ARGB glyphs if color is needed.
     // PerPath - perPath(const SkGlyph&, SkPoint position)
     // FallbackARGB - fallbackARGB(SkSpan<const SkGlyphID>, SkSpan<const SkPoint>)
