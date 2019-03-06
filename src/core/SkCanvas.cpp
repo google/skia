@@ -953,9 +953,13 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
 static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const SkPaint* paint) {
     // Need to force L32 for now if we have an image filter.
-    // If filters ever support other colortypes, e.g. sRGB or F16, we can remove this check.
+    // If filters ever support other colortypes, e.g. F16, we can modify this check.
     if (paint && paint->getImageFilter()) {
+#ifdef SK_SUPPORT_LEGACY_RASTERLAYERCOLORSPACE
         return SkImageInfo::MakeN32Premul(w, h);
+#else
+        return SkImageInfo::MakeN32Premul(w, h, prev.refColorSpace());
+#endif
     }
 
     SkColorType ct = prev.colorType();
