@@ -695,7 +695,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                 uintptr_t /* SkPoint*     */ pPtr,  uintptr_t /* SkPoint*     */ tPtr,
                                 uintptr_t /* SkColor*     */ cPtr,
                                 uintptr_t /* BoneIndices* */ biPtr, uintptr_t /* BoneWeights* */ bwPtr,
-                                int indexCount,                     uintptr_t /* uint16_t  *  */ iPtr)->sk_sp<SkVertices> {
+                                int indexCount,                     uintptr_t /* uint16_t  *  */ iPtr,
+                                bool isVolatile)->sk_sp<SkVertices> {
         // See comment above for uintptr_t explanation
         const SkPoint* positions       = reinterpret_cast<const SkPoint*>(pPtr);
         const SkPoint* texs            = reinterpret_cast<const SkPoint*>(tPtr);
@@ -705,7 +706,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         const uint16_t* indices        = reinterpret_cast<const uint16_t*>(iPtr);
 
         return SkVertices::MakeCopy(mode, vertexCount, positions, texs, colors,
-                                    boneIndices, boneWeights, indexCount, indices);
+                                    boneIndices, boneWeights, indexCount, indices, isVolatile);
     }), allow_raw_pointers());
 
     class_<SkCanvas>("SkCanvas")
@@ -768,8 +769,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.readPixels(dstInfo, pixels, dstRowBytes, srcX, srcY);
         }))
         .function("restore", &SkCanvas::restore)
+        .function("restoreToCount", &SkCanvas::restoreToCount)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
+        .function("saveLayer", select_overload<int (const SkRect&, const SkPaint*)>(&SkCanvas::saveLayer),
+                               allow_raw_pointers())
         .function("scale", &SkCanvas::scale)
         .function("skew", &SkCanvas::skew)
         .function("translate", &SkCanvas::translate)
