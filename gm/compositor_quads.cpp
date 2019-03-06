@@ -350,14 +350,14 @@ protected:
                     // Could be connected to edge 1 or edge 3
                     if (splitIndices[1] == 1) {
                         s2 = kBL;
-                        subtiles.push_back({{kS0, kTR, kS1, kS1}}); // degenerate
-                        subtiles.push_back({{kTL, kS0, kBL, kBL}}); // degenerate
+                        subtiles.push_back({{kS0, kTR, kS1, kS0}}); // degenerate
+                        subtiles.push_back({{kTL, kS0, edgeAA[0] ? kS0 : kBL, kBL}}); // degenerate
                         subtiles.push_back({{kS0, kS1, kBR, kBL}});
                     } else {
                         SkASSERT(splitIndices[1] == 3);
                         s2 = kBR;
                         subtiles.push_back({{kTL, kS0, kS1, kS1}}); // degenerate
-                        subtiles.push_back({{kS1, kS1, kBR, kBL}}); // degenerate
+                        subtiles.push_back({{kS1, edgeAA[3] ? kS1 : kBR, kBR, kBL}}); // degenerate
                         subtiles.push_back({{kS0, kTR, kBR, kS1}});
                     }
                     break;
@@ -366,15 +366,15 @@ protected:
                     SkASSERT(splitIndices[1] == 2);
                     s2 = kTL;
                     subtiles.push_back({{kS0, kS0, kBR, kS1}}); // degenerate
-                    subtiles.push_back({{kTL, kTR, kS0, kS0}}); // degenerate
+                    subtiles.push_back({{kTL, kTR, kS0, edgeAA[1] ? kS0 : kTL}}); // degenerate
                     subtiles.push_back({{kTL, kS0, kS1, kBL}});
                     break;
                 case 2:
                     // Edge 1 handled above, should only be connected to edge 3
                     SkASSERT(splitIndices[1] == 3);
                     s2 = kTR;
-                    subtiles.push_back({{kS1, kS1, kS0, kBL}}); // degenerate
-                    subtiles.push_back({{kTR, kTR, kBR, kS0}}); // degenerate
+                    subtiles.push_back({{kS1, kS0, kS0, kBL}}); // degenerate
+                    subtiles.push_back({{edgeAA[2] ? kS0 : kTR, kTR, kBR, kS0}}); // degenerate
                     subtiles.push_back({{kTL, kTR, kS0, kS1}});
                     break;
                 case 3:
@@ -399,7 +399,9 @@ protected:
                 // The "new" edges are the edges that connect between the two split points or
                 // between a split point and the chosen s2 point. Otherwise the edge remains aligned
                 // with the original shape, so should preserve the AA setting.
-                if ((p == s2 || p >= kS0) && (np == s2 || np >= kS0)) {
+                // if ((p == s2 || p >= kS0) && (np == s2 || np >= kS0)) {
+                if ((p >= kS0 && (np == s2 || np >= kS0)) ||
+                    ((np >= kS0) && (p == s2 || p >= kS0))) {
                     // New edge
                     subAA[j] = false;
                 } else {
