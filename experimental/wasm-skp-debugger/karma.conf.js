@@ -11,14 +11,14 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       { pattern: 'debugger/bin/debugger.wasm', included:false, served:true},
-      { pattern: 'debugger/bin/debugger.data', included:false, served:true},
+      { pattern: 'debugger/sample.skp', included:false, served:true},
       '../../modules/pathkit/tests/testReporter.js',
       'debugger/bin/debugger.js',
       'tests/*.spec.js'
     ],
 
     proxies: {
-      '/debugger/': '/base/debugger/bin/',
+      '/debugger/': '/base/debugger/',
     },
 
     // test results reporter to use
