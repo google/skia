@@ -71,24 +71,23 @@ protected:
         canvas->drawImage(img0, 100.0f, 0.0f);
         canvas->drawImage(img1, 100.0f, 100.0f);
 
-        if (canvas->imageInfo().colorSpace()) {
-            // Encode F16 premul
-            info = SkImageInfo::Make(srcImg->width(), srcImg->height(), kRGBA_F16_SkColorType,
-                    kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear());
-            read_into_pixmap(&src, info, fStorage.get(), srcImg);
-            img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
-            img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
-            canvas->drawImage(img0, 200.0f, 0.0f);
-            canvas->drawImage(img1, 200.0f, 100.0f);
+        // Encode F16 premul
+        info = SkImageInfo::Make(srcImg->width(), srcImg->height(), kRGBA_F16_SkColorType,
+                kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
+        read_into_pixmap(&src, info, fStorage.get(), srcImg);
+        img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
+        img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
+        canvas->drawImage(img0, 200.0f, 0.0f);
+        canvas->drawImage(img1, 200.0f, 100.0f);
 
-            // Encode F16 unpremul
-            info = info.makeAlphaType(kUnpremul_SkAlphaType);
-            read_into_pixmap(&src, info, fStorage.get(), srcImg);
-            img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
-            img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
-            canvas->drawImage(img0, 300.0f, 0.0f);
-            canvas->drawImage(img1, 300.0f, 100.0f);
-        }
+        // Encode F16 unpremul
+        info = info.makeAlphaType(kUnpremul_SkAlphaType);
+        read_into_pixmap(&src, info, fStorage.get(), srcImg);
+        img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
+        img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
+        canvas->drawImage(img0, 300.0f, 0.0f);
+        canvas->drawImage(img1, 300.0f, 100.0f);
+
         return DrawResult::kOk;
     }
 
