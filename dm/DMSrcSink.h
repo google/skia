@@ -212,29 +212,15 @@ private:
 
 class ColorCodecSrc : public Src {
 public:
-    enum Mode {
-        // Mimic legacy behavior and apply no color correction.
-        kBaseline_Mode,
-
-        // Color correct images into a specific dst color space.  If you happen to have this
-        // monitor, you're in luck!  The unmarked outputs of this test should display
-        // correctly on this monitor in the Chrome browser.  If not, it's useful to know
-        // that this monitor has a profile that is fairly similar to Adobe RGB.
-        kDst_HPZR30w_Mode,
-
-        kDst_sRGB_Mode,
-    };
-
-    ColorCodecSrc(Path, Mode, SkColorType);
+    ColorCodecSrc(Path, bool decode_to_dst);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
 private:
-    Path                    fPath;
-    Mode                    fMode;
-    SkColorType             fColorType;
+    Path fPath;
+    bool fDecodeToDst;
 };
 
 class SKPSrc : public Src {
