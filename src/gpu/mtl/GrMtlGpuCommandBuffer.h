@@ -64,8 +64,7 @@ public:
     void submit();
 
 private:
-    void internalBegin();
-    void internalEnd();
+    void addNullCommand();
 
     GrGpu* gpu() override { return fGpu; }
 

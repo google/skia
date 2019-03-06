@@ -35,8 +35,7 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
     if (fColorLoadAndStoreInfo.fLoadOp == GrLoadOp::kClear) {
         fCommandBufferInfo.fBounds = SkRect::MakeWH(fRenderTarget->width(),
                                                     fRenderTarget->height());
-        this->internalBegin();
-        this->internalEnd();
+        this->addNullCommand();
         fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
     } else {
         fCommandBufferInfo.fBounds.setEmpty();
@@ -49,8 +48,7 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
             fCommandBufferInfo.fBounds = SkRect::MakeWH(fRenderTarget->width(),
                                                         fRenderTarget->height());
             fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
-            this->internalBegin();
-            this->internalEnd();
+            this->addNullCommand();
             fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
             break;
         case GrLoadOp::kDiscard:
@@ -71,16 +69,10 @@ GrMtlGpuRTCommandBuffer::~GrMtlGpuRTCommandBuffer() {
     SkASSERT(fActiveRenderCmdEncoder == nil);
 }
 
-void GrMtlGpuRTCommandBuffer::internalBegin() {
+void GrMtlGpuRTCommandBuffer::addNullCommand() {
     SkASSERT(fActiveRenderCmdEncoder == nil);
-    fActiveRenderCmdEncoder =
-            [fGpu->commandBuffer()
-                    renderCommandEncoderWithDescriptor: fRenderPassDesc];
-    SkASSERT(fActiveRenderCmdEncoder);
-    [fActiveRenderCmdEncoder setFrontFacingWinding: MTLWindingCounterClockwise];
-}
-
-void GrMtlGpuRTCommandBuffer::internalEnd() {
+    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
+                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
     SkASSERT(fActiveRenderCmdEncoder);
     [fActiveRenderCmdEncoder endEncoding];
     fActiveRenderCmdEncoder = nil;
@@ -156,9 +148,14 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         return;
     }
 
-    this->internalBegin();
+    SkASSERT(fActiveRenderCmdEncoder == nil);
+    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
+                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
+    SkASSERT(fActiveRenderCmdEncoder);
+    // TODO: can we set this once somewhere at the beginning of the draw?
+    [fActiveRenderCmdEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
 
-    [fActiveRenderCmdEncoder setRenderPipelineState: pipelineState->mtlPipelineState()];
+    [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
     pipelineState->bind(fActiveRenderCmdEncoder);
     pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
                                      pipeline.getXferProcessor());
@@ -186,7 +183,8 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         mesh.sendToGpu(this);
     }
 
-    this->internalEnd();
+    [fActiveRenderCmdEncoder endEncoding];
+    fActiveRenderCmdEncoder = nil;
     fCommandBufferInfo.fBounds.join(bounds);
 }
 
@@ -197,8 +195,7 @@ void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f
     fRenderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(color.fR, color.fG, color.fB,
                                                                        color.fA);
     fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    this->internalBegin();
-    this->internalEnd();
+    this->addNullCommand();
     fRenderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
 }
 
@@ -220,8 +217,7 @@ void GrMtlGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool i
     }
 
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionClear;
-    this->internalBegin();
-    this->internalEnd();
+    this->addNullCommand();
     fRenderPassDesc.stencilAttachment.loadAction = MTLLoadActionLoad;
 }
 
