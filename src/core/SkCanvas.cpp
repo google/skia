@@ -1866,7 +1866,22 @@ void SkCanvas::experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int c
     RETURN_ON_NULL(imageSet);
     RETURN_ON_FALSE(cnt);
 
-    this->onDrawImageSet(imageSet, cnt, filterQuality, mode);
+    // DrawImageSetV1 is the same as DrawEdgeAAImageSet by making a paint from its filterQuality and
+    // blend mode, and not providing any clip region. To safely handle that, we make a copy of the
+    // entry set and set fDstClipCount to 0 and fMatrixIndex to -1 on each entry. Since this
+    // function will be going away, that performance hit is acceptable.
+    SkTArray<ImageSetEntry> safeImages(cnt);
+    for (int i = 0; i < cnt; ++i) {
+        ImageSetEntry& e = safeImages.push_back();
+        e = imageSet[i];
+        e.fDstClipCount = 0;
+        e.fMatrixIndex = -1;
+    }
+
+    SkPaint paint;
+    paint.setFilterQuality(filterQuality);
+    paint.setBlendMode(mode);
+    this->onDrawEdgeAAImageSet(imageSet, cnt, nullptr, nullptr, &paint, kFast_SrcRectConstraint);
 }
 
 void SkCanvas::experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
@@ -1874,7 +1889,24 @@ void SkCanvas::experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA
     TRACE_EVENT0("skia", TRACE_FUNC);
     // To avoid redundant logic in our culling code and various backends, we always sort rects
     // before passing them along.
-    this->onDrawEdgeAARect(r.makeSorted(), edgeAA, color, mode);
+    // DrawEdgeAARectV1 is the same as DrawEdgeAAQuad when no clip region is specified
+    this->onDrawEdgeAAQuad(r.makeSorted(), nullptr, 0, edgeAA, color, mode);
+}
+
+void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
+                                           QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    // Make sure the rect is sorted before passing it along
+    this->onDrawEdgeAAQuad(rect.makeSorted(), clip, clipCount, aaFlags, color, mode);
+}
+
+void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
+                                               const SkPoint dstClips[],
+                                               const SkMatrix preViewMatrices[],
+                                               const SkPaint* paint,
+                                               SrcRectConstraint constraint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    this->onDrawEdgeAAImageSet(imageSet, cnt, dstClips, preViewMatrices, paint, constraint);
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
@@ -2085,20 +2117,6 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
             iter.fDevice->drawRect(r, paint);
         }
     }
-}
-
-void SkCanvas::onDrawEdgeAARect(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
-                                SkBlendMode mode) {
-    SkASSERT(r.isSorted());
-
-    SkPaint paint;
-    LOOPER_BEGIN(paint, nullptr)
-
-    while (iter.next()) {
-        iter.fDevice->drawEdgeAARect(r, edgeAA, color, mode);
-    }
-
-    LOOPER_END
 }
 
 void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
@@ -2496,16 +2514,6 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
     LOOPER_END
 }
 
-void SkCanvas::onDrawImageSet(const ImageSetEntry imageSet[], int count,
-                              SkFilterQuality filterQuality, SkBlendMode mode) {
-    SkPaint paint;
-    LOOPER_BEGIN(paint, nullptr)
-    while (iter.next()) {
-        iter.fDevice->drawImageSet(imageSet, count, filterQuality, mode);
-    }
-    LOOPER_END
-}
-
 void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                                    const SkRect& dst, const SkPaint* paint) {
     SkPaint realPaint;
@@ -2669,6 +2677,39 @@ void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* va
     LOOPER_BEGIN(paint, nullptr)
     while (iter.next()) {
         iter.fDevice->drawAnnotation(rect, key, value);
+    }
+    LOOPER_END
+}
+
+void SkCanvas::onDrawEdgeAAQuad(const SkRect& r, const SkPoint clip[], int clipCount,
+                                QuadAAFlags edgeAA, SkColor color, SkBlendMode mode) {
+    SkASSERT(r.isSorted());
+
+    // If this used a paint, it would be a filled color with blend mode, which does not
+    // need to use an autodraw loop, so use SkDrawIter directly.
+    if (this->quickReject(r)) {
+        return;
+    }
+
+    this->predrawNotify();
+    SkDrawIter iter(this);
+    while(iter.next()) {
+        iter.fDevice->drawEdgeAAQuad(r, clip, clipCount, edgeAA, color, mode);
+    }
+}
+
+void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
+                                    const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                    const SkPaint* paint, SrcRectConstraint constraint) {
+    SkPaint realPaint;
+    init_image_paint(&realPaint, paint);
+
+    // Looper is used when there are image filters, which drawEdgeAAImageSet needs to support
+    // for Chromium's RenderPassDrawQuads' filters.
+    LOOPER_BEGIN(realPaint, nullptr)
+    while (iter.next()) {
+        iter.fDevice->drawEdgeAAImageSet(
+                imageSet, count, dstClips, preViewMatrices, looper.paint(), constraint);
     }
     LOOPER_END
 }

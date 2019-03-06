@@ -397,20 +397,13 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
                                    this->ctm(), rect, &style);
 }
 
-void SkGpuDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkColor color,
-                                 SkBlendMode mode) {
-    this->tmp_drawEdgeAAQuad(r, nullptr, 0, aa, color, mode);
-}
-
-void SkGpuDevice::tmp_drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
-                                     SkCanvas::QuadAAFlags aaFlags, SkColor color,
-                                     SkBlendMode mode) {
+void SkGpuDevice::drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], int clipCount,
+                                 SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "tmp_drawEdgeAAQuad", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawEdgeAAQuad", fContext.get());
 
     // Only no clip or a quad clip is currently supported
-    SkASSERT(clipCount == 0 || clipCount == 4);
-    SkASSERT(clipCount == 0 || clip);
+    SkASSERT(clipCount == 0 || (clip && clipCount == 4));
 
     SkPMColor4f dstColor = SkColor4fPrepForDst(SkColor4f::FromColor(color),
                                               fRenderTargetContext->colorSpaceInfo(),
@@ -1402,16 +1395,6 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     auto iter = skstd::make_unique<SkLatticeIter>(lattice, dst);
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
-}
-
-void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
-                               SkFilterQuality filterQuality, SkBlendMode mode) {
-    SkPaint paint;
-    paint.setBlendMode(mode);
-    paint.setFilterQuality(filterQuality);
-    paint.setAntiAlias(true);
-    this->tmp_drawImageSetV3(set, nullptr, nullptr, count, nullptr, nullptr, paint,
-                             SkCanvas::kFast_SrcRectConstraint);
 }
 
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
