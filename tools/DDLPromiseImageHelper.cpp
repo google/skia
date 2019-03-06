@@ -213,7 +213,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
                                                  DDLPromiseImageHelper::PromiseImageFulfillProc,
                                                  DDLPromiseImageHelper::PromiseImageReleaseProc,
                                                  DDLPromiseImageHelper::PromiseImageDoneProc,
-                                                 contexts);
+                                                 contexts,
+                                                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         for (int i = 0; i < textureCount; ++i) {
             curImage.callbackContext(i)->wasAddedToImage();
         }
@@ -246,7 +247,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
                                              DDLPromiseImageHelper::PromiseImageFulfillProc,
                                              DDLPromiseImageHelper::PromiseImageReleaseProc,
                                              DDLPromiseImageHelper::PromiseImageDoneProc,
-                                             (void*)curImage.refCallbackContext(0).release());
+                                             (void*)curImage.refCallbackContext(0).release(),
+                                             SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         curImage.callbackContext(0)->wasAddedToImage();
     }
     perRecorderContext->fPromiseImages->push_back(image);

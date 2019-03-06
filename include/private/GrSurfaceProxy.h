@@ -216,7 +216,7 @@ public:
         kFully,     // The proxy has a lazy callback and also doesn't know its width, height, etc.
     };
 
-    LazyState lazyInstantiationState() const {
+    LazyState   lazyInstantiationState() const {
         if (fTarget || !SkToBool(fLazyInstantiateCallback)) {
             return LazyState::kNot;
         } else {
