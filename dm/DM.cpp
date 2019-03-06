@@ -1042,7 +1042,8 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
     // PNGs can't hold out-of-gamut values, so if we're likely to be holding them,
     // convert to a wide gamut, giving us the best chance to have the PNG look like our colors.
     SkBitmap wide;
-    if (pm.colorType() >= kRGBA_F16_SkColorType) {
+    if (pm.colorType() >= kRGBA_F16Norm_SkColorType) {
+        // TODO: F16Norm being encoded this way is temporary, to help hunt down diffs with esrgb.
         wide.allocPixels(pm.info().makeColorSpace(rec2020()));
         SkAssertResult(wide.writePixels(pm, 0,0));
         SkAssertResult(wide.peekPixels(&pm));
