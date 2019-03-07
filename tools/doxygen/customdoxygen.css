@@ -1,0 +1,182 @@
+/* Skia overrides for doxygen CSS. */
+
+html {
+  --blue:          rgb(0,114,178);
+  --green:         rgb(0,158,115);
+  --red:           rgb(213,94,0);
+  --orange:        rgb(230,159,0);
+  --purple:        rgb(204,121,167);
+  --brown:         rgb(177,89,40);
+  --gray:          rgb(79,79,79);
+  --light-blue:    rgb(128,185,217);
+  --light-green:   rgb(128,207,185);
+  --light-red:     rgb(234,175,128);
+  --light-orange:  rgb(243,207,128);
+  --light-purple:  rgb(230,188,211);
+  --light-brown:   rgb(216,172,148);
+  --light-gray:    rgb(168,168,168);
+
+  --dark-blue:     rgb(0,65,101);
+  --dark-red:      rgb(156,44,8);
+
+  --white:         rgb(254,254,254);
+  --dark-white:    rgb(240,240,240);
+  --black:         rgb(10,10,10);
+}
+
+#titlearea {
+  /* background matches Skia logo. */
+  background: rgb(248,248,248);
+  color: var(--blue);
+}
+
+#main-nav .sm {
+  background-image: none;
+}
+
+h2.groupheader {
+  border-bottom: var(--gray);
+  color: var(--dark-blue);
+}
+
+div.qindex, div.navtab{
+  background-color: var(--light-gray);
+  border: 1px solid var(--light-blue);
+}
+
+a {
+  color: var(--blue);
+}
+
+.contents a:visited {
+  color: var(--blue);
+}
+
+a.qindexHL {
+  background-color: var(--light-gray);
+  color: var(--white);
+  border: 1px double var(--gray);
+}
+
+.contents a.qindexHL:visited {
+  color: var(--white);
+}
+
+a.code, a.code:visited, a.line, a.line:visited {
+  color: var(--blue);
+}
+
+a.codeRef, a.codeRef:visited, a.lineRef, a.lineRef:visited {
+  color: var(--blue);
+}
+
+pre.fragment {
+  border: 1px solid var(--orange);
+  background-color: var(--dark-white);
+}
+
+div.fragment {
+  background-color: var(--dark-white);
+  border: 1px solid var(--orange);
+}
+
+span.lineno {
+  border-right: 2px solid var(--green);
+  background-color: var(-light-gray);
+}
+span.lineno a {
+  background-color: var(--light-gray);
+}
+
+span.lineno a:hover {
+  background-color: var(--light-gray);
+  color: var(--blue);
+}
+
+div.ah, span.ah {
+  background-color: var(--black);
+  color: var(--white);
+  border: solid thin var(--gray);
+  box-shadow: 2px 2px 3px var(light-gray);
+  background-image: none;
+}
+
+td.indexkey {
+  background-color: var(--light-gray);
+  border: 1px solid var(--orange);
+}
+
+td.indexvalue {
+  background-color: var(--light-gray);
+  border: 1px solid var(--orange);
+}
+
+tr.memlist {
+  background-color: var(--light-gray);
+}
+
+span.keyword {
+  color: var(--green);
+}
+
+span.keywordtype {
+  color: var(--brown);
+}
+
+span.keywordflow {
+  color: var(--brown);
+}
+
+span.comment {
+  color: var(--brown);
+}
+
+span.charliteral {
+  color: var(--green);
+}
+
+span.vhdldigit { 
+  color: var(--purple);
+}
+
+span.vhdlchar {
+  color: var(--black);
+}
+
+blockquote {
+  background-color: var(--light-gray);
+  border-left: 2px solid var(--gray);
+}
+
+.memtitle {
+  background-image: none;
+}
+
+.memdoc, dl.reflist dd {
+  background-image: none;
+}
+
+.paramname {
+  color: var(--dark-red);
+}
+
+.tabsearch {
+  background-image: none;
+}
+
+.navpath ul {
+  background-image: none;
+}
+
+.navpath li {
+  background-image: none;
+}
+
+.navpath li.navelem a:hover {
+  color: var(--blue)
+}
+
+.navpath li.footer {
+  background-image:none;
+}
+
