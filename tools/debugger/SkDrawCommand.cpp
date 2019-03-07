@@ -227,7 +227,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawImageLattice_OpType: return "DrawImageLattice";
         case kDrawImageNine_OpType: return "DrawImageNine";
         case kDrawImageRect_OpType: return "DrawImageRect";
-        case kDrawImageSet_OpType: return "DrawImageSet";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
@@ -242,6 +241,8 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawVertices_OpType: return "DrawVertices";
         case kDrawAtlas_OpType: return "DrawAtlas";
         case kDrawDrawable_OpType: return "DrawDrawable";
+        case kDrawEdgeAAQuad_OpType: return "DrawEdgeAAQuad";
+        case kDrawEdgeAAImageSet_OpType: return "DrawEdgeAAImageSet";
         case kEndDrawPicture_OpType: return "EndDrawPicture";
         case kRestore_OpType: return "Restore";
         case kSave_OpType: return "Save";
@@ -1477,20 +1478,6 @@ void SkDrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDat
     writer.appendString(SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC, str_append(&desc, fDst)->c_str());
 }
 
-SkDrawImageSetCommand::SkDrawImageSetCommand(const SkCanvas::ImageSetEntry set[], int count,
-                                             SkFilterQuality filterQuality, SkBlendMode mode)
-        : INHERITED(kDrawImageSet_OpType)
-        , fSet(count)
-        , fCount(count)
-        , fFilterQuality(filterQuality)
-        , fMode(mode) {
-    std::copy_n(set, count, fSet.get());
-}
-
-void SkDrawImageSetCommand::execute(SkCanvas* canvas) const {
-    canvas->experimental_DrawImageSetV1(fSet.get(), fCount, fFilterQuality, fMode);
-}
-
 SkDrawImageNineCommand::SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,
                                                const SkRect& dst, const SkPaint* paint)
     : INHERITED(kDrawImageNine_OpType)
@@ -1899,19 +1886,6 @@ void SkDrawRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
     writer.appendString(SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC, str_append(&desc, fRect)->c_str());
 }
 
-SkDrawEdgeAARectCommand::SkDrawEdgeAARectCommand(const SkRect& rect, SkCanvas::QuadAAFlags aa,
-                                                 SkColor color, SkBlendMode mode)
-    : INHERITED(kDrawEdgeAARect_OpType) {
-    fRect = rect;
-    fAA = aa;
-    fColor = color;
-    fMode = mode;
-}
-
-void SkDrawEdgeAARectCommand::execute(SkCanvas* canvas) const {
-    canvas->experimental_DrawEdgeAARectV1(fRect, fAA, fColor, fMode);
-}
-
 SkDrawRRectCommand::SkDrawRRectCommand(const SkRRect& rrect, const SkPaint& paint)
     : INHERITED(kDrawRRect_OpType) {
     fRRect = rrect;
@@ -1992,6 +1966,56 @@ void SkDrawShadowCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMa
         MakeJsonColor(writer, fShadowRec.fSpotColor);
     store_bool(writer, SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC, transparentOccluder, false);
     store_bool(writer, SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY, geometricOnly, false);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkDrawEdgeAAQuadCommand::SkDrawEdgeAAQuadCommand(const SkRect& rect, const SkPoint clip[],
+                                                 int clipCount, SkCanvas::QuadAAFlags aa,
+                                                 SkColor color, SkBlendMode mode)
+        : INHERITED(kDrawEdgeAAQuad_OpType)
+        , fRect(rect)
+        , fClipCount(clipCount)
+        , fAA(aa)
+        , fColor(color)
+        , fMode(mode) {
+    for (int i = 0; i < clipCount; ++i) {
+        fClip[i] = clip[i];
+    }
+}
+
+void SkDrawEdgeAAQuadCommand::execute(SkCanvas* canvas) const {
+    canvas->experimental_DrawEdgeAAQuad(fRect, fClip, fClipCount, fAA, fColor, fMode);
+}
+
+SkDrawEdgeAAImageSetCommand::SkDrawEdgeAAImageSetCommand(
+        const SkCanvas::ImageSetEntry set[], int count, const SkPoint dstClips[],
+        const SkMatrix preViewMatrices[], const SkPaint* paint,
+        SkCanvas::SrcRectConstraint constraint)
+        : INHERITED(kDrawEdgeAAImageSet_OpType)
+        , fSet(count)
+        , fCount(count)
+        , fPaint(paint)
+        , fConstraint(constraint) {
+    int totalDstClipCount = 0;
+    int maxMatrixIndex = -1;
+    for (int i = 0; i < count; ++i) {
+        totalDstClipCount += set[i].fDstClipCount;
+        if (set[i].fMatrixIndex > maxMatrixIndex) {
+            maxMatrixIndex = set[i].fMatrixIndex;
+        }
+    }
+
+    std::copy_n(set, count, fSet.get());
+    fDstClips.reset(totalDstClipCount);
+    std::copy_n(dstClips, totalDstClipCount, fDstClips.get());
+    fPreViewMatrices.reset(maxMatrixIndex + 1);
+    std::copy_n(preViewMatrices, maxMatrixIndex + 1, fPreViewMatrices.get());
+}
+
+void SkDrawEdgeAAImageSetCommand::execute(SkCanvas* canvas) const {
+    canvas->experimental_DrawEdgeAAImageSet(fSet.get(), fCount, fDstClips.get(),
+            fPreViewMatrices.get(), fPaint.getMaybeNull(), fConstraint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
