@@ -27,12 +27,12 @@
 #include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
+#include "SkICC.h"
 #include "SkLeanWindows.h"
 #include "SkMD5.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
-#include "SkPngEncoder.h"
 #include "SkScan.h"
 #include "SkSpinlock.h"
 #include "SkTestFontMgr.h"
@@ -107,6 +107,15 @@ using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
 using sk_gpu_test::ContextInfo;
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static constexpr skcms_TransferFunction k2020_TF =
+    {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
+
+static sk_sp<SkColorSpace> rec2020() {
+    return SkColorSpace::MakeRGB(k2020_TF, SkNamedGamut::kRec2020);
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -297,6 +306,158 @@ static void find_culprit() {
         }
     }
 #endif
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+class HashAndEncode {
+public:
+    explicit HashAndEncode(const SkBitmap&);
+
+    void write(SkWStream*) const;
+
+    bool writePngTo(const char* path, const char* md5) const;
+
+private:
+    const SkISize               fSize;
+    std::unique_ptr<uint64_t[]> fPixels;
+};
+
+HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimensions()) {
+    skcms_AlphaFormat srcAlpha;
+    switch (bitmap.alphaType()) {
+        case kUnknown_SkAlphaType: SkASSERT(false); return;
+
+        case kOpaque_SkAlphaType:
+        case kUnpremul_SkAlphaType: srcAlpha = skcms_AlphaFormat_Unpremul;        break;
+        case kPremul_SkAlphaType:   srcAlpha = skcms_AlphaFormat_PremulAsEncoded; break;
+    }
+
+    skcms_PixelFormat srcFmt;
+    switch (bitmap.colorType()) {
+        case kUnknown_SkColorType: SkASSERT(false); return;
+
+        case kAlpha_8_SkColorType:      srcFmt = skcms_PixelFormat_A_8;          break;
+        case kRGB_565_SkColorType:      srcFmt = skcms_PixelFormat_BGR_565;      break;
+        case kARGB_4444_SkColorType:    srcFmt = skcms_PixelFormat_ABGR_4444;    break;
+        case kRGBA_8888_SkColorType:    srcFmt = skcms_PixelFormat_RGBA_8888;    break;
+        case kBGRA_8888_SkColorType:    srcFmt = skcms_PixelFormat_BGRA_8888;    break;
+        case kRGBA_1010102_SkColorType: srcFmt = skcms_PixelFormat_RGBA_1010102; break;
+        case kGray_8_SkColorType:       srcFmt = skcms_PixelFormat_G_8;          break;
+        case kRGBA_F16Norm_SkColorType: srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
+        case kRGBA_F16_SkColorType:     srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
+        case kRGBA_F32_SkColorType:     srcFmt = skcms_PixelFormat_RGBA_ffff;    break;
+
+        case kRGB_888x_SkColorType:     srcFmt = skcms_PixelFormat_RGBA_8888;
+                                        srcAlpha = skcms_AlphaFormat_Opaque;       break;
+        case kRGB_101010x_SkColorType:  srcFmt = skcms_PixelFormat_RGBA_1010102;
+                                        srcAlpha = skcms_AlphaFormat_Opaque;       break;
+    }
+
+    skcms_ICCProfile srcProfile = *skcms_sRGB_profile();
+    if (auto cs = bitmap.colorSpace()) {
+        cs->toProfile(&srcProfile);
+    }
+
+    // Our common format that can represent anything we draw and encode as a PNG:
+    //   - 16-bit big-endian RGBA
+    //   - unpremul
+    //   - Rec. 2020 gamut and transfer function
+    skcms_PixelFormat dstFmt   = skcms_PixelFormat_RGBA_16161616BE;
+    skcms_AlphaFormat dstAlpha = skcms_AlphaFormat_Unpremul;
+    skcms_ICCProfile dstProfile;
+    rec2020()->toProfile(&dstProfile);
+
+    int N = fSize.width() * fSize.height();
+    fPixels.reset(new uint64_t[N]);
+
+    if (!skcms_Transform(bitmap.getPixels(), srcFmt, srcAlpha, &srcProfile,
+                         fPixels.get(),      dstFmt, dstAlpha, &dstProfile, N)) {
+        SkASSERT(false);
+        fPixels.reset(nullptr);
+    }
+}
+
+void HashAndEncode::write(SkWStream* st) const {
+    st->write(&fSize, sizeof(fSize));
+    if (const uint64_t* px = fPixels.get()) {
+        st->write(px, sizeof(*px) * fSize.width() * fSize.height());
+    }
+}
+
+bool HashAndEncode::writePngTo(const char* path, const char* md5) const {
+    if (!fPixels) {
+        return false;
+    }
+
+    FILE* f = fopen(path, "wb");
+    if (!f) {
+        return false;
+    }
+
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png) {
+        fclose(f);
+        return false;
+    }
+
+    png_infop info = png_create_info_struct(png);
+    if (!info) {
+        png_destroy_write_struct(&png, &info);
+        fclose(f);
+        return false;
+    }
+
+    SkString description;
+    description.append("Key: ");
+    for (int i = 0; i < FLAGS_key.count(); i++) {
+        description.appendf("%s ", FLAGS_key[i]);
+    }
+    description.append("Properties: ");
+    for (int i = 0; i < FLAGS_properties.count(); i++) {
+        description.appendf("%s ", FLAGS_properties[i]);
+    }
+    description.appendf("MD5: %s", md5);
+
+    png_text text[2];
+    text[0].key  = (png_charp)"Author";
+    text[0].text = (png_charp)"DM unified Rec.2020";
+    text[0].compression = PNG_TEXT_COMPRESSION_NONE;
+    text[1].key  = (png_charp)"Description";
+    text[1].text = (png_charp)description.c_str();
+    text[1].compression = PNG_TEXT_COMPRESSION_NONE;
+    png_set_text(png, info, text, SK_ARRAY_COUNT(text));
+
+    png_init_io(png, f);
+    png_set_IHDR(png, info, (png_uint_32)fSize.width()
+                          , (png_uint_32)fSize.height()
+                          , 16/*bits per channel*/
+                          , PNG_COLOR_TYPE_RGB_ALPHA
+                          , PNG_INTERLACE_NONE
+                          , PNG_COMPRESSION_TYPE_DEFAULT
+                          , PNG_FILTER_TYPE_DEFAULT);
+
+    // Fastest encoding and decoding, at slight file size cost is no filtering, compression 1.
+    png_set_filter(png, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
+    // TODO(mtklein): set back to 1 after all the bots have cycled through new images / hashes?
+    png_set_compression_level(png, 9);
+
+    static const sk_sp<SkData> profile = SkWriteICCProfile(k2020_TF, SkNamedGamut::kRec2020);
+    png_set_iCCP(png, info,
+                 "Rec.2020",
+                 0/*compression type... no idea what options are available here*/,
+                 (png_const_bytep)profile->data(),
+                 (png_uint_32)    profile->size());
+
+    png_write_info(png, info);
+    for (int y = 0; y < fSize.height(); y++) {
+        png_write_row(png, (png_bytep)(fPixels.get() + y*fSize.width()));
+    }
+    png_write_end(png, info);
+
+    png_destroy_write_struct(&png, &info);
+    fclose(f);
+    return true;
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -817,13 +978,6 @@ static bool gather_srcs() {
     return true;
 }
 
-static constexpr skcms_TransferFunction k2020_TF =
-    {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
-
-static sk_sp<SkColorSpace> rec2020() {
-    return SkColorSpace::MakeRGB(k2020_TF, SkNamedGamut::kRec2020);
-}
-
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     std::unique_ptr<Sink> sink(s);
 
@@ -1014,50 +1168,6 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
     return false;
 }
 
-static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
-    SkPixmap pm;
-    if (!bitmap.peekPixels(&pm)) {
-        return false;  // Ought to never happen... we're already read-back at this point.
-    }
-    SkFILEWStream dst{path};
-
-    SkString description;
-    description.append("Key: ");
-    for (int i = 0; i < FLAGS_key.count(); i++) {
-        description.appendf("%s ", FLAGS_key[i]);
-    }
-    description.append("Properties: ");
-    for (int i = 0; i < FLAGS_properties.count(); i++) {
-        description.appendf("%s ", FLAGS_properties[i]);
-    }
-    description.appendf("MD5: %s", md5);
-
-    const char* comments[] = {
-        "Author",       "DM dump_png()",
-        "Description",  description.c_str(),
-    };
-    size_t lengths[] = {
-        strlen(comments[0])+1, strlen(comments[1])+1,
-        strlen(comments[2])+1, strlen(comments[3])+1,
-    };
-
-    // PNGs can't hold out-of-gamut values, so if we're likely to be holding them,
-    // convert to a wide gamut, giving us the best chance to have the PNG look like our colors.
-    SkBitmap wide;
-    if (pm.colorType() >= kRGBA_F16Norm_SkColorType) {
-        // TODO: F16Norm being encoded this way is temporary, to help hunt down diffs with esrgb.
-        wide.allocPixels(pm.info().makeColorSpace(rec2020()));
-        SkAssertResult(wide.writePixels(pm, 0,0));
-        SkAssertResult(wide.peekPixels(&pm));
-    }
-
-    SkPngEncoder::Options options;
-    options.fComments         = SkDataTable::MakeCopyArrays((const void**)comments, lengths, 4);
-    options.fFilterFlags      = SkPngEncoder::FilterFlag::kNone;
-    options.fZLibLevel        = 1;
-    return SkPngEncoder::Encode(&dst, pm, options);
-}
-
 static bool match(const char* needle, const char* haystack) {
     if ('~' == needle[0]) {
         return !match(needle + 1, haystack);
@@ -1129,6 +1239,8 @@ struct Task {
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
+                std::unique_ptr<HashAndEncode> hashAndEncode;
+
                 SkString md5;
                 if (!FLAGS_writePath.isEmpty() || !FLAGS_readPath.isEmpty()) {
                     SkMD5 hash;
@@ -1136,18 +1248,8 @@ struct Task {
                         hash.writeStream(data, data->getLength());
                         data->rewind();
                     } else {
-                        // If we're BGRA (Linux, Windows), swizzle over to RGBA (Mac, Android).
-                        // This helps eliminate multiple 0-pixel-diff hashes on gold.skia.org.
-                        // (Android's general slow speed breaks the tie arbitrarily in RGBA's favor.)
-                        // We might consider promoting 565 to RGBA too.
-                        if (bitmap.colorType() == kBGRA_8888_SkColorType) {
-                            SkBitmap swizzle;
-                            SkAssertResult(sk_tool_utils::copy_to(&swizzle, kRGBA_8888_SkColorType,
-                                                                  bitmap));
-                            hash.write(swizzle.getPixels(), swizzle.computeByteSize());
-                        } else {
-                            hash.write(bitmap.getPixels(), bitmap.computeByteSize());
-                        }
+                        hashAndEncode.reset(new HashAndEncode(bitmap));
+                        hashAndEncode->write(&hash);
                     }
                     SkMD5::Digest digest;
                     hash.finish(digest);
@@ -1172,10 +1274,10 @@ struct Task {
                     const char* ext = task.sink->fileExtension();
                     if (ext && !FLAGS_dont_write.contains(ext)) {
                         if (data->getLength()) {
-                            WriteToDisk(task, md5, ext, data, data->getLength(), nullptr);
+                            WriteToDisk(task, md5, ext, data, data->getLength(), nullptr, nullptr);
                             SkASSERT(bitmap.drawsNothing());
                         } else if (!bitmap.drawsNothing()) {
-                            WriteToDisk(task, md5, ext, nullptr, 0, &bitmap);
+                            WriteToDisk(task, md5, ext, nullptr, 0, &bitmap, hashAndEncode.get());
                         }
                     }
                 }
@@ -1280,7 +1382,8 @@ struct Task {
                             SkString md5,
                             const char* ext,
                             SkStream* data, size_t len,
-                            const SkBitmap* bitmap) {
+                            const SkBitmap* bitmap,
+                            const HashAndEncode* hashAndEncode) {
 
         JsonWriter::BitmapResult result;
         result.name          = task.src->name();
@@ -1333,7 +1436,8 @@ struct Task {
         }
 
         if (bitmap) {
-            if (!dump_png(*bitmap, path.c_str(), result.md5.c_str())) {
+            SkASSERT(hashAndEncode);
+            if (!hashAndEncode->writePngTo(path.c_str(), result.md5.c_str())) {
                 fail(SkStringPrintf("Can't encode PNG to %s.\n", path.c_str()));
                 return;
             }
