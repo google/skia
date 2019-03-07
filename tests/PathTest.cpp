@@ -2780,6 +2780,21 @@ static void test_transform(skiatest::Reporter* reporter) {
         p.transform(matrix, &p1);
         REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p1, SkPathPriv::kUnknown_FirstDirection));
     }
+
+    {
+        SkPath p1;
+        p1.addRect({ 10, 20, 30, 40 });
+        SkPath p2;
+        p2.addRect({ 10, 20, 30, 40 });
+        uint32_t id1 = p1.getGenerationID();
+        uint32_t id2 = p2.getGenerationID();
+        SkMatrix matrix;
+        matrix.setScale(2, 2);
+        p1.transform(matrix, &p2);
+        p1.transform(matrix);
+        REPORTER_ASSERT(reporter, id1 != p1.getGenerationID());
+        REPORTER_ASSERT(reporter, id2 != p2.getGenerationID());
+    }
 }
 
 static void test_zero_length_paths(skiatest::Reporter* reporter) {
@@ -4410,6 +4425,18 @@ public:
         REPORTER_ASSERT(reporter, !changed);
         p.rewind();
         REPORTER_ASSERT(reporter, changed);
+
+        // Check that listener is notified on transform().
+        {
+            SkPath q;
+            q.moveTo(10, 10);
+            SkPathPriv::AddGenIDChangeListener(q, sk_make_sp<ChangeListener>(&changed));
+            REPORTER_ASSERT(reporter, !changed);
+            SkMatrix matrix;
+            matrix.setScale(2, 2);
+            p.transform(matrix, &q);
+            REPORTER_ASSERT(reporter, changed);
+        }
 
         // Check that listener is notified when pathref is deleted.
         {
