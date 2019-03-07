@@ -28,10 +28,9 @@ public:
         (void)bias;
         auto scale = _outer.scale();
         (void)scale;
-        fBiasVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                    kDefault_GrSLPrecision, "bias");
-        fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                     kDefault_GrSLPrecision, "scale");
+        fBiasVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "bias");
+        fScaleVar =
+                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "scale");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "half angle;\nif (sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * "

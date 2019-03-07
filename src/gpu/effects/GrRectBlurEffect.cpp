@@ -31,20 +31,18 @@ public:
                           abs(rect.bottom()) > 16000.0) ||
                          abs(rect.right() - rect.left()) > 16000.0) ||
                         abs(rect.bottom() - rect.top()) > 16000.0;
-        fRectVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                    kDefault_GrSLPrecision, "rect");
+        fRectVar =
+                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType, "rect");
         if (!highPrecision) {
-            fProxyRectHalfVar =
-                    args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                     kDefault_GrSLPrecision, "proxyRectHalf");
+            fProxyRectHalfVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                 kHalf4_GrSLType, "proxyRectHalf");
         }
         if (highPrecision) {
-            fProxyRectFloatVar =
-                    args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                     kDefault_GrSLPrecision, "proxyRectFloat");
+            fProxyRectFloatVar = args.fUniformHandler->addUniform(
+                    kFragment_GrShaderFlag, kFloat4_GrSLType, "proxyRectFloat");
         }
         fProfileSizeVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                           kDefault_GrSLPrecision, "profileSize");
+                                                           "profileSize");
         fragBuilder->codeAppendf(
                 "/* key */ bool highPrecision = %s;\n@if (highPrecision) {\n    float2 "
                 "translatedPos = sk_FragCoord.xy - %s.xy;\n    float width = %s.z - %s.x;\n    "
