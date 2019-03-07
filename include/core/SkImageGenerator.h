@@ -54,7 +54,7 @@ public:
      *  Can this generator be used to produce images that will be drawable to the specified context
      *  (or to CPU, if context is nullptr)?
      */
-    bool isValid(GrContext* context) const {
+    bool isValid(GrContext_Base* context) const {
         return this->onIsValid(context);
     }
 
@@ -169,7 +169,7 @@ protected:
     virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
-    virtual bool onIsValid(GrContext*) const { return true; }
+    virtual bool onIsValid(GrContext_Base*) const { return true; }
     virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
                               SkYUVColorSpace*) const { return false; }
     virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],

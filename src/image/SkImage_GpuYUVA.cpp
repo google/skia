@@ -52,7 +52,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height
 
 // For onMakeColorSpace()
 SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace> targetCS)
-    : INHERITED(image->fContext, image->width(), image->height(), kNeedNewImageUniqueID,
+    : INHERITED(image->fContext1, image->width(), image->height(), kNeedNewImageUniqueID,
                 // If an alpha channel is present we always switch to kPremul. This is because,
                 // although the planar data is always un-premul, the final interleaved RGB image
                 // is/would-be premul.
@@ -88,7 +88,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
     for (int i = 0; i < fNumProxies; ++i) {
         GrTextureProducer::CopyParams copyParams;
         int mipCount = SkMipMap::ComputeLevelCount(fProxies[i]->width(), fProxies[i]->height());
-        if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
+        if (mipCount && GrGpu::IsACopyNeededForMips(fContext1->priv().caps(),
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
@@ -331,6 +331,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         }
     }
 
+#if 0
     // Get lazy proxies
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
@@ -352,4 +353,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageWidth, imageHeight,
                                        kNeedNewImageUniqueID, yuvColorSpace, proxies, numTextures,
                                        yuvaIndices, imageOrigin, std::move(imageColorSpace));
+#else
+    return nullptr;
+#endif
+
 }

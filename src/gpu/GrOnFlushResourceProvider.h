@@ -14,6 +14,7 @@
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
+class GrDirectContext;
 class GrDrawingManager;
 class GrOpList;
 class GrOnFlushResourceProvider;
@@ -64,7 +65,7 @@ public:
  */
 class GrOnFlushResourceProvider {
 public:
-    explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
+    explicit GrOnFlushResourceProvider(GrContext* context) : fContext(context) {}
 
 #if 0
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc&,
@@ -99,7 +100,7 @@ private:
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
     GrOnFlushResourceProvider& operator=(const GrOnFlushResourceProvider&) = delete;
 
-    GrDrawingManager* fDrawingMgr;
+    GrContext* fContext;
 };
 
 #endif

@@ -15,13 +15,14 @@
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrSkSLFPFactoryCache.h"
-#include "GrTextureContext.h"
+#include "GrSurfaceContext.h"
 #include "SkGr.h"
 #include "text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 
+////////////////////////////////////////////////////////////////////////////////
 GrRecordingContext::GrRecordingContext(GrBackendApi backend,
                                        const GrContextOptions& options,
                                        uint32_t contextID)
@@ -184,6 +185,31 @@ sk_sp<GrSurfaceContext> GrRecordingContext::makeDeferredSurfaceContext(
     return sContext;
 }
 
+static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kRGBA_1010102_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return kRGBA_8888_GrPixelConfig;
+        case kSBGRA_8888_GrPixelConfig:
+            return kSRGBA_8888_GrPixelConfig;
+        case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
+            return kRGBA_half_GrPixelConfig;
+        case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
+            return kRGB_888_GrPixelConfig;
+        default:
+            return kUnknown_GrPixelConfig;
+    }
+}
+
 sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
                                                         const GrBackendFormat& format,
                                                         SkBackingFit fit,
@@ -229,31 +255,6 @@ sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext
     renderTargetContext->discard();
 
     return renderTargetContext;
-}
-
-static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
-    switch (config) {
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-            return kRGBA_8888_GrPixelConfig;
-        case kSBGRA_8888_GrPixelConfig:
-            return kSRGBA_8888_GrPixelConfig;
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-            return kRGBA_half_GrPixelConfig;
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-            return kRGB_888_GrPixelConfig;
-        default:
-            return kUnknown_GrPixelConfig;
-    }
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContextWithFallback(
@@ -338,6 +339,24 @@ sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetCon
     return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
                                                      std::move(colorSpace), sampleCnt, mipMapped,
                                                      origin, surfaceProps, budgeted);
+
+sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
+                                                                          sk_sp<SkColorSpace> cs,
+                                                                          const SkSurfaceProps* props) {
+    return fContext->makeWrappedSurfaceContext(std::move(proxy), std::move(cs), props);
+}
+
+sk_sp<GrSurfaceContext> GrRecordingContextPriv::makeDeferredSurfaceContext(
+                                                                    const GrBackendFormat& format,
+                                                                    const GrSurfaceDesc& desc,
+                                                                    GrSurfaceOrigin origin,
+                                                                    GrMipMapped mipMapped,
+                                                                    SkBackingFit fit,
+                                                                    SkBudgeted budgeted,
+                                                                    sk_sp<SkColorSpace> colorSpace,
+                                                                    const SkSurfaceProps* props) {
+    return fContext->makeDeferredSurfaceContext(format, desc, origin, mipMapped, fit, budgeted,
+                                                std::move(colorSpace), props);
 }
 
 sk_sp<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContextWithFallback(

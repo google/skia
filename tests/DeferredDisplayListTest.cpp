@@ -643,6 +643,8 @@ static void dummy_done_proc(void*) {}
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
+
     {
         SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
         sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
@@ -758,6 +760,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
 // for promise images. As such, this is a GL-only test.
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
     sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);

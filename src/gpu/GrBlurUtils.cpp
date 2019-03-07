@@ -58,7 +58,7 @@ static void mask_release_proc(void* addr, void* /*context*/) {
     SkMask::FreeImage(addr);
 }
 
-static bool sw_draw_with_mask_filter(GrRecordingContext* context,
+static bool sw_draw_with_mask_filter(GrImageContext* context,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clipData,
                                      const SkMatrix& viewMatrix,
@@ -441,7 +441,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                 viewMatrix, as_MFB(mf), shape);
 }
 
-void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
+void GrBlurUtils::drawShapeWithMaskFilter1(GrRecordingContext* context,
                                           GrRenderTargetContext* renderTargetContext,
                                           const GrClip& clip,
                                           const SkPaint& paint,

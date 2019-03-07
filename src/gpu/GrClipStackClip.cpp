@@ -94,14 +94,10 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
                                           const GrRenderTargetContext* renderTargetContext,
                                           const SkMatrix& viewMatrix,
                                           const Element* element,
-                                          GrPathRenderer** prOut,
                                           bool needsStencil) {
     if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
-        if (prOut) {
-            *prOut = nullptr;
-        }
         return false;
     } else {
         // We shouldn't get here with an empty clip element.
@@ -135,9 +131,6 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         // the 'false' parameter disallows use of the SW path renderer
         GrPathRenderer* pr =
             context->priv().drawingManager()->getPathRenderer(canDrawArgs, false, type);
-        if (prOut) {
-            *prOut = pr;
-        }
         return SkToBool(!pr);
     }
 }
@@ -180,7 +173,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
                             kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
 
         if (PathNeedsSWRenderer(context, reducedClip.scissor(), hasUserStencilSettings,
-                                renderTargetContext, translate, element, nullptr, needsStencil)) {
+                                renderTargetContext, translate, element, needsStencil)) {
             return true;
         }
     }
@@ -324,7 +317,7 @@ static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int 
     builder[3] = numAnalyticFPs;
 }
 
-static void add_invalidate_on_pop_message(GrRecordingContext* context,
+static void add_invalidate_on_pop_message(GrImageContext* context,
                                           const SkClipStack& stack, uint32_t clipGenID,
                                           const GrUniqueKey& clipMaskKey) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -355,15 +348,14 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrRecordingContext* c
     GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> rtc(
-        context->priv().makeDeferredRenderTargetContextWithFallback(
-                                                                        format,
-                                                                        SkBackingFit::kApprox,
-                                                                        reducedClip.width(),
-                                                                        reducedClip.height(),
-                                                                        kAlpha_8_GrPixelConfig,
-                                                                        nullptr, 1,
-                                                                        GrMipMapped::kNo,
-                                                                        kTopLeft_GrSurfaceOrigin));
+        context->priv().makeDeferredRenderTargetContextWithFallback(format,
+                                                                    SkBackingFit::kApprox,
+                                                                    reducedClip.width(),
+                                                                    reducedClip.height(),
+                                                                    kAlpha_8_GrPixelConfig,
+                                                                    nullptr, 1,
+                                                                    GrMipMapped::kNo,
+                                                                    kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return nullptr;
     }

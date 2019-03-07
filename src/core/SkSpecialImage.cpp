@@ -81,7 +81,7 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fUniqueID(kNeedNewImageUniqueID_SpecialImage == uniqueID ? SkNextID::ImageID() : uniqueID) {
 }
 
-sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* context) {
+sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrImageContext* context) {
 #if SK_SUPPORT_GPU
     if (!context) {
         return nullptr;
@@ -186,7 +186,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage73(GrRecordingContext* context,
                                                     const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {
@@ -531,7 +531,7 @@ private:
     typedef SkSpecialImage_Base INHERITED;
 };
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrContext_Base* context,
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
                                                           sk_sp<GrTextureProxy> proxy,

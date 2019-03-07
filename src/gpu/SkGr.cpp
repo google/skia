@@ -133,18 +133,20 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvide
 
 void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID,
                                          SkPixelRef* pixelRef) {
-    class Invalidator : public SkPixelRef::GenIDChangeListener {
+    class Invalidator : public SkPixelRef::GenIDChangeListener1 {
     public:
         explicit Invalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
                 : fMsg(key, contextUniqueID) {}
 
-    private:
-        GrUniqueKeyInvalidatedMessage fMsg;
+        //~Invalidator() override {}
 
-        void onChange() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
+    private:
+        GrUniqueKeyInvalidatedMessage17 fMsg;
+
+        void onChange() override { SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(fMsg); }
     };
 
-    pixelRef->addGenIDChangeListener(new Invalidator(key, contextUniqueID));
+    pixelRef->addGenIDChangeListener1(new Invalidator(key, contextUniqueID));
 }
 
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,

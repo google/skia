@@ -6,6 +6,8 @@
  */
 
 #include "GrDrawOpTest.h"
+
+#include "GrBaseContextPriv.h"
 #include "GrCaps.h"
 #include "GrContext_Base.h"
 #include "GrBaseContextPriv.h"

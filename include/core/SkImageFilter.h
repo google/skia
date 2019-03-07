@@ -19,6 +19,7 @@
 #include "SkRect.h"
 
 class GrFragmentProcessor;
+class GrRecordingContext;
 class SkColorFilter;
 class SkColorSpaceXformer;
 struct SkIPoint;
@@ -167,10 +168,10 @@ public:
                          MapDirection, const SkIRect* inputRect = nullptr) const;
 
 #if SK_SUPPORT_GPU
-    static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,
-                                            std::unique_ptr<GrFragmentProcessor> fp,
+    static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext*,
+                                            std::unique_ptr<GrFragmentProcessor>,
                                             const SkIRect& bounds,
-                                            const OutputProperties& outputProperties);
+                                            const OutputProperties&);
 #endif
 
     /**

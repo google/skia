@@ -56,12 +56,13 @@ public:
     void uploadAllToGPU(GrContext* context);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
-    sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
-                                  SkData* compressedPicture,
+    sk_sp<SkPicture> reinflateSKP(SkData* compressedPicture,
                                   SkTArray<sk_sp<SkImage>>* promiseImages) const;
 
     // Remove this class' refs on the PromiseImageCallbackContexts
     void reset() { fImageInfo.reset(); }
+
+    GrContextThreadSafeProxy* foo() const { return fThreadSafeContext.get(); }
 
 private:
     // This class acts as a proxy for a GrBackendTexture that is part of an image.
@@ -211,7 +212,6 @@ private:
     // This stack-based context allows each thread to re-inflate the image indices into
     // promise images while still using the same GrBackendTexture.
     struct PerRecorderContext {
-        SkDeferredDisplayListRecorder* fRecorder;
         const DDLPromiseImageHelper*   fHelper;
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };

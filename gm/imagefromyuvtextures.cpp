@@ -13,6 +13,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrRecordingContextPriv.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
@@ -124,7 +125,7 @@ protected:
     }
 
     void deleteBackendTextures(GrContext* context, GrBackendTexture textures[], int n) {
-        if (context->abandoned()) {
+        if (context->priv().abandoned1()) {
             return;
         }
 
@@ -151,12 +152,12 @@ protected:
         images.push_back(fRGBImage);
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             GrBackendTexture yuvTextures[3];
-            this->createYUVTextures(context, yuvTextures);
-            images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
+            this->createYUVTextures(direct, yuvTextures);
+            images.push_back(SkImage::MakeFromYUVTexturesCopy(direct,
                                                               static_cast<SkYUVColorSpace>(space),
                                                               yuvTextures,
                                                               kTopLeft_GrSurfaceOrigin));
-            this->deleteBackendTextures(context, yuvTextures, 3);
+            this->deleteBackendTextures(direct, yuvTextures, 3);
         }
         for (int i = 0; i < images.count(); ++ i) {
             SkScalar y = (i + 1) * kPad + i * fYUVBmps[0].height();
@@ -170,11 +171,11 @@ protected:
              space <= kLastEnum_SkYUVColorSpace; ++space, ++i) {
             GrBackendTexture yuvTextures[3];
             GrBackendTexture resultTexture;
-            this->createYUVTextures(context, yuvTextures);
+            this->createYUVTextures(direct, yuvTextures);
             this->createResultTexture(
-                    context, yuvTextures[0].width(), yuvTextures[0].height(), &resultTexture);
+                    direct, yuvTextures[0].width(), yuvTextures[0].height(), &resultTexture);
             image = SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
-                    context,
+                    direct,
                     static_cast<SkYUVColorSpace>(space),
                     yuvTextures,
                     kTopLeft_GrSurfaceOrigin,
@@ -190,7 +191,7 @@ protected:
                     yuvTextures[2],
                     resultTexture,
             };
-            this->deleteBackendTextures(context, texturesToDelete, 4);
+            this->deleteBackendTextures(direct, texturesToDelete, 4);
         }
      }
 

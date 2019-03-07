@@ -1,4 +1,4 @@
-/*
+\/*
  * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -255,7 +255,8 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
                                                                std::move(colorSpace)));
 }
 
-sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
+                                       const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
     GrContext* context = as_IB(this)->context();
@@ -263,7 +264,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
     return this->makeWithFilter(context, filter, subset, clipBounds, outSubset, offset);
 }
 
-sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
+sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* grContext,
                                        const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
@@ -401,7 +402,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     return nullptr;
 }
 
-bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
+bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext*,
                                             sk_sp<SkImage>,
                                             GrBackendTexture*,
                                             BackendTextureReleaseProc*) {
@@ -458,7 +459,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace,
+sk_sp<SkImage> SkImage::makeTextureImage(GrContext_Base*, SkColorSpace* dstColorSpace,
                                          GrMipMapped mipMapped) const {
     return nullptr;
 }

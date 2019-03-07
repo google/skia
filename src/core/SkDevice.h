@@ -14,6 +14,8 @@
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
 
+class GrRecordingContext;
+
 class SkBitmap;
 struct SkDrawShadowRec;
 class SkGlyphRun;
@@ -253,7 +255,7 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    virtual GrContext* context() const { return nullptr; }
+    virtual GrRecordingContext* context12() const { return nullptr; }
 
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }

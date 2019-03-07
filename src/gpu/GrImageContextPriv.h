@@ -36,10 +36,10 @@ public:
     GrContext* asDirectContext() { return fContext->asDirectContext(); }
 
     // from GrImageContext
+    bool abandoned() const { return fContext->abandoned(); }
+
     GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
     const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
-
-    bool abandoned() const { return fContext->abandoned(); }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )

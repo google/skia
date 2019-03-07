@@ -244,6 +244,8 @@ public:
 private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
+    friend class GrContext; // for bam1
+    friend class GrDirectContext; // for bam1 ?????!
 
     bool isAbandoned() const;
 

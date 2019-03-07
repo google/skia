@@ -27,9 +27,9 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fDrawingMgr->makeRenderTargetContext(std::move(proxy),
-                                             std::move(colorSpace),
-                                             props, false));
+        fContext->priv().drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                                          std::move(colorSpace),
+                                                                          props, false));
 
     if (!renderTargetContext) {
         return nullptr;
@@ -42,24 +42,24 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
 bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
                                                        GrTextureProxy* proxy) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     return proxyProvider->assignUniqueKeyToProxy(key, proxy);
 }
 
 void GrOnFlushResourceProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     proxyProvider->removeUniqueKeyFromProxy(proxy);
 }
 
 void GrOnFlushResourceProvider::processInvalidUniqueKey(const GrUniqueKey& key) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     proxyProvider->processInvalidUniqueKey(key, nullptr,
                                            GrProxyProvider::InvalidateGPUResource::kYes);
 }
 
 sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
         const GrUniqueKey& key, GrSurfaceOrigin origin) {
-    auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
     return proxyProvider->findOrCreateProxyByUniqueKey(key, origin);
 }
 
@@ -113,9 +113,9 @@ sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
 }
 
 uint32_t GrOnFlushResourceProvider::contextID() const {
-    return fDrawingMgr->getContext()->priv().contextID();
+    return fContext->priv().contextID();
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {
-    return fDrawingMgr->getContext()->priv().caps();
+    return fContext->priv().caps();
 }

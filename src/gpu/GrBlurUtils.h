@@ -33,7 +33,7 @@ namespace GrBlurUtils {
     /**
      * Draw a shape handling the mask filter if present.
      */
-    void drawShapeWithMaskFilter(GrRecordingContext*,
+    void drawShapeWithMaskFilter1(GrRecordingContext*,
                                  GrRenderTargetContext*,
                                  const GrClip&,
                                  const SkPaint&,
