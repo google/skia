@@ -1,0 +1,12 @@
+//// Copyright 2019 Google LLC.
+//// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+//#include "fiddle/examples.h"
+//REG_FIDDLE(Paint_019, 256, 256, true, 0) {
+//// HASH=69b7162e8324d9239dd02dd9ada2bdff
+//void draw(SkCanvas* canvas) {
+//    SkPaint paint1, paint2;
+//    paint1.setDither(true);
+//    paint2.setFlags(paint2.getFlags() | SkPaint::kDither_Flag);
+//    SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+//}
+//}
