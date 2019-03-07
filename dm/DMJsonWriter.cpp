@@ -87,6 +87,7 @@ void JsonWriter::DumpJson() {
             writer.appendString("transfer_fn", gBitmapResults[i].transferFn.c_str());
             writer.appendString("color_type",  gBitmapResults[i].colorType.c_str());
             writer.appendString("alpha_type",  gBitmapResults[i].alphaType.c_str());
+            writer.appendString("color_depth", gBitmapResults[i].colorDepth.c_str());
             writer.endObject(); // options
 
             writer.appendString("md5", gBitmapResults[i].md5.c_str());
@@ -151,6 +152,7 @@ bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
         br.transferFn   = options["transfer_fn"].as<StringValue>().begin();
         br.colorType    = options["color_type"].as<StringValue>().begin();
         br.alphaType    = options["alpha_type"].as<StringValue>().begin();
+        br.colorDepth   = options["color_depth"].as<StringValue>().begin();
         br.md5          = (*r)["md5"].as<StringValue>().begin();
 
         if (const StringValue* so = key["source_options"]) {
