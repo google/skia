@@ -33,6 +33,7 @@ public:
         SkString transferFn;
         SkString colorType;
         SkString alphaType;
+        SkString colorDepth;
     };
 
     /**

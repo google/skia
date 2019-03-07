@@ -1236,6 +1236,28 @@ struct Task {
         return SkString("non-numeric");
     }
 
+    // Equivalence class to slice color type by in Gold.
+    // Basically the same as color type ignoring channel order.
+    static const char* color_depth(SkColorType ct) {
+        switch (ct) {
+            case kUnknown_SkColorType: break;
+
+            case kAlpha_8_SkColorType:      return "A8";
+            case kRGB_565_SkColorType:      return "565";
+            case kARGB_4444_SkColorType:    return "4444";
+            case kRGBA_8888_SkColorType:    return "8888";
+            case kRGB_888x_SkColorType:     return "888";
+            case kBGRA_8888_SkColorType:    return "8888";
+            case kRGBA_1010102_SkColorType: return "1010102";
+            case kRGB_101010x_SkColorType:  return "101010";
+            case kGray_8_SkColorType:       return "G8";
+            case kRGBA_F16Norm_SkColorType: return "F16Norm";  // TODO: "F16"?
+            case kRGBA_F16_SkColorType:     return "F16";
+            case kRGBA_F32_SkColorType:     return "F32";
+        }
+        return "Unknown";
+    }
+
     static void WriteToDisk(const Task& task,
                             SkString md5,
                             const char* ext,
@@ -1254,6 +1276,7 @@ struct Task {
             result.transferFn    = identify_transfer_fn         (bitmap->colorSpace());
             result.colorType     = sk_tool_utils::colortype_name(bitmap->colorType ());
             result.alphaType     = sk_tool_utils::alphatype_name(bitmap->alphaType ());
+            result.colorDepth    = color_depth                  (bitmap->colorType());
         }
         JsonWriter::AddBitmapResult(result);
 
