@@ -23,7 +23,6 @@
 #include "SkSGTransform.h"
 #include "SkStream.h"
 #include "SkTArray.h"
-#include "SkTime.h"
 #include "SkTo.h"
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
@@ -32,6 +31,7 @@
 #include "SkottieValue.h"
 #include "SkTraceEvent.h"
 
+#include <chrono>
 #include <cmath>
 
 #include "stdlib.h"
@@ -459,7 +459,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     memset(&fStats, 0, sizeof(struct Stats));
 
     fStats.fJsonSize = data_len;
-    const auto t0 = SkTime::GetMSecs();
+    const auto t0 = std::chrono::steady_clock::now();
 
     const skjson::DOM dom(data, data_len);
     if (!dom.root().is<skjson::ObjectValue>()) {
@@ -471,8 +471,8 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     }
     const auto& json = dom.root().as<skjson::ObjectValue>();
 
-    const auto t1 = SkTime::GetMSecs();
-    fStats.fJsonParseTimeMS = t1 - t0;
+    const auto t1 = std::chrono::steady_clock::now();
+    fStats.fJsonParseTimeMS = std::chrono::duration<float, std::milli>{t1-t0}.count();
 
     const auto version  = ParseDefault<SkString>(json["v"], SkString());
     const auto size     = SkSize::Make(ParseDefault<float>(json["w"], 0.0f),
@@ -502,9 +502,9 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        &fStats, duration, fps);
     auto scene = builder.parse(json);
 
-    const auto t2 = SkTime::GetMSecs();
-    fStats.fSceneParseTimeMS = t2 - t1;
-    fStats.fTotalLoadTimeMS  = t2 - t0;
+    const auto t2 = std::chrono::steady_clock::now();
+    fStats.fSceneParseTimeMS = std::chrono::duration<float, std::milli>{t2-t1}.count();
+    fStats.fTotalLoadTimeMS  = std::chrono::duration<float, std::milli>{t2-t0}.count();
 
     if (!scene && fLogger) {
         fLogger->log(Logger::Level::kError, "Could not parse animation.\n");
