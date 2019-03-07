@@ -1,0 +1,3 @@
+@INCLUDE = Doxyfile
+
+OUTPUT_DIRECTORY       = /workspace/__doxygen_staging
