@@ -2241,6 +2241,19 @@ if (skia_enable_tools) {
     }
   }
 
+  if (is_mac || is_linux || is_win) {
+    import("gn/examples.gni")
+    test_app("fiddle_examples") {
+        sources = [ "tools/fiddle/examples.cpp", "tools/fiddle/examples.h" ]
+        sources += examples_sources
+        include_dirs = [ "tools" ]
+        deps = [
+          ":skia",
+          ":skia.h",
+          "modules/skottie",
+        ]
+    }
+  }
   test_app("viewer") {
     is_shared_library = is_android
     if (is_ios) {
