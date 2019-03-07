@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f65d9227_3e7a2137",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1243,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-07T20:21:56Z",
+      "side": 1,
+      "message": "Can\u0027t wait to triage theses guys :). Actually can we just make all nexus player gms labeled as unknown color_type since the results seem random anyways.",
+      "range": {
+        "startLine": 1243,
+        "startChar": 44,
+        "endLine": 1243,
+        "endChar": 61
+      },
+      "revId": "713554735a17aeb47830b3c35ee58f2248ac4eaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
