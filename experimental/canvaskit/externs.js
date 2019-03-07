@@ -31,18 +31,23 @@ var CanvasKit = {
 	XYWHRect: function() {},
 	/** @return {ImageData} */
 	ImageData: function() {},
+
+	GetWebGLContext: function() {},
 	MakeBlurMaskFilter: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
+	MakeGrContext: function() {},
 	MakeImageShader: function() {},
 	/** @return {CanvasKit.SkImage} */
 	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
+	MakeOnScreenGLSurface: function() {},
 	MakePathFromCmds: function() {},
 	MakePathFromOp: function() {},
 	MakePathFromSVGString: function() {},
 	MakeRadialGradientShader: function() {},
+	MakeRenderTarget: function() {},
 	MakeSWCanvasSurface: function() {},
 	MakeManagedAnimation: function() {},
 	MakeSkDashPathEffect: function() {},
