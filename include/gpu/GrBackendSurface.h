@@ -93,7 +93,9 @@ public:
     // it returns nullptr.
     const GrPixelConfig* getMockFormat() const;
 
-    // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D
+    // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
+    // GrBackendFormat was for Vulkan and it originally had a GrVkYcbcrConversionInfo, we will
+    // remove the conversion and set the format to be VK_FORMAT_R8G8B8A8_UNORM.
     GrBackendFormat makeTexture2D() const;
 
     // Returns true if the backend format has been initialized.
