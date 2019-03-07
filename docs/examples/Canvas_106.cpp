@@ -1,0 +1,12 @@
+#if 0  // disabled
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "fiddle/examples.h"
+REG_FIDDLE(Canvas_106, 256, 48, false, 0) {
+// HASH=85442cf8d0bce6b5a777853bc36a4dc4
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    canvas->drawString("a small hello", 20, 20, paint);
+}
+}
+#endif  // disabled
