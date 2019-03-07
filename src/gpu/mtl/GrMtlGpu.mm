@@ -103,7 +103,9 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
 
+    SK_BEGIN_AUTORELEASE_BLOCK
     fCmdBuffer = [fQueue commandBuffer];
+    SK_END_AUTORELEASE_BLOCK
 }
 
 GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
@@ -124,11 +126,13 @@ void GrMtlGpu::submit(GrGpuCommandBuffer* buffer) {
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fCmdBuffer);
+    SK_BEGIN_AUTORELEASE_BLOCK
     [fCmdBuffer commit];
     if (SyncQueue::kForce_SyncQueue == sync) {
         [fCmdBuffer waitUntilCompleted];
     }
     fCmdBuffer = [fQueue commandBuffer];
+    SK_END_AUTORELEASE_BLOCK
 }
 
 sk_sp<GrGpuBuffer> GrMtlGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
@@ -253,9 +257,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
 
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
+    sk_sp<GrMtlTexture> tex;
+    SK_BEGIN_AUTORELEASE_BLOCK
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this TexDesc describes the resolved texture. Therefore we always have samples set
-    // to 1.
+    // requested, this TexDesc describes the resolved texture. Therefore we always have samples
+    // set to 1.
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
     texDesc.textureType = MTLTextureType2D;
     texDesc.pixelFormat = format;
@@ -285,7 +291,6 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         }
 #endif
     }
-    sk_sp<GrMtlTexture> tex;
     if (renderTarget) {
         tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
                                                                      desc, texDesc, mipMapsStatus);
@@ -305,6 +310,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
             return nullptr;
         }
     }
+    SK_END_AUTORELEASE_BLOCK
 
     if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
         // Do initial clear of the texture
@@ -440,6 +446,7 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
         return false;
     }
 
+    SK_BEGIN_AUTORELEASE_BLOCK
     bool mipmapped = mipMapped == GrMipMapped::kYes ? true : false;
     MTLTextureDescriptor* desc =
             [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
@@ -502,6 +509,8 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
     [cmdBuffer waitUntilCompleted];
 
     info->fTexture = GrReleaseId(testTexture);
+    SK_END_AUTORELEASE_BLOCK
+
     return true;
 }
 
@@ -723,6 +732,7 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         return false;
     }
 
+    SK_BEGIN_AUTORELEASE_BLOCK
     bool success = false;
     if (this->mtlCaps().canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTarget()),
                                       src->config(), SkToBool(src->asTexture()))) {
@@ -743,6 +753,7 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->didWriteToSurface(dst, dstOrigin, &dstRect);
     }
     return success;
+    SK_END_AUTORELEASE_BLOCK
 }
 
 bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
@@ -760,8 +771,10 @@ bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
         SkASSERT(texels[i].fPixels);
     }
 #endif
+    SK_BEGIN_AUTORELEASE_BLOCK
     return this->uploadToTexture(mtlTexture, left, top, width, height, srcColorType, texels,
                                  mipLevelCount);
+    SK_END_AUTORELEASE_BLOCK
 }
 
 bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
@@ -774,6 +787,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
+    SK_BEGIN_AUTORELEASE_BLOCK
     bool doResolve = get_surface_sample_cnt(surface) > 1;
     id<MTLTexture> mtlTexture = GrGetMTLTextureFromSurface(surface, doResolve);
     if (!mtlTexture) {
@@ -805,5 +819,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
     return true;
+    SK_END_AUTORELEASE_BLOCK
 }
 
