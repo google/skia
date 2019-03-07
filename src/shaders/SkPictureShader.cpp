@@ -224,7 +224,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
                                               : fColorSpace ? fColorSpace
                                                             : SkColorSpace::MakeSRGB();
     SkImage::BitDepth bitDepth =
-            kRGBA_F16_SkColorType == dstColorType || kRGBA_F32_SkColorType == dstColorType
+            dstColorType >= kRGBA_F16Norm_SkColorType
             ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
 
     BitmapShaderKey key(imgCS.get(), bitDepth, fUniqueID, tileScale);
