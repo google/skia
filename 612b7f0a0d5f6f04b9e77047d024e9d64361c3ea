@@ -22,6 +22,30 @@
       "revId": "612b7f0a0d5f6f04b9e77047d024e9d64361c3ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e4b68b7_060f55c6",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-07T15:11:42Z",
+      "side": 1,
+      "message": "Oh yeah, that does look nicer!  Done.",
+      "parentUuid": "e2ee8be0_564e5533",
+      "range": {
+        "startLine": 476,
+        "startChar": 39,
+        "endLine": 477,
+        "endChar": 0
+      },
+      "revId": "612b7f0a0d5f6f04b9e77047d024e9d64361c3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
