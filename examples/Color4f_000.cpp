@@ -1,0 +1,12 @@
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "fiddle/examples.h"
+namespace {
+REG_FIDDLE(Color4f_000, 256, 256, true, 0);
+// HASH=e5b34bcb7f80f2ed890cdacaa059db0d
+void draw(SkCanvas* canvas) {
+    SkColor4f colorRed = { 1, 0, 0, 1 };
+    SkColor4f colorNamedRed = SkColor4f::FromColor(SK_ColorRED);
+    SkDebugf("colorRed %c= colorNamedRed", colorRed == colorNamedRed ? '=' : '!');
+}
+}

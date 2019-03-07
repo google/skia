@@ -1,0 +1,16 @@
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "fiddle/examples.h"
+namespace {
+REG_FIDDLE(Paint_088, 256, 256, true, 0);
+// HASH=c11f8eaa1dd149bc18db21e23ce26904
+#include "SkBlurImageFilter.h"
+
+void draw(SkCanvas* canvas) {
+   SkPaint paint;
+   SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
+   paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));
+   SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
+}
+
+}
