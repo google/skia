@@ -73,6 +73,12 @@ public:
         kSkip_SyncQueue
     };
 
+    void querySampleLocations(
+            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) override {
+        SkASSERT(!this->caps()->sampleLocationsSupport());
+        SK_ABORT("Sample locations not yet implemented for Vulkan.");
+    }
+
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
 #if GR_TEST_UTILS

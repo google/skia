@@ -11,6 +11,8 @@
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrProgramDesc.h"
+#include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
@@ -36,8 +38,12 @@ public:
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
     const GrTextureProxy* const* primProcProxies() const { return fPrimProcProxies; }
-    GrPixelConfig config() const { return fConfig; }
-    int numColorSamples() const { return fNumColorSamples; }
+    const GrRenderTarget* renderTarget() const { return fRenderTarget; }
+    GrPixelConfig config() const { return fRenderTarget->config(); }
+    int effectiveSampleCnt() const {
+        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
+        return fRenderTarget->renderTargetPriv().getSampleLocations(fPipeline).count();
+    }
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrPipeline& pipeline() const { return fPipeline; }
     GrProgramDesc* desc() { return fDesc; }
@@ -84,8 +90,7 @@ public:
 
     int fStageIndex;
 
-    const GrPixelConfig          fConfig;
-    const int                    fNumColorSamples;
+    const GrRenderTarget*        fRenderTarget;
     const GrSurfaceOrigin        fOrigin;
     const GrPipeline&            fPipeline;
     const GrPrimitiveProcessor&  fPrimProc;
@@ -121,7 +126,7 @@ private:
     // fragment shader are cleared.
     void reset() {
         this->addStage();
-        SkDEBUGCODE(fFS.resetVerification();)
+        SkDEBUGCODE(fFS.debugOnly_resetPerStageVerification();)
     }
     void addStage() { fStageIndex++; }
 
@@ -156,8 +161,8 @@ private:
 
 #ifdef SK_DEBUG
     void verify(const GrPrimitiveProcessor&);
-    void verify(const GrXferProcessor&);
     void verify(const GrFragmentProcessor&);
+    void verify(const GrXferProcessor&);
 #endif
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
