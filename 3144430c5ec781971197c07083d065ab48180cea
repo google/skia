@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "946c0076_1f9e6b51",
+        "filename": "modules/skottie/src/SkottieAdapter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-07T19:30:53Z",
+      "side": 1,
+      "message": "brief comments describing range for each param?\n\nAren\u0027t dimensions 2d?\nHow is \u0027repeat\u0027 a float?",
+      "range": {
+        "startLine": 251,
+        "startChar": 21,
+        "endLine": 251,
+        "endChar": 31
+      },
+      "revId": "3144430c5ec781971197c07083d065ab48180cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
