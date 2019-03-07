@@ -112,17 +112,19 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
         fMappedBuffer = fMtlBuffer;
         fMapPtr = fMappedBuffer.contents;
     } else {
-        // TODO: We can't ensure that map will only be called once on static access buffers until
-        // we actually enable dynamic access.
-        // SkASSERT(fMappedBuffer == nil);
-        fMappedBuffer =
-                [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
+        @autoreleasepool {
+            // TODO: We can't ensure that map will only be called once on static access buffers until
+            // we actually enable dynamic access.
+            // SkASSERT(fMappedBuffer == nil);
+            fMappedBuffer =
+                    [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
 #ifdef SK_BUILD_FOR_MAC
-                                                      options: MTLResourceStorageModeManaged];
+                                                          options: MTLResourceStorageModeManaged];
 #else
-                                                      options: MTLResourceStorageModeShared];
+                                                          options: MTLResourceStorageModeShared];
 #endif
-        fMapPtr = fMappedBuffer.contents;
+            fMapPtr = fMappedBuffer.contents;
+        }
     }
     VALIDATE();
 }
@@ -145,14 +147,16 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
     [fMappedBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
 #endif
     if (!fIsDynamic) {
-        id<MTLBlitCommandEncoder> blitCmdEncoder =
-                [this->mtlGpu()->commandBuffer() blitCommandEncoder];
-        [blitCmdEncoder copyFromBuffer: fMappedBuffer
-                          sourceOffset: 0
-                              toBuffer: fMtlBuffer
-                     destinationOffset: 0
-                                  size: sizeInBytes];
-        [blitCmdEncoder endEncoding];
+        @autoreleasepool {
+            id<MTLBlitCommandEncoder> blitCmdEncoder =
+                    [this->mtlGpu()->commandBuffer() blitCommandEncoder];
+            [blitCmdEncoder copyFromBuffer: fMappedBuffer
+                              sourceOffset: 0
+                                  toBuffer: fMtlBuffer
+                         destinationOffset: 0
+                                      size: sizeInBytes];
+            [blitCmdEncoder endEncoding];
+        }
     }
     fMappedBuffer = nil;
     fMapPtr = nullptr;
