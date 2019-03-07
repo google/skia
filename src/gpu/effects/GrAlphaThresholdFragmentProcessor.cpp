@@ -37,10 +37,10 @@ public:
         (void)innerThreshold;
         auto outerThreshold = _outer.outerThreshold();
         (void)outerThreshold;
-        fInnerThresholdVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "innerThreshold");
-        fOuterThresholdVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "outerThreshold");
+        fInnerThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kHalf_GrSLType, "innerThreshold");
+        fOuterThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kHalf_GrSLType, "outerThreshold");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "half4 color = %s;\nhalf4 mask_color = texture(%s, %s).%s;\nif (mask_color.w < "

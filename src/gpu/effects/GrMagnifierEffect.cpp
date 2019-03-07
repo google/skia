@@ -35,17 +35,17 @@ public:
         auto yInvInset = _outer.yInvInset();
         (void)yInvInset;
         fBoundsUniformVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "boundsUniform");
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "boundsUniform");
         fXInvZoomVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "xInvZoom");
+                kFragment_GrShaderFlag, kFloat_GrSLType, "xInvZoom");
         fYInvZoomVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "yInvZoom");
+                kFragment_GrShaderFlag, kFloat_GrSLType, "yInvZoom");
         fXInvInsetVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "xInvInset");
+                kFragment_GrShaderFlag, kFloat_GrSLType, "xInvInset");
         fYInvInsetVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "yInvInset");
-        fOffsetVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf2_GrSLType, kDefault_GrSLPrecision, "offset");
+                kFragment_GrShaderFlag, kFloat_GrSLType, "yInvInset");
+        fOffsetVar =
+                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "float2 coord = %s;\nfloat2 zoom_coord = float2(%s) + coord * float2(%s, "
