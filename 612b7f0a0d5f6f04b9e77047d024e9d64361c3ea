@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2ee8be0_564e5533",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-07T15:04:25Z",
+      "side": 1,
+      "message": "Oddly I find the clearest way to do this sort of thing is not with duration_cast, but rather with std::chrono::duration\u0027s constructor, e.g.\n\n  fStats.fJsonParseTimeMS \u003d std::chrono::duration\u003cdouble, std::milli\u003e{t1-t0}.count();",
+      "range": {
+        "startLine": 476,
+        "startChar": 39,
+        "endLine": 477,
+        "endChar": 0
+      },
+      "revId": "612b7f0a0d5f6f04b9e77047d024e9d64361c3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
