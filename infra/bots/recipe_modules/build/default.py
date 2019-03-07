@@ -58,7 +58,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
-  moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx = None, None
   extra_cflags = []
@@ -212,7 +211,9 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_vulkan'] = 'true'
     args['skia_enable_vulkan_debug_layers'] = 'false'
     if 'MoltenVK' in extra_tokens:
-      args['skia_moltenvk_path'] = '"%s"' % moltenvk
+      # MoltenVK build process requires CMake.
+      env['PATH'] = '%s:%%(PATH)s' % (
+          api.vars.slave_dir.join('cmake_mac', 'CMake.app', 'Contents', 'bin'))
   if 'Metal' in extra_tokens:
     args['skia_use_metal'] = 'true'
   if 'OpenCL' in extra_tokens:
