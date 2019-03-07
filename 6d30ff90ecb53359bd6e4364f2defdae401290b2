@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1324674c_b4ebe291",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-07T20:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "619b730e_1bb0784e",
+      "range": {
+        "startLine": 116,
+        "startChar": 100,
+        "endLine": 116,
+        "endChar": 101
+      },
+      "revId": "6d30ff90ecb53359bd6e4364f2defdae401290b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "428c540c_ba4782a6",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 5
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "45fe3d2c_b52b887d",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-07T20:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "428c540c_ba4782a6",
+      "revId": "6d30ff90ecb53359bd6e4364f2defdae401290b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2198260_3cfb1f67",
         "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
         "patchSetId": 5
@@ -53,6 +95,30 @@
       "writtenOn": "2019-03-07T19:58:24Z",
       "side": 1,
       "message": "I\u0027m just curious why you changed both of these identical asserts, but changed them differently?",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 45
+      },
+      "revId": "6d30ff90ecb53359bd6e4364f2defdae401290b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c55c4588_0bd90171",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-07T20:31:44Z",
+      "side": 1,
+      "message": "I wanted to make sure you were paying attention.",
+      "parentUuid": "d2198260_3cfb1f67",
       "range": {
         "startLine": 74,
         "startChar": 4,
@@ -85,6 +151,30 @@
       "revId": "6d30ff90ecb53359bd6e4364f2defdae401290b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "026bec2d_57aaa6bb",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-07T20:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4af7370_e9205ab5",
+      "range": {
+        "startLine": 148,
+        "startChar": 100,
+        "endLine": 148,
+        "endChar": 101
+      },
+      "revId": "6d30ff90ecb53359bd6e4364f2defdae401290b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
