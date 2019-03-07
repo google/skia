@@ -111,11 +111,13 @@ GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
 class MtlTestContext : public sk_gpu_test::TestContext {
 public:
     static MtlTestContext* Create(TestContext* sharedContext) {
-        SkASSERT(!sharedContext);
-        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-        id<MTLCommandQueue> queue = [device newCommandQueue];
+        @autoreleasepool {
+            SkASSERT(!sharedContext);
+            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+            id<MTLCommandQueue> queue = [device newCommandQueue];
 
-        return new MtlTestContext(device, queue);
+            return new MtlTestContext(device, queue);
+        }
     }
 
     ~MtlTestContext() override { this->teardown(); }
