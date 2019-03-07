@@ -58,7 +58,7 @@ static void test_install(skiatest::Reporter* reporter) {
 
 }
 
-class TestListener : public SkPixelRef::GenIDChangeListener {
+class TestListener : public SkPixelRef::GenIDChangeListener1 {
 public:
     explicit TestListener(int* ptr) : fPtr(ptr) {}
     void onChange() override { (*fPtr)++; }
@@ -73,7 +73,7 @@ DEF_TEST(PixelRef_GenIDChange, r) {
 
     // Register a listener.
     int count = 0;
-    pixelRef->addGenIDChangeListener(new TestListener(&count));
+    pixelRef->addGenIDChangeListener1(new TestListener(&count));
     REPORTER_ASSERT(r, 0 == count);
 
     // No one has looked at our pixelRef's generation ID, so invalidating it doesn't make sense.
@@ -90,13 +90,13 @@ DEF_TEST(PixelRef_GenIDChange, r) {
 
     // Force the generation ID to be recalculated, then add a listener.
     REPORTER_ASSERT(r, 0 != pixelRef->getGenerationID());
-    pixelRef->addGenIDChangeListener(new TestListener(&count));
+    pixelRef->addGenIDChangeListener1(new TestListener(&count));
     pixelRef->notifyPixelsChanged();
     REPORTER_ASSERT(r, 1 == count);
 
     // Quick check that nullptr is safe.
     REPORTER_ASSERT(r, 0 != pixelRef->getGenerationID());
-    pixelRef->addGenIDChangeListener(nullptr);
+    pixelRef->addGenIDChangeListener1(nullptr);
     pixelRef->notifyPixelsChanged();
 
     test_install(r);

@@ -701,7 +701,7 @@ sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
-    return SkSpecialImage::MakeFromImage(nullptr, SkIRect::MakeWH(image->width(), image->height()),
+    return SkSpecialImage::MakeFromImage73(nullptr, SkIRect::MakeWH(image->width(), image->height()),
                                          image->makeNonTextureImage());
 }
 

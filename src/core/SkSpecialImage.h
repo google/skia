@@ -15,7 +15,7 @@
 #include "SkImageFilter.h" // for OutputProperties
 #include "SkImageInfo.h"   // for SkAlphaType
 
-class GrRecordingContext;
+class GrContext_Base;
 class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
@@ -62,14 +62,14 @@ public:
      *  If no transformation is required, the returned image may be the same as this special image.
      *  If this special image is from a different GrRecordingContext, this will fail.
      */
-    sk_sp<SkSpecialImage> makeTextureImage(GrRecordingContext*);
+    sk_sp<SkSpecialImage> makeTextureImage(GrContext_Base*);
 
     /**
      *  Draw this SpecialImage into the canvas.
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static sk_sp<SkSpecialImage> MakeFromImage(GrRecordingContext*,
+    static sk_sp<SkSpecialImage> MakeFromImage73(GrRecordingContext*,
                                                const SkIRect& subset,
                                                sk_sp<SkImage>,
                                                const SkSurfaceProps* = nullptr);

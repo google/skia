@@ -18,7 +18,6 @@ class GrBitmapTextureMaker : public GrTextureMaker {
 public:
     GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
                          bool useDecal = false);
-
 protected:
     sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
                                                   AllowedTexGenType onlyIfFast) override;

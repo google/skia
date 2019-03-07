@@ -46,11 +46,11 @@ public:
         StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                     DrawType drawType,
-                                    GrPathRenderer::StencilSupport* stencilSupport);
+                                    GrPathRenderer::StencilSupport* stencilSupport) const;
 
     /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
         chain. */
-    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() const {
         return fCoverageCountingPathRenderer;
     }
 

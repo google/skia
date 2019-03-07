@@ -66,6 +66,7 @@ struct SinkFlags {
 
 struct Src {
     virtual ~Src() {}
+    virtual Error SK_WARN_UNUSED_RESULT foo(GrContext*) const { return ""; };
     virtual Error SK_WARN_UNUSED_RESULT draw(SkCanvas*) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
@@ -73,7 +74,7 @@ struct Src {
     virtual bool veto(SinkFlags) const { return false; }
 
     virtual int pageCount() const { return 1; }
-    virtual Error SK_WARN_UNUSED_RESULT draw(int, SkCanvas* canvas) const {
+    virtual Error SK_WARN_UNUSED_RESULT draw2(int, SkCanvas* canvas) const {
         return this->draw(canvas);
     }
     virtual SkISize size(int) const { return this->size(); }
@@ -83,8 +84,11 @@ struct Src {
 
 struct Sink {
     virtual ~Sink() {}
+
+    virtual Error SK_WARN_UNUSED_RESULT fooSink(const Src&) const { return ""; };
+
     // You may write to either the bitmap or stream.  If you write to log, we'll print that out.
-    virtual Error SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*, SkString* log)
+    virtual Error SK_WARN_UNUSED_RESULT drawSink(const Src&, SkBitmap*, SkWStream*, SkString* log)
         const = 0;
 
     // Force Tasks using this Sink to run on the main thread?
@@ -304,7 +308,7 @@ public:
 
     int pageCount() const override;
     Error draw(SkCanvas* c) const override;
-    Error draw(int, SkCanvas*) const override;
+    Error draw2(int, SkCanvas*) const override;
     SkISize size() const override;
     SkISize size(int) const override;
     Name name() const override;
@@ -320,7 +324,7 @@ class NullSink : public Sink {
 public:
     NullSink() {}
 
-    Error draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src& src, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return ""; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kNull, SinkFlags::kDirect }; }
 };
@@ -333,9 +337,9 @@ public:
             SkColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
             bool threaded, const GrContextOptions& grCtxOptions);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-    Error onDraw(const Src&, SkBitmap*, SkWStream*, SkString*,
-                 const GrContextOptions& baseOptions) const;
+    Error fooSink(const Src&) const override;
+
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
     sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
     const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() {
@@ -374,7 +378,7 @@ public:
                          sk_sp<SkColorSpace> colorSpace, bool threaded,
                          const GrContextOptions& grCtxOptions);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
     const char* fileExtension() const override {
         // Suppress writing out results from this config - we just want to do our matching test
@@ -396,7 +400,7 @@ public:
                                   sk_sp<SkColorSpace> colorSpace, bool threaded,
                                   const GrContextOptions& grCtxOptions);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
     const char* fileExtension() const override {
         // Suppress writing out results from this config - we just want to do our matching test
@@ -410,7 +414,7 @@ private:
 class PDFSink : public Sink {
 public:
     PDFSink(bool pdfa, SkScalar rasterDpi) : fPDFA(pdfa), fRasterDpi(rasterDpi) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "pdf"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
     bool fPDFA;
@@ -421,7 +425,7 @@ class XPSSink : public Sink {
 public:
     XPSSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "xps"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
@@ -430,7 +434,7 @@ class RasterSink : public Sink {
 public:
     explicit RasterSink(SkColorType, sk_sp<SkColorSpace> = nullptr);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
 
@@ -442,21 +446,21 @@ private:
 class ThreadedSink : public RasterSink {
 public:
     explicit ThreadedSink(SkColorType, sk_sp<SkColorSpace> = nullptr);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class SKPSink : public Sink {
 public:
     SKPSink();
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "skp"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
 class DebugSink : public Sink {
 public:
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "json"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
@@ -465,7 +469,7 @@ class SVGSink : public Sink {
 public:
     SVGSink(int pageIndex = 0);
 
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "svg"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 
@@ -493,7 +497,8 @@ protected:
 class ViaMatrix : public Via {
 public:
     ViaMatrix(SkMatrix, Sink*);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error fooSink(const Src&) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const SkMatrix fMatrix;
 };
@@ -501,7 +506,8 @@ private:
 class ViaUpright : public Via {
 public:
     ViaUpright(SkMatrix, Sink*);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error fooSink(const Src&) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const SkMatrix fMatrix;
 };
@@ -509,19 +515,19 @@ private:
 class ViaSerialization : public Via {
 public:
     explicit ViaSerialization(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaPicture : public Via {
 public:
     explicit ViaPicture(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaTiles : public Via {
 public:
     ViaTiles(int w, int h, SkBBHFactory*, Sink*);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const int                   fW, fH;
     std::unique_ptr<SkBBHFactory> fFactory;
@@ -530,7 +536,9 @@ private:
 class ViaDDL : public Via {
 public:
     ViaDDL(int numReplays, int numDivisions, Sink* sink);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    Error fooSink(const Src&) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const int fNumReplays;
     const int fNumDivisions;
@@ -539,19 +547,19 @@ private:
 class ViaSVG : public Via {
 public:
     explicit ViaSVG(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaLite : public Via {
 public:
     explicit ViaLite(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
 class ViaCSXform : public Via {
 public:
     explicit ViaCSXform(Sink*, sk_sp<SkColorSpace>, bool colorSpin);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error drawSink(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     sk_sp<SkColorSpace> fCS;
     bool                fColorSpin;

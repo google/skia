@@ -109,6 +109,7 @@ private:
     typedef GM INHERITED;
 };
 
+#if 0
 DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
     SkPaint paint;
     SkBitmap bitmap;
@@ -140,5 +141,6 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new BitmapShaderGM; )
+#endif
 
 }

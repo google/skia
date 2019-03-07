@@ -77,7 +77,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
 GrPathRenderer* GrPathRendererChain::getPathRenderer(
         const GrPathRenderer::CanDrawPathArgs& args,
         DrawType drawType,
-        GrPathRenderer::StencilSupport* stencilSupport) {
+        GrPathRenderer::StencilSupport* stencilSupport) const {
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <

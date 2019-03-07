@@ -199,7 +199,7 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
     return DrawResult::kOk;
 }
 
-void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
+void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
                                                 const GrReducedClip& reducedClip, GrPaint&& paint) {
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
@@ -235,7 +235,8 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
                   SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
 }
 
-void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
+void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
+                                                  GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
     // Draw a checker pattern into the stencil buffer so we can visualize the regions left untouched

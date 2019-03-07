@@ -9,6 +9,7 @@
 #include "Resources.h"
 
 #include "GrContext.h"
+#include "GrRecordingContextPriv.h"
 #include "SkImage.h"
 
 DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,

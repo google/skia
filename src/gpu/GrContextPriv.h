@@ -30,7 +30,6 @@ class SkTaskGroup;
     data members or virtual methods. */
 class GrContextPriv {
 public:
-
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
@@ -56,6 +55,7 @@ public:
     const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
 
     bool abandoned() const { return fContext->abandoned(); }
+    void abandon() { return fContext->abandonContext(); }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
@@ -120,18 +120,14 @@ public:
                                             GrPixelConfig config,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
-                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrMipMapped mipMapped = GrMipMapped::kNo,
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted budgeted = SkBudgeted::kYes);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
-    /**
-     * Create a GrContext without a resource cache
-     */
-    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
-
+    //----
     sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
                                                       GrSurfaceOrigin origin,
                                                       sk_sp<SkColorSpace> colorSpace);
@@ -166,6 +162,15 @@ public:
 
     sk_sp<GrRenderTargetContext> makeVulkanSecondaryCBRenderTargetContext(
             const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
+
+
+    /**
+     * Create a GrContext without a resource cache
+     */
+    static sk_sp<GrRecordingContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+
+    static sk_sp<GrImageContext> MakeImageContext(const sk_sp<GrContextThreadSafeProxy>&);
+
 
     /**
      * Call to ensure all drawing to the context has been issued to the
@@ -282,6 +287,13 @@ public:
 #endif
 
 #if GR_TEST_UTILS
+    /**
+     * Purge all the unlocked resources from the cache.
+     * This entry point is mainly meant for timing texture uploads
+     * and is not defined in normal builds of Skia.
+     */
+    void purgeAllUnlockedResources_ForTesting();
+
     /** Reset GPU stats */
     void resetGpuStats() const ;
 

@@ -8,6 +8,8 @@
 #ifndef GrTextureAdjuster_DEFINED
 #define GrTextureAdjuster_DEFINED
 
+class GrRecordingContext;
+
 #include "GrTextureProducer.h"
 #include "GrTextureProxy.h"
 #include "SkTLazy.h"

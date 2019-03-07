@@ -94,7 +94,7 @@ private:
     // When the SkImage_Lazy goes away, we will iterate over all the unique keys we've used and
     // send messages to the GrContexts to say the unique keys are no longer valid. The GrContexts
     // can then release the resources, conntected with the those unique keys, from their caches.
-    mutable SkTDArray<GrUniqueKeyInvalidatedMessage*> fUniqueKeyInvalidatedMessages;
+    mutable SkTDArray<GrUniqueKeyInvalidatedMessage17*> fUniqueKeyInvalidatedMessages31;
 #endif
 
     typedef SkImage_Base INHERITED;

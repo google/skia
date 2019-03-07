@@ -15,6 +15,8 @@
 #include "SkImageInfoPriv.h"
 #include "SkPictureRecorder.h"
 
+#include "GrContext.h"
+
 static const int kWidth = 64;
 static const int kHeight = 64;
 
@@ -148,7 +150,7 @@ protected:
                 if (!image) {
                     continue;
                 }
-                if (GrContext* context = canvas->getGrContext()) {
+                if (auto context = canvas->getGrContext()) {
                     image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
                 }
                 if (image) {

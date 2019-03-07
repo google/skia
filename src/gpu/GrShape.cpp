@@ -365,9 +365,9 @@ const SkPath* GrShape::originalPathForListeners() const {
     return nullptr;
 }
 
-void GrShape::addGenIDChangeListener(sk_sp<SkPathRef::GenIDChangeListener> listener) const {
+void GrShape::addGenIDChangeListener3(sk_sp<SkPathRef::GenIDChangeListener2> listener) const {
     if (const auto* lp = this->originalPathForListeners()) {
-        SkPathPriv::AddGenIDChangeListener(*lp, std::move(listener));
+        SkPathPriv::AddGenIDChangeListener2(*lp, std::move(listener));
     }
 }
 

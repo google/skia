@@ -104,7 +104,7 @@ public:
                                             GrPixelConfig config,
                                             sk_sp<SkColorSpace> colorSpace,
                                             int sampleCnt = 1,
-                                            GrMipMapped = GrMipMapped::kNo,
+                                            GrMipMapped mipMapped = GrMipMapped::kNo,
                                             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                             const SkSurfaceProps* surfaceProps = nullptr,
                                             SkBudgeted budgeted = SkBudgeted::kYes);

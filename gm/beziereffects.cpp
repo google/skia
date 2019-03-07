@@ -293,7 +293,7 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,

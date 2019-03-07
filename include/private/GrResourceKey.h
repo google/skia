@@ -329,17 +329,17 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUnique
 }
 
 // The cache listens for these messages to purge junk resources proactively.
-class GrUniqueKeyInvalidatedMessage {
+class GrUniqueKeyInvalidatedMessage17 {
 public:
-    GrUniqueKeyInvalidatedMessage() = default;
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID)
+    GrUniqueKeyInvalidatedMessage17() = default;
+    GrUniqueKeyInvalidatedMessage17(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fKey(key), fContextID(contextUniqueID) {
         SkASSERT(SK_InvalidUniqueID != contextUniqueID);
     }
 
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
+    GrUniqueKeyInvalidatedMessage17(const GrUniqueKeyInvalidatedMessage17&) = default;
 
-    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
+    GrUniqueKeyInvalidatedMessage17& operator=(const GrUniqueKeyInvalidatedMessage17&) = default;
 
     const GrUniqueKey& key() const { return fKey; }
     uint32_t contextID() const { return fContextID; }
@@ -349,7 +349,7 @@ private:
     uint32_t fContextID = SK_InvalidUniqueID;
 };
 
-static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage& msg,
+static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage17& msg,
                                             uint32_t msgBusUniqueID) {
     return msg.contextID() == msgBusUniqueID;
 }
