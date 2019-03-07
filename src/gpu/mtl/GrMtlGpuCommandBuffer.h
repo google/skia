@@ -125,8 +125,8 @@ private:
     GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
     GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
-    __strong id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
-    MTLRenderPassDescriptor* fRenderPassDesc;
+    id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
+    MTLRenderPassDescriptor*    fRenderPassDesc;
 
     struct CommandBufferInfo {
         SkRect fBounds;
