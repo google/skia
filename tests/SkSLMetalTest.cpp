@@ -109,3 +109,25 @@ DEF_TEST(SkSLMetalMatrices, r) {
          "    return *_out;\n"
          "}\n");
 }
+
+DEF_TEST(SkSLMetalConstantSwizzle, r) {
+    test(r,
+         "void main() {"
+         "sk_FragColor = half4(0.5).rgb1;"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#include <metal_stdlib>\n"
+         "#include <simd/simd.h>\n"
+         "using namespace metal;\n"
+         "struct Inputs {\n"
+         "};\n"
+         "struct Outputs {\n"
+         "    float4 sk_FragColor [[color(0)]];\n"
+         "};\n"
+         "fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {\n"
+         "    Outputs _outputStruct;\n"
+         "    thread Outputs* _out = &_outputStruct;\n"
+         "    _out->sk_FragColor = float4(float4(0.5).xyz, 1);\n"
+         "    return *_out;\n"
+         "}\n");
+}
