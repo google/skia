@@ -1,0 +1,17 @@
+//// Copyright 2019 Google LLC.
+//// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+//#include "fiddle/examples.h"
+//namespace {
+//REG_FIDDLE(Paint_029, 256, 256, true, 0);
+//// HASH=aa4781afbe3b90e7ef56a287e5b9ce1e
+//void draw(SkCanvas* canvas) {
+//    SkPaint paint;
+//    for (auto forceAutoHinting : { false, true} ) {
+//    paint.setAutohinted(forceAutoHinting);
+//    SkDebugf("paint.isAutohinted() %c="
+//            " !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)\n",
+//            paint.isAutohinted() ==
+//            !!(paint.getFlags() & SkPaint::kAutoHinting_Flag) ? '=' : '!');
+//    }
+//}
+//}

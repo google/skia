@@ -1,0 +1,19 @@
+//// Copyright 2019 Google LLC.
+//// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+//#include "fiddle/examples.h"
+//namespace {
+//REG_FIDDLE(Paint_027, 256, 256, true, 0);
+//// HASH=eba10b27b790e87183ae451b3fc5c4b1
+//void draw(SkCanvas* canvas) {
+//    SkPaint paint;
+//    SkDebugf("paint.isEmbeddedBitmapText() %c="
+//            " !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)\n",
+//            paint.isEmbeddedBitmapText() ==
+//            !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag) ? '=' : '!');
+//    paint.setEmbeddedBitmapText(true);
+//    SkDebugf("paint.isEmbeddedBitmapText() %c="
+//            " !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)\n",
+//            paint.isEmbeddedBitmapText() ==
+//            !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag) ? '=' : '!');
+//}
+//}

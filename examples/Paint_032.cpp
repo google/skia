@@ -1,0 +1,15 @@
+//// Copyright 2019 Google LLC.
+//// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+//#include "fiddle/examples.h"
+//namespace {
+//REG_FIDDLE(Paint_032, 256, 256, true, 0);
+//// HASH=f54d1f85b16073b80b9eef2e1a1d151d
+//void draw(SkCanvas* canvas) {
+//    SkPaint paint;
+//    SkDebugf("paint.isFakeBoldText() %c= !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\n",
+//        paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag) ? '=' : '!');
+//    paint.setFakeBoldText(true);
+//    SkDebugf("paint.isFakeBoldText() %c= !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\n",
+//        paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag) ? '=' : '!');
+//}
+//}
