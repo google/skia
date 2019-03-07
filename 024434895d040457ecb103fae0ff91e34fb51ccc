@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc228d4d_185b34da",
+        "filename": "infra/bots/assets/cmake_mac/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-07T22:56:16Z",
+      "side": 1,
+      "message": "Not sure why, but if I remove this, I get:\nTraceback (most recent call last):\n  File \"./infra/bots/assets/cmake_mac/create.py\", line 14, in \u003cmodule\u003e\n    import utils\nImportError: No module named utils",
+      "parentUuid": "ab1f9688_707bc713",
+      "revId": "024434895d040457ecb103fae0ff91e34fb51ccc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
