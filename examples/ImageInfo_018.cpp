@@ -1,0 +1,17 @@
+//// Copyright 2019 Google LLC.
+//// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+//#include "fiddle/examples.h"
+//namespace {
+//REG_FIDDLE(ImageInfo_018, 256, 128, false, 0);
+//// HASH=78cea0c4cac205b61ad6f6c982cbd888
+//void draw(SkCanvas* canvas) {
+//    SkBitmap bitmap;
+//    bitmap.allocPixels(SkImageInfo::MakeN32(16, 16, kPremul_SkAlphaType));
+//    SkCanvas offscreen(bitmap);
+//    offscreen.clear(SK_ColorWHITE);
+//    SkPaint paint;
+//    offscreen.drawString("g", 0, 10, paint);
+//    canvas->scale(8, 8);
+//    canvas->drawBitmap(bitmap, 0, 0);
+//}
+//}

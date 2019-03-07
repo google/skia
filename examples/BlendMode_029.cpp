@@ -1,0 +1,10 @@
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "fiddle/examples.h"
+namespace {
+REG_FIDDLE(BlendMode_029, 256, 256, true, 0);
+// HASH=3996f4994bf4e90b4cd86524c1f9f1a6
+void draw(SkCanvas* canvas) {
+    SkDebugf("default blend: SkBlendMode::k%s\n", SkBlendMode_Name(SkPaint().getBlendMode()));
+}
+}

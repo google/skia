@@ -1,0 +1,14 @@
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "fiddle/examples.h"
+namespace {
+REG_FIDDLE(Region_008, 256, 256, true, 0);
+// HASH=3831fb6006a7e0ad5d140c266c22be78
+void draw(SkCanvas* canvas) {
+    SkRegion region;
+    region.setRect({1, 2, 3, 4});
+    SkRegion::Cliperator clipper(region, {0, 0, 2, 3});
+    auto r = clipper.rect();
+    SkDebugf("rect={%d,%d,%d,%d}\n", r.fLeft, r.fTop, r.fRight, r.fBottom);
+}
+}
