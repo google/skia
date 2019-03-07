@@ -22,6 +22,30 @@
       "revId": "3144430c5ec781971197c07083d065ab48180cea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de82a480_0ce2aaa4",
+        "filename": "modules/skottie/src/SkottieAdapter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-07T20:17:27Z",
+      "side": 1,
+      "message": "\u003e brief comments describing range for each param?\n\nDone.\n\n\u003e Aren\u0027t dimensions 2d?\n\nNope, it\u0027s an enum selecting horizontal/vertical behavior.\n\n\u003e How is \u0027repeat\u0027 a float?\n\nThese are all animatable, thus they run through some interpolator and pop out as scalar values. At some point they need to be rounded/clamped to integral enum values; currently this is done in apply() below.  I could hoist that logic in the binding lambda and use integral values here if you think it makes a difference (but generally I try to keep those light and perform adjustments in these adapters).",
+      "parentUuid": "946c0076_1f9e6b51",
+      "range": {
+        "startLine": 251,
+        "startChar": 21,
+        "endLine": 251,
+        "endChar": 31
+      },
+      "revId": "3144430c5ec781971197c07083d065ab48180cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
