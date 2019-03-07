@@ -896,7 +896,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			timeout(task, 2*time.Hour)
 		}
 		if strings.Contains(name, "MoltenVK") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
+			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cmake_mac"))
 		}
 	}
 

@@ -14889,9 +14889,9 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
-          "name": "skia/bots/moltenvk",
-          "path": "moltenvk",
-          "version": "version:2"
+          "name": "skia/bots/cmake_mac",
+          "path": "cmake_mac",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15554,9 +15554,9 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
-          "name": "skia/bots/moltenvk",
-          "path": "moltenvk",
-          "version": "version:2"
+          "name": "skia/bots/cmake_mac",
+          "path": "cmake_mac",
+          "version": "version:0"
         }
       ],
       "command": [
