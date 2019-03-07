@@ -51,18 +51,8 @@ if [[ $@ == *cpu* ]]; then
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
 fi
 
-# TODO(fmalita,kjlubick): reduce this list to one item by fixing
-# the libskottie.a and libsksg.a builds
 SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
-SKOTTIE_BINDINGS="$BASE_DIR/skottie_bindings.cpp\
-  src/core/SkColorMatrixFilterRowMajor255.cpp \
-  src/core/SkCubicMap.cpp \
-  src/core/SkTime.cpp \
-  src/effects/SkTableColorFilter.cpp \
-  src/effects/imagefilters/SkDropShadowImageFilter.cpp \
-  src/pathops/SkOpBuilder.cpp \
-  src/utils/SkJSON.cpp \
-  src/utils/SkParse.cpp "
+SKOTTIE_BINDINGS="$BASE_DIR/skottie_bindings.cpp"
 
 SKOTTIE_LIB="$BUILD_DIR/libskottie.a \
              $BUILD_DIR/libsksg.a"
@@ -244,11 +234,11 @@ ${EMCXX} \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
-    $BUILD_DIR/libskia.a \
     $SKOTTIE_LIB \
     $PARTICLES_LIB \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \
+    $BUILD_DIR/libskia.a \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
