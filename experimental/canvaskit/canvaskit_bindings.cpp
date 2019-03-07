@@ -107,6 +107,58 @@ sk_sp<SkSurface> getWebGLSurface(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context, int wi
                                                                     colorType, nullptr, nullptr));
     return surface;
 }
+
+sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
+{
+    EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
+    if (r < 0) {
+        printf("failed to make webgl context current %d\n", r);
+        return nullptr;
+    }
+    // setup GrContext
+    auto interface = GrGLMakeNativeInterface();
+    // setup contexts
+    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
+    return grContext;
+}
+
+sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, int height) {
+    glClearColor(0, 0, 0, 0);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+
+    // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can
+    // render to it
+    GrGLint buffer;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
+    GrGLFramebufferInfo info;
+    info.fFBOID = (GrGLuint) buffer;
+    SkColorType colorType;
+
+    info.fFormat = GL_RGBA8;
+    colorType = kRGBA_8888_SkColorType;
+
+    GrBackendRenderTarget target(width, height, 0, 8, info);
+
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
+                                                                    kBottomLeft_GrSurfaceOrigin,
+                                                                    colorType, nullptr, nullptr));
+    return surface;
+}
+
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, int width, int height) {
+    SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(), SkBudgeted::kYes,
+                             info, 0,
+                             kBottomLeft_GrSurfaceOrigin,
+                             nullptr,
+                             true));
+
+    return surface;
+}
+
 #endif
 
 struct SimpleMatrix {
@@ -556,6 +608,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("_getWebGLSurface", &getWebGLSurface, allow_raw_pointers());
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
+    function("MakeGrContext", &MakeGrContext);
+    function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
+    function("MakeRenderTarget", &MakeRenderTarget);
+
     constant("gpu", true);
 #endif
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
@@ -942,6 +998,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkShader>("SkShader")
         .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>");
+
+    class_<GrContext>("GrContext")
+        .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>");
 
     class_<SkSurface>("SkSurface")
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
