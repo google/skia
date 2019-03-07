@@ -20,6 +20,7 @@ class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
 class SkColorSpaceXformer;
+class SkMixer;
 class SkRasterPipeline;
 class SkString;
 
@@ -130,6 +131,10 @@ public:
      */
     static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
                                           float weight);
+
+    // maybe rename MakeMixer as MakeLerp...
+    static sk_sp<SkColorFilter> MakeWithMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
+                                              sk_sp<SkMixer> mixer);
 
 #if SK_SUPPORT_GPU
     /**

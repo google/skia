@@ -382,9 +382,12 @@ sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> cf0,
         return cf1;
     }
 
+    return sk_sp<SkMixerColorFilter>(std::move(cf0), std::move(cf1), SkMixer::MakeLerp(weight));
+    /*
     return sk_sp<SkColorFilter>(cf0
             ? new SkMixerColorFilter(std::move(cf0), std::move(cf1), weight)
             : new SkMixerColorFilter(std::move(cf1), nullptr, 1 - weight));
+     */
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

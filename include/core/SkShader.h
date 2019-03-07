@@ -226,6 +226,8 @@ public:
         return MakeCompose(std::move(dst), std::move(src), SkBlendMode::kSrc, lerp);
     }
 
+    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, sk_sp<SkMixer>);
+
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
      *  If the bitmap cannot be used (e.g. has no pixels, or its dimensions

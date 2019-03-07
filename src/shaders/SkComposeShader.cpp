@@ -33,7 +33,11 @@ sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, 
             return dst;
         }
     }
-    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode, lerpT));
+
+    return MakeMixer(std::move(dst), std::move(src), SkMixer::MakeSplitter(SkMixer::MakeBlend(mode),
+                                                                           SkMixer::MakeFirst(),
+                                                                           SkMixer::MakeLerp(lerpT));
+//    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode, lerpT));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
