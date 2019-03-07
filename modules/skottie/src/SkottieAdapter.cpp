@@ -289,6 +289,40 @@ void DropShadowEffectAdapter::apply() {
                                      : sksg::DropShadowImageFilter::Mode::kShadowAndForeground);
 }
 
+GaussianBlurEffectAdapter::GaussianBlurEffectAdapter(sk_sp<sksg::BlurImageFilter> blur)
+    : fBlur(std::move(blur)) {
+    SkASSERT(fBlur);
+}
+
+GaussianBlurEffectAdapter::~GaussianBlurEffectAdapter() = default;
+
+void GaussianBlurEffectAdapter::apply() {
+    static constexpr SkVector kDimensionsMap[] = {
+        { 1, 1 }, // 1 -> horizontal and vertical
+        { 1, 0 }, // 2 -> horizontal
+        { 0, 1 }, // 3 -> vertical
+    };
+
+    const auto dim_index = SkTPin<size_t>(static_cast<size_t>(fDimensions),
+                                          1, SK_ARRAY_COUNT(kDimensionsMap)) - 1;
+
+    // Close enough to AE.
+    static constexpr SkScalar kBlurrinessToSigmaFactor = 0.3f;
+    const auto sigma = fBlurriness * kBlurrinessToSigmaFactor;
+
+    fBlur->setSigma({ sigma * kDimensionsMap[dim_index].x(),
+                      sigma * kDimensionsMap[dim_index].y() });
+
+    static constexpr SkBlurImageFilter::TileMode kRepeatEdgeMap[] = {
+        SkBlurImageFilter:: kClamp_TileMode, // 0 -> repeat off
+        SkBlurImageFilter::kRepeat_TileMode, // 1 -> repeat on
+    };
+
+    const auto repeat_index = SkTPin<size_t>(static_cast<size_t>(fRepeatEdge),
+                                             0, SK_ARRAY_COUNT(kRepeatEdgeMap) - 1);
+    fBlur->setTileMode(kRepeatEdgeMap[repeat_index]);
+}
+
 TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
     : fRoot(std::move(root))
     , fTextNode(sksg::TextBlob::Make())
