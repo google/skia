@@ -37,6 +37,7 @@ samples_sources = [
   "$_samplecode/SampleConcavePaths.cpp",
   "$_samplecode/SampleCowboy.cpp",
   "$_samplecode/SampleCusp.cpp",
+  "$_samplecode/SampleDegenerateQuads.cpp",
   "$_samplecode/SampleDegenerateTwoPtRadials.cpp",
   "$_samplecode/SampleEffects.cpp",
   "$_samplecode/SampleEmboss.cpp",
