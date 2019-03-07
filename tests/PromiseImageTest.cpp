@@ -461,7 +461,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     surface->flush();
     canvas->drawImage(image, 5, 0);
     surface->flush();
-    // Must call this to ensure that all callbacks are performed before the checker is destroyed.
+    // Must call these to ensure that all callbacks are performed before the checker is destroyed.
+    image.reset();
+    ctx->flush();
     gpu->testingOnly_flushGpuAndSync();
+
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
