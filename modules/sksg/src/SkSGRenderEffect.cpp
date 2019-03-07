@@ -34,9 +34,12 @@ SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatri
     fImageFilter->revalidate(ic, ctm);
 
     const auto& filter = fImageFilter->getFilter();
-    SkASSERT(filter->canComputeFastBounds());
+    SkASSERT(!filter || filter->canComputeFastBounds());
 
-    return filter->computeFastBounds(this->INHERITED::onRevalidate(ic, ctm));
+    const auto content_bounds = this->INHERITED::onRevalidate(ic, ctm);
+
+    return filter ? filter->computeFastBounds(content_bounds)
+                  : content_bounds;
 }
 
 const RenderNode* ImageFilterEffect::onNodeAt(const SkPoint& p) const {
@@ -103,6 +106,19 @@ sk_sp<SkImageFilter> DropShadowImageFilter::onRevalidateFilter() {
     return SkDropShadowImageFilter::Make(fOffset.x(), fOffset.y(),
                                          fSigma.x(), fSigma.y(),
                                          fColor, mode, this->refInput(0));
+}
+
+sk_sp<BlurImageFilter> BlurImageFilter::Make(sk_sp<ImageFilter> input) {
+    return sk_sp<BlurImageFilter>(new BlurImageFilter(std::move(input)));
+}
+
+BlurImageFilter::BlurImageFilter(sk_sp<ImageFilter> input)
+    : INHERITED(std::move(input)) {}
+
+BlurImageFilter::~BlurImageFilter() = default;
+
+sk_sp<SkImageFilter> BlurImageFilter::onRevalidateFilter() {
+    return SkBlurImageFilter::Make(fSigma.x(), fSigma.y(), this->refInput(0), nullptr, fTileMode);
 }
 
 sk_sp<BlendModeEffect> BlendModeEffect::Make(sk_sp<RenderNode> child, SkBlendMode mode) {
