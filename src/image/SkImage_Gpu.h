@@ -55,8 +55,7 @@ public:
                                              PromiseImageTextureFulfillProc textureFulfillProc,
                                              PromiseImageTextureReleaseProc textureReleaseProc,
                                              PromiseImageTextureDoneProc textureDoneProc,
-                                             PromiseImageTextureContext textureContext,
-                                             PromiseImageApiVersion);
+                                             PromiseImageTextureContext textureContext);
 
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrContext*, SkYUVColorSpace yuvColorSpace,
                                                    const GrBackendTexture yuvaTextures[],
