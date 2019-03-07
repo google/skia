@@ -130,7 +130,6 @@ public:
                 fUniformHandles.push_back(args.fUniformHandler->addUniform(
                                                                    kFragment_GrShaderFlag,
                                                                    this->uniformType(v->fType),
-                                                                   kDefault_GrSLPrecision,
                                                                    SkSL::String(v->fName).c_str()));
             }
         }

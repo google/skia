@@ -24,8 +24,8 @@ public:
         (void)_outer;
         auto weight = _outer.weight();
         (void)weight;
-        fWeightVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                      kDefault_GrSLPrecision, "weight");
+        fWeightVar =
+                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "weight");
         SkString _input0 = SkStringPrintf("%s", args.fInputColor);
         SkString _child0("_child0");
         this->emitChild(_outer.fp0_index(), _input0.c_str(), &_child0, args);

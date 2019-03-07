@@ -55,7 +55,6 @@ private:
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
                                           GrSLType type,
-                                          GrSLPrecision precision,
                                           const char* name,
                                           bool mangleName,
                                           int arrayCount,

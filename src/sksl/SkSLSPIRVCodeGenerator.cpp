@@ -1884,8 +1884,13 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
         this->writeInstruction(ifUInt, this->getType(resultType), result, lhs, rhs, out);
     } else if (operandType == *fContext.fBool_Type) {
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
+        return result; // skip RelaxedPrecision check
     } else {
         ABORT("invalid operandType: %s", operandType.description().c_str());
+    }
+    if (resultType == operandType && !resultType.highPrecision()) {
+        this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
+                               fDecorationBuffer);
     }
     return result;
 }
@@ -2712,9 +2717,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     return result;
 }
 
-void SPIRVCodeGenerator::writePrecisionModifier(const Modifiers& modifiers, SpvId id) {
-    if ((modifiers.fFlags & Modifiers::kLowp_Flag) |
-        (modifiers.fFlags & Modifiers::kMediump_Flag)) {
+void SPIRVCodeGenerator::writePrecisionModifier(const Type& type, SpvId id) {
+    if (!type.highPrecision()) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationRelaxedPrecision, fDecorationBuffer);
     }
 }
@@ -2778,7 +2782,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         }
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
-        this->writePrecisionModifier(var->fModifiers, id);
+        this->writePrecisionModifier(var->fType, id);
         if (varDecl.fValue) {
             SkASSERT(!fCurrentBlock);
             fCurrentBlock = -1;

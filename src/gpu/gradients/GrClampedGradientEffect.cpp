@@ -30,11 +30,10 @@ public:
         (void)makePremul;
         auto colorsAreOpaque = _outer.colorsAreOpaque();
         (void)colorsAreOpaque;
-        fLeftBorderColorVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, kDefault_GrSLPrecision, "leftBorderColor");
-        fRightBorderColorVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                 kDefault_GrSLPrecision, "rightBorderColor");
+        fLeftBorderColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                               kHalf4_GrSLType, "leftBorderColor");
+        fRightBorderColorVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kHalf4_GrSLType, "rightBorderColor");
         SkString _child1("_child1");
         this->emitChild(_outer.gradLayout_index(), &_child1, args);
         fragBuilder->codeAppendf(

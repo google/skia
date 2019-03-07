@@ -35,7 +35,6 @@ public:
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
                                                           kFloat2_GrSLType,
-                                                          kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 

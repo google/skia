@@ -98,7 +98,7 @@ public:
         (void)colorSpaceMatrix;
         fColorSpaceMatrixVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
-                                                 kDefault_GrSLPrecision, "colorSpaceMatrix");
+                                                 "colorSpaceMatrix");
 
         int numSamplers = args.fTexSamplers.count();
 

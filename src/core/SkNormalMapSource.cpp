@@ -47,7 +47,7 @@ private:
             // add uniform
             const char* xformUniName = nullptr;
             fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2x2_GrSLType,
-                                                   kDefault_GrSLPrecision, "Xform", &xformUniName);
+                                                   "Xform", &xformUniName);
 
             SkString dstNormalColorName("dstNormalColor");
             this->emitChild(0, &dstNormalColorName, args);

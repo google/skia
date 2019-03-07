@@ -34,15 +34,15 @@ public:
         auto threshold = _outer.threshold();
         (void)threshold;
         fScale01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       kDefault_GrSLPrecision, "scale01");
+                                                       "scale01");
         fBias01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                      kDefault_GrSLPrecision, "bias01");
+                                                      "bias01");
         fScale23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       kDefault_GrSLPrecision, "scale23");
+                                                       "scale23");
         fBias23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                      kDefault_GrSLPrecision, "bias23");
+                                                      "bias23");
         fThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                         kDefault_GrSLPrecision, "threshold");
+                                                         "threshold");
         fragBuilder->codeAppendf(
                 "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) {\n    scale = %s;\n    bias = "
                 "%s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = half4(float(t) * scale + "

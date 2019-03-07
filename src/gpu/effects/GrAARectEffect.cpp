@@ -28,7 +28,7 @@ public:
         (void)rect;
         prevRect = float4(-1.0);
         fRectUniformVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "rectUniform");
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "rectUniform");
         fragBuilder->codeAppendf(
                 "float4 prevRect = float4(%f, %f, %f, %f);\nhalf alpha;\n@switch (%d) {\n    case "
                 "0:\n    case 2:\n        alpha = half(all(greaterThan(float4(sk_FragCoord.xy, "

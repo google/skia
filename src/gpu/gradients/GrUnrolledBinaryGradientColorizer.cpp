@@ -62,69 +62,69 @@ public:
         auto thresholds9_13 = _outer.thresholds9_13();
         (void)thresholds9_13;
         fScale0_1Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                        kDefault_GrSLPrecision, "scale0_1");
+                                                        "scale0_1");
         if (intervalCount > 1) {
-            fScale2_3Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale2_3");
+            fScale2_3Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "scale2_3");
         }
         if (intervalCount > 2) {
-            fScale4_5Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale4_5");
+            fScale4_5Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "scale4_5");
         }
         if (intervalCount > 3) {
-            fScale6_7Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale6_7");
+            fScale6_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "scale6_7");
         }
         if (intervalCount > 4) {
-            fScale8_9Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale8_9");
+            fScale8_9Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "scale8_9");
         }
         if (intervalCount > 5) {
-            fScale10_11Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale10_11");
+            fScale10_11Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kFloat4_GrSLType, "scale10_11");
         }
         if (intervalCount > 6) {
-            fScale12_13Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale12_13");
+            fScale12_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kFloat4_GrSLType, "scale12_13");
         }
         if (intervalCount > 7) {
-            fScale14_15Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "scale14_15");
+            fScale14_15Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kFloat4_GrSLType, "scale14_15");
         }
         fBias0_1Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       kDefault_GrSLPrecision, "bias0_1");
+                                                       "bias0_1");
         if (intervalCount > 1) {
             fBias2_3Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           kDefault_GrSLPrecision, "bias2_3");
+                                                           "bias2_3");
         }
         if (intervalCount > 2) {
             fBias4_5Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           kDefault_GrSLPrecision, "bias4_5");
+                                                           "bias4_5");
         }
         if (intervalCount > 3) {
             fBias6_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           kDefault_GrSLPrecision, "bias6_7");
+                                                           "bias6_7");
         }
         if (intervalCount > 4) {
             fBias8_9Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           kDefault_GrSLPrecision, "bias8_9");
+                                                           "bias8_9");
         }
         if (intervalCount > 5) {
-            fBias10_11Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "bias10_11");
+            fBias10_11Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "bias10_11");
         }
         if (intervalCount > 6) {
-            fBias12_13Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "bias12_13");
+            fBias12_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "bias12_13");
         }
         if (intervalCount > 7) {
-            fBias14_15Var = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kFloat4_GrSLType, kDefault_GrSLPrecision, "bias14_15");
+            fBias14_15Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "bias14_15");
         }
-        fThresholds1_7Var = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, kDefault_GrSLPrecision, "thresholds1_7");
-        fThresholds9_13Var = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, kDefault_GrSLPrecision, "thresholds9_13");
+        fThresholds1_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kHalf4_GrSLType, "thresholds1_7");
+        fThresholds9_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                              kHalf4_GrSLType, "thresholds9_13");
         fragBuilder->codeAppendf(
                 "half t = %s.x;\nfloat4 scale, bias;\nif (%d <= 4 || t < %s.w) {\n    if (%d <= 2 "
                 "|| t < %s.y) {\n        if (%d <= 1 || t < %s.x) {\n            scale = %s;\n     "

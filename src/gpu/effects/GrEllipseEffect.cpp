@@ -31,10 +31,10 @@ public:
         prevRadii = float2(-1.0);
         useScale = !sk_Caps.floatIs32Bits;
         fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       kDefault_GrSLPrecision, "ellipse");
+                                                       "ellipse");
         if (useScale) {
             fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType,
-                                                         kDefault_GrSLPrecision, "scale");
+                                                         "scale");
         }
         fragBuilder->codeAppendf(
                 "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool useScale = "
