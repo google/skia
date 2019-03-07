@@ -753,6 +753,22 @@ void Viewer::updateTitle() {
 
     paintFlag(&SkPaintFields::fAntiAlias, &SkPaint::isAntiAlias, "Antialias", "Alias");
     paintFlag(&SkPaintFields::fDither, &SkPaint::isDither, "DITHER", "No Dither");
+    if (fPaintOverrides.fFilterQuality) {
+        switch (fPaint.getFilterQuality()) {
+            case kNone_SkFilterQuality:
+                paintTitle.append("NoFilter");
+                break;
+            case kLow_SkFilterQuality:
+                paintTitle.append("LowFilter");
+                break;
+            case kMedium_SkFilterQuality:
+                paintTitle.append("MediumFilter");
+                break;
+            case kHigh_SkFilterQuality:
+                paintTitle.append("HighFilter");
+                break;
+        }
+    }
 
     fontFlag(&SkFontFields::fForceAutoHinting, &SkFont::isForceAutoHinting,
              "Force Autohint", "No Force Autohint");
@@ -1137,6 +1153,9 @@ public:
         }
         if (fPaintOverrides->fDither) {
             paint->writable()->setDither(fPaint->isDither());
+        }
+        if (fPaintOverrides->fFilterQuality) {
+            paint->writable()->setFilterQuality(fPaint->getFilterQuality());
         }
         return true;
     }
@@ -1665,6 +1684,23 @@ void Viewer::drawImGui() {
                           "Default\0No Dither\0Dither\0\0",
                           &SkPaintFields::fDither,
                           &SkPaint::isDither, &SkPaint::setDither);
+
+                int filterQualityIdx = 0;
+                if (fPaintOverrides.fFilterQuality) {
+                    filterQualityIdx = SkTo<int>(fPaint.getFilterQuality()) + 1;
+                }
+                if (ImGui::Combo("Filter Quality", &filterQualityIdx,
+                                 "Default\0None\0Low\0Medium\0High\0\0"))
+                {
+                    if (filterQualityIdx == 0) {
+                        fPaintOverrides.fFilterQuality = false;
+                        fPaint.setFilterQuality(kNone_SkFilterQuality);
+                    } else {
+                        fPaint.setFilterQuality(SkTo<SkFilterQuality>(filterQualityIdx - 1));
+                        fPaintOverrides.fFilterQuality = true;
+                    }
+                    paramsChanged = true;
+                }
             }
 
             if (ImGui::CollapsingHeader("Font")) {
