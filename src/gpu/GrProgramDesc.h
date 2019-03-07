@@ -39,12 +39,8 @@ public:
     * @param GrGpu          Ptr to the GrGpu object the program will be used with.
     * @param GrProgramDesc  The built and finalized descriptor
     **/
-    static bool Build(GrProgramDesc*,
-                      GrPixelConfig,
-                      const GrPrimitiveProcessor&,
-                      bool hasPointSize,
-                      const GrPipeline&,
-                      GrGpu*);
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrPrimitiveProcessor&,
+                      bool hasPointSize, const GrPipeline&, GrGpu*);
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
@@ -91,15 +87,23 @@ public:
     }
 
     struct KeyHeader {
+        bool hasSurfaceOriginKey() const {
+            return SkToBool(fSurfaceOriginKey);
+        }
+        GrProcessor::CustomFeatures processorFeatures() const {
+            return (GrProcessor::CustomFeatures)fProcessorFeatures;
+        }
+
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
         uint8_t fSurfaceOriginKey : 2;
+        uint8_t fProcessorFeatures : 1;
         bool fSnapVerticesToPixelCenters : 1;
         bool fHasPointSize : 1;
-        uint8_t fPad : 4;
+        uint8_t fPad : 3;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 

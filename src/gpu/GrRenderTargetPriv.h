@@ -34,6 +34,25 @@ public:
 
     int numStencilBits() const;
 
+    /**
+     * Returns a unique key that identifies this render target's sample pattern. (Must be
+     * multisampled.)
+     *
+     * NOTE: The pipeline argument is only required in case we need to flush draw state and actually
+     * query multisample info. The pipeline itself is not expected to affect sample locations.
+     */
+    int getSamplePatternKey(const GrPipeline&) const;
+
+    /**
+     * Retrieves the per-pixel HW sample locations for this render target, and, as a by-product, the actual
+     * number of samples in use. (This may differ from fSampleCnt.) Sample locations are returned as
+     * 0..1 offsets relative to the top-left corner of the pixel.
+     */
+    const SkTArray<SkPoint>& getSampleLocations(const GrPipeline& pipeline) const {
+        int samplePatternKey = this->getSamplePatternKey(pipeline);
+        return fRenderTarget->getGpu()->retrieveSampleLocations(samplePatternKey);
+    }
+
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}
     GrRenderTargetPriv(const GrRenderTargetPriv&) {} // unimpl

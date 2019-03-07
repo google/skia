@@ -180,6 +180,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrResourceProvider.cpp",
   "$_src/gpu/GrResourceProvider.h",
   "$_src/gpu/GrResourceProviderPriv.h",
+  "$_src/gpu/GrSamplePatternDictionary.h",
+  "$_src/gpu/GrSamplePatternDictionary.cpp",
   "$_src/gpu/GrScissorState.h",
   "$_src/gpu/GrSemaphore.h",
   "$_src/gpu/GrShaderCaps.h",

@@ -125,10 +125,10 @@ private:
 
     friend class GrRenderTargetPriv;
 
-    int                  fSampleCnt;
+    int fSampleCnt;
+    int fSamplePatternKey;
     sk_sp<GrStencilAttachment> fStencilAttachment;
-
-    SkIRect              fResolveRect;
+    SkIRect fResolveRect;
 
     typedef GrSurface INHERITED;
 };

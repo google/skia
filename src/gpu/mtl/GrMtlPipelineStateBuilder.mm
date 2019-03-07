@@ -411,7 +411,7 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                             const GrPipeline& pipeline,
                                             GrPrimitiveType primitiveType,
                                             GrMtlGpu* gpu) {
-    if (!INHERITED::Build(desc, renderTarget->config(), primProc,
+    if (!INHERITED::Build(desc, renderTarget, primProc,
                           GrPrimitiveType::kLines == primitiveType, pipeline, gpu)) {
         return false;
     }

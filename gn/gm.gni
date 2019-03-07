@@ -285,6 +285,7 @@ gm_sources = [
   "$_gm/rrectclipdrawpaint.cpp",
   "$_gm/rrects.cpp",
   "$_gm/runtimecolorfilter.cpp",
+  "$_gm/samplelocations.cpp",
   "$_gm/samplerstress.cpp",
   "$_gm/savelayer.cpp",
   "$_gm/scaledstrokes.cpp",

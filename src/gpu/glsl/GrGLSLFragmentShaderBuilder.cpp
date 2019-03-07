@@ -67,17 +67,8 @@ uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin)
 }
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
-    : GrGLSLFragmentBuilder(program)
-    , fSetupFragPosition(false)
-    , fHasCustomColorOutput(false)
-    , fCustomColorOutputIndex(-1)
-    , fHasSecondaryOutput(false)
-    , fHasInitializedSampleMask(false)
-    , fForceHighPrecision(false) {
+        : GrGLSLFragmentBuilder(program) {
     fSubstageIndices.push_back(0);
-#ifdef SK_DEBUG
-    fHasReadDstColor = false;
-#endif
 }
 
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
@@ -91,6 +82,13 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
     this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
                       coords.c_str());
     return coords2D;
+}
+
+const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
+    SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
+    return "_sampleOffsets";
 }
 
 void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(const char* mask, Scope scope) {
@@ -116,7 +114,7 @@ void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(const char* mask, S
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
-    SkDEBUGCODE(fHasReadDstColor = true;)
+    SkDEBUGCODE(fHasReadDstColorThisStage_DebugOnly = true;)
 
     const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
     if (shaderCaps->fbFetchSupport()) {
@@ -207,7 +205,7 @@ const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 }
 
 GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
-    SkASSERT(fProgramBuilder->header().fSurfaceOriginKey);
+    SkASSERT(fProgramBuilder->header().hasSurfaceOriginKey());
     return static_cast<GrSurfaceOrigin>(fProgramBuilder->header().fSurfaceOriginKey-1);
 
     GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
@@ -215,6 +213,24 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
+    SkASSERT(fProgramBuilder->header().processorFeatures()
+                     == fUsedProcessorFeaturesAllStages_DebugOnly);
+
+    if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
+        this->definitions().append("const float2 _sampleOffsets[] = float2[](");
+        const GrPipeline& pipeline = fProgramBuilder->pipeline();
+        const SkTArray<SkPoint>& sampleLocations =
+                fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations(pipeline);
+        for (int i = 0; i < sampleLocations.count(); ++i) {
+            SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);
+            if (kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
+                offset.fY = -offset.fY;
+            }
+            this->definitions().appendf("float2(%f, %f)", offset.x(), offset.y());
+            this->definitions().append((i + 1 != sampleLocations.count()) ? ", " : ");");
+        }
+    }
+
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
 }
 
