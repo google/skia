@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e62add3_fe050d5e",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-07T22:53:18Z",
+      "side": 1,
+      "message": "I realize you\u0027re just copying from the previous code, but IMO none of these really make sense for images uploaded to Gold, since they will be deduplicated based on hash. We would end up with the Description from whichever task first produced the image.\n\nOTOH, now that I know this is here, I can more easily track down flaky bots...",
+      "range": {
+        "startLine": 409,
+        "startChar": 4,
+        "endLine": 416,
+        "endChar": 5
+      },
+      "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
