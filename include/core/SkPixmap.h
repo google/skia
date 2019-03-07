@@ -358,7 +358,8 @@ public:
     */
     const uint16_t* addrF16() const {
         SkASSERT(8 == fInfo.bytesPerPixel());
-        SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
+        SkASSERT(kRGBA_F16_SkColorType     == fInfo.colorType() ||
+                 kRGBA_F16Norm_SkColorType == fInfo.colorType());
         return reinterpret_cast<const uint16_t*>(fPixels);
     }
 
@@ -450,7 +451,8 @@ public:
         @return   readable unsigned 16-bit pointer to pixel component at (x, y)
     */
     const uint16_t* addrF16(int x, int y) const {
-        SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
+        SkASSERT(kRGBA_F16_SkColorType     == fInfo.colorType() ||
+                 kRGBA_F16Norm_SkColorType == fInfo.colorType());
         return reinterpret_cast<const uint16_t*>(this->addr64(x, y));
     }
 
