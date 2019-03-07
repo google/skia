@@ -15,6 +15,7 @@
 
 namespace sksg {
 
+class BlurImageFilter;
 class Color;
 class Draw;
 class DropShadowImageFilter;
@@ -238,6 +239,37 @@ private:
     void apply();
 
     const sk_sp<sksg::DropShadowImageFilter> fDropShadow;
+};
+
+class GaussianBlurEffectAdapter final : public SkNVRefCnt<GaussianBlurEffectAdapter> {
+public:
+    explicit GaussianBlurEffectAdapter(sk_sp<sksg::BlurImageFilter>);
+    ~GaussianBlurEffectAdapter();
+
+    // AE/BM model properties.  These are all animatable/interpolatable.
+
+    // Controls the blur sigma.
+    ADAPTER_PROPERTY(Blurriness, SkScalar, 0)
+
+    // Enum selecting the blur dimensionality:
+    //
+    //   1 -> horizontal & vertical
+    //   2 -> horizontal
+    //   3 -> vertical
+    //
+    ADAPTER_PROPERTY(Dimensions, SkScalar, 1)
+
+    // Enum selecting edge behavior:
+    //
+    //   0 -> clamp
+    //   1 -> repeat
+    //
+    ADAPTER_PROPERTY(RepeatEdge, SkScalar, 0)
+
+private:
+    void apply();
+
+    const sk_sp<sksg::BlurImageFilter> fBlur;
 };
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {

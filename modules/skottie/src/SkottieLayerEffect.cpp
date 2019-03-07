@@ -30,7 +30,7 @@ sk_sp<sksg::RenderNode> AttachTintLayerEffect(const skjson::ArrayValue& jprops,
         kAmount_Index     = 2,
         // kOpacity_Index    = 3, // currently unused (not exported)
 
-        kMax_Index      = kAmount_Index,
+        kMax_Index        = kAmount_Index,
     };
 
     if (jprops.size() <= kMax_Index) {
@@ -71,7 +71,7 @@ sk_sp<sksg::RenderNode> AttachTritoneLayerEffect(const skjson::ArrayValue& jprop
         kLoColor_Index     = 2,
         kBlendAmount_Index = 3,
 
-        kMax_Index      = kBlendAmount_Index,
+        kMax_Index         = kBlendAmount_Index,
     };
 
     if (jprops.size() <= kMax_Index) {
@@ -159,7 +159,7 @@ sk_sp<sksg::RenderNode> AttachDropShadowLayerEffect(const skjson::ArrayValue& jp
         kSoftness_Index    = 4,
         kShadowOnly_Index  = 5,
 
-        kMax_Index      = kShadowOnly_Index,
+        kMax_Index         = kShadowOnly_Index,
     };
 
     if (jprops.size() <= kMax_Index) {
@@ -213,6 +213,49 @@ sk_sp<sksg::RenderNode> AttachDropShadowLayerEffect(const skjson::ArrayValue& jp
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(shadow_effect));
 }
 
+sk_sp<sksg::RenderNode> AttachGaussianBlurLayerEffect(const skjson::ArrayValue& jprops,
+                                                      const AnimationBuilder* abuilder,
+                                                      AnimatorScope* ascope,
+                                                      sk_sp<sksg::RenderNode> layer) {
+    enum : size_t {
+        kBlurriness_Index = 0,
+        kDimensions_Index = 1,
+        kRepeatEdge_Index = 2,
+
+        kMax_Index        = kRepeatEdge_Index,
+    };
+
+    if (jprops.size() <= kMax_Index) {
+        return nullptr;
+    }
+
+    const skjson::ObjectValue* blurriness_prop = jprops[kBlurriness_Index];
+    const skjson::ObjectValue* dimensions_prop = jprops[kDimensions_Index];
+    const skjson::ObjectValue* repeatedge_prop = jprops[kRepeatEdge_Index];
+
+    if (!blurriness_prop || !dimensions_prop || !repeatedge_prop) {
+        return nullptr;
+    }
+
+    auto blur_effect   = sksg::BlurImageFilter::Make();
+    auto blur_addapter = sk_make_sp<GaussianBlurEffectAdapter>(blur_effect);
+
+    abuilder->bindProperty<ScalarValue>((*blurriness_prop)["v"], ascope,
+        [blur_addapter](const ScalarValue& b) {
+            blur_addapter->setBlurriness(b);
+        });
+    abuilder->bindProperty<ScalarValue>((*dimensions_prop)["v"], ascope,
+        [blur_addapter](const ScalarValue& d) {
+            blur_addapter->setDimensions(d);
+        });
+    abuilder->bindProperty<ScalarValue>((*repeatedge_prop)["v"], ascope,
+        [blur_addapter](const ScalarValue& r) {
+            blur_addapter->setRepeatEdge(r);
+        });
+
+    return sksg::ImageFilterEffect::Make(std::move(layer), std::move(blur_effect));
+}
+
 } // namespace
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::ArrayValue& jeffects,
@@ -223,10 +266,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
     }
 
     enum : int32_t {
-        kTint_Effect       = 20,
-        kFill_Effect       = 21,
-        kTritone_Effect    = 23,
-        kDropShadow_Effect = 25,
+        kTint_Effect         = 20,
+        kFill_Effect         = 21,
+        kTritone_Effect      = 23,
+        kDropShadow_Effect   = 25,
+        kGaussianBlur_Effect = 29,
     };
 
     for (const skjson::ObjectValue* jeffect : jeffects) {
@@ -251,6 +295,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
             break;
         case kDropShadow_Effect:
             layer = AttachDropShadowLayerEffect(*jprops, this, ascope, std::move(layer));
+            break;
+        case kGaussianBlur_Effect:
+            layer = AttachGaussianBlurLayerEffect(*jprops, this, ascope, std::move(layer));
             break;
         default:
             this->log(Logger::Level::kWarning, nullptr, "Unsupported layer effect type: %d.", ty);
