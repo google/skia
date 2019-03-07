@@ -66,17 +66,17 @@ GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
 }
 
 GrMtlGpuRTCommandBuffer::~GrMtlGpuRTCommandBuffer() {
-    SkASSERT(fActiveRenderCmdEncoder == nil);
+    SkASSERT(nil == fActiveRenderCmdEncoder);
 }
 
 void GrMtlGpuRTCommandBuffer::addNullCommand() {
-    SkASSERT(fActiveRenderCmdEncoder == nil);
-    fActiveRenderCmdEncoder = [fGpu->commandBuffer()
-                               renderCommandEncoderWithDescriptor:fRenderPassDesc];
-    SkASSERT(fActiveRenderCmdEncoder);
-    [fActiveRenderCmdEncoder endEncoding];
-    fActiveRenderCmdEncoder = nil;
-    SkASSERT(fActiveRenderCmdEncoder == nil);
+    SkASSERT(nil == fActiveRenderCmdEncoder);
+    SK_BEGIN_AUTORELEASE_BLOCK
+    id<MTLRenderCommandEncoder> cmdEncoder =
+            [fGpu->commandBuffer() renderCommandEncoderWithDescriptor:fRenderPassDesc];
+    SkASSERT(nil != cmdEncoder);
+    [cmdEncoder endEncoding];
+    SK_END_AUTORELEASE_BLOCK
 }
 
 void GrMtlGpuRTCommandBuffer::submit() {
@@ -92,7 +92,7 @@ void GrMtlGpuRTCommandBuffer::copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
                                    const SkIRect& srcRect, const SkIPoint& dstPoint) {
     // We cannot have an active encoder when we call copy since it requires its own
     // command encoder.
-    SkASSERT(fActiveRenderCmdEncoder == nil);
+    SkASSERT(nil == fActiveRenderCmdEncoder);
     fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
 }
 
@@ -118,10 +118,6 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
     if (!pipelineState) {
         return nullptr;
     }
-    // We cannot have an active encoder when we set the pipeline data since it requires its own
-    // command encoder.
-    // TODO: this doesn't appear to be true -- we only use a command encoder here
-    // SkASSERT(fActiveRenderCmdEncoder == nil);
     pipelineState->setData(fRenderTarget, fOrigin, primProc, pipeline, primProcProxies);
 
     return pipelineState;
@@ -134,6 +130,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                                      const GrMesh meshes[],
                                      int meshCount,
                                      const SkRect& bounds) {
+SK_BEGIN_AUTORELEASE_BLOCK
     if (!meshCount) {
         return;
     }
@@ -148,7 +145,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         return;
     }
 
-    SkASSERT(fActiveRenderCmdEncoder == nil);
+    SkASSERT(nil == fActiveRenderCmdEncoder);
     fActiveRenderCmdEncoder = [fGpu->commandBuffer()
                                renderCommandEncoderWithDescriptor:fRenderPassDesc];
     SkASSERT(fActiveRenderCmdEncoder);
@@ -173,7 +170,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                 return;
             }
 
-            [fActiveRenderCmdEncoder setRenderPipelineState: pipelineState->mtlPipelineState()];
+            [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
             pipelineState->bind(fActiveRenderCmdEncoder);
             pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
                                              pipeline.getXferProcessor());
@@ -185,7 +182,9 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
 
     [fActiveRenderCmdEncoder endEncoding];
     fActiveRenderCmdEncoder = nil;
+
     fCommandBufferInfo.fBounds.join(bounds);
+    SK_END_AUTORELEASE_BLOCK
 }
 
 void GrMtlGpuRTCommandBuffer::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
@@ -282,9 +281,9 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
 
         auto mtlVertexBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer)->mtlBuffer();
         SkASSERT(mtlVertexBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer: mtlVertexBuffer
-                                          offset: 0
-                                         atIndex: bufferIndex++];
+        [fActiveRenderCmdEncoder setVertexBuffer:mtlVertexBuffer
+                                          offset:0
+                                         atIndex:bufferIndex++];
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
@@ -292,9 +291,9 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
 
         auto mtlInstanceBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer)->mtlBuffer();
         SkASSERT(mtlInstanceBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer: mtlInstanceBuffer
-                                          offset: 0
-                                         atIndex: bufferIndex++];
+        [fActiveRenderCmdEncoder setVertexBuffer:mtlInstanceBuffer
+                                          offset:0
+                                         atIndex:bufferIndex++];
     }
 }
 
@@ -308,11 +307,11 @@ void GrMtlGpuRTCommandBuffer::sendInstancedMeshToGpu(GrPrimitiveType primitiveTy
     this->bindGeometry(vertexBuffer, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
-    [fActiveRenderCmdEncoder drawPrimitives: gr_to_mtl_primitive(primitiveType)
-                                vertexStart: baseVertex
-                                vertexCount: vertexCount
-                              instanceCount: instanceCount
-                               baseInstance: baseInstance];
+    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+                                vertexStart:baseVertex
+                                vertexCount:vertexCount
+                              instanceCount:instanceCount
+                               baseInstance:baseInstance];
 }
 
 void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
@@ -338,12 +337,12 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
     }
 
     SkASSERT(restart == GrPrimitiveRestart::kNo);
-    [fActiveRenderCmdEncoder drawIndexedPrimitives: gr_to_mtl_primitive(primitiveType)
-                                        indexCount: indexCount
-                                         indexType: MTLIndexTypeUInt16
-                                       indexBuffer: mtlIndexBuffer
-                                 indexBufferOffset: sizeof(uint16_t) * baseIndex
-                                     instanceCount: instanceCount
-                                        baseVertex: baseVertex
-                                      baseInstance: baseInstance];
+    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+                                        indexCount:indexCount
+                                         indexType:MTLIndexTypeUInt16
+                                       indexBuffer:mtlIndexBuffer
+                                 indexBufferOffset:sizeof(uint16_t) * baseIndex
+                                     instanceCount:instanceCount
+                                        baseVertex:baseVertex
+                                      baseInstance:baseInstance];
 }
