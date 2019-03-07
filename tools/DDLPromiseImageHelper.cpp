@@ -202,20 +202,18 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             sizes[i] = SkISize::MakeEmpty();
         }
 
-        image = recorder->makeYUVAPromiseTexture(
-                curImage.yuvColorSpace(),
-                backendFormats,
-                sizes,
-                curImage.yuvaIndices(),
-                curImage.overallWidth(),
-                curImage.overallHeight(),
-                GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                curImage.refOverallColorSpace(),
-                DDLPromiseImageHelper::PromiseImageFulfillProc,
-                DDLPromiseImageHelper::PromiseImageReleaseProc,
-                DDLPromiseImageHelper::PromiseImageDoneProc,
-                contexts,
-                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+        image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
+                                                 backendFormats,
+                                                 sizes,
+                                                 curImage.yuvaIndices(),
+                                                 curImage.overallWidth(),
+                                                 curImage.overallHeight(),
+                                                 GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                                 curImage.refOverallColorSpace(),
+                                                 DDLPromiseImageHelper::PromiseImageFulfillProc,
+                                                 DDLPromiseImageHelper::PromiseImageReleaseProc,
+                                                 DDLPromiseImageHelper::PromiseImageDoneProc,
+                                                 contexts);
         for (int i = 0; i < textureCount; ++i) {
             curImage.callbackContext(i)->wasAddedToImage();
         }
@@ -237,20 +235,18 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         // Each DDL recorder gets its own ref on the promise callback context for the
         // promise images it creates.
         // DDL TODO: sort out mipmapping
-        image = recorder->makePromiseTexture(
-                backendFormat,
-                curImage.overallWidth(),
-                curImage.overallHeight(),
-                GrMipMapped::kNo,
-                GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                curImage.overallColorType(),
-                curImage.overallAlphaType(),
-                curImage.refOverallColorSpace(),
-                DDLPromiseImageHelper::PromiseImageFulfillProc,
-                DDLPromiseImageHelper::PromiseImageReleaseProc,
-                DDLPromiseImageHelper::PromiseImageDoneProc,
-                (void*)curImage.refCallbackContext(0).release(),
-                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+        image = recorder->makePromiseTexture(backendFormat,
+                                             curImage.overallWidth(),
+                                             curImage.overallHeight(),
+                                             GrMipMapped::kNo,
+                                             GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                             curImage.overallColorType(),
+                                             curImage.overallAlphaType(),
+                                             curImage.refOverallColorSpace(),
+                                             DDLPromiseImageHelper::PromiseImageFulfillProc,
+                                             DDLPromiseImageHelper::PromiseImageReleaseProc,
+                                             DDLPromiseImageHelper::PromiseImageDoneProc,
+                                             (void*)curImage.refCallbackContext(0).release());
         curImage.callbackContext(0)->wasAddedToImage();
     }
     perRecorderContext->fPromiseImages->push_back(image);

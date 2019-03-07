@@ -78,7 +78,6 @@ public:
     using PromiseImageTextureDoneProc = SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc;
 
 protected:
-    using PromiseImageApiVersion = SkDeferredDisplayListRecorder::PromiseImageApiVersion;
     // Helper for making a lazy proxy for a promise image. The PromiseDoneProc we be called,
     // if not null, immediately if this function fails. Othwerwise, it is installed in the
     // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
@@ -86,7 +85,7 @@ protected:
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
             GrContext*, int width, int height, GrSurfaceOrigin, GrPixelConfig, GrBackendFormat,
             GrMipMapped, PromiseImageTextureFulfillProc, PromiseImageTextureReleaseProc,
-            PromiseImageTextureDoneProc, PromiseImageTextureContext, PromiseImageApiVersion);
+            PromiseImageTextureDoneProc, PromiseImageTextureContext);
 
     static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,

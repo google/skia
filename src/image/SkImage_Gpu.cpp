@@ -405,8 +405,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                PromiseImageTextureFulfillProc textureFulfillProc,
                                                PromiseImageTextureReleaseProc textureReleaseProc,
                                                PromiseImageTextureDoneProc textureDoneProc,
-                                               PromiseImageTextureContext textureContext,
-                                               PromiseImageApiVersion version) {
+                                               PromiseImageTextureContext textureContext) {
     // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
     // even if creation of the SkImage fails. Once we call MakePromiseImageLazyProxy it takes
     // responsibility for calling the done proc.
@@ -437,7 +436,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     callDone.clear();
     auto proxy = MakePromiseImageLazyProxy(context, width, height, origin, config, backendFormat,
                                            mipMapped, textureFulfillProc, textureReleaseProc,
-                                           textureDoneProc, textureContext, version);
+                                           textureDoneProc, textureContext);
     if (!proxy) {
         return nullptr;
     }

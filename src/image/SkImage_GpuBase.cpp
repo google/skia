@@ -386,8 +386,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         PromiseImageTextureFulfillProc fulfillProc,
         PromiseImageTextureReleaseProc releaseProc,
         PromiseImageTextureDoneProc doneProc,
-        PromiseImageTextureContext textureContext,
-        PromiseImageApiVersion version) {
+        PromiseImageTextureContext textureContext) {
     SkASSERT(context);
     SkASSERT(width > 0 && height > 0);
     SkASSERT(doneProc);
@@ -426,12 +425,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                        PromiseImageTextureReleaseProc releaseProc,
                                        PromiseImageTextureDoneProc doneProc,
                                        PromiseImageTextureContext context,
-                                       GrPixelConfig config,
-                                       PromiseImageApiVersion version)
-                : fFulfillProc(fulfillProc)
-                , fReleaseProc(releaseProc)
-                , fConfig(config)
-                , fVersion(version) {
+                                       GrPixelConfig config)
+                : fFulfillProc(fulfillProc), fReleaseProc(releaseProc), fConfig(config) {
             fDoneCallback = sk_make_sp<GrRefCntedCallback>(doneProc, context);
         }
         PromiseLazyInstantiateCallback(PromiseLazyInstantiateCallback&&) = default;
@@ -485,10 +480,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                     return sk_sp<GrTexture>();
                 }
             }
-            auto releaseIdleState = fVersion == PromiseImageApiVersion::kLegacy
-                                            ? GrTexture::IdleState::kFinished
-                                            : GrTexture::IdleState::kFlushed;
-            tex->addIdleProc(std::move(releaseCallback), releaseIdleState);
+            tex->addIdleProc(std::move(releaseCallback), GrTexture::IdleState::kFinished);
             tex->addIdleProc(std::move(fDoneCallback), GrTexture::IdleState::kFinished);
             promiseTexture->addKeyToInvalidate(tex->getContext()->priv().contextID(), key);
             return std::move(tex);
@@ -499,8 +491,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         PromiseImageTextureReleaseProc fReleaseProc;
         sk_sp<GrRefCntedCallback> fDoneCallback;
         GrPixelConfig fConfig;
-        PromiseImageApiVersion fVersion;
-    } callback(fulfillProc, releaseProc, doneProc, textureContext, config, version);
+    } callback(fulfillProc, releaseProc, doneProc, textureContext, config);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
