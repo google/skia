@@ -117,6 +117,30 @@
       "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8245e8ae_75d04523",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T16:46:46Z",
+      "side": 1,
+      "message": "I think most of the unexpected (invisible) diffs I\u0027m seeing are due to the slight change in how we get all our bytes formatted for the encode.\n\nAt head, if the image is F16 or F32, we\u0027ll convert gamut to Rec.2020 in place as a pre-patch.  This uses writePixels(), so SkColorSpaceXformSteps + SkRasterPipeline.  Then, SkPngEncoder does format-only conversions as appropriate, e.g. F16 -\u003e BE U16.\n\nWith this CL, everything happens all at once, and using skcms instead.  skcms doesn\u0027t do all the optimizations SkColorSpaceXformSteps does, so sometimes does \"no-op\" transformations like linearizing then re-encoding with the same transfer function.  (It does skip no-op gamut transforms.)\n\nI think this is all fine, just wanted to write it all down.\n\nAs far as size goes, I think we can probably get away with just cranking the zlib compression up to 9 temporarily (PS 5).  We can circle back later to put it back to 1 once all the new hashes are digested.  (Another reason to not hash the PNGs.)  Size change by config:\n\n   - g8       34M -\u003e  55M\n   - 565      55M -\u003e  72M\n   - 4444     47M -\u003e  38M\n   - 8888     89M -\u003e 133M\n   - srgb     88M -\u003e 132M\n   - f16     169M -\u003e 168M\n   - esrgb   172M -\u003e 165M\n\nSo expect 50% increase, with some decreases?",
+      "parentUuid": "2037d30d_81ac1818",
+      "range": {
+        "startLine": 442,
+        "startChar": 0,
+        "endLine": 447,
+        "endChar": 0
+      },
+      "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
