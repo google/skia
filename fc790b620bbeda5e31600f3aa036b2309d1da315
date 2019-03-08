@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b4aa5fb_2d6a27cb",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-08T16:26:43Z",
+      "side": 1,
+      "message": "Since we have this... if the image is not texture-backed, perhaps this should make a texture backed subset? Or maybe it aleady does? Seems like we should be clear in our documentation about what happens in these scenarios:\n\n\na) non-gpu this, non-null recording context [result is CPU or GPU?]\n\nb) gpu this, null recording context [fail? or maybe succeed for now, fail in future?]\n\nb) gpu this, different grcontext pased [fail]\n\nAnd similar for the other APIs.",
+      "range": {
+        "startLine": 916,
+        "startChar": 7,
+        "endLine": 916,
+        "endChar": 59
+      },
+      "revId": "fc790b620bbeda5e31600f3aa036b2309d1da315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
