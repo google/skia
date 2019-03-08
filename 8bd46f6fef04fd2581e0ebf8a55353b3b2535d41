@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "85fd4efa_3c062edf",
+        "filename": "third_party/MoltenVK/generate_framework.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-08T18:10:40Z",
+      "side": 1,
+      "message": "It looks like you can use SYMROOT and DSTROOT: https://developer.apple.com/library/archive/technotes/tn2339/_index.html",
+      "parentUuid": "edcc85de_047e93e0",
+      "range": {
+        "startLine": 14,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 21
+      },
+      "revId": "8bd46f6fef04fd2581e0ebf8a55353b3b2535d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fc64faef_ec146474",
         "filename": "third_party/MoltenVK/generate_framework.py",
         "patchSetId": 11
