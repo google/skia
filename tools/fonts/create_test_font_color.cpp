@@ -11,27 +11,39 @@
 #include "SkCommandLineFlags.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
+#include "SkString.h"
 #include "SkTestSVGTypeface.h"
+
+static void export_ttx(sk_sp<SkTestSVGTypeface> typeface, SkString prefix,
+                       SkSpan<unsigned> cbdtStrikeSizes, SkSpan<unsigned> sbixStrikeSizes)
+{
+    SkFILEWStream cbdt((SkString(prefix) += "cbdt.ttx").c_str());
+    typeface->exportTtxCbdt(&cbdt, cbdtStrikeSizes);
+    cbdt.flush();
+    cbdt.fsync();
+
+    SkFILEWStream sbix((SkString(prefix) += "sbix.ttx").c_str());
+    typeface->exportTtxSbix(&sbix, sbixStrikeSizes);
+    sbix.flush();
+    sbix.fsync();
+
+    SkFILEWStream colr((SkString(prefix) += "colr.ttx").c_str());
+    typeface->exportTtxColr(&colr);
+    colr.flush();
+    colr.fsync();
+}
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
-    sk_sp<SkTestSVGTypeface> typeface = SkTestSVGTypeface::Default();
+    // Most of the time use these sizes.
+    unsigned usual[] = { 16, 64, 128 };
 
-    SkFILEWStream cbdt("cbdt.ttx");
-    typeface->exportTtxCbdt(&cbdt);
-    cbdt.flush();
-    cbdt.fsync();
+    // But the planet font cannot get very big in the size limited cbdt format.
+    unsigned small[] = { 8, 16 };
 
-    SkFILEWStream sbix("sbix.ttx");
-    typeface->exportTtxSbix(&sbix);
-    sbix.flush();
-    sbix.fsync();
-
-    SkFILEWStream colr("colr.ttx");
-    typeface->exportTtxColr(&colr);
-    colr.flush();
-    colr.fsync();
+    export_ttx(SkTestSVGTypeface::Default(), SkString(        ), usual, usual);
+    export_ttx(SkTestSVGTypeface::Planets(), SkString("planet"), small, usual);
 
     return 0;
 }

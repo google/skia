@@ -19,20 +19,42 @@
 
 namespace sk_tool_utils {
 
-sk_sp<SkTypeface> emoji_typeface() {
-    const char* filename;
+sk_sp<SkTypeface> planet_typeface() {
+    static const sk_sp<SkTypeface> planetTypeface = [](){
+        const char* filename;
 #if defined(SK_BUILD_FOR_WIN)
-    filename = "fonts/colr.ttf";
+        filename = "fonts/planetcolr.ttf";
 #elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    filename = "fonts/sbix.ttf";
+        filename = "fonts/planetsbix.ttf";
 #else
-    filename = "fonts/cbdt.ttf";
+        filename = "fonts/planetcbdt.ttf";
 #endif
-    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
-    if (typeface) {
-        return typeface;
-    }
-    return SkTypeface::MakeFromName("Emoji", SkFontStyle());
+        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
+        if (typeface) {
+            return typeface;
+        }
+        return SkTypeface::MakeFromName("Planet", SkFontStyle());
+    }();
+    return planetTypeface;
+}
+
+sk_sp<SkTypeface> emoji_typeface() {
+    static const sk_sp<SkTypeface> emojiTypeface = [](){
+        const char* filename;
+#if defined(SK_BUILD_FOR_WIN)
+        filename = "fonts/colr.ttf";
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        filename = "fonts/sbix.ttf";
+#else
+        filename = "fonts/cbdt.ttf";
+#endif
+        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
+        if (typeface) {
+            return typeface;
+        }
+        return SkTypeface::MakeFromName("Emoji", SkFontStyle());
+    }();
+    return emojiTypeface;
 }
 
 const char* emoji_sample_text() {
