@@ -426,10 +426,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                        PromiseImageTextureDoneProc doneProc,
                                        PromiseImageTextureContext context,
                                        GrPixelConfig config)
-                : fFulfillProc(fulfillProc), fConfig(config) {
-            auto doneHelper = sk_make_sp<GrRefCntedCallback>(doneProc, context);
-            fIdleCallback = sk_make_sp<GrRefCntedCallback>(releaseProc, context);
-            fIdleCallback->addChild(std::move(doneHelper));
+                : fFulfillProc(fulfillProc), fReleaseProc(releaseProc), fConfig(config) {
+            fDoneCallback = sk_make_sp<GrRefCntedCallback>(doneProc, context);
         }
         PromiseLazyInstantiateCallback(PromiseLazyInstantiateCallback&&) = default;
         PromiseLazyInstantiateCallback(const PromiseLazyInstantiateCallback&) {
@@ -444,14 +442,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         }
 
         ~PromiseLazyInstantiateCallback() {
-            if (fIdleCallback) {
-                SkASSERT(!fTexture);
-                // We were never fulfilled. Pass false so done proc is still called.
-                fIdleCallback->abandon();
-            }
             // Our destructor can run on any thread. We trigger the unref of fTexture by message.
             if (fTexture) {
-                SkASSERT(!fIdleCallback);
                 SkMessageBus<GrGpuResourceFreedMessage>::Post({fTexture, fTextureContextID});
             }
         }
@@ -462,22 +454,19 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             if (fTexture) {
                 return sk_ref_sp(fTexture);
             }
-            SkASSERT(fIdleCallback);
-            PromiseImageTextureContext textureContext = fIdleCallback->context();
+            SkASSERT(fDoneCallback);
+            PromiseImageTextureContext textureContext = fDoneCallback->context();
             sk_sp<SkPromiseImageTexture> promiseTexture = fFulfillProc(textureContext);
             // From here on out our contract is that the release proc must be called, even if
             // the return from fulfill was invalid or we fail for some other reason.
+            auto releaseCallback = sk_make_sp<GrRefCntedCallback>(fReleaseProc, textureContext);
             if (!promiseTexture) {
-                // Make sure we explicitly reset this because our destructor assumes a non-null
-                // fIdleCallback means fulfill was never called.
-                fIdleCallback.reset();
                 return sk_sp<GrTexture>();
             }
 
             auto backendTexture = promiseTexture->backendTexture();
             backendTexture.fConfig = fConfig;
             if (!backendTexture.isValid()) {
-                fIdleCallback.reset();
                 return sk_sp<GrTexture>();
             }
 
@@ -500,11 +489,11 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                              kRead_GrIOType))) {
                     tex->resourcePriv().setUniqueKey(key);
                 } else {
-                    fIdleCallback.reset();
                     return sk_sp<GrTexture>();
                 }
             }
-            tex->addIdleProc(std::move(fIdleCallback));
+            tex->addIdleProc(std::move(releaseCallback), GrTexture::IdleState::kFinished);
+            tex->addIdleProc(std::move(fDoneCallback), GrTexture::IdleState::kFinished);
             promiseTexture->addKeyToInvalidate(tex->getContext()->priv().contextID(), key);
             fTexture = tex.get();
             // We need to hold on to the GrTexture in case our proxy gets reinstantiated. However,
@@ -518,10 +507,11 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         }
 
     private:
+        PromiseImageTextureFulfillProc fFulfillProc;
+        PromiseImageTextureReleaseProc fReleaseProc;
+        sk_sp<GrRefCntedCallback> fDoneCallback;
         GrTexture* fTexture = nullptr;
         uint32_t fTextureContextID = SK_InvalidUniqueID;
-        sk_sp<GrRefCntedCallback> fIdleCallback;
-        PromiseImageTextureFulfillProc fFulfillProc;
         GrPixelConfig fConfig;
     } callback(fulfillProc, releaseProc, doneProc, textureContext, config);
 
