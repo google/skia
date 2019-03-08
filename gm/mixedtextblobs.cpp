@@ -96,8 +96,7 @@ protected:
     }
 
     SkString onShortName() override {
-        return SkStringPrintf("mixedtextblobs%s",
-                              sk_tool_utils::platform_font_manager());
+        return SkString("mixedtextblobs");
     }
 
     SkISize onISize() override {

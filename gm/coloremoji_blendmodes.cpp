@@ -62,9 +62,7 @@ protected:
     }
 
     virtual SkString onShortName() override {
-        SkString name("coloremoji_blendmodes");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("coloremoji_blendmodes");
     }
 
     virtual SkISize onISize() override {

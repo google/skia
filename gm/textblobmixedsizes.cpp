@@ -80,8 +80,7 @@ protected:
     }
 
     SkString onShortName() override {
-        return SkStringPrintf("textblobmixedsizes%s%s",
-                              sk_tool_utils::platform_font_manager(),
+        return SkStringPrintf("textblobmixedsizes%s",
                               fUseDFT ? "_df" : "");
     }
 

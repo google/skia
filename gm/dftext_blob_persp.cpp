@@ -24,9 +24,7 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString name("dftext_blob_persp");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("dftext_blob_persp");
     }
 
     SkISize onISize() override { return SkISize::Make(900, 350); }
