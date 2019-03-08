@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "027bf9f0_a4127514",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1862,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-08T16:53:48Z",
+      "side": 1,
+      "message": "I may have steered you wrong here, but do you think we will ever support anything other than 0 or 4 here? If not, maybe it\u0027d be better to get rid of the cnt. (and I.S.E. could use a bool instead of a cnt). But also given the presumably temporary nature of this API, not that important.",
+      "range": {
+        "startLine": 1861,
+        "startChar": 85,
+        "endLine": 1862,
+        "endChar": 95
+      },
+      "revId": "e9bceb5b82908dc6411f1b46a81f7eae678edd47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
