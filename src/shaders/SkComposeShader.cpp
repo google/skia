@@ -90,7 +90,7 @@ bool SkComposeShader::onAppendStages(const StageRec& rec) const {
     }
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
     // since fShaderB will overwrite them.
-    rec.fPipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
+    rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRGBA);
 
     if (!as_SB(fDst)->appendStages(rec)) {
         return false;
@@ -99,7 +99,7 @@ bool SkComposeShader::onAppendStages(const StageRec& rec) const {
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...
     rec.fPipeline->append(SkRasterPipeline::move_src_dst);
-    rec.fPipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
+    rec.fPipeline->append(SkRasterPipeline::load_src, storage->fRGBA);
 
     if (!this->isJustLerp()) {
         SkBlendMode_AppendStages(fMode, rec.fPipeline);

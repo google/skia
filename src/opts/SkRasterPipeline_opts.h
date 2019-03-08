@@ -1066,7 +1066,7 @@ STAGE(white_color, Ctx::None) {
 }
 
 // load registers r,g,b,a from context (mirrors store_rgba)
-STAGE(load_rgba, const float* ptr) {
+STAGE(load_src, const float* ptr) {
     r = unaligned_load<F>(ptr + 0*N);
     g = unaligned_load<F>(ptr + 1*N);
     b = unaligned_load<F>(ptr + 2*N);
@@ -1074,11 +1074,27 @@ STAGE(load_rgba, const float* ptr) {
 }
 
 // store registers r,g,b,a into context (mirrors load_rgba)
-STAGE(store_rgba, float* ptr) {
+STAGE(store_src, float* ptr) {
     unaligned_store(ptr + 0*N, r);
     unaligned_store(ptr + 1*N, g);
     unaligned_store(ptr + 2*N, b);
     unaligned_store(ptr + 3*N, a);
+}
+
+// load registers dr,dg,db,da from context (mirrors store_dst)
+STAGE(load_dst, const float* ptr) {
+    dr = unaligned_load<F>(ptr + 0*N);
+    dg = unaligned_load<F>(ptr + 1*N);
+    db = unaligned_load<F>(ptr + 2*N);
+    da = unaligned_load<F>(ptr + 3*N);
+}
+
+// store registers dr,dg,db,da into context (mirrors load_dst)
+STAGE(store_dst, float* ptr) {
+    unaligned_store(ptr + 0*N, dr);
+    unaligned_store(ptr + 1*N, dg);
+    unaligned_store(ptr + 2*N, db);
+    unaligned_store(ptr + 3*N, da);
 }
 
 // Most blend modes apply the same logic to each channel.
@@ -3344,8 +3360,10 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
-    NOT_IMPLEMENTED(load_rgba)
-    NOT_IMPLEMENTED(store_rgba)
+    NOT_IMPLEMENTED(load_src)
+    NOT_IMPLEMENTED(store_src)
+    NOT_IMPLEMENTED(load_dst)
+    NOT_IMPLEMENTED(store_dst)
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
