@@ -331,6 +331,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
         auto surf = ctx->priv().resourceProvider()->findByUniqueKey<GrSurface>(key);
         REPORTER_ASSERT(reporter, !surf);
     }
+
+    // Must do this to ensure all callbacks occur before the PromiseImageChecker goes out of scope.
+    alphaImg.reset();
+    grayImg.reset();
+    ctx->flush();
+    ctx->priv().getGpu()->testingOnly_flushGpuAndSync();
+
     gpu->deleteTestingOnlyBackendTexture(backendTex1);
 }
 
@@ -461,7 +468,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     surface->flush();
     canvas->drawImage(image, 5, 0);
     surface->flush();
-    // Must call this to ensure that all callbacks are performed before the checker is destroyed.
+    // Must call these to ensure that all callbacks are performed before the checker is destroyed.
+    image.reset();
+    ctx->flush();
     gpu->testingOnly_flushGpuAndSync();
+
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
