@@ -181,6 +181,30 @@
     },
     {
       "key": {
+        "uuid": "36145faa_9b9e28e2",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-08T17:25:19Z",
+      "side": 1,
+      "message": "My line of thinking was:\n\nA single convex polygon can be drawn fairly simply with AA outset geometry and 0..1 coverage ramps. Corners aren\u0027t very important (if just drawing a single convex shape) so those can also be simple coverage ramps.\n\nAs we\u0027ve discussed before, any subdivision of the quad is done with hard edges, so we can just do exact chops there on the original (simple) geometry.\n\nSo could we, instead, generate some simple geometry that draws the original quad (any technique we want for the corners and ramps.. doesn\u0027t really matter), then just clip that geometry? Could we then not have to worry about all this complexity here, and instead only need to implement one function that chops coverage ramp geometry in half?",
+      "parentUuid": "59a757be_540e6e92",
+      "range": {
+        "startLine": 280,
+        "startChar": 13,
+        "endLine": 280,
+        "endChar": 31
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2eb4ac0_5dadcba5",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 13
