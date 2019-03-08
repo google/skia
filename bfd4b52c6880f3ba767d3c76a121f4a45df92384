@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3f0f89e_1a2f54bb",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "Since we\u0027re making process optional, let\u0027s describe the two behaviors?\n\n// Call with process\u003dnullptr to just ..., or with non-null to also ...\n\nOr does it perhaps make more sense to implement a no-op SkGlyphRunPainterInterface to pass where you\u0027d pass nullptr today?",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dab3d692_a7a6ffb6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "Ditto about nullptr process?",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d55078b_7515568a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "Is it me or does the fundamental part of each of these methods and with the \"AsFoo\", and the \"WithBarFallback\" being more part of the implementation detail of each?  As written today it seems like they\u0027re on more equal footing, but it\u0027s really \"try to do this As Foo, and do whatever it takes to draw if not\"... kind of seems like only each methods implementation needs to know exactly what it can do directly and what must fall back to another option.",
+      "range": {
+        "startLine": 825,
+        "startChar": 26,
+        "endLine": 825,
+        "endChar": 59
+      },
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df9301da_4adc9af5",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "Kind of liked the old indent on these.  My usual rule of thumb is, if possible, put the #guards one tab stop to the left of the code they control, sort of like a normal if (...) {} block.",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58d8616f_bfd1beca",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "\"the GPU\" -\u003e \"the GPU backend\"?  \"Ganesh\"?",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2cfa66d_50337466",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "Maybe a little \"think, animated drawing from a single distance field\" hint about why this sort of Source mode is useful?",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d89f66f9_22a90663",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "Since Fallback isn\u0027t really a format per-se, might want to explain what it\u0027s about here?",
+      "range": {
+        "startLine": 156,
+        "startChar": 69,
+        "endLine": 156,
+        "endChar": 78
+      },
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee3c0bc5_4b60399e",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 1,
+      "message": "These might read more naturally if you swap the order of the factors?  processDeviceMasks, processSourcePaths, processDevicePaths, etc?  Verb-adjective-noun?",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

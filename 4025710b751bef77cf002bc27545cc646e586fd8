@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04db42fe_e4a1b461",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 0,
+      "message": "What had these three hooks meant before?  They\u0027re being replaced logically by just the two, processPathsDevice and processPathsSource?",
+      "range": {
+        "startLine": 388,
+        "startChar": 8,
+        "endLine": 389,
+        "endChar": 41
+      },
+      "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5e0675f_a210ea72",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 0,
+      "message": "At some point do we want to rename these BMP bits to use Mask, or is that another important distinction, like BMP is only for full color?  That\u0027s what we call ARGB in here, right?",
+      "range": {
+        "startLine": 454,
+        "startChar": 42,
+        "endLine": 454,
+        "endChar": 45
+      },
+      "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9de4efef_f4dbf8d8",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:52:59Z",
+      "side": 0,
+      "message": "What\u0027s up with these setHasThing() diffs?",
+      "range": {
+        "startLine": 970,
+        "startChar": 3,
+        "endLine": 970,
+        "endChar": 32
+      },
+      "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
