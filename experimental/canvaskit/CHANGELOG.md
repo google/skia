@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.5.0] - 2019-03-08
+
 ### Added
  - isVolitile option to `CanvasKit.MakeSkVertices`. The previous (and current default) behavior
    was for this to be true; some applications may go faster if set to false.
