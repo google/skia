@@ -22,6 +22,29 @@
       "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50c18958_c5f7f057",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-08T14:37:12Z",
+      "side": 1,
+      "message": "We could probably shrink the generated files a tiny bit by encoding to Rec.2020 with gamma 2.2, then using png_set_gAMA and png_set_cHRM instead. Although now that we\u0027re using 16 bit PNGs for everything, I\u0027m guessing we don\u0027t really care about the PNG file size?",
+      "range": {
+        "startLine": 442,
+        "startChar": 0,
+        "endLine": 447,
+        "endChar": 0
+      },
+      "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
