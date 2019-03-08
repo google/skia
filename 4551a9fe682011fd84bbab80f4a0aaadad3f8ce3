@@ -157,6 +157,30 @@
     },
     {
       "key": {
+        "uuid": "59a757be_540e6e92",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-08T17:10:04Z",
+      "side": 1,
+      "message": "\u003e This one function accounts for a large fraction of the code change to GrQuadPerEdgeAA. It could be replaced with something similar to get_area_coverage in SampleDegenerateQuad (see above, but would not need to include the non-AA handling).\n\u003e \n\u003e However, when using any CTM other than translating, or non-axis-aligned geometry, this function is about 30X faster than the much smaller code relying on SkPath and an intersection op.\n\u003e \n\u003e Maybe that means it\u0027s worth exposing somewhere in the GPU folder, but I don\u0027t know if there are other places that would need the intersection of a rectangle and a quad. Its structure is definitely tied strictly to those geometric assumptions.\n\nI had a couple questions here.\n\nMy understanding from the code is, this is called when the quad is smaller than a pixel, correct? So my questions are:\n\n1) How important is it to get exact coverage, as opposed to a simple approximation?\n2) How are pixel-size quads handled, that straddle 4 corners equally?",
+      "parentUuid": "ab20f00b_68fdf85e",
+      "range": {
+        "startLine": 280,
+        "startChar": 13,
+        "endLine": 280,
+        "endChar": 31
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2eb4ac0_5dadcba5",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 13
