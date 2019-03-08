@@ -14,6 +14,7 @@
 #include "SkFont.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilterBase.h"
+#include "SkMixerBase.h"
 #include "SkPaintPriv.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
@@ -128,6 +129,7 @@ public:
     sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilterBase>(); }
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
+    sk_sp<SkMixer> readMixer() { return this->readFlattenable<SkMixerBase>(); }
 
     // Reads SkAlign4(bytes), but will only copy bytes into the buffer.
     bool readPad32(void* buffer, size_t bytes);
