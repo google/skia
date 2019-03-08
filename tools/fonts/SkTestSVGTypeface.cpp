@@ -265,15 +265,14 @@ SkScalerContext* SkTestSVGTypeface::onCreateScalerContext(
     return new SkTestSVGScalerContext(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)), e, desc);
 }
 
-// Recommended that the first four be .notdef, .null, CR, space
-constexpr const static SkSVGTestTypefaceGlyphData gGlyphs[] = {
-    {"fonts/svg/notdef.svg", {100,800}, 800, 0x0}, // .notdef
-    {"fonts/svg/empty.svg", {0,0}, 800, 0x0020}, // space
-    {"fonts/svg/diamond.svg", {100, 800}, 800, 0x2662}, // ♢
-    {"fonts/svg/smile.svg", {0,800}, 800, 0x1F600}, // 😀
-};
-
 sk_sp<SkTestSVGTypeface> SkTestSVGTypeface::Default() {
+    // Recommended that the first four be .notdef, .null, CR, space
+    constexpr const static SkSVGTestTypefaceGlyphData glyphs[] = {
+        {"fonts/svg/notdef.svg", {100,800}, 800, 0x0}, // .notdef
+        {"fonts/svg/empty.svg", {0,0}, 800, 0x0020}, // space
+        {"fonts/svg/diamond.svg", {100, 800}, 800, 0x2662}, // ♢
+        {"fonts/svg/smile.svg", {0,800}, 800, 0x1F600}, // 😀
+    };
     SkFontMetrics metrics;
     metrics.fFlags = SkFontMetrics::kUnderlineThicknessIsValid_Flag |
                      SkFontMetrics::kUnderlinePositionIsValid_Flag  |
@@ -294,7 +293,45 @@ sk_sp<SkTestSVGTypeface> SkTestSVGTypeface::Default() {
     metrics.fUnderlinePosition = 20;
     metrics.fStrikeoutThickness = 20;
     metrics.fStrikeoutPosition = -400;
-    return sk_make_sp<SkTestSVGTypeface>("Emoji", 1000, metrics, gGlyphs, SK_ARRAY_COUNT(gGlyphs),
+    return sk_make_sp<SkTestSVGTypeface>("Emoji", 1000, metrics, glyphs, SK_ARRAY_COUNT(glyphs),
+                                         SkFontStyle::Normal());
+}
+
+sk_sp<SkTestSVGTypeface> SkTestSVGTypeface::Planets() {
+    // Recommended that the first four be .notdef, .null, CR, space
+    constexpr const static SkSVGTestTypefaceGlyphData glyphs[] = {
+        {"fonts/svg/planets/pluto.svg", {0,20}, 60, 0x0}, // .notdef
+        {"fonts/svg/empty.svg", {0,0}, 400, 0x0020}, // space
+        {"fonts/svg/planets/mercury.svg", {0, 45}, 120, 0x263F}, // ☿
+        {"fonts/svg/planets/venus.svg", {0, 100}, 240, 0x2640}, // ♀
+        {"fonts/svg/planets/earth.svg", {0, 100}, 240, 0x2641}, // ♁
+        {"fonts/svg/planets/mars.svg", {0, 50}, 130, 0x2642}, // ♂
+        {"fonts/svg/planets/jupiter.svg", {0, 1000}, 2200, 0x2643}, // ♃
+        {"fonts/svg/planets/saturn.svg", {-300, 1500}, 2600, 0x2644}, // ♄
+        {"fonts/svg/planets/uranus.svg", {0, 375}, 790, 0x2645}, // ♅
+        {"fonts/svg/planets/neptune.svg", {0, 350}, 740, 0x2646}, // ♆
+    };
+    SkFontMetrics metrics;
+    metrics.fFlags = SkFontMetrics::kUnderlineThicknessIsValid_Flag |
+                     SkFontMetrics::kUnderlinePositionIsValid_Flag  |
+                     SkFontMetrics::kStrikeoutThicknessIsValid_Flag |
+                     SkFontMetrics::kStrikeoutPositionIsValid_Flag;
+    metrics.fTop = -1500;
+    metrics.fAscent = -200;
+    metrics.fDescent = 50;
+    metrics.fBottom = 1500;
+    metrics.fLeading = 10;
+    metrics.fAvgCharWidth = 200;
+    metrics.fMaxCharWidth = 200;
+    metrics.fXMin = -1500;
+    metrics.fXMax = +1500;
+    metrics.fXHeight = 100;
+    metrics.fCapHeight = 180;
+    metrics.fUnderlineThickness = 8;
+    metrics.fUnderlinePosition = 2;
+    metrics.fStrikeoutThickness = 2;
+    metrics.fStrikeoutPosition = -80;
+    return sk_make_sp<SkTestSVGTypeface>("Planets", 200, metrics, glyphs, SK_ARRAY_COUNT(glyphs),
                                          SkFontStyle::Normal());
 }
 
@@ -646,7 +683,8 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
             if (ibounds.isEmpty()) {
                 continue;
             }
-            SkImageInfo image_info = SkImageInfo::MakeN32Premul(ibounds.width(), ibounds.height());
+            SkImageInfo image_info = SkImageInfo::MakeN32Premul(SkTPin(ibounds.width(),  0x0, 0xFF),
+                                                                SkTPin(ibounds.height(), 0x0, 0xFF));
             sk_sp<SkSurface> surface(SkSurface::MakeRaster(image_info));
             SkASSERT(surface);
             SkCanvas* canvas = surface->getCanvas();
@@ -670,13 +708,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
                 out->writeDecAsText(image->width());
                 out->writeText("\"/>\n");
             out->writeText("          <BearingX value=\"");
-                out->writeDecAsText(bounds.fLeft);
+                out->writeScalarAsText(SkTPin<SkScalar>(bounds.fLeft, -0x80, 0x7F));
                 out->writeText("\"/>\n");
             out->writeText("          <BearingY value=\"");
-                out->writeScalarAsText(-bounds.fTop);
+                out->writeScalarAsText(SkTPin<SkScalar>(-bounds.fTop, -0x80, 0x7F));
                 out->writeText("\"/>\n");
             out->writeText("          <Advance value=\"");
-                out->writeScalarAsText(advance);
+                out->writeScalarAsText(SkTPin<SkScalar>(advance, 0x0, 0xFF));
                 out->writeText("\"/>\n");
             out->writeText("        </SmallGlyphMetrics>\n");
             out->writeText("        <rawimagedata>");
@@ -709,13 +747,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("      <bitmapSizeTable>\n");
         out->writeText("        <sbitLineMetrics direction=\"hori\">\n");
         out->writeText("          <ascender value=\"");
-            out->writeScalarAsText(-fm.fTop);
+            out->writeScalarAsText(SkTPin<SkScalar>(-fm.fTop, -0x80, 0x7F));
             out->writeText("\"/>\n");
         out->writeText("          <descender value=\"");
-            out->writeScalarAsText(-fm.fBottom);
+            out->writeScalarAsText(SkTPin<SkScalar>(-fm.fBottom, -0x80, 0x7F));
             out->writeText("\"/>\n");
         out->writeText("          <widthMax value=\"");
-            out->writeScalarAsText(fm.fXMax - fm.fXMin);
+            out->writeScalarAsText(SkTPin<SkScalar>(fm.fXMax - fm.fXMin, 0x0, 0xFF));
             out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -729,13 +767,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("        </sbitLineMetrics>\n");
         out->writeText("        <sbitLineMetrics direction=\"vert\">\n");
         out->writeText("          <ascender value=\"");
-            out->writeScalarAsText(-fm.fTop);
+            out->writeScalarAsText(SkTPin<SkScalar>(-fm.fTop, -0x80, 0x7F));
             out->writeText("\"/>\n");
         out->writeText("          <descender value=\"");
-            out->writeScalarAsText(-fm.fBottom);
+            out->writeScalarAsText(SkTPin<SkScalar>(-fm.fBottom, -0x80, 0x7F));
             out->writeText("\"/>\n");
         out->writeText("          <widthMax value=\"");
-            out->writeScalarAsText(fm.fXMax - fm.fXMin);
+            out->writeScalarAsText(SkTPin<SkScalar>(fm.fXMax - fm.fXMin, 0x0, 0xFF));
             out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -1254,8 +1292,11 @@ void SkTestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("  <COLR>\n");
     out->writeText("    <version value=\"0\"/>\n");
     for (int i = 0; i < fGlyphCount; ++i) {
-        if (glyfInfos[i].fBounds.isEmpty() || glyfInfos[i].fLayers.empty()) {
+        if (glyfInfos[i].fLayers.empty()) {
             continue;
+        }
+        if (glyfInfos[i].fBounds.isEmpty()) {
+            SkDebugf("Glyph %d is empty but has layers.\n", i);
         }
         out->writeText("    <ColorGlyph name=\"glyf");
             out->writeHexAsText(i, 4);
