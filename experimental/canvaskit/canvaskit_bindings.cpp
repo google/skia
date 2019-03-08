@@ -68,47 +68,6 @@ using BoneIndices = SkVertices::BoneIndices;
 using BoneWeights = SkVertices::BoneWeights;
 using Bone        = SkVertices::Bone;
 
-#if SK_SUPPORT_GPU
-// Wraps the WebGL context in an SkSurface and returns it.
-// This function based on the work of
-// https://github.com/Zubnix/skia-wasm-port/, used under the terms of the MIT license.
-sk_sp<SkSurface> getWebGLSurface(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context, int width, int height) {
-    EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
-    if (r < 0) {
-        printf("failed to make webgl context current %d\n", r);
-        return nullptr;
-    }
-
-    glClearColor(0, 0, 0, 0);
-    glClearStencil(0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    // setup GrContext
-    auto interface = GrGLMakeNativeInterface();
-
-    // setup contexts
-    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
-
-    // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can
-    // render to it
-    GrGLint buffer;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
-    GrGLFramebufferInfo info;
-    info.fFBOID = (GrGLuint) buffer;
-    SkColorType colorType;
-
-    info.fFormat = GL_RGBA8;
-    colorType = kRGBA_8888_SkColorType;
-
-    GrBackendRenderTarget target(width, height, 0, 8, info);
-
-    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
-                                                                    kBottomLeft_GrSurfaceOrigin,
-                                                                    colorType, nullptr, nullptr));
-    return surface;
-}
-#endif
-
 struct SimpleMatrix {
     SkScalar scaleX, skewX,  transX;
     SkScalar skewY,  scaleY, transY;
@@ -139,6 +98,68 @@ struct SimpleImageInfo {
 SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
     return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
+{
+    EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
+    if (r < 0) {
+        printf("failed to make webgl context current %d\n", r);
+        return nullptr;
+    }
+    // setup GrContext
+    auto interface = GrGLMakeNativeInterface();
+    // setup contexts
+    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
+    return grContext;
+}
+
+sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, int height) {
+    glClearColor(0, 0, 0, 0);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+
+    // Wrap the frame buffer object attached to the screen in a Skia render
+    // target so Skia can render to it
+    GrGLint buffer;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
+    GrGLFramebufferInfo info;
+    info.fFBOID = (GrGLuint) buffer;
+    SkColorType colorType;
+
+    info.fFormat = GL_RGBA8;
+    colorType = kRGBA_8888_SkColorType;
+
+    GrBackendRenderTarget target(width, height, 0, 8, info);
+
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
+                                                                    kBottomLeft_GrSurfaceOrigin,
+                                                                    colorType, nullptr, nullptr));
+    return surface;
+}
+
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, int width, int height) {
+    SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(),
+                             SkBudgeted::kYes,
+                             info, 0,
+                             kBottomLeft_GrSurfaceOrigin,
+                             nullptr, true));
+    return surface;
+}
+
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, SimpleImageInfo sii) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(),
+                             SkBudgeted::kYes,
+                             toSkImageInfo(sii), 0,
+                             kBottomLeft_GrSurfaceOrigin,
+                             nullptr, true));
+    return surface;
+}
+#endif
+
 
 //========================================================================================
 // Path things
@@ -553,9 +574,13 @@ namespace emscripten {
 // the compiler is happy.
 EMSCRIPTEN_BINDINGS(Skia) {
 #if SK_SUPPORT_GPU
-    function("_getWebGLSurface", &getWebGLSurface, allow_raw_pointers());
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
+    function("MakeGrContext", &MakeGrContext);
+    function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
+    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, int, int)>(&MakeRenderTarget));
+    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, SimpleImageInfo)>(&MakeRenderTarget));
+
     constant("gpu", true);
 #endif
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
@@ -709,6 +734,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                     boneIndices, boneWeights, indexCount, indices, isVolatile);
     }), allow_raw_pointers());
 
+#if SK_SUPPORT_GPU
+    class_<GrContext>("GrContext")
+        .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>");
+#endif
+
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
         .function("clear", optional_override([](SkCanvas& self, JSColor color)->void {
@@ -760,6 +790,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkMatrix m = self.getTotalMatrix();
             return toSimpleSkMatrix(m);
         }))
+        .function("makeSurface", optional_override([](SkCanvas& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
+            return self.makeSurface(toSkImageInfo(sii), nullptr);
+        }), allow_raw_pointers())
         .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                       uintptr_t /* uint8_t* */ pPtr,
                                                       size_t dstRowBytes, int srcX, int srcY) {
@@ -945,18 +978,21 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkSurface>("SkSurface")
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
-        .function("width", &SkSurface::width)
-        .function("height", &SkSurface::height)
         .function("_flush", select_overload<void()>(&SkSurface::flush))
+        .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers())
+        .function("height", &SkSurface::height)
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
-        .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
+        .function("makeSurface", optional_override([](SkSurface& self, SimpleImageInfo sii)->sk_sp<SkSurface> {
+            return self.makeSurface(toSkImageInfo(sii));
+        }), allow_raw_pointers())
+        .function("width", &SkSurface::width);
 
     class_<SkTextBlob>("SkTextBlob")
         .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<SkTextBlob>>")
-        .class_function("_MakeFromText",optional_override([](uintptr_t /* char* */ sptr,
-                                                             size_t len, const SkFont& font,
-                                                             SkTextEncoding encoding)->sk_sp<SkTextBlob> {
+        .class_function("_MakeFromText", optional_override([](uintptr_t /* char* */ sptr,
+                                                              size_t len, const SkFont& font,
+                                                              SkTextEncoding encoding)->sk_sp<SkTextBlob> {
             // See comment above for uintptr_t explanation
             const char* str = reinterpret_cast<const char*>(sptr);
             return SkTextBlob::MakeFromText(str, len, font, encoding);
