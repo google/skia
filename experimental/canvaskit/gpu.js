@@ -41,29 +41,27 @@
         return GL.createContext(canvas, contextAttributes);
       }
 
+      CanvasKit.GetWebGLContext = function(canvas, attrs) {
+        return makeWebGLContext(canvas, attrs);
+      };
+
       // arg can be of types:
       //  - String - in which case it is interpreted as an id of a
       //          canvas element.
       //  - HTMLCanvasElement - in which the provided canvas element will
       //          be used directly.
-      //  - int - in which case it will be used as a WebGLContext. Only 1.0
-      //          contexts are known to work for now.
       // Width and height can be provided to override those on the canvas
       // element, or specify a height for when a context is provided.
       CanvasKit.MakeWebGLCanvasSurface = function(arg, width, height) {
-        var ctx = arg;
-        // ctx is only > 0 if it's an int, and thus a valid context
-        if (!(ctx > 0)) {
-          var canvas = arg;
-          if (canvas.tagName !== 'CANVAS') {
-            canvas = document.getElementById(arg);
-            if (!canvas) {
-              throw 'Canvas with id ' + arg + ' was not found';
-            }
+        var canvas = arg;
+        if (canvas.tagName !== 'CANVAS') {
+          canvas = document.getElementById(arg);
+          if (!canvas) {
+            throw 'Canvas with id ' + arg + ' was not found';
           }
-          // we are ok with all the defaults
-          ctx = makeWebGLContext(canvas);
         }
+        // we are ok with all the defaults
+        var ctx = CanvasKit.GetWebGLContext(canvas);
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
@@ -73,10 +71,12 @@
           throw 'height and width must be provided with context';
         }
 
+        var grcontext = this.MakeGrContext(ctx);
         // Maybe better to use clientWidth/height.  See:
         // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-        var surface = this._getWebGLSurface(ctx, width || canvas.width,
-                                            height || canvas.height);
+        var surface = this.MakeOnScreenGLSurface(grcontext,
+                                                 width  || canvas.width,
+                                                 height || canvas.height);
         if (!surface) {
           SkDebug('falling back from GPU implementation to a SW based one');
           return CanvasKit.MakeSWCanvasSurface(arg);
