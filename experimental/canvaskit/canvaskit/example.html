@@ -35,13 +35,14 @@
 <img id=api8 width=300 height=300>
 <canvas id=api8_c width=300 height=300></canvas>
 
-<h2> CanvasKit draws Paths to the browser</h2>
+<h2> CanvasKit expands the functionality of a stock HTML canvas</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
 <canvas id=vertex2 width=300 height=300></canvas>
 <canvas id=gradient1 width=300 height=300></canvas>
 <canvas id=patheffect width=300 height=300></canvas>
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
+<canvas id=surfaces width=300 height=300></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
@@ -117,6 +118,8 @@
     TextShapingAPI2(CanvasKit, notoserifData);
 
     ParticlesAPI1(CanvasKit);
+
+    SurfaceAPI1(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -1414,4 +1417,71 @@ const snowfall = {
    ]
 };
 
+  function SurfaceAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('surfaces');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    // create a subsurface as a temporary workspace.
+    const subSurface = surface.makeSurface({
+      width: 50,
+      height: 50,
+      alphaType: CanvasKit.AlphaType.Premul,
+      colorType: CanvasKit.ColorType.RGBA_8888,
+    });
+
+    if (!subSurface) {
+      console.error('Could not make subsurface');
+      return;
+    }
+
+    // draw a small "scene"
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(139, 228, 135, 0.95)); // greenish
+    paint.setStyle(CanvasKit.PaintStyle.Fill);
+    paint.setAntiAlias(true);
+
+    const subCanvas = subSurface.getCanvas();
+    subCanvas.clear(CanvasKit.BLACK);
+    subCanvas.drawRect(CanvasKit.LTRBRect(5, 15, 45, 40), paint);
+
+    paint.setColor(CanvasKit.Color(214, 93, 244)); // purplish
+    for (let i = 0; i < 10; i++) {
+      const x = Math.random() * 50;
+      const y = Math.random() * 50;
+
+      subCanvas.drawOval(CanvasKit.XYWHRect(x, y, 6, 6), paint);
+    }
+
+    // Snap it off as an SkImage - this image will be in the form the
+    // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
+    const img = subSurface.makeImageSnapshot();
+
+    // clean up the temporary surface
+    subSurface.delete();
+    paint.delete();
+
+    // Make it repeat a bunch with a shader
+    const pattern = CanvasKit.MakeImageShader(img, CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+    const patternPaint = new CanvasKit.SkPaint();
+    patternPaint.setShader(pattern);
+
+    let i = 0;
+
+    function drawFrame() {
+      i++;
+      CanvasKit.setCurrentContext(context);
+      canvas.clear(CanvasKit.WHITE);
+
+      canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
+      surface.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+  }
 </script>

@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkCanvas.saveLayer(rect, paint)`
  - `SkCanvas.restoreToCount(int)` which can be used with the output of .save() and .saveLayer().
  - Optional particles library from modules/particles. `See CanvasKit.MakeParticles(json)`;
+ - More public APIs for working with Surfaces/Contexts `GetWebGLContext`,
+   `MakeGrContext`, `MakeOnScreenGLSurface`, `MakeRenderTarget`.
+ - `SkSurface.getSurface()` and `SkCanvas.getSurface()` for making compatible surfaces (typically
+   used as a workspace and then "saved" with `surface.makeImageSnapshot()`)
+
+### Breaking
+ -  `CanvasKit.MakeWebGLCanvasSurface` no longer takes a webgl context as a first arg, only a
+    canvas or an id of a canvas. If users want to manage their own GL contexts, they should build
+    the `SkSurface` themselves with `GetWebGLContext` -> `MakeGrContext` ->
+    `MakeOnScreenGLSurface`.
 
 ## [0.4.1] - 2019-03-01
 

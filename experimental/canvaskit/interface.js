@@ -551,7 +551,7 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
-// imgData is an Encoded SkImage, e.g. from MakeImageFromEncoded
+// imgData is an SkImage, e.g. from MakeImageFromEncoded or SkSurface.makeImageSnapshot
 CanvasKit.MakeImageShader = function(img, xTileMode, yTileMode, clampUnpremul, localMatrix) {
   if (!img) {
     return null;
