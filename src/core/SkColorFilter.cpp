@@ -308,18 +308,17 @@ public:
         };
         auto state = alloc->make<State>();
 
-        p->append(SkRasterPipeline::store_rgba, state->orig_rgba);
+        p->append(SkRasterPipeline::store_src, state->orig_rgba);
         if (!fCF1) {
             fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
             p->append(SkRasterPipeline::move_src_dst);
-            p->append(SkRasterPipeline::load_rgba, state->orig_rgba);
+            p->append(SkRasterPipeline::load_src, state->orig_rgba);
         } else {
-            fCF1->appendStages(p, dst, alloc, shaderIsOpaque);
-            p->append(SkRasterPipeline::store_rgba, state->filtered_rgba);
-            p->append(SkRasterPipeline::load_rgba, state->orig_rgba);
             fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
-            p->append(SkRasterPipeline::move_src_dst);
-            p->append(SkRasterPipeline::load_rgba, state->filtered_rgba);
+            p->append(SkRasterPipeline::store_src, state->filtered_rgba);
+            p->append(SkRasterPipeline::load_src, state->orig_rgba);
+            fCF1->appendStages(p, dst, alloc, shaderIsOpaque);
+            p->append(SkRasterPipeline::load_dst, state->filtered_rgba);
         }
         float* storage = alloc->make<float>(fWeight);
         p->append(SkRasterPipeline::lerp_1_float, storage);
