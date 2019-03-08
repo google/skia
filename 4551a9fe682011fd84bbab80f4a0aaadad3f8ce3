@@ -205,6 +205,30 @@
     },
     {
       "key": {
+        "uuid": "99d833df_c8e4ca3d",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-08T18:54:07Z",
+      "side": 1,
+      "message": "First comment responses first:\n1. I explored simple approximations first, using the shortest edges or the shortest diagonals, and it just didn\u0027t look as good to me. Tended to create visual pops in coverage when transitioning from a regular to degenerate interior.\n2. So, when this is evaluated, it uses a hypothetical pixel located exactly at the vertex. For a pixel-size quad, the interior maps to a central point, so it\u0027s independent of how the quad lines up with the actual pixel grid. In this case, it\u0027d calculate coverage close to 1, and then with its outset coverage ramps, the 4 touched pixels would each see a distributed lower coverage value.  Testing the scenario in the SampleDegenerateQuad slide looks reasonable.\n\nSecond comment responses:\nYes absolutely, this would be a lot easier if we calculated the AA geometry for the intended complete layer, and then chopped it up. Unfortunately that\u0027s not what they give us and all of the code that handles the chops are controlled by non-virtual methods higher up in the compositor system. When we can take over at that level, we will avoid a lot of these hassles and can probably get away with simpler subpixel approximations again (or go back to the wider thin-aa method)",
+      "parentUuid": "36145faa_9b9e28e2",
+      "range": {
+        "startLine": 280,
+        "startChar": 13,
+        "endLine": 280,
+        "endChar": 31
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2eb4ac0_5dadcba5",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 13
