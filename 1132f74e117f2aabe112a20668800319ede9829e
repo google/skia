@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14063eba_e708f02c",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-08T16:55:12Z",
+      "side": 0,
+      "message": "Everything in this file is new.",
+      "revId": "1132f74e117f2aabe112a20668800319ede9829e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "046d481a_17282a63",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-08T16:55:12Z",
+      "side": 0,
+      "message": "Everything in this file is new.",
+      "revId": "1132f74e117f2aabe112a20668800319ede9829e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
