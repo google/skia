@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0d75c3ef_b7d9ea7c",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-08T23:44:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88928502_3f7ce536",
+      "range": {
+        "startLine": 26,
+        "startChar": 44,
+        "endLine": 26,
+        "endChar": 47
+      },
+      "revId": "06540d59d58eadb13cda34a6de3160a789fccf3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6038af0b_0086fc6b",
         "filename": "include/core/SkMixer.h",
         "patchSetId": 9
@@ -36,6 +60,24 @@
       "writtenOn": "2019-03-08T19:02:16Z",
       "side": 1,
       "message": "these makeFoo() can probably be const?  Or maybe even static?\n\nWhat makes you choose between\n\n   sk_sp\u003cSkMixer\u003e makeFilterOutput(sk_sp\u003cSkColorFilter\u003e);\n\nand\n\n   static sk_sp\u003cSkMixer\u003e MakeColorFilter(sk_sp\u003cSkMixer\u003e, sk_sp\u003cSkColorFilter\u003e);\n\n?  Seems like MakeReverse() could easily be makeReverse(), makeFilterInputs() MakeFilterInputs(), etc.",
+      "revId": "06540d59d58eadb13cda34a6de3160a789fccf3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d709ce5a_4d9a28b3",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-08T23:44:47Z",
+      "side": 1,
+      "message": "Good questions. Gonna try making as many methods as seems to work.",
+      "parentUuid": "6038af0b_0086fc6b",
       "revId": "06540d59d58eadb13cda34a6de3160a789fccf3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
