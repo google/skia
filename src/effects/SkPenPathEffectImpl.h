@@ -1,0 +1,18 @@
+// Copyright 2019 Google LLC.
+// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+
+#ifndef SkPenPathEffectImpl_DEFINED
+#define SkPenPathEffectImpl_DEFINED
+
+#include "SkPathEffect.h"
+struct SkPenPathEffect : public SkPathEffect {
+    float fA, fB, fC, fD, fW, fX, fY, fZ;
+    SkPenPathEffect(SkScalar a, SkScalar b, SkScalar c, SkScalar d);
+    ~SkPenPathEffect() override {}
+    SkRect onComputeFastBounds(const SkRect& src) const override;
+    bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
+    Type getFlattenableType() const override { return kSkPathEffect_Type; }
+    SK_FLATTENABLE_HOOKS(SkPenPathEffect)
+};
+
+#endif  // SkPenPathEffectImpl_DEFINED
