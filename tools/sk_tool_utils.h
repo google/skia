@@ -49,14 +49,13 @@ namespace sk_tool_utils {
      */
     SkColor color_to_565(SkColor color);
 
-    /**
-     * Return a color emoji typeface if available.
-     */
+    /* Return a color emoji typeface with planets to scale if available. */
+    sk_sp<SkTypeface> planet_typeface();
+
+    /** Return a color emoji typeface if available. */
     sk_sp<SkTypeface> emoji_typeface();
 
-    /**
-     * If the platform supports color emoji, return sample text the emoji can render.
-     */
+    /** Sample text for the emoji_typeface font. */
     const char* emoji_sample_text();
 
     /**
