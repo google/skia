@@ -63,66 +63,100 @@ struct PromiseTextureChecker {
     }
 };
 
-enum class ReleaseBalanceExpecation {
+enum class ReleaseBalanceExpectation {
     kBalanced,
-    kBalancedOrPlusOne,
-    kAny
+    kAllUnbalanced,
+    kUnbalancedByOne,
 };
 
-static bool check_fulfill_and_release_cnts(const PromiseTextureChecker& promiseChecker,
-                                           ReleaseBalanceExpecation balanceExpecation,
+enum class DoneBalanceExpectation {
+    kBalanced,
+    kAllUnbalanced,
+    kUnknown,
+    kUnbalancedByOne,
+    kBalancedOrOffByOne,
+};
+
+static void check_fulfill_and_release_cnts(skiatest::Reporter* reporter,
+                                           const PromiseTextureChecker& promiseChecker,
                                            int expectedFulfillCnt,
-                                           int expectedReleaseCnt,
-                                           bool expectedRequired,
-                                           int expectedDoneCnt,
-                                           skiatest::Reporter* reporter) {
-    bool result = true;
-    int countDiff = promiseChecker.fFulfillCount - promiseChecker.fReleaseCount;
-    // FulfillCount should always equal ReleaseCount or be at most one higher
-    if (countDiff != 0) {
-        if (balanceExpecation == ReleaseBalanceExpecation::kBalanced) {
-            result = false;
-            REPORTER_ASSERT(reporter, 0 == countDiff);
-        } else if (countDiff != 1 &&
-                   balanceExpecation == ReleaseBalanceExpecation::kBalancedOrPlusOne) {
-            result = false;
-            REPORTER_ASSERT(reporter, 0 == countDiff || 1 == countDiff);
-        } else if (countDiff < 0) {
-            result = false;
-            REPORTER_ASSERT(reporter, countDiff >= 0);
-        }
+                                           ReleaseBalanceExpectation releaseBalanceExpecation,
+                                           DoneBalanceExpectation doneBalanceExpecation) {
+    REPORTER_ASSERT(reporter, promiseChecker.fFulfillCount == expectedFulfillCnt);
+    if (!expectedFulfillCnt) {
+        // Release and Done should only ever be called after Fulfill.
+        REPORTER_ASSERT(reporter, !promiseChecker.fReleaseCount);
+        REPORTER_ASSERT(reporter, !promiseChecker.fDoneCount);
+        return;
     }
-
-    int fulfillDiff = expectedFulfillCnt - promiseChecker.fFulfillCount;
-    REPORTER_ASSERT(reporter, fulfillDiff >= 0);
-    if (fulfillDiff != 0) {
-        if (expectedRequired) {
-            result = false;
-            REPORTER_ASSERT(reporter, expectedFulfillCnt == promiseChecker.fFulfillCount);
-        } else if (fulfillDiff > 1) {
-            result = false;
-            REPORTER_ASSERT(reporter, fulfillDiff <= 1);
-        }
+    int releaseDiff = promiseChecker.fFulfillCount - promiseChecker.fReleaseCount;
+    switch (releaseBalanceExpecation) {
+        case ReleaseBalanceExpectation::kBalanced:
+            REPORTER_ASSERT(reporter, !releaseDiff);
+            break;
+        case ReleaseBalanceExpectation::kAllUnbalanced:
+            REPORTER_ASSERT(reporter, releaseDiff == promiseChecker.fFulfillCount);
+            break;
+        case ReleaseBalanceExpectation::kUnbalancedByOne:
+            REPORTER_ASSERT(reporter, releaseDiff == 1);
+            break;
     }
-
-    int releaseDiff = expectedReleaseCnt - promiseChecker.fReleaseCount;
-    REPORTER_ASSERT(reporter, releaseDiff >= 0);
-    if (releaseDiff != 0) {
-        if (expectedRequired) {
-            result = false;
-            REPORTER_ASSERT(reporter, expectedReleaseCnt == promiseChecker.fReleaseCount);
-        } else if (releaseDiff > 1) {
-            result = false;
-            REPORTER_ASSERT(reporter, releaseDiff <= 1);
-        }
+    int doneDiff = promiseChecker.fFulfillCount - promiseChecker.fDoneCount;
+    switch (doneBalanceExpecation) {
+        case DoneBalanceExpectation::kBalanced:
+            REPORTER_ASSERT(reporter, !doneDiff);
+            break;
+        case DoneBalanceExpectation::kAllUnbalanced:
+            REPORTER_ASSERT(reporter, doneDiff == promiseChecker.fFulfillCount);
+            break;
+        case DoneBalanceExpectation::kUnknown:
+            REPORTER_ASSERT(reporter, doneDiff >= 0 && doneDiff <= promiseChecker.fFulfillCount);
+            break;
+        case DoneBalanceExpectation::kUnbalancedByOne:
+            REPORTER_ASSERT(reporter, doneDiff == 1);
+            break;
+        case DoneBalanceExpectation::kBalancedOrOffByOne:
+            REPORTER_ASSERT(reporter, doneDiff == 0 || doneDiff == 1);
+            break;
     }
+}
 
-    if (expectedDoneCnt != promiseChecker.fDoneCount) {
-        result = false;
-        REPORTER_ASSERT(reporter, expectedDoneCnt == promiseChecker.fDoneCount);
+static void check_unfulfilled(const PromiseTextureChecker& promiseChecker,
+                              skiatest::Reporter* reporter) {
+    check_fulfill_and_release_cnts(reporter, promiseChecker, 0,
+                                   ReleaseBalanceExpectation::kBalanced,
+                                   DoneBalanceExpectation::kBalanced);
+}
+
+static void check_only_fulfilled(skiatest::Reporter* reporter,
+                                 const PromiseTextureChecker& promiseChecker,
+                                 int expectedFulfillCnt = 1) {
+    check_fulfill_and_release_cnts(reporter, promiseChecker, expectedFulfillCnt,
+                                   ReleaseBalanceExpectation::kAllUnbalanced,
+                                   DoneBalanceExpectation::kAllUnbalanced);
+}
+
+static void check_all_flushed_but_not_synced(skiatest::Reporter* reporter,
+                                             const PromiseTextureChecker& promiseChecker,
+                                             GrBackendApi api,
+                                             int expectedFulfillCnt = 1) {
+    DoneBalanceExpectation doneBalanceExpectation = DoneBalanceExpectation::kBalanced;
+    // On Vulkan Done isn't guaranteed to be called until a sync has occurred.
+    if (api == GrBackendApi::kVulkan) {
+        doneBalanceExpectation = expectedFulfillCnt == 1
+                                         ? DoneBalanceExpectation::kBalancedOrOffByOne
+                                         : DoneBalanceExpectation::kUnknown;
     }
+    check_fulfill_and_release_cnts(reporter, promiseChecker, expectedFulfillCnt,
+                                   ReleaseBalanceExpectation::kBalanced, doneBalanceExpectation);
+}
 
-    return result;
+static void check_all_done(skiatest::Reporter* reporter,
+                           const PromiseTextureChecker& promiseChecker,
+                           int expectedFulfillCnt = 1) {
+    check_fulfill_and_release_cnts(reporter, promiseChecker, expectedFulfillCnt,
+                                   ReleaseBalanceExpectation::kBalanced,
+                                   DoneBalanceExpectation::kBalanced);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
@@ -150,47 +184,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                     PromiseTextureChecker::Fulfill,
                     PromiseTextureChecker::Release,
                     PromiseTextureChecker::Done,
-                    &promiseChecker));
+                    &promiseChecker,
+                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
-    int expectedFulfillCnt = 0;
-    int expectedReleaseCnt = 0;
-    int expectedDoneCnt = 0;
-    ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kBalanced;
-
     canvas->drawImage(refImg, 0, 0);
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    check_unfulfilled(promiseChecker, reporter);
 
-    bool isVulkan = GrBackendApi::kVulkan == ctx->backend();
     surface->flush();
-    expectedFulfillCnt++;
-    // Because we've delayed release, we expect a +1 balance.
-    balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    // We still own the image so we should not have called Release or Done.
+    check_only_fulfilled(reporter, promiseChecker);
 
     gpu->testingOnly_flushGpuAndSync();
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg, 0, 0);
@@ -198,49 +207,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     surface->flush();
 
     gpu->testingOnly_flushGpuAndSync();
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    // Image should still be fulfilled from the first time we drew/flushed it.
+    check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
     surface->flush();
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
-
     refImg.reset();
-
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    // We no longer own the image but the last draw is still unflushed.
+    check_only_fulfilled(reporter, promiseChecker);
 
     surface->flush();
+    // Flushing should have called Release. Depending on the backend and timing it may have called
+    // done.
+    check_all_flushed_but_not_synced(reporter, promiseChecker, ctx->backend());
     gpu->testingOnly_flushGpuAndSync();
-    // We released the image already and we flushed and synced.
-    balanceExpecation = ReleaseBalanceExpecation::kBalanced;
-    expectedReleaseCnt++;
-    expectedDoneCnt++;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             !isVulkan,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    // Now Done should definitely have been called.
+    check_all_done(reporter, promiseChecker);
 
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
@@ -280,32 +265,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
             ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker));
+            PromiseTextureChecker::Done, &promiseChecker,
+            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
     REPORTER_ASSERT(reporter, alphaImg);
 
     sk_sp<SkImage> grayImg(SkImage_Gpu::MakePromiseTexture(
             ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, kGray_8_SkColorType, kOpaque_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker));
+            PromiseTextureChecker::Done, &promiseChecker,
+            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
     REPORTER_ASSERT(reporter, grayImg);
 
     canvas->drawImage(alphaImg, 0, 0);
     canvas->drawImage(grayImg, 1, 1);
     surface->flush();
     gpu->testingOnly_flushGpuAndSync();
-
-    int expectedFulfillCnt = 2;
-    int expectedReleaseCnt = 0;
-    int expectedDoneCnt = 0;
-    ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kAny;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             balanceExpecation,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             expectedDoneCnt,
-                                                             reporter));
+    check_only_fulfilled(reporter, promiseChecker, 2);
 
     // Because they use different configs, each image should have created a different GrTexture
     // and they both should still be cached.
@@ -323,7 +299,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
         }
     }
 
-    // Change the backing texture, this should invalidate the keys.
+    // Invalidate the backing texture, this should invalidate the keys.
     promiseChecker.releaseTexture();
     ctx->priv().getResourceCache()->purgeAsNeeded();
 
@@ -331,13 +307,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
         auto surf = ctx->priv().resourceProvider()->findByUniqueKey<GrSurface>(key);
         REPORTER_ASSERT(reporter, !surf);
     }
-
-    // Must do this to ensure all callbacks occur before the PromiseImageChecker goes out of scope.
     alphaImg.reset();
+    ctx->flush(); // We do this to pick up any unref messages that are sent by unref'ing the image.
+    check_fulfill_and_release_cnts(reporter, promiseChecker, 2,
+                                   ReleaseBalanceExpectation::kUnbalancedByOne,
+                                   DoneBalanceExpectation::kUnbalancedByOne);
     grayImg.reset();
-    ctx->flush();
-    ctx->priv().getGpu()->testingOnly_flushGpuAndSync();
-
+    ctx->flush(); // We do this to pick up any unref messages that are sent by unref'ing the image.
+    check_all_done(reporter, promiseChecker, 2);
     gpu->deleteTestingOnlyBackendTexture(backendTex1);
 }
 
@@ -389,7 +366,8 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
                     ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
                     kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
                     PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-                    PromiseTextureChecker::Done, &promiseChecker));
+                    PromiseTextureChecker::Done, &promiseChecker,
+                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
             REPORTER_ASSERT(reporter, image);
 
             canvas->drawImage(image, 0, 0);
@@ -401,17 +379,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             ctx->flush();
             contextDeath(&factory, ctx);
 
-            int expectedFulfillCnt = 1;
-            int expectedReleaseCnt = 1;
-            int expectedDoneCnt = 1;
-            ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kBalanced;
-            REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                     balanceExpecation,
-                                                                     expectedFulfillCnt,
-                                                                     expectedReleaseCnt,
-                                                                     true,
-                                                                     expectedDoneCnt,
-                                                                     reporter));
+            check_all_done(reporter, promiseChecker);
         }
     }
 }
@@ -437,7 +405,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
             ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker));
+            PromiseTextureChecker::Done, &promiseChecker,
+            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
     REPORTER_ASSERT(reporter, image);
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
