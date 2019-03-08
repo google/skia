@@ -15,6 +15,7 @@
 #include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
+#include "SkTestSVGTypeface.h"
 
 static sk_sp<SkTextBlob> make_hpos_test_blob_utf8(const char* text, const SkFont& font) {
     constexpr SkTextEncoding enc = SkTextEncoding::kUTF8;
@@ -90,8 +91,11 @@ protected:
     } fEmojiFont;
 
     void onOnceBeforeDraw() override {
-        fEmojiFont.fTypeface = sk_tool_utils::emoji_typeface();
-        fEmojiFont.fText = sk_tool_utils::emoji_sample_text();
+        //fEmojiFont.fTypeface = sk_tool_utils::emoji_typeface();
+        //fEmojiFont.fTypeface = SkTypeface::MakeFromFile("/usr/local/google/home/bungeman/Downloads/61908de1-dd0a-4359-a54b-6cb6d41bb5fd_NotoColorEmoji.ttf");
+        //fEmojiFont.fText = sk_tool_utils::emoji_sample_text();
+        fEmojiFont.fTypeface = SkTestSVGTypeface::Planets();
+        fEmojiFont.fText = "☿♀♁♂ ♃♄♅♆";
     }
 
     SkString onShortName() override {
@@ -114,7 +118,7 @@ protected:
         // SDF path with scaling, path rendering with scaling
         SkFontMetrics metrics;
         SkScalar y = 0;
-        for (SkScalar textSize : { 70, 180, 270, 340 }) {
+        for (SkScalar textSize : { 10 /*, 180, 270, 340*/ }) {
             font.setSize(textSize);
             font.getMetrics(&metrics);
             y += -metrics.fAscent;
@@ -122,13 +126,13 @@ protected:
             sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(text, font);
             // Draw with an origin.
             canvas->drawTextBlob(blob, 10, y, paint);
-
+if (false){
             // Draw with shifted canvas.
             canvas->save();
             canvas->translate(750, 0);
             canvas->drawTextBlob(blob, 10, y, paint);
             canvas->restore();
-
+}
             y += metrics.fDescent + metrics.fLeading;
         }
 

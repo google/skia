@@ -11,27 +11,31 @@
 #include "SkCommandLineFlags.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
+#include "SkString.h"
 #include "SkTestSVGTypeface.h"
 
-int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-
-    sk_sp<SkTestSVGTypeface> typeface = SkTestSVGTypeface::Default();
-
-    SkFILEWStream cbdt("cbdt.ttx");
+static void export_ttx(sk_sp<SkTestSVGTypeface> typeface, SkString prefix) {
+    SkFILEWStream cbdt((SkString(prefix) += "cbdt.ttx").c_str());
     typeface->exportTtxCbdt(&cbdt);
     cbdt.flush();
     cbdt.fsync();
 
-    SkFILEWStream sbix("sbix.ttx");
+    SkFILEWStream sbix((SkString(prefix) += "sbix.ttx").c_str());
     typeface->exportTtxSbix(&sbix);
     sbix.flush();
     sbix.fsync();
 
-    SkFILEWStream colr("colr.ttx");
+    SkFILEWStream colr((SkString(prefix) += "colr.ttx").c_str());
     typeface->exportTtxColr(&colr);
     colr.flush();
     colr.fsync();
+}
+
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+
+    export_ttx(SkTestSVGTypeface::Default(), SkString());
+    export_ttx(SkTestSVGTypeface::Planets(), SkString("planet"));
 
     return 0;
 }
