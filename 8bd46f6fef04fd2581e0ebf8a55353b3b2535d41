@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edcc85de_047e93e0",
+        "filename": "third_party/MoltenVK/generate_framework.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-08T15:36:54Z",
+      "side": 1,
+      "message": "If there\u0027s any way to build into this dir, that will help with caching previous builds.\n\nI don\u0027t really know xcodebuild, and the docs online seem to be out-of-date, and I don\u0027t have a Mac machine to investigate, but it seems that xcodebuild doesn\u0027t have a way to specify a directory to build into. If that\u0027s true, the best approach is probably to rsync externals/MoltenVK to \u0027target_out_dir\u0027 and do everything there.",
+      "range": {
+        "startLine": 14,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 21
+      },
+      "revId": "8bd46f6fef04fd2581e0ebf8a55353b3b2535d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc64faef_ec146474",
+        "filename": "third_party/MoltenVK/generate_framework.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-08T15:36:54Z",
+      "side": 1,
+      "message": "Probably want to set V_HEADERS_ROOT to the same headers that Skia code is using.",
+      "revId": "8bd46f6fef04fd2581e0ebf8a55353b3b2535d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
