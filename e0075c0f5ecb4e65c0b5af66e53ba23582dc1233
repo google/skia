@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d59a3d03_2d7c0e35",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T17:02:50Z",
+      "side": 1,
+      "message": "I think it might be clearer to call these stages\n\n   M(load) M(store) M(load_dst) M(store_dst)\n\nto mirror the convention used in the rest of the file.  Or stash/unstash if load/store seems unclear at that point?\n\nThe r,g,b,a registers are used as the src for blending for sure, but they\u0027re really more just the active color, used in a lot of situations where blending \"src\" and \"dst\" terminology don\u0027t really have meaning, like as the output of a blend function, or as the color which will be written to the framebuffer.\n\nThe dr,dg,db,da registers are mostly used for blending and are more strongly associated with \"dst\", though admittedly they\u0027re also sometimes used a scratch registers inside shaders.\n\n\nI think it\u0027ll also help make the places where you use the two together easier to follow.  As written you\u0027d kind of expect that load_src and store_src will always pair together, likewise for load_dst and store_dst, but to do anything interesting with them you\u0027re typically doing store_src / load_dst or vice versa, which is maybe a little more dissonant than store / load_dst.",
+      "revId": "e0075c0f5ecb4e65c0b5af66e53ba23582dc1233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
