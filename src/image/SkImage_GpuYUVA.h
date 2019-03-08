@@ -73,7 +73,8 @@ public:
                                                  PromiseImageTextureFulfillProc textureFulfillProc,
                                                  PromiseImageTextureReleaseProc textureReleaseProc,
                                                  PromiseImageTextureDoneProc textureDoneProc,
-                                                 PromiseImageTextureContext textureContexts[]);
+                                                 PromiseImageTextureContext textureContexts[],
+                                                 PromiseImageApiVersion);
 
 private:
     SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
