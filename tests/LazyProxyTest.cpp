@@ -249,8 +249,9 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     for (bool doInstantiate : {true, false}) {
-        for (auto lazyType :
-             {LazyInstantiationType::kSingleUse, LazyInstantiationType::kMultipleUse}) {
+        for (auto lazyType : {LazyInstantiationType::kSingleUse,
+                              LazyInstantiationType::kMultipleUse,
+                              LazyInstantiationType::kDeinstantiate}) {
             int testCount = 0;
             // Sets an integer to 1 when the callback is called and -1 when it is deleted.
             class TestCallback {
@@ -454,7 +455,7 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
                 ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     using LazyType = GrSurfaceProxy::LazyInstantiationType;
-    for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse}) {
+    for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse, LazyType::kDeinstantiate}) {
         sk_sp<GrRenderTargetContext> rtc = ctx->priv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kExact, 100, 100,
                 kRGBA_8888_GrPixelConfig, nullptr);
@@ -497,7 +498,11 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
         ctx->flush();
 
         REPORTER_ASSERT(reporter, 1 == instantiateTestValue);
-        REPORTER_ASSERT(reporter, 0 == releaseTestValue);
+        if (LazyType::kDeinstantiate == lazyType) {
+            REPORTER_ASSERT(reporter, 1 == releaseTestValue);
+        } else {
+            REPORTER_ASSERT(reporter, 0 == releaseTestValue);
+        }
 
         // This should cause the uninstantiate proxies to be instantiated again but have no effect
         // on the others
@@ -506,11 +511,20 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
         rtc->priv().testingOnly_addDrawOp(LazyDeinstantiateTestOp::Make(ctx.get(), lazyProxy));
         ctx->flush();
 
-        REPORTER_ASSERT(reporter, 1 == instantiateTestValue);
-        REPORTER_ASSERT(reporter, 0 == releaseTestValue);
+        if (LazyType::kDeinstantiate == lazyType) {
+            REPORTER_ASSERT(reporter, 2 == instantiateTestValue);
+            REPORTER_ASSERT(reporter, 2 == releaseTestValue);
+        } else {
+            REPORTER_ASSERT(reporter, 1 == instantiateTestValue);
+            REPORTER_ASSERT(reporter, 0 == releaseTestValue);
+        }
 
         lazyProxy.reset();
-        REPORTER_ASSERT(reporter, 1 == releaseTestValue);
+        if (LazyType::kDeinstantiate == lazyType) {
+            REPORTER_ASSERT(reporter, 2 == releaseTestValue);
+        } else {
+            REPORTER_ASSERT(reporter, 1 == releaseTestValue);
+        }
 
         gpu->deleteTestingOnlyBackendTexture(backendTex);
     }

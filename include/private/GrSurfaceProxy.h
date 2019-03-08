@@ -208,6 +208,8 @@ public:
     enum class LazyInstantiationType {
         kSingleUse,      // Instantiation callback is allowed to be called only once.
         kMultipleUse,    // Instantiation callback can be called multiple times.
+        kDeinstantiate,  // Instantiation callback can be called multiple times,
+                         // but we will deinstantiate the proxy after every flush.
     };
 
     enum class LazyState {
