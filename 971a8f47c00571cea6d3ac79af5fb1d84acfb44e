@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b44a17bf_2a201846",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T15:50:57Z",
+      "side": 1,
+      "message": "I mean, they do make sense.  But yes, only one with each hash will end up in Gold.",
+      "parentUuid": "2e62add3_fe050d5e",
+      "range": {
+        "startLine": 409,
+        "startChar": 4,
+        "endLine": 416,
+        "endChar": 5
+      },
+      "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50c18958_c5f7f057",
         "filename": "dm/DM.cpp",
         "patchSetId": 4
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "Re: file size: I\u0027m still hoping Mike will give an estimate of the file size increase. The larger the file size, the more likely it is that we\u0027ll have problems on devices that don\u0027t have much \"disk\" space, e.g. Chromecasts. Once the files are uploaded, it\u0027s probably not a huge concern, though.",
       "parentUuid": "50c18958_c5f7f057",
+      "range": {
+        "startLine": 442,
+        "startChar": 0,
+        "endLine": 447,
+        "endChar": 0
+      },
+      "revId": "971a8f47c00571cea6d3ac79af5fb1d84acfb44e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2037d30d_81ac1818",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-08T15:50:57Z",
+      "side": 1,
+      "message": "Looking at this this morning.  I\u0027m still seeing size differences on configs I wouldn\u0027t expect to change.  Once I\u0027ve got that sorted out I\u0027ll post up the relative size changes for various configs, and then give Rec.2020+2.2 via gAMA and cHRM a try.  I do notice that the profile we\u0027re embedding is 536 bytes.",
+      "parentUuid": "3568b5ff_dbd34fa2",
       "range": {
         "startLine": 442,
         "startChar": 0,
