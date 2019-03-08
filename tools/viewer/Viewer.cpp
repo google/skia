@@ -1571,6 +1571,13 @@ void Viewer::drawImGui() {
                 }
             }
 
+            if (ImGui::CollapsingHeader("Tiling")) {
+                ImGui::Checkbox("Enable", &fTiled);
+                ImGui::Checkbox("Draw Boundaries", &fDrawTileBoundaries);
+                ImGui::SliderFloat("Horizontal", &fTileScale.fWidth, 0.1f, 1.0f);
+                ImGui::SliderFloat("Vertical", &fTileScale.fHeight, 0.1f, 1.0f);
+            }
+
             if (ImGui::CollapsingHeader("Transform")) {
                 float zoom = fZoomLevel;
                 if (ImGui::SliderFloat("Zoom", &zoom, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
@@ -1593,12 +1600,6 @@ void Viewer::drawImGui() {
                     this->preTouchMatrixChanged();
                     paramsChanged = true;
                     fOffset = {0.5f, 0.5f};
-                }
-                if (ImGui::CollapsingHeader("Tiling")) {
-                    ImGui::Checkbox("Enable", &fTiled);
-                    ImGui::Checkbox("Draw Boundaries", &fDrawTileBoundaries);
-                    ImGui::SliderFloat("Horizontal", &fTileScale.fWidth, 0.1f, 1.0f);
-                    ImGui::SliderFloat("Vertical", &fTileScale.fHeight, 0.1f, 1.0f);
                 }
                 int perspectiveMode = static_cast<int>(fPerspectiveMode);
                 if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
