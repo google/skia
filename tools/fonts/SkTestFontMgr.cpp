@@ -58,8 +58,6 @@ public:
     SkString fFamilyName;
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
 class FontMgr final : public SkFontMgr {
 public:
     FontMgr() {
@@ -93,7 +91,12 @@ public:
         }
         #ifdef SK_XML
         fFamilies.emplace_back(sk_make_sp<FontStyleSet>("Emoji"));
-        fFamilies.back()->fTypefaces.emplace_back(SkTestSVGTypeface::Default(), SkFontStyle::Normal(), "Normal");
+        fFamilies.back()->fTypefaces.emplace_back(SkTestSVGTypeface::Default(),
+                                                  SkFontStyle::Normal(), "Normal");
+
+        fFamilies.emplace_back(sk_make_sp<FontStyleSet>("Planet"));
+        fFamilies.back()->fTypefaces.emplace_back(SkTestSVGTypeface::Planets(),
+                                                  SkFontStyle::Normal(), "Normal");
         #endif
     }
 
@@ -110,11 +113,12 @@ public:
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
         if (familyName) {
-            if (strstr(familyName,  "ono")) { return this->createStyleSet(0); }
-            if (strstr(familyName,  "ans")) { return this->createStyleSet(1); }
-            if (strstr(familyName, "erif")) { return this->createStyleSet(2); }
+            if (strstr(familyName,  "ono"   )) { return this->createStyleSet(0); }
+            if (strstr(familyName,  "ans"   )) { return this->createStyleSet(1); }
+            if (strstr(familyName,  "erif"  )) { return this->createStyleSet(2); }
             #ifdef SK_XML
-            if (strstr(familyName,  "oji")) { return this->createStyleSet(6); }
+            if (strstr(familyName,  "oji"   )) { return this->createStyleSet(6); }
+            if (strstr(familyName,  "Planet")) { return this->createStyleSet(7); }
             #endif
         }
         return nullptr;
