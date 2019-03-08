@@ -24,9 +24,9 @@ protected:
     sk_sp<SkTypeface> typefaces[4];
 
     void onOnceBeforeDraw() override {
-        typefaces[0] = MakeResourceAsTypeface("fonts/colr.ttf");
-        typefaces[1] = MakeResourceAsTypeface("fonts/sbix.ttf");
-        typefaces[2] = MakeResourceAsTypeface("fonts/cbdt.ttf");
+        typefaces[0] = MakeResourceAsTypeface("fonts/planetcolr.ttf");
+        typefaces[1] = MakeResourceAsTypeface("fonts/planetsbix.ttf");
+        typefaces[2] = MakeResourceAsTypeface("fonts/planetcbdt.ttf");
         typefaces[3] = sk_tool_utils::create_portable_typeface("Emoji", SkFontStyle());
     }
 
@@ -46,7 +46,7 @@ protected:
             font.setEdging(SkFont::Edging::kAlias);
 
             SkPaint paint;
-            const char* text = sk_tool_utils::emoji_sample_text();
+            const char* text =  "☿♀♁♂ ♃♄♅♆"; //sk_tool_utils::emoji_sample_text();
             SkFontMetrics metrics;
 
             for (SkScalar textSize : { 70, 150 }) {
