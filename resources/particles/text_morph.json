@@ -1,0 +1,186 @@
+{
+   "MaxCount": 1000,
+   "Duration": 6,
+   "Rate": 1000,
+   "Life": {
+      "Input": {
+         "Source": "Age",
+         "TileMode": "Repeat",
+         "Left": 0,
+         "Right": 1
+      },
+      "XValues": [],
+      "Segments": [
+         {
+            "Type": "Constant",
+            "Ranged": false,
+            "Bidirectional": false,
+            "A0": 6
+         }
+      ]
+   },
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "Spawn": [
+      {
+         "Type": "SkFrameAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 1,
+                  "A1": 0
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkPositionOnTextAffector",
+         "Enabled": true,
+         "Input": {
+            "Source": "SpriteFrame",
+            "TileMode": "Clamp",
+            "Left": 0,
+            "Right": 1
+         },
+         "SetHeading": true,
+         "Text": "SKIA",
+         "FontSize": 96
+      }
+   ],
+   "Update": [
+      {
+         "Type": "SkLinearVelocityAffector",
+         "Enabled": true,
+         "Force": false,
+         "Frame": "World",
+         "Angle": {
+            "Input": {
+               "Source": "Random",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": -180,
+                  "A1": 180
+               }
+            ]
+         },
+         "Strength": {
+            "Input": {
+               "Source": "EffectAge",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [
+               0.2,
+               0.4
+            ],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               },
+               {
+                  "Type": "Constant",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 10,
+                  "A1": 20
+               },
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkColorAffector",
+         "Enabled": true,
+         "Curve": {
+            "Input": {
+               "Source": "Age",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "A0": [ 1, 0.196078, 0.0784314, 1 ],
+                  "D0": [ 1, 0.784314, 0.0784314, 1 ]
+               }
+            ]
+         }
+      },
+      {
+         "Type": "SkBlendAffector",
+         "Enabled": true,
+         "Rate": {
+            "Input": {
+               "Source": "EffectAge",
+               "TileMode": "Clamp",
+               "Left": 0,
+               "Right": 1
+            },
+            "XValues": [
+               0.4
+            ],
+            "Segments": [
+               {
+                  "Type": "Constant",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0
+               },
+               {
+                  "Type": "Linear",
+                  "Ranged": false,
+                  "Bidirectional": false,
+                  "A0": 0.5,
+                  "D0": 5
+               }
+            ]
+         },
+         "Target": {
+            "Type": "SkPositionOnTextAffector",
+            "Enabled": true,
+            "Input": {
+               "Source": "SpriteFrame",
+               "TileMode": "Repeat",
+               "Left": 0,
+               "Right": 1
+            },
+            "SetHeading": true,
+            "Text": "ROCKS",
+            "FontSize": 96
+         }
+      }
+   ]
+}

@@ -365,6 +365,36 @@ private:
     SkTArray<sk_sp<SkContourMeasure>> fContours;
 };
 
+class SkBlendAffector : public SkParticleAffector {
+public:
+    SkBlendAffector(const SkCurve& rate = 1.0f, sk_sp<SkParticleAffector> target = nullptr)
+            : fRate(rate)
+            , fTarget(std::move(target)) {}
+
+    REFLECTED(SkBlendAffector, SkParticleAffector)
+
+    void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
+        if (fTarget) {
+            for (int i = 0; i < count; ++i) {
+                float lerpT = 1.0f - exp2(-fRate.eval(params, ps[i]) * params.fDeltaTime);
+                SkParticleState temp = ps[i];
+                fTarget->apply(params, &temp, 1);
+                ps[i].fPose.fPosition += (temp.fPose.fPosition - ps[i].fPose.fPosition) * lerpT;
+            }
+        }
+    }
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkParticleAffector::visitFields(v);
+        v->visit("Rate", fRate);
+        v->visit("Target", fTarget);
+    }
+
+private:
+    SkCurve fRate;
+    sk_sp<SkParticleAffector> fTarget;
+};
+
 class SkSizeAffector : public SkParticleAffector {
 public:
     SkSizeAffector(const SkCurve& curve = 1.0f) : fCurve(curve) {}
@@ -438,6 +468,7 @@ void SkParticleAffector::RegisterAffectorTypes() {
     REGISTER_REFLECTED(SkPositionInCircleAffector);
     REGISTER_REFLECTED(SkPositionOnPathAffector);
     REGISTER_REFLECTED(SkPositionOnTextAffector);
+    REGISTER_REFLECTED(SkBlendAffector);
     REGISTER_REFLECTED(SkSizeAffector);
     REGISTER_REFLECTED(SkFrameAffector);
     REGISTER_REFLECTED(SkColorAffector);
