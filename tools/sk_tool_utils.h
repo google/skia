@@ -60,11 +60,6 @@ namespace sk_tool_utils {
     const char* emoji_sample_text();
 
     /**
-     * Returns a string describing the platform font manager, if we're using one, otherwise "".
-     */
-    const char* platform_font_manager();
-
-    /**
      * Returns a platform-independent text renderer.
      */
     sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style);

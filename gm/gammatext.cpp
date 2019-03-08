@@ -31,9 +31,7 @@ static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
 class GammaTextGM : public skiagm::GM {
 protected:
     SkString onShortName() override {
-        SkString name("gammatext");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("gammatext");
     }
 
     SkISize onISize() override {

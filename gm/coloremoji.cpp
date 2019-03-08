@@ -67,9 +67,7 @@ protected:
     }
 
     SkString onShortName() override {
-        SkString name("coloremoji");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("coloremoji");
     }
 
     SkISize onISize() override { return SkISize::Make(650, 1200); }

@@ -29,9 +29,7 @@ protected:
     }
 
     SkString onShortName() override {
-        SkString name("dftext");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("dftext");
     }
 
     SkISize onISize() override {

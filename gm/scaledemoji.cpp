@@ -45,9 +45,7 @@ protected:
     }
 
     SkString onShortName() override {
-        SkString name("scaledemoji");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("scaledemoji");
     }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
@@ -97,9 +95,7 @@ protected:
     }
 
     SkString onShortName() override {
-        SkString name("scaledemojipos");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("scaledemojipos");
     }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }

@@ -38,36 +38,6 @@ sk_sp<SkTypeface> emoji_typeface() {
 const char* emoji_sample_text() {
     return "\xF0\x9F\x98\x80" " " "\xE2\x99\xA2"; // 😀 ♢
 }
-
-static const char* platform_os_name() {
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("os", FLAGS_key[index])) {
-            return FLAGS_key[index + 1];
-        }
-    }
-    return "";
-}
-
-static bool extra_config_contains(const char* substring) {
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (0 == strcmp("extra_config", FLAGS_key[index])
-                && strstr(FLAGS_key[index + 1], substring)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-const char* platform_font_manager() {
-    if (extra_config_contains("GDI")) {
-        return "GDI";
-    }
-    if (extra_config_contains("NativeFonts")){
-        return platform_os_name();
-    }
-    return "";
-}
-
 static sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
     static sk_sp<SkFontMgr> portableFontMgr = MakePortableFontMgr();
     return portableFontMgr->legacyMakeTypeface(name, style);

@@ -31,9 +31,7 @@ protected:
     }
 
     SkString onShortName() override {
-        SkString name("scaledemoji_rendering");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("scaledemoji_rendering");
     }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
