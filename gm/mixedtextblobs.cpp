@@ -40,8 +40,8 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiTypeface = sk_tool_utils::emoji_typeface();
-        fEmojiText = sk_tool_utils::emoji_sample_text();
+        fEmojiTypeface = sk_tool_utils::planet_typeface();
+        fEmojiText = "♁♃";
         fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
 
         SkTextBlobBuilder builder;
@@ -74,20 +74,17 @@ protected:
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset - bounds.width() * 0.25f,
                                         yOffset - bounds.height() * 0.5f);
-        yOffset += bounds.height();
 
-        // color emoji
+        // color emoji font with large glyph
         if (fEmojiTypeface) {
             font.setEdging(SkFont::Edging::kAlias);
             font.setSubpixel(false);
             font.setTypeface(fEmojiTypeface);
-            text = fEmojiText;
-            font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
-            sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset - bounds.width() * 0.3f,
-                                            yOffset);
+            font.measureText(fEmojiText, strlen(fEmojiText), kUTF8_SkTextEncoding, &bounds);
+            sk_tool_utils::add_to_text_blob(&builder, fEmojiText, font, xOffset, yOffset);
         }
 
-        // Corrupted font
+        // outline font with large glyph
         font.setSize(12);
         text = "aA";
         font.setTypeface(fReallyBigATypeface);

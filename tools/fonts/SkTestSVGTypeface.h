@@ -12,10 +12,12 @@
 #include "SkFontMetrics.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
+#include "SkPathOps.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
+#include "SkSpan.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -39,7 +41,7 @@ struct SkScalerContextRec;
 
 struct SkSVGTestTypefaceGlyphData {
     const char* fSvgResourcePath;
-    SkPoint fOrigin;
+    SkPoint fOrigin; // y-down
     SkScalar fAdvance;
     SkUnichar fUnicode; //TODO: this limits to 1:1
 };
@@ -49,16 +51,18 @@ public:
     SkTestSVGTypeface(const char* name,
                       int upem,
                       const SkFontMetrics& metrics,
-                      const SkSVGTestTypefaceGlyphData* data, int dataCount,
+                      SkSpan<const SkSVGTestTypefaceGlyphData> data,
                       const SkFontStyle& style);
     ~SkTestSVGTypeface() override;
     void getAdvance(SkGlyph* glyph) const;
     void getFontMetrics(SkFontMetrics* metrics) const;
 
     static sk_sp<SkTestSVGTypeface> Default();
-    void exportTtxCbdt(SkWStream*) const;
-    void exportTtxSbix(SkWStream*) const;
+    static sk_sp<SkTestSVGTypeface> Planets();
+    void exportTtxCbdt(SkWStream*, SkSpan<unsigned> strikeSizes) const;
+    void exportTtxSbix(SkWStream*, SkSpan<unsigned> strikeSizes) const;
     void exportTtxColr(SkWStream*) const;
+    virtual bool getPathOp(SkColor, SkPathOp*) const = 0;
 
     struct GlyfLayerInfo {
         GlyfLayerInfo(int layerColorIndex, SkIRect bounds)

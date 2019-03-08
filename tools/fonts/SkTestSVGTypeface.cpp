@@ -51,16 +51,16 @@ class SkDescriptor;
 SkTestSVGTypeface::SkTestSVGTypeface(const char* name,
                                      int upem,
                                      const SkFontMetrics& fontMetrics,
-                                     const SkSVGTestTypefaceGlyphData* data, int dataCount,
+                                     SkSpan<const SkSVGTestTypefaceGlyphData> data,
                                      const SkFontStyle& style)
     : SkTypeface(style, false)
     , fName(name)
     , fUpem(upem)
     , fFontMetrics(fontMetrics)
-    , fGlyphs(new Glyph[dataCount])
-    , fGlyphCount(dataCount)
+    , fGlyphs(new Glyph[data.size()])
+    , fGlyphCount(data.size())
 {
-    for (int i = 0; i < dataCount; ++i) {
+    for (size_t i = 0; i < data.size(); ++i) {
         const SkSVGTestTypefaceGlyphData& datum = data[i];
         std::unique_ptr<SkStreamAsset> stream = GetResourceAsStream(datum.fSvgResourcePath);
         fCMap.set(datum.fUnicode, i);
@@ -265,15 +265,14 @@ SkScalerContext* SkTestSVGTypeface::onCreateScalerContext(
     return new SkTestSVGScalerContext(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)), e, desc);
 }
 
-// Recommended that the first four be .notdef, .null, CR, space
-constexpr const static SkSVGTestTypefaceGlyphData gGlyphs[] = {
-    {"fonts/svg/notdef.svg", {100,800}, 800, 0x0}, // .notdef
-    {"fonts/svg/empty.svg", {0,0}, 800, 0x0020}, // space
-    {"fonts/svg/diamond.svg", {100, 800}, 800, 0x2662}, // ♢
-    {"fonts/svg/smile.svg", {0,800}, 800, 0x1F600}, // 😀
-};
-
 sk_sp<SkTestSVGTypeface> SkTestSVGTypeface::Default() {
+    // Recommended that the first four be .notdef, .null, CR, space
+    constexpr const static SkSVGTestTypefaceGlyphData glyphs[] = {
+        {"fonts/svg/notdef.svg", {100,800}, 800, 0x0}, // .notdef
+        {"fonts/svg/empty.svg", {0,0}, 800, 0x0020}, // space
+        {"fonts/svg/diamond.svg", {100, 800}, 800, 0x2662}, // ♢
+        {"fonts/svg/smile.svg", {0,800}, 800, 0x1F600}, // 😀
+    };
     SkFontMetrics metrics;
     metrics.fFlags = SkFontMetrics::kUnderlineThicknessIsValid_Flag |
                      SkFontMetrics::kUnderlinePositionIsValid_Flag  |
@@ -294,8 +293,66 @@ sk_sp<SkTestSVGTypeface> SkTestSVGTypeface::Default() {
     metrics.fUnderlinePosition = 20;
     metrics.fStrikeoutThickness = 20;
     metrics.fStrikeoutPosition = -400;
-    return sk_make_sp<SkTestSVGTypeface>("Emoji", 1000, metrics, gGlyphs, SK_ARRAY_COUNT(gGlyphs),
-                                         SkFontStyle::Normal());
+
+    class DefaultTypeface : public SkTestSVGTypeface {
+        using SkTestSVGTypeface::SkTestSVGTypeface;
+
+        bool getPathOp(SkColor color, SkPathOp* op) const override {
+            if ((SkColorGetR(color) + SkColorGetG(color) + SkColorGetB(color)) / 3 > 0x20) {
+                *op = SkPathOp::kDifference_SkPathOp;
+            } else {
+                *op = SkPathOp::kUnion_SkPathOp;
+            }
+            return true;
+        }
+    };
+    return sk_make_sp<DefaultTypeface>("Emoji", 1000, metrics, glyphs, SkFontStyle::Normal());
+}
+
+sk_sp<SkTestSVGTypeface> SkTestSVGTypeface::Planets() {
+    // Recommended that the first four be .notdef, .null, CR, space
+    constexpr const static SkSVGTestTypefaceGlyphData glyphs[] = {
+        {"fonts/svg/planets/pluto.svg", {0,20}, 60, 0x0}, // .notdef
+        {"fonts/svg/empty.svg", {0,0}, 400, 0x0020}, // space
+        {"fonts/svg/planets/mercury.svg", {0, 45}, 120, 0x263F}, // ☿
+        {"fonts/svg/planets/venus.svg", {0, 100}, 240, 0x2640}, // ♀
+        {"fonts/svg/planets/earth.svg", {0, 100}, 240, 0x2641}, // ♁
+        {"fonts/svg/planets/mars.svg", {0, 50}, 130, 0x2642}, // ♂
+        {"fonts/svg/planets/jupiter.svg", {0, 1000}, 2200, 0x2643}, // ♃
+        {"fonts/svg/planets/saturn.svg", {-300, 1500}, 2600, 0x2644}, // ♄
+        {"fonts/svg/planets/uranus.svg", {0, 375}, 790, 0x2645}, // ♅
+        {"fonts/svg/planets/neptune.svg", {0, 350}, 740, 0x2646}, // ♆
+    };
+    SkFontMetrics metrics;
+    metrics.fFlags = SkFontMetrics::kUnderlineThicknessIsValid_Flag |
+                     SkFontMetrics::kUnderlinePositionIsValid_Flag  |
+                     SkFontMetrics::kStrikeoutThicknessIsValid_Flag |
+                     SkFontMetrics::kStrikeoutPositionIsValid_Flag;
+    metrics.fTop = -1500;
+    metrics.fAscent = -200;
+    metrics.fDescent = 50;
+    metrics.fBottom = 1558;
+    metrics.fLeading = 10;
+    metrics.fAvgCharWidth = 200;
+    metrics.fMaxCharWidth = 200;
+    metrics.fXMin = -300;
+    metrics.fXMax = 2566;
+    metrics.fXHeight = 100;
+    metrics.fCapHeight = 180;
+    metrics.fUnderlineThickness = 8;
+    metrics.fUnderlinePosition = 2;
+    metrics.fStrikeoutThickness = 2;
+    metrics.fStrikeoutPosition = -80;
+
+    class PlanetTypeface : public SkTestSVGTypeface {
+        using SkTestSVGTypeface::SkTestSVGTypeface;
+
+        bool getPathOp(SkColor color, SkPathOp* op) const override {
+            *op = SkPathOp::kUnion_SkPathOp;
+            return true;
+        }
+    };
+    return sk_make_sp<PlanetTypeface>("Planets", 200, metrics, glyphs, SkFontStyle::Normal());
 }
 
 void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
@@ -619,21 +676,70 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("  </post>\n");
 }
 
-void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
+void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes) const {
+    SkPaint paint;
+    SkFont font;
+    font.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
+    SkString name;
+    this->getFamilyName(&name);
+
+    // The CBDT/CBLC format is quite restrictive. Only write strikes which fully fit.
+    SkSTArray<8, int> goodStrikeSizes;
+    for (size_t strikeIndex = 0; strikeIndex < strikeSizes.size(); ++strikeIndex) {
+        font.setSize(strikeSizes[strikeIndex]);
+
+        // CBLC limits
+        SkFontMetrics fm;
+        font.getMetrics(&fm);
+        if (!SkTFitsIn<int8_t>((int)(-fm.fTop)) ||
+            !SkTFitsIn<int8_t>((int)(-fm.fBottom)) ||
+            !SkTFitsIn<uint8_t>((int)(fm.fXMax - fm.fXMin)))
+        {
+            SkDebugf("Metrics too big cbdt font size %f for %s.\n", font.getSize(), name.c_str());
+            continue;
+        }
+
+        // CBDT limits
+        auto exceedsCbdtLimits = [&](){
+            for (int i = 0; i < fGlyphCount; ++i) {
+                SkGlyphID gid = i;
+                SkScalar advance;
+                SkRect bounds;
+                font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+                SkIRect ibounds = bounds.roundOut();
+                if (!SkTFitsIn<int8_t>(ibounds.fLeft) ||
+                    !SkTFitsIn<int8_t>(ibounds.fTop) ||
+                    !SkTFitsIn<uint8_t>(ibounds.width()) ||
+                    !SkTFitsIn<uint8_t>(ibounds.height()) ||
+                    !SkTFitsIn<uint8_t>((int)advance)
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        if (exceedsCbdtLimits()) {
+            SkDebugf("Glyphs too big cbdt font size %f for %s.\n", font.getSize(), name.c_str());
+            continue;
+        }
+
+        goodStrikeSizes.emplace_back(strikeSizes[strikeIndex]);
+    }
+
+    if (goodStrikeSizes.empty()) {
+        SkDebugf("No strike size fit for cbdt font for %s.\n", name.c_str());
+        return;
+    }
+
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     out->writeText("<ttFont sfntVersion=\"\\x00\\x01\\x00\\x00\" ttLibVersion=\"3.19\">\n");
     this->exportTtxCommon(out, "CBDT");
 
-    int strikeSizes[3] = { 16, 64, 128 };
-
-    SkPaint paint;
-    SkFont font;
-    font.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
-
     out->writeText("  <CBDT>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
-    for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
-        font.setSize(strikeSizes[strikeIndex]);
+    for (size_t strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
+        font.setSize(goodStrikeSizes[strikeIndex]);
+
         out->writeText("    <strikedata index=\"");
             out->writeDecAsText(strikeIndex);
             out->writeText("\">\n");
@@ -670,13 +776,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
                 out->writeDecAsText(image->width());
                 out->writeText("\"/>\n");
             out->writeText("          <BearingX value=\"");
-                out->writeDecAsText(bounds.fLeft);
+                out->writeDecAsText(ibounds.fLeft);
                 out->writeText("\"/>\n");
             out->writeText("          <BearingY value=\"");
-                out->writeScalarAsText(-bounds.fTop);
+                out->writeDecAsText(-ibounds.fTop);
                 out->writeText("\"/>\n");
             out->writeText("          <Advance value=\"");
-                out->writeScalarAsText(advance);
+                out->writeDecAsText((int)advance);
                 out->writeText("\"/>\n");
             out->writeText("        </SmallGlyphMetrics>\n");
             out->writeText("        <rawimagedata>");
@@ -700,8 +806,8 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
     SkFontMetrics fm;
     out->writeText("  <CBLC>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
-    for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
-        font.setSize(strikeSizes[strikeIndex]);
+    for (size_t strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
+        font.setSize(goodStrikeSizes[strikeIndex]);
         font.getMetrics(&fm);
         out->writeText("    <strike index=\"");
             out->writeDecAsText(strikeIndex);
@@ -709,13 +815,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("      <bitmapSizeTable>\n");
         out->writeText("        <sbitLineMetrics direction=\"hori\">\n");
         out->writeText("          <ascender value=\"");
-            out->writeScalarAsText(-fm.fTop);
+            out->writeDecAsText((int)(-fm.fTop));
             out->writeText("\"/>\n");
         out->writeText("          <descender value=\"");
-            out->writeScalarAsText(-fm.fBottom);
+            out->writeDecAsText((int)(-fm.fBottom));
             out->writeText("\"/>\n");
         out->writeText("          <widthMax value=\"");
-            out->writeScalarAsText(fm.fXMax - fm.fXMin);
+            out->writeDecAsText((int)(fm.fXMax - fm.fXMin));
             out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -729,13 +835,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("        </sbitLineMetrics>\n");
         out->writeText("        <sbitLineMetrics direction=\"vert\">\n");
         out->writeText("          <ascender value=\"");
-            out->writeScalarAsText(-fm.fTop);
+            out->writeDecAsText((int)(-fm.fTop));
             out->writeText("\"/>\n");
         out->writeText("          <descender value=\"");
-            out->writeScalarAsText(-fm.fBottom);
+            out->writeDecAsText((int)(-fm.fBottom));
             out->writeText("\"/>\n");
         out->writeText("          <widthMax value=\"");
-            out->writeScalarAsText(fm.fXMax - fm.fXMin);
+            out->writeDecAsText((int)(fm.fXMax - fm.fXMin));
             out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -751,10 +857,10 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("        <startGlyphIndex value=\"1\"/>\n");
         out->writeText("        <endGlyphIndex value=\"1\"/>\n");
         out->writeText("        <ppemX value=\"");
-            out->writeDecAsText(strikeSizes[strikeIndex]);
+            out->writeDecAsText(goodStrikeSizes[strikeIndex]);
             out->writeText("\"/>\n");
         out->writeText("        <ppemY value=\"");
-            out->writeDecAsText(strikeSizes[strikeIndex]);
+            out->writeDecAsText(goodStrikeSizes[strikeIndex]);
             out->writeText("\"/>\n");
         out->writeText("        <bitDepth value=\"32\"/>\n");
         out->writeText("        <flags value=\"1\"/>\n");
@@ -790,7 +896,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
  * make the glyph contour a degenerate line with points at the edge of the
  * bounding box of the glyph.
  */
-void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
+void SkTestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes) const {
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     out->writeText("<ttFont sfntVersion=\"\\x00\\x01\\x00\\x00\" ttLibVersion=\"3.19\">\n");
     this->exportTtxCommon(out, "sbix");
@@ -841,12 +947,10 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
     // The loca table will be re-calculated, but if we don't write one we don't get one.
     out->writeText("  <loca/>\n");
 
-    int strikeSizes[3] = { 16, 64, 128 };
-
     out->writeText("  <sbix>\n");
     out->writeText("    <version value=\"1\"/>\n");
     out->writeText("    <flags value=\"00000000 00000001\"/>\n");
-    for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
+    for (size_t strikeIndex = 0; strikeIndex < strikeSizes.size(); ++strikeIndex) {
         font.setSize(strikeSizes[strikeIndex]);
         out->writeText("    <strike>\n");
         out->writeText("      <ppem value=\"");
@@ -875,12 +979,31 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 
+            // The originOffset values are difficult to use as DirectWrite and FreeType interpret
+            // the origin to be the initial glyph position on the baseline, but CoreGraphics
+            // interprets the origin to be the lower left of the cbox of the outline in the 'glyf'
+            // table.
+//#define SK_SBIX_LIKE_FT
+//#define SK_SBIX_LIKE_DW
             out->writeText("      <glyph name=\"glyf");
                 out->writeHexAsText(i, 4);
                 out->writeText("\" graphicType=\"png \" originOffsetX=\"");
+#if defined(SK_SBIX_LIKE_FT) || defined(SK_SBIX_LIKE_DW)
                 out->writeDecAsText(bounds.fLeft);
+#else
+                out->writeDecAsText(0);
+#endif
+                // DirectWrite and CoreGraphics use positive values of originOffsetY to push the
+                // image visually up (but from different origins).
+                // FreeType uses positive values to push the image down.
                 out->writeText("\" originOffsetY=\"");
+#if defined(SK_SBIX_LIKE_FT)
                 out->writeScalarAsText(bounds.fBottom);
+#elif defined(SK_SBIX_LIKE_DW)
+                out->writeScalarAsText(-bounds.fBottom);
+#else
+                out->writeDecAsText(0);
+#endif
                 out->writeText("\">\n");
 
             out->writeText("        <hexdata>");
@@ -1020,16 +1143,17 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
 
 class SkCOLRCanvas : public SkNoDrawCanvas {
 public:
-    SkCOLRCanvas(SkRect glyphBounds, SkGlyphID glyphId,
+    SkCOLRCanvas(SkRect glyphBounds, const SkTestSVGTypeface& typeface, SkGlyphID glyphId,
                  SkTestSVGTypeface::GlyfInfo* glyf, SkTHashMap<SkColor, int>* colors,
                  SkWStream* out)
         : SkNoDrawCanvas(glyphBounds.roundOut().width(), glyphBounds.roundOut().height())
-        , fOut(out)
-        , fGlyphId(glyphId)
         , fBaselineOffset(glyphBounds.top())
-        , fLayerId(0)
+        , fTypeface(typeface)
+        , fGlyphId(glyphId)
         , fGlyf(glyf)
         , fColors(colors)
+        , fOut(out)
+        , fLayerId(0)
     { }
 
     void writePoint(SkScalar x, SkScalar y, bool on) {
@@ -1169,12 +1293,10 @@ public:
 
         // While creating the default glyf, union with dark colors and intersect with bright colors.
         SkColor color = paint.getColor();
-        if ((SkColorGetR(color) + SkColorGetG(color) + SkColorGetB(color)) / 3 > 0x20) {
-            fBasePath.add(path, SkPathOp::kDifference_SkPathOp);
-        } else {
-            fBasePath.add(path, SkPathOp::kUnion_SkPathOp);
+        SkPathOp op;
+        if (fTypeface.getPathOp(color, &op)) {
+            fBasePath.add(path, op);
         }
-
         SkIRect bounds = this->writePath(path, true);
 
         // The CPAL table has the concept of a 'current color' which is index 0xFFFF.
@@ -1207,13 +1329,14 @@ public:
     }
 
 private:
-    SkWStream * const fOut;
-    SkGlyphID fGlyphId;
     SkScalar fBaselineOffset;
-    int fLayerId;
-    SkOpBuilder fBasePath;
+    const SkTestSVGTypeface& fTypeface;
+    SkGlyphID fGlyphId;
     SkTestSVGTypeface::GlyfInfo* fGlyf;
     SkTHashMap<SkColor, int>* fColors;
+    SkWStream * const fOut;
+    SkOpBuilder fBasePath;
+    int fLayerId;
 };
 
 } // namespace
@@ -1235,7 +1358,7 @@ void SkTestSVGTypeface::exportTtxColr(SkWStream* out) const {
                                               : SkSize::MakeEmpty();
         SkRect bounds = SkRect::MakeXYWH(glyphData.fOrigin.fX, -glyphData.fOrigin.fY,
                                          containerSize.fWidth, containerSize.fHeight);
-        SkCOLRCanvas canvas(bounds, i, &glyfInfos.emplace_back(), &colors, &glyfOut);
+        SkCOLRCanvas canvas(bounds, *this, i, &glyfInfos.emplace_back(), &colors, &glyfOut);
         if (glyphData.fSvg) {
             glyphData.fSvg->render(&canvas);
         }
@@ -1254,8 +1377,11 @@ void SkTestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("  <COLR>\n");
     out->writeText("    <version value=\"0\"/>\n");
     for (int i = 0; i < fGlyphCount; ++i) {
-        if (glyfInfos[i].fBounds.isEmpty() || glyfInfos[i].fLayers.empty()) {
+        if (glyfInfos[i].fLayers.empty()) {
             continue;
+        }
+        if (glyfInfos[i].fBounds.isEmpty()) {
+            SkDebugf("Glyph %d is empty but has layers.\n", i);
         }
         out->writeText("    <ColorGlyph name=\"glyf");
             out->writeHexAsText(i, 4);
