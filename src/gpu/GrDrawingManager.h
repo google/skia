@@ -91,7 +91,7 @@ private:
     // This class encapsulates maintenance and manipulation of the drawing manager's DAG of opLists.
     class OpListDAG {
     public:
-        OpListDAG(bool explicitlyAllocating, GrContextOptions::Enable sortOpLists);
+        OpListDAG(bool explicitlyAllocating, bool sortOpLists);
         ~OpListDAG();
 
         // Currently, when explicitly allocating resources, this call will topologically sort the
@@ -138,7 +138,8 @@ private:
 
     GrDrawingManager(GrRecordingContext*, const GrPathRendererChain::Options&,
                      const GrTextContext::Options&,
-                     bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets,
+                     bool explicitlyAllocating,
+                     bool sortOpLists,
                      GrContextOptions::Enable reduceOpListSplitting);
 
     bool wasAbandoned() const;
