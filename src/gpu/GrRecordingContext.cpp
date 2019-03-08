@@ -61,6 +61,10 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
                                              this->contextID()));
 
+    return true;
+}
+
+void GrRecordingContext::setupDrawingManager(bool explicitlyAllocate, bool sortOpLists) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -90,13 +94,16 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCac
     }
 #endif
 
+    // SHORT TERM TODO: until intermediate flushes at allocation time are added we need to obey the
+    // reduceOpListSplitting flag. Once that lands we should always reduce opList splitting in
+    // DDL contexts/drawing managers. We should still obey the options for non-DDL drawing managers
+    // until predictive intermediate flushes are added (i.e., we can't reorder forever).
     fDrawingManager.reset(new GrDrawingManager(this,
-                                               prcOptions,
-                                               textContextOptions,
-                                               this->explicitlyAllocateGPUResources(),
-                                               this->options().fSortRenderTargets,
-                                               this->options().fReduceOpListSplitting));
-    return true;
+                                                prcOptions,
+                                                textContextOptions,
+                                                explicitlyAllocate,
+                                                sortOpLists,
+                                                this->options().fReduceOpListSplitting));
 }
 
 void GrRecordingContext::abandonContext() {

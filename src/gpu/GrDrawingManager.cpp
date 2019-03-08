@@ -34,16 +34,9 @@
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextContext.h"
 
-GrDrawingManager::OpListDAG::OpListDAG(bool explicitlyAllocating,
-                                       GrContextOptions::Enable sortOpLists) {
-    if (GrContextOptions::Enable::kNo == sortOpLists) {
-        fSortOpLists = false;
-    } else if (GrContextOptions::Enable::kYes == sortOpLists) {
-        fSortOpLists = true;
-    } else {
-        // By default we always enable sorting when we're explicitly allocating GPU resources
-        fSortOpLists = explicitlyAllocating;
-    }
+GrDrawingManager::OpListDAG::OpListDAG(bool explicitlyAllocating, bool sortOpLists)
+        : fSortOpLists(sortOpLists) {
+    SkASSERT(!sortOpLists || explicitlyAllocating);
 }
 
 GrDrawingManager::OpListDAG::~OpListDAG() {}
@@ -151,7 +144,7 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrTextContext::Options& optionsForTextContext,
                                    bool explicitlyAllocating,
-                                   GrContextOptions::Enable sortOpLists,
+                                   bool sortOpLists,
                                    GrContextOptions::Enable reduceOpListSplitting)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)

@@ -70,7 +70,6 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
         return false;
     }
 
-    SkASSERT(this->drawingManager());
     SkASSERT(this->caps());
     SkASSERT(this->getGrStrikeCache());
     SkASSERT(this->getTextBlobCache());
