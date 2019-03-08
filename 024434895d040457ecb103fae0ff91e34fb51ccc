@@ -17,6 +17,24 @@
       "revId": "024434895d040457ecb103fae0ff91e34fb51ccc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c38440e6_4feb6fc5",
+        "filename": "infra/bots/assets/cmake_mac/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-08T13:15:33Z",
+      "side": 1,
+      "message": "IIRC common adds infra/bots dir to the python path.",
+      "parentUuid": "dc228d4d_185b34da",
+      "revId": "024434895d040457ecb103fae0ff91e34fb51ccc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
