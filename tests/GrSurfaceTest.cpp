@@ -488,6 +488,28 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // Now that the draw is fully consumed by the GPU, the texture should be idle.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) != idleIDs.end());
 
+                // Make a proxy that should deinstantiate even if we keep a ref on it.
+                auto deinstantiateLazyCB = [&make, &context](GrResourceProvider* rp) {
+                    return make(context, 3);
+                };
+                proxy = context->priv().proxyProvider()->createLazyProxy(
+                        deinstantiateLazyCB, backendFormat, desc,
+                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                        GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
+                        GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+                rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
+                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
+                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
+                // At this point the proxy shouldn't even be instantiated, there is no texture with
+                // id 3.
+                REPORTER_ASSERT(reporter, idleIDs.find(3) == idleIDs.end());
+                context->flush();
+                context->priv().getGpu()->testingOnly_flushGpuAndSync();
+                // Now that the draw is fully consumed, we should have deinstantiated the proxy and
+                // the texture it made should be idle.
+                REPORTER_ASSERT(reporter, idleIDs.find(3) != idleIDs.end());
+
                 // Make sure we make the call during various shutdown scenarios where the texture
                 // might persist after context is destroyed, abandoned, etc. We test three
                 // variations of each scenario. One where the texture is just created. Another,
@@ -501,7 +523,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 if (api == GrBackendApi::kVulkan) {
                     continue;
                 }
-                int id = 3;
+                int id = 4;
                 enum class DrawType {
                     kNoDraw,
                     kDraw,

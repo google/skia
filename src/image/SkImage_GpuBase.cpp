@@ -445,12 +445,23 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
         ~PromiseLazyInstantiateCallback() {
             if (fIdleCallback) {
+                SkASSERT(!fTexture);
                 // We were never fulfilled. Pass false so done proc is still called.
                 fIdleCallback->abandon();
+            }
+            // Our destructor can run on any thread. We trigger the unref of fTexture by message.
+            if (fTexture) {
+                SkASSERT(!fIdleCallback);
+                SkMessageBus<GrGpuResourceFreedMessage>::Post({fTexture, fTextureContextID});
             }
         }
 
         sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) {
+            // Our proxy is getting instantiated for the second+ time. We are only allowed to call
+            // Fulfill once. So return our cached result.
+            if (fTexture) {
+                return sk_ref_sp(fTexture);
+            }
             SkASSERT(fIdleCallback);
             PromiseImageTextureContext textureContext = fIdleCallback->context();
             sk_sp<SkPromiseImageTexture> promiseTexture = fFulfillProc(textureContext);
@@ -495,10 +506,20 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
             tex->addIdleProc(std::move(fIdleCallback));
             promiseTexture->addKeyToInvalidate(tex->getContext()->priv().contextID(), key);
+            fTexture = tex.get();
+            // We need to hold on to the GrTexture in case our proxy gets reinstantiated. However,
+            // we can't unref in our destructor because we may be on another thread then. So we
+            // let the cache know it is waiting on an unref message. We will send that message from
+            // our destructor.
+            GrContext* context = fTexture->getContext();
+            context->priv().getResourceCache()->insertDelayedResourceUnref(fTexture);
+            fTextureContextID = context->priv().contextID();
             return std::move(tex);
         }
 
     private:
+        GrTexture* fTexture = nullptr;
+        uint32_t fTextureContextID = SK_InvalidUniqueID;
         sk_sp<GrRefCntedCallback> fIdleCallback;
         PromiseImageTextureFulfillProc fFulfillProc;
         GrPixelConfig fConfig;
@@ -515,5 +536,5 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     return proxyProvider->createLazyProxy(std::move(callback), backendFormat, desc, origin,
                                           mipMapped, GrInternalSurfaceFlags::kReadOnly,
                                           SkBackingFit::kExact, SkBudgeted::kNo,
-                                          GrSurfaceProxy::LazyInstantiationType::kSingleUse);
+                                          GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
 }

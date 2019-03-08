@@ -10,6 +10,7 @@
 #include "Test.h"
 
 #include "GrContextPriv.h"
+#include "GrDeinstantiateProxyTracker.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
 #include "GrResourceAllocator.h"
@@ -89,7 +90,8 @@ static void cleanup_backend(GrContext* context, const GrBackendTexture& backendT
 // assigned different GrSurfaces.
 static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                          GrSurfaceProxy* p1, GrSurfaceProxy* p2, bool expectedResult) {
-    GrResourceAllocator alloc(resourceProvider);
+    GrDeinstantiateProxyTracker deinstantiateTracker;
+    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
 
     alloc.addInterval(p1, 0, 4);
     alloc.addInterval(p2, 1, 2);
@@ -111,7 +113,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                              GrSurfaceProxy* p1, GrSurfaceProxy* p2,
                              bool expectedResult) {
-    GrResourceAllocator alloc(resourceProvider);
+    GrDeinstantiateProxyTracker deinstantiateTracker;
+    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
 
     alloc.addInterval(p1, 0, 2);
     alloc.addInterval(p2, 3, 5);
@@ -285,7 +288,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
 }
 
 sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
-                                const ProxyParams& p) {
+                                const ProxyParams& p, bool deinstantiate) {
     GrColorType grCT = SkColorTypeToGrColorType(p.fColorType);
     GrPixelConfig config = GrColorTypeToPixelConfig(grCT, GrSRGBEncoded::kNo);
 
@@ -308,7 +311,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         }
     };
     const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
-    auto lazyType = GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
+    auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
+                                  : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     return proxyProvider->createLazyProxy(callback, format, desc, p.fOrigin, GrMipMapped::kNo,
                                           flags, p.fFit, SkBudgeted::kNo, lazyType);
@@ -330,20 +334,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
         rtParams.fIsRT = true;
         auto proxyProvider = context->priv().proxyProvider();
         auto caps = context->priv().caps();
-        auto p0 = make_lazy(proxyProvider, caps, texParams);
+        auto p0 = make_lazy(proxyProvider, caps, texParams, true);
+        auto p1 = make_lazy(proxyProvider, caps, texParams, false);
         texParams.fFit = rtParams.fFit = SkBackingFit::kApprox;
-        auto p1 = make_lazy(proxyProvider, caps, rtParams);
+        auto p2 = make_lazy(proxyProvider, caps, rtParams, true);
+        auto p3 = make_lazy(proxyProvider, caps, rtParams, false);
 
+        GrDeinstantiateProxyTracker deinstantiateTracker;
         {
-            GrResourceAllocator alloc(resourceProvider);
+            GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
             alloc.addInterval(p0.get(), 0, 1);
             alloc.addInterval(p1.get(), 0, 1);
+            alloc.addInterval(p2.get(), 0, 1);
+            alloc.addInterval(p3.get(), 0, 1);
             alloc.markEndOfOpList(0);
             int startIndex, stopIndex;
             GrResourceAllocator::AssignError error;
             alloc.assign(&startIndex, &stopIndex, &error);
         }
-        REPORTER_ASSERT(reporter, p0->isInstantiated());
+        deinstantiateTracker.deinstantiateAllProxies();
+        REPORTER_ASSERT(reporter, !p0->isInstantiated());
         REPORTER_ASSERT(reporter, p1->isInstantiated());
+        REPORTER_ASSERT(reporter, !p2->isInstantiated());
+        REPORTER_ASSERT(reporter, p3->isInstantiated());
     }
 }
