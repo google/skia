@@ -152,6 +152,18 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
                                GrColorType dataColorType, const GrMipLevel texels[],
                                int mipLevelCount) {
     SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+    // The assumption is either that we have no mipmaps, or that our rect is the entire texture
+    SkASSERT(1 == mipLevelCount ||
+             (0 == left && 0 == top && width == tex->width() && height == tex->height()));
+
+    // We assume that if the texture has mip levels, we either upload to all the levels or just the
+    // first.
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
+
+    // If we're uploading compressed data then we should be using uploadCompressedTexData
+    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
+                                                                 GrSRGBEncoded::kNo)));
+
     if (!check_max_blit_width(width)) {
         return false;
     }
@@ -165,27 +177,65 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     id<MTLTexture> mtlTexture = tex->mtlTexture();
     SkASSERT(mtlTexture);
     // Either upload only the first miplevel or all miplevels
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
+    SkASSERT(1 == mipLevelCount);// || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
 
-    MTLTextureDescriptor* transferDesc = GrGetMTLTextureDescriptor(mtlTexture);
-    transferDesc.mipmapLevelCount = mipLevelCount;
-    transferDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+    // TODO: implement some way of reusing transfer buffers?
+    size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
+
+    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    individualMipOffsets.push_back(0);
+    size_t combinedBufferSize = width * bpp * height;
+    int currentWidth = width;
+    int currentHeight = height;
+    if (!texels[0].fPixels) {
+        combinedBufferSize = 0;
+    }
+
+    // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
+    // config. This works with the assumption that the bytes in pixel config is always a power of 2.
+    SkASSERT((bpp & (bpp - 1)) == 0);
+    const size_t alignmentMask = 0x3 | (bpp - 1);
+    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
+
+        if (texels[currentMipLevel].fPixels) {
+            const size_t trimmedSize = currentWidth * bpp * currentHeight;
+            const size_t alignmentDiff = combinedBufferSize & alignmentMask;
+            if (alignmentDiff != 0) {
+                combinedBufferSize += alignmentMask - alignmentDiff + 1;
+            }
+            individualMipOffsets.push_back(combinedBufferSize);
+            combinedBufferSize += trimmedSize;
+        } else {
+            individualMipOffsets.push_back(0);
+        }
+    }
+    if (0 == combinedBufferSize) {
+        // We don't actually have any data to upload so just return success
+        return true;
+    }
+
+    NSUInteger options = MTLResourceCPUCacheModeWriteCombined;
 #ifdef SK_BUILD_FOR_MAC
-    transferDesc.storageMode = MTLStorageModeManaged;
+    options |= MTLResourceStorageModeManaged;
 #else
-    transferDesc.storageMode = MTLStorageModeShared;
+    options |= MTLResourceStorageModeShared;
 #endif
-    // TODO: implement some way of reusing transfer textures
-    id<MTLTexture> transferTexture = [fDevice newTextureWithDescriptor:transferDesc];
-    SkASSERT(transferTexture);
+    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: combinedBufferSize
+                                                        options: MTLResourceStorageModeShared];
+    if (nil == transferBuffer) {
+        return false;
+    }
+
+    char* buffer = (char*) transferBuffer.contents;
 
     int currentWidth = width;
     int currentHeight = height;
-    size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
-    SkASSERT(mtlTexture.pixelFormat == transferTexture.pixelFormat);
-    SkASSERT(mtlTexture.sampleCount == transferTexture.sampleCount);
+//    SkASSERT(mtlTexture.pixelFormat == transferTexture.pixelFormat);
+//    SkASSERT(mtlTexture.sampleCount == transferTexture.sampleCount);
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = [fCmdBuffer blitCommandEncoder];
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
@@ -195,15 +245,19 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         if (rowBytes < bpp * currentWidth || rowBytes % bpp) {
             return false;
         }
-        [transferTexture replaceRegion: MTLRegionMake2D(left, top, width, height)
-                           mipmapLevel: currentMipLevel
-                             withBytes: texels[currentMipLevel].fPixels
-                           bytesPerRow: rowBytes];
+        void* mappedMemory = transferBuffer.contents;
 
-        [blitCmdEncoder copyFromTexture: transferTexture
-                            sourceSlice: 0
-                            sourceLevel: currentMipLevel
-                           sourceOrigin: origin
+        SkRectMemcpy(mappedMemory, transBufferRowBytes, texels[currentMipLevel].fPixels, rowBytes, transBufferRowBytes, height);
+
+//        [transferTexture replaceRegion: MTLRegionMake2D(left, top, width, height)
+//                           mipmapLevel: currentMipLevel
+//                             withBytes: texels[currentMipLevel].fPixels
+//                           bytesPerRow: rowBytes];
+
+        [blitCmdEncoder copyFromBuffer: transferBuffer
+                          sourceOffset: 0
+                     sourceBytesPerRow: transBufferRowBytes
+                   sourceBytesPerImage: transBufferImageBytes
                              sourceSize: MTLSizeMake(width, height, 1)
                               toTexture: mtlTexture
                        destinationSlice: 0
