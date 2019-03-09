@@ -19,7 +19,7 @@
 // As we have not #define'd WUFFS_IMPLEMENTATION, the #include here is
 // including a header file, even though that file name ends in ".c".
 #include "wuffs-v0.2.c"
-#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1640
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1655
 #error "Wuffs version is too old. Upgrade to the latest version."
 #endif
 
@@ -323,9 +323,9 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fWorkbufPtr(std::move(workbuf_ptr)),
       fWorkbufLen(workbuf_len),
       fFirstFrameIOPosition(imgcfg.first_frame_io_position()),
-      fFrameConfig((wuffs_base__frame_config){}),
+      fFrameConfig(wuffs_base__null_frame_config()),
       fPixelBuffer(pixbuf),
-      fIOBuffer((wuffs_base__io_buffer){}),
+      fIOBuffer(wuffs_base__null_io_buffer()),
       fIncrDecDst(nullptr),
       fIncrDecRowBytes(0),
       fSwizzler(nullptr),
@@ -340,13 +340,8 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
     // this SkWuffsCodec object, but fIOBuffer's backing array (fBuffer) is.
     SkASSERT(iobuf.data.len == SK_WUFFS_CODEC_BUFFER_SIZE);
     memmove(fBuffer, iobuf.data.ptr, iobuf.meta.wi);
-    fIOBuffer = ((wuffs_base__io_buffer){
-        .data = ((wuffs_base__slice_u8){
-            .ptr = fBuffer,
-            .len = SK_WUFFS_CODEC_BUFFER_SIZE,
-        }),
-        .meta = iobuf.meta,
-    });
+    fIOBuffer.data = wuffs_base__make_slice_u8(fBuffer, SK_WUFFS_CODEC_BUFFER_SIZE);
+    fIOBuffer.meta = iobuf.meta;
 }
 
 const SkWuffsFrame* SkWuffsCodec::frame(int i) const {
@@ -802,7 +797,7 @@ SkCodec::Result SkWuffsCodec::resetDecoder() {
     if (!fStream->rewind()) {
         return SkCodec::kInternalError;
     }
-    fIOBuffer.meta = ((wuffs_base__io_buffer_meta){});
+    fIOBuffer.meta = wuffs_base__null_io_buffer_meta();
 
     SkCodec::Result result =
         reset_and_decode_image_config(fDecoder.get(), nullptr, &fIOBuffer, fStream.get());
@@ -831,12 +826,9 @@ const char* SkWuffsCodec::decodeFrameConfig() {
 
 const char* SkWuffsCodec::decodeFrame() {
     while (true) {
-        const char* status = fDecoder->decode_frame(&fPixelBuffer, fIOBuffer.reader(),
-                                                    ((wuffs_base__slice_u8){
-                                                        .ptr = fWorkbufPtr.get(),
-                                                        .len = fWorkbufLen,
-                                                    }),
-                                                    NULL);
+        const char* status =
+            fDecoder->decode_frame(&fPixelBuffer, fIOBuffer.reader(),
+                                   wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);
         if ((status == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
@@ -867,15 +859,11 @@ bool SkWuffsCodec_IsFormat(const void* buf, size_t bytesRead) {
 
 std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> stream,
                                                      SkCodec::Result*          result) {
-    uint8_t                  buffer[SK_WUFFS_CODEC_BUFFER_SIZE];
-    wuffs_base__io_buffer    iobuf = ((wuffs_base__io_buffer){
-        .data = ((wuffs_base__slice_u8){
-            .ptr = buffer,
-            .len = SK_WUFFS_CODEC_BUFFER_SIZE,
-        }),
-        .meta = ((wuffs_base__io_buffer_meta){}),
-    });
-    wuffs_base__image_config imgcfg = ((wuffs_base__image_config){});
+    uint8_t               buffer[SK_WUFFS_CODEC_BUFFER_SIZE];
+    wuffs_base__io_buffer iobuf =
+        wuffs_base__make_io_buffer(wuffs_base__make_slice_u8(buffer, SK_WUFFS_CODEC_BUFFER_SIZE),
+                                   wuffs_base__null_io_buffer_meta());
+    wuffs_base__image_config imgcfg = wuffs_base__null_image_config();
 
     // Wuffs is primarily a C library, not a C++ one. Furthermore, outside of
     // the wuffs_base__etc types, the sizeof a file format specific type like
@@ -938,12 +926,10 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     }
     std::unique_ptr<uint8_t, decltype(&sk_free)> pixbuf_ptr(
         reinterpret_cast<uint8_t*>(pixbuf_ptr_raw), &sk_free);
-    wuffs_base__pixel_buffer pixbuf = ((wuffs_base__pixel_buffer){});
+    wuffs_base__pixel_buffer pixbuf = wuffs_base__null_pixel_buffer();
 
-    const char* status = pixbuf.set_from_slice(&imgcfg.pixcfg, ((wuffs_base__slice_u8){
-                                                                   .ptr = pixbuf_ptr.get(),
-                                                                   .len = SkToSizeT(pixbuf_len),
-                                                               }));
+    const char* status = pixbuf.set_from_slice(
+        &imgcfg.pixcfg, wuffs_base__make_slice_u8(pixbuf_ptr.get(), SkToSizeT(pixbuf_len)));
     if (status != nullptr) {
         SkCodecPrintf("set_from_slice: %s", status);
         *result = SkCodec::kInternalError;
