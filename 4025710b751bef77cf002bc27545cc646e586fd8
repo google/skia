@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b5e45883_3b5c2025",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 0,
+      "message": "The first is for processing paths. The second two are for processing things which don\u0027t have a path usually emoji. There are two fallback causes because of how I have structure fallback. In the future this can probably just be process source. These drawGlyphRunAs... will all go away when everything is combined into a single routine.",
+      "parentUuid": "04db42fe_e4a1b461",
+      "range": {
+        "startLine": 388,
+        "startChar": 8,
+        "endLine": 389,
+        "endChar": 41
+      },
+      "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5e0675f_a210ea72",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-08T17:52:59Z",
       "side": 0,
       "message": "At some point do we want to rename these BMP bits to use Mask, or is that another important distinction, like BMP is only for full color?  That\u0027s what we call ARGB in here, right?",
+      "range": {
+        "startLine": 454,
+        "startChar": 42,
+        "endLine": 454,
+        "endChar": 45
+      },
+      "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7185308_ba2480d1",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 0,
+      "message": "as above all these go away, and the resulting interface is trivial. \n\nAll the drawGlyphRunAs.... are combined into a single method with the following signature.\n\n    void processGlyphRunList(const SkGlyphRunList\u0026 glyphRunList,\n                             const SkMatrix\u0026 viewMatrix,\n                             const SkSurfaceProps\u0026 props,\n                             bool contextSupportsDistanceFieldText,\n                             const GrTextContext::Options\u0026 options,\n                             SkGlyphRunPainterInterface* process);",
+      "parentUuid": "d5e0675f_a210ea72",
       "range": {
         "startLine": 454,
         "startChar": 42,
@@ -68,6 +116,30 @@
       "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d0d1348_173298ee",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 0,
+      "message": "This is the historic interface to GrTextBlob, GrTextBlob::Run and GrTextBlob::SubRun. I have not shined up this API yet.",
+      "parentUuid": "9de4efef_f4dbf8d8",
+      "range": {
+        "startLine": 970,
+        "startChar": 3,
+        "endLine": 970,
+        "endChar": 32
+      },
+      "revId": "4025710b751bef77cf002bc27545cc646e586fd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

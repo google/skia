@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6c39ad4e_151d8063",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "nullptr is a hint to do less work. It has not been fully exploited yet.\n\nAdded comment to .h",
+      "parentUuid": "f3f0f89e_1a2f54bb",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dab3d692_a7a6ffb6",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec37934d_49dc7144",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dab3d692_a7a6ffb6",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "2fadee72_5466310a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Your intuition is correct, and I should be able to exploit this when we have the one-routine-to-rule-them-all.",
+      "parentUuid": "4d55078b_7515568a",
+      "range": {
+        "startLine": 825,
+        "startChar": 26,
+        "endLine": 825,
+        "endChar": 59
+      },
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df9301da_4adc9af5",
         "filename": "src/core/SkGlyphRunPainter.h",
         "patchSetId": 1
@@ -73,6 +133,24 @@
       "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e50f3f70_0a0f5da2",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df9301da_4adc9af5",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "e1b48eac_a5396751",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58d8616f_bfd1beca",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f2cfa66d_50337466",
         "filename": "src/core/SkGlyphRunPainter.h",
         "patchSetId": 1
@@ -107,6 +203,24 @@
       "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24bd40c8_399d3dac",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2cfa66d_50337466",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -133,6 +247,30 @@
     },
     {
       "key": {
+        "uuid": "406d60e1_d6edb916",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d89f66f9_22a90663",
+      "range": {
+        "startLine": 156,
+        "startChar": 69,
+        "endLine": 156,
+        "endChar": 78
+      },
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee3c0bc5_4b60399e",
         "filename": "src/core/SkGlyphRunPainter.h",
         "patchSetId": 1
@@ -147,6 +285,24 @@
       "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41bae245_240091f1",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-09T20:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee3c0bc5_4b60399e",
+      "revId": "bfd4b52c6880f3ba767d3c76a121f4a45df92384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
