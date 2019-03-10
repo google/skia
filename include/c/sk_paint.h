@@ -17,6 +17,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 SK_C_API sk_paint_t* sk_paint_new(void);
 SK_C_API sk_paint_t* sk_paint_clone(sk_paint_t*);
 SK_C_API void sk_paint_delete(sk_paint_t*);
+SK_C_API void sk_paint_reset(sk_paint_t*);
 SK_C_API bool sk_paint_is_antialias(const sk_paint_t*);
 SK_C_API void sk_paint_set_antialias(sk_paint_t*, bool);
 SK_C_API sk_color_t sk_paint_get_color(const sk_paint_t*);

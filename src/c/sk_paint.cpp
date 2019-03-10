@@ -30,6 +30,10 @@ sk_paint_t* sk_paint_clone(sk_paint_t* paint) {
 
 void sk_paint_delete(sk_paint_t* cpaint) { delete AsPaint(cpaint); }
 
+void sk_paint_reset(sk_paint_t* cpaint) {
+    AsPaint(cpaint)->reset();
+}
+
 bool sk_paint_is_antialias(const sk_paint_t* cpaint) {
     return AsPaint(cpaint)->isAntiAlias();
 }
