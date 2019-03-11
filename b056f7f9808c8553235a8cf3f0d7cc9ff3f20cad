@@ -130,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "66040de7_b9d15545",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T20:10:45Z",
+      "side": 1,
+      "message": "Yeah, I do think it\u0027s worth thinking about how this extends to more inputs, at least to three.  A Lerp(A,B,T) mixer seems like something we\u0027ll want at some point.",
+      "parentUuid": "8684033e_41735434",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7d6bb774_9ab7c68b",
         "filename": "include/core/SkPicture.h",
         "patchSetId": 16
