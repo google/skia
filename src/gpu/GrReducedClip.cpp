@@ -841,7 +841,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
         GrPathRenderer* pr = nullptr;
         SkPath clipPath;
         if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
-            stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
+            stencilSupport = GrPathRenderer::StencilSupport::kNoRestriction;
             fillInverted = false;
         } else {
             element->asDeviceSpacePath(&clipPath);
@@ -861,7 +861,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
             canDrawArgs.fTargetIsWrappedVkSecondaryCB = renderTargetContext->wrapsVkSecondaryCB();
 
             GrDrawingManager* dm = context->priv().drawingManager();
-            pr = dm->getPathRenderer(canDrawArgs, false, GrPathRendererChain::DrawType::kStencil,
+            pr = dm->getPathRenderer(canDrawArgs, false, GrPathRenderer::DrawType::kStencil,
                                      &stencilSupport);
             if (!pr) {
                 return false;
@@ -869,7 +869,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
         }
 
         bool canRenderDirectToStencil =
-            GrPathRenderer::kNoRestriction_StencilSupport == stencilSupport;
+            GrPathRenderer::StencilSupport::kNoRestriction == stencilSupport;
         bool drawDirectToClip; // Given the renderer, the element,
                                // fill rule, and set operation should
                                // we render the element directly to

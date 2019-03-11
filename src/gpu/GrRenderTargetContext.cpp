@@ -1886,7 +1886,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
 
     // Don't allow the SW renderer
     GrPathRenderer* pr = fRenderTargetContext->drawingManager()->getPathRenderer(
-            canDrawArgs, false, GrPathRendererChain::DrawType::kStencilAndColor);
+            canDrawArgs, false, GrPathRenderer::DrawType::kStencilAndColor);
     if (!pr) {
         return false;
     }
@@ -1953,7 +1953,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     canDrawArgs.fHasUserStencilSettings = false;
 
     GrPathRenderer* pr;
-    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
+    static constexpr GrPathRenderer::DrawType kType = GrPathRenderer::DrawType::kColor;
     if (originalShape.isEmpty() && !originalShape.inverseFilled()) {
         return;
     }

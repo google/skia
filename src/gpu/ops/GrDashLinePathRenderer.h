@@ -14,10 +14,10 @@ class GrGpu;
 
 class GrDashLinePathRenderer : public GrPathRenderer {
 private:
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&, DrawType) const override;
 
     StencilSupport onGetStencilSupport(const GrShape&) const override {
-        return kNoSupport_StencilSupport;
+        return StencilSupport::kNoSupport;
     }
 
     bool onDrawPath(const DrawPathArgs&) override;

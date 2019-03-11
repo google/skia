@@ -55,9 +55,9 @@ static inline bool single_pass_shape(const GrShape& shape) {
 GrPathRenderer::StencilSupport
 GrDefaultPathRenderer::onGetStencilSupport(const GrShape& shape) const {
     if (single_pass_shape(shape)) {
-        return GrPathRenderer::kNoRestriction_StencilSupport;
+        return StencilSupport::kNoRestriction;
     } else {
-        return GrPathRenderer::kStencilOnly_StencilSupport;
+        return StencilSupport::kStencilOnly;
     }
 }
 
@@ -636,8 +636,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
 }
 
 GrPathRenderer::CanDrawPath
-GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    bool isHairline = IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
+GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType drawType) const {
+    bool isHairline = IsStrokeHairlineOrEquivalent(
+            args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) &&
         (args.fCaps->avoidStencilBuffers() || args.fTargetIsWrappedVkSecondaryCB)) {
@@ -646,6 +647,9 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This can draw any path with any simple fill style but doesn't do coverage-based antialiasing.
     if (GrAAType::kCoverage == args.fAAType ||
         (!args.fShape->style().isSimpleFill() && !isHairline)) {
+        return CanDrawPath::kNo;
+    }
+    if (GrAAType::kMixedSamples == args.fAAType && DrawType::kStencil != drawType) {
         return CanDrawPath::kNo;
     }
     // This is the fallback renderer for when a path is too complicated for the others to draw.

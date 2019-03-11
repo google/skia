@@ -38,7 +38,7 @@ GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrPathRenderer::CanDrawPath
-GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType) const {
     if (GrAAType::kCoverage != args.fAAType) {
         return CanDrawPath::kNo;
     }

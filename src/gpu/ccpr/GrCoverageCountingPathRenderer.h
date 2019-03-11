@@ -86,9 +86,9 @@ private:
 
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
-        return GrPathRenderer::kNoSupport_StencilSupport;
+        return StencilSupport::kNoSupport;
     }
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&, DrawType) const override;
     bool onDrawPath(const DrawPathArgs&) override;
 
     GrCCPerOpListPaths* lookupPendingPaths(uint32_t opListID);

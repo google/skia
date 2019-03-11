@@ -28,7 +28,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer::CanDrawPath
-GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrShape.
     if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&
