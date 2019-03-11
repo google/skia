@@ -235,6 +235,27 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
     }
 }
 
+// N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
+// number or that there are no mask pixels.
+SkSpan<SkGlyphPos>
+SkStrike::glyphMetrics(SkSpan<const SkGlyphID> glyphIDs, SkSpan<const SkPoint> positions,
+                       SkSpan<SkGlyphPos> result) {
+
+    int drawableGlyphCount = 0;
+    const SkPoint* posCursor = positions.data();
+    for (SkGlyphID glyphID : glyphIDs) {
+        SkPoint glyphPos = *posCursor++;
+        if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
+            const SkGlyph& glyph = this->getGlyphMetrics(glyphID, glyphPos);
+            if (!glyph.isEmpty()) {
+                result[drawableGlyphCount++] = {&glyph, glyphPos};
+            }
+        }
+    }
+
+    return result.prefix(drawableGlyphCount);
+}
+
 #include "../pathops/SkPathOpsCubic.h"
 #include "../pathops/SkPathOpsQuad.h"
 
@@ -445,6 +466,6 @@ void SkStrike::validate() const {
     forceValidate();
 #endif
 }
-#endif
+#endif  // SK_DEBUG
 
 
