@@ -163,7 +163,7 @@ bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
 GrProcessorSet::Analysis GrProcessorSet::finalize(
         const GrProcessorAnalysisColor& colorInput, const GrProcessorAnalysisCoverage coverageInput,
         const GrAppliedClip* clip, const GrUserStencilSettings* userStencil, GrFSAAType fsaaType,
-        const GrCaps& caps, SkPMColor4f* overrideInputColor) {
+        const GrCaps& caps, GrNeedsClamp needsClamp, SkPMColor4f* overrideInputColor) {
     SkASSERT(!this->isFinalized());
     SkASSERT(!fFragmentProcessorOffset);
 
@@ -209,7 +209,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     }
 
     GrXPFactory::AnalysisProperties props = GrXPFactory::GetAnalysisProperties(
-            this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, caps);
+            this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, caps, needsClamp);
     if (!this->numCoverageFragmentProcessors() &&
         GrProcessorAnalysisCoverage::kNone == coverageInput) {
     }
@@ -239,7 +239,8 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     bool hasMixedSampledCoverage = (GrFSAAType::kMixedSamples == fsaaType)
             && !userStencil->testAlwaysPasses((clip) ? clip->hasStencilClip() : false);
     auto xp = GrXPFactory::MakeXferProcessor(this->xpFactory(), colorAnalysis.outputColor(),
-                                             outputCoverage, hasMixedSampledCoverage, caps);
+                                             outputCoverage, hasMixedSampledCoverage, caps,
+                                             needsClamp);
     fXP.fProcessor = xp.release();
 
     fFlags |= kFinalized_Flag;

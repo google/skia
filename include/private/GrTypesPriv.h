@@ -320,6 +320,12 @@ enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
 /**
+ * Some pixel configs are inherently clamped to [0,1] (or allowed to go outside that range).
+ * We also support clamped FP configs, that needs manual clamping in the XP.
+ */
+enum class GrNeedsClamp : bool { kNo = false, kYes = true };
+
+/**
  * A number of rectangle/quadrilateral drawing APIs can control anti-aliasing on a per edge basis.
  * These masks specify which edges are AA'ed. The intent for this is to support tiling with seamless
  * boundaries, where the inner edges are non-AA and the outer edges are AA. Regular draws (where AA
@@ -1031,6 +1037,11 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
     }
     SK_ABORT("Invalid pixel config.");
     return false;
+}
+
+static inline GrNeedsClamp GrPixelConfigNeedsClamp(GrPixelConfig /*config*/) {
+    // return kRGBA_half_Clamped_GrPixelConfig == config ? GrNeedsClamp::kYes : GrNeedsClamp::kNo;
+    return GrNeedsClamp::kNo;
 }
 
 /**

@@ -759,7 +759,7 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
 
 sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor& color, GrProcessorAnalysisCoverage coverage,
-        bool hasMixedSamples, const GrCaps& caps) const {
+        bool hasMixedSamples, const GrCaps& caps, GrNeedsClamp needsClamp) const {
     BlendFormula blendFormula;
     bool isLCD = coverage == GrProcessorAnalysisCoverage::kLCD;
     if (isLCD) {
@@ -779,7 +779,8 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
     }
 
     if ((blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) ||
-        (isLCD && (SkBlendMode::kSrcOver != fBlendMode /*|| !color.isOpaque()*/))) {
+        (isLCD && (SkBlendMode::kSrcOver != fBlendMode /*|| !color.isOpaque()*/)) ||
+        (GrNeedsClamp::kYes == needsClamp && SkBlendMode::kPlus == fBlendMode)) {
         return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode,
                                                                       coverage));
     }
@@ -788,7 +789,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
 
 static inline GrXPFactory::AnalysisProperties analysis_properties(
         const GrProcessorAnalysisColor& color, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps, SkBlendMode mode) {
+        const GrCaps& caps, GrNeedsClamp needsClamp, SkBlendMode mode) {
     using AnalysisProperties = GrXPFactory::AnalysisProperties;
     AnalysisProperties props = AnalysisProperties::kNone;
     bool hasCoverage = GrProcessorAnalysisCoverage::kNone != coverage;
@@ -835,6 +836,10 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
         }
     }
 
+    if (GrNeedsClamp::kYes == needsClamp && SkBlendMode::kPlus == mode) {
+        props |= AnalysisProperties::kReadsDstInShader;
+    }
+
     if (!formula.modifiesDst() || !formula.usesInputColor()) {
         props |= AnalysisProperties::kIgnoresInputColor;
     }
@@ -844,8 +849,9 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) const {
-    return analysis_properties(color, coverage, caps, fBlendMode);
+        const GrCaps& caps,
+        GrNeedsClamp needsClamp) const {
+    return analysis_properties(color, coverage, caps, needsClamp, fBlendMode);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
@@ -932,6 +938,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeNoCoverageXP(SkBlendMode
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::SrcOverAnalysisProperties(
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) {
-    return analysis_properties(color, coverage, caps, SkBlendMode::kSrcOver);
+        const GrCaps& caps,
+        GrNeedsClamp needsClamp) {
+    return analysis_properties(color, coverage, caps, needsClamp, SkBlendMode::kSrcOver);
 }
