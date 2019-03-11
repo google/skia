@@ -5,13 +5,6 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrGLInterface.h"
-#include "GrGLTypes.h"
-#endif
-
 #include "SkBlendMode.h"
 #include "SkBlurTypes.h"
 #include "SkCanvas.h"
@@ -59,6 +52,11 @@
 #include <emscripten/bind.h>
 
 #if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
+#include "GrContext.h"
+#include "GrGLInterface.h"
+#include "GrGLTypes.h"
+
 #include <GL/gl.h>
 #include <emscripten/html5.h>
 #endif

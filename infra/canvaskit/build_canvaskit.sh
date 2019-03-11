@@ -20,7 +20,7 @@ set -e
 
 #BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/canvaskit)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-CANVASKIT_DIR=$BASE_DIR/../../experimental/canvaskit
+CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
 BUILD_DIR=/OUT $CANVASKIT_DIR/compile.sh $@
 

@@ -33,7 +33,7 @@ def RunSteps(api):
 
   # The karma script is configured to look in ./canvaskit/bin/ for
   # the test files to load, so we must copy them there (see Set up for docker).
-  copy_dest = checkout_root.join('skia', 'experimental', 'canvaskit',
+  copy_dest = checkout_root.join('skia', 'modules', 'canvaskit',
                                  'canvaskit', 'bin')
 
   base_dir = api.vars.build_dir
@@ -66,7 +66,7 @@ except OSError as e:
     raise
 
 # Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests
-# expect them ($SKIA_ROOT/experimental/canvaskit/canvaskit/bin/)
+# expect them ($SKIA_ROOT/modules/canvaskit/canvaskit/bin/)
 dest = os.path.join(copy_dest, 'canvaskit.js')
 shutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)
 os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
