@@ -445,6 +445,26 @@ void SkStrike::validate() const {
     forceValidate();
 #endif
 }
+
+SkSpan<SkGlyphPos>
+SkStrike::glyphMetrics(SkSpan<const SkGlyphID> glyphIDs, SkSpan<const SkPoint> positions,
+                       SkSpan<SkGlyphPos> result) {
+
+    int drawableGlyphCount = 0;
+    const SkPoint* posCursor = positions.data();
+    for (SkGlyphID glyphID : glyphIDs) {
+        SkPoint glyphPos = *posCursor++;
+        if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
+            auto glyph = this->getGlyphMetrics(glyphID, glyphPos);
+            if (!glyph.isEmpty()) {
+                result[drawableGlyphCount++] = {&glyph, glyphPos};
+            }
+        }
+    }
+
+    return result.prefix(drawableGlyphCount);
+}
+
 #endif
 
 
