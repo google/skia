@@ -163,7 +163,8 @@ static inline void transform_scanline_F32_premul(char* dst, const char* src, int
 
 static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     SkColorSpace* cs = info.colorSpace();
-    if (!cs) {
+    // No need to write SRGB profiles. The decoder will treat no profile the same.
+    if (!cs || cs->isSRGB()) {
         return nullptr;
     }
 
