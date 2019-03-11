@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "SkPoint.h"
+#include "SkSpan.h"
 #include "SkTypes.h"
 
 class SkDescriptor;
@@ -51,12 +52,21 @@ private:
     const SkScalerContextEffects fEffects;
 };
 
+struct SkGlyphPos {
+    const SkGlyph* glyph;
+    SkPoint position;
+};
+
 class SkStrikeInterface {
 public:
     virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkDescriptor& getDescriptor() const = 0;
     virtual SkStrikeSpec strikeSpec() const = 0;
+    virtual SkSpan<SkGlyphPos> glyphMetrics(
+            SkSpan<const SkGlyphID> glyphIDs,
+            SkSpan<const SkPoint> positions,
+            SkSpan<SkGlyphPos> result) = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
     virtual void onAboutToExitScope() = 0;
