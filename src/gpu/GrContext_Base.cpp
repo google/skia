@@ -11,12 +11,6 @@
 #include "GrCaps.h"
 #include "GrSkSLFPFactoryCache.h"
 
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-static const bool kDefaultExplicitlyAllocateGPUResources = false;
-#else
-static const bool kDefaultExplicitlyAllocateGPUResources = true;
-#endif
-
 static int32_t next_id() {
     static std::atomic<int32_t> nextID{1};
     int32_t id;
@@ -45,15 +39,11 @@ bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> 
 }
 
 bool GrContext_Base::explicitlyAllocateGPUResources() const {
-    if (GrContextOptions::Enable::kNo == fOptions.fExplicitlyAllocateGPUResources) {
-        return false;
-    }
-
-    if (GrContextOptions::Enable::kYes == fOptions.fExplicitlyAllocateGPUResources) {
-        return true;
-    }
-
-    return kDefaultExplicitlyAllocateGPUResources;
+#ifdef SK_OLD_STYLE_RESOURCE_ALLOCATION
+    return false;
+#else
+    return true;
+#endif
 }
 
 const GrCaps* GrContext_Base::caps() const { return fCaps.get(); }
