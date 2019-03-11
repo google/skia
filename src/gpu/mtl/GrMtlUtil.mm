@@ -86,6 +86,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRGBA_half_GrPixelConfig:
             *format = MTLPixelFormatRGBA16Float;
             return true;
+        case kRGBA_half_Clamped_GrPixelConfig:
+            *format = MTLPixelFormatRGBA16Float;
+            return true;
         case kAlpha_half_GrPixelConfig: // fall through
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR16Float;
