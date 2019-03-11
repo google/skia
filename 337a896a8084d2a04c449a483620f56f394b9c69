@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a8c4934_323bc46b",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-11T19:56:41Z",
+      "side": 1,
+      "message": "Mtl doesn\u0027t have a clamped flavor ?",
+      "range": {
+        "startLine": 90,
+        "startChar": 22,
+        "endLine": 90,
+        "endChar": 47
+      },
+      "revId": "337a896a8084d2a04c449a483620f56f394b9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3c8e2bf_4beb981d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-11T19:56:41Z",
+      "side": 1,
+      "message": "Vulkan doesn\u0027t have a clamped flavor ?",
+      "range": {
+        "startLine": 804,
+        "startChar": 16,
+        "endLine": 804,
+        "endChar": 45
+      },
+      "revId": "337a896a8084d2a04c449a483620f56f394b9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c038f97b_f7bc57bf",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-11T19:56:41Z",
+      "side": 1,
+      "message": "ditto ?",
+      "range": {
+        "startLine": 76,
+        "startChar": 22,
+        "endLine": 76,
+        "endChar": 51
+      },
+      "revId": "337a896a8084d2a04c449a483620f56f394b9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
