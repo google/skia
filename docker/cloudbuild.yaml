@@ -10,6 +10,11 @@ steps:
   #
   # - name: 'gcr.io/cloud-builders/git'
   #   args: ['clone', 'https://github.com/google/skia.git', '.']
+  - name: 'gcr.io/skia-public/doxygen:testing-slim'
+    dir: './tools/doxygen'
+    args: ['doxygen', 'ProdDoxygen']
+    timeout: 600s
+
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
     timeout: 7200s
@@ -30,6 +35,14 @@ steps:
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
     env:
       - 'ROOT=/workspace/__debugger_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release_ci']
+    timeout: 600s
+
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/api'
+    env:
+      - 'ROOT=/workspace/__api_staging'
       - 'SKIP_BUILD=1'
     args: ['make', 'release_ci']
     timeout: 600s
