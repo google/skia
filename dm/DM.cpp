@@ -101,6 +101,8 @@ DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.")
 
 DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
 
+DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -1174,6 +1176,22 @@ struct Task {
                             SkASSERT(bitmap.drawsNothing());
                         } else if (!bitmap.drawsNothing()) {
                             WriteToDisk(task, md5, ext, nullptr, 0, &bitmap);
+                        }
+                    }
+                }
+
+                SkPixmap pm;
+                if (FLAGS_checkF16 && bitmap.colorType() == kRGBA_F16Norm_SkColorType &&
+                        bitmap.peekPixels(&pm)) {
+                    bool unclamped = false;
+                    for (int y = 0; y < pm.height() && !unclamped; ++y)
+                    for (int x = 0; x < pm.width() && !unclamped; ++x) {
+                        Sk4f rgba = SkHalfToFloat_finite_ftz(*pm.addr64(x, y));
+                        float a = rgba[3];
+                        if (a > 1.0f || (rgba < 0.0f).anyTrue() || (rgba > a).anyTrue()) {
+                            SkDEBUGFAILF("F16Norm pixel [%d, %d] is unclamped: (%g, %g, %g, %g)\n",
+                                         x, y, rgba[0], rgba[1], rgba[2], rgba[3]);
+                            unclamped = true;
                         }
                     }
                 }
