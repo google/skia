@@ -272,6 +272,7 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorSpaceInfo& colorSpac
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         color = xform->apply(color);
     }
+    // TODO: Should we clamp here if config is kRGBA_half_Clamped_GrPixelConfig?
     if (!GrPixelConfigIsFloatingPoint(colorSpaceInfo.config()) ||
         !caps.halfFloatVertexAttributeSupport()) {
         color = { SkTPin(color.fR, 0.0f, 1.0f),
@@ -306,8 +307,8 @@ GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
             return kUnknown_GrPixelConfig;
         case kGray_8_SkColorType:
             return kGray_8_GrPixelConfig;
-        case kRGBA_F16Norm_SkColorType:  // TODO(brianosman): anything to do here?
-            return kRGBA_half_GrPixelConfig;
+        case kRGBA_F16Norm_SkColorType:
+            return kRGBA_half_Clamped_GrPixelConfig;
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
         case kRGBA_F32_SkColorType:
@@ -363,6 +364,7 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
+        case kRGBA_half_Clamped_GrPixelConfig:
         case kRGB_ETC1_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Alpha_GrPixelConfig:

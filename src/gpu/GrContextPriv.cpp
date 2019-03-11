@@ -229,21 +229,22 @@ void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
 
 static bool valid_premul_color_type(GrColorType ct) {
     switch (ct) {
-        case GrColorType::kUnknown:      return false;
-        case GrColorType::kAlpha_8:      return false;
-        case GrColorType::kRGB_565:      return false;
-        case GrColorType::kABGR_4444:    return true;
-        case GrColorType::kRGBA_8888:    return true;
-        case GrColorType::kRGB_888x:     return false;
-        case GrColorType::kRG_88:        return false;
-        case GrColorType::kBGRA_8888:    return true;
-        case GrColorType::kRGBA_1010102: return true;
-        case GrColorType::kGray_8:       return false;
-        case GrColorType::kAlpha_F16:    return false;
-        case GrColorType::kRGBA_F16:     return true;
-        case GrColorType::kRG_F32:       return false;
-        case GrColorType::kRGBA_F32:     return true;
-        case GrColorType::kRGB_ETC1:     return false;
+        case GrColorType::kUnknown:          return false;
+        case GrColorType::kAlpha_8:          return false;
+        case GrColorType::kRGB_565:          return false;
+        case GrColorType::kABGR_4444:        return true;
+        case GrColorType::kRGBA_8888:        return true;
+        case GrColorType::kRGB_888x:         return false;
+        case GrColorType::kRG_88:            return false;
+        case GrColorType::kBGRA_8888:        return true;
+        case GrColorType::kRGBA_1010102:     return true;
+        case GrColorType::kGray_8:           return false;
+        case GrColorType::kAlpha_F16:        return false;
+        case GrColorType::kRGBA_F16:         return true;
+        case GrColorType::kRGBA_F16_Clamped: return true;
+        case GrColorType::kRG_F32:           return false;
+        case GrColorType::kRGBA_F32:         return true;
+        case GrColorType::kRGB_ETC1:         return false;
     }
     SK_ABORT("Invalid GrColorType");
     return false;
@@ -270,6 +271,7 @@ static bool valid_premul_config(GrPixelConfig config) {
         case kRG_float_GrPixelConfig:           return false;
         case kAlpha_half_GrPixelConfig:         return false;
         case kRGBA_half_GrPixelConfig:          return true;
+        case kRGBA_half_Clamped_GrPixelConfig:  return true;
         case kRGB_ETC1_GrPixelConfig:           return false;
         case kAlpha_8_as_Alpha_GrPixelConfig:   return false;
         case kAlpha_8_as_Red_GrPixelConfig:     return false;
