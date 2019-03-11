@@ -140,7 +140,7 @@ private:
                      const GrTextContext::Options&,
                      bool explicitlyAllocating,
                      bool sortOpLists,
-                     GrContextOptions::Enable reduceOpListSplitting);
+                     bool reduceOpListSplitting);
 
     bool wasAbandoned() const;
 
