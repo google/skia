@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "SkPoint.h"
+#include "SkSpan.h"
 #include "SkTypes.h"
 
 class SkDescriptor;
@@ -67,6 +68,9 @@ public:
     virtual SkVector rounding() const = 0;
     virtual const SkDescriptor& getDescriptor() const = 0;
     virtual SkStrikeSpec strikeSpec() const = 0;
+
+    // glyphMetrics writes its results to result, but only returns a subspan of result.
+    virtual int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
     virtual void onAboutToExitScope() = 0;
