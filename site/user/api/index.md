@@ -60,6 +60,8 @@ skewing, perspective), and the canvas' current clip may restrict where
 on the canvas the rectangle will be drawn, but all other stylistic
 attributes of the drawing are controlled by the paint.
 
+<img src="/user/api/skia_paint_flow.svg">
+
 Using the SkCanvas API:
 
 1.  [SkCanvas Overview](/user/api/skcanvas_overview) - the drawing context
