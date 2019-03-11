@@ -45,7 +45,6 @@
     #include "SkShaderBase.h"
     #include "SkShaderMaskFilter.h"
     #include "SkTableColorFilter.h"
-    #include "SkToSRGBColorFilter.h"
 
     #include "SkAlphaThresholdFilter.h"
     #include "SkBlurImageFilter.h"
@@ -91,7 +90,6 @@
         // Color filters.
         SK_REGISTER_FLATTENABLE(SkColorMatrixFilterRowMajor255);
         SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
-        SK_REGISTER_FLATTENABLE(SkToSRGBColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
         SkOverdrawColorFilter::RegisterFlattenables();

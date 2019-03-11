@@ -315,7 +315,6 @@ gm_sources = [
   "$_gm/spritebitmap.cpp",
   "$_gm/srcmode.cpp",
   "$_gm/srgb.cpp",
-  "$_gm/tosrgb_colorfilter.cpp",
   "$_gm/stlouisarch.cpp",
   "$_gm/stringart.cpp",
   "$_gm/stroke_rect_shader.cpp",
