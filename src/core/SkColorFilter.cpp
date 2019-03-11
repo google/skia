@@ -357,12 +357,12 @@ sk_sp<SkFlattenable> SkMixerColorFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkColorFilter> cf0(buffer.readColorFilter());
     sk_sp<SkColorFilter> cf1(buffer.readColorFilter());
     const float weight = buffer.readScalar();
-    return MakeMixer(std::move(cf0), std::move(cf1), weight);
+    return MakeLerp(std::move(cf0), std::move(cf1), weight);
 }
 
-sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> cf0,
-                                              sk_sp<SkColorFilter> cf1,
-                                              float weight) {
+sk_sp<SkColorFilter> SkColorFilter::MakeLerp(sk_sp<SkColorFilter> cf0,
+                                             sk_sp<SkColorFilter> cf1,
+                                             float weight) {
     if (!cf0 && !cf1) {
         return nullptr;
     }

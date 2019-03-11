@@ -128,8 +128,8 @@ public:
      *
      *  If both filters are null, or if weight is NaN, then null is returned.
      */
-    static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
-                                          float weight);
+    static sk_sp<SkColorFilter> MakeLerp(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
+                                         float weight);
 
 #if SK_SUPPORT_GPU
     /**

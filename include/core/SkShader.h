@@ -222,7 +222,7 @@ public:
      *  If either shader is nullptr, then this returns nullptr.
      *  If lerp is NaN then this returns nullptr, otherwise lerp is clamped to [0..1].
      */
-    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, float lerp) {
+    static sk_sp<SkShader> MakeLerp(sk_sp<SkShader> dst, sk_sp<SkShader> src, float lerp) {
         return MakeCompose(std::move(dst), std::move(src), SkBlendMode::kSrc, lerp);
     }
 

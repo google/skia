@@ -59,7 +59,7 @@ private:
             SkAutoCanvasRestore arc(canvas, true);
             for (size_t i = 0; i < fTileCount; ++i) {
                 paint.setColorFilter(
-                    SkColorFilter::MakeMixer(cf0, cf1, static_cast<float>(i) / (fTileCount - 1)));
+                    SkColorFilter::MakeLerp(cf0, cf1, static_cast<float>(i) / (fTileCount - 1)));
                 canvas->translate(fTileSize.width() * 0.1f, 0);
                 canvas->drawRect(SkRect::MakeWH(fTileSize.width(), fTileSize.height()), paint);
                 canvas->translate(fTileSize.width() * 1.1f, 0);

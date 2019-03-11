@@ -48,7 +48,7 @@ protected:
         paint.setColorFilter(cf0);
         canvas->drawImage(fImg, 0, 0, &paint);
 
-        paint.setColorFilter(SkColorFilter::MakeMixer(cf0, cf1, fWeight));
+        paint.setColorFilter(SkColorFilter::MakeLerp(cf0, cf1, fWeight));
         canvas->drawImage(fImg, fImg->width() + gap * fWeight, 0, &paint);
 
         paint.setColorFilter(cf1);
