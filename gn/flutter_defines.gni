@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 flutter_defines = [
+  "SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION",
   "SK_LEGACY_SKCODEC_NONE_ENUM",
 
   # Flutter always wants this https://github.com/flutter/flutter/issues/11402
