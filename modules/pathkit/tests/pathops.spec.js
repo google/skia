@@ -1,5 +1,3 @@
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
-
 var dumpErrors = false;
 var container;
 
@@ -74,36 +72,27 @@ function diffPaths(expected, actual) {
 }
 
 describe('PathKit\'s PathOps Behavior', function() {
-    // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
-    var PathKit = null;
     var PATHOP_MAP = {};
     var FILLTYPE_MAP = {};
-    const LoadPathKit = new Promise(function(resolve, reject) {
-        if (PathKit) {
-            resolve();
-        } else {
-            PathKitInit({
-                locateFile: (file) => '/pathkit/'+file,
-            }).ready().then((_PathKit) => {
-                PathKit = _PathKit;
-                PATHOP_MAP = {
-                    'kIntersect_SkPathOp':         PathKit.PathOp.INTERSECT,
-                    'kDifference_SkPathOp':        PathKit.PathOp.DIFFERENCE,
-                    'kUnion_SkPathOp':             PathKit.PathOp.UNION,
-                    'kXOR_SkPathOp':               PathKit.PathOp.XOR,
-                    'kXOR_PathOp':                 PathKit.PathOp.XOR,
-                    'kReverseDifference_SkPathOp': PathKit.PathOp.REVERSE_DIFFERENCE,
-                };
-                FILLTYPE_MAP = {
-                    'kWinding_FillType':        PathKit.FillType.WINDING,
-                    'kEvenOdd_FillType':        PathKit.FillType.EVENODD,
-                    'kInverseWinding_FillType': PathKit.FillType.INVERSE_WINDING,
-                    'kInverseEvenOdd_FillType': PathKit.FillType.INVERSE_EVENODD,
-                };
-                resolve();
-            });
+
+    function init() {
+        if (PathKit && !PATHOP_MAP['kIntersect_SkPathOp']) {
+            PATHOP_MAP = {
+                'kIntersect_SkPathOp':         PathKit.PathOp.INTERSECT,
+                'kDifference_SkPathOp':        PathKit.PathOp.DIFFERENCE,
+                'kUnion_SkPathOp':             PathKit.PathOp.UNION,
+                'kXOR_SkPathOp':               PathKit.PathOp.XOR,
+                'kXOR_PathOp':                 PathKit.PathOp.XOR,
+                'kReverseDifference_SkPathOp': PathKit.PathOp.REVERSE_DIFFERENCE,
+            };
+            FILLTYPE_MAP = {
+                'kWinding_FillType':        PathKit.FillType.WINDING,
+                'kEvenOdd_FillType':        PathKit.FillType.EVENODD,
+                'kInverseWinding_FillType': PathKit.FillType.INVERSE_WINDING,
+                'kInverseEvenOdd_FillType': PathKit.FillType.INVERSE_EVENODD,
+            };
         }
-    });
+    }
 
     function getFillType(str) {
         let e = FILLTYPE_MAP[str];
@@ -119,6 +108,7 @@ describe('PathKit\'s PathOps Behavior', function() {
 
     it('combines two paths with .op() and matches what we see from C++', function(done) {
         LoadPathKit.then(catchException(done, () => {
+            init();
             // Test JSON created with:
             // ./out/Clang/pathops_unittest -J ./modules/pathkit/tests/PathOpsOp.json -m PathOpsOp$
             fetch('/base/tests/PathOpsOp.json').then((r) => {
@@ -177,6 +167,7 @@ describe('PathKit\'s PathOps Behavior', function() {
 
     it('simplifies a path with .simplify() and matches what we see from C++', function(done) {
         LoadPathKit.then(catchException(done, () => {
+            init();
             // Test JSON created with:
             // ./out/Clang/pathops_unittest -J ./modules/pathkit/tests/PathOpsSimplify.json -m PathOpsSimplify$
             fetch('/base/tests/PathOpsSimplify.json').then((r) => {
