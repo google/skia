@@ -56,10 +56,7 @@ public:
         SkPoint position;
     };
 
-    struct GlyphAndPos {
-        const SkGlyph* glyph;
-        SkPoint position;
-    };
+    using GlyphAndPos = SkGlyphPos;
 
     class BitmapDevicePainter {
     public:
@@ -111,6 +108,10 @@ private:
                              const SkMatrix& viewMatrix,
                              SkScalar cacheToSourceScale,
                              SkGlyphRunPainterInterface* process);
+
+    SkSpan<SkGlyphPos> glyphPosBuffer() {
+        return SkSpan<SkGlyphPos>{fGlyphPos, SkTo<size_t>(fMaxRunSize)};
+    }
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;

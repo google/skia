@@ -401,8 +401,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
         }
 
         if (useSDFT) {
-            fARGBGlyphsIDs.clear();
-            fARGBPositions.clear();
             ScopedBuffers _ = this->ensureBuffers(glyphRun);
             SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
@@ -484,9 +482,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 }
             }
         } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
-
-            fARGBGlyphsIDs.clear();
-            fARGBPositions.clear();
             ScopedBuffers _ = this->ensureBuffers(glyphRun);
             SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
@@ -570,31 +565,29 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.postTranslate(rounding.x(), rounding.y());
             mapping.mapPoints(fPositions,  glyphRun.positions().data(), glyphRun.runSize());
 
-            int glyphCount = 0;
-            const SkPoint* posCursor = fPositions;
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint mappedPt = *posCursor++;
+            SkSpan<SkGlyphPos> drawableGlyphs = strike->glyphMetrics(
+                    glyphRun.glyphsIDs(),
+                    SkSpan<const SkPoint>(fPositions, glyphRun.runSize()),
+                    this->glyphPosBuffer());
 
-                if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
-                    const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, mappedPt);
-                    if (!glyph.isEmpty()) {
-                        if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
-                            if (strike->decideCouldDrawFromPath(glyph)) {
-                                fPaths.push_back({&glyph, mappedPt});
-                            }
-                        } else {
-                            // If the glyph is not empty, then it will have a pointer to mask data.
-                            fGlyphPos[glyphCount++] = {&glyph, mappedPt};
-                        }
+            // N.B. this is using the same underlying fGlyphPos array.
+            int glyphsWithMaskCount = 0;
+
+            for (size_t cursor = 0; cursor < drawableGlyphs.size(); cursor++) {
+                SkGlyphPos glyphPos = drawableGlyphs[cursor];
+                if (SkStrikeCommon::GlyphTooBigForAtlas(*glyphPos.glyph)) {
+                    if (strike->decideCouldDrawFromPath(*glyphPos.glyph)) {
+                        fPaths.push_back(glyphPos);
                     }
+                } else {
+                    fGlyphPos[glyphsWithMaskCount++] = glyphPos;
                 }
             }
 
             if (process) {
-                if (glyphCount > 0) {
-                    mapping.mapPoints(fPositions, glyphCount);
+                if (glyphsWithMaskCount > 0) {
                     process->processDeviceMasks(
-                            SkSpan<const GlyphAndPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                            SkSpan<const GlyphAndPos>{fGlyphPos, SkTo<size_t>(glyphsWithMaskCount)},
                             strike.get());
                 }
                 if (!fPaths.empty()) {
