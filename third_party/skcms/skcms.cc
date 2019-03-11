@@ -1984,6 +1984,8 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
         case skcms_PixelFormat_RGBA_16161616LE    >> 1: return  8;
         case skcms_PixelFormat_RGB_161616BE       >> 1: return  6;
         case skcms_PixelFormat_RGBA_16161616BE    >> 1: return  8;
+        case skcms_PixelFormat_RGB_hhh_Norm       >> 1: return  6;
+        case skcms_PixelFormat_RGBA_hhhh_Norm     >> 1: return  8;
         case skcms_PixelFormat_RGB_hhh            >> 1: return  6;
         case skcms_PixelFormat_RGBA_hhhh          >> 1: return  8;
         case skcms_PixelFormat_RGB_fff            >> 1: return 12;
@@ -2083,6 +2085,8 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_16161616LE >> 1: *ops++ = Op_load_16161616LE; break;
         case skcms_PixelFormat_RGB_161616BE    >> 1: *ops++ = Op_load_161616BE;   break;
         case skcms_PixelFormat_RGBA_16161616BE >> 1: *ops++ = Op_load_16161616BE; break;
+        case skcms_PixelFormat_RGB_hhh_Norm    >> 1: *ops++ = Op_load_hhh;        break;
+        case skcms_PixelFormat_RGBA_hhhh_Norm  >> 1: *ops++ = Op_load_hhhh;       break;
         case skcms_PixelFormat_RGB_hhh         >> 1: *ops++ = Op_load_hhh;        break;
         case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_load_hhhh;       break;
         case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_load_fff;        break;
@@ -2091,6 +2095,10 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_8888_Palette8 >> 1: *ops++  = Op_load_8888_palette8;
                                                         *args++ = palette;
                                                         break;
+    }
+    if (srcFmt == skcms_PixelFormat_RGB_hhh_Norm ||
+        srcFmt == skcms_PixelFormat_RGBA_hhhh_Norm) {
+        *ops++ = Op_clamp;
     }
     if (srcFmt & 1) {
         *ops++ = Op_swap_rb;
@@ -2213,8 +2221,8 @@ bool skcms_TransformWithPalette(const void*             src,
         if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
     }
 
-    // Clamp here before premul to make sure we're clamping to fixed-point values _and_ gamut,
-    // not just to values that fit in the fixed point representation.
+    // Clamp here before premul to make sure we're clamping to normalized values _and_ gamut,
+    // not just to values that fit in [0,1].
     //
     // E.g. r = 1.1, a = 0.5 would fit fine in fixed point after premul (ra=0.55,a=0.5),
     // but would be carrying r > 1, which is really unexpected for downstream consumers.
@@ -2242,6 +2250,8 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGBA_16161616LE >> 1: *ops++ = Op_store_16161616LE; break;
         case skcms_PixelFormat_RGB_161616BE    >> 1: *ops++ = Op_store_161616BE;   break;
         case skcms_PixelFormat_RGBA_16161616BE >> 1: *ops++ = Op_store_16161616BE; break;
+        case skcms_PixelFormat_RGB_hhh_Norm    >> 1: *ops++ = Op_store_hhh;        break;
+        case skcms_PixelFormat_RGBA_hhhh_Norm  >> 1: *ops++ = Op_store_hhhh;       break;
         case skcms_PixelFormat_RGB_hhh         >> 1: *ops++ = Op_store_hhh;        break;
         case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_store_hhhh;       break;
         case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_store_fff;        break;

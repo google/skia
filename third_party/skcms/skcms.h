@@ -208,6 +208,11 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_RGBA_16161616 = skcms_PixelFormat_RGBA_16161616BE,
     skcms_PixelFormat_BGRA_16161616 = skcms_PixelFormat_BGRA_16161616BE,
 
+    skcms_PixelFormat_RGB_hhh_Norm,   // 1-5-10 half-precision float in [0,1]
+    skcms_PixelFormat_BGR_hhh_Norm,   // Pointers must be 16-bit aligned.
+    skcms_PixelFormat_RGBA_hhhh_Norm,
+    skcms_PixelFormat_BGRA_hhhh_Norm,
+
     skcms_PixelFormat_RGB_hhh,        // 1-5-10 half-precision float.
     skcms_PixelFormat_BGR_hhh,        // Pointers must be 16-bit aligned.
     skcms_PixelFormat_RGBA_hhhh,
