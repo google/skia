@@ -202,7 +202,7 @@ sk_sp<SkColorFilter> GradientColorFilter::onRevalidateFilter() {
     auto gradientCF = (fColors.size() > 2) ? MakeNColorGradient(fColors)
                                            : Make2ColorGradient(fColors[0], fColors[1]);
 
-    return SkColorFilter::MakeMixer(nullptr, std::move(gradientCF), fWeight);
+    return SkColorFilter::MakeLerp(nullptr, std::move(gradientCF), fWeight);
 }
 
 } // namespace sksg
