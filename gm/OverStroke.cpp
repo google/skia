@@ -24,6 +24,10 @@
 
 
 #include "gm.h"
+#include "Resources.h"
+#include "SkCodec.h"
+#include "SkImage.h"
+#include "SkImagePriv.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPathMeasure.h"
@@ -239,6 +243,37 @@ void (*examples[])(SkCanvas *canvas) = {
     draw_small_quad,    draw_stroked_quad, draw_small_cubic,
     draw_stroked_cubic, draw_small_oval,   draw_stroked_oval,
 };
+
+DEF_SIMPLE_GM(leon, canvas, 500, 500) {
+    auto data = GetResourceAsData("images/0.png");
+    if (!data) {
+        SkDebugf("failed to get the image\n");
+        return;
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    if (!codec) {
+        SkDebugf("failed to create a codec!");
+        return;
+    }
+
+    auto info = codec->getInfo().makeAlphaType(kUnpremul_SkAlphaType);
+
+    SkBitmap src;
+    src.allocPixels(info);
+    auto result = codec->getPixels(src.pixmap());
+    if (result != SkCodec::kSuccess) {
+        SkDebugf("failed to decode with error \"%s\"\n", SkCodec::ResultToString(result));
+        return;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(info.makeColorType(kRGB_565_SkColorType));
+    bm.writePixels(src.pixmap(), 0, 0);
+    auto image = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
+
+    canvas->drawBitmap(bm, 0, 0);
+}
 
 DEF_SIMPLE_GM(OverStroke, canvas, 500, 500) {
     const size_t length = sizeof(examples) / sizeof(examples[0]);
