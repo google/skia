@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7adf2295_fc5d5eef",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T15:25:19Z",
+      "side": 1,
+      "message": "Another fun way to do this is to do everything in a lambda and just return.  :)",
+      "range": {
+        "startLine": 1194,
+        "startChar": 28,
+        "endLine": 1194,
+        "endChar": 45
+      },
+      "revId": "93a07b56ba06522b99984b9c0d886a1f3eaf8762",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
