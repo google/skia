@@ -43,6 +43,8 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
+    int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) override;
+
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
     void onAboutToExitScope() override {}
