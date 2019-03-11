@@ -807,11 +807,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
 
-        if (colorType == kRGBA_F16Norm_SkColorType) {
-            // TODO(brianosman): we can't yet distinguish F16 and F16Norm in this test.
-            continue;
-        }
-
         SurfaceParameters params(context->backend());
         params.setColorType(colorType);
         params.setColorSpace(nullptr);

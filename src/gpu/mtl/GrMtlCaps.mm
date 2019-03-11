@@ -423,6 +423,9 @@ void GrMtlCaps::initConfigTable() {
     // RGBA_half uses RGBA16Float
     info = &fConfigTable[kRGBA_half_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
+
+    info = &fConfigTable[kRGBA_half_Clamped_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
@@ -489,13 +492,13 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
-        case kRGBA_F16Norm_SkColorType:  // TODO(brianosman): ?
-            if (MTLPixelFormatRG16Float == format) {
-                return kRGBA_half_GrPixelConfig;
+        case kRGBA_F16Norm_SkColorType:
+            if (MTLPixelFormatRGBA16Float == format) {
+                return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
         case kRGBA_F16_SkColorType:
-            if (MTLPixelFormatRG16Float == format) {
+            if (MTLPixelFormatRGBA16Float == format) {
                 return kRGBA_half_GrPixelConfig;
             }
             break;

@@ -1921,6 +1921,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_half_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
+    // kRGBA_half_Clamped is just distinguished by clamps added to the shader. At the API level,
+    // it's identical to kRGBA_half.
+    fConfigTable[kRGBA_half_Clamped_GrPixelConfig] = fConfigTable[kRGBA_half_GrPixelConfig];
+
     // Compressed texture support
 
     // glCompressedTexImage2D is available on all OpenGL ES devices. It is available on standard
@@ -2989,9 +2993,9 @@ GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandar
                 return kGray_8_as_Red_GrPixelConfig;
             }
             break;
-        case kRGBA_F16Norm_SkColorType:  // TODO(brianosman): anything here?
+        case kRGBA_F16Norm_SkColorType:
             if (GR_GL_RGBA16F == format) {
-                return kRGBA_half_GrPixelConfig;
+                return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
         case kRGBA_F16_SkColorType:

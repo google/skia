@@ -99,7 +99,8 @@ static GrPixelConfig get_blur_config(GrTextureProxy* proxy) {
              kRGB_888_GrPixelConfig == config || kRGBA_4444_GrPixelConfig == config ||
              kRGB_565_GrPixelConfig == config || kSRGBA_8888_GrPixelConfig == config ||
              kSBGRA_8888_GrPixelConfig == config || kRGBA_half_GrPixelConfig == config ||
-             kAlpha_8_GrPixelConfig == config || kRGBA_1010102_GrPixelConfig == config);
+             kAlpha_8_GrPixelConfig == config || kRGBA_1010102_GrPixelConfig == config ||
+             kRGBA_half_Clamped_GrPixelConfig == config);
 
     return config;
 }
