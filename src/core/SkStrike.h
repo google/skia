@@ -33,7 +33,7 @@
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkStrike : public SkStrikeInterface {
+class SkStrike final : public SkStrikeInterface {
 public:
     SkStrike(const SkDescriptor& desc,
              std::unique_ptr<SkScalerContext> scaler,
@@ -135,6 +135,8 @@ public:
                             *this->getScalerContext()->getTypeface(),
                             this->getScalerContext()->getEffects()};
     }
+
+    int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) override;
 
     void onAboutToExitScope() override;
 
