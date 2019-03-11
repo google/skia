@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<title>AA bug (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas, img {
+    border: 1px dashed #AAA;
+  }
+
+</style>
+
+<canvas id=bug width=500 height=500></canvas>
+<canvas id=fine width=500 height=500></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  var CanvasKit = null;
+  CanvasKitInit({
+    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
+  }).ready().then((CK) => {
+    CanvasKit = CK;
+    AABug1(CanvasKit);
+    AABug2(CanvasKit);
+  });
+
+
+  function AABug1(CanvasKit) {
+    if (!CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('bug');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const context = CanvasKit.currentContext();
+    const skcanvas = surface.getCanvas();
+
+    let paint = new CanvasKit.SkPaint();
+    paint.setAntiAlias(true);
+    paint.setColor(CanvasKit.Color(255, 0, 0, 1.0));
+    paint.setStyle(CanvasKit.PaintStyle.Fill);
+    //paint.setStrokeWidth(4.0);
+    // This effect smooths out the drawn lines a bit.
+    //paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(1));
+
+    CanvasKit.setCurrentContext(context);
+
+    skcanvas.save();
+    skcanvas.drawOval(CanvasKit.XYWHRect(-700, -700, 10000, 3500), paint);
+    skcanvas.restore();
+    skcanvas.flush();
+  }
+
+  function AABug2(CanvasKit) {
+    if (!CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('fine');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const context = CanvasKit.currentContext();
+    const skcanvas = surface.getCanvas();
+
+    let paint = new CanvasKit.SkPaint();
+    paint.setAntiAlias(true);
+    paint.setColor(CanvasKit.Color(255, 0, 0, 1.0));
+    paint.setStyle(CanvasKit.PaintStyle.Fill);
+    //paint.setStrokeWidth(4.0);
+    // This effect smooths out the drawn lines a bit.
+    paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(1));
+
+    CanvasKit.setCurrentContext(context);
+
+    skcanvas.save();
+    skcanvas.drawOval(CanvasKit.XYWHRect(-700, -700, 10000, 3500), paint);
+    skcanvas.restore();
+    skcanvas.flush();
+  }
+</script>
