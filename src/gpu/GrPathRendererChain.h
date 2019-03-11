@@ -32,21 +32,13 @@ public:
     };
     GrPathRendererChain(GrRecordingContext* context, const Options&);
 
-    /** Documents how the caller plans to use a GrPathRenderer to draw a path. It affects the PR
-        returned by getPathRenderer */
-    enum class DrawType {
-        kColor,            // draw to the color buffer, no AA
-        kStencil,          // draw just to the stencil buffer
-        kStencilAndColor,  // draw the stencil and color buffer, no AA
-    };
-
     /** Returns a GrPathRenderer compatible with the request if one is available. If the caller
         is drawing the path to the stencil buffer then stencilSupport can be used to determine
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                    DrawType drawType,
-                                    GrPathRenderer::StencilSupport* stencilSupport);
+                                    GrPathRenderer::DrawType drawType,
+                                    GrPathRenderer::StencilSupport* outStencilSupport);
 
     /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
         chain. */

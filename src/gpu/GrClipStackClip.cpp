@@ -114,9 +114,9 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
             path.toggleInverseFillType();
         }
 
-        GrPathRendererChain::DrawType type =
-                needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
-                             : GrPathRendererChain::DrawType::kColor;
+        GrPathRenderer::DrawType type =
+                needsStencil ? GrPathRenderer::DrawType::kStencilAndColor
+                             : GrPathRenderer::DrawType::kColor;
 
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;

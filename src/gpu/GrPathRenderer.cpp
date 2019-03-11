@@ -41,6 +41,38 @@ GrPathRenderer::StencilSupport GrPathRenderer::getStencilSupport(const GrShape& 
     return this->onGetStencilSupport(shape);
 }
 
+static GrPathRenderer::StencilSupport get_min_stencil_support(GrPathRenderer::DrawType drawType) {
+    using StencilSupport = GrPathRenderer::StencilSupport;
+    switch (drawType) {
+        using DrawType = GrPathRenderer::DrawType;
+        case DrawType::kStencil:
+            return StencilSupport::kStencilOnly;
+        case DrawType::kStencilAndColor:
+            return StencilSupport::kNoRestriction;
+        case DrawType::kColor:
+            return StencilSupport::kNoSupport;
+    }
+    SK_ABORT("Invalid GrPathRenderer::DrawType.");
+    return StencilSupport::kNoSupport;
+}
+
+GrPathRenderer::CanDrawPath GrPathRenderer::canDrawPath(
+        const CanDrawPathArgs& args, DrawType drawType, StencilSupport* outStencilSupport) const {
+    SkDEBUGCODE(args.validate();)
+
+    *outStencilSupport = StencilSupport::kNoSupport;
+    if (DrawType::kColor != drawType) {
+        *outStencilSupport = this->getStencilSupport(*args.fShape);
+        if (*outStencilSupport < get_min_stencil_support(drawType)) {
+            return CanDrawPath::kNo;
+            GR_STATIC_ASSERT(StencilSupport::kNoSupport < StencilSupport::kStencilOnly);
+            GR_STATIC_ASSERT(StencilSupport::kStencilOnly < StencilSupport::kNoRestriction);
+        }
+    }
+
+    return this->onCanDrawPath(args, drawType);
+}
+
 bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
 #ifdef SK_DEBUG
     args.validate();
@@ -58,12 +90,12 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
                GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType()));
     SkASSERT(!(canArgs.fAAType == GrAAType::kMixedSamples &&
                GrFSAAType::kMixedSamples != args.fRenderTargetContext->fsaaType()));
-    SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
+    // SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
     if (!args.fUserStencilSettings->isUnused()) {
         SkPath path;
         args.fShape->asPath(&path);
         SkASSERT(args.fShape->style().isSimpleFill());
-        SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fShape));
+        SkASSERT(StencilSupport::kNoRestriction == this->getStencilSupport(*args.fShape));
     }
 #endif
     return this->onDrawPath(args);

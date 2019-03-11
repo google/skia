@@ -174,7 +174,8 @@ GrSmallPathRenderer::~GrSmallPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(
+        const CanDrawPathArgs& args, DrawType) const {
     if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
         return CanDrawPath::kNo;
     }

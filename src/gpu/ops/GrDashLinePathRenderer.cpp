@@ -14,10 +14,13 @@
 #include "ops/GrMeshDrawOp.h"
 
 GrPathRenderer::CanDrawPath
-GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType drawType) const {
     SkPoint pts[2];
     bool inverted;
     if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
+        if (DrawType::kColor != drawType) {
+            return CanDrawPath::kNo;  // We always use at least some coverage, even in MSAA mode.
+        }
         if (args.fAAType == GrAAType::kMixedSamples) {
             return CanDrawPath::kNo;
         }
