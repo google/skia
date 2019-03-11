@@ -206,6 +206,9 @@ cc_defaults {
             "libvulkan",
             "libnativewindow",
         ],
+        export_shared_lib_headers: [
+            "libvulkan",
+        ],
       },
       host: {
         static_libs: [
