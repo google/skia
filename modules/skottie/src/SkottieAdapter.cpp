@@ -314,8 +314,8 @@ void GaussianBlurEffectAdapter::apply() {
                       sigma * kDimensionsMap[dim_index].y() });
 
     static constexpr SkBlurImageFilter::TileMode kRepeatEdgeMap[] = {
-        SkBlurImageFilter:: kClamp_TileMode, // 0 -> repeat off
-        SkBlurImageFilter::kRepeat_TileMode, // 1 -> repeat on
+        SkBlurImageFilter::kClampToBlack_TileMode, // 0 -> repeat edge pixels: off
+        SkBlurImageFilter::       kClamp_TileMode, // 1 -> repeat edge pixels: on
     };
 
     const auto repeat_index = SkTPin<size_t>(static_cast<size_t>(fRepeatEdge),
