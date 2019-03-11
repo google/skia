@@ -22,6 +22,30 @@
       "revId": "651e168c7e057ca91afd95945de989613dc9929a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23ab65e2_b754cb50",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-11T23:41:26Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s defined. And kMixedSamples certainly is not used anywhere.\n\nI just split this out of a bigger change that removes GrAAType and kMixedSamples completely, at which point this will make more sense.",
+      "parentUuid": "1dac5620_ddf18cc9",
+      "range": {
+        "startLine": 652,
+        "startChar": 8,
+        "endLine": 652,
+        "endChar": 81
+      },
+      "revId": "651e168c7e057ca91afd95945de989613dc9929a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
