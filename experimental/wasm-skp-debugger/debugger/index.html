@@ -10,7 +10,7 @@ var index = 0;
 DebuggerInit({
   locateFile: (file) => '/node_modules/debugger/bin/'+file,
 }).ready().then((Debugger) => {
-  const surface = Debugger.MakeSWCanvasSurface('debugger_view');
+  var surface;
   const player = new Debugger.SkpDebugPlayer();
 
   // Define an event handler for the file input dialog
@@ -35,6 +35,20 @@ DebuggerInit({
       fileMem.set(fileContents);
       // Hand off pointer to wasm
       player.loadSkp(fileMemPtr, size);
+
+      console.log(Object.keys(player));
+
+      // From the loaded commands, Debugger now knows the bounds.
+      let bounds = player.getBounds();
+      console.log("bounds object" + bounds);
+      // Resize our canvas to match
+      canvas = document.getElementById("debugger_view");
+      canvas.width = bounds.fRight - bounds.fLeft;
+      canvas.height = bounds.fBottom - bounds.fTop;
+      surface = Debugger.MakeSWCanvasSurface('debugger_view');
+
+      document.getElementById('command-count').innerHTML = player.getSize();
+      player.setClipVizColor(0);
     };
     reader.readAsArrayBuffer(file);
   }
@@ -46,7 +60,6 @@ DebuggerInit({
           player.drawTo(surface, index);
           surface.flush();
           index++;
-          console.log("index = "+index);
         }
     }, interval);
   }
@@ -57,16 +70,51 @@ DebuggerInit({
   document.getElementById('playbutton')
     .addEventListener('click', playFile, false);
 
+  document.getElementById('overdraw')
+    .addEventListener('change', function(e){
+      player.setOverdrawVis(e.target.checked);
+    }, false);
+
+  document.getElementById('gpuopbounds')
+    .addEventListener('change', function(e){
+      player.setGpuOpBounds(e.target.checked);
+    }, false);
+
+  document.getElementById('clipvizcolor')
+    .addEventListener('change', function(e){
+      // Make alpha be 0x50
+      x = parseInt("50"+e.target.value.substr(1),16);
+      player.setClipVizColor(x);
+    }, false);
+
+  document.getElementById('disableclipviz')
+    .addEventListener('click', function(e){
+      player.setClipVizColor(0);
+    }, false);
+
+  document.getElementById('getjsoncommandlist')
+    .addEventListener('click', function(e){
+      resultPtr = player.jsonCommandList(surface);
+      console.log('getjsoncommandlist result pointer '+resultPtr)
+      let data = String.fromCharCode.apply(null, new Uint8Array(Debugger.buffer, resultPtr, 100));
+      console.log(data);
+    }, false);
+
 });
   </script>
   </head>
   <body>
-    <canvas id=debugger_view width=720 height=1280></canvas>
+    <canvas id=debugger_view width=400 height=400></canvas>
     <div style="float:right">
-      <input type="file" id="file-input" /><br>
+      <input type="file" id="file-input" /> | <span id="command-count">0</span> commands<br>
       <input type="button" id="playbutton" value="Play" />
       command interval in ms
-      <input type="text" id="interval" value="20" />
+      <input type="text" id="interval" value="20" /><br>
+      <input type="checkbox" id="overdraw" /> Overdraw vis<br>
+      <input type="checkbox" id="gpuopbounds" /> GPU Op bounds<br>
+      <input type="color" id="clipvizcolor" />Clip visualization color
+      <input type="button" id="disableclipviz" value="Disable" /><br>
+      <input type="button" id="getjsoncommandlist" value="Get JSON Command List" /><br>
     <div>
     <div style="float:clear"></div>
   </body>
