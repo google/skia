@@ -490,12 +490,12 @@ GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
             }
             break;
         case kRGBA_F16Norm_SkColorType:  // TODO(brianosman): ?
-            if (MTLPixelFormatRG16Float == format) {
+            if (MTLPixelFormatRGBA16Float == format) {
                 return kRGBA_half_GrPixelConfig;
             }
             break;
         case kRGBA_F16_SkColorType:
-            if (MTLPixelFormatRG16Float == format) {
+            if (MTLPixelFormatRGBA16Float == format) {
                 return kRGBA_half_GrPixelConfig;
             }
             break;
