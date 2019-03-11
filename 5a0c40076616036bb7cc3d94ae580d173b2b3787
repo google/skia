@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9c543ee_0e27608c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-03-11T20:52:06Z",
+      "side": 1,
+      "message": "I think we should just add this, and validation for other sizes, when deserializing the original desc itself? For other entries as well, we could have a bogus size.",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 27
+      },
+      "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
