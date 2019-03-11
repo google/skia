@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c73ae359_9a8b0509",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 2251,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-11T20:29:29Z",
+      "side": 1,
+      "message": "test_app already sets this (at least some of the time). Is this redundant?",
+      "range": {
+        "startLine": 2251,
+        "startChar": 6,
+        "endLine": 2251,
+        "endChar": 21
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04980a9f_71ec1955",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-11T20:29:29Z",
+      "side": 1,
+      "message": "I assume we want to enable these in order to compile them?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dad5d499_fee23fdd",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-11T20:29:29Z",
+      "side": 1,
+      "message": "DEF_SIMPLE_GM takes care of this for you. Can we make REG_FIDDLE do it, too?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eac05972_7a45c7f7",
+        "filename": "gn/examples.gni",
+        "patchSetId": 10
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-11T20:29:29Z",
+      "side": 1,
+      "message": "Why is this different from how e.g. core.gni works?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 47
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05806904_74e4a04c",
+        "filename": "tools/fiddle/examples.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-11T20:29:29Z",
+      "side": 1,
+      "message": "Comments explaining these individually, and in general?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 28
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
