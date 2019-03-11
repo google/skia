@@ -15,7 +15,7 @@ set -ex
 
 #BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/canvaskit)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-CANVASKIT_DIR=$BASE_DIR/../../experimental/canvaskit
+CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &

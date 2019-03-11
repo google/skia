@@ -114,8 +114,8 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nbase_dir = sys.argv[2]\nbundle_name = sys.argv[3]\nout_dir = sys.argv[4]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\n# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests\n# expect them ($SKIA_ROOT/experimental/canvaskit/canvaskit/bin/)\ndest = os.path.join(copy_dest, 'canvaskit.js')\nshutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\nif bundle_name:\n  dest = os.path.join(copy_dest, bundle_name)\n  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)\n  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\nos.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.\n",
-      "[START_DIR]/cache/work/skia/experimental/canvaskit/canvaskit/bin",
+      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nbase_dir = sys.argv[2]\nbundle_name = sys.argv[3]\nout_dir = sys.argv[4]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\n# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests\n# expect them ($SKIA_ROOT/modules/canvaskit/canvaskit/bin/)\ndest = os.path.join(copy_dest, 'canvaskit.js')\nshutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\nif bundle_name:\n  dest = os.path.join(copy_dest, bundle_name)\n  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)\n  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\nos.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.\n",
+      "[START_DIR]/cache/work/skia/modules/canvaskit/canvaskit/bin",
       "[START_DIR]/build",
       "canvaskit.wasm",
       "[START_DIR]/[SWARM_OUT_DIR]"
@@ -148,7 +148,7 @@
       "@@@STEP_LOG_LINE@python.inline@    raise@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@# Copy binaries (canvaskit.js and canvaskit.wasm) to where the karma tests@@@",
-      "@@@STEP_LOG_LINE@python.inline@# expect them ($SKIA_ROOT/experimental/canvaskit/canvaskit/bin/)@@@",
+      "@@@STEP_LOG_LINE@python.inline@# expect them ($SKIA_ROOT/modules/canvaskit/canvaskit/bin/)@@@",
       "@@@STEP_LOG_LINE@python.inline@dest = os.path.join(copy_dest, 'canvaskit.js')@@@",
       "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(os.path.join(base_dir, 'canvaskit.js'), dest)@@@",
       "@@@STEP_LOG_LINE@python.inline@os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.@@@",

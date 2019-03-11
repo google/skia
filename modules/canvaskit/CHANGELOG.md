@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Location in Skia Git repo now `modules/canvaskit` (was `experimental/canvaskit`)
 
 ## [0.5.0] - 2019-03-08
 
