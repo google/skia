@@ -36,6 +36,7 @@
     #include "SkLightingShader.h"
     #include "SkLocalMatrixShader.h"
     #include "SkLumaColorFilter.h"
+    #include "SkMixerBase.h"
     #include "SkNormalSource.h"
     #include "SkOverdrawColorFilter.h"
     #include "SkPathEffect.h"
@@ -119,6 +120,7 @@
         SK_REGISTER_FLATTENABLE(SkLayerDrawLooper);
         SK_REGISTER_FLATTENABLE(SkRecordedDrawable);
         SkNormalSource::RegisterFlattenables();
+        SkMixerBase::RegisterFlattenables();
     }
 
     /*
