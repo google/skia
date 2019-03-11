@@ -11,6 +11,10 @@
 #include "../Fuzz.h"
 
 bool FuzzSKSL2Metal(sk_sp<SkData> bytes) {
+    if (bytes->size() < 5) {
+        // input cannot be valid if it is this short
+        return false;
+    }
     SkSL::Compiler compiler;
     SkSL::String output;
     SkSL::Program::Settings settings;
