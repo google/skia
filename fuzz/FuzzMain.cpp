@@ -736,8 +736,8 @@ bool FuzzSKSL2Metal(sk_sp<SkData> bytes);
 
 static void fuzz_sksl2metal(sk_sp<SkData> bytes) {
     if (FuzzSKSL2Metal(bytes)) {
-        SkDebugf("[terminated] Success! Compiled input to SPIRV.\n");
+        SkDebugf("[terminated] Success! Compiled input to Metal.\n");
     } else {
-        SkDebugf("[terminated] Could not compile input to SPIRV.\n");
+        SkDebugf("[terminated] Could not compile input to Metal.\n");
     }
 }
