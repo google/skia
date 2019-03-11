@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbbb52eb_ded1b5b9",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-11T19:57:02Z",
+      "side": 1,
+      "message": "I know there are uses of this in the GM and unit tests, but I\u0027m having a hard time figuring out where it would be used by clients. Feels obtuse? Like we\u0027re crossing into YAGNI territory? Or I guess this is the only way to create more complex DAGs of mixers, actually? It\u0027s just awkward because the mixer is spec\u0027d as a thing that operates on two colors, so I can\u0027t combine two mixers without a mapping for how the new mixer\u0027s inputs get routed into the children? Still, something feels off.",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
