@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "a149f627_1b54fa62",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T20:00:22Z",
+      "side": 1,
+      "message": "In the docs above you\u0027d have written C \u003d this(B,A), which i think is clearer.",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbbb52eb_ded1b5b9",
         "filename": "include/core/SkMixer.h",
         "patchSetId": 16
@@ -47,6 +70,24 @@
       "writtenOn": "2019-03-11T19:57:02Z",
       "side": 1,
       "message": "I know there are uses of this in the GM and unit tests, but I\u0027m having a hard time figuring out where it would be used by clients. Feels obtuse? Like we\u0027re crossing into YAGNI territory? Or I guess this is the only way to create more complex DAGs of mixers, actually? It\u0027s just awkward because the mixer is spec\u0027d as a thing that operates on two colors, so I can\u0027t combine two mixers without a mapping for how the new mixer\u0027s inputs get routed into the children? Still, something feels off.",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b0ac519_63d2e359",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T20:00:22Z",
+      "side": 1,
+      "message": "The part I find oddest is that we call this \"split\" and not \"join\" or \"merge\".  I guess you can look at a Y either way, splitting the inputs or merging the outputs.",
+      "parentUuid": "fbbb52eb_ded1b5b9",
       "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
