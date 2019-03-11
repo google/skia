@@ -145,15 +145,8 @@ struct SK_API GrContextOptions {
     Enable fUseDrawInsteadOfClear = Enable::kDefault;
 
     /**
-     * Allow Ganesh to explicitly allocate resources at flush time rather than incrementally while
-     * drawing. This will eventually just be the way it is but, for now, it is optional.
-     */
-    Enable fExplicitlyAllocateGPUResources = Enable::kDefault;
-
-    /**
      * Allow Ganesh to sort the opLists prior to allocating resources. This is an optional
-     * behavior that is only relevant when 'fExplicitlyAllocateGPUResources' is enabled.
-     * Eventually this will just be what is done and will not be optional.
+     * behavior but, eventually, this will just be what is done and will not be optional.
      */
     Enable fSortRenderTargets = Enable::kDefault;
 

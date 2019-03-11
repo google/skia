@@ -24,6 +24,12 @@
 #include "vk/GrVkGpu.h"
 #endif
 
+#ifdef SK_DISABLE_OPLIST_SORTING
+static const bool kDefaultSortOpLists = false;
+#else
+static const bool kDefaultSortOpLists = true;
+#endif
+
 class SK_API GrLegacyDirectContext : public GrContext {
 public:
     GrLegacyDirectContext(GrBackendApi backend, const GrContextOptions& options)
@@ -73,7 +79,7 @@ protected:
             return false;
         }
 
-        bool sortOpLists = this->explicitlyAllocateGPUResources();
+        bool sortOpLists = kDefaultSortOpLists;
         if (GrContextOptions::Enable::kNo == this->options().fSortRenderTargets) {
             sortOpLists = false;
         } else if (GrContextOptions::Enable::kYes == this->options().fSortRenderTargets) {
