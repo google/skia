@@ -229,6 +229,30 @@
     },
     {
       "key": {
+        "uuid": "3b3835f0_492c9a7b",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-11T16:24:29Z",
+      "side": 1,
+      "message": "\u003e\u003e Yes absolutely, this would be a lot easier if we calculated the AA geometry for the intended complete layer, and then chopped it up. Unfortunately that\u0027s not what they give us\n\nOh ok, I must have misunderstood. I thought I heard they gave us two quads: the intended layer, and the sub-quad they actually wanted to draw.",
+      "parentUuid": "99d833df_c8e4ca3d",
+      "range": {
+        "startLine": 280,
+        "startChar": 13,
+        "endLine": 280,
+        "endChar": 31
+      },
+      "revId": "4551a9fe682011fd84bbab80f4a0aaadad3f8ce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f2eb4ac0_5dadcba5",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 13
