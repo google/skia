@@ -1965,6 +1965,7 @@ if (skia_enable_tools) {
       "tools",
       "tools/debugger",
       "tools/fonts",
+      "src/sksl",
     ]
     sources = [
       "fuzz/Fuzz.cpp",
@@ -1988,6 +1989,9 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzPathDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+      "fuzz/oss_fuzz/FuzzSKSL2GLSL.cpp",
+      "fuzz/oss_fuzz/FuzzSKSL2Metal.cpp",
+      "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
