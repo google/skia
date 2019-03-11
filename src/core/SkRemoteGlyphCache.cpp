@@ -40,6 +40,8 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
         uint32_t size;
         auto ptr = source_desc->findEntry(kRec_SkDescriptorTag, &size);
         SkScalerContextRec rec;
+        if (size != sizeof(rec))
+            return nullptr;
         std::memcpy(&rec, ptr, size);
         rec.fFontID = font_id;
         desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
@@ -673,6 +675,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         // TODO: Can we do this in-place and re-compute checksum? Instead of a complete copy.
         SkAutoDescriptor ad;
         auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
+        if (!client_desc) READ_FAILURE;
 
         auto strike = fStrikeCache->findStrikeExclusive(*client_desc);
         if (strike == nullptr) {
