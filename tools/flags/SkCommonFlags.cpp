@@ -166,7 +166,6 @@ DEFINE_string(pr, "all",
               "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
               "[~]small [~]tess] [~]all");
 
-DEFINE_bool(disableExplicitAlloc, false, "Disable explicit allocation of GPU resources");
 DEFINE_bool(reduceOpListSplitting, false, "Improve opList sorting");
 
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
@@ -177,12 +176,6 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fSuppressGeometryShaders = FLAGS_noGS;
     ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
-
-    if (FLAGS_disableExplicitAlloc) {
-        ctxOptions->fExplicitlyAllocateGPUResources = GrContextOptions::Enable::kNo;
-        // Can't have sorting enabled when explicit allocation is disabled.
-        ctxOptions->fSortRenderTargets = GrContextOptions::Enable::kNo;
-    }
 
     if (FLAGS_reduceOpListSplitting) {
         ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kYes;
