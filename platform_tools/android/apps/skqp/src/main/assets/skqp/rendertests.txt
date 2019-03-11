@@ -502,7 +502,7 @@ pathopsinverse,-1
 pathopsskpclip,-1
 pdf_crbug_772685,0
 pdf_never_embed,-1
-perlinnoise,0
+perlinnoise,200
 perlinnoise_localmatrix,0
 persp_images,-1
 persp_shaders_aa,-1
