@@ -64,6 +64,7 @@ private:
 
     size_t fReentryCount; // tracks the number of nested apply() calls for cache purging.
 
+    GrContext*           fContext;
     Cache<SkImage      > fImageCache;
     Cache<SkColorFilter> fColorFilterCache;
     Cache<SkImageFilter> fImageFilterCache;

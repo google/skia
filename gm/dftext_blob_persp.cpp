@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "Resources.h"
+#include "GrContext.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
@@ -45,7 +46,7 @@ protected:
 
     void onDraw(SkCanvas* inputCanvas) override {
     // set up offscreen rendering with distance field text
-        GrContext* ctx = inputCanvas->getGrContext();
+        auto ctx = inputCanvas->getGrContext();
         SkISize size = this->onISize();
         if (!inputCanvas->getBaseLayerSize().isEmpty()) {
             size = inputCanvas->getBaseLayerSize();

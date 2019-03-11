@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 
 #include "Resources.h"
+#include "GrContext.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -93,7 +94,7 @@ protected:
         sk_sp<SkSurface> surface;
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
-            GrContext* ctx = inputCanvas->getGrContext();
+            auto ctx = inputCanvas->getGrContext();
             SkISize size = onISize();
             sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
             SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),

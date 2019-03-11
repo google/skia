@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "GrContext.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
@@ -23,7 +24,8 @@ static sk_sp<SkShader> make_shader() {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo) {
+static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx, const SkImageInfo& info,
+                                     SkPixelGeometry geo) {
     SkSurfaceProps props(0, geo);
     if (ctx) {
         return SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
@@ -63,7 +65,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* ctx = canvas->getGrContext();
+        auto ctx = canvas->getGrContext();
 
         // must be opaque to have a hope of testing LCD text
         const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType);

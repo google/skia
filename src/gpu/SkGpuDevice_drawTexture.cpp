@@ -11,7 +11,12 @@
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
+#include "GrContextPriv.h"
 #include "GrImageTextureMaker.h"
+#include "GrProxyProvider.h"
+#include "GrRecordingContext.h"
+#include "GrRecordingContextPriv.h"
+#include "GrRect.h"
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrStyle.h"
@@ -231,7 +236,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
-static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc,
+static void draw_texture_producer(GrRecordingContext* context, GrRenderTargetContext* rtc,
                                   const GrClip& clip, const SkMatrix& ctm,
                                   const SkPaint& paint, GrTextureProducer* producer,
                                   const SkRect& src, const SkRect& dst, const SkPoint dstClip[4],

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrContext.h"
 #include "SkColorFilter.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
@@ -101,7 +102,7 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
     const AutoCachePurge autoPurge(this);
     return this->cachedApply<SkImage>(src, &fImageCache,
         [](const SkImage* img, SkColorSpaceXformer* xformer) {
-            return img->makeColorSpace(xformer->fDst);
+            return img->makeColorSpace(nullptr, xformer->fDst);
         });
 }
 
@@ -112,7 +113,7 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
         return nullptr;
     }
 
-    sk_sp<SkImage> xformed = image->makeColorSpace(fDst);
+    sk_sp<SkImage> xformed = image->makeColorSpace(fContext, fDst);
     // We want to be sure we don't let the kNever_SkCopyPixelsMode image escape this stack frame.
     SkASSERT(xformed != image);
     return xformed;

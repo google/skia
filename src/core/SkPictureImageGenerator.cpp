@@ -102,9 +102,7 @@ sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
 
-    // CONTEXT TODO: remove this use of 'backdoor' to create an SkSkSurface
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx->priv().backdoor(),
-                                                         SkBudgeted::kYes, info, 0,
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info, 0,
                                                          kTopLeft_GrSurfaceOrigin, &props,
                                                          willNeedMipMaps));
     if (!surface) {
