@@ -8,6 +8,16 @@
 #ifndef GrContext_Base_DEFINED
 #define GrContext_Base_DEFINED
 
+// Perform old-style (non-explicit) allocation in the Android Framework and on older
+// (non-Vulkan supporting) Android devices. The latter is to, at least, have some of
+// Skia's bots exercise the old allocation scheme.
+#if !defined(SK_OLD_STYLE_RESOURCE_ALLOCATION)
+    #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || \
+        (defined(SK_BUILD_FOR_ANDROID) && !defined(SK_VULKAN))
+            #define SK_OLD_STYLE_RESOURCE_ALLOCATION
+    #endif
+#endif
+
 #include "SkRefCnt.h"
 #include "GrContextOptions.h"
 #include "GrTypes.h"
