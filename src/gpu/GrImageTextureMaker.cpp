@@ -45,16 +45,18 @@ SkColorSpace* GrImageTextureMaker::colorSpace() const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
+GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context,
+                                                 const SkImage* client,
                                                  bool useDecal)
-    : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
-    , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
+        : INHERITED(context, client->width(), client->height(), client->isAlphaOnly(), useDecal)
+        , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
                          SkIRect::MakeWH(this->width(), this->height()));
 }
 
-sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(
+                                                                   bool willBeMipped,
                                                                    AllowedTexGenType onlyIfFast) {
     if (AllowedTexGenType::kCheap == onlyIfFast) {
         return nullptr;

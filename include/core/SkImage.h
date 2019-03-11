@@ -36,6 +36,7 @@ class SkImageFilter;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
+class GrRecordingContext;
 class SkString;
 class SkSurface;
 class GrBackendTexture;
@@ -912,8 +913,13 @@ public:
         Returns nullptr if subset is empty, or subset is not contained by bounds, or
         pixels in SkImage could not be read or copied.
 
+        @param context the GrContext in play - if it exists
         @param subset  bounds of returned SkImage
         @return        partial or full SkImage, or nullptr
+    */
+    sk_sp<SkImage> makeSubset(GrRecordingContext* context, const SkIRect& subset) const;
+
+    /** To be deprecated.
     */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
@@ -977,7 +983,7 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    sk_sp<SkImage> makeWithFilter(GrContext* context,
+    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
                                   const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
@@ -1052,9 +1058,14 @@ public:
         Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
         If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
 
+        @param context the GrContext in play - if it exists
         @param target  SkColorSpace describing color range of returned SkImage
         @return        created SkImage in target SkColorSpace
     */
+    sk_sp<SkImage> makeColorSpace(GrRecordingContext* context, sk_sp<SkColorSpace> target) const;
+
+    /** Deprecated.
+     */
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 
     /** Experimental.
@@ -1063,10 +1074,16 @@ public:
 
         Returns original SkImage if it is in target SkColorType and SkColorSpace.
 
+        @param context          the GrContext in play - if it exists
         @param targetColorType  SkColorType of returned SkImage
         @param targetColorSpace SkColorSpace of returned SkImage
         @return                 created SkImage in target SkColorType and SkColorSpace
     */
+    sk_sp<SkImage> makeColorTypeAndColorSpace(GrRecordingContext* context,
+                                              SkColorType targetColorType,
+                                              sk_sp<SkColorSpace> targetColorSpace) const;
+    /** Deprecated.
+     */
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetColorSpace) const;
 

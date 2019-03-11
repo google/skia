@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "gm.h"
 #include "Resources.h"
+#include "GrContext.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkStream.h"
@@ -13,7 +15,6 @@
 #include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "gm.h"
 #include "sk_tool_utils.h"
 
 class DFTextGM : public skiagm::GM {
@@ -41,7 +42,7 @@ protected:
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
 
         // set up offscreen rendering with distance field text
-        GrContext* ctx = inputCanvas->getGrContext();
+        auto ctx = inputCanvas->getGrContext();
         SkISize size = onISize();
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
                                                 inputCanvas->imageInfo().refColorSpace());

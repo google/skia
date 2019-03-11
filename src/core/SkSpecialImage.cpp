@@ -18,6 +18,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrImageContext.h"
+#include "GrImageContextPriv.h"
 #include "GrProxyProvider.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
@@ -363,8 +365,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 ///////////////////////////////////////////////////////////////////////////////
 static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    // CONTEXT TODO: remove this use of 'backdoor' to create an SkImage
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context->priv().backdoor()),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
                                    kNeedNewImageUniqueID, alphaType,
                                    std::move(proxy), std::move(colorSpace));
 }
@@ -517,8 +518,7 @@ public:
             ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
                                              sk_ref_sp(colorSpace));
-        // CONTEXT TODO: remove this use of 'backdoor' to create an SkSurface
-        return SkSurface::MakeRenderTarget(fContext->priv().backdoor(), SkBudgeted::kYes, info);
+        return SkSurface::MakeRenderTarget(fContext, SkBudgeted::kYes, info);
     }
 
 private:
