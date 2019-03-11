@@ -23,10 +23,6 @@
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 
-#if SK_SUPPORT_GPU
-#include "SkSLCompiler.h"
-#endif
-
 #include "sk_tool_utils.h"
 
 #include <iostream>
@@ -60,6 +56,8 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "region_set_path\n"
                                          "skp\n"
                                          "sksl2glsl\n"
+                                         "sksl2metal\n"
+                                         "sksl2spirv\n"
 #if defined(SK_ENABLE_SKOTTIE)
                                          "skottie_json\n"
 #endif
@@ -84,13 +82,12 @@ static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_region_set_path(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
+static void fuzz_sksl2glsl(sk_sp<SkData>);
+static void fuzz_sksl2metal(sk_sp<SkData>);
+static void fuzz_sksl2spirv(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 static void print_api_names();
-
-#if SK_SUPPORT_GPU
-static void fuzz_sksl2glsl(sk_sp<SkData>);
-#endif
 
 #if defined(SK_ENABLE_SKOTTIE)
 static void fuzz_skottie_json(sk_sp<SkData>);
@@ -207,16 +204,22 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_skp(bytes);
         return 0;
     }
-    if (type.equals("textblob")) {
-        fuzz_textblob_deserialize(bytes);
-        return 0;
-    }
-#if SK_SUPPORT_GPU
     if (type.equals("sksl2glsl")) {
         fuzz_sksl2glsl(bytes);
         return 0;
     }
-#endif
+    if (type.equals("sksl2metal")) {
+        fuzz_sksl2metal(bytes);
+        return 0;
+    }
+    if (type.equals("sksl2spirv")) {
+        fuzz_sksl2spirv(bytes);
+        return 0;
+    }
+    if (type.equals("textblob")) {
+        fuzz_textblob_deserialize(bytes);
+        return 0;
+    }
     SkDebugf("Unknown type %s\n", type.c_str());
     SkCommandLineFlags::PrintUsage();
     return 1;
@@ -250,6 +253,9 @@ static std::map<std::string, std::string> cf_map = {
     {"region_deserialize", "region_deserialize"},
     {"region_set_path", "region_set_path"},
     {"skjson", "json"},
+    {"sksl2glsl", "sksl2glsl"},
+    {"sksl2metal", "sksl2metal"},
+    {"sksl2spirv", "sksl2spirv"},
 #if defined(SK_ENABLE_SKOTTIE)
     {"skottie_json", "skottie_json"},
 #endif
@@ -706,20 +712,32 @@ static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] filter_fuzz didn't crash!\n");
 }
 
-#if SK_SUPPORT_GPU
+bool FuzzSKSL2GLSL(sk_sp<SkData> bytes);
+
 static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
-    SkSL::Compiler compiler;
-    SkSL::String output;
-    SkSL::Program::Settings settings;
-    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                          SkSL::String((const char*) bytes->data()),
-                                                          settings);
-    if (!program || !compiler.toGLSL(*program, &output)) {
-        SkDebugf("[terminated] Couldn't compile input.\n");
-        return;
+    if (FuzzSKSL2GLSL(bytes)) {
+        SkDebugf("[terminated] Success! Compiled input to GLSL.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile input to GLSL.\n");
     }
-    SkDebugf("[terminated] Success! Compiled input.\n");
 }
-#endif
+
+bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes);
+
+static void fuzz_sksl2spirv(sk_sp<SkData> bytes) {
+    if (FuzzSKSL2SPIRV(bytes)) {
+        SkDebugf("[terminated] Success! Compiled input to SPIRV.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile input to SPIRV.\n");
+    }
+}
+
+bool FuzzSKSL2Metal(sk_sp<SkData> bytes);
+
+static void fuzz_sksl2metal(sk_sp<SkData> bytes) {
+    if (FuzzSKSL2Metal(bytes)) {
+        SkDebugf("[terminated] Success! Compiled input to SPIRV.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile input to SPIRV.\n");
+    }
+}
