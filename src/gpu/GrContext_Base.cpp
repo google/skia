@@ -11,12 +11,6 @@
 #include "GrCaps.h"
 #include "GrSkSLFPFactoryCache.h"
 
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-static const bool kDefaultExplicitlyAllocateGPUResources = false;
-#else
-static const bool kDefaultExplicitlyAllocateGPUResources = true;
-#endif
-
 static int32_t next_id() {
     static std::atomic<int32_t> nextID{1};
     int32_t id;
@@ -45,15 +39,15 @@ bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> 
 }
 
 bool GrContext_Base::explicitlyAllocateGPUResources() const {
-    if (GrContextOptions::Enable::kNo == fOptions.fExplicitlyAllocateGPUResources) {
-        return false;
-    }
-
-    if (GrContextOptions::Enable::kYes == fOptions.fExplicitlyAllocateGPUResources) {
-        return true;
-    }
-
-    return kDefaultExplicitlyAllocateGPUResources;
+    // Perform implicit allocation in the Android Framework and on older (non-Vulkan supporting)
+    // Android devices. The latter is to, at least, have some of Skia's bots exercise the old
+    // allocation scheme.
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || \
+    (defined(SK_BUILD_FOR_ANDROID) && !defined(SK_VULKAN))
+    return false;
+#else
+    return true;
+#endif
 }
 
 const GrCaps* GrContext_Base::caps() const { return fCaps.get(); }
