@@ -21,17 +21,22 @@ sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, 
     if (!src || !dst || SkScalarIsNaN(lerpT)) {
         return nullptr;
     }
-    lerpT = SkScalarPin(lerpT, 0, 1);
 
-    if (lerpT == 0) {
+    if (lerpT <= 0) {
         return dst;
-    } else if (lerpT == 1) {
+    } else if (lerpT >= 1) {
         if (mode == SkBlendMode::kSrc) {
             return src;
         }
         if (mode == SkBlendMode::kDst) {
             return dst;
         }
+    }
+
+    if (false) {    // need gpu impl for mixers...
+        auto mx = SkMixer::MakeLerp(lerpT)->makeSplit(SkMixer::MakeBlend(mode),
+                                                      SkMixer::MakeFirst());
+        return MakeMixer(std::move(dst), std::move(src), std::move(mx));
     }
     return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode, lerpT));
 }
