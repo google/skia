@@ -46,6 +46,30 @@
       "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1459127b_6cfa3bd9",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-03-11T21:17:27Z",
+      "side": 1,
+      "message": "\u003e Where are you suggesting doing it? This is where the SkDescriptor gets deserialized originally: https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkRemoteGlyphCache.cpp?sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d134\n\u003e \n\nYeah, I meant do it here right after memcpying. Makes it more robust to fail at the deserialization point itself.\n\n\u003e Which makes me think that this line here is the first time anybody has looked something up in it.",
+      "parentUuid": "5581194f_807a4fc6",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 27
+      },
+      "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
