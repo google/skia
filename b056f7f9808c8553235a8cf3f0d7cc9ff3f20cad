@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "a7c58cee_40ca2604",
+        "filename": "gm/colorfilterimagefilter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T19:57:31Z",
+      "side": 1,
+      "message": "FWIW, this is the sort of place where using std::function is a pessimization.\n\nIt\u0027ll be able to inline and throw away a bunch of the std::function code junk if you write like this:\n\n  template \u003ctypename Maker\u003e\n  static void do_mixershader(SkCanvas* canvas, Maker\u0026\u0026 maker) { ... }\n\nIt\u0027s technically possible for the compiler to inline through std::function in a situation like this, but it doesn\u0027t really happen in practice.",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce755996_6250c8a5",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T19:57:31Z",
+      "side": 1,
+      "message": "Might want to see how you feel with each of the \u0027make\u0027 removed?  filterOutput(), filterInputs(), reverse(), split()?",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbbb52eb_ded1b5b9",
         "filename": "include/core/SkMixer.h",
         "patchSetId": 16
@@ -13,6 +47,46 @@
       "writtenOn": "2019-03-11T19:57:02Z",
       "side": 1,
       "message": "I know there are uses of this in the GM and unit tests, but I\u0027m having a hard time figuring out where it would be used by clients. Feels obtuse? Like we\u0027re crossing into YAGNI territory? Or I guess this is the only way to create more complex DAGs of mixers, actually? It\u0027s just awkward because the mixer is spec\u0027d as a thing that operates on two colors, so I can\u0027t combine two mixers without a mapping for how the new mixer\u0027s inputs get routed into the children? Still, something feels off.",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d6bb774_9ab7c68b",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T19:57:31Z",
+      "side": 1,
+      "message": "I don\u0027t think you need to bump the picture version, do you?  You\u0027re only adding, not removing or changing anything?\n\nWhen you\u0027re adding to the picture format, it\u0027s just like it\u0027s always been part of the format, just never present in any file.",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7414bc3c_a6c5353e",
+        "filename": "tests/MixerTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T19:57:31Z",
+      "side": 1,
+      "message": "This is a pretty good one actually.  I think that says you hit the same 8-bit value.\n\nAnother way to do this is to just round it to 8-bit with toBytes_RGBA() and compare exact?",
+      "range": {
+        "startLine": 15,
+        "startChar": 22,
+        "endLine": 15,
+        "endChar": 41
+      },
       "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
