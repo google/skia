@@ -52,9 +52,10 @@ protected:
             return false;
         }
 
-        // DDL contexts/drawing managers always sort the oplists. This, in turn, implies that
-        // explicit resource allocation is always on (regardless of how Skia is compiled).
-        this->setupDrawingManager(true, true);
+        // DDL contexts/drawing managers always sort the oplists and reduce opList splitting.
+        // This, in turn, implies that explicit resource allocation is always on (regardless
+        // of how Skia is compiled).
+        this->setupDrawingManager(true, true, true);
 
         SkASSERT(this->caps());
 
