@@ -22,6 +22,30 @@
       "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5581194f_807a4fc6",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2019-03-11T21:08:57Z",
+      "side": 1,
+      "message": "Where are you suggesting doing it? This is where the SkDescriptor gets deserialized originally: https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkRemoteGlyphCache.cpp?sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d134\n\nWhich makes me think that this line here is the first time anybody has looked something up in it.",
+      "parentUuid": "f9c543ee_0e27608c",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 27
+      },
+      "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
