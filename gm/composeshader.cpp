@@ -12,6 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImage.h"
+#include "SkMixer.h"
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkTDArray.h"
