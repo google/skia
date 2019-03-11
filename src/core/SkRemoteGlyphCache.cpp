@@ -595,6 +595,41 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
     path.writeToMemory(serializer->allocate(pathSize, kPathAlignment));
 }
 
+SkSpan<SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics(SkSpan<const SkGlyphID> glyphIDs,
+                                                                   SkSpan<const SkPoint> positions,
+                                                                   SkSpan<SkGlyphPos> result) {
+    int glyphCount = 0;
+    const SkPoint* posCursor = positions.data();
+    for (SkGlyphID glyphID : glyphIDs) {
+        SkPoint glyphPos = *posCursor++;
+
+        SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
+        SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
+                                                    : SkPackedGlyphID{glyphID};
+
+        // Check the cache for the glyph.
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
+
+        // Has this glyph ever been seen before?
+        if (glyphPtr == nullptr) {
+
+            // Never seen before. Make a new glyph.
+            glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+            fGlyphMap.set(glyphPtr);
+            this->ensureScalerContext();
+            fContext->getMetrics(glyphPtr);
+
+            result[glyphCount++] = {glyphPtr, glyphPos};
+
+            // Make sure to send the glyph to the GPU because we always send the image for a glyph.
+            fCachedGlyphImages.add(packedGlyphID);
+            fPendingGlyphImages.push_back(packedGlyphID);
+        }
+    }
+
+    return result.prefix(glyphCount);
+}
+
 // SkStrikeClient -----------------------------------------
 class SkStrikeClient::DiscardableStrikePinner : public SkStrikePinner {
 public:
