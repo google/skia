@@ -16,6 +16,24 @@
       "revId": "201bed495c436b8e45dde6d15f0fd39359d65c56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5e093d_e5971105",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-11T13:38:21Z",
+      "side": 1,
+      "message": "Yes we need them both. The first check returns null if we aren\u0027t initialized or not using vulkan. The second check sees if the vulkan one is actually using ycbcr.",
+      "parentUuid": "49c3f385_dc462b64",
+      "revId": "201bed495c436b8e45dde6d15f0fd39359d65c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
