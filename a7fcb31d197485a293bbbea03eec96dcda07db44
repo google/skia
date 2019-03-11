@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55240bd1_f344979d",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T17:43:07Z",
+      "side": 1,
+      "message": "de-dent all the #ifs again?",
+      "revId": "a7fcb31d197485a293bbbea03eec96dcda07db44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "430036f4_9b178fac",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T17:43:07Z",
+      "side": 1,
+      "message": "funny spot for this?",
+      "range": {
+        "startLine": 226,
+        "startChar": 4,
+        "endLine": 226,
+        "endChar": 6
+      },
+      "revId": "a7fcb31d197485a293bbbea03eec96dcda07db44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
