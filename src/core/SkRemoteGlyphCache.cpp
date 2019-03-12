@@ -664,9 +664,12 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         if (!deserializer.read<SkFontMetrics>(&fontMetrics)) READ_FAILURE
 
         // Get the local typeface from remote fontID.
-        auto* tf = fRemoteFontIdToTypeface.find(spec.typefaceID)->get();
+        auto* tf_entry = fRemoteFontIdToTypeface.find(spec.typefaceID);
         // Received strikes for a typeface which doesn't exist.
-        if (!tf) READ_FAILURE
+        if (!tf_entry) READ_FAILURE
+
+        auto* tf = tf_entry->get();
+        SkASSERT(tf);
 
         // Replace the ContextRec in the desc from the server to create the client
         // side descriptor.
