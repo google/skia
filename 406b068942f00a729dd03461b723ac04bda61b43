@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "969a2901_913ceb66",
+        "filename": "infra/pathkit/gold/wasm_gold_aggregator.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-12T18:45:17Z",
+      "side": 0,
+      "message": "What\u0027s the reason for removing this?",
+      "revId": "406b068942f00a729dd03461b723ac04bda61b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

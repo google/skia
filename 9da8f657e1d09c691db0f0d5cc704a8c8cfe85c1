@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ef3e50e_d7126ece",
+        "filename": "infra/pathkit/gold/wasm_gold_aggregator.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-12T18:45:17Z",
+      "side": 1,
+      "message": "nit: prefer defer",
+      "revId": "9da8f657e1d09c691db0f0d5cc704a8c8cfe85c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de9e08fa_83cb7762",
+        "filename": "infra/pathkit/perf/wasm_perf_aggregator.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-12T18:45:17Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "9da8f657e1d09c691db0f0d5cc704a8c8cfe85c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
