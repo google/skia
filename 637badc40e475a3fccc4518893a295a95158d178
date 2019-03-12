@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a09edd93_9ded2317",
+        "filename": "src/core/SkDescriptor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2019-03-12T20:33:13Z",
+      "side": 1,
+      "message": "Ok, I think you\u0027re both right.  Sorry it took both of you telling me that this was awkward to think through how to make this work.  I think I also wanted to avoid a friend test class, but I\u0027m not sure how else to do it.\n\nPTAL",
+      "parentUuid": "1dd75b99_7b115f8b",
+      "range": {
+        "startLine": 88,
+        "startChar": 27,
+        "endLine": 88,
+        "endChar": 46
+      },
+      "revId": "637badc40e475a3fccc4518893a295a95158d178",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c33184a5_73559826",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 4
