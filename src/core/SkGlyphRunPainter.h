@@ -108,6 +108,7 @@ private:
     void processARGBFallback(SkScalar maxGlyphDimension,
                              const SkPaint& runPaint,
                              const SkFont& runFont,
+                             SkScalar baseFontSize,
                              const SkMatrix& viewMatrix,
                              SkScalar cacheToSourceScale,
                              SkGlyphRunPainterInterface* process);
