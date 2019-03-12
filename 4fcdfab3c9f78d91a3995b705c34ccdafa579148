@@ -46,6 +46,30 @@
       "revId": "4fcdfab3c9f78d91a3995b705c34ccdafa579148",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e37b7414_16f43375",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T20:08:49Z",
+      "side": 1,
+      "message": "oh, how snazzy.  I didn\u0027t know SkDebugf() did anything useful in Chromium!",
+      "parentUuid": "05e59e48_3079fa9c",
+      "range": {
+        "startLine": 610,
+        "startChar": 8,
+        "endLine": 610,
+        "endChar": 20
+      },
+      "revId": "4fcdfab3c9f78d91a3995b705c34ccdafa579148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
