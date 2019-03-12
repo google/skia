@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cccb6765_f526d6cf",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T19:47:30Z",
+      "side": 1,
+      "message": "Think we need that print?  maybe just s/READ_FAILURE/return false;/g?",
+      "range": {
+        "startLine": 610,
+        "startChar": 8,
+        "endLine": 610,
+        "endChar": 20
+      },
+      "revId": "4fcdfab3c9f78d91a3995b705c34ccdafa579148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
