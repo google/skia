@@ -21,6 +21,7 @@ class SkColorFilter;
 class SkColorSpace;
 class SkColorSpaceXformer;
 class SkImage;
+class SkMixer;
 class SkPath;
 class SkPicture;
 class SkRasterPipeline;
@@ -225,6 +226,8 @@ public:
     static sk_sp<SkShader> MakeLerp(sk_sp<SkShader> dst, sk_sp<SkShader> src, float lerp) {
         return MakeCompose(std::move(dst), std::move(src), SkBlendMode::kSrc, lerp);
     }
+
+    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, sk_sp<SkMixer>);
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
