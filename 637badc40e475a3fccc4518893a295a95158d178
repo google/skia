@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c33184a5_73559826",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:38:00Z",
+      "side": 1,
+      "message": "Wondering why we pass desc_length through to isValid() given this setup.  Are there situations where desc_length and the descriptor\u0027s fLength will end up disagreeing?  Through some other call stack perhaps?",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 133,
+        "endChar": 31
+      },
+      "revId": "637badc40e475a3fccc4518893a295a95158d178",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
