@@ -31,6 +31,10 @@ namespace SkSL {
 class OutputStream;
 class StringStream;
 
+#ifdef SKSL_STANDALONE
+#define SK_API
+#endif
+
 #if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 
 // we're being compiled standalone, so we don't have access to caps...
