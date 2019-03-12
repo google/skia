@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "4f46f934_7e1a38a5",
+        "filename": "gm/colorfilterimagefilter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T16:13:09Z",
+      "side": 1,
+      "message": "No, yeah, it\u0027s fine here, particularly for that reason of documenting types.  You could also just take the function pointer, given that you\u0027re not closing over anything.  Just wanted to make sure you knew that this was expensive in general.",
+      "parentUuid": "85484f26_9b4b0ca5",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ce755996_6250c8a5",
         "filename": "include/core/SkMixer.h",
         "patchSetId": 16
@@ -255,6 +273,24 @@
       "side": 1,
       "message": "Hmmm, thought about that, but it does mean that now pictures of the same format will not be readable by prev code. I guess since the \u0027failure\u0027 comes with a new flattenable, we\u0027re ok?",
       "parentUuid": "7d6bb774_9ab7c68b",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8a8aeb3_5e0176dd",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T16:13:09Z",
+      "side": 1,
+      "message": "Forward-compatibility is not something we\u0027ve ever tried to guarantee before, but I guess it\u0027s harmless.  We\u0027ve always assumed that you\u0027re reading old data with new code, not the other way around.",
+      "parentUuid": "f6ae6eaf_0145c553",
       "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
