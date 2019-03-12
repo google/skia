@@ -65,11 +65,26 @@ steps:
     timeout: 600s
 
   - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--volume', '/workspace/wasm-products:/OUT',
+           '--volume', '/workspace/__particles_staging:/workspace/__particles_staging',
+           '--env', 'ROOT=/workspace/__particles_staging',
+           '--env', 'SKIP_BUILD=1',
+           '--workdir', '/home/skia/golib/src/go.skia.org/infra/particles',
+           'gcr.io/skia-public/infra:prod',
+           'make', 'release_ci']
+    dir: 'wasm-products'
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
     timeout: 600s
 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA', '/workspace/__skottie_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA', '/workspace/__particles_staging']
     timeout: 600s
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -82,6 +97,7 @@ steps:
 images:
   - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
