@@ -86,18 +86,7 @@ protected:
             sortOpLists = true;
         }
 
-        // For now, this is only turned on for direct rendering when explicitly enabled.
-        // Once predictive intermediate flushes are implemented it should be enabled whenever
-        // sorting is enabled.
-        bool reduceOpListSplitting = false; // sortOpLists
-        if (GrContextOptions::Enable::kNo == this->options().fReduceOpListSplitting) {
-            reduceOpListSplitting = false;
-        } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpListSplitting) {
-            reduceOpListSplitting = true;
-        }
-
-        this->setupDrawingManager(this->explicitlyAllocateGPUResources(),
-                                  sortOpLists, reduceOpListSplitting);
+        this->setupDrawingManager(this->explicitlyAllocateGPUResources(), sortOpLists);
 
         SkASSERT(this->caps());
 
