@@ -195,7 +195,8 @@ def main():
     recipes_cfg_path = os.path.join(repo_root, 'infra', 'config', 'recipes.cfg')
     args = ['--package', recipes_cfg_path] + args
 
-  engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
+  # engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
+  engine_path = '/repos/skia/infra/bots/.recipe_deps/recipe_engine'
 
   return _subprocess_call([
       VPYTHON, '-u',
