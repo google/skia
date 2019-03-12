@@ -183,11 +183,15 @@ public:
 
     ~TextureOp() override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
+#if 0
             if (fFinalized) {
                 fProxies[p].fProxy->completedRead();
             } else {
+#endif
                 fProxies[p].fProxy->unref();
+#if 0
             }
+#endif
         }
     }
 
@@ -231,10 +235,12 @@ public:
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
+#if 0
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy->addPendingRead();
             fProxies[p].fProxy->unref();
         }
+#endif
         return GrProcessorSet::EmptySetAnalysis();
     }
 

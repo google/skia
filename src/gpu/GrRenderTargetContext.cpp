@@ -219,7 +219,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get(), fManagedOpList);
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy, fManagedOpList);
     }
 
     return fOpList.get();
