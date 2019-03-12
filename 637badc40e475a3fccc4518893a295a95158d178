@@ -46,6 +46,30 @@
       "revId": "637badc40e475a3fccc4518893a295a95158d178",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf22849_9709a26b",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:51:40Z",
+      "side": 1,
+      "message": "Ah, ok.\n\nI\u0027m okay to leave it how it is for now.  SkDescriptor\u0027s more general than we use it in practice, and way back on our back burner we\u0027ve been wanting to give it a good scrub and overhaul, possibly making it fixed-size even.  I don\u0027t object to improving it as it is, but the direction we want to go here eventually is smaller and dumber.",
+      "parentUuid": "5eb18a33_fca03ea6",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 133,
+        "endChar": 31
+      },
+      "revId": "637badc40e475a3fccc4518893a295a95158d178",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
