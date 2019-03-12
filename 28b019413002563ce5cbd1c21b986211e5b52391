@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b86ee00e_c518a507",
+        "filename": "src/effects/imagefilters/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-12T21:57:53Z",
+      "side": 1,
+      "message": "delete?",
+      "revId": "28b019413002563ce5cbd1c21b986211e5b52391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
