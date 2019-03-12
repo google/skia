@@ -23,6 +23,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/google/uuid"
 	"go.skia.org/infra/perf/go/ingestcommon"
@@ -66,6 +67,7 @@ var defaultKeys map[string]string
 
 // contains all the results reported in through report_perf_data
 var results map[string][]reportBody
+var resultsMutex sync.Mutex
 
 type BenchData struct {
 	Hash         string                               `json:"gitHash"`
@@ -134,7 +136,8 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not write response: %s\n", err)
 		return
 	}
-
+	resultsMutex.Lock()
+ 	defer resultsMutex.Unlock()
 	results[benchOutput.BenchName] = append(results[benchOutput.BenchName], benchOutput)
 }
 

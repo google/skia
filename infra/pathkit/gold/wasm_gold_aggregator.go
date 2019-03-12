@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"go.skia.org/infra/golden/go/goldingestion"
 	"go.skia.org/infra/golden/go/jsonio"
@@ -35,7 +36,7 @@ var (
 	outDir = flag.String("out_dir", "/OUT/", "location to dump the Gold JSON and pngs")
 	port   = flag.String("port", "8081", "Port to listen on.")
 
-	botId            = flag.String("bot_id", "", "swarming bot id")
+	botId            = flag.String("bot_id", "", "swarming bot id (deprecated/unused)")
 	browser          = flag.String("browser", "Chrome", "Browser Key")
 	buildBucketID    = flag.Int64("buildbucket_build_id", 0, "Buildbucket build id key")
 	builder          = flag.String("builder", "", "Builder, like 'Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit'")
@@ -64,6 +65,7 @@ var defaultKeys map[string]string
 
 // contains all the results reported in through report_gold_data
 var results []*jsonio.Result
+var resultsMutex sync.Mutex
 
 func main() {
 	flag.Parse()
@@ -129,6 +131,8 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resultsMutex.Lock()
+ 	defer resultsMutex.Unlock()
 	results = append(results, &jsonio.Result{
 		Digest: hash,
 		Key: map[string]string{
@@ -173,15 +177,14 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 
 	dmresults := goldingestion.DMResults{
 		GoldResults: &jsonio.GoldResults{
-			BuildBucketID:  *buildBucketID,
-			Builder:        *builder,
-			GitHash:        *gitHash,
-			Issue:          *issue,
-			Key:            defaultKeys,
-			Patchset:       *patchset,
-			Results:        results,
-			SwarmingBotID:  *botId,
-			SwarmingTaskID: *taskId,
+			BuildBucketID: *buildBucketID,
+			Builder:       *builder,
+			GitHash:       *gitHash,
+			Issue:         *issue,
+			Key:           defaultKeys,
+			Patchset:      *patchset,
+			Results:       results,
+			TaskID:        *taskId,
 		},
 	}
 
