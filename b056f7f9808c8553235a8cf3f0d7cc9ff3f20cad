@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "85484f26_9b4b0ca5",
+        "filename": "gm/colorfilterimagefilter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-12T15:46:38Z",
+      "side": 1,
+      "message": "I will do this. Is it out of concern for the performance/size of the gm? I thought that at least using something like std::function allows me to \u0027document\u0027 the inputs and outputs.",
+      "parentUuid": "a7c58cee_40ca2604",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ce755996_6250c8a5",
         "filename": "include/core/SkMixer.h",
         "patchSetId": 16
@@ -219,6 +237,24 @@
       "writtenOn": "2019-03-11T19:57:31Z",
       "side": 1,
       "message": "I don\u0027t think you need to bump the picture version, do you?  You\u0027re only adding, not removing or changing anything?\n\nWhen you\u0027re adding to the picture format, it\u0027s just like it\u0027s always been part of the format, just never present in any file.",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6ae6eaf_0145c553",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-12T15:46:38Z",
+      "side": 1,
+      "message": "Hmmm, thought about that, but it does mean that now pictures of the same format will not be readable by prev code. I guess since the \u0027failure\u0027 comes with a new flattenable, we\u0027re ok?",
+      "parentUuid": "7d6bb774_9ab7c68b",
       "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
