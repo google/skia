@@ -22,6 +22,30 @@
       "revId": "4fcdfab3c9f78d91a3995b705c34ccdafa579148",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05e59e48_3079fa9c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-03-12T19:51:54Z",
+      "side": 1,
+      "message": "We get GPU process log errors with crash reports and on chrome://gpu page so they end up being helpful in triaging bugs.",
+      "parentUuid": "cccb6765_f526d6cf",
+      "range": {
+        "startLine": 610,
+        "startChar": 8,
+        "endLine": 610,
+        "endChar": 20
+      },
+      "revId": "4fcdfab3c9f78d91a3995b705c34ccdafa579148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
