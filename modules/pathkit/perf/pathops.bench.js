@@ -1,21 +1,4 @@
-
-
 describe('PathKit\'s Pathops', function() {
-    // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
-    var PathKit = null;
-    const LoadPathKit = new Promise(function(resolve, reject) {
-        if (PathKit) {
-            resolve();
-        } else {
-            PathKitInit({
-                locateFile: (file) => '/pathkit/'+file,
-            }).ready().then((_PathKit) => {
-                PathKit = _PathKit;
-                resolve();
-            });
-        }
-    });
-
     // see https://fiddle.skia.org/c/@discrete_path
     function drawStar(X=128, Y=128, R=116) {
         let p = PathKit.NewPath();

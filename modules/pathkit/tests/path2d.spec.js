@@ -1,21 +1,4 @@
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
-
 describe('PathKit\'s Path2D API', function() {
-    // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
-    var PathKit = null;
-    const LoadPathKit = new Promise(function(resolve, reject) {
-        if (PathKit) {
-            resolve();
-        } else {
-            PathKitInit({
-                locateFile: (file) => '/pathkit/'+file,
-            }).ready().then((_PathKit) => {
-                PathKit = _PathKit;
-                resolve();
-            });
-        }
-    });
-
     it('can do everything in the Path2D API w/o crashing', function(done) {
         LoadPathKit.then(catchException(done, () => {
             // This is taken from example.html
