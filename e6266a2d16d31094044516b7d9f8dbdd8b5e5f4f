@@ -2,6 +2,63 @@
   "comments": [
     {
       "key": {
+        "uuid": "5446df26_cc7b2361",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T19:20:10Z",
+      "side": 1,
+      "message": "This is one that can vary between platforms.  It\u0027s probably actually an FMA on ARM64, but not on x86 or 32-bit ARM.",
+      "revId": "e6266a2d16d31094044516b7d9f8dbdd8b5e5f4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ab16550_ed76d6ba",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T19:20:10Z",
+      "side": 1,
+      "message": "yeah, sadly, this one is often pretty low precision (11 or 12-bit) and the error trends in different directions on different platforms.  It might be worth trying a version that does  1 / (dx*dx + dy*dy).sqrt()",
+      "range": {
+        "startLine": 93,
+        "startChar": 43,
+        "endLine": 93,
+        "endChar": 50
+      },
+      "revId": "e6266a2d16d31094044516b7d9f8dbdd8b5e5f4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a148e0e2_f6494058",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T19:20:10Z",
+      "side": 1,
+      "message": "I think this is going to make things even worse, compounding two approximations together.\n\nThink we should maybe remove rsqrt() and invert() entirely?  Or rename them low_precision_approximate_rsqrt(), etc?  They\u0027re pretty tempting traps to fall into.",
+      "revId": "e6266a2d16d31094044516b7d9f8dbdd8b5e5f4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f9a58140_a834e1d8",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 17
