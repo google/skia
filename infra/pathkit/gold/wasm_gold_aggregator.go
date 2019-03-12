@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 
 	"go.skia.org/infra/golden/go/goldingestion"
 	"go.skia.org/infra/golden/go/jsonio"
@@ -64,6 +65,7 @@ var defaultKeys map[string]string
 
 // contains all the results reported in through report_gold_data
 var results []*jsonio.Result
+var resultsMutex sync.Mutex
 
 func main() {
 	flag.Parse()
@@ -129,6 +131,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resultsMutex.Lock()
 	results = append(results, &jsonio.Result{
 		Digest: hash,
 		Key: map[string]string{
@@ -139,6 +142,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 			"ext": "png",
 		},
 	})
+	resultsMutex.Unlock()
 }
 
 // createOutputFile creates a file and set permissions correctly.
