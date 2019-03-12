@@ -8,8 +8,17 @@ steps:
   #
   # Where COMMIT_SHA is updated to the last commit into Skia.
   #
-  # - name: 'gcr.io/cloud-builders/git'
-  #   args: ['clone', 'https://github.com/google/skia.git', '.']
+  #- name: 'gcr.io/cloud-builders/git'
+  #  args: ['clone', 'https://github.com/google/skia.git', '.']
+
+  - name: 'debian:testing-slim'
+    args: ['mkdir', '-p', '--mode=777', '/workspace/__doxygen_staging']
+
+  - name: 'gcr.io/skia-public/doxygen:testing-slim'
+    dir: './tools/doxygen'
+    args: ['doxygen', 'ProdDoxyfile']
+    timeout: 600s
+
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
     timeout: 7200s
@@ -30,6 +39,14 @@ steps:
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
     env:
       - 'ROOT=/workspace/__debugger_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release_ci']
+    timeout: 600s
+
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/api'
+    env:
+      - 'ROOT=/workspace/__api_staging'
       - 'SKIP_BUILD=1'
     args: ['make', 'release_ci']
     timeout: 600s
@@ -94,12 +111,17 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA', '/workspace/__jsfiddle_staging']
     timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA', '/workspace/__api_staging']
+    timeout: 600s
 images:
   - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
   - 'gcr.io/$PROJECT_ID/skia-wasm-release:prod'
 timeout: 7200s
