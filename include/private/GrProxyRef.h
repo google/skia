@@ -57,6 +57,7 @@ public:
         is called. */
     void reset() {
         if (fPendingIO) {
+#if 0
             SkASSERT(fProxy);
             switch (fIOType) {
                 case kRead_GrIOType:
@@ -70,6 +71,7 @@ public:
                     fProxy->completedWrite();
                     break;
             }
+#endif
             fPendingIO = false;
         }
         if (fOwnRef) {
@@ -90,6 +92,7 @@ public:
         SkASSERT(!fPendingIO);
         SkASSERT(fProxy);
         fPendingIO = true;
+#if 0
         switch (fIOType) {
             case kRead_GrIOType:
                 fProxy->addPendingRead();
@@ -102,6 +105,7 @@ public:
                 fProxy->addPendingWrite();
                 break;
         }
+#endif
     }
 
     /** Called when the program element/draw state is no longer owned by GrOpList-client code.
