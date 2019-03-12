@@ -51,6 +51,16 @@ private:
     const SkScalerContextEffects fEffects;
 };
 
+struct SkGlyphPos {
+    const SkGlyph* glyph;
+    SkPoint position;
+};
+
+struct SkPathPos {
+    const SkPath* path;
+    SkPoint position;
+};
+
 class SkStrikeInterface {
 public:
     virtual ~SkStrikeInterface() = default;
