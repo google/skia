@@ -50,7 +50,7 @@ class IRGenerator;
  *
  * See the README for information about SkSL.
  */
-class Compiler : public ErrorReporter {
+class SK_API Compiler : public ErrorReporter {
 public:
     static constexpr const char* RTADJUST_NAME  = "sk_RTAdjust";
     static constexpr const char* PERVERTEX_NAME = "sk_PerVertex";
