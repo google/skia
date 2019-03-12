@@ -1478,6 +1478,7 @@ SI F lerp(F from, F to, F t) {
     return mad(to-from, t, from);
 }
 
+// Lerp from dst-color to src-color
 STAGE(lerp_1_float, const float* c) {
     r = lerp(dr, r, *c);
     g = lerp(dg, g, *c);

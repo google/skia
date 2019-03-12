@@ -146,6 +146,7 @@ tests_sources = [
   "$_tests/MessageBusTest.cpp",
   "$_tests/MetaDataTest.cpp",
   "$_tests/MipMapTest.cpp",
+  "$_tests/MixerTest.cpp",
   "$_tests/NonlinearBlendingTest.cpp",
   "$_tests/OnceTest.cpp",
   "$_tests/OpChainTest.cpp",

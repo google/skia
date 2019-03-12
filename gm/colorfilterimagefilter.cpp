@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorPriv.h"
+#include "SkMixer.h"
 #include "SkShader.h"
 
 #include "SkBlurImageFilter.h"
@@ -226,9 +227,9 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     }
 }
 
-DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
+template <typename Maker> void do_mixershader(SkCanvas* canvas, Maker&& maker) {
     auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkShader::kClamp_TileMode,
-                                                                      SkShader::kClamp_TileMode);
+                                                                             SkShader::kClamp_TileMode);
     const SkColor colors[] = { SK_ColorGREEN, 0 };
     auto shaderB = SkGradientShader::MakeRadial({60, 60}, 55, colors, nullptr, 2,
                                                 SkShader::kClamp_TileMode,
@@ -247,11 +248,32 @@ DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
         const int count = 6;
         for (int x = 0; x < count; ++x) {
             const float t = x * 1.0f / (count - 1);
-            paint.setShader(SkShader::MakeCompose(shaderA, shaderB, mode, t));
+            paint.setShader(maker(shaderA, shaderB, mode, t));
             canvas->drawRect(r, paint);
             canvas->translate(r.width() + 10, 0);
         }
         canvas->restore();
         canvas->translate(0, r.height() + 20);
     }
+}
+
+DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
+    do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
+        return SkShader::MakeCompose(a, b, mode, t);
+    });
+}
+
+#include "SkMixerBase.h"
+
+DEF_SIMPLE_GM(mixershader2, canvas, 500, 500) {
+    do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
+        // Use mixers to simulate MakeCompose(a, b, mode, t)
+        auto blender = SkMixer::MakeBlend(mode);
+        auto mx = SkMixer::MakeLerp(t)->makeMerge(SkMixer::MakeFirst(), blender->makeReverse());
+        if (true) {
+            auto data = mx->serialize();
+            mx = SkMixerBase::Deserialize(data->data(), data->size());
+        }
+        return SkShader::MakeMixer(a, b, mx);
+    });
 }
