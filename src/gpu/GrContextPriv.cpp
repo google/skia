@@ -189,33 +189,15 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeVulkanSecondaryCBRenderTargetCon
                                                            props);
 }
 
-void GrContextPriv::flush(GrSurfaceProxy* proxy) {
+void GrContextPriv::flush1(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     ASSERT_OWNED_PROXY_PRIV(proxy);
 
-    fContext->drawingManager()->flush(proxy, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      SkSurface::kNone_FlushFlags, 0, nullptr);
-}
-
-void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkASSERT(proxy);
-    ASSERT_OWNED_PROXY_PRIV(proxy);
-    if (proxy->priv().hasPendingWrite()) {
-        this->flush(proxy);
-    }
-}
-
-void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkASSERT(proxy);
-    ASSERT_OWNED_PROXY_PRIV(proxy);
-    if (proxy->priv().hasPendingIO()) {
-        this->flush(proxy);
-    }
+    fContext->drawingManager()->flush(proxy,
+                                      SkSurface::BackendSurfaceAccess::kNoAccess,
+                                      SkSurface::kNone_FlushFlags,
+                                      0, nullptr);
 }
 
 void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
@@ -223,8 +205,11 @@ void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     RETURN_IF_ABANDONED_PRIV
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
+
     fContext->drawingManager()->prepareSurfaceForExternalIO(proxy,
-            SkSurface::BackendSurfaceAccess::kNoAccess, SkSurface::kNone_FlushFlags, 0, nullptr);
+                                                            SkSurface::BackendSurfaceAccess::kNoAccess,
+                                                            SkSurface::kNone_FlushFlags,
+                                                            0, nullptr);
 }
 
 static bool valid_premul_color_type(GrColorType ct) {
@@ -461,7 +446,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     }
 
     if (srcSurface->surfacePriv().hasPendingWrite()) {
-        this->flush(nullptr);  // MDB TODO: tighten this
+        this->flush1(nullptr);  // MDB TODO: tighten this
     }
 
     if (!fContext->fGpu->readPixels(srcSurface, left, top, width, height, allowedColorType, buffer,
@@ -667,7 +652,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     }
 
     if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && dstSurface->surfacePriv().hasPendingIO()) {
-        this->flush(nullptr);  // MDB TODO: tighten this
+        this->flush1(nullptr);  // MDB TODO: tighten this
     }
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,

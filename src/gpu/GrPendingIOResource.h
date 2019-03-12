@@ -23,7 +23,7 @@ public:
     explicit GrPendingIOResource(T* resource) { this->reset(resource); }
     GrPendingIOResource(sk_sp<T> resource) { *this = std::move(resource); }
     GrPendingIOResource(const GrPendingIOResource& that) : GrPendingIOResource(that.get()) {}
-    ~GrPendingIOResource() { this->release(); }
+    ~GrPendingIOResource() { /*this->release();*/ }
 
     GrPendingIOResource& operator=(sk_sp<T> resource) {
         this->reset(resource.get());
@@ -31,6 +31,7 @@ public:
     }
 
     void reset(T* resource = nullptr) {
+#if 0
         if (resource) {
             switch (IO_TYPE) {
                 case kRead_GrIOType:
@@ -46,6 +47,7 @@ public:
             }
         }
         this->release();
+#endif
         fResource = resource;
     }
 
@@ -56,6 +58,7 @@ public:
     T* get() const { return fResource; }
 
 private:
+#if 0
     void release() {
         if (fResource) {
             switch (IO_TYPE) {
@@ -72,6 +75,7 @@ private:
             }
         }
     }
+#endif
 
     T* fResource = nullptr;
 };

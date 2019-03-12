@@ -30,8 +30,9 @@ struct ProxyParams {
     // TODO: do we care about mipmapping
 };
 
-static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
-                                     const ProxyParams& p) {
+static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider,
+                                           const GrCaps* caps,
+                                           const ProxyParams& p) {
     GrColorType grCT = SkColorTypeToGrColorType(p.fColorType);
     GrPixelConfig config = GrColorTypeToPixelConfig(grCT, GrSRGBEncoded::kNo);
 
@@ -44,20 +45,19 @@ static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const GrCap
 
     const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
 
-    auto tmp = proxyProvider->createProxy(format, desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
+    sk_sp<GrSurfaceProxy> tmp = proxyProvider->createProxy(format, desc,
+                                                           p.fOrigin, p.fFit, SkBudgeted::kNo);
     if (!tmp) {
         return nullptr;
     }
-    GrSurfaceProxy* ret = tmp.release();
 
-    // Add a read to keep the proxy around but unref it so its backing surfaces can be recycled
-    ret->addPendingRead();
-    ret->unref();
-    return ret;
+    // assert it isn't instantiated?
+    return tmp;
 }
 
-static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
-                                    GrBackendTexture* backendTex) {
+static sk_sp<GrSurfaceProxy> make_backend(GrContext* context,
+                                          const ProxyParams& p,
+                                          GrBackendTexture* backendTex) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrGpu* gpu = context->priv().getGpu();
 
@@ -73,12 +73,17 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
     if (!tmp) {
         return nullptr;
     }
+
+    return tmp;
+
+#if 0
     GrSurfaceProxy* ret = tmp.release();
 
     // Add a read to keep the proxy around but unref it so its backing surfaces can be recycled
     ret->addPendingRead();
     ret->unref();
     return ret;
+#endif
 }
 
 static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
@@ -175,11 +180,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     };
 
     for (auto test : gOverlappingTests) {
-        GrSurfaceProxy* p1 = make_deferred(proxyProvider, caps, test.fP1);
-        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, test.fP2);
-        overlap_test(reporter, resourceProvider, p1, p2, test.fExpectation);
-        p1->completedRead();
-        p2->completedRead();
+        sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, test.fP1);
+        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, test.fP2);
+        overlap_test(reporter, resourceProvider, p1.get(), p2.get(), test.fExpectation);
+//        p1->completedRead();
+//        p2->completedRead();
     }
 
     int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
@@ -217,17 +222,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     };
 
     for (auto test : gNonOverlappingTests) {
-        GrSurfaceProxy* p1 = make_deferred(proxyProvider, caps, test.fP1);
-        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, test.fP2);
+        sk_sp<GrSurfaceProxy> p1 = make_deferred(proxyProvider, caps, test.fP1);
+        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, test.fP2);
 
         if (!p1 || !p2) {
             continue; // creation can fail (i.e., for msaa4 on iOS)
         }
 
-        non_overlap_test(reporter, resourceProvider, p1, p2, test.fExpectation);
+        non_overlap_test(reporter, resourceProvider, p1.get(), p2.get(), test.fExpectation);
 
-        p1->completedRead();
-        p2->completedRead();
+//        p1->completedRead();
+//        p2->completedRead();
     }
 
     {
@@ -237,13 +242,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         };
 
         GrBackendTexture backEndTex;
-        GrSurfaceProxy* p1 = make_backend(ctxInfo.grContext(), t[0].fP1, &backEndTex);
-        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, t[0].fP2);
+        sk_sp<GrSurfaceProxy> p1 = make_backend(ctxInfo.grContext(), t[0].fP1, &backEndTex);
+        sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, t[0].fP2);
 
-        non_overlap_test(reporter, resourceProvider, p1, p2, t[0].fExpectation);
+        non_overlap_test(reporter, resourceProvider, p1.get(), p2.get(), t[0].fExpectation);
 
-        p1->completedRead();
-        p2->completedRead();
+//        p1->completedRead();
+//        p2->completedRead();
 
         cleanup_backend(ctxInfo.grContext(), backEndTex);
     }
