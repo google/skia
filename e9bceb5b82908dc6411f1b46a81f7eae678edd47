@@ -22,6 +22,30 @@
       "revId": "e9bceb5b82908dc6411f1b46a81f7eae678edd47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7681ca_942b506b",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1862,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-12T19:49:23Z",
+      "side": 1,
+      "message": "Switched over to assuming the clip has 4 points if it\u0027s not null, and ImageSetEntry takes a bool for if it has a clip or not.",
+      "parentUuid": "027bf9f0_a4127514",
+      "range": {
+        "startLine": 1861,
+        "startChar": 85,
+        "endLine": 1862,
+        "endChar": 95
+      },
+      "revId": "e9bceb5b82908dc6411f1b46a81f7eae678edd47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
