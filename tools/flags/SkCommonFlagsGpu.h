@@ -16,7 +16,6 @@ DECLARE_int32(gpuThreads);
 DECLARE_bool(cachePathMasks);
 DECLARE_bool(noGS);
 DECLARE_string(pr);
-DECLARE_bool(disableExplicitAlloc);
 DECLARE_bool(reduceOpListSplitting);
 
 inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
