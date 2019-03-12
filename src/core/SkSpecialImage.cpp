@@ -257,14 +257,8 @@ public:
     sk_sp<SkSpecialSurface> onMakeSurface(const SkImageFilter::OutputProperties& outProps,
                                           const SkISize& size, SkAlphaType at,
                                           const SkSurfaceProps* props) const override {
-#ifdef SK_SUPPORT_LEGACY_RASTERLAYERCOLORSPACE
-        SkColorSpace* colorSpace = nullptr;
-        SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
-                                ? kRGBA_F16_SkColorType : kN32_SkColorType;
-#else
         SkColorSpace* colorSpace = outProps.colorSpace();
         SkColorType colorType = kN32_SkColorType;   // TODO: find ways to allow f16
-#endif
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
                                              sk_ref_sp(colorSpace));
         return SkSpecialSurface::MakeRaster(info, props);
@@ -298,14 +292,8 @@ public:
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,
                                         const SkISize& size, SkAlphaType at) const override {
-#ifdef SK_SUPPORT_LEGACY_RASTERLAYERCOLORSPACE
-        SkColorSpace* colorSpace = nullptr;
-        SkColorType colorType = colorSpace && colorSpace->gammaIsLinear()
-        ? kRGBA_F16_SkColorType : kN32_SkColorType;
-#else
         SkColorSpace* colorSpace = outProps.colorSpace();
         SkColorType colorType = kN32_SkColorType;   // TODO: find ways to allow f16
-#endif
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
                                              sk_ref_sp(colorSpace));
         return SkSurface::MakeRaster(info);
