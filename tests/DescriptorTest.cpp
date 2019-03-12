@@ -79,7 +79,7 @@ DEF_TEST(Descriptor_invalid_rec_size, r) {
     auto desc = SkDescriptor::Alloc(size);
     desc->init();
     SkScalerContextRec rec;
-    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec) + 4, &rec);
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec) - 4, &rec);
     REPORTER_ASSERT(r, desc->getLength() == size);
     REPORTER_ASSERT(r, !desc->isValid());
 }
