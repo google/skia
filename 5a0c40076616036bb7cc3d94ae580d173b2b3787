@@ -70,6 +70,30 @@
       "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c50e8342_e9730d42",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2019-03-12T18:31:26Z",
+      "side": 1,
+      "message": "Done.  PTAL.\n\nThanks for the suggestion, as doing it this way also addressed https://bugs.chromium.org/p/chromium/issues/detail?id\u003d940843 which just came in today.",
+      "parentUuid": "1459127b_6cfa3bd9",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 27
+      },
+      "revId": "5a0c40076616036bb7cc3d94ae580d173b2b3787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
