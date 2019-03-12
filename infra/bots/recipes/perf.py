@@ -250,6 +250,10 @@ def nanobench_flags(api, bot):
     match.append('~^top25desk_techcrunch.skp_1$')
     match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
     match.append('~^top25desk_techcrunch.skp_1.1$')
+  if 'GalaxyS9' in bot and 'Debug' in bot and 'Vulkan' in bot:
+    match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
+    match.append('~^top25desk_cnn.skp_1.1_mpd$')
+    match.append('~^top25desk_linkedin.skp_1.1_mpd$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -363,8 +367,14 @@ def perf_steps(api):
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  bot = api.vars.builder_name
+  if 'GalaxyS9' in bot and 'Debug' in bot and 'Vulkan' in bot:
+    for i in range(10):
+      api.run(api.flavor.step, '%s %d' % (target, i), cmd=args,
+              abort_on_failure=True)
+  else:
+    api.run(api.flavor.step, target, cmd=args,
+            abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):
@@ -398,6 +408,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
