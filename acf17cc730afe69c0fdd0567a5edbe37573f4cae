@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01d4911b_63b1e469",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:22:31Z",
+      "side": 1,
+      "message": "odd spot for a comma?",
+      "range": {
+        "startLine": 599,
+        "startChar": 31,
+        "endLine": 599,
+        "endChar": 32
+      },
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43161cbe_ce5fb885",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:22:31Z",
+      "side": 1,
+      "message": "Are we trying to keep this compatible with std::span?  This is declared as\n\n  constexpr first(size_t) const;\n\nthere.",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23d75690_6b4ad997",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:22:31Z",
+      "side": 1,
+      "message": "position?",
+      "range": {
+        "startLine": 239,
+        "startChar": 3,
+        "endLine": 239,
+        "endChar": 9
+      },
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76e9d99b_fe0cbbf8",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:22:31Z",
+      "side": 1,
+      "message": "I think we should probably note that glyphMetrics() writes into result, but returns a subspan of it?\nIt\u0027s all just a little unclear what\u0027s going on, given the various pointers and lengths.",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb75f3bd_72c958ca",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:22:31Z",
+      "side": 1,
+      "message": "Does it seem weird that we\u0027re passing 3 spans instead of 3 pointers and a single N?\n\nIf glyphIDs.size() !\u003d positions.size() or result.size() \u003c glyphIDs.size() this all blows up, but none of that\u0027s indicated here.  This just doesn\u0027t feel like a good fit for spans... seems more natural as something like\n\n\n  // Returns number of non-empty, drawable glyphs written to result, \u003c\u003d n.\n  int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]);",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ffb9f2_375c098b",
+        "filename": "src/core/SkStrikeInterface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T18:22:31Z",
+      "side": 1,
+      "message": "Might want to land this rename first?",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
