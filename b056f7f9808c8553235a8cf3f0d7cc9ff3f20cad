@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "9158202c_fafcf5c5",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-12T15:29:27Z",
+      "side": 1,
+      "message": "colorfilter references removed",
+      "parentUuid": "ce755996_6250c8a5",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a149f627_1b54fa62",
         "filename": "include/core/SkMixer.h",
         "patchSetId": 16
@@ -56,6 +74,30 @@
       "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f1d5159_1b02ba76",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-12T15:29:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a149f627_1b54fa62",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -142,6 +184,24 @@
       "side": 1,
       "message": "Yeah, I do think it\u0027s worth thinking about how this extends to more inputs, at least to three.  A Lerp(A,B,T) mixer seems like something we\u0027ll want at some point.",
       "parentUuid": "8684033e_41735434",
+      "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45cde885_2c99705c",
+        "filename": "include/core/SkMixer.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-12T15:29:27Z",
+      "side": 1,
+      "message": "Lots of comments here.\n\n- Name: split, join, merge, Y, ???\n- N inputs: how about some_name(SkMixers[], const float coeff[N+1], int N);\n   return mixer[i] * coeff[i] + ... + coeff[N]",
+      "parentUuid": "66040de7_b9d15545",
       "revId": "b056f7f9808c8553235a8cf3f0d7cc9ff3f20cad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
