@@ -414,25 +414,13 @@ static sk_sp<SkSpecialImage> create_empty_special_image(GrContext* context, int 
 
 DEF_TEST(ImageFilter, reporter) {
     {
-        // Check that two non-clipping color-matrice-filters concatenate into a single filter.
-        sk_sp<SkImageFilter> halfBrightness(make_scale(0.5f, nullptr));
-        sk_sp<SkImageFilter> quarterBrightness(make_scale(0.5f, std::move(halfBrightness)));
-        REPORTER_ASSERT(reporter, nullptr == quarterBrightness->getInput(0));
-        SkColorFilter* cf;
-        REPORTER_ASSERT(reporter, quarterBrightness->asColorFilter(&cf));
-        REPORTER_ASSERT(reporter, cf->asColorMatrix(nullptr));
-        cf->unref();
-    }
-
-    {
-        // Check that a clipping color-matrice-filter followed by a color-matrice-filters
-        // concatenates into a single filter, but not a matrixfilter (due to clamping).
+        // Check that a color matrix filter followed by a color matrix filter
+        // concatenates into a single filter.
         sk_sp<SkImageFilter> doubleBrightness(make_scale(2.0f, nullptr));
         sk_sp<SkImageFilter> halfBrightness(make_scale(0.5f, std::move(doubleBrightness)));
         REPORTER_ASSERT(reporter, nullptr == halfBrightness->getInput(0));
         SkColorFilter* cf;
         REPORTER_ASSERT(reporter, halfBrightness->asColorFilter(&cf));
-        REPORTER_ASSERT(reporter, !cf->asColorMatrix(nullptr));
         cf->unref();
     }
 
