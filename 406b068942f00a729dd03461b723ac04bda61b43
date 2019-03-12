@@ -16,6 +16,24 @@
       "revId": "406b068942f00a729dd03461b723ac04bda61b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69576e53_f71297a4",
+        "filename": "infra/pathkit/gold/wasm_gold_aggregator.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T21:19:10Z",
+      "side": 0,
+      "message": "It was removed from the data structure in Gold previously\n\nhttps://github.com/google/skia-buildbot/blob/ce9ee37fb2934b237aec917f63cf4575ef8e3d0b/golden/go/jsonio/jsonio.go#L99",
+      "parentUuid": "969a2901_913ceb66",
+      "revId": "406b068942f00a729dd03461b723ac04bda61b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
