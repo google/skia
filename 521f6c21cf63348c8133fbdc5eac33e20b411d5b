@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18303b12_2bbe4885",
+        "filename": "modules/pathkit/perf/perfReporter.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-12T02:37:54Z",
+      "side": 1,
+      "message": "nit: Unless now - start \u003e\u003e 100 ms?",
+      "range": {
+        "startLine": 31,
+        "startChar": 41,
+        "endLine": 32,
+        "endChar": 34
+      },
+      "revId": "521f6c21cf63348c8133fbdc5eac33e20b411d5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3eeb843_8f776376",
+        "filename": "modules/pathkit/perf/perfReporter.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-12T02:37:54Z",
+      "side": 1,
+      "message": "ok to reuse ctx? (It\u0027s reset after teardownFn above.)",
+      "range": {
+        "startLine": 34,
+        "startChar": 16,
+        "endLine": 34,
+        "endChar": 19
+      },
+      "revId": "521f6c21cf63348c8133fbdc5eac33e20b411d5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
