@@ -957,13 +957,9 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const 
     // Need to force L32 for now if we have an image filter.
     // If filters ever support other colortypes, e.g. F16, we can modify this check.
     if (paint && paint->getImageFilter()) {
-#ifdef SK_SUPPORT_LEGACY_RASTERLAYERCOLORSPACE
-        return SkImageInfo::MakeN32Premul(w, h);
-#else
         // TODO: can we query the imagefilter, to see if it can handle floats (so we don't always
         //       use N32 when the layer itself was float)?
         return SkImageInfo::MakeN32Premul(w, h, prev.refColorSpace());
-#endif
     }
 
     SkColorType ct = prev.colorType();
