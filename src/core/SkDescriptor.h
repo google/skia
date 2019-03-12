@@ -33,6 +33,9 @@ public:
     void* addEntry(uint32_t tag, size_t length, const void* data = nullptr);
     void computeChecksum();
 
+    // Assumes that getLength <= capacity of this SkDescriptor.
+    bool isValid() const;
+
 #ifdef SK_DEBUG
     void assertChecksum() const {
         SkASSERT(SkDescriptor::ComputeChecksum(this) == fChecksum);
@@ -62,6 +65,7 @@ public:
 private:
     // private so no one can create one except our factories
     SkDescriptor() = default;
+    friend class SkDescriptorTestHelper;
 
     static uint32_t ComputeChecksum(const SkDescriptor* desc);
 
