@@ -51,21 +51,11 @@ public:
     explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
 #endif  // SK_SUPPORT_GPU
 
-    struct PathAndPos {
-        const SkPath* path;
-        SkPoint position;
-    };
-
-    struct GlyphAndPos {
-        const SkGlyph* glyph;
-        SkPoint position;
-    };
-
     class BitmapDevicePainter {
     public:
         virtual ~BitmapDevicePainter() = default;
 
-        virtual void paintPaths(SkSpan<const PathAndPos> pathsAndPositions,
+        virtual void paintPaths(SkSpan<const SkPathPos> pathsAndPositions,
                                 SkScalar scale,
                                 const SkPaint& paint) const = 0;
 
@@ -123,9 +113,9 @@ private:
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<GlyphAndPos> fGlyphPos;
+    SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
-    std::vector<GlyphAndPos> fPaths;
+    std::vector<SkGlyphPos> fPaths;
 
     // Vectors for tracking ARGB fallback information.
     std::vector<SkGlyphID> fARGBGlyphsIDs;
@@ -150,15 +140,15 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
                                     SkStrikeInterface* strike) = 0;
 
-    virtual void processSourcePaths(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths,
+    virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
                                     SkStrikeInterface* strike, SkScalar cacheToSourceScale) = 0;
 
-    virtual void processDevicePaths(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths) = 0;
+    virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
-    virtual void processSourceSDFT(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
                                    SkStrikeInterface* strike,
                                    const SkFont& runFont,
                                    SkScalar cacheToSourceScale,
@@ -166,12 +156,12 @@ public:
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
-    virtual void processSourceFallback(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
                                        SkStrikeInterface* strike,
                                        SkScalar cacheToSourceScale,
                                        bool hasW) = 0;
 
-    virtual void processDeviceFallback(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
                                        SkStrikeInterface* strike) = 0;
 
 };
