@@ -22,6 +22,30 @@
       "revId": "637badc40e475a3fccc4518893a295a95158d178",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5eb18a33_fca03ea6",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2019-03-12T18:44:57Z",
+      "side": 1,
+      "message": "fLength is to std::vector::size() as desc_length is to std::vector::capacity()\n\nSkDescriptor doesn\u0027t know what its capacity is.  I could change that, if you thought this was awkward?",
+      "parentUuid": "c33184a5_73559826",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 133,
+        "endChar": 31
+      },
+      "revId": "637badc40e475a3fccc4518893a295a95158d178",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
