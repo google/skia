@@ -486,7 +486,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
          dstW = dstBounds.width(),
          dstH = dstBounds.height();
 
-    SkImageInfo dstInfo = SkImageInfo::Make(dstW, dstH, inputBM.colorType(), inputBM.alphaType());
+    SkImageInfo dstInfo = inputBM.info().makeWH(dstW, dstH);
 
     SkBitmap dst;
     if (!dst.tryAllocPixels(dstInfo)) {
