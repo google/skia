@@ -273,7 +273,7 @@ def nanobench_flags(api, bot):
   match.append('~inc0.webp')
   match.append('~inc1.webp')
 
-  if match:
+  if match and not ('GalaxyS9' in bot and 'Debug' in bot and 'Vulkan' in bot):
     args.append('--match')
     args.extend(match)
 
@@ -363,8 +363,19 @@ def perf_steps(api):
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  bot = api.vars.builder_name
+  if 'GalaxyS9' in bot and 'Debug' in bot and 'Vulkan' in bot:
+    for i in range(10):
+      for t in ['top25desk_techcrunch.skp',
+                'top25desk_cnn.skp',
+                'top25desk_linkedin.skp']:
+        with api.step.nest('%s %s %d' % (target, t, i)):
+          api.run(api.flavor.step, target,
+                  cmd=args+['--match', t],
+                  abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, target, cmd=args,
+            abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):
@@ -398,6 +409,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
