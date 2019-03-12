@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9a58140_a834e1d8",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-03-12T13:30:39Z",
+      "side": 1,
+      "message": "We\u0027re checking d1And2[2] twice here, and not checking d1And2[3].  I\u0027m assuming that\u0027s a typo, and I\u0027ve put up a follow-up CL to change it: https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/native/+/6692570",
+      "revId": "e6266a2d16d31094044516b7d9f8dbdd8b5e5f4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
