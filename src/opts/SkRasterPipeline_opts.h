@@ -1338,6 +1338,10 @@ STAGE(clamp_a_dst, Ctx::None) {
     db = min(db, da);
 }
 
+STAGE(clamp_a_01, Ctx::None) {
+    a = max(0, min(a, 1.0f));
+}
+
 STAGE(clamp_gamut, Ctx::None) {
     // If you're using this stage, a should already be in [0,1].
     r = min(max(r, 0), a);
@@ -2626,22 +2630,31 @@ STAGE_PP(set_rgb, const float rgb[3]) {
 }
 
 STAGE_PP(clamp_0, Ctx::None) { /*definitely a noop*/ }
-STAGE_PP(clamp_1, Ctx::None) { /*_should_ be a noop*/ }
+STAGE_PP(clamp_1, Ctx::None) {
+    // TODO: add asserts all <= 255
+}
 
 STAGE_PP(clamp_a, Ctx::None) {
+    // TODO: add assert a <= 255
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
 }
 STAGE_PP(clamp_a_dst, Ctx::None) {
+    // TODO: add assert da <= 255
     dr = min(dr, da);
     dg = min(dg, da);
     db = min(db, da);
 }
 
+STAGE_PP(clamp_a_01, Ctx::None) {
+    for (size_t i = 0; i < N; i++) {
+        SkASSERT(a[i] <= 255);
+    }
+}
+
 STAGE_PP(clamp_gamut, Ctx::None) {
-    // It shouldn't be possible to get out-of-gamut
-    // colors when working in lowp.
+    // TODO: add asserts a <= 255 and rgb <= a
 }
 
 STAGE_PP(premul, Ctx::None) {
