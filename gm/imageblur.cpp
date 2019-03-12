@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkRandom.h"
+#include "Resources.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -36,4 +37,15 @@ DEF_SIMPLE_GM_BG(imageblur,       canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
 }
 DEF_SIMPLE_GM_BG(imageblur_large, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
     imageblurgm_draw(80.0f, 80.0f, canvas);
+}
+
+DEF_SIMPLE_GM(blur_colorspace, canvas, 500, 500) {
+    auto image = GetResourceAsImage("images/color_wheel.png");
+
+    SkPaint paint;
+    paint.setImageFilter(SkBlurImageFilter::Make(5, 5, nullptr));
+
+    canvas->drawImage(image, 20, 40, nullptr);
+    canvas->drawImage(image, 20 + image->width() + 40, 40, &paint);
+
 }
