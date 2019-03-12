@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3a24468_d27a3070",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-12T15:57:37Z",
+      "side": 1,
+      "message": "If you want to update GPU as well, I think this string becomes:\n\"\\t%s.a \u003d saturate(%s.a);\\n\"",
+      "revId": "af27bf5a4031cdedc328e29f31a2a27b5df50b1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
