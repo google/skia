@@ -35,7 +35,7 @@
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
     M(callback)                                                    \
     M(move_src_dst) M(move_dst_src)                                \
-    M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst) M(clamp_gamut) \
+    M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_gamut)                \
     M(unpremul) M(premul) M(premul_dst)                            \
     M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(unbounded_set_rgb) M(swap_rb) M(swap_rb_dst)      \
