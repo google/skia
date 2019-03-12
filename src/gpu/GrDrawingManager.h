@@ -59,7 +59,7 @@ public:
 
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                     bool allowSW,
-                                    GrPathRendererChain::DrawType drawType,
+                                    GrPathRenderer::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = nullptr);
 
     GrPathRenderer* getSoftwarePathRenderer();

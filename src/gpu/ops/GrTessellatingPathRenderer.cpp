@@ -141,7 +141,7 @@ GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
 }
 
 GrPathRenderer::CanDrawPath
-GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType drawType) const {
     // This path renderer can draw fill styles, and can do screenspace antialiasing via a
     // one-pixel coverage ramp. It can do convex and concave paths, but we'll leave the convex
     // ones to simpler algorithms. We pass on paths that have styles, though they may come back
@@ -158,8 +158,10 @@ GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
         if (path.countVerbs() > GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
             return CanDrawPath::kNo;
         }
-    } else if (!args.fShape->hasUnstyledKey()) {
-        return CanDrawPath::kNo;
+    } else {
+        if (!args.fShape->hasUnstyledKey()) {
+            return CanDrawPath::kNo;
+        }
     }
     return CanDrawPath::kYes;
 }

@@ -695,7 +695,7 @@ GrTextContext* GrDrawingManager::getTextContext() {
  */
 GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                                   bool allowSW,
-                                                  GrPathRendererChain::DrawType drawType,
+                                                  GrPathRenderer::DrawType drawType,
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
@@ -705,7 +705,8 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
     if (!pr && allowSW) {
         auto swPR = this->getSoftwarePathRenderer();
-        if (GrPathRenderer::CanDrawPath::kNo != swPR->canDrawPath(args)) {
+        GrPathRenderer::StencilSupport stencil;
+        if (GrPathRenderer::CanDrawPath::kNo != swPR->canDrawPath(args, drawType, &stencil)) {
             pr = swPR;
         }
     }
