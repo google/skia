@@ -310,6 +310,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                 this->setColorMode(ColorMode::kColorManagedF16);
                 break;
             case ColorMode::kColorManagedF16:
+                this->setColorMode(ColorMode::kColorManagedF16Norm);
+                break;
+            case ColorMode::kColorManagedF16Norm:
                 this->setColorMode(ColorMode::kLegacy);
                 break;
         }
@@ -821,6 +824,9 @@ void Viewer::updateTitle() {
         case ColorMode::kColorManagedF16:
             title.append(" ColorManaged F16");
             break;
+        case ColorMode::kColorManagedF16Norm:
+            title.append(" ColorManaged F16Norm");
+            break;
     }
 
     if (ColorMode::kLegacy != fColorMode) {
@@ -1197,8 +1203,12 @@ void Viewer::drawSlide(SkSurface* surface) {
     }
 
     // Grab some things we'll need to make surfaces (for tiling or general offscreen rendering)
-    SkColorType colorType = (ColorMode::kColorManagedF16 == fColorMode) ? kRGBA_F16_SkColorType
-                                                                        : kN32_SkColorType;
+    SkColorType colorType = kN32_SkColorType;
+    if (ColorMode::kColorManagedF16 == fColorMode) {
+        colorType = kRGBA_F16_SkColorType;
+    } else if (ColorMode::kColorManagedF16Norm == fColorMode) {
+        colorType = kRGBA_F16Norm_SkColorType;
+    }
 
     auto make_surface = [=](int w, int h) {
         SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -1869,6 +1879,7 @@ void Viewer::drawImGui() {
                 cmButton(ColorMode::kLegacy, "Legacy 8888");
                 cmButton(ColorMode::kColorManaged8888, "Color Managed 8888");
                 cmButton(ColorMode::kColorManagedF16, "Color Managed F16");
+                cmButton(ColorMode::kColorManagedF16Norm, "Color Managed F16Norm");
 
                 if (newMode != fColorMode) {
                     this->setColorMode(newMode);
