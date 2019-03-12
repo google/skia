@@ -73,8 +73,8 @@ public:
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
-                                                      SkSurface::BackendSurfaceAccess access,
-                                                      SkSurface::FlushFlags flags,
+                                                      SkSurface::BackendSurfaceAccess,
+                                                      SkSurface::FlushFlags,
                                                       int numSemaphores,
                                                       GrBackendSemaphore backendSemaphores[]);
 
@@ -149,9 +149,9 @@ private:
     // return true if any opLists were actually executed; false otherwise
     bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
-    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
-                                SkSurface::BackendSurfaceAccess access,
-                                SkSurface::FlushFlags flags,
+    GrSemaphoresSubmitted flush(GrSurfaceProxy*,
+                                SkSurface::BackendSurfaceAccess,
+                                SkSurface::FlushFlags,
                                 int numSemaphores,
                                 GrBackendSemaphore backendSemaphores[]);
 
