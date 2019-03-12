@@ -523,15 +523,15 @@ private:
 
     void startRun(const SkGlyphRun& glyphRun, bool useSDFT) override;
 
-    void processDeviceMasks(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
                             SkStrikeInterface* strike) override;
 
-    void processSourcePaths(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths,
+    void processSourcePaths(SkSpan<const SkGlyphPos> paths,
                             SkStrikeInterface* strike, SkScalar cacheToSourceScale) override;
 
-    void processDevicePaths(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths) override;
+    void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
-    void processSourceSDFT(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
                            SkStrikeInterface* strike,
                            const SkFont& runFont,
                            SkScalar cacheToSourceScale,
@@ -539,12 +539,12 @@ private:
                            SkScalar maxScale,
                            bool hasWCoord) override;
 
-    void processSourceFallback(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    void processSourceFallback(SkSpan<const SkGlyphPos> masks,
                                SkStrikeInterface* strike,
                                SkScalar cacheToSourceScale,
                                bool hasW) override;
 
-    void processDeviceFallback(SkSpan<const SkGlyphRunListPainter::GlyphAndPos> masks,
+    void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
                                SkStrikeInterface* strike) override;
 
     struct StrokeInfo {

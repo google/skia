@@ -101,7 +101,7 @@ void SkDraw::paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const 
     }
 }
 
-void SkDraw::paintPaths(SkSpan<const SkGlyphRunListPainter::PathAndPos> pathsAndPositions,
+void SkDraw::paintPaths(SkSpan<const SkPathPos> pathsAndPositions,
                         SkScalar scale,
                         const SkPaint& paint) const {
     for (const auto& pathAndPos : pathsAndPositions) {
