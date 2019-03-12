@@ -1,0 +1,464 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45dc1b4f_c6595f98",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Why is this needed - should I do the same change for CanvasKit?",
+      "range": {
+        "startLine": 113,
+        "startChar": 12,
+        "endLine": 113,
+        "endChar": 14
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "712ec45c_6a210688",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "let",
+      "range": {
+        "startLine": 13,
+        "startChar": 2,
+        "endLine": 13,
+        "endChar": 5
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5f0ac97_89b3f2f7",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "needed? (also other logs below)",
+      "range": {
+        "startLine": 39,
+        "startChar": 6,
+        "endLine": 39,
+        "endChar": 39
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d7ebe71_a03c437e",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "js prefers single quotes",
+      "range": {
+        "startLine": 45,
+        "startChar": 39,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "531ba7b4_ca5f2bdc",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "drive-by-comment - parseFloat or parseInt may be more descriptive here",
+      "range": {
+        "startLine": 57,
+        "startChar": 15,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d55c8096_0948f750",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "space between ) and {\n\nhere and other places",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 44
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a0ca805_c5b80356",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "IIRC: useCapture defaults to false - you can safely omit this.",
+      "range": {
+        "startLine": 76,
+        "startChar": 7,
+        "endLine": 76,
+        "endChar": 12
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed71983c_3db9e4fe",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "underscores, i.e. gpu_op_bounds make this a bit more readable same for line 83, 90, 95",
+      "range": {
+        "startLine": 78,
+        "startChar": 27,
+        "endLine": 78,
+        "endChar": 38
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f059dbfd_79a67f9b",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Why this amount?  What percentage is that?  (i understand alpha as % more easily)",
+      "range": {
+        "startLine": 85,
+        "startChar": 23,
+        "endLine": 85,
+        "endChar": 27
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e4ee651_f50c7964",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Prefer using substring over substr:\n\nhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring",
+      "range": {
+        "startLine": 86,
+        "startChar": 39,
+        "endLine": 86,
+        "endChar": 45
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60f8f585_a739f2a6",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "let colorHex \u003d",
+      "range": {
+        "startLine": 86,
+        "startChar": 6,
+        "endLine": 86,
+        "endChar": 7
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b60a142d_2f370b2e",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Maybe break this calculation out with a comment that you are removing the \u0027#\u0027 that comes with the color input.",
+      "range": {
+        "startLine": 86,
+        "startChar": 25,
+        "endLine": 86,
+        "endChar": 32
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65aaec01_886fbb62",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Is this transparent black?  Add a comment saying so.",
+      "range": {
+        "startLine": 92,
+        "startChar": 29,
+        "endLine": 92,
+        "endChar": 30
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "610261f1_0639b1c8",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Space between { and return",
+      "range": {
+        "startLine": 71,
+        "startChar": 31,
+        "endLine": 71,
+        "endChar": 38
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92f5ae2c_c8315a1b",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be sk_sp\u003cSkSurface\u003e ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 32,
+        "endLine": 86,
+        "endChar": 42
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8413323_3949f671",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "I do not understand this comment",
+      "range": {
+        "startLine": 89,
+        "startChar": 41,
+        "endLine": 89,
+        "endChar": 49
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30154fc0_136a53ce",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Do I understand this right that you are essentially re-writing part of the skp for now by adding these keys?",
+      "range": {
+        "startLine": 92,
+        "startChar": 9,
+        "endLine": 92,
+        "endChar": 61
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e79b9cb6_b44dc1a9",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "I think you could also use SkString here - not sure if it\u0027s easier to work with",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 22
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f47b055_31b8c3a7",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "align with others",
+      "range": {
+        "startLine": 128,
+        "startChar": 32,
+        "endLine": 128,
+        "endChar": 35
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "197b5f13_e3585503",
+        "filename": "tools/debugger/SkDebugCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-12T15:35:03Z",
+      "side": 1,
+      "message": "Why SkIRect and not the more general SkRect?",
+      "range": {
+        "startLine": 30,
+        "startChar": 18,
+        "endLine": 30,
+        "endChar": 25
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
