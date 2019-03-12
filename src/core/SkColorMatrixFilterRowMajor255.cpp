@@ -15,42 +15,27 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
-static void transpose_and_scale01(float dst[20], const float src[20]) {
-    const float* srcR = src + 0;
-    const float* srcG = src + 5;
-    const float* srcB = src + 10;
-    const float* srcA = src + 15;
+void SkColorMatrixFilterRowMajor255::initState() {
+    const float* srcR = fMatrix + 0;
+    const float* srcG = fMatrix + 5;
+    const float* srcB = fMatrix + 10;
+    const float* srcA = fMatrix + 15;
+
+    fFlags = (srcA[0] == 0 && srcA[1] == 0 && srcA[2] == 0 && srcA[3] == 1 && srcA[4] == 0)
+        ? kAlphaUnchanged_Flag : 0;
 
     for (int i = 0; i < 16; i += 4) {
-        dst[i + 0] = *srcR++;
-        dst[i + 1] = *srcG++;
-        dst[i + 2] = *srcB++;
-        dst[i + 3] = *srcA++;
+        fTranspose[i + 0] = *srcR++;
+        fTranspose[i + 1] = *srcG++;
+        fTranspose[i + 2] = *srcB++;
+        fTranspose[i + 3] = *srcA++;
     }
     // Might as well scale these translates down to [0,1] here instead of every filter call.
-    dst[16] = *srcR * (1/255.0f);
-    dst[17] = *srcG * (1/255.0f);
-    dst[18] = *srcB * (1/255.0f);
-    dst[19] = *srcA * (1/255.0f);
+    fTranspose[16] = *srcR * (1/255.0f);
+    fTranspose[17] = *srcG * (1/255.0f);
+    fTranspose[18] = *srcB * (1/255.0f);
+    fTranspose[19] = *srcA * (1/255.0f);
 }
-
-void SkColorMatrixFilterRowMajor255::initState() {
-    transpose_and_scale01(fTranspose, fMatrix);
-
-    const float* array = fMatrix;
-
-    // check if we have to munge Alpha
-    bool changesAlpha = (array[15] || array[16] || array[17] || (array[18] - 1) || array[19]);
-    bool usesAlpha = (array[3] || array[8] || array[13]);
-
-    if (changesAlpha || usesAlpha) {
-        fFlags = changesAlpha ? 0 : kAlphaUnchanged_Flag;
-    } else {
-        fFlags = kAlphaUnchanged_Flag;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar array[20]) {
     memcpy(fMatrix, array, 20 * sizeof(SkScalar));
@@ -60,8 +45,6 @@ SkColorMatrixFilterRowMajor255::SkColorMatrixFilterRowMajor255(const SkScalar ar
 uint32_t SkColorMatrixFilterRowMajor255::getFlags() const {
     return this->INHERITED::getFlags() | fFlags;
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 void SkColorMatrixFilterRowMajor255::flatten(SkWriteBuffer& buffer) const {
     SkASSERT(sizeof(fMatrix)/sizeof(SkScalar) == 20);
@@ -83,94 +66,17 @@ bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//  This code was duplicated from src/effects/SkColorMatrix.cpp in order to be used in core.
-//////
-
-// To detect if we need to apply clamping after applying a matrix, we check if
-// any output component might go outside of [0, 255] for any combination of
-// input components in [0..255].
-// Each output component is an affine transformation of the input component, so
-// the minimum and maximum values are for any combination of minimum or maximum
-// values of input components (i.e. 0 or 255).
-// E.g. if R' = x*R + y*G + z*B + w*A + t
-// Then the maximum value will be for R=255 if x>0 or R=0 if x<0, and the
-// minimum value will be for R=0 if x>0 or R=255 if x<0.
-// Same goes for all components.
-static bool component_needs_clamping(const SkScalar row[5]) {
-    SkScalar maxValue = row[4] / 255;
-    SkScalar minValue = row[4] / 255;
-    for (int i = 0; i < 4; ++i) {
-        if (row[i] > 0)
-            maxValue += row[i];
-        else
-            minValue += row[i];
-    }
-    return (maxValue > 1) || (minValue < 0);
-}
-
-static bool needs_clamping(const SkScalar matrix[20]) {
-    return component_needs_clamping(matrix)
-        || component_needs_clamping(matrix+5)
-        || component_needs_clamping(matrix+10)
-        || component_needs_clamping(matrix+15);
-}
-
-static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]) {
-    int index = 0;
-    for (int j = 0; j < 20; j += 5) {
-        for (int i = 0; i < 4; i++) {
-            result[index++] =   outer[j + 0] * inner[i + 0] +
-                                outer[j + 1] * inner[i + 5] +
-                                outer[j + 2] * inner[i + 10] +
-                                outer[j + 3] * inner[i + 15];
-        }
-        result[index++] =   outer[j + 0] * inner[4] +
-                            outer[j + 1] * inner[9] +
-                            outer[j + 2] * inner[14] +
-                            outer[j + 3] * inner[19] +
-                            outer[j + 4];
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//  End duplication
-//////
-
 void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
                                                     SkColorSpace* dst,
                                                     SkArenaAlloc* scratch,
-                                                    bool shaderIsOpaque) const {
-    bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
-    bool needsClamp0 = false,
-         needsClamp1 = false;
-    for (int i = 0; i < 4; i++) {
-        SkScalar min = fTranspose[i+16],
-                 max = fTranspose[i+16];
-        (fTranspose[i+ 0] < 0 ? min : max) += fTranspose[i+ 0];
-        (fTranspose[i+ 4] < 0 ? min : max) += fTranspose[i+ 4];
-        (fTranspose[i+ 8] < 0 ? min : max) += fTranspose[i+ 8];
-        (fTranspose[i+12] < 0 ? min : max) += fTranspose[i+12];
-        needsClamp0 = needsClamp0 || min < 0;
-        needsClamp1 = needsClamp1 || max > 1;
-    }
+                                                    const bool shaderIsOpaque) const {
+    const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
 
     if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
     if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
-    if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
-    if (    needsClamp1) { p->append(SkRasterPipeline::clamp_1); }
+    if (           true) { p->append(SkRasterPipeline::clamp_0); }
+    if (           true) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
-}
-
-sk_sp<SkColorFilter>
-SkColorMatrixFilterRowMajor255::onMakeComposed(sk_sp<SkColorFilter> innerFilter) const {
-    SkScalar innerMatrix[20];
-    if (innerFilter->asColorMatrix(innerMatrix) && !needs_clamping(innerMatrix)) {
-        SkScalar concat[20];
-        set_concat(concat, fMatrix, innerMatrix);
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(concat);
-    }
-    return nullptr;
 }
 
 #if SK_SUPPORT_GPU
