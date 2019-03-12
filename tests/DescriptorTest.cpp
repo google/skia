@@ -74,12 +74,12 @@ DEF_TEST(Descriptor_valid_more_tags, r) {
 
 DEF_TEST(Descriptor_invalid_rec_size, r) {
     const size_t size =
-            sizeof(SkDescriptor) + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContextRec) + 4;
+            sizeof(SkDescriptor) + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContextRec) - 4;
 
     auto desc = SkDescriptor::Alloc(size);
     desc->init();
     SkScalerContextRec rec;
-    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec) + 4, &rec);
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec) - 4, &rec);
     REPORTER_ASSERT(r, desc->getLength() == size);
     REPORTER_ASSERT(r, !desc->isValid());
 }
