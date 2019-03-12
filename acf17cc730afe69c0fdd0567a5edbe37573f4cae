@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f8f5eb9e_50c5a5db",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-12T21:15:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01d4911b_63b1e469",
+      "range": {
+        "startLine": 599,
+        "startChar": 31,
+        "endLine": 599,
+        "endChar": 32
+      },
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43161cbe_ce5fb885",
         "filename": "src/core/SkSpan.h",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90032779_5f855e90",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-12T21:15:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43161cbe_ce5fb885",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "faa2931d_a15c63f4",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-12T21:15:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23d75690_6b4ad997",
+      "range": {
+        "startLine": 239,
+        "startChar": 3,
+        "endLine": 239,
+        "endChar": 9
+      },
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76e9d99b_fe0cbbf8",
         "filename": "src/core/SkStrike.h",
         "patchSetId": 6
@@ -79,6 +145,24 @@
       "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c53d182f_422fcddf",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-12T21:15:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76e9d99b_fe0cbbf8",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "ea53ae84_cd3e677e",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-12T21:15:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb75f3bd_72c958ca",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e1ffb9f2_375c098b",
         "filename": "src/core/SkStrikeInterface.h",
         "patchSetId": 6
@@ -113,6 +215,24 @@
       "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aedd99ee_32676fc6",
+        "filename": "src/core/SkStrikeInterface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-12T21:15:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1ffb9f2_375c098b",
+      "revId": "acf17cc730afe69c0fdd0567a5edbe37573f4cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
