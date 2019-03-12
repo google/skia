@@ -17,6 +17,8 @@
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
+
+#if 0
     // Beware! Woe betide anyone whosoever calls this method.
     // The refs on proxies and their backing GrSurfaces shift around based on whether the proxy
     // is instantiated or not. Additionally, the lifetime of a proxy (and a GrSurface) also
@@ -32,6 +34,7 @@ public:
     // any pending writes in its current state. It won't tell you about the IO state in the
     // future when the proxy is actually used/instantiated.
     bool hasPendingWrite() const { return fProxy->hasPendingWrite(); }
+#endif
 
     void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 

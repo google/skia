@@ -10,6 +10,7 @@
 
 #include "../private/SkNoncopyable.h"
 #include "GrBackendSurface.h"
+#include "GrContext_Base.h" // just for SK_OLD_STYLE_RESOURCE_ALLOCATION #define
 #include "GrGpuResource.h"
 #include "GrSurface.h"
 
@@ -28,6 +29,7 @@ class GrSurfaceProxyPriv;
 class GrTextureOpList;
 class GrTextureProxy;
 
+#ifdef SK_OLD_STYLE_RESOURCE_ALLOCATION
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
 // forwards on the utilization in the wrapped case
@@ -201,7 +203,22 @@ private:
     mutable int32_t fRefCnt;
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
+
+    typedef SkNoncopyable INHERITED;
 };
+#else
+class GrIORefProxy : public SkRefCnt {
+public:
+
+protected:
+    // For deferred proxies this will be null. For wrapped proxies it will point to the
+    // wrapped resource.
+    GrSurface* fTarget;
+
+private:
+    typedef SkRefCnt INHERITED;
+};
+#endif
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
@@ -443,6 +460,8 @@ protected:
     friend class GrSurfaceProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
+#if 0
+    // Methods made available via GrSurfaceProxyPriv
     int32_t getProxyRefCnt() const {
         return this->internalGetProxyRefCnt();
     }
@@ -454,6 +473,7 @@ protected:
     bool hasPendingWrite() const {
         return this->internalHasPendingWrite();
     }
+#endif
 
     void computeScratchKey(GrScratchKey*) const;
 
