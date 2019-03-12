@@ -56,7 +56,6 @@ protected:
         // This, in turn, implies that explicit resource allocation is always on (regardless
         // of how Skia is compiled).
         this->setupDrawingManager(true, true, true);
-
         SkASSERT(this->caps());
 
         return true;
