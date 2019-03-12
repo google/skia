@@ -145,11 +145,6 @@ struct SK_API GrContextOptions {
     Enable fUseDrawInsteadOfClear = Enable::kDefault;
 
     /**
-     * Unused but currently needed in Fuchsia
-     */
-    Enable fExplicitlyAllocateGPUResources = Enable::kYes;
-
-    /**
      * Allow Ganesh to sort the opLists prior to allocating resources. This is an optional
      * behavior but, eventually, this will just be what is done and will not be optional.
      */
