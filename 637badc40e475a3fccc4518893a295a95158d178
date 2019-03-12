@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1dd75b99_7b115f8b",
+        "filename": "src/core/SkDescriptor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-03-12T18:57:51Z",
+      "side": 1,
+      "message": "nit: Having this here does seem a bit awkward. Maybe we can check this part at the callsite?\n\nif (desc.getLength() !\u003d desc_length) FAIL.",
+      "range": {
+        "startLine": 88,
+        "startChar": 27,
+        "endLine": 88,
+        "endChar": 46
+      },
+      "revId": "637badc40e475a3fccc4518893a295a95158d178",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c33184a5_73559826",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 4
