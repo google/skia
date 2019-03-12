@@ -76,21 +76,9 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(
         const GrPathRenderer::CanDrawPathArgs& args,
-        DrawType drawType,
-        GrPathRenderer::StencilSupport* stencilSupport) {
-    GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
-                     GrPathRenderer::kStencilOnly_StencilSupport);
-    GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
-                     GrPathRenderer::kNoRestriction_StencilSupport);
-    GrPathRenderer::StencilSupport minStencilSupport;
-    if (DrawType::kStencil == drawType) {
-        minStencilSupport = GrPathRenderer::kStencilOnly_StencilSupport;
-    } else if (DrawType::kStencilAndColor == drawType) {
-        minStencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
-    } else {
-        minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;
-    }
-    if (minStencilSupport != GrPathRenderer::kNoSupport_StencilSupport) {
+        GrPathRenderer::DrawType drawType,
+        GrPathRenderer::StencilSupport* outStencilSupport) {
+    if (GrPathRenderer::DrawType::kColor != drawType) {
         // We don't support (and shouldn't need) stenciling of non-fill paths.
         if (!args.fShape->style().isSimpleFill()) {
             return nullptr;
@@ -99,25 +87,20 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
 
     GrPathRenderer* bestPathRenderer = nullptr;
     for (const sk_sp<GrPathRenderer>& pr : fChain) {
-        GrPathRenderer::StencilSupport support = GrPathRenderer::kNoSupport_StencilSupport;
-        if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
-            support = pr->getStencilSupport(*args.fShape);
-            if (support < minStencilSupport) {
-                continue;
-            }
-        }
-        GrPathRenderer::CanDrawPath canDrawPath = pr->canDrawPath(args);
-        if (GrPathRenderer::CanDrawPath::kNo == canDrawPath) {
+        using CanDrawPath = GrPathRenderer::CanDrawPath;
+        GrPathRenderer::StencilSupport stencilSupport;
+        CanDrawPath canDrawPath = pr->canDrawPath(args, drawType, &stencilSupport);
+        if (CanDrawPath::kNo == canDrawPath) {
             continue;
         }
-        if (GrPathRenderer::CanDrawPath::kAsBackup == canDrawPath && bestPathRenderer) {
+        if (CanDrawPath::kAsBackup == canDrawPath && bestPathRenderer) {
             continue;
         }
-        if (stencilSupport) {
-            *stencilSupport = support;
+        if (outStencilSupport) {
+            *outStencilSupport = stencilSupport;
         }
         bestPathRenderer = pr.get();
-        if (GrPathRenderer::CanDrawPath::kYes == canDrawPath) {
+        if (CanDrawPath::kYes == canDrawPath) {
             break;
         }
     }

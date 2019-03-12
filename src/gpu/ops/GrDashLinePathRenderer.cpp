@@ -14,10 +14,12 @@
 #include "ops/GrMeshDrawOp.h"
 
 GrPathRenderer::CanDrawPath
-GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType drawType) const {
     SkPoint pts[2];
     bool inverted;
     if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
+        // GrPathRendererChain currently rejects stencil draws of strokes.
+        SkASSERT(DrawType::kColor == drawType);
         if (args.fAAType == GrAAType::kMixedSamples) {
             return CanDrawPath::kNo;
         }

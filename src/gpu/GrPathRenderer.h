@@ -41,7 +41,7 @@ public:
      * rendered into the stencil.
      *
      * A GrPathRenderer can provide three levels of support for stenciling paths:
-     * 1) kNoRestriction: This is the most general. The caller passes a GrPaint and calls drawPath().
+     * 1) kNoRestriction: This is most general. The caller passes a GrPaint and calls drawPath().
      *                    The path is rendered exactly as the draw state indicates including support
      *                    for simultaneous color and stenciling with arbitrary stenciling rules.
      *                    Pixels partially covered by AA paths are affected by the stencil settings.
@@ -51,20 +51,22 @@ public:
      *                  covered by the path.
      * 3) kNoSupport: This path renderer cannot be used to stencil the path.
      */
-    enum StencilSupport {
-        kNoSupport_StencilSupport,
-        kStencilOnly_StencilSupport,
-        kNoRestriction_StencilSupport,
+    enum class StencilSupport {
+        kNoSupport,
+        kStencilOnly,
+        kNoRestriction,
     };
 
     /**
-     * This function is to get the stencil support for a particular path. The path's fill must
-     * not be an inverse type. The path will always be filled and not stroked.
-     *
-     * @param shape   the shape that will be drawn. Must be simple fill styled and non-inverse
-     *                filled.
+     * Documents how the caller plans to use a GrPathRenderer to draw a path. It affects whether
+     * canDrawPath() can accept a mixed sampled render target or not, as well as the required level
+     * of stencil support.
      */
-    StencilSupport getStencilSupport(const GrShape& shape) const;
+    enum class DrawType {
+        kColor,            // draw to the color buffer, no AA
+        kStencil,          // draw just to the stencil buffer
+        kStencilAndColor,  // draw the stencil and color buffer, no AA
+    };
 
     enum class CanDrawPath {
         kNo,
@@ -99,11 +101,11 @@ public:
      * Returns how well this path renderer is able to render the given path. Returning kNo or
      * kAsBackup allows the caller to keep searching for a better path renderer. This function is
      * called when searching for the best path renderer to draw a path.
+     *
+     * Also see comments on StencilSupport.
      */
-    CanDrawPath canDrawPath(const CanDrawPathArgs& args) const {
-        SkDEBUGCODE(args.validate();)
-        return this->onCanDrawPath(args);
-    }
+    CanDrawPath canDrawPath(
+            const CanDrawPathArgs&, DrawType, StencilSupport* outStencilSupport) const;
 
     struct DrawPathArgs {
         GrRecordingContext*          fContext;
@@ -134,6 +136,7 @@ public:
      * the subclass must respect the stencil settings.
      */
     bool drawPath(const DrawPathArgs& args);
+
     /**
      * Args to stencilPath(). fAAType cannot be kCoverage.
      */
@@ -157,7 +160,7 @@ public:
      */
     void stencilPath(const StencilPathArgs& args) {
         SkDEBUGCODE(args.validate();)
-        SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fShape));
+        SkASSERT(StencilSupport::kNoSupport != this->getStencilSupport(*args.fShape));
         this->onStencilPath(args);
     }
 
@@ -177,10 +180,19 @@ protected:
 
 private:
     /**
+     * This function is to get the stencil support for a particular path. The path's fill must
+     * not be an inverse type. The path will always be filled and not stroked.
+     *
+     * @param shape   the shape that will be drawn. Must be simple fill styled and non-inverse
+     *                filled.
+     */
+    StencilSupport getStencilSupport(const GrShape& shape) const;
+
+    /**
      * Subclass overrides if it has any limitations of stenciling support.
      */
     virtual StencilSupport onGetStencilSupport(const GrShape&) const {
-        return kNoRestriction_StencilSupport;
+        return StencilSupport::kNoRestriction;
     }
 
     /**
@@ -191,7 +203,7 @@ private:
     /**
      * Subclass implementation of canDrawPath()
      */
-    virtual CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const = 0;
+    virtual CanDrawPath onCanDrawPath(const CanDrawPathArgs&, DrawType) const = 0;
 
     /**
      * Subclass implementation of stencilPath(). Subclass must override iff it ever returns

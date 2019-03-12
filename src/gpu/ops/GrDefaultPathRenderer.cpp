@@ -55,9 +55,9 @@ static inline bool single_pass_shape(const GrShape& shape) {
 GrPathRenderer::StencilSupport
 GrDefaultPathRenderer::onGetStencilSupport(const GrShape& shape) const {
     if (single_pass_shape(shape)) {
-        return GrPathRenderer::kNoRestriction_StencilSupport;
+        return StencilSupport::kNoRestriction;
     } else {
-        return GrPathRenderer::kStencilOnly_StencilSupport;
+        return StencilSupport::kStencilOnly;
     }
 }
 
@@ -636,8 +636,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
 }
 
 GrPathRenderer::CanDrawPath
-GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    bool isHairline = IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
+GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args, DrawType drawType) const {
+    bool isHairline = IsStrokeHairlineOrEquivalent(
+            args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) &&
         (args.fCaps->avoidStencilBuffers() || args.fTargetIsWrappedVkSecondaryCB)) {
