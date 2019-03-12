@@ -4,6 +4,6 @@
 # Tests will be run as non-root (user skia, in fact), so /OUT should have permissions
 # 777 so as to be able to create output there.
 
-FROM gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v5
+FROM gcr.io/skia-public/karma-chrome-tests:72.0.3626.121_v1
 
 COPY /tmp/gold-aggregator /opt/gold-aggregator
