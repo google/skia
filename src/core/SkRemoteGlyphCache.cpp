@@ -132,7 +132,8 @@ public:
 
         ad->reset(desc_length);
         memcpy(ad->getDesc(), const_cast<const char*>(result), desc_length);
-        return true;
+
+        return ad->getDesc()->isValid(desc_length);
     }
 
     const volatile void* read(size_t size, size_t alignment) {

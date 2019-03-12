@@ -33,6 +33,8 @@ public:
     void* addEntry(uint32_t tag, size_t length, const void* data = nullptr);
     void computeChecksum();
 
+    bool isValid(uint32_t descLength) const;
+
 #ifdef SK_DEBUG
     void assertChecksum() const {
         SkASSERT(SkDescriptor::ComputeChecksum(this) == fChecksum);
