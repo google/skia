@@ -34,7 +34,7 @@ private:
 
 public:
     GrRenderTargetOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>,
-                         GrRenderTargetProxy*, GrAuditTrail*);
+                         sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 

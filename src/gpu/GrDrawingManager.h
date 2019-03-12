@@ -50,8 +50,8 @@ public:
     // be balanced by an unref call.
     // A managed opList is controlled by the drawing manager (i.e., sorted & flushed with the
     // other). An unmanaged one is created and used by the onFlushCallback.
-    sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managedOpList);
-    sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
+    sk_sp<GrRenderTargetOpList> newRTOpList(sk_sp<GrRenderTargetProxy> rtp, bool managedOpList);
+    sk_sp<GrTextureOpList> newTextureOpList(sk_sp<GrTextureProxy> textureProxy);
 
     GrRecordingContext* getContext() { return fContext; }
 
@@ -73,8 +73,8 @@ public:
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
-                                                      SkSurface::BackendSurfaceAccess access,
-                                                      SkSurface::FlushFlags flags,
+                                                      SkSurface::BackendSurfaceAccess,
+                                                      SkSurface::FlushFlags,
                                                       int numSemaphores,
                                                       GrBackendSemaphore backendSemaphores[]);
 
@@ -149,9 +149,9 @@ private:
     // return true if any opLists were actually executed; false otherwise
     bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
-    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
-                                SkSurface::BackendSurfaceAccess access,
-                                SkSurface::FlushFlags flags,
+    GrSemaphoresSubmitted flush(GrSurfaceProxy*,
+                                SkSurface::BackendSurfaceAccess,
+                                SkSurface::FlushFlags,
                                 int numSemaphores,
                                 GrBackendSemaphore backendSemaphores[]);
 

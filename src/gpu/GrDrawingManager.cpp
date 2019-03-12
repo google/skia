@@ -91,7 +91,7 @@ void GrDrawingManager::OpListDAG::prepForFlush() {
         SkASSERT(result);
     }
 
-#ifdef SK_DEBUG
+#if 0 //def SK_DEBUG
     // This block checks for any unnecessary splits in the opLists. If two sequential opLists
     // share the same backing GrSurfaceProxy it means the opList was artificially split.
     if (fOpLists.count()) {
@@ -455,8 +455,11 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 }
 
 GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
-        GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access, SkSurface::FlushFlags flags,
-        int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
+        GrSurfaceProxy* proxy,
+        SkSurface::BackendSurfaceAccess access,
+        SkSurface::FlushFlags flags,
+        int numSemaphores,
+        GrBackendSemaphore backendSemaphores[]) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
@@ -473,17 +476,7 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
-    auto resourceProvider = direct->priv().resourceProvider();
-
-    GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
-    if (proxy->priv().hasPendingIO() || numSemaphores ||
-        SkToBool(flags & SkSurface::kSyncCpu_FlushFlag)) {
-        result = this->flush(proxy, access, flags, numSemaphores, backendSemaphores);
-    }
-
-    if (!proxy->instantiate(resourceProvider)) {
-        return result;
-    }
+    GrSemaphoresSubmitted result = this->flush(proxy, access, flags, numSemaphores, backendSemaphores);
 
     GrSurface* surface = proxy->peekSurface();
     if (auto* rt = surface->asRenderTarget()) {
@@ -583,7 +576,7 @@ void GrDrawingManager::validate() const {
 }
 #endif
 
-sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,
+sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(sk_sp<GrRenderTargetProxy> rtp,
                                                           bool managedOpList) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
@@ -633,7 +626,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
     return opList;
 }
 
-sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textureProxy) {
+sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(sk_sp<GrTextureProxy> textureProxy) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
