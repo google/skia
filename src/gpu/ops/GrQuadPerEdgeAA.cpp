@@ -493,7 +493,7 @@ static Sk4f compute_degenerate_quad(GrQuadAAFlags aaFlags, const Sk4f& mask, con
         // Every dists1 and dists2 >= kTolerance so it's not degenerate, use all 4 corners as-is
         // and use full coverage
         coverage = 1.f;
-    } else if (d1And2[0] || d1And2[1] || d1And2[2] || d1And2[2]) {
+    } else if (d1And2[0] || d1And2[1] || d1And2[2] || d1And2[3]) {
         // A point failed against two edges, so reduce the shape to a single point, which we take as
         // the center of the original quad to ensure it is contained in the intended geometry. Since
         // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
