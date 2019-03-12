@@ -16,7 +16,6 @@
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "SkTDPQueue.h"
-#include "SkTHash.h"
 #include "SkTInternalLList.h"
 #include "SkTMultiMap.h"
 
@@ -196,7 +195,7 @@ public:
     bool requestsFlush() const { return this->overBudget() && !fPurgeableQueue.count(); }
 
     /** Maintain a ref to this resource until we receive a GrGpuResourceFreedMessage. */
-    void insertDelayedResourceUnref(GrGpuResource* resource);
+    void insertCrossContextGpuResource(GrGpuResource* resource);
 
 #if GR_CACHE_STATS
     struct Stats {
@@ -306,25 +305,6 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
 
-    class ResourceAwaitingUnref {
-    public:
-        ResourceAwaitingUnref();
-        ResourceAwaitingUnref(GrGpuResource* resource);
-        ResourceAwaitingUnref(const ResourceAwaitingUnref&) = delete;
-        ResourceAwaitingUnref& operator=(const ResourceAwaitingUnref&) = delete;
-        ResourceAwaitingUnref(ResourceAwaitingUnref&&);
-        ResourceAwaitingUnref& operator=(ResourceAwaitingUnref&&);
-        ~ResourceAwaitingUnref();
-        void addRef();
-        void unref();
-        bool finished();
-
-    private:
-        GrGpuResource* fResource = nullptr;
-        int fNumUnrefs = 0;
-    };
-    using ReourcesAwaitingUnref = SkTHashMap<uint32_t, ResourceAwaitingUnref>;
-
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
     }
@@ -373,7 +353,8 @@ private:
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
     FreedGpuResourceInbox               fFreedGpuResourceInbox;
-    ReourcesAwaitingUnref               fResourcesAwaitingUnref;
+
+    SkTDArray<GrGpuResource*>           fResourcesWaitingForFreeMsg;
 
     uint32_t                            fContextUniqueID;
     GrSingleOwner*                      fSingleOwner;

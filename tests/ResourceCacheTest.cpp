@@ -1545,18 +1545,18 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
     GrGpu* gpu = context->priv().getGpu();
 
     TestResource* wrapped1 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped1);
+    cache->insertCrossContextGpuResource(wrapped1);
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
     TestResource* wrapped2 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped2);
+    cache->insertCrossContextGpuResource(wrapped2);
 
     // An uncacheable cross-context should not be purged as soon as we drop our ref. This
     // is because inserting it as a cross-context resource actually holds a ref until the
     // message is received.
     TestResource* wrapped3 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
-    cache->insertDelayedResourceUnref(wrapped3);
+    cache->insertCrossContextGpuResource(wrapped3);
 
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 

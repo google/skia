@@ -12,7 +12,6 @@
 #include "GrAppliedClip.h"
 #include "GrBufferAllocPool.h"
 #include "GrDeferredUpload.h"
-#include "GrDeinstantiateProxyTracker.h"
 #include "GrRenderTargetProxy.h"
 #include "SkArenaAlloc.h"
 #include "SkArenaAllocList.h"
@@ -109,8 +108,6 @@ public:
     // permissible).
     GrAtlasManager* atlasManager() const final;
 
-    GrDeinstantiateProxyTracker* deinstantiateProxyTracker() { return &fDeinstantiateProxyTracker; }
-
 private:
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }
@@ -164,9 +161,6 @@ private:
     // Variables that are used to track where we are in lists as ops are executed
     SkArenaAllocList<Draw>::Iter fCurrDraw;
     SkArenaAllocList<InlineUpload>::Iter fCurrUpload;
-
-    // Used to track the proxies that need to be deinstantiated after we finish a flush
-    GrDeinstantiateProxyTracker fDeinstantiateProxyTracker;
 };
 
 #endif

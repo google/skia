@@ -7,7 +7,6 @@
 
 #include "GrResourceAllocator.h"
 
-#include "GrDeinstantiateProxyTracker.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrRenderTargetProxy.h"
@@ -107,12 +106,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     if (proxy->readOnly() || !fResourceProvider->explicitlyAllocateGPUResources()) {
         // FIXME: remove this once we can do the lazy instantiation from assign instead.
         if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
-            if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
-                if (proxy->priv().lazyInstantiationType() ==
-                    GrSurfaceProxy::LazyInstantiationType::kDeinstantiate) {
-                    fDeinstantiateTracker->addProxy(proxy);
-                }
-            }
+            proxy->priv().doLazyInstantiation(fResourceProvider);
         }
     }
 }
@@ -375,11 +369,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
-            } else {
-                if (GrSurfaceProxy::LazyInstantiationType::kDeinstantiate ==
-                    cur->proxy()->priv().lazyInstantiationType()) {
-                    fDeinstantiateTracker->addProxy(cur->proxy());
-                }
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
