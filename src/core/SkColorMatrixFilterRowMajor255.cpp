@@ -35,19 +35,11 @@ static void transpose_and_scale01(float dst[20], const float src[20]) {
 }
 
 void SkColorMatrixFilterRowMajor255::initState() {
+    const float* m = fMatrix + 15;
+    fFlags = (m[15] == 0 && m[16] == 0 && m[17] == 0 && m[18] == 1 && m[19] == 0)
+        ? kAlphaUnchanged_Flag : 0;
+
     transpose_and_scale01(fTranspose, fMatrix);
-
-    const float* array = fMatrix;
-
-    // check if we have to munge Alpha
-    bool changesAlpha = (array[15] || array[16] || array[17] || (array[18] - 1) || array[19]);
-    bool usesAlpha = (array[3] || array[8] || array[13]);
-
-    if (changesAlpha || usesAlpha) {
-        fFlags = changesAlpha ? 0 : kAlphaUnchanged_Flag;
-    } else {
-        fFlags = kAlphaUnchanged_Flag;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,39 +75,6 @@ bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//  This code was duplicated from src/effects/SkColorMatrix.cpp in order to be used in core.
-//////
-
-// To detect if we need to apply clamping after applying a matrix, we check if
-// any output component might go outside of [0, 255] for any combination of
-// input components in [0..255].
-// Each output component is an affine transformation of the input component, so
-// the minimum and maximum values are for any combination of minimum or maximum
-// values of input components (i.e. 0 or 255).
-// E.g. if R' = x*R + y*G + z*B + w*A + t
-// Then the maximum value will be for R=255 if x>0 or R=0 if x<0, and the
-// minimum value will be for R=0 if x>0 or R=255 if x<0.
-// Same goes for all components.
-static bool component_needs_clamping(const SkScalar row[5]) {
-    SkScalar maxValue = row[4] / 255;
-    SkScalar minValue = row[4] / 255;
-    for (int i = 0; i < 4; ++i) {
-        if (row[i] > 0)
-            maxValue += row[i];
-        else
-            minValue += row[i];
-    }
-    return (maxValue > 1) || (minValue < 0);
-}
-
-static bool needs_clamping(const SkScalar matrix[20]) {
-    return component_needs_clamping(matrix)
-        || component_needs_clamping(matrix+5)
-        || component_needs_clamping(matrix+10)
-        || component_needs_clamping(matrix+15);
-}
-
 static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkScalar inner[20]) {
     int index = 0;
     for (int j = 0; j < 20; j += 5) {
@@ -141,35 +100,17 @@ void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
                                                     SkColorSpace* dst,
                                                     SkArenaAlloc* scratch,
                                                     bool shaderIsOpaque) const {
-    bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
-    bool needsClamp0 = false,
-         needsClamp1 = false;
-    for (int i = 0; i < 4; i++) {
-        SkScalar min = fTranspose[i+16],
-                 max = fTranspose[i+16];
-        (fTranspose[i+ 0] < 0 ? min : max) += fTranspose[i+ 0];
-        (fTranspose[i+ 4] < 0 ? min : max) += fTranspose[i+ 4];
-        (fTranspose[i+ 8] < 0 ? min : max) += fTranspose[i+ 8];
-        (fTranspose[i+12] < 0 ? min : max) += fTranspose[i+12];
-        needsClamp0 = needsClamp0 || min < 0;
-        needsClamp1 = needsClamp1 || max > 1;
-    }
-
+    const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
     if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
     if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
-    if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
-    if (    needsClamp1) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    if (           true) { p->append(SkRasterPipeline::clamp_0); }
+    if (           true) { p->append(SkRasterPipeline::clamp_a); }
 }
 
 sk_sp<SkColorFilter>
 SkColorMatrixFilterRowMajor255::onMakeComposed(sk_sp<SkColorFilter> innerFilter) const {
-    SkScalar innerMatrix[20];
-    if (innerFilter->asColorMatrix(innerMatrix) && !needs_clamping(innerMatrix)) {
-        SkScalar concat[20];
-        set_concat(concat, fMatrix, innerMatrix);
-        return sk_make_sp<SkColorMatrixFilterRowMajor255>(concat);
-    }
+    // We'd always have to clamp between the two matrices, so we can't ever compose these.
     return nullptr;
 }
 
