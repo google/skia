@@ -284,14 +284,15 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
     // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
     // N.B. If the matrix has scale, that will be reflected in the strike through the viewMatrix
     // in the useFastPath case.
-    bool useFastPath =
-            viewMatrix.isScaleTranslate() && conservativeMaxGlyphDimension <= maxGlyphDimension;
+    bool useDeviceCache =
+            viewMatrix.isScaleTranslate()
+            && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
 
     // A scaled and translated transform is the common case, and is handled directly in fallback.
     // Even if the transform is scale and translate, fallback must be careful to use glyphs that
     // fit in the atlas. If a glyph will not fit in the atlas, then the general transform case is
     // used to render the glyphs.
-    if (useFastPath) {
+    if (useDeviceCache) {
         // Translate the positions to device space.
         viewMatrix.mapPoints(fARGBPositions.data(), fARGBPositions.size());
         for (SkPoint& point : fARGBPositions) {
