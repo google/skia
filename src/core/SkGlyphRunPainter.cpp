@@ -366,7 +366,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
         int glyphCount = 0;
         for (SkGlyphID glyphID : fARGBGlyphsIDs) {
             SkPoint pos = *posCursor++;
-            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, pos);
+            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
             fGlyphPos[glyphCount++] = {&glyph, pos};
         }
 
