@@ -37,16 +37,11 @@ static const float kIdentityConversionMatrix[16] = {
 
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
-                                                            SkYUVColorSpace yuvColorSpace,
-                                                            GrSamplerState::Filter filterMode) {
+                                                            SkYUVColorSpace yuvColorSpace) {
     int numPlanes;
     SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
 
     const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->isize();
-
-    GrSamplerState::Filter minimizeFilterMode = GrSamplerState::Filter::kMipMap == filterMode ?
-                                                GrSamplerState::Filter::kMipMap :
-                                                GrSamplerState::Filter::kBilerp;
 
     GrSamplerState::Filter filterModes[4];
     SkSize scales[4];
@@ -54,7 +49,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         SkISize size = proxies[i]->isize();
         scales[i] = SkSize::Make(SkIntToScalar(size.width()) / SkIntToScalar(YSize.width()),
                                  SkIntToScalar(size.height()) / SkIntToScalar(YSize.height()));
-        filterModes[i] = (size == YSize) ? filterMode : minimizeFilterMode;
+        filterModes[i] = (size == YSize) ? GrSamplerState::Filter::kNearest
+                                         : GrSamplerState::Filter::kBilerp;
     }
 
     SkMatrix44 mat;

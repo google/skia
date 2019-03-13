@@ -105,16 +105,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
                                                         filterOrNullForBicubic);
     }
 
-    // Check to see if the client has given us pre-mipped textures or we can generate them
-    // If not, fall back to bilerp
-    GrSamplerState::Filter filter = *filterOrNullForBicubic;
-    if (GrSamplerState::Filter::kMipMap == filter &&
-        !fImage->setupMipmapsForPlanes(this->context())) {
-        filter = GrSamplerState::Filter::kBilerp;
-    }
-
     auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
-                                     fImage->fYUVColorSpace, filter);
+                                     fImage->fYUVColorSpace);
     if (fImage->fTargetColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fColorSpace.get(),
                                            fImage->alphaType(), fImage->fTargetColorSpace.get());
