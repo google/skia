@@ -1392,6 +1392,7 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
         GrContextOptions options = grCtxOptions;
         test.modifyGrContextOptions(&options);
 
+        skiatest::ReporterContext ctx(&reporter, SkString(test.name));
         start("unit", "test", "", test.name);
         test.run(&reporter, options);
     }
