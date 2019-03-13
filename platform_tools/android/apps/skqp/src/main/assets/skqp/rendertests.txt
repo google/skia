@@ -532,7 +532,7 @@ radial_gradient3,0
 radial_gradient3_nodither,0
 radial_gradient4,-1
 radial_gradient4_nodither,-1
-radial_gradient_precision,0
+radial_gradient_precision,-1
 readpixels,0
 readpixelscodec,0
 readpixelspicture,0
