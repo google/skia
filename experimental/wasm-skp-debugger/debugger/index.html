@@ -10,7 +10,8 @@ var index = 0;
 DebuggerInit({
   locateFile: (file) => '/node_modules/debugger/bin/'+file,
 }).ready().then((Debugger) => {
-  const surface = Debugger.MakeSWCanvasSurface('debugger_view');
+  //const surface = Debugger.MakeSWCanvasSurface('debugger_view');
+  const surface = Debugger.MakeWebGLCanvasSurface('debugger_view', 720, 1280);
   const player = new Debugger.SkpDebugPlayer();
 
   // Define an event handler for the file input dialog
@@ -57,12 +58,21 @@ DebuggerInit({
   document.getElementById('playbutton')
     .addEventListener('click', playFile, false);
 
+  document.getElementById('backend_gpu')
+    .addEventListener('change', function(e) {
+      if (e.target.checked) {
+
+      }
+    });
+
 });
   </script>
   </head>
   <body>
     <canvas id=debugger_view width=720 height=1280></canvas>
     <div style="float:right">
+      <input type="radio" name="backend" value="CPU"> CPU
+      <input type="radio" name="backend" value="WebGL" id="backend_gpu" checked> WebGL<br>
       <input type="file" id="file-input" /><br>
       <input type="button" id="playbutton" value="Play" />
       command interval in ms
