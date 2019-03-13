@@ -271,7 +271,7 @@ static void init_stop_pos(
     add_stop_color(ctx, stop, Fs, Bs);
 }
 
-bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
+bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
     SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
