@@ -44,11 +44,8 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
 }
 #endif
 
-void SkColorFilter::appendStages(SkRasterPipeline* p,
-                                 SkColorSpace* dstCS,
-                                 SkArenaAlloc* alloc,
-                                 bool shaderIsOpaque) const {
-    this->onAppendStages(p, dstCS, alloc, shaderIsOpaque);
+void SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+    this->onAppendStages(rec, shaderIsOpaque);
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
@@ -64,7 +61,12 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSp
     SkRasterPipeline    pipeline(&alloc);
 
     pipeline.append_constant_color(&alloc, src.vec());
-    this->onAppendStages(&pipeline, colorSpace, &alloc, c.fA == 1);
+
+    SkPaint dummyPaint;
+    SkStageRec rec = {
+        &pipeline, &alloc, kRGBA_F32_SkColorType, colorSpace, dummyPaint, nullptr, SkMatrix::I()
+    };
+    this->onAppendStages(rec, c.fA == 1);
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
@@ -91,14 +93,13 @@ public:
         return fOuter->getFlags() & fInner->getFlags();
     }
 
-    void onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
-                        bool shaderIsOpaque) const override {
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
         if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
             innerIsOpaque = false;
         }
-        fInner->appendStages(p, dst, scratch, shaderIsOpaque);
-        fOuter->appendStages(p, dst, scratch, innerIsOpaque);
+        fInner->appendStages(rec, shaderIsOpaque);
+        fOuter->appendStages(rec, innerIsOpaque);
     }
 
 #if SK_SUPPORT_GPU
@@ -218,18 +219,17 @@ public:
     }
 #endif
 
-    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
-            p->append(SkRasterPipeline::unpremul);
+            rec.fPipeline->append(SkRasterPipeline::unpremul);
         }
 
         // TODO: is it valuable to thread this through appendStages()?
         bool shaderIsNormalized = false;
-        fSteps.apply(p, shaderIsNormalized);
+        fSteps.apply(rec.fPipeline, shaderIsNormalized);
 
         if (!shaderIsOpaque) {
-            p->append(SkRasterPipeline::premul);
+            rec.fPipeline->append(SkRasterPipeline::premul);
         }
     }
 
@@ -287,8 +287,7 @@ public:
         return f0 & f1;
     }
 
-    void onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         // want cf0 * (1 - w) + cf1 * w == lerp(w)
         // which means
         //      dr,dg,db,da <-- cf0
@@ -297,21 +296,22 @@ public:
             float     orig_rgba[4 * SkRasterPipeline_kMaxStride];
             float filtered_rgba[4 * SkRasterPipeline_kMaxStride];
         };
-        auto state = alloc->make<State>();
+        auto state = rec.fAlloc->make<State>();
+        SkRasterPipeline* p = rec.fPipeline;
 
         p->append(SkRasterPipeline::store_src, state->orig_rgba);
         if (!fCF1) {
-            fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
+            fCF0->appendStages(rec, shaderIsOpaque);
             p->append(SkRasterPipeline::move_src_dst);
             p->append(SkRasterPipeline::load_src, state->orig_rgba);
         } else {
-            fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
+            fCF0->appendStages(rec, shaderIsOpaque);
             p->append(SkRasterPipeline::store_src, state->filtered_rgba);
             p->append(SkRasterPipeline::load_src, state->orig_rgba);
-            fCF1->appendStages(p, dst, alloc, shaderIsOpaque);
+            fCF1->appendStages(rec, shaderIsOpaque);
             p->append(SkRasterPipeline::load_dst, state->filtered_rgba);
         }
-        float* storage = alloc->make<float>(fWeight);
+        float* storage = rec.fAlloc->make<float>(fWeight);
         p->append(SkRasterPipeline::lerp_1_float, storage);
     }
 
@@ -401,8 +401,7 @@ public:
     }
 #endif
 
-    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         // if this assert fails, it either means no CPU function was provided when this filter was
         // created, or we have flattened and unflattened the filter, which nulls out this pointer.
         // We don't currently have a means to flatten colorfilters containing CPU functions.
@@ -411,7 +410,7 @@ public:
             SkRuntimeColorFilterFn cpuFn;
             const void* inputs;
         };
-        auto ctx = alloc->make<Ctx>();
+        auto ctx = rec.fAlloc->make<Ctx>();
         ctx->inputs = fInputs->data();
         ctx->cpuFn = fCpuFunction;
         ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
@@ -420,7 +419,7 @@ public:
                 ctx->cpuFn(ctx->rgba + i * 4, ctx->inputs);
             }
         };
-        p->append(SkRasterPipeline::callback, ctx);
+        rec.fPipeline->append(SkRasterPipeline::callback, ctx);
     }
 
 protected:

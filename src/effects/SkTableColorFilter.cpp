@@ -98,8 +98,7 @@ public:
         kB_Flag = 1 << 3,
     };
 
-    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         const uint8_t *r = gIdentityTable,
                       *g = gIdentityTable,
                       *b = gIdentityTable,
@@ -110,12 +109,13 @@ public:
         if (fFlags & kG_Flag) { g = ptr; ptr += 256; }
         if (fFlags & kB_Flag) { b = ptr;             }
 
+        SkRasterPipeline* p = rec.fPipeline;
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::unpremul);
         }
 
         struct Tables { const uint8_t *r, *g, *b, *a; };
-        p->append(SkRasterPipeline::byte_tables, alloc->make<Tables>(Tables{r,g,b,a}));
+        p->append(SkRasterPipeline::byte_tables, rec.fAlloc->make<Tables>(Tables{r,g,b,a}));
 
         bool definitelyOpaque = shaderIsOpaque && a[0xff] == 0xff;
         if (!definitelyOpaque) {
