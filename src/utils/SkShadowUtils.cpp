@@ -46,9 +46,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override {}
-    void onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
-        pipeline->append(SkRasterPipeline::gauss_a_to_rgba);
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        rec.fPipeline->append(SkRasterPipeline::gauss_a_to_rgba);
     }
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)

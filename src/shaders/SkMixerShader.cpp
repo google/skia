@@ -41,7 +41,7 @@ void SkShader_Mixer::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fMixer.get());
 }
 
-bool SkShader_Mixer::onAppendStages(const StageRec& rec) const {
+bool SkShader_Mixer::onAppendStages(const SkStageRec& rec) const {
     struct Storage {
         float   fRGBA[4 * SkRasterPipeline_kMaxStride];
     };

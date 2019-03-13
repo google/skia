@@ -152,7 +152,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // If there's a color filter it comes next.
     if (auto colorFilter = paint.getColorFilter()) {
-        colorFilter->appendStages(colorPipeline, dst.colorSpace(), alloc, is_opaque);
+        SkStageRec rec = {
+            colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, SkMatrix::I()
+        };
+        colorFilter->appendStages(rec, is_opaque);
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
     }
 

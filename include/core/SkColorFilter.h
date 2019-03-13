@@ -16,11 +16,10 @@
 class GrColorSpaceInfo;
 class GrFragmentProcessor;
 class GrRecordingContext;
-class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
 class SkColorSpaceXformer;
-class SkRasterPipeline;
+struct SkStageRec;
 class SkString;
 
 /**
@@ -65,7 +64,7 @@ public:
      */
     virtual bool asComponentTable(SkBitmap* table) const;
 
-    void appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool shaderIsOpaque) const;
+    void appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -195,8 +194,7 @@ private:
      */
     virtual int privateComposedFilterCount() const { return 1; }
 
-    virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                bool shaderIsOpaque) const = 0;
+    virtual void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
     friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
