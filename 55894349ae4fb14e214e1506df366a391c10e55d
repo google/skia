@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3ff7049_212d23d3",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-13T23:51:12Z",
+      "side": 1,
+      "message": "This renaming will interfere with Android. What is the process for dealing with that?",
+      "range": {
+        "startLine": 85,
+        "startChar": 9,
+        "endLine": 85,
+        "endChar": 37
+      },
+      "revId": "55894349ae4fb14e214e1506df366a391c10e55d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
