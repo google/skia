@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "5f78eea5_f5ea714b",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T17:36:28Z",
+      "side": 1,
+      "message": "I think it was two levers, made at the same time.",
+      "parentUuid": "58024c0c_124d33d6",
+      "range": {
+        "startLine": 97,
+        "startChar": 54,
+        "endLine": 97,
+        "endChar": 60
+      },
+      "revId": "4806d304759667acd7f1a3cdca69829b4156a981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9b43ae5_a0d65e9e",
         "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
         "patchSetId": 5
@@ -178,6 +202,30 @@
       "side": 1,
       "message": "according to a comment in SkDebugCanvas.h the json writer may use this to \"store binary data such as images, referring to them via URLs embedded in the JSON.\" Other than that, I don\u0027t know how this feature is used. maybe a better question for Joe Gregorio when we connect the wasm module into the debugger interface.\n\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/tools/debugger/SkDebugCanvas.h?type\u003dcs\u0026q\u003durlDataManager+file:%5Esrc/third_party/skia/tools/debugger/+package:%5Echromium$\u0026g\u003d0\u0026l\u003d103",
       "parentUuid": "e9b43ae5_a0d65e9e",
+      "range": {
+        "startLine": 90,
+        "startChar": 39,
+        "endLine": 90,
+        "endChar": 43
+      },
+      "revId": "4806d304759667acd7f1a3cdca69829b4156a981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03fdf265_9f1bc5b9",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T17:36:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a67325ea_f23ab1a9",
       "range": {
         "startLine": 90,
         "startChar": 39,
