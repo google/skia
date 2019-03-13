@@ -27,6 +27,8 @@ class SkDebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     SkDebugCanvas(int width, int height);
 
+    SkDebugCanvas(SkIRect bounds);
+
     ~SkDebugCanvas() override;
 
     /**
