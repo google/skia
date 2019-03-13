@@ -77,7 +77,7 @@ protected:
 
     bool onAsLuminanceColor(SkColor*) const override;
 
-    bool onAppendStages(const StageRec&) const override;
+    bool onAppendStages(const SkStageRec&) const override;
 
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
