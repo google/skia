@@ -22,6 +22,30 @@
       "revId": "39da0504bb5d48cdfa0d5ebf809b22284d4a553c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88e99aec_5b38ea45",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1945,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-13T14:34:43Z",
+      "side": 0,
+      "message": "I think we\u0027re relying on this now: \nhttps://cs.chromium.org/chromium/src/third_party/skia/src/gpu/ops/GrStencilAndCoverPathRenderer.cpp?q\u003dGrStencilAndCoverPathRenderer.cpp\u0026sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d41",
+      "parentUuid": "cfff621b_6c7efb84",
+      "range": {
+        "startLine": 1940,
+        "startChar": 0,
+        "endLine": 1945,
+        "endChar": 80
+      },
+      "revId": "39da0504bb5d48cdfa0d5ebf809b22284d4a553c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
