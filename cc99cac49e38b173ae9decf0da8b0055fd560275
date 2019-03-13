@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8fe3d331_b98c41cc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2033,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-13T19:52:22Z",
+      "side": 1,
+      "message": "Not sure I follow -- are you saying I should do a different approach if supportsBGRATexStorage is true?",
+      "parentUuid": "029f1819_edca2a37",
+      "range": {
+        "startLine": 2029,
+        "startChar": 8,
+        "endLine": 2033,
+        "endChar": 9
+      },
+      "revId": "cc99cac49e38b173ae9decf0da8b0055fd560275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fdb5fcc_2cb3e475",
         "filename": "tests/GrUploadPixelsTests.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-13T19:48:03Z",
       "side": 1,
       "message": "Why skip these tests?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 24
+      },
+      "revId": "cc99cac49e38b173ae9decf0da8b0055fd560275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a90ff879_86c610c0",
+        "filename": "tests/GrUploadPixelsTests.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-13T19:52:22Z",
+      "side": 1,
+      "message": "They call readPixels, which fails because BGRA is not a renderable type. I\u0027ll dig into this a little more because it seems like it should still work.",
+      "parentUuid": "9fdb5fcc_2cb3e475",
       "range": {
         "startLine": 99,
         "startChar": 0,
