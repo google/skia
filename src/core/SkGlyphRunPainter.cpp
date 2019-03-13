@@ -309,16 +309,13 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *runFont.getTypefaceOrDefault());
 
-        SkPoint* posCursor = fARGBPositions.data();
-        int glyphCount = 0;
-        for (SkGlyphID glyphID : fARGBGlyphsIDs) {
-            SkPoint pos = *posCursor++;
-            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, pos);
-            fGlyphPos[glyphCount++] = {&glyph, pos};
-        }
+        int drawableGlyphCount = strike->glyphMetrics(fARGBGlyphsIDs.data(),
+                                                      fARGBPositions.data(),
+                                                      fARGBGlyphsIDs.size(),
+                                                      fGlyphPos);
 
         process->processDeviceFallback(
-                SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(drawableGlyphCount)},
                 strike.get());
 
     } else {
