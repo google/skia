@@ -142,6 +142,29 @@ GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType, GrAllowMixedSamples allowM
     return GrAAType::kNone;
 }
 
+static inline GrPathRenderer::AATypeFlags choose_path_aa_type_flags(
+        GrAA aa, GrFSAAType fsaaType, const GrCaps& caps) {
+    using AATypeFlags = GrPathRenderer::AATypeFlags;
+    if (GrAA::kNo == aa) {
+        // On some devices we cannot disable MSAA if it is enabled so we make the AA type flags
+        // reflect that.
+        if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
+            return AATypeFlags::kMSAA;
+        }
+        return AATypeFlags::kNone;
+    }
+    switch (fsaaType) {
+        case GrFSAAType::kNone:
+            return AATypeFlags::kCoverage;
+        case GrFSAAType::kMixedSamples:
+            return AATypeFlags::kCoverage | AATypeFlags::kMixedSampledStencilThenCover;
+        case GrFSAAType::kUnifiedMSAA:
+            return AATypeFlags::kMSAA;
+    }
+    SK_ABORT("Invalid GrFSAAType.");
+    return AATypeFlags::kNone;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 class AutoCheckFlush {
@@ -793,7 +816,7 @@ void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool i
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
-                                            GrAAType aaType,
+                                            GrAA doStencilMSAA,
                                             const SkMatrix& viewMatrix,
                                             const GrPath* path) {
     ASSERT_SINGLE_OWNER_PRIV
@@ -802,9 +825,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "stencilPath",
                                    fRenderTargetContext->fContext);
 
-    SkASSERT(aaType != GrAAType::kCoverage);
-
-    bool useHWAA = GrAATypeIsHW(aaType);
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(fRenderTargetContext->caps()->shaderCaps()->pathRenderingSupport());
@@ -824,7 +844,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
 
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
                                                      viewMatrix,
-                                                     useHWAA,
+                                                     GrAA::kYes == doStencilMSAA,
                                                      path->getFillType(),
                                                      appliedClip.hasStencilClip(),
                                                      appliedClip.scissorState(),
@@ -838,7 +858,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
 
 void GrRenderTargetContextPriv::stencilRect(const GrHardClip& clip,
                                             const GrUserStencilSettings* ss,
-                                            GrAAType aaType,
+                                            GrAA doStencilMSAA,
                                             const SkMatrix& viewMatrix,
                                             const SkRect& rect) {
     ASSERT_SINGLE_OWNER_PRIV
@@ -847,11 +867,11 @@ void GrRenderTargetContextPriv::stencilRect(const GrHardClip& clip,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "stencilRect",
                                    fRenderTargetContext->fContext);
 
-    SkASSERT(GrAAType::kCoverage != aaType);
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
+    auto aaType = (GrAA::kYes == doStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
     std::unique_ptr<GrDrawOp> op = GrFillRectOp::Make(
             fRenderTargetContext->fContext, std::move(paint), aaType, viewMatrix,  rect, ss);
     fRenderTargetContext->addDrawOp(clip, std::move(op));
@@ -1866,7 +1886,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     // the src color (either the input alpha or in the frag shader) to implement
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
-    GrAAType aaType = fRenderTargetContext->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    auto aaTypeFlags = choose_path_aa_type_flags(
+            aa, fRenderTargetContext->fsaaType(), *fRenderTargetContext->caps());
     bool hasUserStencilSettings = !ss->isUnused();
 
     SkIRect clipConservativeBounds;
@@ -1879,7 +1900,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
-    canDrawArgs.fAAType = aaType;
+    canDrawArgs.fAATypeFlags = aaTypeFlags;
     SkASSERT(!fRenderTargetContext->wrapsVkSecondaryCB());
     canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
@@ -1902,7 +1923,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                       &clipConservativeBounds,
                                       &viewMatrix,
                                       &shape,
-                                      aaType,
+                                      aaTypeFlags,
                                       fRenderTargetContext->colorSpaceInfo().isLinearlyBlended()};
     pr->drawPath(args);
     return true;
@@ -1937,13 +1958,8 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 
     GrShape tempShape;
-    // NVPR cannot handle hairlines, so this would get picked up by a different stencil and
-    // cover path renderer (i.e. default path renderer). The hairline renderer produces much
-    // smoother hairlines than MSAA.
-    GrAllowMixedSamples allowMixedSamples = originalShape.style().isSimpleHairline()
-                                                    ? GrAllowMixedSamples::kNo
-                                                    : GrAllowMixedSamples::kYes;
-    GrAAType aaType = this->chooseAAType(aa, allowMixedSamples);
+    auto aaTypeFlags = choose_path_aa_type_flags(aa, this->fsaaType(), *this->caps());
+
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = this->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
@@ -1958,7 +1974,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
         return;
     }
 
-    canDrawArgs.fAAType = aaType;
+    canDrawArgs.fAATypeFlags = aaTypeFlags;
 
     // Try a 1st time without applying any of the style to the geometry (and barring sw)
     pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
@@ -2003,7 +2019,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                       &clipConservativeBounds,
                                       &viewMatrix,
                                       canDrawArgs.fShape,
-                                      aaType,
+                                      aaTypeFlags,
                                       this->colorSpaceInfo().isLinearlyBlended()};
     pr->drawPath(args);
 }

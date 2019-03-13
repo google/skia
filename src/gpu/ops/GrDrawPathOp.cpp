@@ -25,12 +25,12 @@ static constexpr GrUserStencilSettings kCoverPass{
 };
 
 GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&& paint,
-                                   GrPathRendering::FillType fill, GrAAType aaType)
+                                   GrPathRendering::FillType fill, GrAA aa)
         : INHERITED(classID)
         , fViewMatrix(viewMatrix)
         , fInputColor(paint.getColor4f())
         , fFillType(fill)
-        , fAAType(aaType)
+        , fDoAA(GrAA::kYes == aa)
         , fProcessorSet(std::move(paint)) {}
 
 #ifdef SK_DEBUG
@@ -44,7 +44,7 @@ SkString GrDrawPathOp::dumpInfo() const {
 
 GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     GrPipeline::InitArgs args;
-    if (GrAATypeIsHW(fAAType)) {
+    if (fDoAA) {
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
     }
     args.fUserStencil = &kCoverPass;
@@ -77,11 +77,11 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrRecordingContext* context,
                                              const SkMatrix& viewMatrix,
                                              GrPaint&& paint,
-                                             GrAAType aaType,
+                                             GrAA aa,
                                              GrPath* path) {
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrDrawPathOp>(viewMatrix, std::move(paint), aaType, path);
+    return pool->allocate<GrDrawPathOp>(viewMatrix, std::move(paint), aa, path);
 }
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {

@@ -713,7 +713,7 @@ static void add_line(const SkPoint p[2],
 
 GrPathRenderer::CanDrawPath
 GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (GrAAType::kCoverage != args.fAAType) {
+    if (!(AATypeFlags::kCoverage & args.fAATypeFlags)) {
         return CanDrawPath::kNo;
     }
 
