@@ -162,14 +162,6 @@ void SkNWayCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
-void SkNWayCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
-                                    SkBlendMode mode) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->experimental_DrawEdgeAARectV1(rect, aa, color, mode);
-    }
-}
-
 void SkNWayCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
@@ -277,14 +269,6 @@ void SkNWayCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     }
 }
 
-void SkNWayCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
-                                  SkFilterQuality filterQuality, SkBlendMode mode) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->experimental_DrawImageSetV1(set, count, filterQuality, mode);
-    }
-}
-
 void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                   const SkPaint &paint) {
     Iter iter(fList);
@@ -345,6 +329,24 @@ void SkNWayCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData
     Iter iter(fList);
     while (iter.next()) {
         iter->drawAnnotation(rect, key, data);
+    }
+}
+
+void SkNWayCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+                                    QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->experimental_DrawEdgeAAQuad(rect, clip, aa, color, mode);
+    }
+}
+
+void SkNWayCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
+                                        const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                        const SkPaint* paint, SrcRectConstraint constraint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->experimental_DrawEdgeAAImageSet(
+                set, count, dstClips, preViewMatrices, paint, constraint);
     }
 }
 
