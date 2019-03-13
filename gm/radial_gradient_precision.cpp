@@ -10,9 +10,9 @@
 
 // All we're looking for here is that we see a smooth gradient.
 DEF_SIMPLE_GM(radial_gradient_precision, canvas, 200, 200) {
-    SkPoint  center   = {100000, 100000};
+    SkPoint  center   = {1000, 1000};
     SkScalar radius   = 40;
-    SkColor  colors[] = {SK_ColorBLACK, SK_ColorWHITE};
+    SkColor  colors[] = {SK_ColorBLACK, SK_ColorGREEN};
 
     SkPaint p;
     p.setShader(SkGradientShader::MakeRadial(center, radius,
