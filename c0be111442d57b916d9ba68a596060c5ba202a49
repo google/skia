@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89465fc0_5176fde6",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-13T19:32:04Z",
+      "side": 1,
+      "message": "This would disable mipmap support, which I believe Viz wanted.",
+      "range": {
+        "startLine": 52,
+        "startChar": 43,
+        "endLine": 53,
+        "endChar": 74
+      },
+      "revId": "c0be111442d57b916d9ba68a596060c5ba202a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "987dddbc_297b711f",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-13T19:32:04Z",
+      "side": 0,
+      "message": "Same here.",
+      "range": {
+        "startLine": 110,
+        "startChar": 2,
+        "endLine": 114,
+        "endChar": 5
+      },
+      "revId": "93b94512391327fb74b07d162aac8f1f677375f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
