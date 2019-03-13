@@ -40,7 +40,7 @@ protected:
 
 private:
     sk_sp<SkImage>  fImage;
-    SkFilterQuality fQuality   = kLow_SkFilterQuality;
+    SkFilterQuality fQuality   = kMedium_SkFilterQuality;
     bool            fAntiAlias = true;
 
     typedef RenderNode INHERITED;
