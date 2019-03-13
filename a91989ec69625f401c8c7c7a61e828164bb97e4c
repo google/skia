@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bdfb1978_eaba0442",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e8cb5d99_58c654f4",
+      "range": {
+        "startLine": 113,
+        "startChar": 12,
+        "endLine": 113,
+        "endChar": 14
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "712ec45c_6a210688",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -566,6 +590,30 @@
     },
     {
       "key": {
+        "uuid": "c174d638_f57864d5",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "lgtm",
+      "parentUuid": "742168d3_c390a459",
+      "range": {
+        "startLine": 86,
+        "startChar": 25,
+        "endLine": 86,
+        "endChar": 32
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65aaec01_886fbb62",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -704,6 +752,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30074b13_3bcd2640",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "We generally prefer to use a smart pointer over a raw pointer.",
+      "parentUuid": "514d0217_de9619b4",
+      "range": {
+        "startLine": 86,
+        "startChar": 32,
+        "endLine": 86,
+        "endChar": 42
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -848,6 +920,30 @@
     },
     {
       "key": {
+        "uuid": "ecafd9d6_6cfcee62",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "394a2cb8_0b9d5d7c",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 22
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f47b055_31b8c3a7",
         "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
         "patchSetId": 4
@@ -930,6 +1026,30 @@
       "side": 1,
       "message": "I don\u0027t think it makes sense to have a canvas with a non-integer width or height.",
       "parentUuid": "197b5f13_e3585503",
+      "range": {
+        "startLine": 30,
+        "startChar": 18,
+        "endLine": 30,
+        "endChar": 25
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a983aa59_73ba8b32",
+        "filename": "tools/debugger/SkDebugCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "112f6ed5_09267dfd",
       "range": {
         "startLine": 30,
         "startChar": 18,

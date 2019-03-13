@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a11681dd_1659fe4d",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "semicolons at the end of lines",
+      "range": {
+        "startLine": 53,
+        "startChar": 67,
+        "endLine": 53,
+        "endChar": 68
+      },
+      "revId": "4806d304759667acd7f1a3cdca69829b4156a981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d45e30f2_5a9c2ac5",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "space between ) and {",
+      "range": {
+        "startLine": 54,
+        "startChar": 42,
+        "endLine": 54,
+        "endChar": 44
+      },
+      "revId": "4806d304759667acd7f1a3cdca69829b4156a981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94840f54_48c92141",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "drive by substr -\u003e substring\n\n\"Why do we even have that lever\" meme",
+      "range": {
+        "startLine": 97,
+        "startChar": 54,
+        "endLine": 97,
+        "endChar": 60
+      },
+      "revId": "4806d304759667acd7f1a3cdca69829b4156a981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9b43ae5_a0d65e9e",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-13T15:00:53Z",
+      "side": 1,
+      "message": "links\n\n(links to what?  Other resources?)",
+      "range": {
+        "startLine": 90,
+        "startChar": 39,
+        "endLine": 90,
+        "endChar": 43
+      },
+      "revId": "4806d304759667acd7f1a3cdca69829b4156a981",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
