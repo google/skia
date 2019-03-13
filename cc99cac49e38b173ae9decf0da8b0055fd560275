@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "f4e02dcd_184f462e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2033,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-13T19:56:36Z",
+      "side": 1,
+      "message": "The extension spec requires that we use GL_BGRA8 for the \u003cinternalFormat\u003e if we call glTexStorage2D() vs GL_RGBA if we call glTexImage2D(). I\u0027m not sure if we know here which we are going to call if we create a kBGRA_8888_GrPixelConfig texture.",
+      "parentUuid": "8fe3d331_b98c41cc",
+      "range": {
+        "startLine": 2029,
+        "startChar": 8,
+        "endLine": 2033,
+        "endChar": 9
+      },
+      "revId": "cc99cac49e38b173ae9decf0da8b0055fd560275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fdb5fcc_2cb3e475",
         "filename": "tests/GrUploadPixelsTests.cpp",
         "patchSetId": 1
