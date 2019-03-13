@@ -337,6 +337,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     }
 
     auto image_node = sksg::Image::Make(image);
+    image_node->setQuality(kMedium_SkFilterQuality);
 
     if (asset_info->fAsset->isMultiFrame()) {
         class MultiFrameAnimator final : public sksg::Animator {
