@@ -56,7 +56,7 @@ GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t 
 GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     const GrShape& shape = *args.fShape;
-    if (GrAAType::kCoverage != args.fAAType || shape.style().hasPathEffect() ||
+    if (!(AATypeFlags::kCoverage & args.fAATypeFlags) || shape.style().hasPathEffect() ||
         args.fViewMatrix->hasPerspective() || shape.inverseFilled()) {
         return CanDrawPath::kNo;
     }

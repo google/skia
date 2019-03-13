@@ -114,6 +114,12 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
             path.toggleInverseFillType();
         }
 
+        // We only use this method when rendering coverage clip masks.
+        SkASSERT(GrFSAAType::kNone == renderTargetContext->fsaaType());
+        auto aaTypeFlags = (element->isAA())
+                ? GrPathRenderer::AATypeFlags::kCoverage
+                : GrPathRenderer::AATypeFlags::kNone;
+
         GrPathRendererChain::DrawType type =
                 needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
                              : GrPathRendererChain::DrawType::kColor;
@@ -124,10 +130,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
-                                             renderTargetContext->fsaaType(),
-                                             GrAllowMixedSamples::kYes,
-                                             *context->priv().caps());
+        canDrawArgs.fAATypeFlags = aaTypeFlags;
         SkASSERT(!renderTargetContext->wrapsVkSecondaryCB());
         canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;

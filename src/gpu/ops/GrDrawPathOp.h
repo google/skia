@@ -22,13 +22,12 @@ class GrRecordingContext;
 class GrDrawPathOpBase : public GrDrawOp {
 protected:
     GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&&,
-                     GrPathRendering::FillType, GrAAType);
+                     GrPathRendering::FillType, GrAA);
 
     FixedFunctionFlags fixedFunctionFlags() const override {
-        if (GrAATypeIsHW(fAAType)) {
-            return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
-        }
-        return FixedFunctionFlags::kUsesStencil;
+        return (fDoAA)
+                ? FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil
+                : FixedFunctionFlags::kUsesStencil;
     }
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
@@ -60,7 +59,7 @@ private:
     SkPMColor4f fInputColor;
     GrProcessorSet::Analysis fAnalysis;
     GrPathRendering::FillType fFillType;
-    GrAAType fAAType;
+    bool fDoAA;
     GrProcessorSet fProcessorSet;
 
     typedef GrDrawOp INHERITED;
@@ -70,11 +69,8 @@ class GrDrawPathOp final : public GrDrawPathOpBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                          const SkMatrix& viewMatrix,
-                                          GrPaint&&,
-                                          GrAAType,
-                                          GrPath*);
+    static std::unique_ptr<GrDrawOp> Make(
+            GrRecordingContext*, const SkMatrix& viewMatrix, GrPaint&&, GrAA, GrPath*);
 
     const char* name() const override { return "DrawPath"; }
 
@@ -85,8 +81,9 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAAType aaType, const GrPath* path)
-            : GrDrawPathOpBase(ClassID(), viewMatrix, std::move(paint), path->getFillType(), aaType)
+    GrDrawPathOp(const SkMatrix& viewMatrix, GrPaint&& paint, GrAA aa, const GrPath* path)
+            : GrDrawPathOpBase(
+                    ClassID(), viewMatrix, std::move(paint), path->getFillType(), aa)
             , fPath(path) {
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }

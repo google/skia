@@ -72,6 +72,17 @@ public:
         kYes
     };
 
+    /**
+     * This enum defines a set of flags indicating which AA methods would be acceptable for a path
+     * renderer to employ (if any) while drawing a given path.
+     */
+    enum class AATypeFlags {
+        kNone = 0,
+        kCoverage = (1 << 0),
+        kMSAA = (1 << 1),
+        kMixedSampledStencilThenCover = (1 << 2),
+    };
+
     struct CanDrawPathArgs {
         SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
@@ -79,7 +90,7 @@ public:
         const SkIRect*              fClipConservativeBounds;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
-        GrAAType                    fAAType;
+        AATypeFlags                 fAATypeFlags;
         bool                        fTargetIsWrappedVkSecondaryCB;
 
         // This is only used by GrStencilAndCoverPathRenderer
@@ -114,7 +125,7 @@ public:
         const SkIRect*               fClipConservativeBounds;
         const SkMatrix*              fViewMatrix;
         const GrShape*               fShape;
-        GrAAType                     fAAType;
+        AATypeFlags                  fAATypeFlags;
         bool                         fGammaCorrect;
 #ifdef SK_DEBUG
         void validate() const {
@@ -145,8 +156,8 @@ public:
         const GrHardClip*      fClip;
         const SkIRect*         fClipConservativeBounds;
         const SkMatrix*        fViewMatrix;
-        GrAAType               fAAType;
         const GrShape*         fShape;
+        GrAA                   fDoStencilMSAA;
 
         SkDEBUGCODE(void validate() const);
     };
@@ -201,5 +212,7 @@ private:
 
     typedef SkRefCnt INHERITED;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrPathRenderer::AATypeFlags);
 
 #endif

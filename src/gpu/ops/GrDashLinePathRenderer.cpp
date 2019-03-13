@@ -18,7 +18,7 @@ GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
     bool inverted;
     if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
-        if (args.fAAType == GrAAType::kMixedSamples) {
+        if (args.fAATypeFlags == AATypeFlags::kMixedSampledStencilThenCover) {
             return CanDrawPath::kNo;
         }
         // We should never have an inverse dashed case.
@@ -35,18 +35,15 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
     GrDashOp::AAMode aaMode = GrDashOp::AAMode::kNone;
-    switch (args.fAAType) {
-        case GrAAType::kNone:
-            break;
-        case GrAAType::kCoverage:
-        case GrAAType::kMixedSamples:
-            aaMode = GrDashOp::AAMode::kCoverage;
-            break;
-        case GrAAType::kMSAA:
+    if (AATypeFlags::kNone != args.fAATypeFlags) {
+        if (AATypeFlags::kMSAA & args.fAATypeFlags) {
             // In this mode we will use aa between dashes but the outer border uses MSAA. Otherwise,
             // we can wind up with external edges antialiased and internal edges unantialiased.
             aaMode = GrDashOp::AAMode::kCoverageWithMSAA;
-            break;
+        } else {
+            SkASSERT(AATypeFlags::kCoverage & args.fAATypeFlags);
+            aaMode = GrDashOp::AAMode::kCoverage;
+        }
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));

@@ -637,15 +637,19 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
 
 GrPathRenderer::CanDrawPath
 GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    bool isHairline = IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
+    bool isHairline = IsStrokeHairlineOrEquivalent(
+            args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) &&
         (args.fCaps->avoidStencilBuffers() || args.fTargetIsWrappedVkSecondaryCB)) {
         return CanDrawPath::kNo;
     }
-    // This can draw any path with any simple fill style but doesn't do coverage-based antialiasing.
-    if (GrAAType::kCoverage == args.fAAType ||
-        (!args.fShape->style().isSimpleFill() && !isHairline)) {
+    // If antialiasing is required, we only support MSAA.
+    if (AATypeFlags::kNone != args.fAATypeFlags && !(AATypeFlags::kMSAA & args.fAATypeFlags)) {
+        return CanDrawPath::kNo;
+    }
+    // This can draw any path with any simple fill style.
+    if (!args.fShape->style().isSimpleFill() && !isHairline) {
         return CanDrawPath::kNo;
     }
     // This is the fallback renderer for when a path is too complicated for the others to draw.
@@ -655,14 +659,13 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrDefaultPathRenderer::onDrawPath");
-    return this->internalDrawPath(args.fRenderTargetContext,
-                                  std::move(args.fPaint),
-                                  args.fAAType,
-                                  *args.fUserStencilSettings,
-                                  *args.fClip,
-                                  *args.fViewMatrix,
-                                  *args.fShape,
-                                  false);
+    GrAAType aaType = (AATypeFlags::kNone != args.fAATypeFlags)
+            ? GrAAType::kMSAA
+            : GrAAType::kNone;
+
+    return this->internalDrawPath(
+            args.fRenderTargetContext, std::move(args.fPaint), aaType, *args.fUserStencilSettings,
+            *args.fClip, *args.fViewMatrix, *args.fShape, false);
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
@@ -673,9 +676,11 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-    this->internalDrawPath(args.fRenderTargetContext, std::move(paint), args.fAAType,
-                           GrUserStencilSettings::kUnused, *args.fClip, *args.fViewMatrix,
-                           *args.fShape, true);
+    auto aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
+
+    this->internalDrawPath(
+            args.fRenderTargetContext, std::move(paint), aaType, GrUserStencilSettings::kUnused,
+            *args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
