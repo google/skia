@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50a255dd_25294e23",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-13T13:27:25Z",
+      "side": 1,
+      "message": "Maybe \"bicubicColor\" ? \"color\" is awfully generic for assembled code.",
+      "range": {
+        "startLine": 102,
+        "startChar": 35,
+        "endLine": 102,
+        "endChar": 40
+      },
+      "revId": "a299946a428246fafa0d2cfe4c7c0c1ab3d82e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a4a6eae_c853d98a",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-13T13:27:25Z",
+      "side": 1,
+      "message": "Randomize this ?",
+      "range": {
+        "startLine": 178,
+        "startChar": 33,
+        "endLine": 178,
+        "endChar": 52
+      },
+      "revId": "a299946a428246fafa0d2cfe4c7c0c1ab3d82e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
