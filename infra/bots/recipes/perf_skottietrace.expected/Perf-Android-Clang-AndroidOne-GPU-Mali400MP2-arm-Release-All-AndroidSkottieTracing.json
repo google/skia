@@ -1,0 +1,260 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/lottie-samples/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get lottie-samples VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/LOTTIE_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write LOTTIE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "rmtree [SWARM_OUT_DIR]"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "makedirs [SWARM_OUT_DIR]"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/lottie-samples"
+    ],
+    "infra_step": true,
+    "name": "list lottie files",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie1.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie2.json@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/build/dm",
+      "--resourcePath",
+      "[START_DIR]/skia/resources",
+      "--lotties",
+      "[START_DIR]/lottie-samples",
+      "--nocpu",
+      "--config",
+      "gles",
+      "--src",
+      "lottie",
+      "--nonativeFonts",
+      "--verbose",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "",
+      "swarming_task_id",
+      "",
+      "--trace",
+      "[START_DIR]/[SWARM_OUT_DIR]/trace-lottie1.json",
+      "--match",
+      "lottie1.json",
+      "--writePath",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/build/dm",
+      "--resourcePath",
+      "[START_DIR]/skia/resources",
+      "--lotties",
+      "[START_DIR]/lottie-samples",
+      "--nocpu",
+      "--config",
+      "gles",
+      "--src",
+      "lottie",
+      "--nonativeFonts",
+      "--verbose",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "",
+      "swarming_task_id",
+      "",
+      "--trace",
+      "[START_DIR]/[SWARM_OUT_DIR]/trace-lottie1.json",
+      "--match",
+      "lottie1.json",
+      "--writePath",
+      "[START_DIR]/[SWARM_OUT_DIR]",
+      "--trace",
+      "[START_DIR]/[SWARM_OUT_DIR]/trace-lottie2.json",
+      "--match",
+      "lottie2.json",
+      "--writePath",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/lottie-samples"
+    ],
+    "infra_step": true,
+    "name": "list lottie files (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie1.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie2.json@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/[SWARM_OUT_DIR]/trace-lottie1.json",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Read [START_DIR]/[SWARM_OUT_DIR]/trace-lottie1.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/[SWARM_OUT_DIR]/trace-lottie2.json",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Read [START_DIR]/[SWARM_OUT_DIR]/trace-lottie2.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "makedirs perf_dir"
+  },
+  {
+    "jsonResult": null,
+    "name": "$result"
+  }
+]
