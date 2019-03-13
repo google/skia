@@ -57,6 +57,7 @@ protected:
         SkPaint paint;
         SkFont font(fEmojiFont.fTypeface);
         font.setEdging(SkFont::Edging::kAlias);
+        font.setSubpixel(true);
 
         const char* text = fEmojiFont.fText;
 
@@ -107,6 +108,9 @@ protected:
         SkPaint paint;
         SkFont font;
         font.setTypeface(fEmojiFont.fTypeface);
+        font.setEdging(SkFont::Edging::kAlias);
+        font.setSubpixel(true);
+
         const char* text = fEmojiFont.fText;
 
         // draw text at different point sizes
@@ -121,12 +125,12 @@ protected:
 
             sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(text, font);
             // Draw with an origin.
-            canvas->drawTextBlob(blob, 10, y, paint);
+            canvas->drawTextBlob(blob, 10.3, y, paint);
 
             // Draw with shifted canvas.
             canvas->save();
             canvas->translate(750, 0);
-            canvas->drawTextBlob(blob, 10, y, paint);
+            canvas->drawTextBlob(blob, 10.9, y, paint);
             canvas->restore();
 
             y += metrics.fDescent + metrics.fLeading;
