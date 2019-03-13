@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad8a0926_b374da2d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-13T21:09:48Z",
+      "side": 1,
+      "message": "Could use kColorTypeCount? GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount \u003c\u003d 4)",
+      "range": {
+        "startLine": 648,
+        "startChar": 21,
+        "endLine": 648,
+        "endChar": 66
+      },
+      "revId": "7f01b4f2c85fc970883705c5bfd880feb49de264",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
