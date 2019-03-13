@@ -599,9 +599,9 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 }
 
 
-// This version of glyphMetrics only adds entries to result if their data need to be sent to the
-// GPU process.
-int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
+// This version of glyphDeviceMetrics only adds entries to result if their data need to be sent to
+// the GPU process.
+int SkStrikeServer::SkGlyphCacheState::glyphDeviceMetrics(
         const SkGlyphID glyphIDs[], const SkPoint positions[], int n, SkGlyphPos result[]) {
 
     int glyphsToSendCount = 0;
@@ -610,8 +610,42 @@ int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
         SkPoint glyphPos = *posCursor++;
         SkGlyphID glyphID = glyphIDs[i];
         SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
-        SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
-                                                    : SkPackedGlyphID{glyphID};
+        SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, lookupPoint};
+
+        // Check the cache for the glyph.
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
+
+        // Has this glyph ever been seen before?
+        if (glyphPtr == nullptr) {
+
+            // Never seen before. Make a new glyph.
+            glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+            fGlyphMap.set(glyphPtr);
+            this->ensureScalerContext();
+            fContext->getMetrics(glyphPtr);
+
+            result[glyphsToSendCount++] = {glyphPtr, glyphPos};
+
+            // Make sure to send the glyph to the GPU because we always send the image for a glyph.
+            fCachedGlyphImages.add(packedGlyphID);
+            fPendingGlyphImages.push_back(packedGlyphID);
+        }
+    }
+
+    return glyphsToSendCount;
+}
+
+// This version of glyphSourceMetrics only adds entries to result if their data need to be sent to
+// the GPU process.
+int SkStrikeServer::SkGlyphCacheState::glyphSourceMetrics(
+        const SkGlyphID glyphIDs[], const SkPoint positions[], int n, SkGlyphPos result[]) {
+
+    int glyphsToSendCount = 0;
+    const SkPoint* posCursor = positions;
+    for (int i = 0; i < n; i++) {
+        SkPoint glyphPos = *posCursor++;
+        SkGlyphID glyphID = glyphIDs[i];
+        SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID};
 
         // Check the cache for the glyph.
         SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);

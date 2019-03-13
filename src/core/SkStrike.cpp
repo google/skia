@@ -237,10 +237,10 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
-int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
-                 const SkPoint positions[],
-                 int n,
-                 SkGlyphPos result[]) {
+int SkStrike::glyphDeviceMetrics(const SkGlyphID glyphIDs[],
+                                 const SkPoint positions[],
+                                 int n,
+                                 SkGlyphPos result[]) {
 
     int drawableGlyphCount = 0;
     const SkPoint* posCursor = positions;
@@ -248,6 +248,26 @@ int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
         SkPoint glyphPos = *posCursor++;
         if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
             const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
+            if (!glyph.isEmpty()) {
+                result[drawableGlyphCount++] = {&glyph, glyphPos};
+            }
+        }
+    }
+
+    return drawableGlyphCount;
+}
+
+int
+SkStrike::glyphSourceMetrics(const SkGlyphID glyphIDs[],
+                             const SkPoint positions[],
+                             int n,
+                             SkGlyphPos result[]) {
+    int drawableGlyphCount = 0;
+    const SkPoint* posCursor = positions;
+    for (int i = 0; i < n; i++) {
+        SkPoint glyphPos = *posCursor++;
+        if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
+            const SkGlyph& glyph = this->getGlyphIDMetrics(glyphIDs[i]);
             if (!glyph.isEmpty()) {
                 result[drawableGlyphCount++] = {&glyph, glyphPos};
             }
@@ -467,6 +487,7 @@ void SkStrike::validate() const {
     forceValidate();
 #endif
 }
+
 #endif  // SK_DEBUG
 
 

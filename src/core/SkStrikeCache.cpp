@@ -36,11 +36,15 @@ public:
         return fStrike.getGlyphMetrics(glyphID, position);
     }
 
-    int glyphMetrics(
+    int glyphDeviceMetrics(
             const SkGlyphID id[], const SkPoint point[], int n, SkGlyphPos result[]) override {
-        return fStrike.glyphMetrics(id, point, n, result);
+        return fStrike.glyphDeviceMetrics(id, point, n, result);
     }
 
+    int glyphSourceMetrics(
+            const SkGlyphID id[], const SkPoint point[], int n, SkGlyphPos result[]) override {
+        return fStrike.glyphSourceMetrics(id, point, n, result);
+    }
 
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override {
         return fStrike.decideCouldDrawFromPath(glyph);
