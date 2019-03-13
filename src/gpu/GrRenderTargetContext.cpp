@@ -119,54 +119,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType, GrAllowMixedSamples allowMixedSamples,
-                        const GrCaps& caps) {
-    if (GrAA::kNo == aa) {
-        // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
-        // that.
-        if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
-            return GrAAType::kMSAA;
-        }
-        return GrAAType::kNone;
-    }
-    switch (fsaaType) {
-        case GrFSAAType::kNone:
-            return GrAAType::kCoverage;
-        case GrFSAAType::kUnifiedMSAA:
-            return GrAAType::kMSAA;
-        case GrFSAAType::kMixedSamples:
-            return GrAllowMixedSamples::kYes == allowMixedSamples ? GrAAType::kMixedSamples
-                                                                  : GrAAType::kCoverage;
-    }
-    SK_ABORT("Unexpected fsaa type");
-    return GrAAType::kNone;
-}
-
-static inline GrPathRenderer::AATypeFlags choose_path_aa_type_flags(
-        GrAA aa, GrFSAAType fsaaType, const GrCaps& caps) {
-    using AATypeFlags = GrPathRenderer::AATypeFlags;
-    if (GrAA::kNo == aa) {
-        // On some devices we cannot disable MSAA if it is enabled so we make the AA type flags
-        // reflect that.
-        if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
-            return AATypeFlags::kMSAA;
-        }
-        return AATypeFlags::kNone;
-    }
-    switch (fsaaType) {
-        case GrFSAAType::kNone:
-            return AATypeFlags::kCoverage;
-        case GrFSAAType::kMixedSamples:
-            return AATypeFlags::kCoverage | AATypeFlags::kMixedSampledStencilThenCover;
-        case GrFSAAType::kUnifiedMSAA:
-            return AATypeFlags::kMSAA;
-    }
-    SK_ABORT("Invalid GrFSAAType.");
-    return AATypeFlags::kNone;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 class AutoCheckFlush {
 public:
     AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
@@ -216,6 +168,50 @@ void GrRenderTargetContext::validate() const {
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
+}
+
+inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
+    auto fsaaType = this->fsaaType();
+    if (GrAA::kNo == aa) {
+        // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
+        // that.
+        if (fsaaType == GrFSAAType::kUnifiedMSAA && !this->caps()->multisampleDisableSupport()) {
+            return GrAAType::kMSAA;
+        }
+        return GrAAType::kNone;
+    }
+    switch (fsaaType) {
+        case GrFSAAType::kNone:
+        case GrFSAAType::kMixedSamples:
+            return GrAAType::kCoverage;
+        case GrFSAAType::kUnifiedMSAA:
+            return GrAAType::kMSAA;
+    }
+    SK_ABORT("Unexpected fsaa type");
+    return GrAAType::kNone;
+}
+
+static inline GrPathRenderer::AATypeFlags choose_path_aa_type_flags(
+        GrAA aa, GrFSAAType fsaaType, const GrCaps& caps) {
+    using AATypeFlags = GrPathRenderer::AATypeFlags;
+    if (GrAA::kNo == aa) {
+        // On some devices we cannot disable MSAA if it is enabled so we make the AA type flags
+        // reflect that.
+        if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
+            return AATypeFlags::kMSAA;
+        }
+        return AATypeFlags::kNone;
+    }
+    switch (fsaaType) {
+        case GrFSAAType::kNone:
+            return AATypeFlags::kCoverage;
+        case GrFSAAType::kMixedSamples:
+            return AATypeFlags::kCoverage | AATypeFlags::kMixedSampledStencilThenCover;
+        case GrFSAAType::kUnifiedMSAA:
+            return AATypeFlags::kMSAA;
+    }
+    SK_ABORT("Invalid GrFSAAType.");
+    return AATypeFlags::kNone;
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -659,7 +655,7 @@ bool GrRenderTargetContext::drawFilledRectAsClear(const GrClip& clip, GrPaint&& 
     if (clipAA == GrAA::kYes) {
         aa = GrAA::kYes;
     }
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(GrFixedClip::Disabled(),
                     GrFillRectOp::Make(fContext, std::move(paint), aaType, SkMatrix::I(),
                                        combinedRect));
@@ -687,7 +683,7 @@ void GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         return;
     }
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(clip, GrFillRectOp::Make(fContext, std::move(paint), aaType, viewMatrix,
                                              croppedRect, ss));
 }
@@ -752,7 +748,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
         std::unique_ptr<GrDrawOp> op;
 
-        GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+        GrAAType aaType = this->chooseAAType(aa);
         op = GrStrokeRectOp::Make(fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
         // does not preserve rectangles.
@@ -768,7 +764,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 void GrRenderTargetContext::drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa,
                                         const SkMatrix& viewMatrix, const QuadSetEntry quads[],
                                         int cnt) {
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(clip, GrFillRectOp::MakeSet(fContext, std::move(paint), aaType, viewMatrix,
                                                 quads, cnt));
 }
@@ -908,7 +904,7 @@ void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& pai
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectWithEdgeAA", fContext);
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     std::unique_ptr<GrDrawOp> op;
 
     if (localRect) {
@@ -955,7 +951,7 @@ void GrRenderTargetContext::fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& pai
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillQuadWithEdgeAA", fContext);
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
 
     AutoCheckFlush acf(this->drawingManager());
     // MakePerEdgeQuad automatically does the right thing if localQuad is null or not
@@ -1004,7 +1000,7 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     SkRect clippedDstRect = dstRect;
     SkRect clippedSrcRect = srcRect;
     if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &clippedDstRect,
@@ -1053,7 +1049,7 @@ void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureP
         domain = nullptr;
     }
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
 
     // Unlike drawTexture(), don't bother cropping or optimizing the filter type since we're
     // sampling an arbitrary quad of the texture.
@@ -1117,7 +1113,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
     } else {
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
         AutoCheckFlush acf(this->drawingManager());
-        GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+        GrAAType aaType = this->chooseAAType(aa);
         auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, aaType, viewMatrix,
                                        std::move(texXform));
         this->addDrawOp(clip, std::move(op));
@@ -1142,7 +1138,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     this->addDrawOp(clip, GrFillRectOp::MakeWithLocalMatrix(fContext, std::move(paint), aaType,
                                                             viewMatrix, localMatrix, croppedRect));
 }
@@ -1162,7 +1158,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             fContext, std::move(paint), std::move(vertices), bones, boneCount, viewMatrix, aaType,
             this->colorSpaceInfo().refColorSpaceXformFromSRGB(), overridePrimType);
@@ -1185,7 +1181,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
                                                        aaType, spriteCount, xform, texRect, colors);
     this->addDrawOp(clip, std::move(op));
@@ -1226,7 +1222,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         std::unique_ptr<GrDrawOp> op;
         if (style.isSimpleFill()) {
@@ -1463,7 +1459,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
 
     SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
 
     if (GrAAType::kMSAA == aaType) {
         return false;
@@ -1602,7 +1598,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
-    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(fContext, std::move(paint), viewMatrix, region,
                                                     aaType, ss);
     this->addDrawOp(clip, std::move(op));
@@ -1632,7 +1628,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         std::unique_ptr<GrDrawOp> op;
         // GrAAFillRRectOp has special geometry and a fragment-shader branch to conditionally
@@ -1680,7 +1676,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(fContext,
@@ -1824,7 +1820,7 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     if (!shape.style().hasPathEffect()) {
-        GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+        GrAAType aaType = this->chooseAAType(aa);
         SkRRect rrect;
         // We can ignore the starting point and direction since there is no path effect.
         bool inverted;
