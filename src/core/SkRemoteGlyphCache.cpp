@@ -126,6 +126,7 @@ public:
     bool readDescriptor(SkAutoDescriptor* ad) {
         uint32_t descLength = 0u;
         if (!read<uint32_t>(&descLength)) return false;
+        if (descLength < sizeof(SkDescriptor)) return false;
 
         auto* result = this->ensureAtLeast(descLength, alignof(SkDescriptor));
         if (!result) return false;
