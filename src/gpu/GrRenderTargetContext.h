@@ -466,9 +466,7 @@ protected:
 private:
     class TextTarget;
 
-    inline GrAAType chooseAAType(GrAA aa, GrAllowMixedSamples allowMixedSamples) {
-        return GrChooseAAType(aa, this->fsaaType(), allowMixedSamples, *this->caps());
-    }
+    GrAAType chooseAAType(GrAA);
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrClipStackClip;               // for access to getOpList
