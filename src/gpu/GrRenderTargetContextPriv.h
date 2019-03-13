@@ -64,11 +64,11 @@ public:
 
     void stencilRect(const GrHardClip&,
                      const GrUserStencilSettings* ss,
-                     GrAAType,
+                     GrAA doMSAA,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 
-    void stencilPath(const GrHardClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
+    void stencilPath(const GrHardClip&, GrAA doMSAA, const SkMatrix& viewMatrix, const GrPath*);
 
     /**
      * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
@@ -78,7 +78,7 @@ public:
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
-                            GrAA,
+                            GrAA doStencilMSAA,
                             const SkMatrix& viewMatrix,
                             const SkRect&);
 
@@ -90,7 +90,7 @@ public:
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
-                            GrAA,
+                            GrAA doStencilMSAA,
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
