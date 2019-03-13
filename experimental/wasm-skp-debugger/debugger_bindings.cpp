@@ -6,8 +6,11 @@
  */
 
 #include "SkDebugCanvas.h"
+#include "SkJSONWriter.h"
 #include "SkPicture.h"
 #include "SkSurface.h"
+#include "UrlDataManager.h"
+
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -28,7 +31,6 @@ class SkpDebugPlayer {
   public:
     SkpDebugPlayer() {}
 
-
     /* loadSkp deserializes a skp file that has been copied into the shared WASM memory.
      * cptr - a pointer to the data to deserialize.
      * length - length of the data in bytes.
@@ -41,9 +43,6 @@ class SkpDebugPlayer {
      */
     void loadSkp(uintptr_t cptr, int length) {
       const auto* data = reinterpret_cast<const uint8_t*>(cptr);
-      // todo: pass in bounds
-      fDebugCanvas.reset(new SkDebugCanvas(720, 1280));
-      SkDebugf("SkDebugCanvas created.\n");
       // note overloaded = operator that actually does a move
       fPicture = SkPicture::MakeFromData(data, length);
       if (!fPicture) {
@@ -51,6 +50,11 @@ class SkpDebugPlayer {
         return;
       }
       SkDebugf("Parsed SKP file.\n");
+      // Make debug canvas using bounds from SkPicture
+      fBounds = fPicture->cullRect().roundOut();
+      fDebugCanvas.reset(new SkDebugCanvas(fBounds));
+      SkDebugf("SkDebugCanvas created.\n");
+
       // Only draw picture to the debug canvas once.
       fDebugCanvas->drawPicture(fPicture);
       SkDebugf("Added picture with %d commands.\n", fDebugCanvas->getSize());
@@ -64,10 +68,49 @@ class SkpDebugPlayer {
       surface->getCanvas()->flush();
     }
 
+    const SkIRect& getBounds() { return fBounds; }
+
+    void setOverdrawVis(bool on) { fDebugCanvas->setOverdrawViz(on); }
+    void setGpuOpBounds(bool on) { fDebugCanvas->setDrawGpuOpBounds(on); }
+    void setClipVizColor(JSColor color) {
+      SkDebugf("Setting clip vis color to %d\n", color);
+      fDebugCanvas->setClipVizColor(SkColor(color));
+    }
+    int getSize() const { return fDebugCanvas->getSize(); }
+    void deleteCommand(int index) { fDebugCanvas->deleteDrawCommandAt(index); }
+    void setCommandVisibility(int index, bool visible) {
+      fDebugCanvas->toggleCommand(index, visible);
+    }
+
+    // Return the command list in JSON representation as a string
+    std::string jsonCommandList(sk_sp<SkSurface> surface) {
+      SkDynamicMemoryWStream stream;
+      SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+      // Note that the root url provided here may need to change in the production deployment.
+      // this will be prepended to any links that are created in the json command list.
+      UrlDataManager udm(SkString("/"));
+      writer.beginObject(); // root
+
+      // Some vals currently hardcoded until gpu is supported
+      writer.appendString("mode", "cpu");
+      writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
+      writer.appendS32("colorMode", SkColorType::kRGBA_8888_SkColorType);
+      fDebugCanvas->toJSON(writer, udm, getSize(), surface->getCanvas());
+
+      writer.endObject(); // root
+      writer.flush();
+      auto skdata = stream.detachAsData();
+      // Convert skdata to string_view, which accepts a length
+      std::string_view data_view(reinterpret_cast<const char*>(skdata->data()), skdata->size());
+      // and string_view to string, which emscripten understands.
+      return std::string(data_view);
+    }
+
   private:
     // admission of ignorance - don't know when to use unique pointer or sk_sp
     std::unique_ptr<SkDebugCanvas> fDebugCanvas;
     sk_sp<SkPicture> fPicture;
+    SkIRect fBounds;
 };
 
 using namespace emscripten;
@@ -76,8 +119,22 @@ EMSCRIPTEN_BINDINGS(my_module) {
   // The main class that the JavaScript in index.html uses
   class_<SkpDebugPlayer>("SkpDebugPlayer")
     .constructor<>()
-    .function("loadSkp", &SkpDebugPlayer::loadSkp, allow_raw_pointers())
-    .function("drawTo", &SkpDebugPlayer::drawTo, allow_raw_pointers());
+    .function("loadSkp",              &SkpDebugPlayer::loadSkp, allow_raw_pointers())
+    .function("drawTo",               &SkpDebugPlayer::drawTo, allow_raw_pointers())
+    .function("getBounds",            &SkpDebugPlayer::getBounds)
+    .function("setOverdrawVis",       &SkpDebugPlayer::setOverdrawVis)
+    .function("setClipVizColor",      &SkpDebugPlayer::setClipVizColor)
+    .function("getSize",              &SkpDebugPlayer::getSize)
+    .function("deleteCommand",        &SkpDebugPlayer::deleteCommand)
+    .function("setCommandVisibility", &SkpDebugPlayer::setCommandVisibility)
+    .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers());
+
+  // Structs used as arguments or returns to the functions above
+  value_object<SkIRect>("SkIRect")
+      .field("fLeft",   &SkIRect::fLeft)
+      .field("fTop",    &SkIRect::fTop)
+      .field("fRight",  &SkIRect::fRight)
+      .field("fBottom", &SkIRect::fBottom);
 
   // Symbols needed by cpu.js to perform surface creation and flushing.
   enum_<SkColorType>("ColorType")
