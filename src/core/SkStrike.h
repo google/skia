@@ -136,7 +136,8 @@ public:
                             this->getScalerContext()->getEffects()};
     }
 
-    int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) override;
+    int glyphDeviceMetrics(const SkGlyphID[], const SkPoint[], int, SkGlyphPos[]) override;
+    int glyphSourceMetrics(const SkGlyphID[], const SkPoint[], int, SkGlyphPos[]) override;
 
     void onAboutToExitScope() override;
 
