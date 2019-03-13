@@ -266,8 +266,8 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
         for (int x = (y & 1) == flip ? 0 : kMaskCheckerSize;
              x < kDeviceRect.width(); x += 2 * kMaskCheckerSize) {
             SkIRect checker = SkIRect::MakeXYWH(x, y, kMaskCheckerSize, kMaskCheckerSize);
-            rtc->priv().stencilRect(GrNoClip(), &kSetClip, GrAAType::kNone, SkMatrix::I(),
-                                    SkRect::Make(checker));
+            rtc->priv().stencilRect(
+                    GrNoClip(), &kSetClip, GrAA::kNo, SkMatrix::I(), SkRect::Make(checker));
         }
     }
 }
