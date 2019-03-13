@@ -1124,7 +1124,6 @@ BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
 
 BLEND_MODE(modulate) { return s*d; }
 BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-BLEND_MODE(plus_)    { return min(s + d, 1.0f); }  // We can clamp to either 1 or sa.
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 #undef BLEND_MODE
@@ -1180,6 +1179,17 @@ BLEND_MODE(softlight) {
     return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
 }
 #undef BLEND_MODE
+
+STAGE(plus_, Ctx::None) {
+    // We don't clamp here in case the destination supports non-normalized colors.
+    r += dr;
+    g += dg;
+    b += db;
+    a += da;
+
+    // We do clamp alpha, because alpha > 1 is not something we're prepared to admit makes sense.
+    a = min(a, 1);
+}
 
 // We're basing our implemenation of non-separable blend modes on
 //   https://www.w3.org/TR/compositing-1/#blendingnonseparable.
@@ -2696,7 +2706,11 @@ STAGE_PP(move_dst_src, Ctx::None) {
     BLEND_MODE(dstover)  { return d + div255( s*inv(da) ); }
     BLEND_MODE(modulate) { return div255( s*d ); }
     BLEND_MODE(multiply) { return div255( s*inv(da) + d*inv(sa) + s*d ); }
-    BLEND_MODE(plus_)    { return min(s+d, 255); }
+    BLEND_MODE(plus_)    {
+        // N.B. we're clamping all channels to 255 (1.0) here due to format limitations.
+        // In the float code we only clamp alpha.
+        return min(s+d, 255);
+    }
     BLEND_MODE(screen)   { return s + d - div255( s*d ); }
     BLEND_MODE(xor_)     { return div255( s*inv(da) + d*inv(sa) ); }
 #undef BLEND_MODE
