@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a97d0f6_dd1da9e9",
+        "filename": "src/core/SkEffectPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-13T23:55:12Z",
+      "side": 1,
+      "message": "Can. How about fDstColorType? We seem to always pass the struct as const itself too.",
+      "parentUuid": "92040ea6_059dda54",
+      "revId": "3d13b9747a8277d8f773ae0964d55aaa257f607f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bada98f2_4cb4d740",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 3
