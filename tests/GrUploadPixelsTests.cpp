@@ -96,6 +96,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrUploadPixelsTests, reporter, ctxInfo) {
     basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, true);
 
     // BGRA
+#ifndef SK_BUILD_FOR_IOS
     basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, false);
     basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, true);
+#endif
 }

@@ -2026,7 +2026,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     //     ES 3.0: the extension explicitly states GL_BGRA8 is not a valid internal format for
     //             glTexImage (just for glTexStorage).
     if (useSizedTexFormats && this->bgraIsInternalFormat()) {
-        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
+        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_RGBA;
+        } else {
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
+        }
     }
 
     // If we don't have texture swizzle support then the shader generator must insert the
