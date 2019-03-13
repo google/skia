@@ -309,10 +309,10 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *runFont.getTypefaceOrDefault());
 
-        int drawableGlyphCount = strike->glyphMetrics(fARGBGlyphsIDs.data(),
-                                                      fARGBPositions.data(),
-                                                      fARGBGlyphsIDs.size(),
-                                                      fGlyphPos);
+        int drawableGlyphCount = strike->glyphDeviceMetrics(fARGBGlyphsIDs.data(),
+                                                            fARGBPositions.data(),
+                                                            fARGBGlyphsIDs.size(),
+                                                            fGlyphPos);
 
         process->processDeviceFallback(
                 SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(drawableGlyphCount)},
@@ -366,7 +366,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
         int glyphCount = 0;
         for (SkGlyphID glyphID : fARGBGlyphsIDs) {
             SkPoint pos = *posCursor++;
-            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, pos);
+            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
             fGlyphPos[glyphCount++] = {&glyph, pos};
         }
 
@@ -491,6 +491,10 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             // the source.
             SkScalar strikeToSourceRatio = pathFont.setupForAsPaths(&pathPaint);
 
+            // Translate all the positions by the new origin.
+            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
+            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
+
             SkAutoDescriptor ad;
             SkScalerContextEffects effects;
             SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
@@ -504,32 +508,31 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fStrikeCache->findOrCreateScopedStrike(
                             *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
 
-            int glyphCount = 0;
-            const SkPoint* positionCursor = glyphRun.positions().data();
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint glyphPos = origin + *positionCursor++;
+            int drawableCount = strike->glyphSourceMetrics(
+                    glyphRun.glyphsIDs().data(),
+                    fPositions,
+                    glyphRun.glyphsIDs().size(),
+                    fGlyphPos);
 
-                // Use outline from {0, 0} because all transforms including subpixel translation
-                // happen during drawing.
-                const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
-                if (!glyph.isEmpty()) {
-                    if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-                        if (strike->decideCouldDrawFromPath(glyph)) {
-                            fGlyphPos[glyphCount++] = {&glyph, glyphPos};
-                        }
+            int glyphWithPathCount = 0;
+            for (int i = 0; i < drawableCount; i++) {
+                const SkGlyph& glyph = *fGlyphPos[i].glyph;
+                if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                    if (strike->decideCouldDrawFromPath(glyph)) {
+                        fGlyphPos[glyphWithPathCount++] = fGlyphPos[i];
                     } else {
                         SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
                         maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
-                        fARGBGlyphsIDs.push_back(glyphID);
-                        fARGBPositions.push_back(glyphPos);
+                        fARGBGlyphsIDs.push_back(glyph.getGlyphID());
+                        fARGBPositions.push_back(fGlyphPos[i].position);
                     }
                 }
             }
 
             if (process) {
-                if (glyphCount > 0) {
+                if (glyphWithPathCount > 0) {
                     process->processSourcePaths(
-                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphWithPathCount)},
                             strike.get(),
                             strikeToSourceRatio);
                 }
@@ -561,9 +564,9 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.preTranslate(origin.x(), origin.y());
             SkVector rounding = strike->rounding();
             mapping.postTranslate(rounding.x(), rounding.y());
-            mapping.mapPoints(fPositions,  glyphRun.positions().data(), glyphRun.runSize());
+            mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
-            int drawableGlyphCount = strike->glyphMetrics(
+            int drawableGlyphCount = strike->glyphDeviceMetrics(
                     glyphRun.glyphsIDs().data(),
                     fPositions,
                     glyphRun.glyphsIDs().size(),
