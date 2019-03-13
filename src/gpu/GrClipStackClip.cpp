@@ -124,10 +124,9 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
-                                             renderTargetContext->fsaaType(),
-                                             GrAllowMixedSamples::kYes,
-                                             *context->priv().caps());
+        canDrawArgs.fAATypeFlags = (element->isAA())
+                ? GrPathRenderer::AATypeFlags::kCoverage
+                : GrPathRenderer::AATypeFlags::kNone;
         SkASSERT(!renderTargetContext->wrapsVkSecondaryCB());
         canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;

@@ -39,7 +39,7 @@ GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 
 GrPathRenderer::CanDrawPath
 GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (GrAAType::kCoverage != args.fAAType) {
+    if (!(AATypeFlags::kCoverage & args.fAATypeFlags)) {
         return CanDrawPath::kNo;
     }
     if (!args.fShape->knownToBeConvex()) {
