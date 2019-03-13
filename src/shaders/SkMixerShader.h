@@ -30,7 +30,7 @@ public:
 protected:
     SkShader_Mixer(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    bool onAppendStages(const StageRec&) const override;
+    bool onAppendStages(const SkStageRec&) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkShader_Mixer)
