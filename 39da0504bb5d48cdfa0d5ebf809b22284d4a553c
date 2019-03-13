@@ -46,6 +46,30 @@
       "revId": "39da0504bb5d48cdfa0d5ebf809b22284d4a553c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ca39cbe_4be29658",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1945,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-13T14:36:39Z",
+      "side": 0,
+      "message": "Ah, ok. And the old comment was referencing default, but that is lower on the chain than AA hairline, so I guess we\u0027re safe.",
+      "parentUuid": "88e99aec_5b38ea45",
+      "range": {
+        "startLine": 1940,
+        "startChar": 0,
+        "endLine": 1945,
+        "endChar": 80
+      },
+      "revId": "39da0504bb5d48cdfa0d5ebf809b22284d4a553c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
