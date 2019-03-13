@@ -313,14 +313,6 @@ enum class GrFSAAType {
 };
 
 /**
- * Not all drawing code paths support using mixed samples when available and instead use
- * coverage-based aa.
- */
-enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
-
-GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
-
-/**
  * A number of rectangle/quadrilateral drawing APIs can control anti-aliasing on a per edge basis.
  * These masks specify which edges are AA'ed. The intent for this is to support tiling with seamless
  * boundaries, where the inner edges are non-AA and the outer edges are AA. Regular draws (where AA
