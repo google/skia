@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8cb5d99_58c654f4",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "I did this because I used std::string_view\nIt may not have been necessary, but it seemed like a straight-forward way to solve my problem.",
+      "parentUuid": "45dc1b4f_c6595f98",
+      "range": {
+        "startLine": 113,
+        "startChar": 12,
+        "endLine": 113,
+        "endChar": 14
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "712ec45c_6a210688",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c104a97_dc84f9b8",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "712ec45c_6a210688",
+      "range": {
+        "startLine": 13,
+        "startChar": 2,
+        "endLine": 13,
+        "endChar": 5
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4e2e5e09_ab0df174",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5f0ac97_89b3f2f7",
+      "range": {
+        "startLine": 39,
+        "startChar": 6,
+        "endLine": 39,
+        "endChar": 39
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d7ebe71_a03c437e",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f8abe84_780ad39b",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d7ebe71_a03c437e",
+      "range": {
+        "startLine": 45,
+        "startChar": 39,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "0b91facb_e0ce4ce9",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "531ba7b4_ca5f2bdc",
+      "range": {
+        "startLine": 57,
+        "startChar": 15,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d55c8096_0948f750",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d493ab37_5078a936",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d55c8096_0948f750",
+      "range": {
+        "startLine": 74,
+        "startChar": 42,
+        "endLine": 74,
+        "endChar": 44
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "4177b795_544e7e85",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a0ca805_c5b80356",
+      "range": {
+        "startLine": 76,
+        "startChar": 7,
+        "endLine": 76,
+        "endChar": 12
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed71983c_3db9e4fe",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "52e157c5_973e035b",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed71983c_3db9e4fe",
+      "range": {
+        "startLine": 78,
+        "startChar": 27,
+        "endLine": 78,
+        "endChar": 38
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f059dbfd_79a67f9b",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -206,6 +398,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73c714d9_1a5a92ce",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "I picked an amount (30%) because the built in color picker in chrome didn\u0027t have an alpha picker. And clip viz needs to be semi-transparent. The purpose of this minimal UI is just to convince me that all these hooks work before connecting them to the real debugger UI.",
+      "parentUuid": "f059dbfd_79a67f9b",
+      "range": {
+        "startLine": 85,
+        "startChar": 23,
+        "endLine": 85,
+        "endChar": 27
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +494,78 @@
     },
     {
       "key": {
+        "uuid": "270b5836_59b4d6b9",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60f8f585_a739f2a6",
+      "range": {
+        "startLine": 86,
+        "startChar": 6,
+        "endLine": 86,
+        "endChar": 7
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9517aa7d_bc741971",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e4ee651_f50c7964",
+      "range": {
+        "startLine": 86,
+        "startChar": 39,
+        "endLine": 86,
+        "endChar": 45
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "742168d3_c390a459",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "I\u0027ve commented on what I\u0027m doing. How\u0027s that?",
+      "parentUuid": "b60a142d_2f370b2e",
+      "range": {
+        "startLine": 86,
+        "startChar": 25,
+        "endLine": 86,
+        "endChar": 32
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65aaec01_886fbb62",
         "filename": "experimental/wasm-skp-debugger/debugger/index.html",
         "patchSetId": 4
@@ -298,6 +586,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a719f4dd_15001c7d",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65aaec01_886fbb62",
+      "range": {
+        "startLine": 92,
+        "startChar": 29,
+        "endLine": 92,
+        "endChar": 30
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "1ada65d9_7d4a549a",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "610261f1_0639b1c8",
+      "range": {
+        "startLine": 71,
+        "startChar": 31,
+        "endLine": 71,
+        "endChar": 38
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92f5ae2c_c8315a1b",
         "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
         "patchSetId": 4
@@ -335,6 +671,30 @@
       "writtenOn": "2019-03-12T15:35:03Z",
       "side": 1,
       "message": "Shouldn\u0027t this be sk_sp\u003cSkSurface\u003e ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 32,
+        "endLine": 86,
+        "endChar": 42
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "514d0217_de9619b4",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "It seems to work, but why do you suggest it?\n\nI think that ideally this method would not require a surface, but fDebugCanvas-\u003etoJSON seems to require a canvas to serialize commands, and I cannot save the reference from a prior drawTo call since I can\u0027t guarantee that will have already happened.",
+      "parentUuid": "92f5ae2c_c8315a1b",
       "range": {
         "startLine": 86,
         "startChar": 32,
@@ -370,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "2cfcfe8f_796e4ec9",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8413323_3949f671",
+      "range": {
+        "startLine": 89,
+        "startChar": 41,
+        "endLine": 89,
+        "endChar": 49
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30154fc0_136a53ce",
         "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
         "patchSetId": 4
@@ -393,6 +777,30 @@
     },
     {
       "key": {
+        "uuid": "b2dc35cc_7e10c9d3",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "No, this information was never in the SKP. I think it is currently the way skiaserve informs the debugger frontend what these settings were set to. I don\u0027t know why that\u0027s necessary if the frontend controls them, but I\u0027m trying to leave the json format unchanged so nothing breaks when I attempt to connect this wasm module to it.",
+      "parentUuid": "30154fc0_136a53ce",
+      "range": {
+        "startLine": 92,
+        "startChar": 9,
+        "endLine": 92,
+        "endChar": 61
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e79b9cb6_b44dc1a9",
         "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
         "patchSetId": 4
@@ -404,6 +812,30 @@
       "writtenOn": "2019-03-12T15:35:03Z",
       "side": 1,
       "message": "I think you could also use SkString here - not sure if it\u0027s easier to work with",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 22
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "394a2cb8_0b9d5d7c",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "It doesn\u0027t appear to offer a straightforward way to convert to std::string which is what emscripten needs this return type to be.",
+      "parentUuid": "e79b9cb6_b44dc1a9",
       "range": {
         "startLine": 102,
         "startChar": 6,
@@ -439,6 +871,30 @@
     },
     {
       "key": {
+        "uuid": "4291f843_e8ae442e",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f47b055_31b8c3a7",
+      "range": {
+        "startLine": 128,
+        "startChar": 32,
+        "endLine": 128,
+        "endChar": 35
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "197b5f13_e3585503",
         "filename": "tools/debugger/SkDebugCanvas.h",
         "patchSetId": 4
@@ -459,6 +915,30 @@
       "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "112f6ed5_09267dfd",
+        "filename": "tools/debugger/SkDebugCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-13T14:50:12Z",
+      "side": 1,
+      "message": "I don\u0027t think it makes sense to have a canvas with a non-integer width or height.",
+      "parentUuid": "197b5f13_e3585503",
+      "range": {
+        "startLine": 30,
+        "startChar": 18,
+        "endLine": 30,
+        "endChar": 25
+      },
+      "revId": "a91989ec69625f401c8c7c7a61e828164bb97e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
