@@ -266,7 +266,8 @@ void SkGlyphRunListPainter::processARGBFallback(
 
     // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
     bool useFastPath =
-            viewMatrix.isScaleTranslate() && conservativeMaxGlyphDimension <= maxGlyphDimension;
+            viewMatrix.isScaleTranslate()
+            && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
 
     auto glyphIDs = SkSpan<const SkGlyphID>{fARGBGlyphsIDs};
 
