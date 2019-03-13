@@ -1280,6 +1280,14 @@ bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
 
 /////////////////////////////////////////////////////////////////////////////
 
+// In our current design/features, we should never have a layer (src) in a different colorspace
+// than its parent (dst), so we assert that here. This is called out from other asserts, in case
+// we add some feature in the future to allow a given layer/imagefilter to operate in a specific
+// colorspace.
+static void check_drawdevice_colorspaces(SkColorSpace* src, SkColorSpace* dst) {
+    SkASSERT(src == dst);
+}
+
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPaint* paint,
                                   SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkPaint tmp;
@@ -1291,12 +1299,16 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
 
     while (iter.next()) {
         SkBaseDevice* dstDev = iter.fDevice;
+        check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
+                                     srcDev->imageInfo().colorSpace());
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter || clipImage) {
             sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
             if (specialImage) {
+                check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
+                                             specialImage->getColorSpace());
                 dstDev->drawSpecial(specialImage.get(), pos.x(), pos.y(), *paint,
                                     clipImage, clipMatrix);
             }
