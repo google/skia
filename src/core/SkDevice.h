@@ -175,11 +175,6 @@ protected:
     virtual void drawDRRect(const SkRRect& outer,
                             const SkRRect& inner, const SkPaint&);
 
-    // Default impl always calls drawRect() with a solid-color paint, setting it to anti-aliased
-    // only when all edge flags are set.
-    virtual void drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkColor color,
-                                SkBlendMode mode);
-
     /**
      *  If pathIsMutable, then the implementation is allowed to cast path to a
      *  non-const pointer and modify it in place (as an optimization). Canvas
@@ -212,9 +207,6 @@ protected:
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, const SkPaint&);
 
-    virtual void drawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
-                              SkBlendMode);
-
     virtual void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
@@ -229,6 +221,17 @@ protected:
                            const SkColor[], int count, SkBlendMode, const SkPaint&);
 
     virtual void drawAnnotation(const SkRect&, const char[], SkData*) {}
+
+    // Default impl always calls drawRect() with a solid-color paint, setting it to anti-aliased
+    // only when all edge flags are set. If there's a clip region, it draws that using drawPath,
+    // or uses clipPath().
+    virtual void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+                                SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode);
+    // Default impl uses drawImageRect per entry, being anti-aliased only when an entry's edge flags
+    // are all set. If there's a clip region, it will be applied using clipPath().
+    virtual void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count,
+                                    const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                    const SkPaint& paint, SkCanvas::SrcRectConstraint);
 
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kNeverTile_TileExpectation.
@@ -340,8 +343,6 @@ private:
     friend class SkGlyphRun;
     friend class SkGlyphRunList;
     friend class SkGlyphRunBuilder;
-
-    friend class ClipTileRenderer;  // GM needs context() until API is in SkCanvas
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
