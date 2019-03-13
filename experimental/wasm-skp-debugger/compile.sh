@@ -110,7 +110,7 @@ ${EMCXX} \
     -Itools/debugger \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
-    -std=c++14 \
+    -std=c++17 \
     --pre-js $BASE_DIR/cpu.js \
     --post-js $BASE_DIR/ready.js \
     --bind \
