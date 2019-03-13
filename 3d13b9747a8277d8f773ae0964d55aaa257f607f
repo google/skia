@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92040ea6_059dda54",
+        "filename": "src/core/SkEffectPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-13T17:53:22Z",
+      "side": 1,
+      "message": "Think this can be a const SkMatrix\u0026 while we\u0027re at this?\n\nThat\u0027ll make any mutations that we do (I think none right now?) stand out as being a bit more unusual.",
+      "revId": "3d13b9747a8277d8f773ae0964d55aaa257f607f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bada98f2_4cb4d740",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-13T17:53:22Z",
+      "side": 1,
+      "message": "Think we should thread through the real CTM?\n\nOr is this an indication that the matrix and local matrix should stay shader-specific, like shaderIsOpaque is for color filters?  Seems weird to give color filters new but incorrect information.",
+      "range": {
+        "startLine": 156,
+        "startChar": 85,
+        "endLine": 156,
+        "endChar": 98
+      },
+      "revId": "3d13b9747a8277d8f773ae0964d55aaa257f607f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
