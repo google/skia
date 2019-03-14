@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Location in Skia Git repo now `modules/canvaskit` (was `experimental/canvaskit`)
 
+### Fixed
+ - Extern bug in `CanvasKit.SkMatrix.invert`
+
 ## [0.5.0] - 2019-03-08
 
 ### Added
