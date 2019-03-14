@@ -624,7 +624,9 @@ static CoverageMode get_mode_for_spec(const GrQuadPerEdgeAA::VertexSpec& spec) {
 // Writes four vertices in triangle strip order, including the additional data for local
 // coordinates, domain, color, and coverage as needed to satisfy the vertex spec.
 static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                       CoverageMode mode, Sk4f coverage, SkPMColor4f color4f, const SkRect& domain,
+                       CoverageMode mode, Sk4f coverage,
+                       SkPMColor4f color4f, bool wideColor,
+                       const SkRect& domain,
                        const Vertices& quad) {
     static constexpr auto If = GrVertexWriter::If<float>;
 
@@ -637,9 +639,8 @@ static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& sp
 
         // save color
         if (spec.hasVertexColors()) {
-            bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
             vb->write(GrVertexColor(
-                    color4f * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f), wide));
+                    color4f * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f), wideColor));
         }
 
         // save local position
@@ -683,21 +684,12 @@ static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourcePro
 
 namespace GrQuadPerEdgeAA {
 
-ColorType MinColorType(SkPMColor4f color) {
-    if (color == SK_PMColor4fWHITE) {
-        return ColorType::kNone;
-    } else if (color.fitsInBytes()) {
-        return ColorType::kByte;
-    } else {
-        return ColorType::kHalf;
-    }
-}
-
 ////////////////// Tessellate Implementation
 
 void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
                  const SkPMColor4f& color4f, const GrPerspQuad& localQuad, const SkRect& domain,
                  GrQuadAAFlags aaFlags) {
+    bool wideColor = GrQuadPerEdgeAA::ColorType::kHalf == spec.colorType();
     CoverageMode mode = get_mode_for_spec(spec);
 
     // Load position data into Sk4fs (always x, y, and load w to avoid branching down the road)
@@ -740,12 +732,12 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
         // applied a mirror, etc. The current 2D case is already adequately fast.
 
         // Write two quads for inner and outer, inner will use the
-        write_quad(&vb, spec, mode, maxCoverage, color4f, domain, inner);
-        write_quad(&vb, spec, mode, 0.f, color4f, domain, outer);
+        write_quad(&vb, spec, mode, maxCoverage, color4f, wideColor, domain, inner);
+        write_quad(&vb, spec, mode, 0.f, color4f, wideColor, domain, outer);
     } else {
         // No outsetting needed, just write a single quad with full coverage
         SkASSERT(mode == CoverageMode::kNone);
-        write_quad(&vb, spec, mode, 1.f, color4f, domain, outer);
+        write_quad(&vb, spec, mode, 1.f, color4f, wideColor, domain, outer);
     }
 
     return vb.fPtr;
