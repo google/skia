@@ -1608,6 +1608,12 @@ DEF_FUZZ(ImageFilter, fuzz) {
 #define SK_ADD_RANDOM_BIT_FLIPS
 
 DEF_FUZZ(SerializedImageFilter, fuzz) {
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocN32Pixels(256, 256)) {
+        SkDEBUGF("Could not allocate 256x256 bitmap in SerializedImageFilter");
+        return;
+    }
+
     auto filter = make_fuzz_imageFilter(fuzz, 20);
     if (!filter) {
         return;
@@ -1657,9 +1663,10 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
 
     SkPaint paint;
     paint.setImageFilter(deserializedFil);
-    SkBitmap bitmap;
+
     SkCanvas canvas(bitmap);
-    canvas.saveLayer(SkRect::MakeWH(500, 500), &paint);
+    canvas.saveLayer(SkRect::MakeWH(256, 256), &paint);
+    canvas.restore();
 }
 
 #if SK_SUPPORT_GPU
