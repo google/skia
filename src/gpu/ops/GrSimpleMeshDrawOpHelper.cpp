@@ -63,17 +63,18 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
 }
 
 GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
-        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType, GrClampType clampType,
         GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor) {
     GrProcessorAnalysisColor color = *geometryColor;
-    auto result = this->finalizeProcessors(caps, clip, fsaaType, geometryCoverage, &color);
+    auto result = this->finalizeProcessors(
+            caps, clip, fsaaType, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
     return result;
 }
 
 GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
         const GrCaps& caps, const GrAppliedClip* clip, const GrUserStencilSettings* userStencil,
-        GrFSAAType fsaaType, GrProcessorAnalysisCoverage geometryCoverage,
+        GrFSAAType fsaaType, GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
         GrProcessorAnalysisColor* geometryColor) {
     SkDEBUGCODE(fDidAnalysis = true);
     GrProcessorSet::Analysis analysis;
@@ -85,8 +86,8 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
                                : GrProcessorAnalysisCoverage::kNone;
         }
         SkPMColor4f overrideColor;
-        analysis = fProcessors->finalize(
-                *geometryColor, coverage, clip, userStencil, fsaaType, caps, &overrideColor);
+        analysis = fProcessors->finalize(*geometryColor, coverage, clip, userStencil, fsaaType,
+                                         caps, clampType, &overrideColor);
         if (analysis.inputColorIsOverridden()) {
             *geometryColor = overrideColor;
         }
@@ -148,10 +149,11 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionF
 }
 
 GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors(
-        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType, GrClampType clampType,
         GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor) {
     GrProcessorAnalysisColor color = *geometryColor;
-    auto result = this->finalizeProcessors(caps, clip, fsaaType, geometryCoverage, &color);
+    auto result = this->finalizeProcessors(
+            caps, clip, fsaaType, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
     return result;
 }

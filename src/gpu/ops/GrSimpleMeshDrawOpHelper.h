@@ -70,9 +70,10 @@ public:
      */
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
-            GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor) {
+            GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
+            GrProcessorAnalysisColor* geometryColor) {
         return this->finalizeProcessors(caps, clip, &GrUserStencilSettings::kUnused, fsaaType,
-                                        geometryCoverage, geometryColor);
+                                        clampType, geometryCoverage, geometryColor);
     }
 
     /**
@@ -81,7 +82,7 @@ public:
      * changed the op must override its geometry processor color output with the new color.
      */
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType,
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType,
             GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor);
 
     bool isTrivial() const {
@@ -126,7 +127,8 @@ protected:
 
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType,
-            GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor);
+            GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
+            GrProcessorAnalysisColor* geometryColor);
 
     GrProcessorSet* fProcessors;
     unsigned fPipelineFlags : 8;
@@ -164,13 +166,14 @@ public:
 
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
-            GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor) {
+            GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
+            GrProcessorAnalysisColor* geometryColor) {
         return this->INHERITED::finalizeProcessors(
-                caps, clip, fStencilSettings, fsaaType, geometryCoverage, geometryColor);
+                caps, clip, fStencilSettings, fsaaType, clampType, geometryCoverage, geometryColor);
     }
 
     GrProcessorSet::Analysis finalizeProcessors(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType,
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType,
             GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor);
 
     using GrSimpleMeshDrawOpHelper::aaType;

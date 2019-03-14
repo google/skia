@@ -207,7 +207,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     std::unique_ptr<GrDrawOp> op = textContext->createOp_TestingOnly(
             context, textContext, rtc.get(), paint, font, SkMatrix::I(), text, 16, 16);
-    op->finalize(*context->priv().caps(), nullptr, GrFSAAType::kNone);
+    op->finalize(*context->priv().caps(), nullptr, GrFSAAType::kNone, GrClampType::kAuto);
 
     TestingUploadTarget uploadTarget;
 
