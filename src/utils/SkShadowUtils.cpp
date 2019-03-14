@@ -386,7 +386,7 @@ static void* kNamespace;
 template <typename FACTORY>
 bool draw_shadow(const FACTORY& factory,
                  std::function<void(const SkVertices*, SkBlendMode, const SkPaint&,
-                 SkScalar tx, SkScalar ty)> drawProc, ShadowedPath& path, SkColor color) {
+                 SkScalar tx, SkScalar ty, bool)> drawProc, ShadowedPath& path, SkColor color) {
     FindContext<FACTORY> context(&path.viewMatrix(), &factory);
 
     SkResourceCache::Key* key = nullptr;
@@ -438,7 +438,7 @@ bool draw_shadow(const FACTORY& factory,
                                                                     SkGaussianColorFilter::Make()));
 
     drawProc(vertices.get(), SkBlendMode::kModulate, paint,
-             context.fTranslate.fX, context.fTranslate.fY);
+             context.fTranslate.fX, context.fTranslate.fY, path.viewMatrix().hasPerspective());
 
     return true;
 }
@@ -539,10 +539,15 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
 
 void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
-                                SkScalar tx, SkScalar ty) {
+                                SkScalar tx, SkScalar ty, bool hasPerspective) {
         if (vertices->vertexCount()) {
-            SkAutoDeviceCTMRestore adr(this, SkMatrix::Concat(this->ctm(),
-                                                              SkMatrix::MakeTrans(tx, ty)));
+            // For perspective shadows we've already computed the shadow in world space,
+            // and we can't translate it without changing it. Otherwise we concat the
+            // change in translation from the cached version.
+            SkAutoDeviceCTMRestore adr(
+                this,
+                hasPerspective ? SkMatrix::I()
+                               : SkMatrix::Concat(this->ctm(), SkMatrix::MakeTrans(tx, ty)));
             this->drawVertices(vertices, nullptr, 0, mode, paint);
         }
     };
