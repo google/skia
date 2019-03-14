@@ -18,34 +18,17 @@ class SkRasterPipeline;
  *  http://www.w3.org/TR/SVG/masking.html#Masking
  *  http://www.w3.org/TR/css-masking/#MaskValues
  *
- *  The resulting color is black with transparency equal to the
- *  luminance value modulated by alpha:
+ *  The resulting color is black with alpha equal to the
+ *  luma (yes luma, not luminance, despite the name).
  *
- *    C' = [ Lum * a, 0, 0, 0 ]
+ *    C  = [ r, g, b, a ]
+ *    C' = [ 0, 0, 0, Luma(r,g,b) ]
  *
  */
 
- #include "SkFlattenable.h"
-
-class SK_API SkLumaColorFilter : public SkColorFilter {
+class SK_API SkLumaColorFilter {
 public:
     static sk_sp<SkColorFilter> Make();
-
-#if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo&) const override;
-#endif
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkLumaColorFilter)
-
-    SkLumaColorFilter();
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
-
-    typedef SkColorFilter INHERITED;
 };
 
 #endif
