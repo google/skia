@@ -9,7 +9,10 @@
 #include "SkJSONWriter.h"
 #include "SkPicture.h"
 #include "SkSurface.h"
+<<<<<<< HEAD
+=======
 #include "UrlDataManager.h"
+>>>>>>> 8a5d3626a135ff6beebb9424fb4b045494608157
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -40,7 +43,6 @@ SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
 class SkpDebugPlayer {
   public:
     SkpDebugPlayer() {}
-
 
     /* loadSkp deserializes a skp file that has been copied into the shared WASM memory.
      * cptr - a pointer to the data to deserialize.
@@ -121,6 +123,7 @@ class SkpDebugPlayer {
     // admission of ignorance - don't know when to use unique pointer or sk_sp
     std::unique_ptr<SkDebugCanvas> fDebugCanvas;
     sk_sp<SkPicture> fPicture;
+    SkIRect fBounds;
 };
 
 #if SK_SUPPORT_GPU
@@ -183,6 +186,7 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, SimpleImageInfo si
     return surface;
 }
 #endif
+
 
 using namespace emscripten;
 EMSCRIPTEN_BINDINGS(my_module) {

@@ -10,7 +10,12 @@ var index = 0;
 DebuggerInit({
   locateFile: (file) => '/node_modules/debugger/bin/'+file,
 }).ready().then((Debugger) => {
+<<<<<<< HEAD
+  //const surface = Debugger.MakeSWCanvasSurface('debugger_view');
+  const surface = Debugger.MakeWebGLCanvasSurface('debugger_view', 720, 1280);
+=======
   let surface;
+>>>>>>> 8a5d3626a135ff6beebb9424fb4b045494608157
   const player = new Debugger.SkpDebugPlayer();
 
   // Define an event handler for the file input dialog
@@ -41,9 +46,7 @@ DebuggerInit({
       canvas = document.getElementById('debugger_view');
       canvas.width = bounds.fRight - bounds.fLeft;
       canvas.height = bounds.fBottom - bounds.fTop;
-      //TODO(nifong): select among these
-      //surface = Debugger.MakeSWCanvasSurface('debugger_view');
-      surface = Debugger.MakeWebGLCanvasSurface('debugger_view', canvas.width, canvas.height);
+      surface = Debugger.MakeSWCanvasSurface('debugger_view');
 
       document.getElementById('command-count').innerHTML = player.getSize();
       player.setClipVizColor(0);
@@ -114,10 +117,15 @@ DebuggerInit({
   <body>
     <canvas id=debugger_view width=400 height=400></canvas>
     <div style="float:right">
+<<<<<<< HEAD
       <input type="radio" name="backend" value="CPU"> CPU
       <input type="radio" name="backend" value="WebGL" id="backend_gpu" checked> WebGL<br>
+      <input type="file" id="file-input" /><br>
+      <input type="button" id="playbutton" value="Play" />
+=======
       <input type="file" id="file-input" /> | <span id="command-count">0</span> commands<br>
       <input type="button" id="play_button" value="Play" />
+>>>>>>> 8a5d3626a135ff6beebb9424fb4b045494608157
       command interval in ms
       <input type="text" id="interval" value="20" /><br>
       <input type="checkbox" id="overdraw" /> Overdraw vis<br>

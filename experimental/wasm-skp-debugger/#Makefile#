@@ -3,7 +3,7 @@ debug:
 	./compile.sh
 	mkdir -p ./debugger/bin
 	cp ../../out/debugger_wasm/debugger.js   ./debugger/bin
-	cp ../../out/debugger_wasm/debugger.wasm ./debugger/bin
+	cp ../../out/debugger_wasm/debugger.wasm ./debugger/bi
 
 local-example:
 	rm -rf node_modules/debugger
