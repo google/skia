@@ -108,5 +108,51 @@ private:
 };
 
 } // namespace
-
 DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )
+
+#include "Resources.h"
+#include "SkMixer.h"
+
+static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
+    auto img = GetResourceAsImage(path);
+    if (!img) {
+        return nullptr;
+    }
+    SkRect src = SkRect::MakeIWH(img->width(), img->height());
+    SkRect dst = SkRect::MakeIWH(size, size);
+    SkMatrix m;
+    m.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    return img->makeShader(&m);
+}
+
+static sk_sp<SkShader> make_grad(int size) {
+    SkScalar half = SkScalarHalf(size);
+    SkColor colors[] = { SK_ColorRED, 0 };
+    return SkGradientShader::MakeRadial({half, half}, half * sqrtf(2),
+                                        colors, nullptr, 2, SkShader::kClamp_TileMode);
+}
+
+DEF_SIMPLE_GM(mixershader_shadermixer, canvas, 1000, 1000) {
+    const int size = 256;
+    auto sh0 = make_resource_shader("images/mandrill_256.png", size);
+    auto sh1 = make_resource_shader("images/yellow_rose.png", size);
+    auto sh2 = make_grad(size);
+
+    SkRect r = SkRect::MakeIWH(size, size);
+
+    SkPaint paint;
+    paint.setShader(sh0);
+    canvas->drawRect(r, paint);
+    canvas->translate(size + 10.0f, 0);
+    paint.setShader(sh1);
+    canvas->drawRect(r, paint);
+    canvas->translate(size + 10.0f, 0);
+    paint.setShader(sh2);
+    canvas->drawRect(r, paint);
+
+    auto mixer = SkMixer::MakeLerp(0.5f);
+    auto sh = SkShader::MakeMixer(sh0, sh1, mixer);
+    canvas->translate(size + 10.0f, 0);
+    paint.setShader(sh);
+    canvas->drawRect(r, paint);
+}
