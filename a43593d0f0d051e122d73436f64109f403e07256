@@ -22,6 +22,30 @@
       "revId": "a43593d0f0d051e122d73436f64109f403e07256",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eab572c7_259075a3",
+        "filename": "src/gpu/gl/GrGLAssembleInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-14T15:24:09Z",
+      "side": 1,
+      "message": "https://github.com/google/skia/blob/86ce5c44ab47ed73f5b1115283b05b33e99052b3/modules/canvaskit/compile.sh#L44",
+      "parentUuid": "fb373cf3_94576435",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 12
+      },
+      "revId": "a43593d0f0d051e122d73436f64109f403e07256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
