@@ -194,6 +194,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
     , fRefresh(false)
     , fSaveToSKP(false)
+    , fShowSlideDimensions(false)
     , fShowImGuiDebugWindow(false)
     , fShowSlidePicker(false)
     , fShowImGuiTestWindow(false)
@@ -344,6 +345,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
     fCommands.addCommand('K', "IO", "Save slide to SKP", [this]() {
         fSaveToSKP = true;
+        fWindow->inval();
+    });
+    fCommands.addCommand('&', "Overlays", "Show slide dimensios", [this]() {
+        fShowSlideDimensions = !fShowSlideDimensions;
         fWindow->inval();
     });
     fCommands.addCommand('G', "Modes", "Geometry", [this]() {
@@ -1290,6 +1295,13 @@ void Viewer::drawSlide(SkSurface* surface) {
         }
         canvas->drawImage(fLastImage, 0, 0, &paint);
         canvas->restoreToCount(prePerspectiveCount);
+    }
+
+    if (fShowSlideDimensions) {
+        SkRect r = SkRect::Make(fSlides[fCurrentSlide]->getDimensions());
+        SkPaint paint;
+        paint.setColor(0x40FFFF00);
+        surface->getCanvas()->drawRect(r, paint);
     }
 }
 

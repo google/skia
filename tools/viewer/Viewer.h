@@ -127,6 +127,7 @@ private:
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
     bool                   fSaveToSKP;
+    bool                   fShowSlideDimensions;
 
     ImGuiLayer             fImGuiLayer;
     SkPaint                fImGuiGamutPaint;
