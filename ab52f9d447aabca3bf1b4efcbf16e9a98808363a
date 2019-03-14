@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76871b67_5d96e452",
+        "filename": "src/effects/SkLumaColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-14T14:07:56Z",
+      "side": 1,
+      "message": "We can do this with clamp_0, clamp_1 without adding a new stage, right?",
+      "revId": "ab52f9d447aabca3bf1b4efcbf16e9a98808363a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
