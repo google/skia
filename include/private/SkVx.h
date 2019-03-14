@@ -49,7 +49,10 @@ struct Vec {
     // Other operations on Vec should be defined outside the type.
 
     Vec() = default;
-    Vec(T x) : lo(x), hi(x) {}
+
+    template <typename U,
+              typename=typename std::enable_if<std::is_convertible<U,T>::value>::type>
+    Vec(U x) : lo(x), hi(x) {}
 
     Vec(std::initializer_list<T> xs) {
         T vals[N] = {0};
@@ -77,7 +80,10 @@ struct Vec<1,T> {
     T val;
 
     Vec() = default;
-    Vec(T x) : val(x) {}
+
+    template <typename U,
+              typename=typename std::enable_if<std::is_convertible<U,T>::value>::type>
+    Vec(U x) : val(x) {}
 
     Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {}
 
@@ -101,9 +107,12 @@ struct Vec<1,T> {
 #endif
 
 // Helps tamp down on the repetitive boilerplate.
-#define SINT template <int N, typename T> static inline
-#define SIT  template <       typename T> static inline
-#define SI                                static inline
+#define SI                                 static inline
+#define SIT   template <       typename T> static inline
+#define SINT  template <int N, typename T> static inline
+#define SINTU template <int N, typename T, typename U, \
+                        typename=typename std::enable_if<std::is_convertible<U,T>::value>::type> \
+              static inline
 
 template <typename D, typename S>
 SI D bit_pun(S s) {
@@ -296,46 +305,46 @@ SINT Vec<N,T>   mad(Vec<N,T> f,
 
 
 // Scalar/vector operations just splat the scalar to a vector...
-SINT Vec<N,T>    operator+ (T x, Vec<N,T> y) { return Vec<N,T>(x) +  y; }
-SINT Vec<N,T>    operator- (T x, Vec<N,T> y) { return Vec<N,T>(x) -  y; }
-SINT Vec<N,T>    operator* (T x, Vec<N,T> y) { return Vec<N,T>(x) *  y; }
-SINT Vec<N,T>    operator/ (T x, Vec<N,T> y) { return Vec<N,T>(x) /  y; }
-SINT Vec<N,T>    operator^ (T x, Vec<N,T> y) { return Vec<N,T>(x) ^  y; }
-SINT Vec<N,T>    operator& (T x, Vec<N,T> y) { return Vec<N,T>(x) &  y; }
-SINT Vec<N,T>    operator| (T x, Vec<N,T> y) { return Vec<N,T>(x) |  y; }
-SINT Vec<N,M<T>> operator==(T x, Vec<N,T> y) { return Vec<N,T>(x) == y; }
-SINT Vec<N,M<T>> operator!=(T x, Vec<N,T> y) { return Vec<N,T>(x) != y; }
-SINT Vec<N,M<T>> operator<=(T x, Vec<N,T> y) { return Vec<N,T>(x) <= y; }
-SINT Vec<N,M<T>> operator>=(T x, Vec<N,T> y) { return Vec<N,T>(x) >= y; }
-SINT Vec<N,M<T>> operator< (T x, Vec<N,T> y) { return Vec<N,T>(x) <  y; }
-SINT Vec<N,M<T>> operator> (T x, Vec<N,T> y) { return Vec<N,T>(x) >  y; }
-SINT Vec<N,T>           min(T x, Vec<N,T> y) { return min(Vec<N,T>(x), y); }
-SINT Vec<N,T>           max(T x, Vec<N,T> y) { return max(Vec<N,T>(x), y); }
+SINTU Vec<N,T>    operator+ (U x, Vec<N,T> y) { return Vec<N,T>(x) +  y; }
+SINTU Vec<N,T>    operator- (U x, Vec<N,T> y) { return Vec<N,T>(x) -  y; }
+SINTU Vec<N,T>    operator* (U x, Vec<N,T> y) { return Vec<N,T>(x) *  y; }
+SINTU Vec<N,T>    operator/ (U x, Vec<N,T> y) { return Vec<N,T>(x) /  y; }
+SINTU Vec<N,T>    operator^ (U x, Vec<N,T> y) { return Vec<N,T>(x) ^  y; }
+SINTU Vec<N,T>    operator& (U x, Vec<N,T> y) { return Vec<N,T>(x) &  y; }
+SINTU Vec<N,T>    operator| (U x, Vec<N,T> y) { return Vec<N,T>(x) |  y; }
+SINTU Vec<N,M<T>> operator==(U x, Vec<N,T> y) { return Vec<N,T>(x) == y; }
+SINTU Vec<N,M<T>> operator!=(U x, Vec<N,T> y) { return Vec<N,T>(x) != y; }
+SINTU Vec<N,M<T>> operator<=(U x, Vec<N,T> y) { return Vec<N,T>(x) <= y; }
+SINTU Vec<N,M<T>> operator>=(U x, Vec<N,T> y) { return Vec<N,T>(x) >= y; }
+SINTU Vec<N,M<T>> operator< (U x, Vec<N,T> y) { return Vec<N,T>(x) <  y; }
+SINTU Vec<N,M<T>> operator> (U x, Vec<N,T> y) { return Vec<N,T>(x) >  y; }
+SINTU Vec<N,T>           min(U x, Vec<N,T> y) { return min(Vec<N,T>(x), y); }
+SINTU Vec<N,T>           max(U x, Vec<N,T> y) { return max(Vec<N,T>(x), y); }
 
 // ... and same deal for vector/scalar operations.
-SINT Vec<N,T>    operator+ (Vec<N,T> x, T y) { return x +  Vec<N,T>(y); }
-SINT Vec<N,T>    operator- (Vec<N,T> x, T y) { return x -  Vec<N,T>(y); }
-SINT Vec<N,T>    operator* (Vec<N,T> x, T y) { return x *  Vec<N,T>(y); }
-SINT Vec<N,T>    operator/ (Vec<N,T> x, T y) { return x /  Vec<N,T>(y); }
-SINT Vec<N,T>    operator^ (Vec<N,T> x, T y) { return x ^  Vec<N,T>(y); }
-SINT Vec<N,T>    operator& (Vec<N,T> x, T y) { return x &  Vec<N,T>(y); }
-SINT Vec<N,T>    operator| (Vec<N,T> x, T y) { return x |  Vec<N,T>(y); }
-SINT Vec<N,M<T>> operator==(Vec<N,T> x, T y) { return x == Vec<N,T>(y); }
-SINT Vec<N,M<T>> operator!=(Vec<N,T> x, T y) { return x != Vec<N,T>(y); }
-SINT Vec<N,M<T>> operator<=(Vec<N,T> x, T y) { return x <= Vec<N,T>(y); }
-SINT Vec<N,M<T>> operator>=(Vec<N,T> x, T y) { return x >= Vec<N,T>(y); }
-SINT Vec<N,M<T>> operator< (Vec<N,T> x, T y) { return x <  Vec<N,T>(y); }
-SINT Vec<N,M<T>> operator> (Vec<N,T> x, T y) { return x >  Vec<N,T>(y); }
-SINT Vec<N,T>           min(Vec<N,T> x, T y) { return min(x, Vec<N,T>(y)); }
-SINT Vec<N,T>           max(Vec<N,T> x, T y) { return max(x, Vec<N,T>(y)); }
+SINTU Vec<N,T>    operator+ (Vec<N,T> x, U y) { return x +  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator- (Vec<N,T> x, U y) { return x -  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator* (Vec<N,T> x, U y) { return x *  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator/ (Vec<N,T> x, U y) { return x /  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator^ (Vec<N,T> x, U y) { return x ^  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator& (Vec<N,T> x, U y) { return x &  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator| (Vec<N,T> x, U y) { return x |  Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator==(Vec<N,T> x, U y) { return x == Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator!=(Vec<N,T> x, U y) { return x != Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator<=(Vec<N,T> x, U y) { return x <= Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator>=(Vec<N,T> x, U y) { return x >= Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator< (Vec<N,T> x, U y) { return x <  Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator> (Vec<N,T> x, U y) { return x >  Vec<N,T>(y); }
+SINTU Vec<N,T>           min(Vec<N,T> x, U y) { return min(x, Vec<N,T>(y)); }
+SINTU Vec<N,T>           max(Vec<N,T> x, U y) { return max(x, Vec<N,T>(y)); }
 
 // All vector/scalar combinations for mad() with at least one vector.
-SINT Vec<N,T> mad(T f, Vec<N,T> m, Vec<N,T> a) { return Vec<N,T>(f)*m + a; }
-SINT Vec<N,T> mad(Vec<N,T> f, T m, Vec<N,T> a) { return f*Vec<N,T>(m) + a; }
-SINT Vec<N,T> mad(Vec<N,T> f, Vec<N,T> m, T a) { return f*m + Vec<N,T>(a); }
-SINT Vec<N,T> mad(Vec<N,T> f, T m, T a) { return f*Vec<N,T>(m) + Vec<N,T>(a); }
-SINT Vec<N,T> mad(T f, Vec<N,T> m, T a) { return Vec<N,T>(f)*m + Vec<N,T>(a); }
-SINT Vec<N,T> mad(T f, T m, Vec<N,T> a) { return Vec<N,T>(f)*Vec<N,T>(m) + a; }
+SINTU Vec<N,T> mad(U f, Vec<N,T> m, Vec<N,T> a) { return Vec<N,T>(f)*m + a; }
+SINTU Vec<N,T> mad(Vec<N,T> f, U m, Vec<N,T> a) { return f*Vec<N,T>(m) + a; }
+SINTU Vec<N,T> mad(Vec<N,T> f, Vec<N,T> m, U a) { return f*m + Vec<N,T>(a); }
+SINTU Vec<N,T> mad(Vec<N,T> f, U m, U a) { return f*Vec<N,T>(m) + Vec<N,T>(a); }
+SINTU Vec<N,T> mad(U f, Vec<N,T> m, U a) { return Vec<N,T>(f)*m + Vec<N,T>(a); }
+SINTU Vec<N,T> mad(U f, U m, Vec<N,T> a) { return Vec<N,T>(f)*Vec<N,T>(m) + a; }
 
 // The various op= operators, for vectors...
 SINT Vec<N,T>& operator+=(Vec<N,T>& x, Vec<N,T> y) { return (x = x + y); }
@@ -347,13 +356,13 @@ SINT Vec<N,T>& operator&=(Vec<N,T>& x, Vec<N,T> y) { return (x = x & y); }
 SINT Vec<N,T>& operator|=(Vec<N,T>& x, Vec<N,T> y) { return (x = x | y); }
 
 // ... for scalars...
-SINT Vec<N,T>& operator+=(Vec<N,T>& x, T y) { return (x = x + Vec<N,T>(y)); }
-SINT Vec<N,T>& operator-=(Vec<N,T>& x, T y) { return (x = x - Vec<N,T>(y)); }
-SINT Vec<N,T>& operator*=(Vec<N,T>& x, T y) { return (x = x * Vec<N,T>(y)); }
-SINT Vec<N,T>& operator/=(Vec<N,T>& x, T y) { return (x = x / Vec<N,T>(y)); }
-SINT Vec<N,T>& operator^=(Vec<N,T>& x, T y) { return (x = x ^ Vec<N,T>(y)); }
-SINT Vec<N,T>& operator&=(Vec<N,T>& x, T y) { return (x = x & Vec<N,T>(y)); }
-SINT Vec<N,T>& operator|=(Vec<N,T>& x, T y) { return (x = x | Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator+=(Vec<N,T>& x, U y) { return (x = x + Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator-=(Vec<N,T>& x, U y) { return (x = x - Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator*=(Vec<N,T>& x, U y) { return (x = x * Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator/=(Vec<N,T>& x, U y) { return (x = x / Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator^=(Vec<N,T>& x, U y) { return (x = x ^ Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator&=(Vec<N,T>& x, U y) { return (x = x & Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator|=(Vec<N,T>& x, U y) { return (x = x | Vec<N,T>(y)); }
 
 // ... and for shifts.
 SINT Vec<N,T>& operator<<=(Vec<N,T>& x, int bits) { return (x = x << bits); }
@@ -434,6 +443,7 @@ namespace skvx {
 }  // namespace skvx
 #endif  // !defined(SKNX_NO_SIMD)
 
+#undef SINTU
 #undef SINT
 #undef SIT
 #undef SI
