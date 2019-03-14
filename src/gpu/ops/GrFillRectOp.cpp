@@ -150,6 +150,7 @@ public:
             for (int i = 0; i < this->quadCount(); ++i) {
                 fDeviceQuads.metadata(i).fColor = colorOverride;
             }
+            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride);
         }
 
         return result;
