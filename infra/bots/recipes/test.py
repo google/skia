@@ -740,6 +740,9 @@ def dm_flags(api, bot):
     # skia:6857
     blacklist(['angle_d3d9_es2', 'gm', '_', 'lighting'])
 
+  if 'Chromecast' in bot:
+    blacklist(['_', 'gm', '_', 'compositor_quads_filter'])
+
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
 
