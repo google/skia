@@ -253,11 +253,22 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
         SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
     }
 
+    SkString finalInColor;
+    if (colorIn.size()) {
+        if (this->desc()->header().fClampBlendInput) {
+            finalInColor.printf("saturate(%s)", colorIn.c_str());
+        } else {
+            finalInColor = colorIn;
+        }
+    } else {
+        finalInColor = "float4(1)";
+    }
+
     GrGLSLXferProcessor::EmitArgs args(&fFS,
                                        this->uniformHandler(),
                                        this->shaderCaps(),
                                        xp,
-                                       colorIn.size() ? colorIn.c_str() : "float4(1)",
+                                       finalInColor.c_str(),
                                        coverageIn.size() ? coverageIn.c_str() : "float4(1)",
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),

@@ -103,7 +103,8 @@ public:
         uint8_t fProcessorFeatures : 1;
         bool fSnapVerticesToPixelCenters : 1;
         bool fHasPointSize : 1;
-        uint8_t fPad : 3;
+        bool fClampBlendInput : 1;
+        uint8_t fPad : 2;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 
