@@ -544,7 +544,7 @@ void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
         return;
     }
     SkPaint newPaint = srcPaint;
-    newPaint.setStyle(SkPaint::kFill_Style);
+    newPaint.setStroke(false);
     this->drawRect(bbox, newPaint);
 }
 

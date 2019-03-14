@@ -45,7 +45,7 @@ protected:
         SkPaint paint;
 
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(SkIntToScalar(10));
         paint.setMaskFilter(SkEmbossMaskFilter::Make(SkBlurMask::ConvertRadiusToSigma(4), fLight));
         paint.setShader(SkShader::MakeColorShader(SK_ColorBLUE));

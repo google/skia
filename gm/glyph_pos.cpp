@@ -126,7 +126,7 @@ static void drawTestCase(SkCanvas* canvas,
         font.getWidthsBounds(glyphs, count, widths, nullptr, &paint);
 
         paint.setStrokeWidth(0.0f);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         // Magenta lines are the positions for the characters.
         paint.setColor(SK_ColorMAGENTA);

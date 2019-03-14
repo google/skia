@@ -33,7 +33,7 @@ protected:
         canvas->drawRect(r, paint);
 
         paint.setShader(nullptr);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         canvas->drawRect(r, paint);
     }
 

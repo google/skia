@@ -309,7 +309,7 @@ static void draw_pair(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader> dst
     SkRect r = SkRect::MakeWH(2 * gCellSize + gap, 2 * gCellSize + gap);
     r.outset(gap + 1.5f, gap + 1.5f);
     SkPaint p;
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     canvas->drawRect(r, p); // border
 
     SkAlpha alpha = 0xFF;

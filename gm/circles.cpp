@@ -84,7 +84,7 @@ protected:
         // AA with stroke style
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(SkIntToScalar(3));
         fPaints.push_back(p);
         }
@@ -93,7 +93,7 @@ protected:
         // AA with stroke style, width = 0
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         fPaints.push_back(p);
         }
 
@@ -101,7 +101,7 @@ protected:
         // AA with stroke and fill style
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStrokeAndFill_Style);
+        p.setStrokeAndFill();
         p.setStrokeWidth(SkIntToScalar(2));
         fPaints.push_back(p);
         }

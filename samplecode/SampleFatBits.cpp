@@ -150,7 +150,7 @@ private:
     }
 
     void setupSkeletonPaint(SkPaint* paint) {
-        paint->setStyle(SkPaint::kStroke_Style);
+        paint->setStroke(true);
         paint->setStrokeWidth(WIRE_FRAME_SIZE);
         paint->setColor(fShowSkeleton ? WIRE_FRAME_COLOR : 0);
         paint->setAntiAlias(true);
@@ -220,7 +220,7 @@ void FatBits::drawFG(SkCanvas* canvas) {
 
     if (fUseClip) {
         SkPaint p;
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setColor(SK_ColorLTGRAY);
         SkRect r = {
             fClipRect.fLeft * fZoom,
@@ -242,7 +242,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
 
     if (fStyle == kStroke_Style) {
         SkPaint p;
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(fStrokeWidth * fZoom);
         p.setStrokeCap(fStrokeCap);
         SkPath dst;

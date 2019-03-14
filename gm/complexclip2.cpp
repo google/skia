@@ -139,7 +139,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint rectPaint;
-        rectPaint.setStyle(SkPaint::kStroke_Style);
+        rectPaint.setStroke(true);
         rectPaint.setStrokeWidth(-1);
 
         SkPaint fillPaint;

@@ -28,7 +28,7 @@ protected:
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(22);
 
         SkRect r = SkRect::MakeXYWH(20, 20, 100, 100);
@@ -46,7 +46,7 @@ protected:
 
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(22);
 
         SkRect r2 = SkRect::MakeXYWH(20, 140, 100, 100);

@@ -525,7 +525,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     }
 
     SkPaint paintWithShader(paint);
-    paintWithShader.setStyle(SkPaint::kFill_Style);
+    paintWithShader.setStroke(false);
     paintWithShader.setShader(s);
 
     // Call ourself, in case the subclass wanted to share this setup code

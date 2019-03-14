@@ -50,7 +50,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setColor(0xFF007700);
 
         canvas->drawPath(path, paint);

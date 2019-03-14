@@ -16,7 +16,7 @@ DEF_SIMPLE_GM(bug530095, canvas, 900, 1200) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(26);
     SkScalar intervals[] = {700, 700 };
     int intervalCount = (int) SK_ARRAY_COUNT(intervals);
@@ -51,7 +51,7 @@ DEF_SIMPLE_GM(bug591993, canvas, 40, 140) {
     SkPaint p;
     p.setColor(SK_ColorRED);
     p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeCap(SkPaint::kRound_Cap);
     p.setStrokeWidth(10);
     const SkScalar intervals[] = { 100, 100 };

@@ -130,7 +130,7 @@ protected:
         viewport.mapPoints(pts, 8);
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         SkFont font;
         font.setEdging(SkFont::Edging::kAlias);
 

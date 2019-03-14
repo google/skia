@@ -11,7 +11,7 @@
 DEF_SIMPLE_GM(bug615686, canvas, 250, 250) {
     SkPaint p;
     p.setAntiAlias(true);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(20);
     SkPath path;
     path.moveTo(0, 0);

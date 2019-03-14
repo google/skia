@@ -59,7 +59,7 @@ static void draw_big_rect(SkCanvas* canvas, SkScalar big, const SkPaint& rectPai
 
     SkPaint outOfBoundsPaint;
     outOfBoundsPaint.setColor(SK_ColorRED);
-    outOfBoundsPaint.setStyle(SkPaint::kStroke_Style);
+    outOfBoundsPaint.setStroke(true);
     outOfBoundsPaint.setStrokeWidth(0);
 
     SkRect outOfBounds = SkRect::MakeLTRB(-1, -1, 35, 35);
@@ -81,11 +81,7 @@ DEF_SIMPLE_GM(bigrect, canvas, 325, 125) {
             SkPaint paint;
             paint.setColor(SK_ColorBLUE);
             // These are the three parameters that affect the behavior of SkDraw::drawRect.
-            if (i & 1) {
-                paint.setStyle(SkPaint::kFill_Style);
-            } else {
-                paint.setStyle(SkPaint::kStroke_Style);
-            }
+            paint.setStroke(!(i & 1));
             if (i & 2) {
                 paint.setStrokeWidth(1);
             } else {

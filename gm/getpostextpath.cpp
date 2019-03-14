@@ -20,7 +20,7 @@ static void strokePath(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     canvas->drawPath(path, paint);
 }
 DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {

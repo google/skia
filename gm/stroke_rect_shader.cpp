@@ -21,7 +21,7 @@ DEF_SIMPLE_GM(stroke_rect_shader, canvas, 690, 300) {
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2,
                                                           SkShader::kClamp_TileMode);
     paint.setShader(std::move(shader));
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     // Do a large initial translate so that local coords disagree with device coords significantly
     // for the first rect drawn.
     canvas->translate(kRect.centerX(), kRect.centerY());

@@ -295,7 +295,7 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(scales); ++i) {
             SkPath path = GetPath(index, dirs[i%2]);
             if (fDoStrokeAndFill) {
-                paint.setStyle(SkPaint::kStrokeAndFill_Style);
+                paint.setStrokeAndFill();
                 paint.setStrokeJoin(joins[i%3]);
                 paint.setStrokeWidth(SkIntToScalar(kStrokeWidth));
             }
@@ -327,7 +327,7 @@ protected:
             SkPaint p;
             p.setAntiAlias(true);
             if (fDoStrokeAndFill) {
-                p.setStyle(SkPaint::kStrokeAndFill_Style);
+                p.setStrokeAndFill();
                 p.setStrokeJoin(SkPaint::kMiter_Join);
                 p.setStrokeWidth(SkIntToScalar(kStrokeWidth));
             }

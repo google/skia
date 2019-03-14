@@ -223,13 +223,13 @@ public:
         SkPaint boundsPaint;
         boundsPaint.setAntiAlias(true);
         boundsPaint.setColor(boundsColor);
-        boundsPaint.setStyle(SkPaint::kStroke_Style);
+        boundsPaint.setStroke(true);
         canvas->drawRect(fontBounds, boundsPaint);
 
         SkFontMetrics fm;
         font.getMetrics(&fm);
         SkPaint metricsPaint(boundsPaint);
-        metricsPaint.setStyle(SkPaint::kFill_Style);
+        metricsPaint.setStroke(false);
         metricsPaint.setAlphaf(0.25f);
         if ((fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) &&
             (fm.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag))

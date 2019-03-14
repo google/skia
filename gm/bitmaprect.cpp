@@ -56,7 +56,7 @@ protected:
         };
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         SkBitmap bitmap;
         make_bitmap(&bitmap);

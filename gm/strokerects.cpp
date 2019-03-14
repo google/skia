@@ -47,7 +47,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
 
         for (int y = 0; y < 2; y++) {
             paint.setAntiAlias(!!y);

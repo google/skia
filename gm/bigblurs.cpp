@@ -60,7 +60,7 @@ protected:
 
         SkPaint outlinePaint;
         outlinePaint.setColor(SK_ColorRED);
-        outlinePaint.setStyle(SkPaint::kStroke_Style);
+        outlinePaint.setStroke(true);
 
         SkPaint blurPaint;
         blurPaint.setAntiAlias(true);

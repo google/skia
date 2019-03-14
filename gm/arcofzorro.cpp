@@ -36,7 +36,7 @@ protected:
 
         SkPaint p;
 
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(35);
         int xOffset = 0, yOffset = 0;
         int direction = 0;

@@ -28,12 +28,12 @@ static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
 
 static void show_image(SkCanvas* canvas, SkImage* image, sk_sp<SkImageFilter> filter) {
     SkPaint paint;
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     SkRect r = SkRect::MakeIWH(image->width(), image->height()).makeOutset(SK_ScalarHalf,
                                                                            SK_ScalarHalf);
     canvas->drawRect(r, paint);
 
-    paint.setStyle(SkPaint::kFill_Style);
+    paint.setStroke(false);
     paint.setImageFilter(filter);
     canvas->drawImage(image, 0, 0, &paint);
 }

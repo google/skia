@@ -98,7 +98,7 @@ protected:
             bounds.inset(100, 100);
             SkPaint boundPaint;
             boundPaint.setColor(SK_ColorRED);
-            boundPaint.setStyle(SkPaint::kStroke_Style);
+            boundPaint.setStroke(true);
             canvas->drawRect(bounds, boundPaint);
             canvas->clipRect(bounds);
             canvas->saveLayer(&bounds, nullptr);
@@ -164,7 +164,7 @@ private:
                        const SkPath& clipA, const SkPath& clipB) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         const SkAlpha fade = 0x33;
 
         // draw path in hairline

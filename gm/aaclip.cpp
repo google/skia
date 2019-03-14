@@ -248,7 +248,7 @@ protected:
         canvas->drawPath(path, paint);
 
         paint.setColor(SK_ColorRED);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         canvas->drawPath(path, paint);
     }
 

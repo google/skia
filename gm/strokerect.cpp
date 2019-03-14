@@ -15,14 +15,18 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
                       SkPaint::Join join, int doFill) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(doFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
+    if (doFill) {
+        paint.setStrokeAndFill();
+    } else {
+        paint.setStroke(true);
+    }
 
     paint.setColor(SK_ColorGRAY);
     paint.setStrokeWidth(STROKE_WIDTH);
     paint.setStrokeJoin(join);
     canvas->drawRect(rect, paint);
 
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(0);
     paint.setColor(SK_ColorRED);
     canvas->drawPath(path, paint);
@@ -60,7 +64,7 @@ protected:
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(STROKE_WIDTH);
 
         constexpr SkPaint::Join gJoins[] = {
@@ -120,7 +124,7 @@ DEF_GM(return new StrokeRectGM;)
  */
 DEF_SIMPLE_GM(strokerect_anisotropic_5408, canvas, 200, 50) {
     SkPaint p;
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(6);
 
     canvas->scale(10, 1);

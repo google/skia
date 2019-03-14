@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(bug5252, canvas, 500, 500) {
 	//canvas->clipPath(clip2); // ok
 
 	SkPaint pa;
-	pa.setStyle(SkPaint::kStroke_Style);
+	pa.setStroke(true);
 	pa.setAntiAlias(true);
 	pa.setStrokeWidth(1.0f);
 	for (int i = 0; i < 15; i++)

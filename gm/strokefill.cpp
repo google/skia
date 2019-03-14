@@ -239,7 +239,7 @@ static void path_bold(SkCanvas* canvas, const SkPath& path,
                       const SkPaint& paint, float textSize) {
         SkPaint p(paint);
         canvas->drawPath(path, p);
-        p.setStyle(SkPaint::kStrokeAndFill_Style);
+        p.setStrokeAndFill();
         SkScalar fakeBoldScale = SkScalarInterpFunc(textSize,
                 kStdFakeBoldInterpKeys, kStdFakeBoldInterpValues,
                 kStdFakeBoldInterpLength);
@@ -353,7 +353,7 @@ DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {
     canvas->drawPath(path, paint);
 
     paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(1);
     canvas->drawPath(path, paint);
 }
@@ -379,16 +379,16 @@ DEF_SIMPLE_GM(bug339297_as_clip, canvas, 640, 480) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kFill_Style);
+    paint.setStroke(false);
     paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(1);
     canvas->drawPath(path, paint);
 }
 
 DEF_SIMPLE_GM(bug6987, canvas, 200, 200) {
     SkPaint paint;
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(0.0001f);
     paint.setAntiAlias(true);
     SkPath path;
