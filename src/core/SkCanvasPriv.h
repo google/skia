@@ -43,12 +43,6 @@ public:
     static int SaveBehind(SkCanvas* canvas, const SkRect* subset) {
         return canvas->only_axis_aligned_saveBehind(subset);
     }
-
-    // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,
-    // where entries refer into them, but no explicit size is provided. Given a set of entries,
-    // computes the minimum length for these arrays that would provide index access errors.
-    static void GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[], int count,
-                                          int* totalDstClipCount, int* totalMatrixCount);
 };
 
 #endif

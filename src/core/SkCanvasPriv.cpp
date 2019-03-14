@@ -83,17 +83,3 @@ void SkCanvasPriv::WriteLattice(SkWriteBuffer& buffer, const SkCanvas::Lattice& 
     buffer.writePad32(storage.get(), size);
 }
 
-void SkCanvasPriv::GetDstClipAndMatrixCounts(const SkCanvas::ImageSetEntry set[], int count,
-                                             int* totalDstClipCount, int* totalMatrixCount) {
-    int dstClipCount = 0;
-    int maxMatrixIndex = -1;
-    for (int i = 0; i < count; ++i) {
-        dstClipCount += 4 * set[i].fHasClip;
-        if (set[i].fMatrixIndex > maxMatrixIndex) {
-            maxMatrixIndex = set[i].fMatrixIndex;
-        }
-    }
-
-    *totalDstClipCount = dstClipCount;
-    *totalMatrixCount = maxMatrixIndex + 1;
-}

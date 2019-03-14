@@ -39,6 +39,7 @@ public:
     void onDrawPaint (const SkPaint&) override;
     void onDrawPath  (const SkPath&, const SkPaint&) override;
     void onDrawRect  (const SkRect&, const SkPaint&) override;
+    void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawOval  (const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
@@ -63,6 +64,7 @@ public:
     void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
                          SrcRectConstraint) override;
+    void onDrawImageSet(const ImageSetEntry[], int count, SkFilterQuality, SkBlendMode) override;
 
     void onDrawPatch(const SkPoint[12], const SkColor[4],
                      const SkPoint[4], SkBlendMode, const SkPaint&) override;
@@ -72,11 +74,6 @@ public:
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
-
-    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, SkColor,
-                          SkBlendMode) override;
-    void onDrawEdgeAAImageSet(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
-                              const SkPaint*, SrcRectConstraint) override;
 
 private:
     typedef SkCanvasVirtualEnforcer<SkNoDrawCanvas> INHERITED;
