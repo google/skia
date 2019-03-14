@@ -96,7 +96,8 @@ TextBlob::TextBlob(sk_sp<SkTextBlob> blob)
 TextBlob::~TextBlob() = default;
 
 SkRect TextBlob::onRevalidate(InvalidationController*, const SkMatrix&) {
-    return fBlob ? fBlob->bounds() : SkRect::MakeEmpty();
+    return fBlob ? fBlob->bounds().makeOffset(fPosition.x(), fPosition.y())
+                 : SkRect::MakeEmpty();
 }
 
 void TextBlob::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
