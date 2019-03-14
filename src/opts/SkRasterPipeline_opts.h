@@ -1331,6 +1331,10 @@ STAGE(clamp_a, Ctx::None) {
     b = min(b, a);
 }
 
+STAGE(clamp_a_01, Ctx::None) {
+    a = max(0, min(a, 1.0f));
+}
+
 STAGE(clamp_gamut, Ctx::None) {
     // If you're using this stage, a should already be in [0,1].
     r = min(max(r, 0), a);
@@ -2626,6 +2630,12 @@ STAGE_PP(clamp_a, Ctx::None) {
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
+}
+
+STAGE_PP(clamp_a_01, Ctx::None) {
+    for (size_t i = 0; i < N; i++) {
+        SkASSERT(a[i] <= 255);
+    }
 }
 
 STAGE_PP(clamp_gamut, Ctx::None) {

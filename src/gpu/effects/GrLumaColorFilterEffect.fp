@@ -12,12 +12,12 @@
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR +
                      SK_ITU_BT709_LUM_COEFF_G * input.fG +
                      SK_ITU_BT709_LUM_COEFF_B * input.fB;
-        return { 0, 0, 0, luma };
+        return { 0, 0, 0, SkTPin(luma, 0.0f, 1.0f) };
     }
 }
 
 void main() {
     const half3 SK_ITU_BT709_LUM_COEFF = half3(0.2126, 0.7152, 0.0722);
-    half luma = dot(SK_ITU_BT709_LUM_COEFF, sk_InColor.rgb);
+    half luma = saturate(dot(SK_ITU_BT709_LUM_COEFF, sk_InColor.rgb));
     sk_OutColor = half4(0, 0, 0, luma);
 }
