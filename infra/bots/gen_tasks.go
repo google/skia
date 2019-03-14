@@ -368,7 +368,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
-			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI", "NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9", "BonusConfigs"}
+			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI", "NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "AndroidSkottieTracing"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !util.In(part, ignore) {
@@ -377,6 +377,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			}
 			ec = keep
 		}
+		// rmistry: Add AndroidSkottieTracing here?
 		if task_os == "Android" {
 			if !util.In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
@@ -1171,6 +1172,8 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		recipe = "perf_pathkit"
 	} else if strings.Contains(name, "CanvasKit") {
 		recipe = "perf_canvaskit"
+	} else if strings.Contains(name, "SkottieTracing") {
+		recipe = "perf_skottietrace"
 	}
 	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
