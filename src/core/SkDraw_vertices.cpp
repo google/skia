@@ -83,7 +83,7 @@ protected:
         return nullptr;
     }
 #endif
-    bool onAppendStages(const StageRec& rec) const override {
+    bool onAppendStages(const SkStageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         return true;

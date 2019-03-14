@@ -14,15 +14,12 @@
 class GrColorSpaceInfo;
 class GrFragmentProcessor;
 class GrRecordingContext;
-
-class SkArenaAlloc;
-class SkColorSpace;
-class SkRasterPipeline;
+struct SkStageRec;
 class SkString;
 
 class SkMixerBase : public SkMixer {
 public:
-    virtual bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*) const = 0;
+    virtual bool appendStages(const SkStageRec&) const = 0;
 
 #if SK_SUPPORT_GPU
     /**

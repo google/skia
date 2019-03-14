@@ -81,7 +81,7 @@ sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorS
     return sk_make_sp<SkColor4Shader>(color, std::move(space));
 }
 
-bool SkColorShader::onAppendStages(const StageRec& rec) const {
+bool SkColorShader::onAppendStages(const SkStageRec& rec) const {
     SkColor4f color = SkColor4f::FromColor(fColor);
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                            rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
@@ -89,7 +89,7 @@ bool SkColorShader::onAppendStages(const StageRec& rec) const {
     return true;
 }
 
-bool SkColor4Shader::onAppendStages(const StageRec& rec) const {
+bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
     SkColor4f color = fColor;
     SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
                            rec.fDstCS,        kUnpremul_SkAlphaType).apply(color.vec());

@@ -8,6 +8,7 @@
 #ifndef SkShaderBase_DEFINED
 #define SkShaderBase_DEFINED
 
+#include "SkEffectPriv.h"
 #include "SkFilterQuality.h"
 #include "SkMask.h"
 #include "SkMatrix.h"
@@ -158,18 +159,8 @@ public:
         return this->onMakeColorSpace(xformer);
     }
 
-    struct StageRec {
-        SkRasterPipeline*   fPipeline;
-        SkArenaAlloc*       fAlloc;
-        SkColorType         fDstColorType;
-        SkColorSpace*       fDstCS;         // may be nullptr
-        const SkPaint&      fPaint;
-        const SkMatrix*     fLocalM;        // may be nullptr
-        SkMatrix            fCTM;
-    };
-
     // If this returns false, then we draw nothing (do not fall back to shader context)
-    bool appendStages(const StageRec&) const;
+    bool appendStages(const SkStageRec&) const;
 
     bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
                                                    const SkMatrix* outerLocalMatrix,
@@ -227,7 +218,7 @@ protected:
     }
 
     // Default impl creates shadercontext and calls that (not very efficient)
-    virtual bool onAppendStages(const StageRec&) const;
+    virtual bool onAppendStages(const SkStageRec&) const;
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.

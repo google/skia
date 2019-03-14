@@ -156,11 +156,11 @@ sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, 
     return SkPictureShader::Make(std::move(src), tmx, tmy, localMatrix, tile);
 }
 
-bool SkShaderBase::appendStages(const StageRec& rec) const {
+bool SkShaderBase::appendStages(const SkStageRec& rec) const {
     return this->onAppendStages(rec);
 }
 
-bool SkShaderBase::onAppendStages(const StageRec& rec) const {
+bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     // SkShader::Context::shadeSpan() handles the paint opacity internally,
     // but SkRasterPipelineBlitter applies it as a separate stage.
     // We skip the internal shadeSpan() step by forcing the paint opaque.

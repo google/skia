@@ -254,7 +254,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     return tileShader;
 }
 
-bool SkPictureShader::onAppendStages(const StageRec& rec) const {
+bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     auto lm = this->totalLocalMatrix(rec.fLocalM);
 
     // Keep bitmapShader alive by using alloc instead of stack memory
@@ -265,7 +265,7 @@ bool SkPictureShader::onAppendStages(const StageRec& rec) const {
         return false;
     }
 
-    StageRec localRec = rec;
+    SkStageRec localRec = rec;
     localRec.fLocalM = lm->isIdentity() ? nullptr : lm.get();
 
     return as_SB(bitmapShader)->appendStages(localRec);

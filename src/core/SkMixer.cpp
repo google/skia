@@ -6,6 +6,7 @@
  */
 
 #include "SkBlendModePriv.h"
+#include "SkEffectPriv.h"
 #include "SkMixerBase.h"
 #include "SkReadBuffer.h"
 #include "SkRasterPipeline.h"
@@ -29,9 +30,8 @@ public:
         buffer.writePad32(&fPM, sizeof(SkPMColor4f));
     }
 
-    bool appendStages(SkRasterPipeline* pipeline, SkColorSpace*,
-                      SkArenaAlloc* alloc) const override {
-        pipeline->append_constant_color(alloc, (const float*)&fPM);
+    bool appendStages(const SkStageRec& rec) const override {
+        rec.fPipeline->append_constant_color(rec.fAlloc, (const float*)&fPM);
         return true;
     }
 
@@ -65,19 +65,19 @@ public:
         buffer.writeFlattenable(fProxy.get());
     }
 
-    bool appendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
-                      SkArenaAlloc* alloc) const override {
+    bool appendStages(const SkStageRec& rec) const override {
         struct Storage {
             float   fRGBA[4 * SkRasterPipeline_kMaxStride];
         };
-        auto storage = alloc->make<Storage>();
+        auto storage = rec.fAlloc->make<Storage>();
+        SkRasterPipeline* pipeline = rec.fPipeline;
 
         // swap src,dst
         pipeline->append(SkRasterPipeline::store_dst, storage->fRGBA);
         pipeline->append(SkRasterPipeline::move_src_dst);
         pipeline->append(SkRasterPipeline::load_src, storage->fRGBA);
 
-        return as_MB(fProxy)->appendStages(pipeline, dstCS, alloc);
+        return as_MB(fProxy)->appendStages(rec);
     }
 
 #if SK_SUPPORT_GPU
@@ -107,8 +107,8 @@ public:
         buffer.write32(static_cast<int>(fMode));
     }
 
-    bool appendStages(SkRasterPipeline* pipeline, SkColorSpace*, SkArenaAlloc*) const override {
-        SkBlendMode_AppendStages(fMode, pipeline);
+    bool appendStages(const SkStageRec& rec) const override {
+        SkBlendMode_AppendStages(fMode, rec.fPipeline);
         return true;
     }
 
@@ -145,8 +145,8 @@ public:
         buffer.writeScalar(fWeight);
     }
 
-    bool appendStages(SkRasterPipeline* pipeline, SkColorSpace*, SkArenaAlloc*) const override {
-        pipeline->append(SkRasterPipeline::lerp_1_float, &fInvWeight);
+    bool appendStages(const SkStageRec& rec) const override {
+        rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fInvWeight);
         return true;
     }
 
@@ -185,20 +185,20 @@ public:
         buffer.writeFlattenable(fCombine.get());
     }
 
-    bool appendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
-                      SkArenaAlloc* alloc) const override {
+    bool appendStages(const SkStageRec& rec) const override {
         struct Storage {
             float   fSrcA[4 * SkRasterPipeline_kMaxStride];
             float   fSrcB[4 * SkRasterPipeline_kMaxStride];
             float   fRes1[4 * SkRasterPipeline_kMaxStride];
         };
-        auto storage = alloc->make<Storage>();
+        auto storage = rec.fAlloc->make<Storage>();
+        SkRasterPipeline* pipeline = rec.fPipeline;
 
         // Need to save off r,g,b,a and dr,dg,db,da so we can use them twice (for fM0 and fM1)
         pipeline->append(SkRasterPipeline::store_src, storage->fSrcA);
         pipeline->append(SkRasterPipeline::store_dst, storage->fSrcB);
 
-        if (!as_MB(fM1)->appendStages(pipeline, dstCS, alloc)) {
+        if (!as_MB(fM1)->appendStages(rec)) {
             return false;
         }
         // This outputs r,g,b,a, which we'll need later when we apply the mixer, but we save it off now
@@ -208,7 +208,7 @@ public:
         // Now restore the original colors to call the first mixer
         pipeline->append(SkRasterPipeline::load_src, storage->fSrcA);
         pipeline->append(SkRasterPipeline::load_dst, storage->fSrcB);
-        if (!as_MB(fM0)->appendStages(pipeline, dstCS, alloc)) {
+        if (!as_MB(fM0)->appendStages(rec)) {
             return false;
         }
 
@@ -219,7 +219,7 @@ public:
         // 1st color in  r, g, b, a
         // 2nd color in dr,dg,db,da
         // The mixer's output will be in r,g,b,a
-        return as_MB(fCombine)->appendStages(pipeline, dstCS, alloc);
+        return as_MB(fCombine)->appendStages(rec);
     }
 
 #if SK_SUPPORT_GPU
@@ -299,6 +299,10 @@ SkPMColor4f SkMixerBase::test_mix(const SkPMColor4f& a, const SkPMColor4f& b) co
 
     SkSTArenaAlloc<128> alloc;
     SkRasterPipeline    pipeline(&alloc);
+    SkPaint             dummyPaint;
+    SkStageRec rec = {
+        &pipeline, &alloc, kRGBA_F32_SkColorType, nullptr, dummyPaint, nullptr, SkMatrix::I()
+    };
 
     SkRasterPipeline_MemoryCtx srcPtr = { &src, 0 };
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
@@ -306,7 +310,7 @@ SkPMColor4f SkMixerBase::test_mix(const SkPMColor4f& a, const SkPMColor4f& b) co
     pipeline.append(SkRasterPipeline::load_f32, &dstPtr);
     pipeline.append(SkRasterPipeline::move_src_dst);
     pipeline.append(SkRasterPipeline::load_f32, &srcPtr);
-    as_MB(this)->appendStages(&pipeline, nullptr, &alloc);
+    as_MB(this)->appendStages(rec);
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
 

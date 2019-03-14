@@ -8,6 +8,8 @@
 #include "SkColorMatrixFilter.h"
 #include "SkColorSpace.h"
 #include "SkColorSpaceXformer.h"
+#include "SkEffectPriv.h"
+
 #if SK_SUPPORT_GPU
     #include "GrFragmentProcessor.h"
 #endif
@@ -56,9 +58,8 @@ public:
     bool asColorMatrix(SkScalar matrix[20]) const override {
         return fMatrixFilter->asColorMatrix(matrix);
     }
-    void onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
-        fMatrixFilter->appendStages(p, cs, alloc, shaderIsOpaque);
+    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        fMatrixFilter->appendStages(rec, shaderIsOpaque);
     }
 
     // TODO: might want to remember we're a lighting color filter through serialization?
