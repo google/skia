@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb373cf3_94576435",
+        "filename": "src/gpu/gl/GrGLAssembleInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-14T15:22:53Z",
+      "side": 1,
+      "message": "Where does this flag come from?",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 12
+      },
+      "revId": "a43593d0f0d051e122d73436f64109f403e07256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
