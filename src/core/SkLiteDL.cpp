@@ -52,12 +52,13 @@ namespace {
     M(Flush) M(Save) M(Restore) M(SaveLayer) M(SaveBehind)                             \
     M(Concat) M(SetMatrix) M(Translate)                                                \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                                 \
-    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawEdgeAARect)                             \
+    M(DrawPaint) M(DrawPath) M(DrawRect)                                               \
     M(DrawRegion) M(DrawOval) M(DrawArc)                                               \
     M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)        \
-    M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice) M(DrawImageSet) \
+    M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)                 \
     M(DrawTextBlob)                                                                    \
-    M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas) M(DrawShadowRec)
+    M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas) M(DrawShadowRec)           \
+    M(DrawEdgeAAQuad) M(DrawEdgeAAImageSet)
 
 #define M(T) T,
     enum class Type : uint8_t { TYPES(M) };
@@ -189,19 +190,6 @@ namespace {
         SkRect  rect;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) const { c->drawRect(rect, paint); }
-    };
-    struct DrawEdgeAARect final : Op {
-        static const auto kType = Type::DrawEdgeAARect;
-        DrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
-                       SkBlendMode mode)
-            : rect(rect), aa(aa), color(color), mode(mode) {}
-        SkRect rect;
-        SkCanvas::QuadAAFlags aa;
-        SkColor color;
-        SkBlendMode mode;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-            c->experimental_DrawEdgeAARectV1(rect, aa, color, mode);
-        }
     };
     struct DrawRegion final : Op {
         static const auto kType = Type::DrawRegion;
@@ -349,21 +337,6 @@ namespace {
                                 &paint);
         }
     };
-    struct DrawImageSet final : Op {
-        static const auto kType = Type::DrawImageSet;
-        DrawImageSet(const SkCanvas::ImageSetEntry set[], int count, SkFilterQuality quality,
-                     SkBlendMode xfermode)
-                : count(count), quality(quality), xfermode(xfermode), set(count) {
-            std::copy_n(set, count, this->set.get());
-        }
-        int                                   count;
-        SkFilterQuality                       quality;
-        SkBlendMode                           xfermode;
-        SkAutoTArray<SkCanvas::ImageSetEntry> set;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-            c->experimental_DrawImageSetV1(set.get(), count, quality, xfermode);
-        }
-    };
     struct DrawTextBlob final : Op {
         static const auto kType = Type::DrawTextBlob;
         DrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
@@ -459,6 +432,48 @@ namespace {
             c->private_draw_shadow_rec(fPath, fRec);
         }
     };
+
+    struct DrawEdgeAAQuad final : Op {
+        static const auto kType = Type::DrawEdgeAAQuad;
+        DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+                       SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode)
+            : rect(rect), hasClip(clip != nullptr), aa(aa), color(color), mode(mode) {
+                if (clip) {
+                    for (int i = 0; i < 4; ++i) {
+                        this->clip[i] = clip[i];
+                    }
+                }
+            }
+        SkRect rect;
+        SkPoint clip[4];
+        bool hasClip;
+        SkCanvas::QuadAAFlags aa;
+        SkColor color;
+        SkBlendMode mode;
+        void draw(SkCanvas* c, const SkMatrix&) const {
+            c->experimental_DrawEdgeAAQuad(rect, hasClip ? clip : nullptr, aa, color, mode);
+        }
+    };
+    struct DrawEdgeAAImageSet final : Op {
+        static const auto kType = Type::DrawEdgeAAImageSet;
+        DrawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count, int dstClipCount,
+                     const SkPaint* paint, SkCanvas::SrcRectConstraint constraint)
+                : count(count), set(count), dstClipCount(dstClipCount), constraint(constraint) {
+            std::copy_n(set, count, this->set.get());
+            if (paint) { this->paint = *paint; }
+        }
+        int count;
+        SkAutoTArray<SkCanvas::ImageSetEntry> set;
+        int dstClipCount;
+        SkPaint paint;
+        SkCanvas::SrcRectConstraint constraint;
+        void draw(SkCanvas* c, const SkMatrix&) const {
+            auto dstClips = pod<SkPoint>(this);
+            auto preViewMatrices = pod<SkMatrix>(this, dstClipCount * sizeof(SkPoint));
+            c->experimental_DrawEdgeAAImageSet(
+                    set.get(), count, dstClips, preViewMatrices, &paint, constraint);
+        }
+    };
 }
 
 template <typename T, typename... Args>
@@ -533,10 +548,6 @@ void SkLiteDL::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkLiteDL::drawRect(const SkRect& rect, const SkPaint& paint) {
     this->push<DrawRect>(0, rect, paint);
 }
-void SkLiteDL::drawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
-                              SkBlendMode mode) {
-    this->push<DrawEdgeAARect>(0, rect, aa, color, mode);
-}
 void SkLiteDL::drawRegion(const SkRegion& region, const SkPaint& paint) {
     this->push<DrawRegion>(0, region, paint);
 }
@@ -592,11 +603,6 @@ void SkLiteDL::drawImageLattice(sk_sp<const SkImage> image, const SkCanvas::Latt
                 lattice.fRectTypes, fs);
 }
 
-void SkLiteDL::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
-                            SkFilterQuality filterQuality, SkBlendMode mode) {
-    this->push<DrawImageSet>(0, set, count, filterQuality, mode);
-}
-
 void SkLiteDL::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
     this->push<DrawTextBlob>(0, blob, x,y, paint);
 }
@@ -634,6 +640,24 @@ void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const S
 }
 void SkLiteDL::drawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     this->push<DrawShadowRec>(0, path, rec);
+}
+
+void SkLiteDL::drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+                              SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode) {
+    this->push<DrawEdgeAAQuad>(0, rect, clip, aa, color, mode);
+}
+
+void SkLiteDL::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                            const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                            const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
+    int totalDstClipCount, totalMatrixCount;
+    SkCanvasPriv::GetDstClipAndMatrixCounts(set, count, &totalDstClipCount, &totalMatrixCount);
+
+    size_t bytes = totalDstClipCount * sizeof(SkPoint) + totalMatrixCount * sizeof(SkMatrix);
+    void* pod = this->push<DrawEdgeAAImageSet>(
+            bytes, set, count, totalDstClipCount, paint, constraint);
+    copy_v(pod, dstClips, totalDstClipCount,
+           preViewMatrices, totalMatrixCount);
 }
 
 typedef void(*draw_fn)(const void*,  SkCanvas*, const SkMatrix&);
