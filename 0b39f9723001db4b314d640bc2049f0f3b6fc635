@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c210718a_b4a10b91",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-03-14T20:29:24Z",
+      "side": 1,
+      "message": "Should probably be Chorizo so that we can re-assess if we add another Chromecast device to our testing.",
+      "range": {
+        "startLine": 743,
+        "startChar": 6,
+        "endLine": 743,
+        "endChar": 16
+      },
+      "revId": "0b39f9723001db4b314d640bc2049f0f3b6fc635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
