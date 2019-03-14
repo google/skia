@@ -1888,7 +1888,7 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
     } else {
         ABORT("invalid operandType: %s", operandType.description().c_str());
     }
-    if (resultType == operandType && !resultType.highPrecision()) {
+    if (getActualType(resultType) == operandType && !resultType.highPrecision()) {
         this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
                                fDecorationBuffer);
     }
