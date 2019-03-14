@@ -291,7 +291,7 @@ private:
         auto bounds = dstQuad.bounds(dstQuadType);
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(domain);
-        fColorType = static_cast<unsigned>(GrQuadPerEdgeAA::MinColorType(color));
+        fWideColor = !SkPMColor4fFitsInBytes(color);
         fCanSkipAllocatorGather =
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
@@ -311,7 +311,7 @@ private:
         // identical, unless an entry provides a dstClip or additional transform that changes it.
         // The quad list will automatically adapt to that.
         fQuads.reserve(cnt, GrQuadTypeForTransformedRect(viewMatrix));
-        bool allOpaque = true;
+
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -351,7 +351,6 @@ private:
                                                              set[p].fDstRect);
             }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
-            allOpaque &= (1.f == alpha);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
             int srcQuadIndex = -1;
             if (set[p].fDstClipQuad) {
@@ -372,7 +371,7 @@ private:
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(false);
-        fColorType = static_cast<unsigned>(allOpaque ? ColorType::kNone : ColorType::kByte);
+        fWideColor = static_cast<unsigned>(false);
     }
 
     void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy, int start,
@@ -409,7 +408,7 @@ private:
         GrQuadType quadType = GrQuadType::kRect;
         GrQuadType srcQuadType = GrQuadType::kRect;
         Domain domain = Domain::kNo;
-        ColorType colorType = ColorType::kNone;
+        bool wideColor = false;
         int numProxies = 0;
         int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
@@ -427,7 +426,7 @@ private:
             if (op.fDomain) {
                 domain = Domain::kYes;
             }
-            colorType = SkTMax(colorType, static_cast<ColorType>(op.fColorType));
+            wideColor |= op.fWideColor;
             numProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 numTotalQuads += op.fProxies[p].fQuadCnt;
@@ -444,7 +443,8 @@ private:
             }
         }
 
-        VertexSpec vertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true, domain, aaType,
+        VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
+                              srcQuadType, /* hasLocal */ true, domain, aaType,
                               /* alpha as coverage */ true);
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
@@ -562,7 +562,7 @@ private:
         }
 
         fDomain |= that->fDomain;
-        fColorType = SkTMax(fColorType, that->fColorType);
+        fWideColor |= that->fWideColor;
         if (upgradeToCoverageAAOnMerge) {
             fAAType = static_cast<unsigned>(GrAAType::kCoverage);
         }
@@ -644,12 +644,11 @@ private:
     unsigned fFilter : 2;
     unsigned fAAType : 2;
     unsigned fDomain : 1;
-    unsigned fColorType : 2;
-    GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
+    unsigned fWideColor : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fCanSkipAllocatorGather : 1;
-    unsigned fProxyCnt : 32 - 9;
+    unsigned fProxyCnt : 32 - 8;
     Proxy fProxies[1];
 
     static_assert(kGrQuadTypeCount <= 4, "GrQuadType does not fit in 2 bits");
