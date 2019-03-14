@@ -31,6 +31,10 @@ python tools/embed_resources.py \
     --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
     --align 4
 
+GN_GPU_FLAGS="\"-DIS_WEBGL=1\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
+WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
+          -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
+
 NINJA=`which ninja`
 
 ./bin/fetch-gn
@@ -42,7 +46,8 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\"
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\",
+    ${GN_GPU_FLAGS}
   ] \
   is_debug=false \
   is_official_build=true \
@@ -111,7 +116,7 @@ ${EMCXX} \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
     -std=c++17 \
-    --pre-js $BASE_DIR/cpu.js \
+    $WASM_GPU \
     --post-js $BASE_DIR/ready.js \
     --bind \
     $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
@@ -129,6 +134,7 @@ ${EMCXX} \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
+    -s USE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js
 
 # TODO(nifong): write unit tests

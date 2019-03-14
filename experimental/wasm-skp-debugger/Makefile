@@ -4,8 +4,6 @@ debug:
 	mkdir -p ./debugger/bin
 	cp ../../out/debugger_wasm/debugger.js   ./debugger/bin
 	cp ../../out/debugger_wasm/debugger.wasm ./debugger/bin
-	# only necessary while emscripten's --preload-file is being used for testing
-	cp ../../out/debugger_wasm/debugger.data ./debugger/bin
 
 local-example:
 	rm -rf node_modules/debugger
