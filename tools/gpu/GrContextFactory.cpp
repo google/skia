@@ -20,6 +20,9 @@
 #ifdef SK_METAL
 #include "mtl/MtlTestContext.h"
 #endif
+#ifdef SK_DAWN
+#include "dawn/DawnTestContext.h"
+#endif
 #include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "mock/MockTestContext.h"
@@ -230,6 +233,17 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         case GrBackendApi::kMetal: {
             SkASSERT(!masterContext);
             testCtx.reset(CreatePlatformMtlTestContext(nullptr));
+            if (!testCtx) {
+                return ContextInfo();
+            }
+            break;
+        }
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn: {
+            DawnTestContext* dawnSharedContext = masterContext
+                    ? static_cast<DawnTestContext*>(masterContext->fTestContext) : nullptr;
+            testCtx.reset(CreatePlatformDawnTestContext(dawnSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }
