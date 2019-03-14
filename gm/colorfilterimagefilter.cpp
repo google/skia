@@ -265,7 +265,7 @@ DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
 
 #include "SkMixerBase.h"
 
-DEF_SIMPLE_GM(mixershader2, canvas, 500, 500) {
+DEF_SIMPLE_GM(mixershader2, canvas, 800, 700) {
     do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
         // Use mixers to simulate MakeCompose(a, b, mode, t)
         auto blender = SkMixer::MakeBlend(mode);
