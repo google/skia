@@ -60,7 +60,7 @@ public:
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str());
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]));
         fragBuilder->codeAppendf(
                 "%s.w;\n    half vcoord = half((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) "
                 "/ float(%s));\n    half vlookup = texture(%s, float2(float(vcoord), 0.5)).%s.w;\n "
@@ -71,7 +71,7 @@ public:
                 "smallDims - half2(center, center);\n    half ",
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
@@ -88,10 +88,10 @@ public:
                 "texture(%s, float2(float(vcoord), 0.5)).%s.w;\n    %s = (%s * hlookup) * "
                 "vlookup;\n}\n",
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fOutputColor, args.fInputColor);
     }
