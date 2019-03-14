@@ -160,6 +160,7 @@ var CanvasKit = {
 
 	SkMatrix: {
 		identity: function() {},
+		invert: function() {},
 		mapPoints: function() {},
 		multiply: function() {},
 		rotated: function() {},
