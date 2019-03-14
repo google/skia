@@ -621,52 +621,6 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/build/dm",
-      "/data/local/tmp/"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/dm.sh"
-    ],
-    "infra_step": true,
-    "name": "write dm.sh"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/tmp/dm.sh",
-      "/data/local/tmp/"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push dm.sh"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
       "logcat",
       "-c"
     ],

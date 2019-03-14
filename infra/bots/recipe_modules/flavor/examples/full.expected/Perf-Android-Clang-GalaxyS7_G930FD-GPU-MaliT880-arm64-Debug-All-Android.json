@@ -579,52 +579,6 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/build/nanobench",
-      "/data/local/tmp/"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push nanobench"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/nanobench.sh"
-    ],
-    "infra_step": true,
-    "name": "write nanobench.sh"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "push",
-      "[START_DIR]/tmp/nanobench.sh",
-      "/data/local/tmp/"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "push nanobench.sh"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
       "logcat",
       "-c"
     ],
