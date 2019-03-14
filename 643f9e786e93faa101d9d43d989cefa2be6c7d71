@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9e0d4b8_8951a0d5",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1612,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-14T17:14:43Z",
+      "side": 1,
+      "message": "The fuzzing actually runs on pretty tight memory constraints, could we do 256 by 256 for the bitmap?  (see also line 1667)\n\nIf you wouldn\u0027t mind adding an SkDebugf if we can\u0027t allocate the memory, that would be helpful as well.",
+      "revId": "643f9e786e93faa101d9d43d989cefa2be6c7d71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
