@@ -249,5 +249,6 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
+    -s USE_WEBGL2=0 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

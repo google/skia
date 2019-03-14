@@ -19,7 +19,7 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-#if IS_WEBGL
+#if IS_WEBGL==1
 static constexpr bool kIsWebGL = true;
 #else
 static constexpr bool kIsWebGL = false;

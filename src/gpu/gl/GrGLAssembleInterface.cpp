@@ -16,6 +16,9 @@
 #define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Fn*)get(ctx, "egl" #F #S)
 
 sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get) {
+#if IS_WEBGL==1
+    return GrGLMakeAssembledGLESInterface(ctx, get);
+#else
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
         return nullptr;
@@ -34,6 +37,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get
         return GrGLMakeAssembledGLInterface(ctx, get);
     }
     return nullptr;
+#endif
 }
 
 static void get_egl_query_and_display(GrEGLQueryStringFn** queryString, GrEGLDisplay* display,
