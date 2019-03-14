@@ -71,15 +71,16 @@ struct ShapeValue {
 };
 
 struct TextValue {
-    sk_sp<SkTypeface> fTypeface;
-    SkString          fText;
-    float             fTextSize    = 0,
-                      fStrokeWidth = 0;
+    sk_sp<SkTypeface>  fTypeface;
+    SkString           fText;
+    float              fTextSize    = 0,
+                       fStrokeWidth = 0;
     SkTextUtils::Align fAlign       = SkTextUtils::kLeft_Align;
-    SkColor           fFillColor   = SK_ColorTRANSPARENT,
-                      fStrokeColor = SK_ColorTRANSPARENT;
-    bool              fHasFill   : 1,
-                      fHasStroke : 1;
+    SkRect             fBox         = SkRect::MakeEmpty();
+    SkColor            fFillColor   = SK_ColorTRANSPARENT,
+                       fStrokeColor = SK_ColorTRANSPARENT;
+    bool               fHasFill   : 1,
+                       fHasStroke : 1;
 
     bool operator==(const TextValue& other) const {
         return fTypeface == other.fTypeface
@@ -87,6 +88,7 @@ struct TextValue {
             && fTextSize == other.fTextSize
             && fStrokeWidth == other.fStrokeWidth
             && fAlign == other.fAlign
+            && fBox == other.fBox
             && fFillColor == other.fFillColor
             && fStrokeColor == other.fStrokeColor
             && fHasFill == other.fHasFill

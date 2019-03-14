@@ -271,6 +271,22 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
     v->fAlign = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
                                          SK_ARRAY_COUNT(gAlignMap))];
 
+    // Optional text box size.
+    if (const skjson::ArrayValue* jsz = (*jtxt)["sz"]) {
+        if (jsz->size() == 2) {
+            v->fBox.setWH(ParseDefault<SkScalar>((*jsz)[0], 0),
+                          ParseDefault<SkScalar>((*jsz)[1], 0));
+        }
+    }
+
+    // Optional text box position.
+    if (const skjson::ArrayValue* jps = (*jtxt)["ps"]) {
+        if (jps->size() == 2) {
+            v->fBox.offset(ParseDefault<SkScalar>((*jps)[0], 0),
+                           ParseDefault<SkScalar>((*jps)[1], 0));
+        }
+    }
+
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
                                   const internal::AnimationBuilder* abuilder,
                                   SkColor* c) {
