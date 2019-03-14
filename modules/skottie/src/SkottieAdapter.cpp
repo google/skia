@@ -352,17 +352,20 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
 TextAdapter::~TextAdapter() = default;
 
 sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
-    SkFont font(fText.fTypeface, fText.fTextSize);
-    font.setHinting(kNo_SkFontHinting);
-    font.setSubpixel(true);
-    font.setEdging(SkFont::Edging::kAntiAlias);
-
     // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
     // per-line position adjustments (for external line breaking, horizontal alignment, etc).
     class BlobMaker final : public SkShaper::RunHandler {
     public:
-        BlobMaker(SkTextUtils::Align align)
-            : fAlignFactor(AlignFactor(align)) {}
+        explicit BlobMaker(const TextValue& txt)
+            : fText(txt)
+            , fAlignFactor(AlignFactor(txt.fAlign))
+            , fFont(fText.fTypeface, fText.fTextSize)
+            , fShaper(SkShaper::Make())
+            , fCurrentOffset({txt.fBox.x(), txt.fBox.y()}) {
+            fFont.setHinting(kNo_SkFontHinting);
+            fFont.setSubpixel(true);
+            fFont.setEdging(SkFont::Edging::kAntiAlias);
+        }
 
         Buffer newRunBuffer(const RunInfo& info, const SkFont& font, int glyphCount,
                             SkSpan<const char> utf8) override {
@@ -390,14 +393,16 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
                                   run.fGlyphs.data(),
                                   runSize * sizeof(SkGlyphID));
 
-                // For each buffered line, perform the following position adjustments:
-                //   1) horizontal alignment
-                //   2) vertical advance (based on line number/offset)
-                //   3) baseline/ascent adjustment
-                const auto offset = SkVector::Make(fAlignFactor * fPendingLineAdvance.x(),
-                                                   fPendingLineVOffset + run.fInfo.fAscent);
+                // Horizontal alignment.
+                const auto h_adjust = fAlignFactor * (fPendingLineAdvance.x() - fText.fBox.width());
+
+                // When in point mode, the given position represents the baseline
+                //   => we adjust for SkShaper which treats it as (baseline - ascent).
+                const auto v_adjust = fText.fBox.isEmpty() ? run.fInfo.fAscent : 0;
+
                 for (size_t i = 0; i < runSize; ++i) {
-                    blobBuffer.points()[i] = run.fPositions[SkToInt(i)] + offset;
+                    blobBuffer.points()[i] = run.fPositions[SkToInt(i)]
+                                           + SkVector::Make(h_adjust, v_adjust);
                 }
 
                 line_spacing = SkTMax(line_spacing,
@@ -405,12 +410,25 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
             }
 
             fPendingLineRuns.reset();
-            fPendingLineVOffset += line_spacing;
             fPendingLineAdvance  = { 0, 0 };
         }
 
         sk_sp<SkTextBlob> makeBlob() {
             return fBuilder.make();
+        }
+
+        void shapeLine(const char* start, const char* end) {
+            if (!fShaper) {
+                return;
+            }
+
+            // When no text box is present, text is laid out on a single infinite line
+            // (modulo explicit line breaks).
+            const auto shape_width = fText.fBox.isEmpty() ? SK_ScalarMax
+                                                          : fText.fBox.width();
+
+            fCurrentOffset = fShaper->shape(this, fFont, start, SkToSizeT(end - start),
+                                            true, fCurrentOffset, shape_width);
         }
 
     private:
@@ -444,23 +462,16 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
             }
         };
 
-        const float fAlignFactor;
+        const TextValue&          fText;
+        const float               fAlignFactor;
 
-        SkTextBlobBuilder        fBuilder;
-        SkSTArray<2, Run, false> fPendingLineRuns;
-        SkScalar                 fPendingLineVOffset = 0;
-        SkVector                 fPendingLineAdvance = { 0, 0 };
-    };
+        SkFont                    fFont;
+        SkTextBlobBuilder         fBuilder;
+        std::unique_ptr<SkShaper> fShaper;
 
-    BlobMaker blobMaker(fText.fAlign);
-
-    const auto& push_line = [&](const char* start, const char* end) {
-        std::unique_ptr<SkShaper> shaper = SkShaper::Make();
-        if (!shaper) {
-            return;
-        }
-
-        shaper->shape(&blobMaker, font, start, SkToSizeT(end - start), true, { 0, 0 }, SK_ScalarMax);
+        SkPoint                   fCurrentOffset;
+        SkSTArray<2, Run, false>  fPendingLineRuns;
+        SkVector                  fPendingLineAdvance = { 0, 0 };
     };
 
     const auto& is_line_break = [](SkUnichar uch) {
@@ -472,19 +483,21 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     const char* line_start = ptr;
     const char* end        = ptr + fText.fText.size();
 
+    BlobMaker blobMaker(fText);
     while (ptr < end) {
         if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
-            push_line(line_start, ptr - 1);
+            blobMaker.shapeLine(line_start, ptr - 1);
             line_start = ptr;
         }
     }
-    push_line(line_start, ptr);
+    blobMaker.shapeLine(line_start, ptr);
 
     return blobMaker.makeBlob();
 }
 
 void TextAdapter::apply() {
     fTextNode->setBlob(this->makeBlob());
+
     fFillColor->setColor(fText.fFillColor);
     fStrokeColor->setColor(fText.fStrokeColor);
     fStrokeColor->setStrokeWidth(fText.fStrokeWidth);
