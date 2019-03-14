@@ -117,6 +117,11 @@ void SkOverdrawCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fList[0]->onDrawRect(rect, this->overdrawPaint(paint));
 }
 
+void SkOverdrawCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                                        SkBlendMode mode) {
+    fList[0]->onDrawRect(rect, fPaint);
+}
+
 void SkOverdrawCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     fList[0]->onDrawRegion(region, this->overdrawPaint(paint));
 }
@@ -206,6 +211,13 @@ void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& l
     }
 }
 
+void SkOverdrawCanvas::onDrawImageSet(const ImageSetEntry set[], int count, SkFilterQuality,
+                                      SkBlendMode) {
+    for (int i = 0; i < count; ++i) {
+        fList[0]->onDrawRect(set[i].fDstRect, fPaint);
+    }
+}
+
 void SkOverdrawCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                     const SkPaint*) {
     fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()), fPaint);
@@ -242,41 +254,6 @@ void SkOverdrawCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec
     SkRect bounds;
     SkDrawShadowMetrics::GetLocalBounds(path, rec, this->getTotalMatrix(), &bounds);
     fList[0]->onDrawRect(bounds, fPaint);
-}
-
-void SkOverdrawCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                        QuadAAFlags aa, SkColor color, SkBlendMode mode) {
-    if (clip) {
-        SkPath path;
-        path.addPoly(clip, 4, true);
-        fList[0]->onDrawPath(path, fPaint);
-    } else {
-        fList[0]->onDrawRect(rect, fPaint);
-    }
-}
-
-void SkOverdrawCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                            const SkPoint dstClips[],
-                                            const SkMatrix preViewMatrices[], const SkPaint* paint,
-                                            SrcRectConstraint constraint) {
-    int clipIndex = 0;
-    for (int i = 0; i < count; ++i) {
-        if (set[i].fMatrixIndex >= 0) {
-            fList[0]->save();
-            fList[0]->concat(preViewMatrices[set[i].fMatrixIndex]);
-        }
-        if (set[i].fHasClip) {
-            SkPath path;
-            path.addPoly(dstClips + clipIndex, 4, true);
-            clipIndex += 4;
-            fList[0]->onDrawPath(path, fPaint);
-        } else {
-            fList[0]->onDrawRect(set[i].fDstRect, fPaint);
-        }
-        if (set[i].fMatrixIndex >= 0) {
-            fList[0]->restore();
-        }
-    }
 }
 
 inline SkPaint SkOverdrawCanvas::overdrawPaint(const SkPaint& paint) {
