@@ -20,7 +20,7 @@ public:
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fR + SK_ITU_BT709_LUM_COEFF_G * input.fG +
                      SK_ITU_BT709_LUM_COEFF_B * input.fB;
-        return {0, 0, 0, luma};
+        return {0, 0, 0, SkTPin(luma, 0.0f, 1.0f)};
     }
     static std::unique_ptr<GrFragmentProcessor> Make() {
         return std::unique_ptr<GrFragmentProcessor>(new GrLumaColorFilterEffect());
