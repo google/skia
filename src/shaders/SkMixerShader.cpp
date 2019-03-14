@@ -41,7 +41,7 @@ void SkShader_Mixer::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fMixer.get());
 }
 
-bool SkShader_Mixer::onAppendStages(const StageRec& rec) const {
+bool SkShader_Mixer::onAppendStages(const SkStageRec& rec) const {
     struct Storage {
         float   fRGBA[4 * SkRasterPipeline_kMaxStride];
     };
@@ -62,7 +62,7 @@ bool SkShader_Mixer::onAppendStages(const StageRec& rec) const {
     // 1st color in  r, g, b, a
     // 2nd color in dr,dg,db,da
     // The mixer's output will be in r,g,b,a
-    return as_MB(fMixer)->appendStages(rec.fPipeline, rec.fDstCS, rec.fAlloc);
+    return as_MB(fMixer)->appendStages(rec);
 }
 
 #if SK_SUPPORT_GPU

@@ -78,7 +78,7 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 }
 #endif
 
-bool SkComposeShader::onAppendStages(const StageRec& rec) const {
+bool SkComposeShader::onAppendStages(const SkStageRec& rec) const {
     struct Storage {
         float   fRGBA[4 * SkRasterPipeline_kMaxStride];
         float   fAlpha;
