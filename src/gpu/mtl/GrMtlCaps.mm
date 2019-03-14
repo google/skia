@@ -413,7 +413,7 @@ void GrMtlCaps::initConfigTable() {
     if (this->isMac()) {
         info->fFlags = ConfigInfo::kAllFlags;
     } else {
-        info->fFlags = ConfigInfo::kRenderable_Flag;
+        info->fFlags = ConfigInfo::kTextureable_Flag | ConfigInfo::kRenderable_Flag;
     }
 
     // Alpha_half uses R16Float
