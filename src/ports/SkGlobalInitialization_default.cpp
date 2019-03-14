@@ -35,7 +35,6 @@
     #include "SkLayerDrawLooper.h"
     #include "SkLightingShader.h"
     #include "SkLocalMatrixShader.h"
-    #include "SkLumaColorFilter.h"
     #include "SkMixerBase.h"
     #include "SkMixerShader.h"
     #include "SkNormalSource.h"
@@ -92,7 +91,6 @@
 
         // Color filters.
         SK_REGISTER_FLATTENABLE(SkColorMatrixFilterRowMajor255);
-        SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
         SkOverdrawColorFilter::RegisterFlattenables();
