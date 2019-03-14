@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "d018d70b_39be7ff6",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-14T20:24:07Z",
+      "side": 1,
+      "message": "Many of these have to be disabled because they use an older API.  Fixing them is on the TODO list.",
+      "parentUuid": "04980a9f_71ec1955",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dad5d499_fee23fdd",
         "filename": "docs/examples/TextBlobBuilder_004.cpp",
         "patchSetId": 10
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "3132c6a1_cd47850f",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-14T20:24:07Z",
+      "side": 1,
+      "message": "everything between line 7 and line 16 is exactly the text that appears at fiddle.skia.org.  Joe will need to extract that to generate fiddles.",
+      "parentUuid": "dad5d499_fee23fdd",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eac05972_7a45c7f7",
         "filename": "gn/examples.gni",
         "patchSetId": 10
@@ -82,6 +130,30 @@
       "writtenOn": "2019-03-11T20:29:29Z",
       "side": 1,
       "message": "Why is this different from how e.g. core.gni works?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 47
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e44a2e1_4d903cc5",
+        "filename": "gn/examples.gni",
+        "patchSetId": 10
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-14T20:24:07Z",
+      "side": 1,
+      "message": "it\u0027s equivalent.  This is fewer lines to do the same thing.\n\nI eventually want to switch over core.gni to this.",
+      "parentUuid": "eac05972_7a45c7f7",
       "range": {
         "startLine": 5,
         "startChar": 0,
