@@ -12,6 +12,8 @@
 #include "SkColor.h"
 #include "SkFlattenable.h"
 
+class SkShader;
+
 /**
  *  A Mixer takes two input colors (A and B) and returns a new color (C)
  *     C = mix(A, B)
@@ -46,6 +48,11 @@ public:
      *      C = A*(1 - t) + B*t
      */
     static sk_sp<SkMixer> MakeLerp(float t);
+
+    /**
+     *  Uses the first channel (e.g. Red) of the shader's output as the lerp coefficient.
+     */
+    static sk_sp<SkMixer> MakeShaderLerp(sk_sp<SkShader>);
 
     /**
      *  Returns the 'arithmetic' combination of two colors
