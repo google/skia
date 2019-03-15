@@ -236,7 +236,8 @@ public:
         GrProcessorAnalysisCoverage coverage = fAntiAlias
                                                        ? GrProcessorAnalysisCoverage::kSingleChannel
                                                        : GrProcessorAnalysisCoverage::kNone;
-        return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType, coverage, &fColor);
+        return fHelper.finalizeProcessors(
+                caps, clip, fsaaType, clampType, coverage, &fColor, nullptr);
     }
 
 private:

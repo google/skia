@@ -209,7 +209,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
     }
     SkPMColor4f color;
     if (GrPixelConfigIsAlphaOnly(proxy->config())) {
-        color = SkColor4fPrepForDst(paint.getColor4f(), dstInfo, *rtc->caps()).premul();
+        color = SkColor4fPrepForDst(paint.getColor4f(), dstInfo).premul();
     } else {
         float paintAlpha = paint.getColor4f().fA;
         color = { paintAlpha, paintAlpha, paintAlpha, paintAlpha };

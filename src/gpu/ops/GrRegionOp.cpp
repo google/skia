@@ -62,7 +62,6 @@ public:
 
         SkRect bounds = SkRect::Make(region.getBounds());
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "GrRegionOp"; }
@@ -91,7 +90,8 @@ public:
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kNone, &fRegions[0].fColor);
+                                          GrProcessorAnalysisCoverage::kNone, &fRegions[0].fColor,
+                                          &fWideColor);
     }
 
 private:
