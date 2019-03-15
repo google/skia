@@ -171,7 +171,7 @@ SkGlyphID SkFont::unicharToGlyph(SkUnichar uni) const {
 }
 
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         uint16_t glyphs[], int maxGlyphCount) const {
+                         SkGlyphID glyphs[], int maxGlyphCount) const {
     if (0 == byteLength) {
         return 0;
     }
@@ -250,7 +250,7 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
         }
         return 0;
     }
-    const uint16_t* glyphs = atg.glyphs();
+    const SkGlyphID* glyphs = atg.glyphs();
 
     auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, canon.getPaint());
 
@@ -293,7 +293,7 @@ static SkRect make_bounds(const SkGlyph& g, SkScalar scale) {
 }
 
 template <typename HANDLER>
-void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const uint16_t glyphs[], int count,
+void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const SkGlyphID glyphs[], int count,
                  HANDLER handler) {
     if (count <= 0) {
         return;
@@ -310,10 +310,10 @@ void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const uint16_t gl
     handler(cache.get(), glyphs, count, scale);
 }
 
-void SkFont::getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
+void SkFont::getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[],
                              const SkPaint* paint) const {
     VisitGlyphs(*this, paint, glyphs, count, [widths, bounds]
-                (SkStrike* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+                (SkStrike* cache, const SkGlyphID glyphs[], int count, SkScalar scale) {
         for (int i = 0; i < count; ++i) {
             const SkGlyph* g;
             if (bounds) {
@@ -329,9 +329,9 @@ void SkFont::getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths
     });
 }
 
-void SkFont::getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin) const {
+void SkFont::getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin) const {
     VisitGlyphs(*this, nullptr, glyphs, count, [pos, origin]
-                      (SkStrike* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+                      (SkStrike* cache, const SkGlyphID glyphs[], int count, SkScalar scale) {
         SkPoint loc = origin;
         for (int i = 0; i < count; ++i) {
             pos[i] = loc;
@@ -340,9 +340,9 @@ void SkFont::getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint o
     });
 }
 
-void SkFont::getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScalar origin) const {
+void SkFont::getXPos(const SkGlyphID glyphs[], int count, SkScalar xpos[], SkScalar origin) const {
     VisitGlyphs(*this, nullptr, glyphs, count, [xpos, origin]
-                      (SkStrike* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+                      (SkStrike* cache, const SkGlyphID glyphs[], int count, SkScalar scale) {
         SkScalar x = origin;
         for (int i = 0; i < count; ++i) {
             xpos[i] = x;
@@ -351,7 +351,7 @@ void SkFont::getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScal
     });
 }
 
-void SkFont::getPaths(const uint16_t glyphs[], int count,
+void SkFont::getPaths(const SkGlyphID glyphs[], int count,
                       void (*proc)(const SkPath*, const SkMatrix&, void*), void* ctx) const {
     SkFont font(*this);
     SkScalar scale = font.setupForAsPaths(nullptr);
@@ -368,7 +368,7 @@ void SkFont::getPaths(const uint16_t glyphs[], int count,
     }
 }
 
-bool SkFont::getPath(uint16_t glyphID, SkPath* path) const {
+bool SkFont::getPath(SkGlyphID glyphID, SkPath* path) const {
     struct Pair {
         SkPath* fPath;
         bool    fWasSet;
@@ -458,7 +458,7 @@ int SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEnc
     return 0;
 }
 
-void SkFontPriv::GlyphsToUnichars(const SkFont& font, const uint16_t glyphs[], int count,
+void SkFontPriv::GlyphsToUnichars(const SkFont& font, const SkGlyphID glyphs[], int count,
                                   SkUnichar uni[]) {
     font.glyphsToUnichars(glyphs, count, uni);
 }
