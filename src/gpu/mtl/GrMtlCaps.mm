@@ -304,7 +304,7 @@ void GrMtlCaps::initShaderCaps() {
         } else {
             if (kGray_8_GrPixelConfig == config) {
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRA();
-            } else if (kRGB_888X_GrPixelConfig == config) {
+            } else if (kRGB_888X_GrPixelConfig == config || kRGB_888_GrPixelConfig == config ) {
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGB1();
             } else {
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
@@ -360,6 +360,10 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kAlpha_8_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
+    // Alpha_8_as_Red uses R8Unorm
+    info = &fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
+
     // Gray_8 uses R8Unorm
     info = &fConfigTable[kGray_8_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
@@ -386,6 +390,10 @@ void GrMtlCaps::initConfigTable() {
 
     // RGB_888X uses RGBA8Unorm and we will swizzle the 1
     info = &fConfigTable[kRGB_888X_GrPixelConfig];
+    info->fFlags = ConfigInfo::kTextureable_Flag;
+
+    // RGB_888 uses RGBA8Unorm and we will swizzle the 1
+    info = &fConfigTable[kRGB_888_GrPixelConfig];
     info->fFlags = ConfigInfo::kTextureable_Flag;
 
     // BGRA_8888 uses BGRA8Unorm

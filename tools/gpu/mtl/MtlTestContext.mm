@@ -10,9 +10,9 @@
 #include "GrContext.h"
 #include "GrContextOptions.h"
 
-#import <Metal/Metal.h>
-
 #ifdef SK_METAL
+
+#import <Metal/Metal.h>
 
 // Helper macros for autorelease pools
 #define SK_BEGIN_AUTORELEASE_BLOCK @autoreleasepool {
@@ -112,21 +112,26 @@ private:
 GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
 #endif
 
-class MtlTestContext : public sk_gpu_test::TestContext {
+class MtlTestContextImpl : public sk_gpu_test::MtlTestContext {
 public:
-    static MtlTestContext* Create(TestContext* sharedContext) {
-        SK_BEGIN_AUTORELEASE_BLOCK
-        SkASSERT(!sharedContext);
-        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-        id<MTLCommandQueue> queue = [device newCommandQueue];
+    static MtlTestContext* Create(MtlTestContext* sharedContext) {
+        id<MTLDevice> device;
+        id<MTLCommandQueue> queue;
+        if (sharedContext) {
+            MtlTestContextImpl* sharedContextImpl = (MtlTestContextImpl*) sharedContext;
+            device = sharedContextImpl->device();
+            queue = sharedContextImpl->queue();
+        } else {
+            SK_BEGIN_AUTORELEASE_BLOCK
+            device = MTLCreateSystemDefaultDevice();
+            queue = [device newCommandQueue];
+            SK_END_AUTORELEASE_BLOCK
+        }
 
-        return new MtlTestContext(device, queue);
-        SK_END_AUTORELEASE_BLOCK
+        return new MtlTestContextImpl(device, queue);
     }
 
-    ~MtlTestContext() override { this->teardown(); }
-
-    GrBackendApi backend() override { return GrBackendApi::kMetal; }
+    ~MtlTestContextImpl() override { this->teardown(); }
 
     void testAbandon() override {}
 
@@ -141,9 +146,12 @@ public:
                                     options);
     }
 
+    id<MTLDevice> device() { return fDevice; }
+    id<MTLCommandQueue> queue() { return fQueue; }
+
 private:
-    MtlTestContext(id<MTLDevice> device, id<MTLCommandQueue> queue)
-            : fDevice(device), fQueue(queue) {
+    MtlTestContextImpl(id<MTLDevice> device, id<MTLCommandQueue> queue)
+            : INHERITED(), fDevice(device), fQueue(queue) {
         fFenceSync.reset(nullptr);
     }
 
@@ -151,19 +159,20 @@ private:
     std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
     void onPlatformSwapBuffers() const override {}
 
-    id<MTLDevice> fDevice;
+    id<MTLDevice>        fDevice;
     id<MTLCommandQueue>  fQueue;
 
-    typedef sk_gpu_test::TestContext INHERITED;
+    typedef sk_gpu_test::MtlTestContext INHERITED;
 };
 
 }  // anonymous namespace
 
 namespace sk_gpu_test {
 
-TestContext* CreatePlatformMtlTestContext(TestContext* sharedContext) {
-    return MtlTestContext::Create(sharedContext);
+MtlTestContext* CreatePlatformMtlTestContext(MtlTestContext* sharedContext) {
+    return MtlTestContextImpl::Create(sharedContext);
 }
+
 }  // namespace sk_gpu_test
 
 
