@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9840684a_dc617ed6",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-15T19:35:08Z",
+      "side": 1,
+      "message": "Then it will draw funny, but close - getPosTan will return the results for the end of the contour.\n\nI could change the if into a while or something, but that might lead to more confusing behavior.\n\nIf a user has such a strange path with short contours, I would encourage them to copy this code and modify it to suit their needs.",
+      "parentUuid": "eab20ea1_df060646",
+      "range": {
+        "startLine": 529,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 27
+      },
+      "revId": "3357b6b794cdf72630ac7facd71cb252e754b06b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17d0f075_3af6817b",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "3357b6b794cdf72630ac7facd71cb252e754b06b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6acfc9b_a529cad7",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-15T19:35:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17d0f075_3af6817b",
+      "range": {
+        "startLine": 544,
+        "startChar": 6,
+        "endLine": 544,
+        "endChar": 20
+      },
+      "revId": "3357b6b794cdf72630ac7facd71cb252e754b06b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
