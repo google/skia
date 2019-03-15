@@ -64,6 +64,17 @@ void SkPaintFilterCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkPaintFilterCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                           SkColor color, SkBlendMode mode) {
+    SkPaint paint;
+    paint.setColor(color);
+    paint.setBlendMode(mode);
+    AutoPaintFilter apf(this, kRect_Type, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawEdgeAARect(rect, aa, paint.getColor(), paint.getBlendMode());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     AutoPaintFilter apf(this, kRRect_Type, paint);
     if (apf.shouldDraw()) {
@@ -173,6 +184,17 @@ void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice
     }
 }
 
+void SkPaintFilterCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                         SkFilterQuality filterQuality, SkBlendMode mode) {
+    SkPaint paint;
+    paint.setBlendMode(mode);
+    AutoPaintFilter apf(this, kBitmap_Type, &paint);
+    mode = paint.getBlendMode();
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawImageSet(set, count, filterQuality, mode);
+    }
+}
+
 void SkPaintFilterCanvas::onDrawVerticesObject(const SkVertices* vertices,
                                                const SkVertices::Bone bones[], int boneCount,
                                                SkBlendMode bmode, const SkPaint& paint) {
@@ -232,29 +254,6 @@ void SkPaintFilterCanvas::onDrawAnnotation(const SkRect& rect, const char key[],
 
 void SkPaintFilterCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     this->SkNWayCanvas::onDrawShadowRec(path, rec);
-}
-
-void SkPaintFilterCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                           QuadAAFlags aa, SkColor color, SkBlendMode mode) {
-    SkPaint paint;
-    paint.setColor(color);
-    paint.setBlendMode(mode);
-    AutoPaintFilter apf(this, kRect_Type, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawEdgeAAQuad(rect, clip, aa, apf.paint()->getColor(),
-                                             apf.paint()->getBlendMode());
-    }
-}
-
-void SkPaintFilterCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                               const SkPoint dstClips[],
-                                               const SkMatrix preViewMatrices[],
-                                               const SkPaint* paint, SrcRectConstraint constraint) {
-    AutoPaintFilter apf(this, kBitmap_Type, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawEdgeAAImageSet(
-                set, count, dstClips, preViewMatrices, apf.paint(), constraint);
-    }
 }
 
 sk_sp<SkSurface> SkPaintFilterCanvas::onNewSurface(const SkImageInfo& info,

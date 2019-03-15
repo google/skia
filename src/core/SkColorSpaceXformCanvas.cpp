@@ -57,6 +57,10 @@ public:
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override {
         fTarget->drawRect(rect, fXformer->apply(paint));
     }
+    void onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                          SkBlendMode mode) override {
+        fTarget->experimental_DrawEdgeAARectV1(rect, aa, fXformer->apply(color), mode);
+    }
     void onDrawOval(const SkRect& oval, const SkPaint& paint) override {
         fTarget->drawOval(oval, fXformer->apply(paint));
     }
@@ -151,6 +155,18 @@ public:
                                       dst, MaybePaint(paint, fXformer.get()));
         }
     }
+    void onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                        SkFilterQuality filterQuality, SkBlendMode mode) override {
+        SkAutoTArray<ImageSetEntry> xformedSet(count);
+        for (int i = 0; i < count; ++i) {
+            xformedSet[i].fImage = this->prepareImage(set[i].fImage.get());
+            xformedSet[i].fSrcRect = set[i].fSrcRect;
+            xformedSet[i].fDstRect = set[i].fDstRect;
+            xformedSet[i].fAlpha = set[i].fAlpha;
+            xformedSet[i].fAAFlags = set[i].fAAFlags;
+        }
+        fTarget->experimental_DrawImageSetV1(xformedSet.get(), count, filterQuality, mode);
+    }
 
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
@@ -228,28 +244,6 @@ public:
     }
     void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) override {
         SkCanvas::onDrawDrawable(drawable, matrix);
-    }
-
-    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                          QuadAAFlags aa, SkColor color, SkBlendMode mode) override {
-        fTarget->experimental_DrawEdgeAAQuad(
-                rect, clip, aa, fXformer->apply(color), mode);
-    }
-    void onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                              const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                              const SkPaint* paint, SrcRectConstraint constraint) override {
-        SkAutoTArray<ImageSetEntry> xformedSet(count);
-        for (int i = 0; i < count; ++i) {
-            xformedSet[i].fImage = this->prepareImage(set[i].fImage.get());
-            xformedSet[i].fSrcRect = set[i].fSrcRect;
-            xformedSet[i].fDstRect = set[i].fDstRect;
-            xformedSet[i].fMatrixIndex = set[i].fMatrixIndex;
-            xformedSet[i].fAlpha = set[i].fAlpha;
-            xformedSet[i].fAAFlags = set[i].fAAFlags;
-            xformedSet[i].fHasClip = set[i].fHasClip;
-        }
-        fTarget->experimental_DrawEdgeAAImageSet(xformedSet.get(), count, dstClips, preViewMatrices,
-                                                 MaybePaint(paint, fXformer.get()), constraint);
     }
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {

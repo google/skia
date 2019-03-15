@@ -176,6 +176,7 @@ protected:
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
+    void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
@@ -188,7 +189,8 @@ protected:
                          const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const SkCanvas::Lattice& lattice, const SkRect& dst,
                             const SkPaint*) override;
-
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
+                        SkBlendMode) override;
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
     void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode, const SkPaint&) override;
@@ -202,11 +204,6 @@ protected:
 
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
-
-    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, SkColor,
-                          SkBlendMode) override;
-    void onDrawEdgeAAImageSet(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
-                              const SkPaint*, SrcRectConstraint) override;
 
     int addPathToHeap(const SkPath& path);  // does not write to ops stream
 

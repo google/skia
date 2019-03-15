@@ -362,6 +362,11 @@ void SkDebugCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
     this->addDrawCommand(new SkDrawImageNineCommand(image, center, dst, paint));
 }
 
+void SkDebugCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                   SkFilterQuality filterQuality, SkBlendMode mode) {
+    this->addDrawCommand(new SkDrawImageSetCommand(set, count, filterQuality, mode));
+}
+
 void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
 }
@@ -400,6 +405,11 @@ void SkDebugCanvas::onDrawPoints(PointMode mode, size_t count,
 void SkDebugCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // NOTE(chudy): Messing up when renamed to DrawRect... Why?
     addDrawCommand(new SkDrawRectCommand(rect, paint));
+}
+
+void SkDebugCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                                     SkBlendMode mode) {
+    this->addDrawCommand(new SkDrawEdgeAARectCommand(rect, aa, color, mode));
 }
 
 void SkDebugCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
@@ -443,18 +453,6 @@ void SkDebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& r
 
 void SkDebugCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     this->addDrawCommand(new SkDrawDrawableCommand(drawable, matrix));
-}
-
-void SkDebugCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
-                                     QuadAAFlags aa, SkColor color, SkBlendMode mode) {
-    this->addDrawCommand(new SkDrawEdgeAAQuadCommand(rect, clip, aa, color, mode));
-}
-
-void SkDebugCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
-                                         const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                         const SkPaint* paint, SrcRectConstraint constraint) {
-    this->addDrawCommand(new SkDrawEdgeAAImageSetCommand(set, count, dstClips, preViewMatrices,
-                                                         paint, constraint));
 }
 
 void SkDebugCanvas::willRestore() {
