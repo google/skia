@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aef85a86_e2ad6517",
+        "filename": "tests/PackedConfigsTextureTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-15T18:34:19Z",
+      "side": 1,
+      "message": "Maybe these could be a runtime check?\n\ne.g. test ctxInfo.grContext()-\u003ecolorTypeSupportedAsImage(kARGB_4444_SkColorType)",
+      "revId": "cd2cf86b7e0940e16a31b763d1e34e9f0c31e9b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
