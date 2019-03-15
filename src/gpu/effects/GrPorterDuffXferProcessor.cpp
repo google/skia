@@ -804,7 +804,7 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
     }
 
     if (formula.canTweakAlphaForCoverage() && !isLCD) {
-        props |= AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+        props |= AnalysisProperties::kCompatibleWithCoverageAsAlpha;
     }
 
     if (isLCD) {

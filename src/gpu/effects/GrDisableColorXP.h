@@ -32,7 +32,7 @@ private:
                                           const GrProcessorAnalysisCoverage&,
                                           const GrCaps&,
                                           GrClampType) const override {
-        return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+        return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
                AnalysisProperties::kIgnoresInputColor;
     }
 

@@ -36,14 +36,14 @@ namespace GrQuadPerEdgeAA {
     struct VertexSpec {
     public:
         VertexSpec(GrQuadType deviceQuadType, ColorType colorType, GrQuadType localQuadType,
-                   bool hasLocalCoords, Domain domain, GrAAType aa, bool alphaAsCoverage)
+                   bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
                 , fHasLocalCoords(hasLocalCoords)
                 , fColorType(static_cast<unsigned>(colorType))
                 , fHasDomain(static_cast<unsigned>(domain))
                 , fUsesCoverageAA(aa == GrAAType::kCoverage)
-                , fCompatibleWithAlphaAsCoverage(alphaAsCoverage) { }
+                , fCompatibleWithCoverageAsAlpha(coverageAsAlpha) { }
 
         GrQuadType deviceQuadType() const { return static_cast<GrQuadType>(fDeviceQuadType); }
         GrQuadType localQuadType() const { return static_cast<GrQuadType>(fLocalQuadType); }
@@ -52,7 +52,7 @@ namespace GrQuadPerEdgeAA {
         bool hasVertexColors() const { return ColorType::kNone != this->colorType(); }
         bool hasDomain() const { return fHasDomain; }
         bool usesCoverageAA() const { return fUsesCoverageAA; }
-        bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoverage; }
+        bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
 
         // Will always be 2 or 3
         int deviceDimensionality() const;
@@ -70,7 +70,7 @@ namespace GrQuadPerEdgeAA {
         unsigned fColorType : 2;
         unsigned fHasDomain: 1;
         unsigned fUsesCoverageAA: 1;
-        unsigned fCompatibleWithAlphaAsCoverage: 1;
+        unsigned fCompatibleWithCoverageAsAlpha: 1;
     };
 
     sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec);
