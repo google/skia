@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bee9a782_e922bdd0",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T19:59:23Z",
+      "side": 1,
+      "message": "sorry I didn\u0027t notice this before... you can do this all at once with load_f32_dst",
+      "revId": "fac12dfe9774c32981eee1a8896bccce6b7bb227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
