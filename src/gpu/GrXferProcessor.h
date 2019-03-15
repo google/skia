@@ -264,7 +264,7 @@ public:
         /**
          * The op may apply coverage as alpha and still blend correctly.
          */
-        kCompatibleWithAlphaAsCoverage = 0x2,
+        kCompatibleWithCoverageAsAlpha = 0x2,
         /**
          * The color input to the GrXferProcessor will be ignored.
          */

@@ -333,7 +333,7 @@ private:
                                                         : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
-                if (fHelper.compatibleWithAlphaAsCoverage()) {
+                if (fHelper.compatibleWithCoverageAsAlpha()) {
                     coverageType = Coverage::kAttributeTweakAlpha_Type;
                 } else {
                     coverageType = Coverage::kAttribute_Type;

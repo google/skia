@@ -616,7 +616,7 @@ enum class CoverageMode {
 
 static CoverageMode get_mode_for_spec(const GrQuadPerEdgeAA::VertexSpec& spec) {
     if (spec.usesCoverageAA()) {
-        if (spec.compatibleWithAlphaAsCoverage() && spec.hasVertexColors()) {
+        if (spec.compatibleWithCoverageAsAlpha() && spec.hasVertexColors()) {
             return CoverageMode::kWithColor;
         } else {
             return CoverageMode::kWithPosition;

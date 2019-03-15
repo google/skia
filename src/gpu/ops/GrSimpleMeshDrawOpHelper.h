@@ -94,7 +94,7 @@ public:
         return fUsesLocalCoords;
     }
 
-    bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoveage; }
+    bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
 
     struct MakeArgs {
     private:
@@ -134,7 +134,7 @@ protected:
     unsigned fPipelineFlags : 8;
     unsigned fAAType : 2;
     unsigned fUsesLocalCoords : 1;
-    unsigned fCompatibleWithAlphaAsCoveage : 1;
+    unsigned fCompatibleWithCoverageAsAlpha : 1;
     SkDEBUGCODE(unsigned fMadePipeline : 1;)
     SkDEBUGCODE(unsigned fDidAnalysis : 1;)
 };
@@ -180,7 +180,7 @@ public:
     using GrSimpleMeshDrawOpHelper::setAAType;
     using GrSimpleMeshDrawOpHelper::isTrivial;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
-    using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
+    using GrSimpleMeshDrawOpHelper::compatibleWithCoverageAsAlpha;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
                       const SkRect& thisBounds, const SkRect& thatBounds,

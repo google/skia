@@ -355,13 +355,13 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
     */
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         if (caps.blendEquationSupport() == GrCaps::kAdvancedCoherent_BlendEquationSupport) {
-            return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+            return AnalysisProperties::kCompatibleWithCoverageAsAlpha;
         } else {
-            return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+            return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
                    AnalysisProperties::kRequiresNonOverlappingDraws;
         }
     }
-    return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+    return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
            AnalysisProperties::kReadsDstInShader;
 }
 
