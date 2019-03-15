@@ -62,6 +62,8 @@ public:
         Closed contours like SkRect, SkRRect, circle, and oval added with
         kCW_Direction travel clockwise; the same added with kCCW_Direction
         travel counterclockwise.
+
+        @example https://fiddle.skia.org/c/@Path_001
     */
     enum Direction : int {
         kCW_Direction,  //!< contour travels clockwise
@@ -72,6 +74,8 @@ public:
         SkPath::FillType is set to kWinding_FillType.
 
         @return  empty SkPath
+
+        @example https://fiddle.skia.org/c/@Path_002
     */
     SkPath();
 
@@ -86,10 +90,14 @@ public:
 
         @param path  SkPath to copy by value
         @return      copy of SkPath
+
+        @example https://fiddle.skia.org/c/@Path_003
     */
     SkPath(const SkPath& path);
 
     /** Releases ownership of any shared data and deletes data if SkPath is sole owner.
+
+        @example https://fiddle.skia.org/c/@Path_004
     */
     ~SkPath();
 
@@ -104,6 +112,8 @@ public:
 
         @param path  verb array, SkPoint array, weights, and SkPath::FillType to copy
         @return      SkPath copied by value
+
+        @example https://fiddle.skia.org/c/@Path_005
     */
     SkPath& operator=(const SkPath& path);
 
@@ -136,6 +146,8 @@ public:
 
         @param compare  SkPath to compare
         @return         true if SkPath verb array and weights are equivalent
+
+        @example https://fiddle.skia.org/c/@Path_008
     */
     bool isInterpolatable(const SkPath& compare) const;
 
@@ -157,6 +169,8 @@ public:
                        one minus contribution of ending SkPoint array
         @param out     SkPath replaced by interpolated averages
         @return        true if SkPath contain same number of SkPoint
+
+        @example https://fiddle.skia.org/c/@Path_009
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
@@ -168,6 +182,10 @@ public:
         reverses the rule:
         kInverseWinding_FillType fills where the sum of contour edges is zero;
         kInverseEvenOdd_FillType fills where the number of contour edges is even.
+
+        @example https://fiddle.skia.org/c/@Path_010
+
+        @example https://fiddle.skia.org/c/@Path_011
     */
     enum FillType {
         kWinding_FillType,        //!< is enclosed by a non-zero sum of contour directions
@@ -181,6 +199,8 @@ public:
 
         @return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
                  kInverseEvenOdd_FillType
+
+        @example https://fiddle.skia.org/c/@Path_012
     */
     FillType getFillType() const { return (FillType)fFillType; }
 
@@ -189,6 +209,8 @@ public:
 
         @param ft  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
                    kInverseEvenOdd_FillType
+
+        @example https://fiddle.skia.org/c/@Path_013
     */
     void setFillType(FillType ft) {
         fFillType = SkToU8(ft);
@@ -198,11 +220,15 @@ public:
         extends indefinitely.
 
         @return  true if FillType is kInverseWinding_FillType or kInverseEvenOdd_FillType
+
+        @example https://fiddle.skia.org/c/@Path_014
     */
     bool isInverseFillType() const { return IsInverseFillType((FillType)fFillType); }
 
     /** Replaces FillType with its inverse. The inverse of FillType describes the area
         unmodified by the original FillType.
+
+        @example https://fiddle.skia.org/c/@Path_015
     */
     void toggleInverseFillType() {
         fFillType ^= 2;
@@ -219,6 +245,8 @@ public:
 
         Initially SkPath Convexity is kUnknown_Convexity. SkPath Convexity is computed
         if needed by destination SkSurface.
+
+        @example https://fiddle.skia.org/c/@Path_016
     */
     enum Convexity : uint8_t {
         kUnknown_Convexity, //!< indicates Convexity has not been determined
@@ -231,6 +259,8 @@ public:
         or if SkPath has been altered since SkPath::Convexity was computed or set.
 
         @return  computed or stored SkPath::Convexity
+
+        @example https://fiddle.skia.org/c/@Path_017
     */
     Convexity getConvexity() const {
         Convexity convexity = this->getConvexityOrUnknown();
@@ -244,6 +274,8 @@ public:
         SkPath has been altered since SkPath::Convexity was computed or set.
 
         @return  stored SkPath::Convexity
+
+        @example https://fiddle.skia.org/c/@Path_018
     */
     Convexity getConvexityOrUnknown() const { return fConvexity.load(std::memory_order_relaxed); }
 
@@ -259,6 +291,8 @@ public:
         altered.
 
         @param convexity  one of: kUnknown_Convexity, kConvex_Convexity, or kConcave_Convexity
+
+        @example https://fiddle.skia.org/c/@Path_019
     */
     void setConvexity(Convexity convexity);
 
@@ -267,6 +301,8 @@ public:
         the path has not been altered, SkPath::Convexity is not recomputed.
 
         @return  true if SkPath::Convexity stored or computed is kConvex_Convexity
+
+        @example https://fiddle.skia.org/c/@Path_020
     */
     bool isConvex() const {
         return kConvex_Convexity == this->getConvexity();
@@ -280,6 +316,8 @@ public:
 
         @param bounds  storage for bounding SkRect of oval; may be nullptr
         @return        true if SkPath is recognized as an oval or circle
+
+        @example https://fiddle.skia.org/c/@Path_021
     */
     bool isOval(SkRect* bounds) const;
 
@@ -292,6 +330,8 @@ public:
 
         @param rrect  storage for bounding SkRect of SkRRect; may be nullptr
         @return       true if SkPath contains only SkRRect
+
+        @example https://fiddle.skia.org/c/@Path_022
     */
     bool isRRect(SkRRect* rrect) const;
 
@@ -300,6 +340,8 @@ public:
         Internal storage associated with SkPath is released.
 
         @return  reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_023
     */
     SkPath& reset();
 
@@ -311,6 +353,8 @@ public:
         is critical.
 
         @return  reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_024
     */
     SkPath& rewind();
 
@@ -319,6 +363,8 @@ public:
         SkPath() constructs empty SkPath; reset() and rewind() make SkPath empty.
 
         @return  true if the path contains no SkPath::Verb array
+
+        @example https://fiddle.skia.org/c/@Path_025
     */
     bool isEmpty() const {
         SkDEBUGCODE(this->validate();)
@@ -330,6 +376,8 @@ public:
         closed contour draws SkPaint::Join instead of SkPaint::Cap at first and last SkPoint.
 
         @return  true if the last contour ends with a kClose_Verb
+
+        @example https://fiddle.skia.org/c/@Path_026
     */
     bool isLastContourClosed() const;
 
@@ -338,6 +386,8 @@ public:
         SK_ScalarInfinity, SK_ScalarNegativeInfinity, or SK_ScalarNaN.
 
         @return  true if all SkPoint values are finite
+
+        @example https://fiddle.skia.org/c/@Path_027
     */
     bool isFinite() const {
         SkDEBUGCODE(this->validate();)
@@ -350,6 +400,8 @@ public:
         may not speed repeated drawing.
 
         @return  true if caller will alter SkPath after drawing
+
+        @example https://fiddle.skia.org/c/@Path_028
     */
     bool isVolatile() const {
         return SkToBool(fIsVolatile);
@@ -369,6 +421,8 @@ public:
         GPU surface SkPath draws are affected by volatile for some shadows and concave geometries.
 
         @param isVolatile  true if caller will alter SkPath after drawing
+
+        @example https://fiddle.skia.org/c/@Path_029
     */
     void setIsVolatile(bool isVolatile) {
         fIsVolatile = isVolatile;
@@ -385,6 +439,8 @@ public:
         @param p2     line end point
         @param exact  if false, allow nearly equals
         @return       true if line is degenerate; its length is effectively zero
+
+        @example https://fiddle.skia.org/c/@Path_030
     */
     static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact);
 
@@ -425,6 +481,8 @@ public:
 
         @param line  storage for line. May be nullptr
         @return      true if SkPath contains exactly one line
+
+        @example https://fiddle.skia.org/c/@Path_033
     */
     bool isLine(SkPoint line[2]) const;
 
@@ -432,6 +490,8 @@ public:
         SkPoint count is initially zero.
 
         @return  SkPath SkPoint array length
+
+        @example https://fiddle.skia.org/c/@Path_035
     */
     int countPoints() const;
 
@@ -441,6 +501,8 @@ public:
 
         @param index  SkPoint array element selector
         @return       SkPoint array value or (0, 0)
+
+        @example https://fiddle.skia.org/c/@Path_036
     */
     SkPoint getPoint(int index) const;
 
@@ -451,6 +513,8 @@ public:
         @param points  storage for SkPath SkPoint array. May be nullptr
         @param max     maximum to copy; must be greater than or equal to zero
         @return        SkPath SkPoint array length
+
+        @example https://fiddle.skia.org/c/@Path_034
     */
     int getPoints(SkPoint points[], int max) const;
 
@@ -458,6 +522,8 @@ public:
         kCubic_Verb, and kClose_Verb; added to SkPath.
 
         @return  length of verb array
+
+        @example https://fiddle.skia.org/c/@Path_037
     */
     int countVerbs() const;
 
@@ -467,6 +533,8 @@ public:
         @param verbs  storage for verbs, may be nullptr
         @param max    maximum number to copy into verbs
         @return       the actual number of verbs in the path
+
+        @example https://fiddle.skia.org/c/@Path_038
     */
     int getVerbs(uint8_t verbs[], int max) const;
 
@@ -479,6 +547,8 @@ public:
         making assignment as efficient as swap().
 
         @param other  SkPath exchanged by value
+
+        @example https://fiddle.skia.org/c/@Path_039
     */
     void swap(SkPath& other);
 
@@ -490,6 +560,8 @@ public:
         kMove_Verb that define empty contours.
 
         @return  bounds of all SkPoint in SkPoint array
+
+        @example https://fiddle.skia.org/c/@Path_040
     */
     const SkRect& getBounds() const {
         return fPathRef->getBounds();
@@ -502,6 +574,8 @@ public:
 
         Call to prepare SkPath subsequently drawn from multiple threads,
         to avoid a race condition where each draw separately computes the bounds.
+
+        @example https://fiddle.skia.org/c/@Path_041
     */
     void updateBoundsCache() const {
         // for now, just calling getBounds() is sufficient
@@ -522,6 +596,8 @@ public:
         and unlike getBounds(), does not cache the result.
 
         @return  tight bounds of curves in SkPath
+
+        @example https://fiddle.skia.org/c/@Path_042
     */
     SkRect computeTightBounds() const;
 
@@ -535,6 +611,8 @@ public:
 
         @param rect  SkRect, line, or SkPoint checked for containment
         @return      true if rect is contained
+
+        @example https://fiddle.skia.org/c/@Path_043
     */
     bool conservativelyContainsRect(const SkRect& rect) const;
 
@@ -543,6 +621,8 @@ public:
         reducing the number and size of allocations when creating SkPath.
 
         @param extraPtCount  number of additional SkPoint to allocate
+
+        @example https://fiddle.skia.org/c/@Path_044
     */
     void incReserve(int extraPtCount);
 
@@ -556,6 +636,8 @@ public:
         @param x  x-axis value of contour start
         @param y  y-axis value of contour start
         @return   reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_045
     */
     SkPath& moveTo(SkScalar x, SkScalar y);
 
@@ -563,6 +645,8 @@ public:
 
         @param p  contour start
         @return   reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_046
     */
     SkPath& moveTo(const SkPoint& p) {
         return this->moveTo(p.fX, p.fY);
@@ -576,6 +660,8 @@ public:
         @param dx  offset from last point to contour start on x-axis
         @param dy  offset from last point to contour start on y-axis
         @return    reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_047
     */
     SkPath& rMoveTo(SkScalar dx, SkScalar dy);
 
@@ -588,6 +674,8 @@ public:
         @param x  end of added line on x-axis
         @param y  end of added line on y-axis
         @return   reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_048
     */
     SkPath& lineTo(SkScalar x, SkScalar y);
 
@@ -599,6 +687,8 @@ public:
 
         @param p  end SkPoint of added line
         @return   reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_049
     */
     SkPath& lineTo(const SkPoint& p) {
         return this->lineTo(p.fX, p.fY);
@@ -615,6 +705,12 @@ public:
         @param dx  offset from last point to line end on x-axis
         @param dy  offset from last point to line end on y-axis
         @return    reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_050
+
+        @example https://fiddle.skia.org/c/@Path_051
+
+        @example https://fiddle.skia.org/c/@Path_052
     */
     SkPath& rLineTo(SkScalar dx, SkScalar dy);
 
@@ -631,6 +727,8 @@ public:
         @param x2  end SkPoint of quad on x-axis
         @param y2  end SkPoint of quad on y-axis
         @return    reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_053
     */
     SkPath& quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2);
 
@@ -645,6 +743,8 @@ public:
         @param p1  control SkPoint of added quad
         @param p2  end SkPoint of added quad
         @return    reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_054
     */
     SkPath& quadTo(const SkPoint& p1, const SkPoint& p2) {
         return this->quadTo(p1.fX, p1.fY, p2.fX, p2.fY);
@@ -666,6 +766,14 @@ public:
         @param dx2  offset from last point to quad end on x-axis
         @param dy2  offset from last point to quad end on y-axis
         @return     reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_055
+
+        @example https://fiddle.skia.org/c/@Path_056
+
+        @example https://fiddle.skia.org/c/@Path_057
+
+        @example https://fiddle.skia.org/c/@Path_058
     */
     SkPath& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2);
 
@@ -713,6 +821,8 @@ public:
         @param p2  end SkPoint of added conic
         @param w   weight of added conic
         @return    reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_060
     */
     SkPath& conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w) {
         return this->conicTo(p1.fX, p1.fY, p2.fX, p2.fY, w);
@@ -777,6 +887,8 @@ public:
         @param p2  second control SkPoint of cubic
         @param p3  end SkPoint of cubic
         @return    reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_064
     */
     SkPath& cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3) {
         return this->cubicTo(p1.fX, p1.fY, p2.fX, p2.fY, p3.fX, p3.fY);
@@ -819,6 +931,8 @@ public:
         @param sweepAngle   sweep, in degrees. Positive is clockwise; treated modulo 360
         @param forceMoveTo  true to start a new contour with arc
         @return             reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_067
     */
     SkPath& arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo);
 
@@ -842,6 +956,12 @@ public:
         @param y2      y-axis value end of second tangent
         @param radius  distance from arc to circle center
         @return        reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_068
+
+        @example https://fiddle.skia.org/c/@Path_069
+
+        @example https://fiddle.skia.org/c/@Path_070
     */
     SkPath& arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius);
 
@@ -863,6 +983,8 @@ public:
         @param p2      end of second tangent
         @param radius  distance from arc to circle center
         @return        reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_071
     */
     SkPath& arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius) {
         return this->arcTo(p1.fX, p1.fY, p2.fX, p2.fY, radius);
@@ -871,6 +993,8 @@ public:
     /** \enum SkPath::ArcSize
         Four oval parts with radii (rx, ry) start at last SkPath SkPoint and ends at (x, y).
         ArcSize and Direction select one of the four oval parts.
+
+        @example https://fiddle.skia.org/c/@Path_072
     */
     enum ArcSize {
         kSmall_ArcSize, //!< smaller of arc pair
@@ -926,6 +1050,8 @@ public:
         @param sweep        chooses clockwise or counterclockwise arc
         @param xy           end of arc
         @return             reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_074
     */
     SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
                const SkPoint xy) {
@@ -970,6 +1096,8 @@ public:
         close() has no effect if SkPath is empty or last SkPath SkPath::Verb is kClose_Verb.
 
         @return  reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_076
     */
     SkPath& close();
 
@@ -979,6 +1107,8 @@ public:
         @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
                      kInverseWinding_FillType, kInverseEvenOdd_FillType
         @return      true if SkPath fills outside its bounds
+
+        @example https://fiddle.skia.org/c/@Path_077
     */
     static bool IsInverseFillType(FillType fill) {
         static_assert(0 == kWinding_FillType, "fill_type_mismatch");
@@ -994,6 +1124,8 @@ public:
         @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
                      kInverseWinding_FillType, kInverseEvenOdd_FillType
         @return      fill, or kWinding_FillType or kEvenOdd_FillType if fill is inverted
+
+        @example https://fiddle.skia.org/c/@Path_078
     */
     static FillType ConvertToNonInverseFillType(FillType fill) {
         static_assert(0 == kWinding_FillType, "fill_type_mismatch");
@@ -1043,6 +1175,8 @@ public:
         @param isClosed   storage set to true if SkPath is closed; may be nullptr
         @param direction  storage set to SkRect direction; may be nullptr
         @return           true if SkPath contains SkRect
+
+        @example https://fiddle.skia.org/c/@Path_080
     */
     bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const;
 
@@ -1056,6 +1190,8 @@ public:
         @param rect  storage for SkRect pair; may be nullptr
         @param dirs  storage for SkPath::Direction pair; may be nullptr
         @return      true if SkPath contains nested SkRect pair
+
+        @example https://fiddle.skia.org/c/@Path_081
     */
     bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const;
 
@@ -1067,6 +1203,8 @@ public:
         @param rect  SkRect to add as a closed contour
         @param dir   SkPath::Direction to wind added contour
         @return      reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_082
     */
     SkPath& addRect(const SkRect& rect, Direction dir = kCW_Direction);
 
@@ -1079,6 +1217,8 @@ public:
         @param dir    SkPath::Direction to wind added contour
         @param start  initial corner of SkRect to add
         @return       reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_083
     */
     SkPath& addRect(const SkRect& rect, Direction dir, unsigned start);
 
@@ -1094,6 +1234,8 @@ public:
         @param bottom  larger y-axis value of SkRect
         @param dir     SkPath::Direction to wind added contour
         @return        reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_084
     */
     SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
                     Direction dir = kCW_Direction);
@@ -1106,6 +1248,8 @@ public:
         @param oval  bounds of ellipse added
         @param dir   SkPath::Direction to wind ellipse
         @return      reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_085
     */
     SkPath& addOval(const SkRect& oval, Direction dir = kCW_Direction);
 
@@ -1118,6 +1262,8 @@ public:
         @param dir    SkPath::Direction to wind ellipse
         @param start  index of initial point of ellipse
         @return       reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_086
     */
     SkPath& addOval(const SkRect& oval, Direction dir, unsigned start);
 
@@ -1149,6 +1295,8 @@ public:
         @param startAngle  starting angle of arc in degrees
         @param sweepAngle  sweep, in degrees. Positive is clockwise; treated modulo 360
         @return            reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_088
     */
     SkPath& addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle);
 
@@ -1195,6 +1343,8 @@ public:
         @param rrect  bounds and radii of rounded rectangle
         @param dir    SkPath::Direction to wind SkRRect
         @return       reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_091
     */
     SkPath& addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
 
@@ -1206,6 +1356,8 @@ public:
         @param dir    SkPath::Direction to wind SkRRect
         @param start  index of initial point of SkRRect
         @return       reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_092
     */
     SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start);
 
@@ -1221,6 +1373,8 @@ public:
         @param count  length of SkPoint array
         @param close  true to add line connecting contour end and start
         @return       reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_093
     */
     SkPath& addPoly(const SkPoint pts[], int count, bool close);
 
@@ -1233,6 +1387,8 @@ public:
         @param list   array of SkPoint
         @param close  true to add line connecting contour end and start
         @return       reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_094
     */
     SkPath& addPoly(const std::initializer_list<SkPoint>& list, bool close) {
         return this->addPoly(list.begin(), SkToInt(list.size()), close);
@@ -1241,6 +1397,8 @@ public:
     /** \enum SkPath::AddPathMode
         AddPathMode chooses how addPath() appends. Adding one SkPath to another can extend
         the last contour or start a new contour.
+
+        @example https://fiddle.skia.org/c/@Path_095
     */
     enum AddPathMode {
         kAppend_AddPathMode, //!< appended to destination unaltered
@@ -1271,6 +1429,8 @@ public:
         @param src   SkPath verbs, SkPoint, and conic weights to add
         @param mode  kAppend_AddPathMode or kExtend_AddPathMode
         @return      reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_097
     */
     SkPath& addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode) {
         SkMatrix m;
@@ -1298,6 +1458,8 @@ public:
 
         @param src  SkPath verbs, SkPoint, and conic weights to add
         @return     reference to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_099
     */
     SkPath& reverseAddPath(const SkPath& src);
 
@@ -1307,6 +1469,8 @@ public:
         @param dx   offset added to SkPoint array x-axis coordinates
         @param dy   offset added to SkPoint array y-axis coordinates
         @param dst  overwritten, translated copy of SkPath; may be nullptr
+
+        @example https://fiddle.skia.org/c/@Path_100
     */
     void offset(SkScalar dx, SkScalar dy, SkPath* dst) const;
 
@@ -1314,6 +1478,8 @@ public:
 
         @param dx  offset added to SkPoint array x-axis coordinates
         @param dy  offset added to SkPoint array y-axis coordinates
+
+        @example https://fiddle.skia.org/c/@Path_101
     */
     void offset(SkScalar dx, SkScalar dy) {
         this->offset(dx, dy, this);
@@ -1326,6 +1492,8 @@ public:
 
         @param matrix  SkMatrix to apply to SkPath
         @param dst     overwritten, transformed copy of SkPath; may be nullptr
+
+        @example https://fiddle.skia.org/c/@Path_102
     */
     void transform(const SkMatrix& matrix, SkPath* dst) const;
 
@@ -1334,6 +1502,8 @@ public:
         SkPath is replaced by transformed data.
 
         @param matrix  SkMatrix to apply to SkPath
+
+        @example https://fiddle.skia.org/c/@Path_103
     */
     void transform(const SkMatrix& matrix) {
         this->transform(matrix, this);
@@ -1344,6 +1514,8 @@ public:
 
         @param lastPt  storage for final SkPoint in SkPoint array; may be nullptr
         @return        true if SkPoint array contains one or more SkPoint
+
+        @example https://fiddle.skia.org/c/@Path_104
     */
     bool getLastPt(SkPoint* lastPt) const;
 
@@ -1352,6 +1524,8 @@ public:
 
         @param x  set x-axis value of last point
         @param y  set y-axis value of last point
+
+        @example https://fiddle.skia.org/c/@Path_105
     */
     void setLastPt(SkScalar x, SkScalar y);
 
@@ -1359,6 +1533,8 @@ public:
         verb array and append p to SkPoint array.
 
         @param p  set value of last point
+
+        @example https://fiddle.skia.org/c/@Path_106
     */
     void setLastPt(const SkPoint& p) {
         this->setLastPt(p.fX, p.fY);
@@ -1367,6 +1543,8 @@ public:
     /** \enum SkPath::SegmentMask
         SegmentMask constants correspond to each drawing Verb type in SkPath; for
         instance, if SkPath only contains lines, only the kLine_SegmentMask bit is set.
+
+        @example https://fiddle.skia.org/c/@Path_107
     */
     enum SegmentMask {
         kLine_SegmentMask  = 1 << 0, //!< contains one or more lines
@@ -1382,12 +1560,16 @@ public:
         getSegmentMasks() returns a cached result; it is very fast.
 
         @return  SegmentMask bits or zero
+
+        @example https://fiddle.skia.org/c/@Path_108
     */
     uint32_t getSegmentMasks() const { return fPathRef->getSegmentMasks(); }
 
     /** \enum SkPath::Verb
         Verb instructs SkPath how to interpret one or more SkPoint and optional conic weight;
         manage contour, and terminate SkPath.
+
+        @example https://fiddle.skia.org/c/@Path_000
     */
     enum Verb {
         kMove_Verb,  //!< starts new contour at next SkPoint
@@ -1412,6 +1594,8 @@ public:
             Call setPath to initialize SkPath::Iter at a later time.
 
             @return  SkPath::Iter of empty SkPath
+
+            @example https://fiddle.skia.org/c/@Path_118
         */
         Iter();
 
@@ -1422,6 +1606,8 @@ public:
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb
             @return            SkPath::Iter of path
+
+            @example https://fiddle.skia.org/c/@Path_119
         */
         Iter(const SkPath& path, bool forceClose);
 
@@ -1431,6 +1617,8 @@ public:
 
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb
+
+            @example https://fiddle.skia.org/c/@Path_120
         */
         void setPath(const SkPath& path, bool forceClose);
 
@@ -1449,6 +1637,8 @@ public:
             @param doConsumeDegenerates  if true, skip degenerate verbs
             @param exact                 skip zero length curves
             @return                      next SkPath::Verb from verb array
+
+            @example https://fiddle.skia.org/c/@Path_121
         */
         Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false) {
             if (doConsumeDegenerates) {
@@ -1463,6 +1653,10 @@ public:
             result is undefined.
 
             @return  conic weight for conic SkPoint returned by next()
+
+            @example https://fiddle.skia.org/c/@Path_122
+
+            @example https://fiddle.skia.org/c/@Path_127
         */
         SkScalar conicWeight() const { return *fConicWeights; }
 
@@ -1474,6 +1668,8 @@ public:
             result is undefined.
 
             @return  true if last kLine_Verb was generated by kClose_Verb
+
+            @example https://fiddle.skia.org/c/@Path_123
         */
         bool isCloseLine() const { return SkToBool(fCloseLine); }
 
@@ -1482,6 +1678,8 @@ public:
             SkPath::Iter may have been initialized with force close set to true.
 
             @return  true if contour is closed
+
+            @example https://fiddle.skia.org/c/@Path_124
         */
         bool isClosedContour() const;
 
@@ -1550,6 +1748,8 @@ public:
 
             @param pts  storage for SkPoint data describing returned SkPath::Verb
             @return     next SkPath::Verb from verb array
+
+            @example https://fiddle.skia.org/c/@Path_125
         */
         Verb next(SkPoint pts[4]) {
             return (Verb) fRawIter.next(pts);
@@ -1558,6 +1758,8 @@ public:
         /** Returns next SkPath::Verb, but does not advance RawIter.
 
             @return  next SkPath::Verb from verb array
+
+            @example https://fiddle.skia.org/c/@Path_126
         */
         Verb peek() const {
             return (Verb) fRawIter.peek();
@@ -1586,6 +1788,8 @@ public:
         @param x  x-axis value of containment test
         @param y  y-axis value of containment test
         @return   true if SkPoint is in SkPath
+
+        @example https://fiddle.skia.org/c/@Path_109
     */
     bool contains(SkScalar x, SkScalar y) const;
 
@@ -1597,6 +1801,8 @@ public:
         @param stream      writable SkWStream receiving SkPath text representation; may be nullptr
         @param forceClose  true if missing kClose_Verb is output
         @param dumpAsHex   true if SkScalar values are written as hexadecimal
+
+        @example https://fiddle.skia.org/c/@Path_110
     */
     void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
 
@@ -1604,6 +1810,8 @@ public:
         directly compiled as C++ code. Floating point values are written
         with limited precision; it may not be possible to reconstruct original SkPath
         from output.
+
+        @example https://fiddle.skia.org/c/@Path_111
     */
     void dump() const;
 
@@ -1613,6 +1821,8 @@ public:
         original SkPath.
 
         Use instead of dump() when submitting
+
+        @example https://fiddle.skia.org/c/@Path_112
     */
     void dumpHex() const;
 
@@ -1627,6 +1837,8 @@ public:
 
         @param buffer  storage for SkPath; may be nullptr
         @return        size of storage required for SkPath; always a multiple of 4
+
+        @example https://fiddle.skia.org/c/@Path_113
     */
     size_t writeToMemory(void* buffer) const;
 
@@ -1639,6 +1851,8 @@ public:
         The format used for SkPath in memory is not guaranteed.
 
         @return  SkPath data wrapped in SkData buffer
+
+        @example https://fiddle.skia.org/c/@Path_114
     */
     sk_sp<SkData> serialize() const;
 
@@ -1654,6 +1868,8 @@ public:
         @param buffer  storage for SkPath
         @param length  buffer size in bytes; must be multiple of 4
         @return        number of bytes read, or zero on failure
+
+        @example https://fiddle.skia.org/c/@Path_115
     */
     size_t readFromMemory(const void* buffer, size_t length);
 
@@ -1667,6 +1883,8 @@ public:
         SkPath::FillType does affect generation identifier on Android framework.
 
         @return  non-zero, globally unique value
+
+        @example https://fiddle.skia.org/c/@Path_116
     */
     uint32_t getGenerationID() const;
 
