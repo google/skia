@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8516a64d_bf592472",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T19:46:44Z",
+      "side": 1,
+      "message": "Have now reversed register order:\n\nmixer(dr,dg,db,da,      r,g,b,a)\n\nMuch simpler now:\n- can call child shaders/mixers in order\n- can use existing lerp stage as is\n- public dox for Blend Mixer matches other Blend methods (e.g. Shaders)",
+      "parentUuid": "6548a6fb_f3cec56b",
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2959993b_4d317e55",
         "filename": "src/core/SkMixer.cpp",
         "patchSetId": 4
