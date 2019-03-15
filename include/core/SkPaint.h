@@ -684,4 +684,25 @@ private:
     };
 };
 
+/** Returns name of style as null-terminated C string.
+
+    @param style One of kFill_Style, kStroke_Style, or kStrokeAndFill_Style.
+    @return      C string
+*/
+SK_API const char* SkPaintStyleToString(SkPaint::Style style);
+
+/** Returns name of cap as null-terminated C string.
+
+    @param cap One of kButt_Cap, kRound_Cap, or kSquare_Cap.
+    @return    C string
+*/
+SK_API const char* SkPaintCapToString(SkPaint::Cap cap);
+
+/** Returns name of join as null-terminated C string.
+
+    @param join One of kMiter_Join, kRound_Join, or kBevel_Join.
+    @return     C string
+*/
+SK_API const char* SkPaintJoinToString(SkPaint::Join join);
+
 #endif

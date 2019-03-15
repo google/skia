@@ -23,4 +23,13 @@ enum SkFilterQuality {
     kLast_SkFilterQuality = kHigh_SkFilterQuality,
 };
 
+/** Returns name of filterQuality as null-terminated C string.
+
+    @param filterQuality One of kNone_SkFilterQuality, kLow_SkFilterQuality,
+                         kMedium_SkFilterQuality, or kHigh_SkFilterQuality.
+    @return              C string
+*/
+SK_API const char* SkFilterQualityToString(SkFilterQuality filterQuality);
+
+
 #endif
