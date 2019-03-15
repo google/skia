@@ -127,6 +127,7 @@ public:
         uint32_t descLength = 0u;
         if (!read<uint32_t>(&descLength)) return false;
         if (descLength < sizeof(SkDescriptor)) return false;
+        if (descLength != SkAlign4(descLength)) return false;
 
         auto* result = this->ensureAtLeast(descLength, alignof(SkDescriptor));
         if (!result) return false;
