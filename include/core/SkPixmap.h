@@ -68,6 +68,8 @@ public:
 
         The prior pixels are unaffected; it is up to the caller to release pixels
         memory if desired.
+
+        example: https://fiddle.skia.org/c/@Pixmap_reset
     */
     void reset();
 
@@ -85,6 +87,8 @@ public:
         @param info      width, height, SkAlphaType, SkColorType of SkImageInfo
         @param addr      pointer to pixels allocated by caller; may be nullptr
         @param rowBytes  size of one row of addr; width times pixel size, or larger
+
+        example: https://fiddle.skia.org/c/@Pixmap_reset_2
     */
     void reset(const SkImageInfo& info, const void* addr, size_t rowBytes);
 
@@ -93,6 +97,8 @@ public:
         SkColorSpace reference count is incremented.
 
         @param colorSpace  SkColorSpace moved to SkImageInfo
+
+        example: https://fiddle.skia.org/c/@Pixmap_setColorSpace
     */
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
@@ -243,6 +249,8 @@ public:
         Returns false for kUnknown_SkColorType.
 
         @return  true if all pixels have opaque values or SkColorType is opaque
+
+        example: https://fiddle.skia.org/c/@Pixmap_computeIsOpaque
     */
     bool computeIsOpaque() const;
 
@@ -261,6 +269,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   pixel converted to unpremultiplied color
+
+        example: https://fiddle.skia.org/c/@Pixmap_getColor
     */
     SkColor getColor(int x, int y) const;
 
@@ -669,6 +679,8 @@ public:
         @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                               kMedium_SkFilterQuality, kHigh_SkFilterQuality
         @return               true if pixels are scaled to fit dst
+
+        example: https://fiddle.skia.org/c/@Pixmap_scalePixels
     */
     bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const;
 
@@ -679,6 +691,8 @@ public:
         @param color   unpremultiplied color to write
         @param subset  bounding integer SkRect of written pixels
         @return        true if pixels are changed
+
+        example: https://fiddle.skia.org/c/@Pixmap_erase
     */
     bool erase(SkColor color, const SkIRect& subset) const;
 
@@ -699,6 +713,8 @@ public:
         @param color   unpremultiplied color to write
         @param subset  bounding integer SkRect of pixels to write; may be nullptr
         @return        true if pixels are changed
+
+        example: https://fiddle.skia.org/c/@Pixmap_erase_3
     */
     bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
 

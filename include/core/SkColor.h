@@ -336,12 +336,16 @@ struct SkRGBA4f {
 
         @param color   Color with Alpha, red, blue, and green components
         @return        SkColor as SkRGBA4f
+
+        example: https://fiddle.skia.org/c/@RGBA4f_FromColor
     */
     static SkRGBA4f FromColor(SkColor color);  // impl. depends on kAT
 
     /** Returns closest SkColor to SkRGBA4f. Only allowed if SkRGBA4f is unpremultiplied.
 
         @return       color as SkColor
+
+        example: https://fiddle.skia.org/c/@RGBA4f_toSkColor
     */
     SkColor toSkColor() const;  // impl. depends on kAT
 
