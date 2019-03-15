@@ -467,6 +467,94 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     return font;
   }
+  CanvasKit.SkTextBlob.MakeOnPath = function(str, path, font) {
+    if (!str || !str.length) {
+      SkDebug('ignoring 0 length string');
+      return;
+    }
+    if (!path || !path.countPoints()) {
+      SkDebug('ignoring empty path');
+      return;
+    }
+    if (path.countPoints() === 1) {
+      SkDebug('path has 1 point, returning normal textblob');
+      return this.MakeFromText(str, font);
+    }
+    // add 1 for null terminator
+    var codePoints = str.length + 1;
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes);
+
+    var bytesPerFloat = 4;
+    // allocate widths == numCodePoints
+    var widthPtr = CanvasKit._malloc(codePoints * bytesPerFloat);
+
+    if (!font._getWidths(strPtr, strBytes, codePoints, widthPtr)) {
+      SkDebug('Could not compute widths')
+      return;
+    }
+
+    var widths = new Float32Array(CanvasKit.buffer, widthPtr, codePoints);
+
+    var rsx = new CanvasKit.RSXFormBuilder();
+    var meas = new CanvasKit.SkPathMeasure(path, false, 1);
+    var dist = widths[0]/2;
+    for (var i = 0; i < codePoints; i++) {
+      if (dist > meas.getLength()) {
+        // jump to next contour
+        if (!meas.nextContour()) {
+          // We have come to the end of the path - terminate the string
+          // right here.
+          str = str.substring(0, i);
+          break;
+        }
+        dist = widths[i]/2;
+      }
+      var width = widths[i];
+      // Gives us the (x, y) coordinates as well as the cos/sin of the tangent
+      // line at that position.
+      var xycs = meas.getPosTan(dist);
+      var cx = xycs[0];
+      var cy = xycs[1];
+      var cosT = xycs[2];
+      var sinT = xycs[3];
+
+      var adjustedX = cx - (width/2 * cosT);
+      var adjustedY = cy - (width/2 * sinT);
+
+      rsx.push(cosT, sinT, adjustedX, adjustedY);
+      dist += width;
+    }
+    return this.MakeFromRSXform(str, rsx, font);
+  }
+  CanvasKit.SkTextBlob.MakeFromRSXform = function(str, rsxBuilder, font) {
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strLen = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strLen);
+    // Add 1 for the null terminator.
+    stringToUTF8(str, strPtr, strLen);
+    var rptr = rsxBuilder.build();
+
+    var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1,
+                          rptr, font, CanvasKit.TextEncoding.UTF8);
+    if (!blob) {
+      SkDebug('Could not make textblob from string "' + str + '"');
+      return null;
+    }
+
+    var origDelete = blob.delete.bind(blob);
+    blob.delete = function() {
+      CanvasKit._free(strPtr);
+      origDelete();
+    }
+    return blob;
+  }
 
   CanvasKit.SkTextBlob.MakeFromText = function(str, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
