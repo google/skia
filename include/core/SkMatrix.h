@@ -1,4 +1,6 @@
-/*
+
+
+        @example https://fiddle.skia.org/c/@Matrix_063/*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -118,6 +120,8 @@ public:
     /** \enum SkMatrix::TypeMask
         Enum of bit fields for mask returned by getType().
         Used to identify the complexity of SkMatrix, to optimize performance.
+
+        @example https://fiddle.skia.org/c/@Matrix_004
     */
     enum TypeMask {
         kIdentity_Mask    = 0,    //!< identity SkMatrix; all bits clear
@@ -134,6 +138,8 @@ public:
 
         @return  kIdentity_Mask, or combinations of: kTranslate_Mask, kScale_Mask,
                  kAffine_Mask, kPerspective_Mask
+
+        @example https://fiddle.skia.org/c/@Matrix_005
     */
     TypeMask getType() const {
         if (fTypeMask & kUnknown_Mask) {
@@ -150,6 +156,8 @@ public:
             | 0 0 1 |
 
         @return  true if SkMatrix has no effect
+
+        @example https://fiddle.skia.org/c/@Matrix_006
     */
     bool isIdentity() const {
         return this->getType() == 0;
@@ -163,6 +171,8 @@ public:
             |    0       0         1      |
 
         @return  true if SkMatrix is identity; or scales, translates, or both
+
+        @example https://fiddle.skia.org/c/@Matrix_007
     */
     bool isScaleTranslate() const {
         return !(this->getType() & ~(kScale_Mask | kTranslate_Mask));
@@ -175,6 +185,8 @@ public:
             | 0 0      1      |
 
         @return  true if SkMatrix is identity, or translates
+
+        @example https://fiddle.skia.org/c/@Matrix_008
     */
     bool isTranslate() const { return !(this->getType() & ~(kTranslate_Mask)); }
 
@@ -198,6 +210,8 @@ public:
         documentation.
 
         @return  true if SkMatrix maps one SkRect into another
+
+        @example https://fiddle.skia.org/c/@Matrix_009
     */
     bool rectStaysRect() const {
         if (fTypeMask & kUnknown_Mask) {
@@ -226,6 +240,8 @@ public:
         documentation.
 
         @return  true if SkMatrix maps one SkRect into another
+
+        @example https://fiddle.skia.org/c/@Matrix_010
     */
     bool preservesAxisAlignment() const { return this->rectStaysRect(); }
 
@@ -239,6 +255,8 @@ public:
         not one. All other elements may have any value.
 
         @return  true if SkMatrix is in most general form
+
+        @example https://fiddle.skia.org/c/@Matrix_011
     */
     bool hasPerspective() const {
         return SkToBool(this->getPerspectiveTypeMaskOnly() &
@@ -258,6 +276,8 @@ public:
 
         @param tol  to be deprecated
         @return     true if SkMatrix only rotates, uniformly scales, translates
+
+        @example https://fiddle.skia.org/c/@Matrix_012
     */
     bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
 
@@ -271,11 +291,15 @@ public:
 
         @param tol  to be deprecated
         @return     true if SkMatrix only rotates, scales, translates
+
+        @example https://fiddle.skia.org/c/@Matrix_013
     */
     bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const;
 
     /** SkMatrix organizes its values in row order. These members correspond to
         each value in SkMatrix.
+
+        @example https://fiddle.skia.org/c/@Matrix_014
     */
     static constexpr int kMScaleX = 0; //!< horizontal scale factor
     static constexpr int kMSkewX  = 1; //!< horizontal skew factor
@@ -303,6 +327,8 @@ public:
         @param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
                       kMPersp0, kMPersp1, kMPersp2
         @return       value corresponding to index
+
+        @example https://fiddle.skia.org/c/@Matrix_015
     */
     SkScalar operator[](int index) const {
         SkASSERT((unsigned)index < 9);
@@ -315,6 +341,8 @@ public:
         @param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
                       kMPersp0, kMPersp1, kMPersp2
         @return       value corresponding to index
+
+        @example https://fiddle.skia.org/c/@Matrix_016
     */
     SkScalar get(int index) const {
         SkASSERT((unsigned)index < 9);
@@ -325,6 +353,8 @@ public:
         With mapPoints(), scales SkPoint along the x-axis.
 
         @return  horizontal scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_017
     */
     SkScalar getScaleX() const { return fMat[kMScaleX]; }
 
@@ -332,6 +362,8 @@ public:
         With mapPoints(), scales SkPoint along the y-axis.
 
         @return  vertical scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_018
     */
     SkScalar getScaleY() const { return fMat[kMScaleY]; }
 
@@ -340,6 +372,8 @@ public:
         Skewing both axes can rotate SkPoint.
 
         @return  vertical skew factor
+
+        @example https://fiddle.skia.org/c/@Matrix_019
     */
     SkScalar getSkewY() const { return fMat[kMSkewY]; }
 
@@ -348,6 +382,8 @@ public:
         Skewing both axes can rotate SkPoint.
 
         @return  horizontal scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_020
     */
     SkScalar getSkewX() const { return fMat[kMSkewX]; }
 
@@ -355,6 +391,8 @@ public:
         With mapPoints(), moves SkPoint along the x-axis.
 
         @return  horizontal translation factor
+
+        @example https://fiddle.skia.org/c/@Matrix_021
     */
     SkScalar getTranslateX() const { return fMat[kMTransX]; }
 
@@ -362,18 +400,24 @@ public:
         With mapPoints(), moves SkPoint along the y-axis.
 
         @return  vertical translation factor
+
+        @example https://fiddle.skia.org/c/@Matrix_022
     */
     SkScalar getTranslateY() const { return fMat[kMTransY]; }
 
     /** Returns factor scaling input x-axis relative to input y-axis.
 
         @return  input x-axis perspective factor
+
+        @example https://fiddle.skia.org/c/@Matrix_023
     */
     SkScalar getPerspX() const { return fMat[kMPersp0]; }
 
     /** Returns factor scaling input y-axis relative to input x-axis.
 
         @return  input y-axis perspective factor
+
+        @example https://fiddle.skia.org/c/@Matrix_024
     */
     SkScalar getPerspY() const { return fMat[kMPersp1]; }
 
@@ -386,6 +430,8 @@ public:
         @param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
                       kMPersp0, kMPersp1, kMPersp2
         @return       writable value corresponding to index
+
+        @example https://fiddle.skia.org/c/@Matrix_105
     */
     SkScalar& operator[](int index) {
         SkASSERT((unsigned)index < 9);
@@ -399,6 +445,8 @@ public:
         @param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
                       kMPersp0, kMPersp1, kMPersp2
         @param value  scalar to store in SkMatrix
+
+        @example https://fiddle.skia.org/c/@Matrix_026
     */
     void set(int index, SkScalar value) {
         SkASSERT((unsigned)index < 9);
@@ -409,36 +457,48 @@ public:
     /** Sets horizontal scale factor.
 
         @param v  horizontal scale factor to store
+
+        @example https://fiddle.skia.org/c/@Matrix_027
     */
     void setScaleX(SkScalar v) { this->set(kMScaleX, v); }
 
     /** Sets vertical scale factor.
 
         @param v  vertical scale factor to store
+
+        @example https://fiddle.skia.org/c/@Matrix_028
     */
     void setScaleY(SkScalar v) { this->set(kMScaleY, v); }
 
     /** Sets vertical skew factor.
 
         @param v  vertical skew factor to store
+
+        @example https://fiddle.skia.org/c/@Matrix_029
     */
     void setSkewY(SkScalar v) { this->set(kMSkewY, v); }
 
     /** Sets horizontal skew factor.
 
         @param v  horizontal skew factor to store
+
+        @example https://fiddle.skia.org/c/@Matrix_030
     */
     void setSkewX(SkScalar v) { this->set(kMSkewX, v); }
 
     /** Sets horizontal translation.
 
         @param v  horizontal translation to store
+
+        @example https://fiddle.skia.org/c/@Matrix_031
     */
     void setTranslateX(SkScalar v) { this->set(kMTransX, v); }
 
     /** Sets vertical translation.
 
         @param v  vertical translation to store
+
+        @example https://fiddle.skia.org/c/@Matrix_032
     */
     void setTranslateY(SkScalar v) { this->set(kMTransY, v); }
 
@@ -446,6 +506,8 @@ public:
         inversely proportional to input y-axis values.
 
         @param v  perspective factor
+
+        @example https://fiddle.skia.org/c/@Matrix_033
     */
     void setPerspX(SkScalar v) { this->set(kMPersp0, v); }
 
@@ -453,6 +515,8 @@ public:
         inversely proportional to input x-axis values.
 
         @param v  perspective factor
+
+        @example https://fiddle.skia.org/c/@Matrix_034
     */
     void setPerspY(SkScalar v) { this->set(kMPersp1, v); }
 
@@ -492,6 +556,8 @@ public:
         kMPersp0, kMPersp1, kMPersp2.
 
         @param buffer  storage for nine scalar values
+
+        @example https://fiddle.skia.org/c/@Matrix_036
     */
     void get9(SkScalar buffer[9]) const {
         memcpy(buffer, fMat, 9 * sizeof(SkScalar));
@@ -512,6 +578,8 @@ public:
         transformation, possibly improving precision.
 
         @param buffer  nine scalar values
+
+        @example https://fiddle.skia.org/c/@Matrix_037
     */
     void set9(const SkScalar buffer[9]);
 
@@ -523,6 +591,8 @@ public:
 
         Also called setIdentity(); use the one that provides better inline
         documentation.
+
+        @example https://fiddle.skia.org/c/@Matrix_038
     */
     void reset();
 
@@ -534,6 +604,8 @@ public:
 
         Also called reset(); use the one that provides better inline
         documentation.
+
+        @example https://fiddle.skia.org/c/@Matrix_039
     */
     void setIdentity() { this->reset(); }
 
@@ -541,12 +613,16 @@ public:
 
         @param dx  horizontal translation
         @param dy  vertical translation
+
+        @example https://fiddle.skia.org/c/@Matrix_040
     */
     void setTranslate(SkScalar dx, SkScalar dy);
 
     /** Sets SkMatrix to translate by (v.fX, v.fY).
 
         @param v  vector containing horizontal and vertical translation
+
+        @example https://fiddle.skia.org/c/@Matrix_041
     */
     void setTranslate(const SkVector& v) { this->setTranslate(v.fX, v.fY); }
 
@@ -557,6 +633,8 @@ public:
         @param sy  vertical scale factor
         @param px  pivot on x-axis
         @param py  pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_042
     */
     void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
 
@@ -564,6 +642,8 @@ public:
 
         @param sx  horizontal scale factor
         @param sy  vertical scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_043
     */
     void setScale(SkScalar sx, SkScalar sy);
 
@@ -575,6 +655,8 @@ public:
         @param degrees  angle of axes relative to upright axes
         @param px       pivot on x-axis
         @param py       pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_044
     */
     void setRotate(SkScalar degrees, SkScalar px, SkScalar py);
 
@@ -582,6 +664,8 @@ public:
         Positive degrees rotates clockwise.
 
         @param degrees  angle of axes relative to upright axes
+
+        @example https://fiddle.skia.org/c/@Matrix_045
     */
     void setRotate(SkScalar degrees);
 
@@ -606,6 +690,8 @@ public:
 
         @param sinValue  rotation vector x-axis component
         @param cosValue  rotation vector y-axis component
+
+        @example https://fiddle.skia.org/c/@Matrix_047
     */
     void setSinCos(SkScalar sinValue, SkScalar cosValue);
 
@@ -617,6 +703,8 @@ public:
 
         @param rsxForm  compressed SkRSXform matrix
         @return         reference to SkMatrix
+
+        @example https://fiddle.skia.org/c/@Matrix_048
     */
     SkMatrix& setRSXform(const SkRSXform& rsxForm);
 
@@ -627,6 +715,8 @@ public:
         @param ky  vertical skew factor
         @param px  pivot on x-axis
         @param py  pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_049
     */
     void setSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
 
@@ -634,6 +724,8 @@ public:
 
         @param kx  horizontal skew factor
         @param ky  vertical skew factor
+
+        @example https://fiddle.skia.org/c/@Matrix_050
     */
     void setSkew(SkScalar kx, SkScalar ky);
 
@@ -653,6 +745,8 @@ public:
 
         @param a  SkMatrix on left side of multiply expression
         @param b  SkMatrix on right side of multiply expression
+
+        @example https://fiddle.skia.org/c/@Matrix_051
     */
     void setConcat(const SkMatrix& a, const SkMatrix& b);
 
@@ -673,6 +767,8 @@ public:
 
         @param dx  x-axis translation before applying SkMatrix
         @param dy  y-axis translation before applying SkMatrix
+
+        @example https://fiddle.skia.org/c/@Matrix_052
     */
     void preTranslate(SkScalar dx, SkScalar dy);
 
@@ -701,6 +797,8 @@ public:
         @param sy  vertical scale factor
         @param px  pivot on x-axis
         @param py  pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_053
     */
     void preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
 
@@ -722,6 +820,8 @@ public:
 
         @param sx  horizontal scale factor
         @param sy  vertical scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_054
     */
     void preScale(SkScalar sx, SkScalar sy);
 
@@ -753,6 +853,8 @@ public:
         @param degrees  angle of axes relative to upright axes
         @param px       pivot on x-axis
         @param py       pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_055
     */
     void preRotate(SkScalar degrees, SkScalar px, SkScalar py);
 
@@ -780,6 +882,8 @@ public:
                                           | G H I | | 0  0 1 |   | Gc+Hs -Gs+Hc I |
 
         @param degrees  angle of axes relative to upright axes
+
+        @example https://fiddle.skia.org/c/@Matrix_056
     */
     void preRotate(SkScalar degrees);
 
@@ -808,6 +912,8 @@ public:
         @param ky  vertical skew factor
         @param px  pivot on x-axis
         @param py  pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_057
     */
     void preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
 
@@ -829,6 +935,8 @@ public:
 
         @param kx  horizontal skew factor
         @param ky  vertical skew factor
+
+        @example https://fiddle.skia.org/c/@Matrix_058
     */
     void preSkew(SkScalar kx, SkScalar ky);
 
@@ -848,6 +956,8 @@ public:
                              | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 
         @param other  SkMatrix on right side of multiply expression
+
+        @example https://fiddle.skia.org/c/@Matrix_059
     */
     void preConcat(const SkMatrix& other);
 
@@ -868,6 +978,8 @@ public:
 
         @param dx  x-axis translation after applying SkMatrix
         @param dy  y-axis translation after applying SkMatrix
+
+        @example https://fiddle.skia.org/c/@Matrix_060
     */
     void postTranslate(SkScalar dx, SkScalar dy);
 
@@ -896,6 +1008,8 @@ public:
         @param sy  vertical scale factor
         @param px  pivot on x-axis
         @param py  pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_061
     */
     void postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
 
@@ -917,6 +1031,8 @@ public:
 
         @param sx  horizontal scale factor
         @param sy  vertical scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_062
     */
     void postScale(SkScalar sx, SkScalar sy);
 
@@ -976,6 +1092,8 @@ public:
         @param degrees  angle of axes relative to upright axes
         @param px       pivot on x-axis
         @param py       pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_064
     */
     void postRotate(SkScalar degrees, SkScalar px, SkScalar py);
 
@@ -1003,6 +1121,8 @@ public:
                                           | 0  0  1 | | P Q R |   |     P     Q     R |
 
         @param degrees  angle of axes relative to upright axes
+
+        @example https://fiddle.skia.org/c/@Matrix_065
     */
     void postRotate(SkScalar degrees);
 
@@ -1031,6 +1151,8 @@ public:
         @param ky  vertical skew factor
         @param px  pivot on x-axis
         @param py  pivot on y-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_066
     */
     void postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
 
@@ -1052,6 +1174,8 @@ public:
 
         @param kx  horizontal skew factor
         @param ky  vertical skew factor
+
+        @example https://fiddle.skia.org/c/@Matrix_067
     */
     void postSkew(SkScalar kx, SkScalar ky);
 
@@ -1071,6 +1195,8 @@ public:
                              | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 
         @param other  SkMatrix on left side of multiply expression
+
+        @example https://fiddle.skia.org/c/@Matrix_068
     */
     void postConcat(const SkMatrix& other);
 
@@ -1079,6 +1205,8 @@ public:
         ScaleToFit may allow SkMatrix to have unequal horizontal and vertical scaling,
         or may restrict SkMatrix to square scaling. If restricted, ScaleToFit specifies
         how SkMatrix maps to the side or center of the destination SkRect.
+
+        @example https://fiddle.skia.org/c/@Matrix_069
     */
     enum ScaleToFit {
         kFill_ScaleToFit,   //!< scales in x and y to fill destination SkRect
@@ -1101,6 +1229,8 @@ public:
         @param stf  one of: kFill_ScaleToFit, kStart_ScaleToFit,
                     kCenter_ScaleToFit, kEnd_ScaleToFit
         @return     true if SkMatrix can represent SkRect mapping
+
+        @example https://fiddle.skia.org/c/@Matrix_070
     */
     bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
 
@@ -1118,6 +1248,8 @@ public:
         @param stf  one of: kFill_ScaleToFit, kStart_ScaleToFit,
                     kCenter_ScaleToFit, kEnd_ScaleToFit
         @return     SkMatrix mapping src to dst
+
+        @example https://fiddle.skia.org/c/@Matrix_071
     */
     static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
         SkMatrix m;
@@ -1137,6 +1269,8 @@ public:
         @param dst    SkPoint to map to
         @param count  number of SkPoint in src and dst
         @return       true if SkMatrix was constructed successfully
+
+        @example https://fiddle.skia.org/c/@Matrix_072
     */
     bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
 
@@ -1168,6 +1302,8 @@ public:
         Affine 3 by 2 matrices in column major order are used by OpenGL and XPS.
 
         @param affine  storage for 3 by 2 affine matrix
+
+        @example https://fiddle.skia.org/c/@Matrix_074
     */
     static void SetAffineIdentity(SkScalar affine[6]);
 
@@ -1196,6 +1332,8 @@ public:
             |       0       0           1 |
 
         @param affine  3 by 2 affine matrix
+
+        @example https://fiddle.skia.org/c/@Matrix_076
     */
     void setAffine(const SkScalar affine[6]);
 
@@ -1224,6 +1362,8 @@ public:
         @param dst    storage for mapped SkPoint
         @param src    SkPoint to transform
         @param count  number of SkPoint to transform
+
+        @example https://fiddle.skia.org/c/@Matrix_077
     */
     void mapPoints(SkPoint dst[], const SkPoint src[], int count) const;
 
@@ -1249,6 +1389,8 @@ public:
 
         @param pts    storage for mapped SkPoint
         @param count  number of SkPoint to transform
+
+        @example https://fiddle.skia.org/c/@Matrix_078
     */
     void mapPoints(SkPoint pts[], int count) const {
         this->mapPoints(pts, pts, count);
@@ -1270,6 +1412,8 @@ public:
         @param dst    storage for mapped SkPoint3 array
         @param src    SkPoint3 array to transform
         @param count  items in SkPoint3 array to transform
+
+        @example https://fiddle.skia.org/c/@Matrix_079
     */
     void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
 
@@ -1288,6 +1432,8 @@ public:
         @param x       x-axis value of SkPoint to map
         @param y       y-axis value of SkPoint to map
         @param result  storage for mapped SkPoint
+
+        @example https://fiddle.skia.org/c/@Matrix_080
     */
     void mapXY(SkScalar x, SkScalar y, SkPoint* result) const;
 
@@ -1306,6 +1452,8 @@ public:
         @param x  x-axis value of SkPoint to map
         @param y  y-axis value of SkPoint to map
         @return   mapped SkPoint
+
+        @example https://fiddle.skia.org/c/@Matrix_081
     */
     SkPoint mapXY(SkScalar x, SkScalar y) const {
         SkPoint result;
@@ -1339,6 +1487,8 @@ public:
         @param dst    storage for mapped vectors
         @param src    vectors to transform
         @param count  number of vectors to transform
+
+        @example https://fiddle.skia.org/c/@Matrix_082
     */
     void mapVectors(SkVector dst[], const SkVector src[], int count) const;
 
@@ -1364,6 +1514,8 @@ public:
 
         @param vecs   vectors to transform, and storage for mapped vectors
         @param count  number of vectors to transform
+
+        @example https://fiddle.skia.org/c/@Matrix_083
     */
     void mapVectors(SkVector vecs[], int count) const {
         this->mapVectors(vecs, vecs, count);
@@ -1385,6 +1537,8 @@ public:
         @param dx      x-axis value of vector to map
         @param dy      y-axis value of vector to map
         @param result  storage for mapped vector
+
+        @example https://fiddle.skia.org/c/@Matrix_084
     */
     void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const {
         SkVector vec = { dx, dy };
@@ -1407,6 +1561,8 @@ public:
         @param dx  x-axis value of vector to map
         @param dy  y-axis value of vector to map
         @return    mapped vector
+
+        @example https://fiddle.skia.org/c/@Matrix_085
     */
     SkVector mapVector(SkScalar dx, SkScalar dy) const {
         SkVector vec = { dx, dy };
@@ -1422,6 +1578,8 @@ public:
         @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
         @return     true if dst is equivalent to mapped src
+
+        @example https://fiddle.skia.org/c/@Matrix_086
     */
     bool mapRect(SkRect* dst, const SkRect& src) const;
 
@@ -1432,6 +1590,8 @@ public:
 
         @param rect  rectangle to map, and storage for bounds of mapped corners
         @return      true if result is equivalent to mapped rect
+
+        @example https://fiddle.skia.org/c/@Matrix_087
     */
     bool mapRect(SkRect* rect) const {
         return this->mapRect(rect, *rect);
@@ -1441,6 +1601,8 @@ public:
 
         @param src  rectangle to map
         @return     mapped bounds
+
+        @example https://fiddle.skia.org/c/@Matrix_088
     */
     SkRect mapRect(const SkRect& src) const {
         SkRect dst;
@@ -1472,6 +1634,8 @@ public:
 
         @param dst   storage for mapped corner SkPoint
         @param rect  SkRect to map
+
+        @example https://fiddle.skia.org/c/@Matrix_089
     */
     void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
         // This could potentially be faster if we only transformed each x and y of the rect once.
@@ -1485,6 +1649,8 @@ public:
 
         @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
+
+        @example https://fiddle.skia.org/c/@Matrix_090
     */
     void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
 
@@ -1495,6 +1661,8 @@ public:
 
         @param radius  circle size to map
         @return        average mapped radius
+
+        @example https://fiddle.skia.org/c/@Matrix_091
     */
     SkScalar mapRadius(SkScalar radius) const;
 
@@ -1506,6 +1674,8 @@ public:
         does not include rotation or skewing along the y-axis.
 
         @return  true if SkMatrix does not have complex perspective
+
+        @example https://fiddle.skia.org/c/@Matrix_092
     */
     bool isFixedStepInX() const;
 
@@ -1514,6 +1684,8 @@ public:
 
         @param y  position of line parallel to x-axis
         @return   vector advance of mapped unit step on x-axis
+
+        @example https://fiddle.skia.org/c/@Matrix_093
     */
     SkVector fixedStepInX(SkScalar y) const;
 
@@ -1529,6 +1701,8 @@ public:
 
         @param m  SkMatrix to compare
         @return   true if m and SkMatrix are represented by identical bit patterns
+
+        @example https://fiddle.skia.org/c/@Matrix_094
     */
     bool cheapEqualTo(const SkMatrix& m) const {
         return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
@@ -1559,6 +1733,8 @@ public:
     /** Writes text representation of SkMatrix to standard output. Floating point values
         are written with limited precision; it may not be possible to reconstruct
         original SkMatrix from output.
+
+        @example https://fiddle.skia.org/c/@Matrix_097
     */
     void dump() const;
 
@@ -1567,6 +1743,8 @@ public:
         Returns -1 if scale factor overflows or SkMatrix contains perspective.
 
         @return  minimum scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_098
     */
     SkScalar getMinScale() const;
 
@@ -1575,6 +1753,8 @@ public:
         Returns -1 if scale factor overflows or SkMatrix contains perspective.
 
         @return  maximum scale factor
+
+        @example https://fiddle.skia.org/c/@Matrix_099
     */
     SkScalar getMaxScale() const;
 
@@ -1606,6 +1786,8 @@ public:
         @param scale      axes scaling factors; may be nullptr
         @param remaining  SkMatrix without scaling; may be nullptr
         @return           true if scale can be computed
+
+        @example https://fiddle.skia.org/c/@Matrix_101
     */
     bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const;
 
@@ -1616,6 +1798,8 @@ public:
             | 0 0 1 |
 
         @return  const identity SkMatrix
+
+        @example https://fiddle.skia.org/c/@Matrix_102
     */
     static const SkMatrix& I();
 
@@ -1627,6 +1811,8 @@ public:
             | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 
         @return  const invalid SkMatrix
+
+        @example https://fiddle.skia.org/c/@Matrix_103
     */
     static const SkMatrix& InvalidMatrix();
 
@@ -1647,6 +1833,8 @@ public:
         @param a  SkMatrix on left side of multiply expression
         @param b  SkMatrix on right side of multiply expression
         @return   SkMatrix computed from a times b
+
+        @example https://fiddle.skia.org/c/@Matrix_104
     */
     static SkMatrix Concat(const SkMatrix& a, const SkMatrix& b) {
         SkMatrix result;
@@ -1656,6 +1844,8 @@ public:
 
     /** Sets internal cache to unknown state. Use to force update after repeated
         modifications to SkMatrix element reference returned by operator[](int index).
+
+        @example https://fiddle.skia.org/c/@Matrix_105
     */
     void dirtyMatrixTypeCache() {
         this->setTypeMask(kUnknown_Mask);
@@ -1671,6 +1861,8 @@ public:
         @param sy  vertical scale factor to store
         @param tx  horizontal translation to store
         @param ty  vertical translation to store
+
+        @example https://fiddle.skia.org/c/@Matrix_106
     */
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
         fMat[kMScaleX] = sx;
@@ -1699,6 +1891,8 @@ public:
         element is infinity, or NaN.
 
         @return  true if matrix has only finite elements
+
+        @example https://fiddle.skia.org/c/@Matrix_107
     */
     bool isFinite() const { return SkScalarsAreFinite(fMat, 9); }
 

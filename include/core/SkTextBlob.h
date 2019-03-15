@@ -43,12 +43,16 @@ public:
         larger than the bounds of all glyphs in runs.
 
         @return  conservative bounding box
+
+        @example https://fiddle.skia.org/c/@TextBlob_000
     */
     const SkRect& bounds() const { return fBounds; }
 
     /** Returns a non-zero value unique among all text blobs.
 
         @return  identifier for SkTextBlob
+
+        @example https://fiddle.skia.org/c/@TextBlob_001
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -85,6 +89,8 @@ public:
         @param font        text size, typeface, text scale, and so on, used to draw
         @param encoding    text encoding used in the text array
         @return            SkTextBlob constructed from one run
+
+        @example https://fiddle.skia.org/c/@TextBlob_003
     */
     static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
                                           SkTextEncoding encoding = kUTF8_SkTextEncoding);
@@ -105,6 +111,8 @@ public:
         @param font     text size, typeface, text scale, and so on, used to draw
         @param encoding text encoding used in the text array
         @return         SkTextBlob constructed from one run
+
+        @example https://fiddle.skia.org/c/@TextBlob_004
     */
     static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
                                             SkTextEncoding encoding = kUTF8_SkTextEncoding) {
@@ -166,6 +174,8 @@ public:
         @param memory      storage for data
         @param memory_size size of storage
         @return            bytes written, or zero if required storage is larger than memory_size
+
+        @example https://fiddle.skia.org/c/@TextBlob_005
     */
     size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
 
@@ -179,6 +189,8 @@ public:
 
         @param procs  custom serial data encoders; may be nullptr
         @return       storage containing serialized SkTextBlob
+
+        @example https://fiddle.skia.org/c/@TextBlob_006
     */
     sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
 
@@ -250,6 +262,8 @@ public:
     /** Constructs empty SkTextBlobBuilder. By default, SkTextBlobBuilder has no runs.
 
         @return  empty SkTextBlobBuilder
+
+        @example https://fiddle.skia.org/c/@TextBlobBuilder_000
     */
     SkTextBlobBuilder();
 
@@ -265,6 +279,8 @@ public:
         reused to build a new set of runs.
 
         @return  SkTextBlob or nullptr
+
+        @example https://fiddle.skia.org/c/@TextBlobBuilder_001
     */
     sk_sp<SkTextBlob> make();
 
@@ -310,6 +326,8 @@ public:
         @param y       vertical offset within the blob
         @param bounds  optional run bounding box
         @return        writable glyph buffer
+
+        @example https://fiddle.skia.org/c/@TextBlobBuilder_002
     */
     const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
                               const SkRect* bounds = nullptr);
@@ -334,6 +352,8 @@ public:
         @param y       vertical offset within the blob
         @param bounds  optional run bounding box
         @return        writable glyph buffer and x-axis position buffer
+
+        @example https://fiddle.skia.org/c/@TextBlobBuilder_003
     */
     const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
                                   const SkRect* bounds = nullptr);

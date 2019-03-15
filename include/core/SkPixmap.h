@@ -46,6 +46,8 @@ public:
         after SkPixmap has been created.
 
         @return  empty SkPixmap
+
+        @example https://fiddle.skia.org/c/@Pixmap_000
     */
     SkPixmap()
         : fPixels(nullptr), fRowBytes(0), fInfo(SkImageInfo::MakeUnknown(0, 0))
@@ -68,6 +70,8 @@ public:
         @param addr      pointer to pixels allocated by caller; may be nullptr
         @param rowBytes  size of one row of addr; width times pixel size, or larger
         @return          initialized SkPixmap
+
+        @example https://fiddle.skia.org/c/@Pixmap_001
     */
     SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)
         : fPixels(addr), fRowBytes(rowBytes), fInfo(info)
@@ -78,6 +82,8 @@ public:
 
         The prior pixels are unaffected; it is up to the caller to release pixels
         memory if desired.
+
+        @example https://fiddle.skia.org/c/@Pixmap_002
     */
     void reset();
 
@@ -95,6 +101,8 @@ public:
         @param info      width, height, SkAlphaType, SkColorType of SkImageInfo
         @param addr      pointer to pixels allocated by caller; may be nullptr
         @param rowBytes  size of one row of addr; width times pixel size, or larger
+
+        @example https://fiddle.skia.org/c/@Pixmap_003
     */
     void reset(const SkImageInfo& info, const void* addr, size_t rowBytes);
 
@@ -103,6 +111,8 @@ public:
         SkColorSpace reference count is incremented.
 
         @param colorSpace  SkColorSpace moved to SkImageInfo
+
+        @example https://fiddle.skia.org/c/@Pixmap_004
     */
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
@@ -125,6 +135,8 @@ public:
     /** Returns width, height, SkAlphaType, SkColorType, and SkColorSpace.
 
         @return  reference to SkImageInfo
+
+        @example https://fiddle.skia.org/c/@Pixmap_006
     */
     const SkImageInfo& info() const { return fInfo; }
 
@@ -135,6 +147,8 @@ public:
         It is up to the SkBitmap creator to ensure that row bytes is a useful value.
 
         @return  byte length of pixel row
+
+        @example https://fiddle.skia.org/c/@Pixmap_007
     */
     size_t rowBytes() const { return fRowBytes; }
 
@@ -143,6 +157,8 @@ public:
         It is up to the SkPixmap creator to ensure that pixel address is a useful value.
 
         @return  pixel address
+
+        @example https://fiddle.skia.org/c/@Pixmap_008
     */
     const void* addr() const { return fPixels; }
 
@@ -150,12 +166,16 @@ public:
         rowBytes() / info().bytesPerPixel().
 
         @return  pixel width in SkImageInfo
+
+        @example https://fiddle.skia.org/c/@Pixmap_009
     */
     int width() const { return fInfo.width(); }
 
     /** Returns pixel row count.
 
         @return  pixel height in SkImageInfo
+
+        @example https://fiddle.skia.org/c/@Pixmap_010
     */
     int height() const { return fInfo.height(); }
 
@@ -166,6 +186,8 @@ public:
         kGray_8_SkColorType, kRGBA_F16_SkColorType.
 
         @return  SkColorType in SkImageInfo
+
+        @example https://fiddle.skia.org/c/@Pixmap_011
     */
     SkColorType colorType() const { return fInfo.colorType(); }
 
@@ -174,6 +196,8 @@ public:
         kUnpremul_SkAlphaType.
 
         @return  SkAlphaType in SkImageInfo
+
+        @example https://fiddle.skia.org/c/@Pixmap_012
     */
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
@@ -182,6 +206,8 @@ public:
         immutable.
 
         @return  SkColorSpace in SkImageInfo, or nullptr
+
+        @example https://fiddle.skia.org/c/@Pixmap_013
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
@@ -200,12 +226,16 @@ public:
         transparency.
 
         @return  true if SkImageInfo has opaque SkAlphaType
+
+        @example https://fiddle.skia.org/c/@Pixmap_014
     */
     bool isOpaque() const { return fInfo.isOpaque(); }
 
     /** Returns SkIRect { 0, 0, width(), height() }.
 
         @return  integral rectangle from origin to width() and height()
+
+        @example https://fiddle.skia.org/c/@Pixmap_015
     */
     SkIRect bounds() const { return SkIRect::MakeWH(this->width(), this->height()); }
 
@@ -213,6 +243,8 @@ public:
         width().
 
         @return  maximum pixels per row
+
+        @example https://fiddle.skia.org/c/@Pixmap_016
     */
     int rowBytesAsPixels() const { return int(fRowBytes >> this->shiftPerPixel()); }
 
@@ -220,6 +252,8 @@ public:
         Returns zero for kUnknown_SkColorType.
 
         @return  one of: 0, 1, 2, 3; left shift to convert pixels to bytes
+
+        @example https://fiddle.skia.org/c/@Pixmap_017
     */
     int shiftPerPixel() const { return fInfo.shiftPerPixel(); }
 
@@ -230,6 +264,8 @@ public:
         Returns height() times rowBytes() if colorType() is kUnknown_SkColorType.
 
         @return  size in bytes of image buffer
+
+        @example https://fiddle.skia.org/c/@Pixmap_018
     */
     size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
 
@@ -248,6 +284,8 @@ public:
         Returns false for kUnknown_SkColorType.
 
         @return  true if all pixels have opaque values or SkColorType is opaque
+
+        @example https://fiddle.skia.org/c/@Pixmap_019
     */
     bool computeIsOpaque() const;
 
@@ -266,6 +304,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   pixel converted to unpremultiplied color
+
+        @example https://fiddle.skia.org/c/@Pixmap_020
     */
     SkColor getColor(int x, int y) const;
 
@@ -290,6 +330,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   readable generic pointer to pixel
+
+        @example https://fiddle.skia.org/c/@Pixmap_021
     */
     const void* addr(int x, int y) const {
         return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
@@ -302,6 +344,8 @@ public:
         One byte corresponds to one pixel.
 
         @return  readable unsigned 8-bit pointer to pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_022
     */
     const uint8_t* addr8() const {
         SkASSERT(1 == fInfo.bytesPerPixel());
@@ -315,6 +359,8 @@ public:
         One word corresponds to one pixel.
 
         @return  readable unsigned 16-bit pointer to pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_023
     */
     const uint16_t* addr16() const {
         SkASSERT(2 == fInfo.bytesPerPixel());
@@ -328,6 +374,8 @@ public:
         One word corresponds to one pixel.
 
         @return  readable unsigned 32-bit pointer to pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_024
     */
     const uint32_t* addr32() const {
         SkASSERT(4 == fInfo.bytesPerPixel());
@@ -341,6 +389,8 @@ public:
         One word corresponds to one pixel.
 
         @return  readable unsigned 64-bit pointer to pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_025
     */
     const uint64_t* addr64() const {
         SkASSERT(8 == fInfo.bytesPerPixel());
@@ -355,6 +405,8 @@ public:
         Four words correspond to one pixel.
 
         @return  readable unsigned 16-bit pointer to first component of pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_026
     */
     const uint16_t* addrF16() const {
         SkASSERT(8 == fInfo.bytesPerPixel());
@@ -374,6 +426,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   readable unsigned 8-bit pointer to pixel at (x, y)
+
+        @example https://fiddle.skia.org/c/@Pixmap_027
     */
     const uint8_t* addr8(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
@@ -392,6 +446,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   readable unsigned 16-bit pointer to pixel at (x, y)
+
+        @example https://fiddle.skia.org/c/@Pixmap_028
     */
     const uint16_t* addr16(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
@@ -410,6 +466,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   readable unsigned 32-bit pointer to pixel at (x, y)
+
+        @example https://fiddle.skia.org/c/@Pixmap_029
     */
     const uint32_t* addr32(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
@@ -428,6 +486,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   readable unsigned 64-bit pointer to pixel at (x, y)
+
+        @example https://fiddle.skia.org/c/@Pixmap_030
     */
     const uint64_t* addr64(int x, int y) const {
         SkASSERT((unsigned)x < (unsigned)fInfo.width());
@@ -449,6 +509,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   readable unsigned 16-bit pointer to pixel component at (x, y)
+
+        @example https://fiddle.skia.org/c/@Pixmap_031
     */
     const uint16_t* addrF16(int x, int y) const {
         SkASSERT(kRGBA_F16_SkColorType     == fInfo.colorType() ||
@@ -459,6 +521,8 @@ public:
     /** Returns writable base pixel address.
 
         @return  writable generic base pointer to pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_032
     */
     void* writable_addr() const { return const_cast<void*>(fPixels); }
 
@@ -470,6 +534,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   writable generic pointer to pixel
+
+        @example https://fiddle.skia.org/c/@Pixmap_033
     */
     void* writable_addr(int x, int y) const {
         return const_cast<void*>(this->addr(x, y));
@@ -484,6 +550,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   writable unsigned 8-bit pointer to pixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_034
     */
     uint8_t* writable_addr8(int x, int y) const {
         return const_cast<uint8_t*>(this->addr8(x, y));
@@ -498,6 +566,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   writable unsigned 16-bit pointer to pixel
+
+        @example https://fiddle.skia.org/c/@Pixmap_035
     */
     uint16_t* writable_addr16(int x, int y) const {
         return const_cast<uint16_t*>(this->addr16(x, y));
@@ -513,6 +583,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   writable unsigned 32-bit pointer to pixel
+
+        @example https://fiddle.skia.org/c/@Pixmap_036
     */
     uint32_t* writable_addr32(int x, int y) const {
         return const_cast<uint32_t*>(this->addr32(x, y));
@@ -527,6 +599,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   writable unsigned 64-bit pointer to pixel
+
+        @example https://fiddle.skia.org/c/@Pixmap_037
     */
     uint64_t* writable_addr64(int x, int y) const {
         return const_cast<uint64_t*>(this->addr64(x, y));
@@ -542,6 +616,8 @@ public:
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
         @return   writable unsigned 16-bit pointer to first component of pixel
+
+        @example https://fiddle.skia.org/c/@Pixmap_038
     */
     uint16_t* writable_addrF16(int x, int y) const {
         return reinterpret_cast<uint16_t*>(writable_addr64(x, y));
@@ -568,6 +644,8 @@ public:
         @param dstPixels    destination pixel storage
         @param dstRowBytes  destination row length
         @return             true if pixels are copied to dstPixels
+
+        @example https://fiddle.skia.org/c/@Pixmap_039
     */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const {
         return this->readPixels(dstInfo, dstPixels, dstRowBytes, 0, 0);
@@ -623,6 +701,8 @@ public:
         @param srcX  column index whose absolute value is less than width()
         @param srcY  row index whose absolute value is less than height()
         @return      true if pixels are copied to dst
+
+        @example https://fiddle.skia.org/c/@Pixmap_041
     */
     bool readPixels(const SkPixmap& dst, int srcX, int srcY) const {
         return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
@@ -644,6 +724,8 @@ public:
 
         @param dst  SkImageInfo and pixel address to write to
         @return     true if pixels are copied to dst
+
+        @example https://fiddle.skia.org/c/@Pixmap_042
     */
     bool readPixels(const SkPixmap& dst) const {
         return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), 0, 0);
@@ -674,6 +756,8 @@ public:
         @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                               kMedium_SkFilterQuality, kHigh_SkFilterQuality
         @return               true if pixels are scaled to fit dst
+
+        @example https://fiddle.skia.org/c/@Pixmap_043
     */
     bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const;
 
@@ -684,6 +768,8 @@ public:
         @param color   unpremultiplied color to write
         @param subset  bounding integer SkRect of written pixels
         @return        true if pixels are changed
+
+        @example https://fiddle.skia.org/c/@Pixmap_044
     */
     bool erase(SkColor color, const SkIRect& subset) const;
 
@@ -693,6 +779,8 @@ public:
 
         @param color  unpremultiplied color to write
         @return       true if pixels are changed
+
+        @example https://fiddle.skia.org/c/@Pixmap_045
     */
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
 
@@ -704,6 +792,8 @@ public:
         @param color   unpremultiplied color to write
         @param subset  bounding integer SkRect of pixels to write; may be nullptr
         @return        true if pixels are changed
+
+        @example https://fiddle.skia.org/c/@Pixmap_046
     */
     bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
 
