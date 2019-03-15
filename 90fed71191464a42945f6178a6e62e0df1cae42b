@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e17e6e6_d2f2032c",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-15T21:00:42Z",
+      "side": 1,
+      "message": "This is still a little awkward (there\u0027s some redundant work between the SkPMColor4fNeedsWideColor helper and MinColorType).",
+      "revId": "90fed71191464a42945f6178a6e62e0df1cae42b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
