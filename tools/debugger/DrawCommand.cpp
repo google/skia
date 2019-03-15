@@ -8,6 +8,7 @@
 #include "DrawCommand.h"
 
 #include <algorithm>
+
 #include "JsonWriteBuffer.h"
 #include "SkAutoMalloc.h"
 #include "SkCanvasPriv.h"
@@ -28,6 +29,7 @@
 #include "SkTHash.h"
 #include "SkTextBlobPriv.h"
 #include "SkTypeface.h"
+#include "SkTypesToString.h"
 #include "SkWriteBuffer.h"
 
 #define DEBUGCANVAS_ATTRIBUTE_COMMAND "command"
@@ -133,10 +135,6 @@
 #define DEBUGCANVAS_VERB_CONIC "conic"
 #define DEBUGCANVAS_VERB_CLOSE "close"
 
-#define DEBUGCANVAS_STYLE_FILL "fill"
-#define DEBUGCANVAS_STYLE_STROKE "stroke"
-#define DEBUGCANVAS_STYLE_STROKEANDFILL "strokeAndFill"
-
 #define DEBUGCANVAS_POINTMODE_POINTS "points"
 #define DEBUGCANVAS_POINTMODE_LINES "lines"
 #define DEBUGCANVAS_POINTMODE_POLYGON "polygon"
@@ -160,32 +158,6 @@
 #define DEBUGCANVAS_FILLTYPE_EVENODD "evenOdd"
 #define DEBUGCANVAS_FILLTYPE_INVERSEWINDING "inverseWinding"
 #define DEBUGCANVAS_FILLTYPE_INVERSEEVENODD "inverseEvenOdd"
-
-#define DEBUGCANVAS_CAP_BUTT "butt"
-#define DEBUGCANVAS_CAP_ROUND "round"
-#define DEBUGCANVAS_CAP_SQUARE "square"
-
-#define DEBUGCANVAS_MITER_JOIN "miter"
-#define DEBUGCANVAS_ROUND_JOIN "round"
-#define DEBUGCANVAS_BEVEL_JOIN "bevel"
-
-#define DEBUGCANVAS_COLORTYPE_ARGB4444 "ARGB4444"
-#define DEBUGCANVAS_COLORTYPE_RGBA8888 "RGBA8888"
-#define DEBUGCANVAS_COLORTYPE_BGRA8888 "BGRA8888"
-#define DEBUGCANVAS_COLORTYPE_565 "565"
-#define DEBUGCANVAS_COLORTYPE_GRAY8 "Gray8"
-#define DEBUGCANVAS_COLORTYPE_INDEX8 "Index8"
-#define DEBUGCANVAS_COLORTYPE_ALPHA8 "Alpha8"
-
-#define DEBUGCANVAS_ALPHATYPE_OPAQUE "opaque"
-#define DEBUGCANVAS_ALPHATYPE_PREMUL "premul"
-#define DEBUGCANVAS_ALPHATYPE_UNPREMUL "unpremul"
-#define DEBUGCANVAS_ALPHATYPE_UNKNOWN "unknown"
-
-#define DEBUGCANVAS_FILTERQUALITY_NONE "none"
-#define DEBUGCANVAS_FILTERQUALITY_LOW "low"
-#define DEBUGCANVAS_FILTERQUALITY_MEDIUM "medium"
-#define DEBUGCANVAS_FILTERQUALITY_HIGH "high"
 
 #define DEBUGCANVAS_HINTING_NONE "none"
 #define DEBUGCANVAS_HINTING_SLIGHT "slight"
@@ -695,24 +667,15 @@ bool DrawCommand::flatten(const SkImage&  image,
 }
 
 static const char* color_type_name(SkColorType colorType) {
-    switch (colorType) {
-        case kARGB_4444_SkColorType: return DEBUGCANVAS_COLORTYPE_ARGB4444;
-        case kRGBA_8888_SkColorType: return DEBUGCANVAS_COLORTYPE_RGBA8888;
-        case kBGRA_8888_SkColorType: return DEBUGCANVAS_COLORTYPE_BGRA8888;
-        case kRGB_565_SkColorType: return DEBUGCANVAS_COLORTYPE_565;
-        case kGray_8_SkColorType: return DEBUGCANVAS_COLORTYPE_GRAY8;
-        case kAlpha_8_SkColorType: return DEBUGCANVAS_COLORTYPE_ALPHA8;
-        default: SkASSERT(false); return DEBUGCANVAS_COLORTYPE_RGBA8888;
-    }
+    const char* desc = SkColorTypeToString(colorType);
+    SkASSERT(desc);
+    return desc;
 }
 
 static const char* alpha_type_name(SkAlphaType alphaType) {
-    switch (alphaType) {
-        case kOpaque_SkAlphaType: return DEBUGCANVAS_ALPHATYPE_OPAQUE;
-        case kPremul_SkAlphaType: return DEBUGCANVAS_ALPHATYPE_PREMUL;
-        case kUnpremul_SkAlphaType: return DEBUGCANVAS_ALPHATYPE_UNPREMUL;
-        default: SkASSERT(false); return DEBUGCANVAS_ALPHATYPE_OPAQUE;
-    }
+    const char* desc = SkAlphaTypeToString(alphaType);
+    SkASSERT(desc);
+    return desc;
 }
 
 bool DrawCommand::flatten(const SkBitmap& bitmap,
@@ -770,71 +733,36 @@ static void apply_paint_color(const SkPaint& paint, SkJSONWriter& writer) {
 static void apply_paint_style(const SkPaint& paint, SkJSONWriter& writer) {
     SkPaint::Style style = paint.getStyle();
     if (style != SkPaint::kFill_Style) {
-        switch (style) {
-            case SkPaint::kStroke_Style: {
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_STYLE, DEBUGCANVAS_STYLE_STROKE);
-                break;
-            }
-            case SkPaint::kStrokeAndFill_Style: {
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_STYLE, DEBUGCANVAS_STYLE_STROKEANDFILL);
-                break;
-            }
-            default: SkASSERT(false);
-        }
+        const char* desc = SkPaintStyleToString(style);
+        SkASSERT(desc);
+        writer.appendString(DEBUGCANVAS_ATTRIBUTE_STYLE, desc);
     }
 }
 
 static void apply_paint_cap(const SkPaint& paint, SkJSONWriter& writer) {
     SkPaint::Cap cap = paint.getStrokeCap();
     if (cap != SkPaint::kDefault_Cap) {
-        switch (cap) {
-            case SkPaint::kButt_Cap:
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_CAP, DEBUGCANVAS_CAP_BUTT);
-                break;
-            case SkPaint::kRound_Cap:
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_CAP, DEBUGCANVAS_CAP_ROUND);
-                break;
-            case SkPaint::kSquare_Cap:
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_CAP, DEBUGCANVAS_CAP_SQUARE);
-                break;
-            default: SkASSERT(false);
-        }
+        const char* desc = SkPaintCapToString(cap);
+        SkASSERT(desc);
+        writer.appendString(DEBUGCANVAS_ATTRIBUTE_CAP, desc);
     }
 }
 
 static void apply_paint_join(const SkPaint& paint, SkJSONWriter& writer) {
     SkPaint::Join join = paint.getStrokeJoin();
     if (join != SkPaint::kDefault_Join) {
-        switch (join) {
-            case SkPaint::kMiter_Join:
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_STROKEJOIN, DEBUGCANVAS_MITER_JOIN);
-                break;
-            case SkPaint::kRound_Join:
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_STROKEJOIN, DEBUGCANVAS_ROUND_JOIN);
-                break;
-            case SkPaint::kBevel_Join:
-                writer.appendString(DEBUGCANVAS_ATTRIBUTE_STROKEJOIN, DEBUGCANVAS_BEVEL_JOIN);
-                break;
-            default: SkASSERT(false);
-        }
+        const char* desc = SkPaintJoinToString(join);
+        SkASSERT(desc);
+        writer.appendString(DEBUGCANVAS_ATTRIBUTE_STROKEJOIN, desc);
     }
 }
 
 static void apply_paint_filterquality(const SkPaint& paint, SkJSONWriter& writer) {
     SkFilterQuality quality = paint.getFilterQuality();
-    switch (quality) {
-        case kNone_SkFilterQuality: break;
-        case kLow_SkFilterQuality:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY, DEBUGCANVAS_FILTERQUALITY_LOW);
-            break;
-        case kMedium_SkFilterQuality:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY,
-                                DEBUGCANVAS_FILTERQUALITY_MEDIUM);
-            break;
-        case kHigh_SkFilterQuality:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY,
-                                DEBUGCANVAS_FILTERQUALITY_HIGH);
-            break;
+    if (quality != kNone_SkFilterQuality) {
+        const char* desc = SkFilterQualityToString(quality);
+        SkASSERT(desc);
+        writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILTERQUALITY, desc);
     }
 }
 
@@ -1330,20 +1258,7 @@ void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     writer.appendU32(DEBUGCANVAS_ATTRIBUTE_UNIQUE_ID, fImage->uniqueID());
     writer.appendS32(DEBUGCANVAS_ATTRIBUTE_WIDTH, fImage->width());
     writer.appendS32(DEBUGCANVAS_ATTRIBUTE_HEIGHT, fImage->height());
-    switch (fImage->alphaType()) {
-        case kOpaque_SkAlphaType:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, DEBUGCANVAS_ALPHATYPE_OPAQUE);
-            break;
-        case kPremul_SkAlphaType:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, DEBUGCANVAS_ALPHATYPE_PREMUL);
-            break;
-        case kUnpremul_SkAlphaType:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, DEBUGCANVAS_ALPHATYPE_UNPREMUL);
-            break;
-        default:
-            writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, DEBUGCANVAS_ALPHATYPE_UNKNOWN);
-            break;
-    }
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, alpha_type_name(fImage->alphaType()));
 }
 
 DrawImageLatticeCommand::DrawImageLatticeCommand(const SkImage*           image,

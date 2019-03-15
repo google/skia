@@ -4,9 +4,6 @@
 // HASH=09ef49d07cb7005ba3e34d5ea53896f5
 REG_FIDDLE(ColorTypeBytesPerPixel, 256, 192, false, 0) {
 void draw(SkCanvas* canvas) {
-    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
-                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",
-                             "RGBA_F16" };
     SkPaint paint;
     SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
     int y = 15;
@@ -19,7 +16,7 @@ void draw(SkCanvas* canvas) {
                                  } ) {
         int result = SkColorTypeBytesPerPixel(colorType);
         SkString string;
-        string.printf("%13s %4d", colors[(int) colorType], result);
+        string.printf("%13s %4d", SkColorTypeToString(colorType), result);
         canvas->drawString(string, 10, y += 14, font, paint);
     }
 }
