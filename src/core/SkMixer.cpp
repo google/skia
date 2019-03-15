@@ -362,9 +362,8 @@ SkPMColor4f SkMixerBase::test_mix(const SkPMColor4f& a, const SkPMColor4f& b) co
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
     SkRasterPipeline_MemoryCtx srcPtr = { &src, 0 };
 
-    pipeline.append(SkRasterPipeline::load_f32, &dstPtr);
-    pipeline.append(SkRasterPipeline::move_src_dst);        // dst is our 1st arg
-    pipeline.append(SkRasterPipeline::load_f32, &srcPtr);   // src is our 2nd arg
+    pipeline.append(SkRasterPipeline::load_f32_dst, &dstPtr);   // our 1st arg
+    pipeline.append(SkRasterPipeline::load_f32, &srcPtr);       // our 2nd arg
     as_MB(this)->appendStages(rec);
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
