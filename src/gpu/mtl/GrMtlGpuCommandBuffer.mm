@@ -344,4 +344,5 @@ void GrMtlGpuRTCommandBuffer::sendIndexedInstancedMeshToGpu(GrPrimitiveType prim
                                      instanceCount:instanceCount
                                         baseVertex:baseVertex
                                       baseInstance:baseInstance];
+    fGpu->stats()->incNumDraws();
 }

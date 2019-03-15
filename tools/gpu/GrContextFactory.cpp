@@ -228,8 +228,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal: {
-            SkASSERT(!masterContext);
-            testCtx.reset(CreatePlatformMtlTestContext(nullptr));
+            MtlTestContext* mtlSharedContext = masterContext
+                    ? static_cast<MtlTestContext*>(masterContext->fTestContext) : nullptr;
+            SkASSERT(kMetal_ContextType == type);
+            testCtx.reset(CreatePlatformMtlTestContext(mtlSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }
