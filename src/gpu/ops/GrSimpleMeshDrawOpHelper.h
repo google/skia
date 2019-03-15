@@ -83,7 +83,8 @@ public:
      */
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType,
-            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor);
+            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor,
+            bool* wideColor);
 
     bool isTrivial() const {
       return fProcessors == nullptr;
@@ -174,7 +175,8 @@ public:
 
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType,
-            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor);
+            GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor,
+            bool* wideColor);
 
     using GrSimpleMeshDrawOpHelper::aaType;
     using GrSimpleMeshDrawOpHelper::setAAType;

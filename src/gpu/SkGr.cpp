@@ -283,6 +283,18 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorSpaceInfo& colorSpac
     return color;
 }
 
+bool SkPMColor4fNeedsWideColor(SkPMColor4f* color, GrClampType clampType, const GrCaps& caps) {
+    if (GrClampType::kNone != clampType || !caps.halfFloatVertexAttributeSupport()) {
+        *color = { SkTPin(color->fR, 0.0f, 1.0f),
+                   SkTPin(color->fG, 0.0f, 1.0f),
+                   SkTPin(color->fB, 0.0f, 1.0f),
+                   color->fA };
+        return false;
+    } else {
+        return !color->fitsInBytes();
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {

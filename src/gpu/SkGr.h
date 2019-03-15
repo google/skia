@@ -65,6 +65,8 @@ SkPMColor4f SkColorToPMColor4f(SkColor, const GrColorSpaceInfo&);
     normalized, or the device does not support half-float vertex attributes. */
 SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorSpaceInfo&, const GrCaps&);
 
+bool SkPMColor4fNeedsWideColor(SkPMColor4f*, GrClampType, const GrCaps&);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Paint conversion
 
