@@ -16,6 +16,24 @@
       "revId": "fac12dfe9774c32981eee1a8896bccce6b7bb227",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36113407_ae537755",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T20:42:40Z",
+      "side": 1,
+      "message": "Done in follow-up CL",
+      "parentUuid": "bee9a782_e922bdd0",
+      "revId": "fac12dfe9774c32981eee1a8896bccce6b7bb227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
