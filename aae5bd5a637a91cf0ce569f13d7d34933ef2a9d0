@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b69c48c_b8850e6b",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-15T13:37:11Z",
+      "side": 1,
+      "message": "If anyone has a better name for this enum, I\u0027m happy to search + replace to fix it.\n\nenum GrConfigType { kNormalized, kFloat, kClampedFloat }; ???",
+      "revId": "aae5bd5a637a91cf0ce569f13d7d34933ef2a9d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
