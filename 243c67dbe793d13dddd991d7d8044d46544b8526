@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8ba3877f_51ef652b",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 2251,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-15T14:22:10Z",
+      "side": 1,
+      "message": "Done (Yes, I missed it.)",
+      "parentUuid": "4243d334_f1a85bf7",
+      "range": {
+        "startLine": 2251,
+        "startChar": 6,
+        "endLine": 2251,
+        "endChar": 21
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04980a9f_71ec1955",
         "filename": "docs/examples/TextBlobBuilder_004.cpp",
         "patchSetId": 10
@@ -188,6 +212,30 @@
       "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de62aa90_ed631b4c",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-15T14:22:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "47e91783_16f0fa25",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

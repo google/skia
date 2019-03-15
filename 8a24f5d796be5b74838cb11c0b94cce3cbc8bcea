@@ -22,6 +22,30 @@
       "revId": "8a24f5d796be5b74838cb11c0b94cce3cbc8bcea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8d14471_5ff7d31d",
+        "filename": "tools/fiddle/examples.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-15T14:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05047c5d_c2b6e597",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "8a24f5d796be5b74838cb11c0b94cce3cbc8bcea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
