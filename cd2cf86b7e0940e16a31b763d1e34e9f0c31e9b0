@@ -16,6 +16,29 @@
       "revId": "cd2cf86b7e0940e16a31b763d1e34e9f0c31e9b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65757d53_3f8f526a",
+        "filename": "tools/gpu/mtl/MtlTestContext.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-15T18:37:46Z",
+      "side": 1,
+      "message": "This works in Xcode but not on the command line -- gives a seg fault there. So more work pending.",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 71
+      },
+      "revId": "cd2cf86b7e0940e16a31b763d1e34e9f0c31e9b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
