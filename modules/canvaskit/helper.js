@@ -161,3 +161,40 @@ function loadCmdsTypedArray(arr) {
   var ptr = copy1dArray(ta, CanvasKit.HEAPF32);
   return [ptr, len];
 }
+
+// Helper for building an array of RSXForms (which are just structs
+// of 4 floats)
+CanvasKit.RSXFormBuilder = function() {
+  this._pts = [];
+  this._ptr = null;
+}
+
+/**
+ *  A compressed form of a rotation+scale matrix.
+ *
+ *  [ scos    -ssin    tx ]
+ *  [ ssin     scos    ty ]
+ *  [    0        0     1 ]
+ */
+CanvasKit.RSXFormBuilder.prototype.push = function(scos, ssin, tx, ty) {
+  if (this._ptr) {
+    SkDebug('Cannot push more points - already built');
+    return;
+  }
+  this._pts.push(scos, ssin, tx, ty);
+}
+
+CanvasKit.RSXFormBuilder.prototype.build = function() {
+  if (this._ptr) {
+    return this._ptr;
+  }
+  this._ptr = copy1dArray(this._pts, CanvasKit.HEAPF32);
+  return this._ptr;
+}
+
+CanvasKit.RSXFormBuilder.prototype.delete = function() {
+  if (this._ptr) {
+    CanvasKit._free(this._ptr);
+    this._ptr = null;
+  }
+}

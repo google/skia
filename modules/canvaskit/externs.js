@@ -84,6 +84,8 @@ var CanvasKit = {
 
 	// Objects and properties on CanvasKit
 
+	RSXFormBuilder: function() {},
+
 	ShapedText: {
 		// public API (from C++ bindings)
 		getBounds: function() {},
@@ -138,6 +140,8 @@ var CanvasKit = {
 		setSize: function() {},
 		setSkewX: function() {},
 		setTypeface: function() {},
+		// private API (from C++ bindings)
+		_getWidths: function() {},
 	},
 
 	SkFontMgr: {
@@ -241,6 +245,13 @@ var CanvasKit = {
 		dumpHex: function() {},
 	},
 
+	SkPathMeasure: {
+		getLength: function() {},
+		getPosTan: function() {},
+		isClosed: function() {},
+		nextContour: function() {},
+	},
+
 	SkRect: {
 		fLeft: {},
 		fTop: {},
@@ -263,7 +274,12 @@ var CanvasKit = {
 	},
 
 	SkTextBlob: {
+		// public API (both C++ and JS bindings)
+		MakeFromRSXform: function() {},
 		MakeFromText: function() {},
+		MakeOnPath: function() {},
+		// private API (from C++ bindings)
+		_MakeFromRSXform: function() {},
 		_MakeFromText: function() {},
 	},
 
@@ -495,6 +511,12 @@ CanvasKit.SkCanvas.prototype.readPixels = function() {};
 CanvasKit.SkCanvas.prototype.writePixels = function() {};
 
 CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function() {};
+
+CanvasKit.SkFont.prototype.getWidths = function() {};
+
+CanvasKit.RSXFormBuilder.prototype.build = function() {};
+CanvasKit.RSXFormBuilder.prototype.delete = function() {};
+CanvasKit.RSXFormBuilder.prototype.push = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};

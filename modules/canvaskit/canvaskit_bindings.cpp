@@ -29,6 +29,7 @@
 #include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
+#include "SkPathMeasure.h"
 #include "SkPathOps.h"
 #include "SkScalar.h"
 #include "SkShader.h"
@@ -534,6 +535,11 @@ void drawShapedText(SkCanvas& canvas, ShapedText st, SkScalar x,
     canvas.drawTextBlob(st.blob(), x, y, paint);
 }
 
+// This is simpler than dealing with an SkPoint and SkVector
+struct PosTan {
+    SkScalar px, py, tx, ty;
+};
+
 // These objects have private destructors / delete mthods - I don't think
 // we need to do anything other than tell emscripten to do nothing.
 namespace emscripten {
@@ -831,6 +837,25 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
         .function("getTypeface", &SkFont::getTypeface, allow_raw_pointers())
+        .function("_getWidths", optional_override([](SkFont& self, uintptr_t /* char* */ sptr,
+                                                     size_t strLen, size_t expectedCodePoints,
+                                                     uintptr_t /* SkScalar* */ wptr) -> bool {
+            char* str = reinterpret_cast<char*>(sptr);
+            SkScalar* widths = reinterpret_cast<SkScalar*>(wptr);
+
+            SkGlyphID* glyphStorage = new SkGlyphID[expectedCodePoints];
+            int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
+                                                     glyphStorage, expectedCodePoints);
+            if (actualCodePoints != expectedCodePoints) {
+                SkDebugf("Actually %d glyphs, expected only %d\n",
+                         actualCodePoints, expectedCodePoints);
+                return false;
+            }
+
+            self.getWidths(glyphStorage, actualCodePoints, widths);
+            delete[] glyphStorage;
+            return true;
+        }))
         .function("measureText", optional_override([](SkFont& self, std::string text) {
             // TODO(kjlubick): This does not work well for non-ascii
             // Need to maybe add a helper in interface.js that supports UTF-8
@@ -971,6 +996,21 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
         ;
 
+    class_<SkPathMeasure>("SkPathMeasure")
+        .constructor<const SkPath&, bool, SkScalar>()
+        .function("getLength", &SkPathMeasure::getLength)
+        .function("getPosTan", optional_override([](SkPathMeasure& self,
+                                                    SkScalar distance) -> PosTan {
+            SkPoint p{0, 0};
+            SkVector v{0, 0};
+            if (!self.getPosTan(distance, &p, &v)) {
+                SkDebugf("zero-length path in getPosTan\n");
+            }
+            return PosTan{p.x(), p.y(), v.x(), v.y()};
+        }))
+        .function("isClosed", &SkPathMeasure::isClosed)
+        .function("nextContour", &SkPathMeasure::nextContour);
+
     class_<SkShader>("SkShader")
         .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>");
 
@@ -988,6 +1028,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkTextBlob>("SkTextBlob")
         .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<SkTextBlob>>")
+        .class_function("_MakeFromRSXform", optional_override([](uintptr_t /* char* */ sptr,
+                                                              size_t strBtyes,
+                                                              uintptr_t /* SkRSXform* */ xptr,
+                                                              const SkFont& font,
+                                                              SkTextEncoding encoding)->sk_sp<SkTextBlob> {
+            // See comment above for uintptr_t explanation
+            const char* str = reinterpret_cast<const char*>(sptr);
+            const SkRSXform* xforms = reinterpret_cast<const SkRSXform*>(xptr);
+
+            return SkTextBlob::MakeFromRSXform(str, strBtyes, xforms, font, encoding);
+        }), allow_raw_pointers())
         .class_function("_MakeFromText", optional_override([](uintptr_t /* char* */ sptr,
                                                               size_t len, const SkFont& font,
                                                               SkTextEncoding encoding)->sk_sp<SkTextBlob> {
@@ -1173,6 +1224,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .element(&SkPoint3::fX)
         .element(&SkPoint3::fY)
         .element(&SkPoint3::fZ);
+
+    // PosTan can be represented by [px, py, tx, ty]
+    value_array<PosTan>("PosTan")
+        .element(&PosTan::px)
+        .element(&PosTan::py)
+        .element(&PosTan::tx)
+        .element(&PosTan::ty);
 
     // {"w": Number, "h", Number}
     value_object<SkSize>("SkSize")

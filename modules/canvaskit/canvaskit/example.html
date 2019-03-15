@@ -47,6 +47,7 @@
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
 <canvas id=shape2 width=600 height=600></canvas>
+<canvas id=textonpath width=300 height=300></canvas>
 
 <h2> Skottie </h2>
 <canvas id=sk_legos width=300 height=300></canvas>
@@ -116,6 +117,7 @@
 
     TextShapingAPI1(CanvasKit, notoserifData);
     TextShapingAPI2(CanvasKit, notoserifData);
+    TextOnPathAPI1(CanvasKit);
 
     ParticlesAPI1(CanvasKit);
 
@@ -1277,6 +1279,42 @@
     document.getElementById('shape2').addEventListener('pointermove', interact);
     document.getElementById('shape2').addEventListener('pointerdown', interact);
     preventScrolling(document.getElementById('shape2'));
+  }
+
+  function TextOnPathAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('textonpath');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const font = new CanvasKit.SkFont(null, 24);
+    const fontPaint = new CanvasKit.SkPaint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+
+
+    const arc = new CanvasKit.SkPath();
+    arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+    arc.lineTo(210, 140);
+    arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+
+    const str = 'This téxt should follow the curve across contours...';
+    const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);
+
+    canvas.drawPath(arc, paint);
+    canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+    surface.flush();
+
+    textBlob.delete();
+    arc.delete();
+    paint.delete();
+    font.delete();
+    fontPaint.delete();
   }
 
   function ParticlesAPI1(CanvasKit) {
