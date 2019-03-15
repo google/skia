@@ -2454,8 +2454,12 @@ if (skia_enable_tools) {
 
   if (is_android && defined(ndk) && ndk != "") {
     copy("gdbserver") {
+      _arch = target_cpu
+      if (target_cpu == "x64") {
+        _arch = "x86_64"
+      }
       sources = [
-        "$ndk/$ndk_gdbserver",
+        "$ndk/prebuilt/android-$_arch/gdbserver/gdbserver",
       ]
       outputs = [
         "$root_out_dir/gdbserver",
