@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eab20ea1_df060646",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-15T19:14:18Z",
+      "side": 1,
+      "message": "What is the contour is shorter than this?",
+      "range": {
+        "startLine": 529,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 27
+      },
+      "revId": "3357b6b794cdf72630ac7facd71cb252e754b06b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d0f075_3af6817b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-15T19:14:18Z",
+      "side": 1,
+      "message": "After the first time through this loop dist will be 3/2*widths[0], which seems wrong as the place to put the second glyph (which should be widths[0] + 1/2*widths[1]).",
+      "range": {
+        "startLine": 544,
+        "startChar": 6,
+        "endLine": 544,
+        "endChar": 20
+      },
+      "revId": "3357b6b794cdf72630ac7facd71cb252e754b06b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
