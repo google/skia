@@ -30,30 +30,67 @@ public:
 
     // Server implementation.
     SkDiscardableHandleId createHandle() override {
+        SkAutoMutexAcquire l(&fMutex);
+
         // Handles starts as locked.
         fLockedHandles.add(++fNextHandleId);
         return fNextHandleId;
     }
     bool lockHandle(SkDiscardableHandleId id) override {
+        SkAutoMutexAcquire l(&fMutex);
+
         if (id <= fLastDeletedHandleId) return false;
         fLockedHandles.add(id);
         return true;
     }
 
     // Client implementation.
-    bool deleteHandle(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
-    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
-    bool isHandleDeleted(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
+    bool deleteHandle(SkDiscardableHandleId id) override {
+        SkAutoMutexAcquire l(&fMutex);
 
-    void unlockAll() { fLockedHandles.reset(); }
+        return id <= fLastDeletedHandleId;
+    }
+
+    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override {
+        SkAutoMutexAcquire l(&fMutex);
+
+        fCacheMissCount[type]++;
+    }
+    bool isHandleDeleted(SkDiscardableHandleId id) override {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return id <= fLastDeletedHandleId;
+    }
+
+    void unlockAll() {
+        SkAutoMutexAcquire l(&fMutex);
+
+        fLockedHandles.reset();
+    }
     void unlockAndDeleteAll() {
-        unlockAll();
+        SkAutoMutexAcquire l(&fMutex);
+
+        fLockedHandles.reset();
         fLastDeletedHandleId = fNextHandleId;
     }
-    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const { return fLockedHandles; }
-    SkDiscardableHandleId handleCount() { return fNextHandleId; }
-    int cacheMissCount(uint32_t type) { return fCacheMissCount[type]; }
+    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return fLockedHandles;
+    }
+    SkDiscardableHandleId handleCount() {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return fNextHandleId;
+    }
+    int cacheMissCount(uint32_t type) {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return fCacheMissCount[type];
+    }
     bool hasCacheMiss() const {
+        SkAutoMutexAcquire l(&fMutex);
+
         for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
             if (fCacheMissCount[i] > 0) return true;
         }
@@ -61,6 +98,11 @@ public:
     }
 
 private:
+    // The tests below run in parallel on multiple threads and use the same
+    // process global SkStrikeCache. So the implementation needs to be
+    // thread-safe.
+    mutable SkMutex fMutex;
+
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
     SkTHashSet<SkDiscardableHandleId> fLockedHandles;
