@@ -41,6 +41,8 @@ typedef uint32_t SkColor;
     @param g  amount of green, from no green (0) to full green (255)
     @param b  amount of blue, from no blue (0) to full blue (255)
     @return   color and alpha, unpremultiplied
+
+    @example https://fiddle.skia.org/c/@Color_000
 */
 static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkASSERT(a <= 255 && r <= 255 && g <= 255 && b <= 255),
@@ -74,6 +76,8 @@ static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU 
     @param c  packed RGB, eight bits per component
     @param a  alpha: transparent at zero, fully opaque at 255
     @return   color with transparency
+
+    @example https://fiddle.skia.org/c/@Color_006
 */
 static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a) {
     return (c & 0x00FFFFFF) | (a << 24);
@@ -81,6 +85,10 @@ static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a) {
 
 /** Represents fully transparent SkAlpha value. SkAlpha ranges from zero,
     fully transparent; to 255, fully opaque.
+
+    @example https://fiddle.skia.org/c/@Color_007
+
+    @example https://fiddle.skia.org/c/@Color_008
 */
 constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00;
 
@@ -250,6 +258,8 @@ struct SkRGBA4f {
 
         @param other  SkRGBA4f to compare
         @return       true if SkRGBA4f equals other
+
+        @example https://fiddle.skia.org/c/@Color4f_000
     */
     bool operator==(const SkRGBA4f& other) const {
         return fA == other.fA && fR == other.fR && fG == other.fG && fB == other.fB;
@@ -259,6 +269,8 @@ struct SkRGBA4f {
 
         @param other  SkRGBA4f to compare
         @return       true if SkRGBA4f is not equal to other
+
+        @example https://fiddle.skia.org/c/@Color4f_001
     */
     bool operator!=(const SkRGBA4f& other) const {
         return !(*this == other);
@@ -285,12 +297,16 @@ struct SkRGBA4f {
     /** Returns a pointer to components of SkRGBA4f, for array access.
 
         @return       pointer to array [fR, fG, fB, fA]
+
+        @example https://fiddle.skia.org/c/@Color4f_002
     */
     const float* vec() const { return &fR; }
 
     /** Returns a pointer to components of SkRGBA4f, for array access.
 
         @return       pointer to array [fR, fG, fB, fA]
+
+        @example https://fiddle.skia.org/c/@Color4f_003
     */
     float* vec() { return &fR; }
 
@@ -336,12 +352,16 @@ struct SkRGBA4f {
 
         @param color   Color with Alpha, red, blue, and green components
         @return        SkColor as SkRGBA4f
+
+        @example https://fiddle.skia.org/c/@Color4f_004
     */
     static SkRGBA4f FromColor(SkColor color);  // impl. depends on kAT
 
     /** Returns closest SkColor to SkRGBA4f. Only allowed if SkRGBA4f is unpremultiplied.
 
         @return       color as SkColor
+
+        @example https://fiddle.skia.org/c/@Color4f_005
     */
     SkColor toSkColor() const;  // impl. depends on kAT
 
