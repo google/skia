@@ -165,6 +165,63 @@ sk_sp<SkFlattenable> SkMixer_Lerp::CreateProc(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+class SkMixer_ShaderLerp final : public SkMixerBase {
+    SkMixer_ShaderLerp(sk_sp<SkShader> shader) : fShader(std::move(shader)) {
+        SkASSERT(fShader);
+    }
+    sk_sp<SkShader> fShader;
+    friend class SkMixer;
+public:
+    SK_FLATTENABLE_HOOKS(SkMixer_ShaderLerp)
+
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.writeFlattenable(fShader.get());
+    }
+
+    bool appendStages(const SkStageRec& rec) const override {
+        struct Storage {
+            float   fSrc[4 * SkRasterPipeline_kMaxStride];
+            float   fDst[4 * SkRasterPipeline_kMaxStride];
+            float   fShaderOutput[4 * SkRasterPipeline_kMaxStride];
+        };
+        auto storage = rec.fAlloc->make<Storage>();
+
+        // we've been given our inputs in rgba and drdgdbda
+        rec.fPipeline->append(SkRasterPipeline::store_src, storage->fSrc);
+        rec.fPipeline->append(SkRasterPipeline::store_dst, storage->fDst);
+
+        if (!as_SB(fShader)->appendStages(rec)) {
+            return false;
+        }
+        // the shader's output is in rgba, which we need to turn into our "t" value
+        rec.fPipeline->append(SkRasterPipeline::store_src, storage->fShaderOutput);
+
+        // now we need to reload the original src and dst so we can run our stage (lerp)
+        // Note: the lerp_1_float stage maps 0...1 from dst to src. However our mixer is defined
+        //       to map from first param (r,g,b,a) to 2nd param (dr,dg,db,da), so we trick it
+        //       out and load the two swapped.
+        rec.fPipeline->append(SkRasterPipeline::load_src, storage->fDst);
+        rec.fPipeline->append(SkRasterPipeline::load_dst, storage->fSrc);
+
+        // we treat the first channel (e.g. R) as our T
+        rec.fPipeline->append(SkRasterPipeline::lerp_floats, &storage->fShaderOutput[0]);
+        return true;
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor>
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        return nullptr;
+    }
+#endif
+};
+
+sk_sp<SkFlattenable> SkMixer_ShaderLerp::CreateProc(SkReadBuffer& buffer) {
+    return MakeShaderLerp(buffer.readShader());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 class SkMixer_Merge final : public SkMixerBase {
     SkMixer_Merge(sk_sp<SkMixer> m0, sk_sp<SkMixer> m1, sk_sp<SkMixer> combine)
         : fM0(std::move(m0))
@@ -271,6 +328,13 @@ sk_sp<SkMixer> SkMixer::MakeLerp(float t) {
         return MakeSecond();
     }
     return sk_sp<SkMixer>(new SkMixer_Lerp(t));
+}
+
+sk_sp<SkMixer> SkMixer::MakeShaderLerp(sk_sp<SkShader> shader) {
+    if (!shader) {
+        return MakeFirst();
+    }
+    return sk_sp<SkMixer>(new SkMixer_ShaderLerp(std::move(shader)));
 }
 
 sk_sp<SkMixer> SkMixer::MakeArithmetic(float k1, float k2, float k3, float k4) {

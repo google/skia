@@ -1495,6 +1495,14 @@ STAGE(lerp_1_float, const float* c) {
     b = lerp(db, b, *c);
     a = lerp(da, a, *c);
 }
+// Lerp from dst-color to src-color
+STAGE(lerp_floats, const float scales[]) {
+    auto c = unaligned_load<F>(scales);
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
+}
 STAGE(lerp_u8, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
 
@@ -3371,6 +3379,7 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
     NOT_IMPLEMENTED(dither)  // TODO
+    NOT_IMPLEMENTED(lerp_floats) // TODO
     NOT_IMPLEMENTED(from_srgb)
     NOT_IMPLEMENTED(to_srgb)
     NOT_IMPLEMENTED(load_f16)
