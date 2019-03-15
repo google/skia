@@ -46,9 +46,9 @@ inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
 
 inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
     if (FLAGS_pr.isEmpty()) {
-        return GpuPathRenderers::kAll;
+        return GpuPathRenderers::kDefault;
     }
-    GpuPathRenderers gpuPathRenderers = '~' == FLAGS_pr[0][0]
+    GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
             ? GpuPathRenderers::kAll : GpuPathRenderers::kNone;
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
         const char* name = FLAGS_pr[i];
