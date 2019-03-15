@@ -39,6 +39,8 @@ inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kTessellating;
     } else if (!strcmp(name, "all")) {
         return GpuPathRenderers::kAll;
+    } else if (!strcmp(name, "default")) {
+        return GpuPathRenderers::kDefault;
     }
     SK_ABORT(SkStringPrintf("error: unknown named path renderer \"%s\"\n", name).c_str());
     return GpuPathRenderers::kNone;
@@ -46,9 +48,9 @@ inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
 
 inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
     if (FLAGS_pr.isEmpty()) {
-        return GpuPathRenderers::kAll;
+        return GpuPathRenderers::kDefault;
     }
-    GpuPathRenderers gpuPathRenderers = '~' == FLAGS_pr[0][0]
+    GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
             ? GpuPathRenderers::kAll : GpuPathRenderers::kNone;
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
         const char* name = FLAGS_pr[i];
