@@ -49,6 +49,8 @@ public:
 
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
+    void prepareImage(const SkGlyph& glyph) override;
+
     void onAboutToExitScope() override {}
 
 private:

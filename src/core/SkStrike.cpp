@@ -465,6 +465,12 @@ bool SkStrike::decideCouldDrawFromPath(const SkGlyph& glyph) {
     return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
 }
 
+void SkStrike::prepareImage(const SkGlyph& glyph) {
+    if (!glyph.isEmpty()) {
+        this->findImage(glyph);
+    }
+}
+
 void SkStrike::onAboutToExitScope() { }
 
 #ifdef SK_DEBUG
@@ -487,7 +493,6 @@ void SkStrike::validate() const {
     forceValidate();
 #endif
 }
-
 #endif  // SK_DEBUG
 
 

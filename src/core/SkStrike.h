@@ -128,6 +128,8 @@ public:
 
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
+    void prepareImage(const SkGlyph& glyph) override;
+
     const SkDescriptor& getDescriptor() const override;
 
     SkStrikeSpec strikeSpec() const override {

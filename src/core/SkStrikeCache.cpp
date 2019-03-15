@@ -50,6 +50,10 @@ public:
         return fStrike.decideCouldDrawFromPath(glyph);
     }
 
+    void prepareImage(const SkGlyph& glyph) override {
+        return fStrike.prepareImage(glyph);
+    }
+
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
     }

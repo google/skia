@@ -585,6 +585,10 @@ bool SkStrikeServer::SkGlyphCacheState::decideCouldDrawFromPath(const SkGlyph& g
     return glyph.path() != nullptr;
 }
 
+void SkStrikeServer::SkGlyphCacheState::prepareImage(const SkGlyph& glyph) {
+    fContext->getImage(glyph);
+}
+
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
                                                        Serializer* serializer) const {
     SkPath path;
