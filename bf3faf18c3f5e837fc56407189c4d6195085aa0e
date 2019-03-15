@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "662e5dd5_1577dc35",
+        "filename": "tools/fiddle/examples.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-15T15:16:07Z",
+      "side": 1,
+      "message": "Aren\u0027t these both ints? Why the casts?",
+      "range": {
+        "startLine": 27,
+        "startChar": 17,
+        "endLine": 27,
+        "endChar": 69
+      },
+      "revId": "bf3faf18c3f5e837fc56407189c4d6195085aa0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
