@@ -3,7 +3,7 @@
 (function(DebuggerView){
     // Takes in an html id or a canvas element
     DebuggerView.MakeSWCanvasSurface = function(idOrElement) {
-        var canvas = idOrElement;
+        let canvas = idOrElement;
         if (canvas.tagName !== 'CANVAS') {
           canvas = document.getElementById(idOrElement);
           if (!canvas) {
@@ -12,10 +12,11 @@
         }
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var surface = DebuggerView.MakeSurface(canvas.width, canvas.height);
+      let surface = DebuggerView.MakeSurface(canvas.width, canvas.height);
       if (surface) {
         surface._canvas = canvas;
       }
+      console.log('Made HTML Canvas Surface');
       return surface;
     };
 
@@ -26,7 +27,7 @@
 
     DebuggerView.MakeSurface = function(width, height) {
       /* @dict */
-      var imageInfo = {
+      let imageInfo = {
         'width':  width,
         'height': height,
         'colorType': DebuggerView.ColorType.RGBA_8888,
@@ -34,11 +35,11 @@
         // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
         'alphaType': DebuggerView.AlphaType.Unpremul,
       }
-      var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
+      let pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
       // Allocate the buffer of pixels to be drawn into.
-      var pixelPtr = DebuggerView._malloc(pixelLen);
+      let pixelPtr = DebuggerView._malloc(pixelLen);
 
-      var surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width*4);
+      let surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width*4);
       if (surface) {
         surface._canvas = null;
         surface._width = width;
@@ -61,8 +62,8 @@
         // Do we have an HTML canvas to write the pixels to?
         // We will not if this a GPU build or a raster surface, for example.
         if (this._canvas) {
-          var pixels = new Uint8ClampedArray(DebuggerView.buffer, this._pixelPtr, this._pixelLen);
-          var imageData = new ImageData(pixels, this._width, this._height);
+          let pixels = new Uint8ClampedArray(DebuggerView.buffer, this._pixelPtr, this._pixelLen);
+          let imageData = new ImageData(pixels, this._width, this._height);
           this._canvas.getContext('2d').putImageData(imageData, 0, 0);
         }
       };
