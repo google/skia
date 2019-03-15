@@ -16,6 +16,24 @@
       "revId": "aae5bd5a637a91cf0ce569f13d7d34933ef2a9d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47b38090_d45c8773",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-15T13:44:02Z",
+      "side": 1,
+      "message": "I think we had something like your suggestion in the past. If it were me I\u0027d call it GrPixelConfigType rather than GrConfigType just to be clear its about GrPixelConfig.\n\nIf we go with this alternative perhaps it should subsume GrPixelConfigIsFloatingPoint as well.\n\nI\u0027m also not opposed to just going with the existing GrClampType.",
+      "parentUuid": "1b69c48c_b8850e6b",
+      "revId": "aae5bd5a637a91cf0ce569f13d7d34933ef2a9d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
