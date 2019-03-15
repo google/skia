@@ -1,25 +1,27 @@
 declare_args() {
-  host_ar = ar
-  host_cc = cc
-  host_cxx = cxx
-
-  if (is_android) {
-    if (host_os == "win") {
-      target_ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar.exe"
-      target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang.exe"
-      target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++.exe"
-    } else {
-      target_ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
-      target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
-      target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
-    }
-  } else {
-    target_ar = ar
-    target_cc = cc
-    target_cxx = cxx
-  }
-
   cc_wrapper = ""
+}
+
+host_ar = ar
+host_cc = cc
+host_cxx = cxx
+
+if (is_android) {
+  target_ar = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/llvm-ar"
+  target_cc =
+      "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/$ndk_target$ndk_api-clang"
+  target_cxx = target_cc + "++"
+
+  if (host_os == "win") {
+    target_ar = target_ar + ".exe"
+    target_cc = target_cc + ".exe"
+    target_cxx = target_cxx + ".exe"
+  } else {
+  }
+} else {
+  target_ar = ar
+  target_cc = cc
+  target_cxx = cxx
 }
 
 if (host_os == "win") {
