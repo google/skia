@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf146e12_24f0f6f7",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T19:43:16Z",
+      "side": 1,
+      "message": "maybe this-\u003egetGlyphIDMetrics(glyphIDs[i], /*no subpixel positioning*/) to point out the difference to glyphDeviceMetrics?\n\nI kind of find this interface subtler than it ought to be... maybe we could make the subpixel or default positioning variants have different names?",
+      "range": {
+        "startLine": 270,
+        "startChar": 70,
+        "endLine": 270,
+        "endChar": 71
+      },
+      "revId": "8358bc32ba2d9e3a1e4f9e55d1605e3e1faa305f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

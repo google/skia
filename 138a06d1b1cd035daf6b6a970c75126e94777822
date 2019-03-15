@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c21f90b_180ab947",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T19:43:16Z",
+      "side": 0,
+      "message": "Should we be asserting anything about fIsSubpixel in the new methods?",
+      "range": {
+        "startLine": 613,
+        "startChar": 39,
+        "endLine": 613,
+        "endChar": 52
+      },
+      "revId": "138a06d1b1cd035daf6b6a970c75126e94777822",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
