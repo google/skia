@@ -28,13 +28,6 @@ static const float kRec709ConversionMatrix[16] = {
     0.0f,    0.0f,    0.0f,    1.0f
 };
 
-static const float kIdentityConversionMatrix[16] = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-};
-
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace,
@@ -57,23 +50,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         filterModes[i] = (size == YSize) ? filterMode : minimizeFilterMode;
     }
 
-    SkMatrix44 mat;
-    switch (yuvColorSpace) {
-        case kJPEG_SkYUVColorSpace:
-            mat.setColMajorf(kJPEGConversionMatrix);
-            break;
-        case kRec601_SkYUVColorSpace:
-            mat.setColMajorf(kRec601ConversionMatrix);
-            break;
-        case kRec709_SkYUVColorSpace:
-            mat.setColMajorf(kRec709ConversionMatrix);
-            break;
-        case kIdentity_SkYUVColorSpace:
-            mat.setColMajorf(kIdentityConversionMatrix);
-            break;
-    }
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(
-            proxies, scales, filterModes, numPlanes, yuvaIndices, mat));
+            proxies, scales, filterModes, numPlanes, yuvaIndices, yuvColorSpace));
 }
 
 #ifdef SK_DEBUG
@@ -99,16 +77,17 @@ SkString GrYUVtoRGBEffect::dumpInfo() const {
 class GrGLSLYUVtoRGBEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLYUVtoRGBEffect() {}
+
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrYUVtoRGBEffect& _outer = args.fFp.cast<GrYUVtoRGBEffect>();
         (void)_outer;
 
-        auto colorSpaceMatrix = _outer.colorSpaceMatrix();
-        (void)colorSpaceMatrix;
-        fColorSpaceMatrixVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
-                                                 "colorSpaceMatrix");
+        if (kIdentity_SkYUVColorSpace != _outer.yuvColorSpace()) {
+            fColorSpaceMatrixVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                    kHalf4x4_GrSLType,
+                                                                    "colorSpaceMatrix");
+        }
 
         int numSamplers = args.fTexSamplers.count();
 
@@ -129,11 +108,16 @@ public:
         static const char kChannelToChar[4] = { 'x', 'y', 'z', 'w' };
 
         fragBuilder->codeAppendf(
-            "half4 yuvOne = half4(half(tmp%d.%c), half(tmp%d.%c), half(tmp%d.%c), 1.0) * %s;",
+            "half4 yuvOne = half4(half(tmp%d.%c), half(tmp%d.%c), half(tmp%d.%c), 1.0);",
                 _outer.yuvaIndex(0).fIndex, kChannelToChar[(int)_outer.yuvaIndex(0).fChannel],
                 _outer.yuvaIndex(1).fIndex, kChannelToChar[(int)_outer.yuvaIndex(1).fChannel],
-                _outer.yuvaIndex(2).fIndex, kChannelToChar[(int)_outer.yuvaIndex(2).fChannel],
-                args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar));
+                _outer.yuvaIndex(2).fIndex, kChannelToChar[(int)_outer.yuvaIndex(2).fChannel]);
+
+        if (kIdentity_SkYUVColorSpace != _outer.yuvColorSpace()) {
+            SkASSERT(fColorSpaceMatrixVar.isValid());
+            fragBuilder->codeAppendf(
+                "yuvOne *= %s;", args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar));
+        }
 
 
         if (_outer.yuvaIndex(3).fIndex >= 0) {
@@ -153,10 +137,28 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrYUVtoRGBEffect& _outer = _proc.cast<GrYUVtoRGBEffect>();
-        { pdman.setSkMatrix44(fColorSpaceMatrixVar, (_outer.colorSpaceMatrix())); }
+
+        switch (_outer.yuvColorSpace()) {
+            case kJPEG_SkYUVColorSpace:
+                SkASSERT(fColorSpaceMatrixVar.isValid());
+                pdman.setMatrix4f(fColorSpaceMatrixVar, kJPEGConversionMatrix);
+                break;
+            case kRec601_SkYUVColorSpace:
+                SkASSERT(fColorSpaceMatrixVar.isValid());
+                pdman.setMatrix4f(fColorSpaceMatrixVar, kRec601ConversionMatrix);
+                break;
+            case kRec709_SkYUVColorSpace:
+                SkASSERT(fColorSpaceMatrixVar.isValid());
+                pdman.setMatrix4f(fColorSpaceMatrixVar, kRec709ConversionMatrix);
+                break;
+            case kIdentity_SkYUVColorSpace:
+                break;
+        }
     }
+
     UniformHandle fColorSpaceMatrixVar;
 };
+
 GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
     return new GrGLSLYUVtoRGBEffect();
 }
@@ -177,6 +179,10 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
         packed |= (index | (chann << 2)) << (i * 4);
     }
+    if (kIdentity_SkYUVColorSpace == this->yuvColorSpace()) {
+        packed |= 0x1 << 16;
+    }
+
     b->add32(packed);
 }
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -195,7 +201,7 @@ bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
         }
     }
 
-    if (fColorSpaceMatrix != that.fColorSpaceMatrix) {
+    if (fYUVColorSpace != that.fYUVColorSpace) {
         return false;
     }
 
@@ -203,7 +209,7 @@ bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : INHERITED(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
-        , fColorSpaceMatrix(src.fColorSpaceMatrix) {
+        , fYUVColorSpace(src.fYUVColorSpace) {
     int numPlanes = src.numTextureSamplers();
     for (int i = 0; i < numPlanes; ++i) {
         fSamplers[i].reset(sk_ref_sp(src.fSamplers[i].proxy()), src.fSamplers[i].samplerState());
