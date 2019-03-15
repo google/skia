@@ -5252,14 +5252,6 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
 },
-    "SkCanvas_drawTextRSXform": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int iterations = 26;\n    SkRSXform transforms[iterations];\n    char alphabet[iterations];\n    SkScalar angle = 0;\n    SkScalar scale = 1;\n    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {\n        const SkScalar s = SkScalarSin(angle) * scale;\n        const SkScalar c = SkScalarCos(angle) * scale;\n        transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);\n        angle += .45;\n        scale += .2;\n        alphabet[i] = 'A' + i;\n    }\n    SkPaint paint;\n    canvas->translate(110, 138);\n    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "935c8f8b9782d297a73d7186f6ef7945",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawTextRSXform"
-},
     "SkCanvas_drawVertices": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPoint points[] = { { 0, 0 }, { 250, 0 }, { 100, 100 }, { 0, 250 } };\n    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };\n    auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,\n            SK_ARRAY_COUNT(points), points, nullptr, colors);\n    canvas->drawVertices(vertices.get(), SkBlendMode::kSrc, paint);\n}\n",
     "width": 256,
@@ -7693,10 +7685,10 @@
     "name": "SkPath::addRRect"
 },
     "SkPath_addRRect_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    rrect.setRectXY({40, 40, 215, 215}, 50, 50);\n    SkPath path;\n    path.addRRect(rrect);\n    canvas->drawPath(path, paint);\n    for (int start = 0; start < 8; ++start) {\n        SkPath textPath;\n        textPath.addRRect(rrect, SkPath::kCW_Direction, start);\n        SkPathMeasure pathMeasure(textPath, false);\n        SkPoint position;\n        SkVector tangent;\n        if (!pathMeasure.getPosTan(0, &position, &tangent)) {\n            continue;\n        }\n        SkRSXform rsxForm = SkRSXform::Make(tangent.fX, tangent.fY,\n               position.fX + tangent.fY * 5, position.fY - tangent.fX * 5);\n        canvas->drawTextRSXform(&\"01234567\"[start], 1, &rsxForm, nullptr, paint);\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    rrect.setRectXY({40, 40, 215, 215}, 50, 50);\n    SkPath path;\n    path.addRRect(rrect);\n    canvas->drawPath(path, paint);\n    for (int start = 0; start < 8; ++start) {\n        SkPath textPath;\n        textPath.addRRect(rrect, SkPath::kCW_Direction, start);\n        SkPathMeasure pathMeasure(textPath, false);\n        SkPoint position;\n        SkVector tangent;\n        if (!pathMeasure.getPosTan(0, &position, &tangent)) {\n            continue;\n        }\n        SkRSXform rsxForm = SkRSXform::Make(tangent.fX, tangent.fY,\n               position.fX + tangent.fY * 5, position.fY - tangent.fX * 5);\n        SkFont font(nullptr, 12);\n        auto labels = SkTextBlob::MakeFromRSXform(&\"01234567\"[start], 1, &rsxForm, font);\n        canvas->drawTextBlob(labels, 0, 0, paint);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "888edd4c4a91ca62ceb01bce8ab675b2",
+    "hash": "ef493e48dd620ae218ff9a91879f15a2",
     "file": "SkPath_Reference",
     "name": "SkPath::addRRect_2"
 },
