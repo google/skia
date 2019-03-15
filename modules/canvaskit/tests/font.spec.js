@@ -14,18 +14,17 @@ describe('CanvasKit\'s Path Behavior', function() {
         container.innerHTML = '';
     });
 
+    let notSerifFontBuffer = null;
+    // This font is known to support kerning
+    const notoSerifFontLoaded = fetch('/assets/NotoSerif-Regular.ttf').then(
+        (response) => response.arrayBuffer()).then(
+        (buffer) => {
+            notSerifFontBuffer = buffer;
+        });
+
     it('can draw shaped and unshaped text', function(done) {
-        let fontBuffer = null;
-
-        // This font is known to support kerning
-        const skFontLoaded = fetch('/assets/NotoSerif-Regular.ttf').then(
-            (response) => response.arrayBuffer()).then(
-            (buffer) => {
-                fontBuffer = buffer;
-            });
-
         LoadCanvasKit.then(catchException(done, () => {
-            skFontLoaded.then(() => {
+            notoSerifFontLoaded.then(() => {
                 // This is taken from example.html
                 const surface = CanvasKit.MakeCanvasSurface('test');
                 expect(surface).toBeTruthy('Could not make surface')
@@ -40,7 +39,7 @@ describe('CanvasKit\'s Path Behavior', function() {
                 paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
                 const fontMgr = CanvasKit.SkFontMgr.RefDefault();
-                const notoSerif = fontMgr.MakeTypefaceFromData(fontBuffer);
+                const notoSerif = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
 
                 const textPaint = new CanvasKit.SkPaint();
                 // use the built-in monospace typeface.
@@ -90,7 +89,99 @@ describe('CanvasKit\'s Path Behavior', function() {
                 shapedText.delete();
                 textFont2.delete();
                 shapedText2.delete();
+                fontMgr.delete();
                 reportSurface(surface, 'text_shaping', done);
+            });
+        }));
+    });
+
+    it('can draw text following a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const font = new CanvasKit.SkFont(null, 24);
+            const fontPaint = new CanvasKit.SkPaint();
+            fontPaint.setAntiAlias(true);
+            fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+
+
+            const arc = new CanvasKit.SkPath();
+            arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+            arc.lineTo(210, 140);
+            arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+
+            // Only 1 dot should show up in the image, because we run out of path.
+            const str = 'This téxt should follow the curve across contours...';
+            const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);
+
+            canvas.drawPath(arc, paint);
+            canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+            surface.flush();
+
+            textBlob.delete();
+            arc.delete();
+            paint.delete();
+            font.delete();
+            fontPaint.delete();
+
+            reportSurface(surface, 'monospace_text_on_path', done);
+        }));
+    });
+
+    it('can draw text following a path with a non-serif font', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            notoSerifFontLoaded.then(() => {
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+                const notoSerif = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
+
+                const canvas = surface.getCanvas();
+                const paint = new CanvasKit.SkPaint();
+                paint.setAntiAlias(true);
+                paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+                const font = new CanvasKit.SkFont(notoSerif, 24);
+                const fontPaint = new CanvasKit.SkPaint();
+                fontPaint.setAntiAlias(true);
+                fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+
+
+                const arc = new CanvasKit.SkPath();
+                arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+                arc.lineTo(210, 140);
+                arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+
+                const str = 'This téxt should follow the curve across contours...';
+                const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font, 60.5);
+
+                canvas.drawPath(arc, paint);
+                canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+                surface.flush();
+
+                textBlob.delete();
+                arc.delete();
+                paint.delete();
+                notoSerif.delete();
+                font.delete();
+                fontPaint.delete();
+                fontMgr.delete();
+                reportSurface(surface, 'serif_text_on_path', done);
             });
         }));
     });
