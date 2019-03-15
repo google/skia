@@ -258,7 +258,8 @@ public:
     }
 
     GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+            GrClampType clampType) override {
         GrProcessorAnalysisCoverage coverage;
         if (AAMode::kNone == fAAMode && !clip->numClipCoverageFragmentProcessors()) {
             coverage = GrProcessorAnalysisCoverage::kNone;
@@ -266,7 +267,7 @@ public:
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
         }
         auto analysis = fProcessorSet.finalize(
-                fColor, coverage, clip, fStencilSettings, fsaaType, caps, &fColor);
+                fColor, coverage, clip, fStencilSettings, fsaaType, caps, clampType, &fColor);
         fUsesLocalCoords = analysis.usesLocalCoords();
         return analysis;
     }
