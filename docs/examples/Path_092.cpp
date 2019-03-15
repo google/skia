@@ -1,4 +1,3 @@
-#if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
@@ -23,8 +22,9 @@ void draw(SkCanvas* canvas) {
         }
         SkRSXform rsxForm = SkRSXform::Make(tangent.fX, tangent.fY,
                position.fX + tangent.fY * 5, position.fY - tangent.fX * 5);
-        canvas->drawTextRSXform(&"01234567"[start], 1, &rsxForm, nullptr, paint);
+        SkFont font(nullptr, 12);
+        auto labels = SkTextBlob::MakeFromRSXform(&"01234567"[start], 1, &rsxForm, font);
+        canvas->drawTextBlob(labels, 0, 0, paint);
     }
 }
 }  // END FIDDLE
-#endif  // Disabled until updated to use current API.

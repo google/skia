@@ -1,4 +1,3 @@
-#if 0  // Disabled until updated to use current API.
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
@@ -19,8 +18,8 @@ void draw(SkCanvas* canvas) {
         alphabet[i] = 'A' + i;
     }
     SkPaint paint;
-    canvas->translate(110, 138);
-    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);
+    SkFont font(nullptr, 20);
+    auto spiral = SkTextBlob::MakeFromRSXform(alphabet, sizeof(alphabet), transforms, font);
+    canvas->drawTextBlob(spiral, 110, 138, paint);
 }
 }  // END FIDDLE
-#endif  // Disabled until updated to use current API.
