@@ -28,12 +28,14 @@ static const float kRec709ConversionMatrix[16] = {
     0.0f,    0.0f,    0.0f,    1.0f
 };
 
+#if 0
 static const float kIdentityConversionMatrix[16] = {
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
 };
+#endif
 
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
@@ -57,23 +59,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         filterModes[i] = (size == YSize) ? filterMode : minimizeFilterMode;
     }
 
-    SkMatrix44 mat;
-    switch (yuvColorSpace) {
-        case kJPEG_SkYUVColorSpace:
-            mat.setColMajorf(kJPEGConversionMatrix);
-            break;
-        case kRec601_SkYUVColorSpace:
-            mat.setColMajorf(kRec601ConversionMatrix);
-            break;
-        case kRec709_SkYUVColorSpace:
-            mat.setColMajorf(kRec709ConversionMatrix);
-            break;
-        case kIdentity_SkYUVColorSpace:
-            mat.setColMajorf(kIdentityConversionMatrix);
-            break;
-    }
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(
-            proxies, scales, filterModes, numPlanes, yuvaIndices, mat));
+            proxies, scales, filterModes, numPlanes, yuvaIndices, yuvColorSpace));
 }
 
 #ifdef SK_DEBUG
@@ -99,16 +86,17 @@ SkString GrYUVtoRGBEffect::dumpInfo() const {
 class GrGLSLYUVtoRGBEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLYUVtoRGBEffect() {}
+
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrYUVtoRGBEffect& _outer = args.fFp.cast<GrYUVtoRGBEffect>();
         (void)_outer;
 
-        auto colorSpaceMatrix = _outer.colorSpaceMatrix();
-        (void)colorSpaceMatrix;
-        fColorSpaceMatrixVar =
-                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
-                                                 "colorSpaceMatrix");
+        if (kIdentity_SkYUVColorSpace != _outer.yuvColorSpace()) {
+            fColorSpaceMatrixVar1 = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                     kHalf4x4_GrSLType,
+                                                                     "colorSpaceMatrix");
+        }
 
         int numSamplers = args.fTexSamplers.count();
 
@@ -129,11 +117,16 @@ public:
         static const char kChannelToChar[4] = { 'x', 'y', 'z', 'w' };
 
         fragBuilder->codeAppendf(
-            "half4 yuvOne = half4(half(tmp%d.%c), half(tmp%d.%c), half(tmp%d.%c), 1.0) * %s;",
+            "half4 yuvOne = half4(half(tmp%d.%c), half(tmp%d.%c), half(tmp%d.%c), 1.0);",
                 _outer.yuvaIndex(0).fIndex, kChannelToChar[(int)_outer.yuvaIndex(0).fChannel],
                 _outer.yuvaIndex(1).fIndex, kChannelToChar[(int)_outer.yuvaIndex(1).fChannel],
-                _outer.yuvaIndex(2).fIndex, kChannelToChar[(int)_outer.yuvaIndex(2).fChannel],
-                args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar));
+                _outer.yuvaIndex(2).fIndex, kChannelToChar[(int)_outer.yuvaIndex(2).fChannel]);
+
+        if (kIdentity_SkYUVColorSpace != _outer.yuvColorSpace()) {
+            SkASSERT(fColorSpaceMatrixVar1.isValid());
+            fragBuilder->codeAppendf(
+                "yuvOne *= %s;", args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar1));
+        }
 
 
         if (_outer.yuvaIndex(3).fIndex >= 0) {
@@ -153,10 +146,28 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrYUVtoRGBEffect& _outer = _proc.cast<GrYUVtoRGBEffect>();
-        { pdman.setSkMatrix44(fColorSpaceMatrixVar, (_outer.colorSpaceMatrix())); }
+
+        switch (_outer.yuvColorSpace()) {
+            case kJPEG_SkYUVColorSpace:
+                SkASSERT(fColorSpaceMatrixVar1.isValid());
+                pdman.setMatrix4f(fColorSpaceMatrixVar1, kJPEGConversionMatrix);
+                break;
+            case kRec601_SkYUVColorSpace:
+                SkASSERT(fColorSpaceMatrixVar1.isValid());
+                pdman.setMatrix4f(fColorSpaceMatrixVar1, kRec709ConversionMatrix);
+                break;
+            case kRec709_SkYUVColorSpace:
+                SkASSERT(fColorSpaceMatrixVar1.isValid());
+                pdman.setMatrix4f(fColorSpaceMatrixVar1, kRec709ConversionMatrix);
+                break;
+            case kIdentity_SkYUVColorSpace:
+                break;
+        }
     }
-    UniformHandle fColorSpaceMatrixVar;
+
+    UniformHandle fColorSpaceMatrixVar1;
 };
+
 GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
     return new GrGLSLYUVtoRGBEffect();
 }
@@ -177,6 +188,13 @@ void GrYUVtoRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
         packed |= (index | (chann << 2)) << (i * 4);
     }
+
+    // The indices and channels occupy 16 bits of packed
+    SkASSERT(0 == (packed >> 16));
+    if (kIdentity_SkYUVColorSpace == this->yuvColorSpace()) {
+        packed |= 0x1 << 16;
+    }
+
     b->add32(packed);
 }
 bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -195,7 +213,7 @@ bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
         }
     }
 
-    if (fColorSpaceMatrix != that.fColorSpaceMatrix) {
+    if (fYUVColorSpace != that.fYUVColorSpace) {
         return false;
     }
 
@@ -203,7 +221,7 @@ bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         : INHERITED(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
-        , fColorSpaceMatrix(src.fColorSpaceMatrix) {
+        , fYUVColorSpace(src.fYUVColorSpace) {
     int numPlanes = src.numTextureSamplers();
     for (int i = 0; i < numPlanes; ++i) {
         fSamplers[i].reset(sk_ref_sp(src.fSamplers[i].proxy()), src.fSamplers[i].samplerState());
