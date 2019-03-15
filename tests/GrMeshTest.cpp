@@ -277,7 +277,8 @@ private:
 
     const char* name() const override { return "GrMeshTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrepare(GrOpFlushState*) override {}
