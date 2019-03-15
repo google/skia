@@ -76,6 +76,8 @@ public:
         @param size   size of data
         @param procs  custom serial data decoders; may be nullptr
         @return       SkPicture constructed from data
+
+        @example https://fiddle.skia.org/c/@Picture_003
     */
     static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
                                          const SkDeserialProcs* procs = nullptr);
@@ -111,6 +113,8 @@ public:
             SkPicture::playback was called.
 
             @return  true to stop playback
+
+            @example https://fiddle.skia.org/c/@Picture_000
         */
         virtual bool abort() = 0;
     };
@@ -123,6 +127,8 @@ public:
 
         @param canvas    receiver of drawing commands
         @param callback  allows interruption of playback
+
+        @example https://fiddle.skia.org/c/@Picture_004
     */
     virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0;
 
@@ -134,12 +140,16 @@ public:
         cull.
 
         @return  bounds passed when SkPicture was created
+
+        @example https://fiddle.skia.org/c/@Picture_005
     */
     virtual SkRect cullRect() const = 0;
 
     /** Returns a non-zero value unique among SkPicture in Skia process.
 
         @return  identifier for SkPicture
+
+        @example https://fiddle.skia.org/c/@Picture_006
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -153,6 +163,8 @@ public:
 
         @param procs  custom serial data encoders; may be nullptr
         @return       storage containing serialized SkPicture
+
+        @example https://fiddle.skia.org/c/@Picture_007
     */
     sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const;
 
@@ -165,6 +177,8 @@ public:
 
         @param stream  writable serial data stream
         @param procs   custom serial data encoders; may be nullptr
+
+        @example https://fiddle.skia.org/c/@Picture_003
     */
     void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const;
 
@@ -177,6 +191,8 @@ public:
 
         @param cull  placeholder dimensions
         @return      placeholder with unique identifier
+
+        @example https://fiddle.skia.org/c/@Picture_009
     */
     static sk_sp<SkPicture> MakePlaceholder(SkRect cull);
 
@@ -186,6 +202,8 @@ public:
         calls may be optimized away.
 
         @return  approximate operation count
+
+        @example https://fiddle.skia.org/c/@Picture_010
     */
     virtual int approximateOpCount() const = 0;
 
@@ -193,6 +211,8 @@ public:
         referenced by SkPicture.
 
         @return  approximate size
+
+        @example https://fiddle.skia.org/c/@Picture_011
     */
     virtual size_t approximateBytesUsed() const = 0;
 

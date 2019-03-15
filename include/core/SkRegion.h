@@ -28,6 +28,8 @@ public:
         at (0, 0) with zero width and height.
 
         @return  empty SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_014
     */
     SkRegion();
 
@@ -42,6 +44,8 @@ public:
 
         @param region  SkRegion to copy by value
         @return        copy of SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_015
     */
     SkRegion(const SkRegion& region);
 
@@ -49,10 +53,14 @@ public:
 
         @param rect  bounds of constructed SkRegion
         @return      rectangular SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_016
     */
     explicit SkRegion(const SkIRect& rect);
 
     /** Releases ownership of any shared data and deletes data if SkRegion is sole owner.
+
+        @example https://fiddle.skia.org/c/@Region_017
     */
     ~SkRegion();
 
@@ -67,6 +75,8 @@ public:
 
         @param region  SkRegion to copy by value
         @return        SkRegion to copy by value
+
+        @example https://fiddle.skia.org/c/@Region_018
     */
     SkRegion& operator=(const SkRegion& region);
 
@@ -75,6 +85,8 @@ public:
 
         @param other  SkRegion to compare
         @return       true if SkRegion pair are equivalent
+
+        @example https://fiddle.skia.org/c/@Region_019
     */
     bool operator==(const SkRegion& other) const;
 
@@ -82,6 +94,8 @@ public:
 
         @param other  SkRegion to compare
         @return       true if SkRegion pair are not equivalent
+
+        @example https://fiddle.skia.org/c/@Region_020
     */
     bool operator!=(const SkRegion& other) const {
         return !(*this == other);
@@ -98,6 +112,8 @@ public:
 
         @param src  SkRegion to copy
         @return     copy of src
+
+        @example https://fiddle.skia.org/c/@Region_021
     */
     bool set(const SkRegion& src) {
         *this = src;
@@ -112,6 +128,8 @@ public:
         making assignment as efficient as swap().
 
         @param other  operator=(const SkRegion& region) set
+
+        @example https://fiddle.skia.org/c/@Region_022
     */
     void swap(SkRegion& other);
 
@@ -121,18 +139,24 @@ public:
         and setRect() with dimensionless data make SkRegion empty.
 
         @return  true if bounds has no width or height
+
+        @example https://fiddle.skia.org/c/@Region_023
     */
     bool isEmpty() const { return fRunHead == emptyRunHeadPtr(); }
 
     /** Returns true if SkRegion is one SkIRect with positive dimensions.
 
         @return  true if SkRegion contains one SkIRect
+
+        @example https://fiddle.skia.org/c/@Region_024
     */
     bool isRect() const { return fRunHead == kRectRunHeadPtr; }
 
     /** Returns true if SkRegion is described by more than one rectangle.
 
         @return  true if SkRegion contains more than one SkIRect
+
+        @example https://fiddle.skia.org/c/@Region_025
     */
     bool isComplex() const { return !this->isEmpty() && !this->isRect(); }
 
@@ -140,6 +164,8 @@ public:
         Returns (0, 0, 0, 0) if SkRegion is empty.
 
         @return  combined bounds of all SkIRect elements
+
+        @example https://fiddle.skia.org/c/@Region_026
     */
     const SkIRect& getBounds() const { return fBounds; }
 
@@ -151,6 +177,8 @@ public:
         Call to compare SkRegion for relative complexity.
 
         @return  relative complexity
+
+        @example https://fiddle.skia.org/c/@Region_027
     */
     int computeRegionComplexity() const;
 
@@ -160,6 +188,8 @@ public:
 
         @param path  SkPath to append to
         @return      true if path changed
+
+        @example https://fiddle.skia.org/c/@Region_028
     */
     bool getBoundaryPath(SkPath* path) const;
 
@@ -167,6 +197,8 @@ public:
         at (0, 0) with zero width and height. Always returns false.
 
         @return  false
+
+        @example https://fiddle.skia.org/c/@Region_029
     */
     bool setEmpty();
 
@@ -175,6 +207,8 @@ public:
 
         @param rect  bounds of constructed SkRegion
         @return      true if rect is not empty
+
+        @example https://fiddle.skia.org/c/@Region_030
     */
     bool setRect(const SkIRect& rect);
 
@@ -186,6 +220,8 @@ public:
         @param rects  array of SkIRect
         @param count  array size
         @return       true if constructed SkRegion is not empty
+
+        @example https://fiddle.skia.org/c/@Region_032
     */
     bool setRects(const SkIRect rects[], int count);
 
@@ -200,6 +236,8 @@ public:
 
         @param region  SkRegion to copy by value
         @return        SkRegion to copy by value
+
+        @example https://fiddle.skia.org/c/@Region_033
     */
     bool setRegion(const SkRegion& region);
 
@@ -212,6 +250,8 @@ public:
         @param path  SkPath providing outline
         @param clip  SkRegion containing path
         @return      true if constructed SkRegion is not empty
+
+        @example https://fiddle.skia.org/c/@Region_034
     */
     bool setPath(const SkPath& path, const SkRegion& clip);
 
@@ -220,6 +260,8 @@ public:
 
         @param rect  SkIRect to intersect
         @return      true if rect and SkRegion have area in common
+
+        @example https://fiddle.skia.org/c/@Region_035
     */
     bool intersects(const SkIRect& rect) const;
 
@@ -228,6 +270,8 @@ public:
 
         @param other  SkRegion to intersect
         @return       true if other and SkRegion have area in common
+
+        @example https://fiddle.skia.org/c/@Region_036
     */
     bool intersects(const SkRegion& other) const;
 
@@ -237,6 +281,8 @@ public:
         @param x  test SkIPoint x-coordinate
         @param y  test SkIPoint y-coordinate
         @return   true if (x, y) is inside SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_037
     */
     bool contains(int32_t x, int32_t y) const;
 
@@ -245,6 +291,8 @@ public:
 
         @param other  SkIRect to contain
         @return       true if other is inside SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_038
     */
     bool contains(const SkIRect& other) const;
 
@@ -253,6 +301,8 @@ public:
 
         @param other  SkRegion to contain
         @return       true if other is inside SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_039
     */
     bool contains(const SkRegion& other) const;
 
@@ -261,6 +311,8 @@ public:
 
         @param r  SkIRect to contain
         @return   true quickly if r points are equal or inside
+
+        @example https://fiddle.skia.org/c/@Region_040
     */
     bool quickContains(const SkIRect& r) const {
         SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
@@ -278,6 +330,8 @@ public:
 
         @param rect  SkIRect to intersect
         @return      true if rect does not intersect
+
+        @example https://fiddle.skia.org/c/@Region_042
     */
     bool quickReject(const SkIRect& rect) const {
         return this->isEmpty() || rect.isEmpty() ||
@@ -290,6 +344,8 @@ public:
 
         @param rgn  SkRegion to intersect
         @return     true if rgn does not intersect
+
+        @example https://fiddle.skia.org/c/@Region_043
     */
     bool quickReject(const SkRegion& rgn) const {
         return this->isEmpty() || rgn.isEmpty() ||
@@ -300,6 +356,8 @@ public:
 
         @param dx  x-axis offset
         @param dy  y-axis offset
+
+        @example https://fiddle.skia.org/c/@Region_044
     */
     void translate(int dx, int dy) { this->translate(dx, dy, this); }
 
@@ -310,11 +368,15 @@ public:
         @param dx   x-axis offset
         @param dy   y-axis offset
         @param dst  translated result
+
+        @example https://fiddle.skia.org/c/@Region_045
     */
     void translate(int dx, int dy, SkRegion* dst) const;
 
     /** \enum SkRegion::Op
         The logical operations that can be performed when combining two SkRegion.
+
+        @example https://fiddle.skia.org/c/@Region_046
     */
     enum Op {
         kDifference_Op,                      //!< target minus operand
@@ -336,6 +398,8 @@ public:
                      kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
                      kReplace_Op
         @return      false if result is empty
+
+        @example https://fiddle.skia.org/c/@Region_047
     */
     bool op(const SkIRect& rect, Op op) {
         if (this->isRect() && kIntersect_Op == op) {
@@ -355,6 +419,8 @@ public:
                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
                     kReplace_Op
         @return     false if result is empty
+
+        @example https://fiddle.skia.org/c/@Region_049
     */
     bool op(const SkRegion& rgn, Op op) { return this->op(*this, rgn, op); }
 
@@ -367,6 +433,8 @@ public:
                      kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
                      kReplace_Op
         @return      false if result is empty
+
+        @example https://fiddle.skia.org/c/@Region_050
     */
     bool op(const SkIRect& rect, const SkRegion& rgn, Op op);
 
@@ -379,6 +447,8 @@ public:
                      kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
                      kReplace_Op
         @return      false if result is empty
+
+        @example https://fiddle.skia.org/c/@Region_051
     */
     bool op(const SkRegion& rgn, const SkIRect& rect, Op op);
 
@@ -391,6 +461,8 @@ public:
                      kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
                      kReplace_Op
         @return      false if result is empty
+
+        @example https://fiddle.skia.org/c/@Region_052
     */
     bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
 
@@ -414,6 +486,8 @@ public:
             Call reset() to initialized SkRegion::Iterator at a later time.
 
             @return  empty SkRegion iterator
+
+            @example https://fiddle.skia.org/c/@Region_000
         */
         Iterator() : fRgn(nullptr), fDone(true) {}
 
@@ -421,6 +495,8 @@ public:
 
             @param region  SkRegion to iterate
             @return        SkRegion iterator
+
+            @example https://fiddle.skia.org/c/@Region_001
         */
         Iterator(const SkRegion& region);
 
@@ -428,22 +504,32 @@ public:
             Returns true if SkRegion was set; otherwise, returns false.
 
             @return  true if SkRegion was set
+
+            @example https://fiddle.skia.org/c/@Region_002
         */
         bool rewind();
 
         /** Resets iterator, using the new SkRegion.
 
             @param region  SkRegion to iterate
+
+            @example https://fiddle.skia.org/c/@Region_003
         */
         void reset(const SkRegion& region);
 
         /** Returns true if SkRegion::Iterator is pointing to final SkIRect in SkRegion.
 
             @return  true if data parsing is complete
+
+            @example https://fiddle.skia.org/c/@Region_004
+
+            @example https://fiddle.skia.org/c/@Region_009
         */
         bool done() const { return fDone; }
 
         /** Advances SkRegion::Iterator to next SkIRect in SkRegion if it is not done.
+
+            @example https://fiddle.skia.org/c/@Region_005
         */
         void next();
 
@@ -451,12 +537,18 @@ public:
             is empty.
 
             @return  part of SkRegion as SkIRect
+
+            @example https://fiddle.skia.org/c/@Region_006
+
+            @example https://fiddle.skia.org/c/@Region_011
         */
         const SkIRect& rect() const { return fRect; }
 
         /** Returns SkRegion if set; otherwise, returns nullptr.
 
             @return  iterated SkRegion
+
+            @example https://fiddle.skia.org/c/@Region_007
         */
         const SkRegion* rgn() const { return fRgn; }
 
@@ -479,6 +571,8 @@ public:
             @param region  SkRegion to iterate
             @param clip    bounds of iteration
             @return        SkRegion iterator
+
+            @example https://fiddle.skia.org/c/@Region_008
         */
         Cliperator(const SkRegion& region, const SkIRect& clip);
 
@@ -489,6 +583,8 @@ public:
         bool done() { return fDone; }
 
         /** Advances iterator to next SkIRect in SkRegion contained by clip.
+
+            @example https://fiddle.skia.org/c/@Region_010
         */
         void  next();
 
@@ -520,6 +616,8 @@ public:
             @param left    bounds of iteration
             @param right   bounds of iteration
             @return        SkRegion iterator
+
+            @example https://fiddle.skia.org/c/@Region_012
         */
         Spanerator(const SkRegion& region, int y, int left, int right);
 
@@ -529,6 +627,8 @@ public:
             @param left   pointer to span start; may be nullptr
             @param right  pointer to span end; may be nullptr
             @return       true if interval was found
+
+            @example https://fiddle.skia.org/c/@Region_013
         */
         bool next(int* left, int* right);
 
@@ -543,6 +643,8 @@ public:
 
         @param buffer  storage for binary data
         @return        size of SkRegion
+
+        @example https://fiddle.skia.org/c/@Region_053
     */
     size_t writeToMemory(void* buffer) const;
 
@@ -552,6 +654,8 @@ public:
         @param buffer  storage for binary data
         @param length  size of buffer
         @return        bytes read
+
+        @example https://fiddle.skia.org/c/@Region_054
     */
     size_t readFromMemory(const void* buffer, size_t length);
 

@@ -23,6 +23,8 @@ struct SkFontMetrics;
 class SK_API SkFont {
 public:
     /** Whether edge pixels draw opaque or with partial transparency.
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     enum class Edging {
         kAlias,              //!< no transparent pixels on glyph edges
@@ -33,6 +35,8 @@ public:
     /** Constructs SkFont with default values.
 
         @return  default initialized SkFont
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkFont();
 
@@ -41,6 +45,8 @@ public:
         @param typeface  font and style used to draw and measure text
         @param size      typographic height of text
         @return          initialized SkFont
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size);
 
@@ -61,6 +67,8 @@ public:
         @param scaleX    text horizontal scale
         @param skewX     additional shear on x-axis relative to y-axis
         @return          initialized SkFont
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX);
 
@@ -70,6 +78,8 @@ public:
 
         @param font  font to compare
         @return      true if SkFont pair are equivalent
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     bool operator==(const SkFont& font) const;
 
@@ -85,24 +95,32 @@ public:
         Returned value is only meaningful if platform uses FreeType as the font manager.
 
         @return  true if all glyphs are hinted
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_PrivFlag); }
 
     /** Returns true if font engine may return glyphs from font bitmaps instead of from outlines.
 
         @return  true if glyphs may be font bitmaps
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
 
     /** Returns true if glyphs may be drawn at sub-pixel offsets.
 
         @return  true if glyphs may be drawn at sub-pixel offsets.
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
 
     /** Returns true if font and glyph metrics are requested to be linearly scalable.
 
         @return  true if font and glyph metrics are requested to be linearly scalable.
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
 
@@ -110,6 +128,8 @@ public:
         bitmaps from outlines.
 
         @return  bold is approximated through stroke width
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_PrivFlag); }
 
@@ -126,18 +146,24 @@ public:
         Only affects platforms that use FreeType as the font manager.
 
         @param forceAutoHinting  setting to always hint glyphs
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setForceAutoHinting(bool forceAutoHinting);
 
     /** Requests, but does not require, to use bitmaps in fonts instead of outlines.
 
         @param embeddedBitmaps  setting to use bitmaps in fonts
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setEmbeddedBitmaps(bool embeddedBitmaps);
 
     /** Requests, but does not require, that glyphs respect sub-pixel positioning.
 
         @param subpixel  setting for sub-pixel positioning
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setSubpixel(bool subpixel);
 
@@ -147,12 +173,16 @@ public:
         Note that some bitmap formats may not be able to scale linearly and will ignore this flag.
 
         @param linearMetrics  setting for linearly scalable font and glyph metrics.
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setLinearMetrics(bool linearMetrics);
 
     /** Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
 
         @param embolden  setting for bold approximation
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setEmbolden(bool embolden);
 
@@ -166,6 +196,8 @@ public:
     /** Whether edge pixels draw opaque or with partial transparency.
 
         @return  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     Edging getEdging() const { return (Edging)fEdging; }
 
@@ -173,6 +205,8 @@ public:
         partial transparency.
 
         @param edging  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setEdging(Edging edging);
 
@@ -181,6 +215,8 @@ public:
 
         @param hintingLevel  one of: SkFontHinting::kNone, SkFontHinting::kSlight,
                                      SkFontHinting::kNormal, SkFontHinting::kFull
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setHinting(SkFontHinting hintingLevel);
 
@@ -188,6 +224,8 @@ public:
 
         @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
                          SkFontHinting::kFull
+
+        @example https://fiddle.skia.org/c/@Font_029
      */
     SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
 
@@ -196,6 +234,8 @@ public:
 
         @param size  typographic height of text
         @return      initialized SkFont
+
+        @example https://fiddle.skia.org/c/@Font_029
      */
     SkFont makeWithSize(SkScalar size) const;
 
@@ -203,6 +243,8 @@ public:
         Does not alter SkTypeface SkRefCnt.
 
         @return  SkTypeface if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkTypeface* getTypeface() const {return fTypeface.get(); }
 
@@ -217,6 +259,8 @@ public:
     /** Returns text size in points.
 
         @return  typographic height of text
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkScalar    getSize() const { return fSize; }
 
@@ -224,6 +268,8 @@ public:
         Default value is 1.
 
         @return  text horizontal scale
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkScalar    getScaleX() const { return fScaleX; }
 
@@ -231,12 +277,16 @@ public:
         Default value is zero.
 
         @return  additional shear on x-axis relative to y-axis
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkScalar    getSkewX() const { return fSkewX; }
 
     /** Increases SkTypeface SkRefCnt by one.
 
         @return  SkTypeface if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
@@ -252,6 +302,8 @@ public:
         tf SkRefCnt by one.
 
         @param tf  font and style used to draw text
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setTypeface(sk_sp<SkTypeface> tf) { fTypeface = tf; }
 
@@ -259,6 +311,8 @@ public:
         Has no effect if textSize is not greater than or equal to zero.
 
         @param textSize  typographic height of text
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setSize(SkScalar textSize);
 
@@ -266,6 +320,8 @@ public:
         Default value is 1.
 
         @param scaleX  text horizontal scale
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setScaleX(SkScalar scaleX);
 
@@ -273,6 +329,8 @@ public:
         Default value is zero.
 
         @param skewX  additional shear on x-axis relative to y-axis
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     void setSkewX(SkScalar skewX);
 
@@ -331,6 +389,8 @@ public:
         @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
                              SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @return              number of glyphs represented by text of length byteLength
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
@@ -346,6 +406,8 @@ public:
                            SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
         @param bounds      returns bounding box relative to (0, 0) if not nullptr
         @return            number of glyphs represented by text of length byteLength
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds = nullptr) const {
@@ -458,6 +520,8 @@ public:
         @param glyphID  index of glyph
         @param path     pointer to existing SkPath
         @return         true if glyphID is described by path
+
+        @example https://fiddle.skia.org/c/@Font_029
      */
     bool getPath(SkGlyphID glyphID, SkPath* path) const;
 
@@ -482,6 +546,8 @@ public:
 
         @param metrics  storage for SkFontMetrics; may be nullptr
         @return         recommended spacing between lines
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkScalar getMetrics(SkFontMetrics* metrics) const;
 
@@ -492,6 +558,8 @@ public:
         Returns the same result as getMetrics().
 
         @return  recommended spacing between lines
+
+        @example https://fiddle.skia.org/c/@Font_029
     */
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
 

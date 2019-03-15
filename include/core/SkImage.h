@@ -72,6 +72,8 @@ public:
 
         @param pixmap  SkImageInfo, pixel address, and row bytes
         @return        copy of SkPixmap pixels, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_000
     */
     static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap);
 
@@ -134,6 +136,8 @@ public:
 
         @param bitmap  SkImageInfo, row bytes, and pixels
         @return        created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_003
     */
     static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap);
 
@@ -151,49 +155,51 @@ public:
         @param imageGenerator  stock or custom routines to retrieve SkImage
         @param subset          bounds of returned SkImage; may be nullptr
         @return                created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_004
     */
     static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
                                             const SkIRect* subset = nullptr);
 
-    /**
-     *  Return an image backed by the encoded data, but attempt to defer decoding until the image
-     *  is actually used/drawn. This deferral allows the system to cache the result, either on the
-     *  CPU or on the GPU, depending on where the image is drawn. If memory is low, the cache may
-     *  be purged, causing the next draw of the image to have to re-decode.
-     *
-     *  The subset parameter specifies a area within the decoded image to create the image from.
-     *  If subset is null, then the entire image is returned.
-     *
-     *  This is similar to DecodeTo[Raster,Texture], but this method will attempt to defer the
-     *  actual decode, while the DecodeTo... method explicitly decode and allocate the backend
-     *  when the call is made.
-     *
-     *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
-     *  image, nullptr is returned.
-     *
-     *  @param encoded  the encoded data
-     *  @param length   the number of bytes of encoded data
-     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
-     *  @return         created SkImage, or nullptr
+    /** Return an image backed by the encoded data, but attempt to defer decoding until the image
+        is actually used/drawn. This deferral allows the system to cache the result, either on the
+        CPU or on the GPU, depending on where the image is drawn. If memory is low, the cache may
+        be purged, causing the next draw of the image to have to re-decode.
+
+        The subset parameter specifies a area within the decoded image to create the image from.
+        If subset is null, then the entire image is returned.
+
+        This is similar to DecodeTo[Raster,Texture], but this method will attempt to defer the
+        actual decode, while the DecodeTo... method explicitly decode and allocate the backend
+        when the call is made.
+
+        If the encoded format is not supported, or subset is outside of the bounds of the decoded
+        image, nullptr is returned.
+
+        @param encoded  the encoded data
+        @param length   the number of bytes of encoded data
+        @param subset   the bounds of the pixels within the decoded image to return. may be null.
+        @return         created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_005
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
 
-    /**
-     *  Decode the data in encoded/length into a raster image.
-     *
-     *  The subset parameter specifies a area within the decoded image to create the image from.
-     *  If subset is null, then the entire image is returned.
-     *
-     *  This is similar to MakeFromEncoded, but this method will always decode immediately, and
-     *  allocate the memory for the pixels for the lifetime of the returned image.
-     *
-     *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
-     *  image, nullptr is returned.
-     *
-     *  @param encoded  the encoded data
-     *  @param length   the number of bytes of encoded data
-     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
-     *  @return         created SkImage, or nullptr
+    /** Decode the data in encoded/length into a raster image.
+
+        The subset parameter specifies a area within the decoded image to create the image from.
+        If subset is null, then the entire image is returned.
+
+        This is similar to MakeFromEncoded, but this method will always decode immediately, and
+        allocate the memory for the pixels for the lifetime of the returned image.
+
+        If the encoded format is not supported, or subset is outside of the bounds of the decoded
+        image, nullptr is returned.
+
+        @param encoded  the encoded data
+        @param length   the number of bytes of encoded data
+        @param subset   the bounds of the pixels within the decoded image to return. may be null.
+        @return         created SkImage, or nullptr
      */
     static sk_sp<SkImage> DecodeToRaster(const void* encoded, size_t length,
                                          const SkIRect* subset = nullptr);
@@ -202,23 +208,22 @@ public:
         return DecodeToRaster(data->data(), data->size(), subset);
     }
 
-    /**
-     *  Decode the data in encoded/length into a texture-backed image.
-     *
-     *  The subset parameter specifies a area within the decoded image to create the image from.
-     *  If subset is null, then the entire image is returned.
-     *
-     *  This is similar to MakeFromEncoded, but this method will always decode immediately, and
-     *  allocate the texture for the pixels for the lifetime of the returned image.
-     *
-     *  If the encoded format is not supported, or subset is outside of the bounds of the decoded
-     *  image, nullptr is returned.
-     *
-     *  @param encoded  the encoded data
-     *  @param length   the number of bytes of encoded data
-     *  @param subset   the bounds of the pixels within the decoded image to return. may be null.
-     *  @return         created SkImage, or nullptr
-     */
+    /** Decode the data in encoded/length into a texture-backed image.
+
+        The subset parameter specifies a area within the decoded image to create the image from.
+        If subset is null, then the entire image is returned.
+
+        This is similar to MakeFromEncoded, but this method will always decode immediately, and
+        allocate the texture for the pixels for the lifetime of the returned image.
+
+        If the encoded format is not supported, or subset is outside of the bounds of the decoded
+        image, nullptr is returned.
+
+        @param encoded  the encoded data
+        @param length   the number of bytes of encoded data
+        @param subset   the bounds of the pixels within the decoded image to return. may be null.
+        @return         created SkImage, or nullptr
+    */
     static sk_sp<SkImage> DecodeToTexture(GrContext* ctx, const void* encoded, size_t length,
                                           const SkIRect* subset = nullptr);
     static sk_sp<SkImage> DecodeToTexture(GrContext* ctx, const sk_sp<SkData>& data,
@@ -340,6 +345,8 @@ public:
         @param dstColorSpace          range of colors of matching SkSurface on GPU
         @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
         @return                       created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_009
     */
     static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
                                                      bool buildMips,
@@ -366,6 +373,8 @@ public:
                                kUnpremul_SkAlphaType
         @param colorSpace      range of colors; may be nullptr
         @return                created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_010
     */
     static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
                                                  const GrBackendTexture& backendTexture,
@@ -573,6 +582,8 @@ public:
         @param bitDepth    8-bit integer or 16-bit float: per component
         @param colorSpace  range of colors; may be nullptr
         @return            created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_011
     */
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                           const SkMatrix* matrix, const SkPaint* paint,
@@ -627,24 +638,32 @@ public:
     /** Returns pixel count in each row.
 
         @return  pixel width in SkImage
+
+        @example https://fiddle.skia.org/c/@Image_012
     */
     int width() const { return fInfo.width(); }
 
     /** Returns pixel row count.
 
         @return  pixel height in SkImage
+
+        @example https://fiddle.skia.org/c/@Image_013
     */
     int height() const { return fInfo.height(); }
 
     /** Returns SkISize { width(), height() }.
 
         @return  integral size of width() and height()
+
+        @example https://fiddle.skia.org/c/@Image_014
     */
     SkISize dimensions() const { return SkISize::Make(fInfo.width(), fInfo.height()); }
 
     /** Returns SkIRect { 0, 0, width(), height() }.
 
         @return  integral rectangle from origin to width() and height()
+
+        @example https://fiddle.skia.org/c/@Image_015
     */
     SkIRect bounds() const { return SkIRect::MakeWH(fInfo.width(), fInfo.height()); }
 
@@ -653,6 +672,8 @@ public:
         unique number.
 
         @return  unique identifier
+
+        @example https://fiddle.skia.org/c/@Image_016
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -664,12 +685,16 @@ public:
         or was parsed from encoded data.
 
         @return  SkAlphaType in SkImage
+
+        @example https://fiddle.skia.org/c/@Image_017
     */
     SkAlphaType alphaType() const;
 
     /** Returns SkColorType if known; otherwise, returns kUnknown_SkColorType.
 
         @return  SkColorType of SkImage
+
+        @example https://fiddle.skia.org/c/@Image_018
     */
     SkColorType colorType() const;
 
@@ -682,6 +707,8 @@ public:
         is drawn, depending on the capabilities of the SkSurface receiving the drawing.
 
         @return  SkColorSpace in SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_019
     */
     SkColorSpace* colorSpace() const;
 
@@ -696,6 +723,8 @@ public:
         is drawn, depending on the capabilities of the SkSurface receiving the drawing.
 
         @return  SkColorSpace in SkImage, or nullptr, wrapped in a smart pointer
+
+        @example https://fiddle.skia.org/c/@Image_020
     */
     sk_sp<SkColorSpace> refColorSpace() const;
 
@@ -703,12 +732,16 @@ public:
         is packed in 8 bits as defined by kAlpha_8_SkColorType.
 
         @return  true if pixels represent a transparency mask
+
+        @example https://fiddle.skia.org/c/@Image_021
     */
     bool isAlphaOnly() const;
 
     /** Returns true if pixels ignore their alpha value and are treated as fully opaque.
 
         @return  true if SkAlphaType is kOpaque_SkAlphaType
+
+        @example https://fiddle.skia.org/c/@Image_022
     */
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
 
@@ -720,6 +753,8 @@ public:
         @param tmy          tiling in the y direction
         @param localMatrix  SkImage transformation, or nullptr
         @return             SkShader containing SkImage
+
+        @example https://fiddle.skia.org/c/@Image_023
     */
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
@@ -730,6 +765,8 @@ public:
 
         @param localMatrix  SkImage transformation, or nullptr
         @return             SkShader containing SkImage
+
+        @example https://fiddle.skia.org/c/@Image_024
     */
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
@@ -741,6 +778,8 @@ public:
 
         @param pixmap  storage for pixel state if pixels are readable; otherwise, ignored
         @return        true if SkImage has direct access to pixels
+
+        @example https://fiddle.skia.org/c/@Image_025
     */
     bool peekPixels(SkPixmap* pixmap) const;
 
@@ -752,6 +791,8 @@ public:
         and is available as a GPU texture.
 
         @return  true if SkImage is a GPU texture
+
+        @example https://fiddle.skia.org/c/@Image_026
     */
     bool isTextureBacked() const;
 
@@ -765,6 +806,8 @@ public:
 
         @param context  GPU context
         @return         true if SkImage can be drawn
+
+        @example https://fiddle.skia.org/c/@Image_027
     */
     bool isValid(GrContext* context) const;
 
@@ -913,6 +956,8 @@ public:
                               kMedium_SkFilterQuality, kHigh_SkFilterQuality
         @param cachingHint    one of: kAllow_CachingHint, kDisallow_CachingHint
         @return               true if pixels are scaled to fit dst
+
+        @example https://fiddle.skia.org/c/@Image_031
     */
     bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
                      CachingHint cachingHint = kAllow_CachingHint) const;
@@ -937,6 +982,8 @@ public:
                                    SkEncodedImageFormat::kWEBP
         @param quality             encoder specific metric with 100 equaling best
         @return                    encoded SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_032
     */
     sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const;
 
@@ -948,6 +995,8 @@ public:
         encoding fails.
 
         @return  encoded SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_033
     */
     sk_sp<SkData> encodeToData() const;
 
@@ -958,6 +1007,8 @@ public:
         Returns nullptr if SkImage contents are not encoded.
 
         @return  encoded SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_034
     */
     sk_sp<SkData> refEncodedData() const;
 
@@ -969,6 +1020,8 @@ public:
 
         @param subset  bounds of returned SkImage
         @return        partial or full SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_035
     */
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
@@ -985,6 +1038,8 @@ public:
         @param dstColorSpace  range of colors of matching SkSurface on GPU
         @param mipMapped      whether created SkImage texture must allocate mip map levels
         @return               created SkImage, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_036
     */
     sk_sp<SkImage> makeTextureImage(GrContext* context, GrMipMapped = GrMipMapped::kNo) const;
 
@@ -995,6 +1050,8 @@ public:
         Returns nullptr if backed by GPU texture and copy fails.
 
         @return  raster image, lazy image, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_037
     */
     sk_sp<SkImage> makeNonTextureImage() const;
 
@@ -1005,6 +1062,8 @@ public:
         Returns nullptr if copy, decode, or pixel read fails.
 
         @return  raster image, or nullptr
+
+        @example https://fiddle.skia.org/c/@Image_038
     */
     sk_sp<SkImage> makeRasterImage() const;
 
@@ -1037,6 +1096,8 @@ public:
                                   SkIPoint* offset) const;
 
     /** To be deprecated.
+
+        @example https://fiddle.skia.org/c/@Image_039
     */
     sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
@@ -1096,6 +1157,10 @@ public:
         and caches its pixels or texture on-demand.
 
         @return  true if SkImage is created as needed
+
+        @example https://fiddle.skia.org/c/@Image_041
+
+        @example https://fiddle.skia.org/c/@Image_042
     */
     bool isLazyGenerated() const;
 
@@ -1108,6 +1173,8 @@ public:
 
         @param target  SkColorSpace describing color range of returned SkImage
         @return        created SkImage in target SkColorSpace
+
+        @example https://fiddle.skia.org/c/@Image_043
     */
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 

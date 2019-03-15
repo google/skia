@@ -34,6 +34,8 @@ public:
         Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 
         @return  empty SkRRect
+
+        @example https://fiddle.skia.org/c/@RRect_000
     */
     SkRRect() = default;
 
@@ -41,6 +43,8 @@ public:
 
         @param rrect  bounds and corner to copy
         @return       copy of rrect
+
+        @example https://fiddle.skia.org/c/@RRect_001
     */
     SkRRect(const SkRRect& rrect) = default;
 
@@ -48,6 +52,8 @@ public:
 
         @param rrect  bounds and corner to copy
         @return       copy of rrect
+
+        @example https://fiddle.skia.org/c/@RRect_002
     */
     SkRRect& operator=(const SkRRect& rrect) = default;
 
@@ -57,6 +63,8 @@ public:
 
         Type members become progressively less restrictive; larger values of
         Type have more degrees of freedom than smaller values.
+
+        @example https://fiddle.skia.org/c/@RRect_003
     */
     enum Type {
         kEmpty_Type,                     //!< zero width or height
@@ -73,6 +81,8 @@ public:
         kComplex_Type.
 
         @return  SkRRect::Type
+
+        @example https://fiddle.skia.org/c/@RRect_004
     */
     Type getType() const {
         SkASSERT(this->isValid());
@@ -84,6 +94,8 @@ public:
         kComplex_Type.
 
         @return  SkRRect::Type
+
+        @example https://fiddle.skia.org/c/@RRect_005
     */
     Type type() const { return this->getType(); }
 
@@ -98,6 +110,8 @@ public:
         result may be infinity.
 
         @return  rect().fRight minus rect().fLeft
+
+        @example https://fiddle.skia.org/c/@RRect_012
     */
     SkScalar width() const { return fRect.width(); }
 
@@ -105,6 +119,8 @@ public:
         result may be infinity.
 
         @return  rect().fBottom minus rect().fTop
+
+        @example https://fiddle.skia.org/c/@RRect_013
     */
     SkScalar height() const { return fRect.height(); }
 
@@ -114,6 +130,8 @@ public:
         remaining three corners has a different value.
 
         @return  corner radii for simple types
+
+        @example https://fiddle.skia.org/c/@RRect_014
     */
     SkVector getSimpleRadii() const {
         return fRadii[0];
@@ -121,6 +139,8 @@ public:
 
     /** Sets bounds to zero width and height at (0, 0), the origin. Sets
         corner radii to zero and sets type to kEmpty_Type.
+
+        @example https://fiddle.skia.org/c/@RRect_015
     */
     void setEmpty() { *this = SkRRect(); }
 
@@ -129,6 +149,8 @@ public:
         otherwise, sets type to kEmpty_Type.
 
         @param rect  bounds to set
+
+        @example https://fiddle.skia.org/c/@RRect_016
     */
     void setRect(const SkRect& rect) {
         if (!this->initializeRect(rect)) {
@@ -145,6 +167,8 @@ public:
         Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
 
         @return  empty SkRRect
+
+        @example https://fiddle.skia.org/c/@RRect_017
     */
     static SkRRect MakeEmpty() { return SkRRect(); }
 
@@ -152,6 +176,8 @@ public:
 
         @param r  bounds to copy
         @return   copy of r
+
+        @example https://fiddle.skia.org/c/@RRect_018
     */
     static SkRRect MakeRect(const SkRect& r) {
         SkRRect rr;
@@ -165,6 +191,8 @@ public:
 
         @param oval  bounds of oval
         @return      oval
+
+        @example https://fiddle.skia.org/c/@RRect_019
     */
     static SkRRect MakeOval(const SkRect& oval) {
         SkRRect rr;
@@ -183,6 +211,8 @@ public:
         @param xRad  x-axis radius of corners
         @param yRad  y-axis radius of corners
         @return      rounded rectangle
+
+        @example https://fiddle.skia.org/c/@RRect_020
     */
     static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
         SkRRect rr;
@@ -195,6 +225,8 @@ public:
         Otherwise, sets to kOval_Type.
 
         @param oval  bounds of oval
+
+        @example https://fiddle.skia.org/c/@RRect_021
     */
     void setOval(const SkRect& oval) {
         if (!this->initializeRect(oval)) {
@@ -222,6 +254,8 @@ public:
         @param rect  bounds of rounded rectangle
         @param xRad  x-axis radius of corners
         @param yRad  y-axis radius of corners
+
+        @example https://fiddle.skia.org/c/@RRect_022
     */
     void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad);
 
@@ -259,11 +293,15 @@ public:
 
         @param rect   bounds of rounded rectangle
         @param radii  corner x-axis and y-axis radii
+
+        @example https://fiddle.skia.org/c/@RRect_024
     */
     void setRectRadii(const SkRect& rect, const SkVector radii[4]);
 
     /** \enum SkRRect::Corner
         The radii are stored: top-left, top-right, bottom-right, bottom-left.
+
+        @example https://fiddle.skia.org/c/@RRect_025
     */
     enum Corner {
         kUpperLeft_Corner,  //!< index of top-left corner radii
@@ -277,6 +315,8 @@ public:
         Result is identical to getBounds().
 
         @return  bounding box
+
+        @example https://fiddle.skia.org/c/@RRect_026
     */
     const SkRect& rect() const { return fRect; }
 
@@ -286,6 +326,8 @@ public:
         @param corner  one of: kUpperLeft_Corner, kUpperRight_Corner,
                        kLowerRight_Corner, kLowerLeft_Corner
         @return        x-axis and y-axis radii for one corner
+
+        @example https://fiddle.skia.org/c/@RRect_027
     */
     SkVector radii(Corner corner) const { return fRadii[corner]; }
 
@@ -294,6 +336,8 @@ public:
         Result is identical to rect().
 
         @return  bounding box
+
+        @example https://fiddle.skia.org/c/@RRect_028
     */
     const SkRect& getBounds() const { return fRect; }
 
@@ -338,6 +382,8 @@ public:
         @param dx   added to rect().fLeft, and subtracted from rect().fRight
         @param dy   added to rect().fTop, and subtracted from rect().fBottom
         @param dst  insets bounds and radii
+
+        @example https://fiddle.skia.org/c/@RRect_031
     */
     void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
 
@@ -354,6 +400,8 @@ public:
 
         @param dx  added to rect().fLeft, and subtracted from rect().fRight
         @param dy  added to rect().fTop, and subtracted from rect().fBottom
+
+        @example https://fiddle.skia.org/c/@RRect_032
     */
     void inset(SkScalar dx, SkScalar dy) {
         this->inset(dx, dy, this);
@@ -373,6 +421,8 @@ public:
         @param dx   subtracted from rect().fLeft, and added to rect().fRight
         @param dy   subtracted from rect().fTop, and added to rect().fBottom
         @param dst  outset bounds and radii
+
+        @example https://fiddle.skia.org/c/@RRect_033
     */
     void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
         this->inset(-dx, -dy, dst);
@@ -391,6 +441,8 @@ public:
 
         @param dx  subtracted from rect().fLeft, and added to rect().fRight
         @param dy  subtracted from rect().fTop, and added to rect().fBottom
+
+        @example https://fiddle.skia.org/c/@RRect_034
     */
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
@@ -400,6 +452,8 @@ public:
 
         @param dx  offset added to rect().fLeft and rect().fRight
         @param dy  offset added to rect().fTop and rect().fBottom
+
+        @example https://fiddle.skia.org/c/@RRect_035
     */
     void offset(SkScalar dx, SkScalar dy) {
         fRect.offset(dx, dy);
@@ -420,6 +474,8 @@ public:
 
         @param rect  area tested for containment
         @return      true if SkRRect contains rect
+
+        @example https://fiddle.skia.org/c/@RRect_037
     */
     bool contains(const SkRect& rect) const;
 
@@ -429,6 +485,8 @@ public:
         be generated by corrupting memory.
 
         @return  true if bounds and radii match type()
+
+        @example https://fiddle.skia.org/c/@RRect_038
     */
     bool isValid() const;
 
@@ -439,6 +497,8 @@ public:
 
         @param buffer  storage for SkRRect
         @return        bytes written, kSizeInMemory
+
+        @example https://fiddle.skia.org/c/@RRect_039
     */
     size_t writeToMemory(void* buffer) const;
 
@@ -449,6 +509,8 @@ public:
         @param buffer  memory to read from
         @param length  size of buffer
         @return        bytes read, or 0 if length is less than kSizeInMemory
+
+        @example https://fiddle.skia.org/c/@RRect_040
     */
     size_t readFromMemory(const void* buffer, size_t length);
 
@@ -461,6 +523,8 @@ public:
         @param matrix  SkMatrix specifying the transform
         @param dst     SkRRect to store the result
         @return        true if transformation succeeded.
+
+        @example https://fiddle.skia.org/c/@RRect_041
     */
     bool transform(const SkMatrix& matrix, SkRRect* dst) const;
 
@@ -469,6 +533,8 @@ public:
         of floating point numbers.
 
         @param asHex  true if SkScalar values are written as hexadecimal
+
+        @example https://fiddle.skia.org/c/@RRect_042
     */
     void dump(bool asHex) const;
 
@@ -476,6 +542,8 @@ public:
         may be directly compiled as C++ code. Floating point values are written
         with limited precision; it may not be possible to reconstruct original
         SkRRect from output.
+
+        @example https://fiddle.skia.org/c/@RRect_043
     */
     void dump() const { this->dump(false); }
 
@@ -483,6 +551,8 @@ public:
         may be directly compiled as C++ code. Floating point values are written
         in hexadecimal to preserve their exact bit pattern. The output reconstructs the
         original SkRRect.
+
+        @example https://fiddle.skia.org/c/@RRect_044
     */
     void dumpHex() const { this->dump(true); }
 
