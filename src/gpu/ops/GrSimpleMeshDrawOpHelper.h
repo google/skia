@@ -94,7 +94,7 @@ public:
         return fUsesLocalCoords;
     }
 
-    bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoveage; }
+    bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoverage; }
 
     struct MakeArgs {
     private:
@@ -134,7 +134,7 @@ protected:
     unsigned fPipelineFlags : 8;
     unsigned fAAType : 2;
     unsigned fUsesLocalCoords : 1;
-    unsigned fCompatibleWithAlphaAsCoveage : 1;
+    unsigned fCompatibleWithAlphaAsCoverage : 1;
     SkDEBUGCODE(unsigned fMadePipeline : 1;)
     SkDEBUGCODE(unsigned fDidAnalysis : 1;)
 };
