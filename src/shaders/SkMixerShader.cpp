@@ -47,21 +47,20 @@ bool SkShader_Mixer::onAppendStages(const SkStageRec& rec) const {
     };
     auto storage = rec.fAlloc->make<Storage>();
 
-    if (!as_SB(fShader1)->appendStages(rec)) {
+    if (!as_SB(fShader0)->appendStages(rec)) {
         return false;
     }
     rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRGBA);
 
-    if (!as_SB(fShader0)->appendStages(rec)) {
+    if (!as_SB(fShader1)->appendStages(rec)) {
         return false;
     }
-    // r,g,b,a are good, as output by fShader0
+    // r,g,b,a are good, as output by fShader1
     // need to restore our previously computed dr,dg,db,da
     rec.fPipeline->append(SkRasterPipeline::load_dst, storage->fRGBA);
 
-    // 1st color in  r, g, b, a
-    // 2nd color in dr,dg,db,da
-    // The mixer's output will be in r,g,b,a
+    // 1st color in dr,dg,db,da
+    // 2nd color in  r, g, b, a
     return as_MB(fMixer)->appendStages(rec);
 }
 

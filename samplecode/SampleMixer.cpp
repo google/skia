@@ -93,7 +93,100 @@ private:
 
     typedef Sample INHERITED;
 };
+DEF_SAMPLE( return new MixerView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new MixerView; )
+#include "SkMaskFilter.h"
+#include "SkMixer.h"
+#include "SkSurface.h"
+
+static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
+    auto img = GetResourceAsImage(path);
+    if (!img) {
+        return nullptr;
+    }
+    SkRect src = SkRect::MakeIWH(img->width(), img->height());
+    SkRect dst = SkRect::MakeIWH(size, size);
+    SkMatrix m;
+    m.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    return img->makeShader(&m);
+}
+
+class ShaderMixerView : public Sample {
+    sk_sp<SkShader>     fSH0;
+    sk_sp<SkShader>     fSH1;
+    sk_sp<SkSurface>    fSurface;
+    SkBlendMode         fMode = SkBlendMode::kClear;
+
+    enum { SIZE = 256 };
+
+    const SkRect fRect = SkRect::MakeXYWH(10, 10 + SIZE + 10, SIZE, SIZE);
+
+public:
+    ShaderMixerView() {}
+
+    void onOnceBeforeDraw() override {
+        fSH0 = make_resource_shader("images/mandrill_256.png", SIZE);
+        fSH1 = make_resource_shader("images/baby_tux.png", SIZE);
+    }
+
+protected:
+    bool onQuery(Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "ShaderMixer");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (!fSurface) {
+            fSurface = canvas->makeSurface(SkImageInfo::MakeN32Premul(SIZE, SIZE));
+        }
+
+        SkPaint paint;
+        const SkRect r = SkRect::MakeIWH(SIZE, SIZE);
+
+        canvas->translate(10, 10);
+
+        canvas->save();
+        paint.setShader(fSH0); canvas->drawRect(r, paint);
+        canvas->translate(SIZE + 10.f, 0);
+        paint.setShader(fSH1); canvas->drawRect(r, paint);
+        canvas->restore();
+
+        canvas->translate(0, SIZE + 10.f);
+
+        auto sh = fSurface->makeImageSnapshot()->makeShader();
+        auto mx = SkMixer::MakeShaderLerp(sh);
+
+        canvas->save();
+        paint.setShader(sh); canvas->drawRect(r, paint);
+        canvas->translate(SIZE + 10.f, 0);
+        paint.setShader(SkShader::MakeMixer(fSH0, fSH1, mx)); canvas->drawRect(r, paint);
+        canvas->restore();
+    }
+
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+        fMode = (fMode == SkBlendMode::kSrcOver) ? SkBlendMode::kClear : SkBlendMode::kSrcOver;
+        return fRect.contains(SkScalarRoundToInt(x),
+                              SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
+    }
+
+    bool onClick(Click* click) override {
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setColor(SK_ColorRED);
+        p.setBlendMode(fMode);
+        p.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 12));
+        SkScalar x = click->fCurr.fX - fRect.fLeft;
+        SkScalar y = click->fCurr.fY - fRect.fTop;
+        fSurface->getCanvas()->drawCircle(x, y, 10, p);
+        return true;
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+DEF_SAMPLE( return new ShaderMixerView; )

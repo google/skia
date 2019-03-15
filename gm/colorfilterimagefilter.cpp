@@ -269,7 +269,7 @@ DEF_SIMPLE_GM(mixershader2, canvas, 800, 700) {
     do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
         // Use mixers to simulate MakeCompose(a, b, mode, t)
         auto blender = SkMixer::MakeBlend(mode);
-        auto mx = SkMixer::MakeLerp(t)->makeMerge(SkMixer::MakeFirst(), blender->makeReverse());
+        auto mx = SkMixer::MakeLerp(t)->makeMerge(SkMixer::MakeFirst(), blender);
         if (true) {
             auto data = mx->serialize();
             mx = SkMixerBase::Deserialize(data->data(), data->size());

@@ -50,8 +50,8 @@ DEF_TEST(Mixer, r) {
     check_mixer(r, SkMixer::MakeLerp(1), red, blue, blue);
 
     check_mixer(r, SkMixer::MakeBlend(SkBlendMode::kClear), red, blue, transparent);
-    check_mixer(r, SkMixer::MakeBlend(SkBlendMode::kSrc), red, blue, red);
-    check_mixer(r, SkMixer::MakeBlend(SkBlendMode::kDst), red, blue, blue);
+    check_mixer(r, SkMixer::MakeBlend(SkBlendMode::kSrc), red, blue, blue);
+    check_mixer(r, SkMixer::MakeBlend(SkBlendMode::kDst), red, blue, red);
     check_mixer(r, SkMixer::MakeBlend(SkBlendMode::kPlus), red, blue, magenta);
 
     // mx should average the results of Plus and Clear

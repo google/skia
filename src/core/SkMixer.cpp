@@ -132,11 +132,10 @@ sk_sp<SkFlattenable> SkMixer_Blend::CreateProc(SkReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkMixer_Lerp final : public SkMixerBase {
-    SkMixer_Lerp(float weight) : fWeight(weight), fInvWeight(1 - weight) {
+    SkMixer_Lerp(float weight) : fWeight(weight) {
         SkASSERT(fWeight >= 0 && fWeight <= 1);
     }
     const float fWeight;
-    const float fInvWeight;
     friend class SkMixer;
 public:
     SK_FLATTENABLE_HOOKS(SkMixer_Lerp)
@@ -146,7 +145,7 @@ public:
     }
 
     bool appendStages(const SkStageRec& rec) const override {
-        rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fInvWeight);
+        rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fWeight);
         return true;
     }
 
@@ -161,6 +160,60 @@ public:
 
 sk_sp<SkFlattenable> SkMixer_Lerp::CreateProc(SkReadBuffer& buffer) {
     return MakeLerp(buffer.readScalar());
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkMixer_ShaderLerp final : public SkMixerBase {
+    SkMixer_ShaderLerp(sk_sp<SkShader> shader) : fShader(std::move(shader)) {
+        SkASSERT(fShader);
+    }
+    sk_sp<SkShader> fShader;
+    friend class SkMixer;
+public:
+    SK_FLATTENABLE_HOOKS(SkMixer_ShaderLerp)
+
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.writeFlattenable(fShader.get());
+    }
+
+    bool appendStages(const SkStageRec& rec) const override {
+        struct Storage {
+            float   fSrc[4 * SkRasterPipeline_kMaxStride];
+            float   fDst[4 * SkRasterPipeline_kMaxStride];
+            float   fShaderOutput[4 * SkRasterPipeline_kMaxStride];
+        };
+        auto storage = rec.fAlloc->make<Storage>();
+
+        // we've been given our inputs as (drdgdbda, rgba)
+        rec.fPipeline->append(SkRasterPipeline::store_dst, storage->fDst);
+        rec.fPipeline->append(SkRasterPipeline::store_src, storage->fSrc);
+
+        if (!as_SB(fShader)->appendStages(rec)) {
+            return false;
+        }
+        // the shader's output is in rgba. We need to store "r" as our "t" values
+        rec.fPipeline->append(SkRasterPipeline::store_src, storage->fShaderOutput);
+
+        // now we need to reload the original dst and src so we can run our stage (lerp)
+        rec.fPipeline->append(SkRasterPipeline::load_dst, storage->fDst);
+        rec.fPipeline->append(SkRasterPipeline::load_src, storage->fSrc);
+
+        // we use the first channel (e.g. R) as our T values
+        rec.fPipeline->append(SkRasterPipeline::lerp_native, &storage->fShaderOutput[0]);
+        return true;
+    }
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor>
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        return nullptr;
+    }
+#endif
+};
+
+sk_sp<SkFlattenable> SkMixer_ShaderLerp::CreateProc(SkReadBuffer& buffer) {
+    return MakeShaderLerp(buffer.readShader());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,38 +240,37 @@ public:
 
     bool appendStages(const SkStageRec& rec) const override {
         struct Storage {
-            float   fSrcA[4 * SkRasterPipeline_kMaxStride];
-            float   fSrcB[4 * SkRasterPipeline_kMaxStride];
-            float   fRes1[4 * SkRasterPipeline_kMaxStride];
+            float   fDst[4 * SkRasterPipeline_kMaxStride];
+            float   fSrc[4 * SkRasterPipeline_kMaxStride];
+            float   fM0Output[4 * SkRasterPipeline_kMaxStride];
         };
         auto storage = rec.fAlloc->make<Storage>();
         SkRasterPipeline* pipeline = rec.fPipeline;
 
-        // Need to save off r,g,b,a and dr,dg,db,da so we can use them twice (for fM0 and fM1)
-        pipeline->append(SkRasterPipeline::store_src, storage->fSrcA);
-        pipeline->append(SkRasterPipeline::store_dst, storage->fSrcB);
+        // Need to save off dr,dg,db,da and r,g,b,a so we can use them twice (for fM0 and fM1)
+        pipeline->append(SkRasterPipeline::store_dst, storage->fDst);
+        pipeline->append(SkRasterPipeline::store_src, storage->fSrc);
 
-        if (!as_MB(fM1)->appendStages(rec)) {
-            return false;
-        }
-        // This outputs r,g,b,a, which we'll need later when we apply the mixer, but we save it off now
-        // since fShader1 will overwrite them.
-        pipeline->append(SkRasterPipeline::store_src, storage->fRes1);
-
-        // Now restore the original colors to call the first mixer
-        pipeline->append(SkRasterPipeline::load_src, storage->fSrcA);
-        pipeline->append(SkRasterPipeline::load_dst, storage->fSrcB);
         if (!as_MB(fM0)->appendStages(rec)) {
             return false;
         }
+        // This outputs r,g,b,a, which we'll need later when we apply the mixer, but we save it off
+        // now since fM1 will overwrite them.
+        pipeline->append(SkRasterPipeline::store_src, storage->fM0Output);
 
-        // We now have our 1st input in r,g,b,a, but we need the 2nd input in dr,dg,db,da, which
-        // we stored previously.
-        pipeline->append(SkRasterPipeline::load_dst, storage->fRes1);
+        // Now restore the original colors to call the first mixer
+        pipeline->append(SkRasterPipeline::load_dst, storage->fDst);
+        pipeline->append(SkRasterPipeline::load_src, storage->fSrc);
+        if (!as_MB(fM1)->appendStages(rec)) {
+            return false;
+        }
 
-        // 1st color in  r, g, b, a
-        // 2nd color in dr,dg,db,da
-        // The mixer's output will be in r,g,b,a
+        // M1's output is in r,g,b,a, which is the 2nd argument to fCombine, so we just need
+        // to load M0's output back into dr,dg,db,da
+        pipeline->append(SkRasterPipeline::load_dst, storage->fM0Output);
+
+        // 1st color in dr,dg,db,da     <-- M0's output
+        // 2nd color in  r, g, b, a     <-- M1's output
         return as_MB(fCombine)->appendStages(rec);
     }
 
@@ -241,11 +293,11 @@ sk_sp<SkFlattenable> SkMixer_Merge::CreateProc(SkReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkMixer> SkMixer::MakeFirst() {
-    return MakeBlend(SkBlendMode::kSrc);
+    return MakeBlend(SkBlendMode::kDst);
 }
 
 sk_sp<SkMixer> SkMixer::MakeSecond() {
-    return MakeBlend(SkBlendMode::kDst);
+    return MakeBlend(SkBlendMode::kSrc);
 }
 
 sk_sp<SkMixer> SkMixer::MakeConst(const SkColor4f& c) {
@@ -273,8 +325,11 @@ sk_sp<SkMixer> SkMixer::MakeLerp(float t) {
     return sk_sp<SkMixer>(new SkMixer_Lerp(t));
 }
 
-sk_sp<SkMixer> SkMixer::MakeArithmetic(float k1, float k2, float k3, float k4) {
-    return nullptr; // TODO
+sk_sp<SkMixer> SkMixer::MakeShaderLerp(sk_sp<SkShader> shader) {
+    if (!shader) {
+        return MakeFirst();
+    }
+    return sk_sp<SkMixer>(new SkMixer_ShaderLerp(std::move(shader)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -294,8 +349,8 @@ sk_sp<SkMixer> SkMixer::makeMerge(sk_sp<SkMixer> m0, sk_sp<SkMixer> m1) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkPMColor4f SkMixerBase::test_mix(const SkPMColor4f& a, const SkPMColor4f& b) const {
-    SkPMColor4f src = a,
-                dst = b;
+    SkPMColor4f dst = a,
+                src = b;
 
     SkSTArenaAlloc<128> alloc;
     SkRasterPipeline    pipeline(&alloc);
@@ -304,12 +359,12 @@ SkPMColor4f SkMixerBase::test_mix(const SkPMColor4f& a, const SkPMColor4f& b) co
         &pipeline, &alloc, kRGBA_F32_SkColorType, nullptr, dummyPaint, nullptr, SkMatrix::I()
     };
 
-    SkRasterPipeline_MemoryCtx srcPtr = { &src, 0 };
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
+    SkRasterPipeline_MemoryCtx srcPtr = { &src, 0 };
 
     pipeline.append(SkRasterPipeline::load_f32, &dstPtr);
-    pipeline.append(SkRasterPipeline::move_src_dst);
-    pipeline.append(SkRasterPipeline::load_f32, &srcPtr);
+    pipeline.append(SkRasterPipeline::move_src_dst);        // dst is our 1st arg
+    pipeline.append(SkRasterPipeline::load_f32, &srcPtr);   // src is our 2nd arg
     as_MB(this)->appendStages(rec);
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
@@ -322,5 +377,6 @@ void SkMixerBase::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkMixer_Reverse);
     SK_REGISTER_FLATTENABLE(SkMixer_Blend);
     SK_REGISTER_FLATTENABLE(SkMixer_Lerp);
+    SK_REGISTER_FLATTENABLE(SkMixer_ShaderLerp);
     SK_REGISTER_FLATTENABLE(SkMixer_Merge);
 }
