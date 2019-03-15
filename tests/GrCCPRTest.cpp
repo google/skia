@@ -155,6 +155,7 @@ public:
         mockOptions.fFlatInterpolationSupport = true;
 
         GrContextOptions ctxOptions;
+        ctxOptions.fEnableCoverageCountingPaths = true;
         ctxOptions.fAllowPathMaskCaching = false;
         ctxOptions.fGpuPathRenderers = GpuPathRenderers::kCoverageCounting;
 
