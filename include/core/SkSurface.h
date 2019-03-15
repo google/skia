@@ -496,6 +496,8 @@ public:
         @param width   one or greater
         @param height  one or greater
         @return        SkSurface if width and height are positive; otherwise, nullptr
+
+        example: https://fiddle.skia.org/c/@Surface_MakeNull
     */
     static sk_sp<SkSurface> MakeNull(int width, int height);
 
@@ -520,6 +522,8 @@ public:
         notifyContentWillChange().
 
         @return  unique content identifier
+
+        example: https://fiddle.skia.org/c/@Surface_notifyContentWillChange
     */
     uint32_t generationID();
 
@@ -537,6 +541,8 @@ public:
         TODO: Can kRetain_ContentChangeMode be deprecated?
 
         @param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode
+
+        example: https://fiddle.skia.org/c/@Surface_notifyContentWillChange
     */
     void notifyContentWillChange(ContentChangeMode mode);
 
@@ -609,6 +615,8 @@ public:
         is deleted.
 
         @return  drawing SkCanvas for SkSurface
+
+        example: https://fiddle.skia.org/c/@Surface_getCanvas
     */
     SkCanvas* getCanvas();
 
@@ -622,6 +630,8 @@ public:
         @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
                           of SkSurface; width and height must be greater than zero
         @return           compatible SkSurface or nullptr
+
+        example: https://fiddle.skia.org/c/@Surface_makeSurface
     */
     sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
 
@@ -635,6 +645,8 @@ public:
         SkBudgeted::kYes.
 
         @return  SkImage initialized with SkSurface contents
+
+        example: https://fiddle.skia.org/c/@Surface_makeImageSnapshot
     */
     sk_sp<SkImage> makeImageSnapshot();
 
@@ -646,6 +658,8 @@ public:
      *    it and the surface.
      *  - If bounds does not intersect the surface, then this returns nullptr.
      *  - If bounds == the surface, then this is the same as calling the no-parameter variant.
+
+        example: https://fiddle.skia.org/c/@Surface_makeImageSnapshot_2
      */
     sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds);
 
@@ -659,6 +673,8 @@ public:
         @param y       vertical offset in SkCanvas
         @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                        and so on; or nullptr
+
+        example: https://fiddle.skia.org/c/@Surface_draw
     */
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
 
@@ -670,6 +686,8 @@ public:
 
         @param pixmap  storage for pixel state if pixels are readable; otherwise, ignored
         @return        true if SkSurface has direct access to pixels
+
+        example: https://fiddle.skia.org/c/@Surface_peekPixels
     */
     bool peekPixels(SkPixmap* pixmap);
 
@@ -699,6 +717,8 @@ public:
         @param srcX  offset into readable pixels on x-axis; may be negative
         @param srcY  offset into readable pixels on y-axis; may be negative
         @return      true if pixels were copied
+
+        example: https://fiddle.skia.org/c/@Surface_readPixels
     */
     bool readPixels(const SkPixmap& dst, int srcX, int srcY);
 
@@ -761,6 +781,8 @@ public:
         @param srcX  offset into readable pixels on x-axis; may be negative
         @param srcY  offset into readable pixels on y-axis; may be negative
         @return      true if pixels were copied
+
+        example: https://fiddle.skia.org/c/@Surface_readPixels_3
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
@@ -903,6 +925,8 @@ public:
         @param src   storage for pixels to copy to SkSurface
         @param dstX  x-axis position relative to SkSurface to begin copy; may be negative
         @param dstY  y-axis position relative to SkSurface to begin copy; may be negative
+
+        example: https://fiddle.skia.org/c/@Surface_writePixels
     */
     void writePixels(const SkPixmap& src, int dstX, int dstY);
 
@@ -918,6 +942,8 @@ public:
         @param src   storage for pixels to copy to SkSurface
         @param dstX  x-axis position relative to SkSurface to begin copy; may be negative
         @param dstY  y-axis position relative to SkSurface to begin copy; may be negative
+
+        example: https://fiddle.skia.org/c/@Surface_writePixels_2
     */
     void writePixels(const SkBitmap& src, int dstX, int dstY);
 
@@ -1011,6 +1037,8 @@ public:
 
         @param characterization  properties for parallel drawing
         @return                  true if supported
+
+        example: https://fiddle.skia.org/c/@Surface_characterize
     */
     bool characterize(SkSurfaceCharacterization* characterization) const;
 
@@ -1022,6 +1050,8 @@ public:
 
         @param deferredDisplayList  drawing commands
         @return                     false if deferredDisplayList is not compatible
+
+        example: https://fiddle.skia.org/c/@Surface_draw_2
     */
     bool draw(SkDeferredDisplayList* deferredDisplayList);
 

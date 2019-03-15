@@ -293,6 +293,8 @@ struct SK_API SkPoint {
         false; otherwise returns true.
 
         @return  true if former length is not zero or nearly zero
+
+        example: https://fiddle.skia.org/c/@Point_normalize_2
     */
     bool normalize();
 
@@ -303,6 +305,8 @@ struct SK_API SkPoint {
         @param x  proportional value for fX
         @param y  proportional value for fY
         @return   true if (x, y) length is not zero or nearly zero
+
+        example: https://fiddle.skia.org/c/@Point_setNormalize
     */
     bool setNormalize(SkScalar x, SkScalar y);
 
@@ -312,6 +316,8 @@ struct SK_API SkPoint {
 
         @param length  straight-line distance to origin
         @return        true if former length is not zero or nearly zero
+
+        example: https://fiddle.skia.org/c/@Point_setLength
     */
     bool setLength(SkScalar length);
 
@@ -323,6 +329,8 @@ struct SK_API SkPoint {
         @param y       proportional value for fY
         @param length  straight-line distance to origin
         @return        true if (x, y) length is not zero or nearly zero
+
+        example: https://fiddle.skia.org/c/@Point_setLength_2
     */
     bool setLength(SkScalar x, SkScalar y, SkScalar length);
 
@@ -330,6 +338,8 @@ struct SK_API SkPoint {
 
         @param scale  factor to multiply SkPoint by
         @param dst    storage for scaled SkPoint
+
+        example: https://fiddle.skia.org/c/@Point_scale
     */
     void scale(SkScalar scale, SkPoint* dst) const;
 
@@ -475,6 +485,8 @@ struct SK_API SkPoint {
         @param x  component of length
         @param y  component of length
         @return   straight-line distance to origin
+
+        example: https://fiddle.skia.org/c/@Point_Length
     */
     static SkScalar Length(SkScalar x, SkScalar y);
 
@@ -488,6 +500,8 @@ struct SK_API SkPoint {
 
         @param vec  normalized to unit length
         @return     original vec length
+
+        example: https://fiddle.skia.org/c/@Point_Normalize
     */
     static SkScalar Normalize(SkVector* vec);
 

@@ -266,6 +266,8 @@ public:
         Returns zero if colorType() is kUnknown_SkColorType.
 
         @return  bytes in pixel
+
+        example: https://fiddle.skia.org/c/@ImageInfo_bytesPerPixel
     */
     int bytesPerPixel() const;
 
@@ -273,6 +275,8 @@ public:
         Returns zero for kUnknown_SkColorType.
 
         @return  one of: 0, 1, 2, 3, 4; left shift to convert pixels to bytes
+
+        example: https://fiddle.skia.org/c/@ImageInfo_shiftPerPixel
     */
     int shiftPerPixel() const;
 
@@ -385,6 +389,8 @@ public:
                        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                        kUnpremul_SkAlphaType
         @return        created SkImageInfo
+
+        example: https://fiddle.skia.org/c/@ImageInfo_MakeS32
     */
     static SkImageInfo MakeS32(int width, int height, SkAlphaType at);
 
@@ -654,6 +660,8 @@ public:
         @param y         row index, zero or greater, and less than height()
         @param rowBytes  size of pixel row or larger
         @return          offset within pixel array
+
+        example: https://fiddle.skia.org/c/@ImageInfo_computeOffset
     */
     size_t computeOffset(int x, int y, size_t rowBytes) const;
 
@@ -685,6 +693,8 @@ public:
 
         @param rowBytes  size of pixel row or larger
         @return          memory required by pixel buffer
+
+        example: https://fiddle.skia.org/c/@ImageInfo_computeByteSize
     */
     size_t computeByteSize(size_t rowBytes) const;
 

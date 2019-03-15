@@ -156,6 +156,8 @@ public:
         @param memory      storage for data
         @param memory_size size of storage
         @return            bytes written, or zero if required storage is larger than memory_size
+
+        example: https://fiddle.skia.org/c/@TextBlob_serialize
     */
     size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
 
@@ -169,6 +171,8 @@ public:
 
         @param procs  custom serial data encoders; may be nullptr
         @return       storage containing serialized SkTextBlob
+
+        example: https://fiddle.skia.org/c/@TextBlob_serialize_2
     */
     sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
 
@@ -259,6 +263,8 @@ public:
     /** Constructs empty SkTextBlobBuilder. By default, SkTextBlobBuilder has no runs.
 
         @return  empty SkTextBlobBuilder
+
+        example: https://fiddle.skia.org/c/@TextBlobBuilder_empty_constructor
     */
     SkTextBlobBuilder();
 
@@ -274,6 +280,8 @@ public:
         reused to build a new set of runs.
 
         @return  SkTextBlob or nullptr
+
+        example: https://fiddle.skia.org/c/@TextBlobBuilder_make
     */
     sk_sp<SkTextBlob> make();
 
