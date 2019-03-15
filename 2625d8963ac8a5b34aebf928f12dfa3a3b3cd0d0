@@ -70,6 +70,63 @@
       "revId": "2625d8963ac8a5b34aebf928f12dfa3a3b3cd0d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a818953c_1e1a4459",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-15T14:07:15Z",
+      "side": 1,
+      "message": "I believe this is true.",
+      "range": {
+        "startLine": 216,
+        "startChar": 4,
+        "endLine": 216,
+        "endChar": 65
+      },
+      "revId": "2625d8963ac8a5b34aebf928f12dfa3a3b3cd0d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42c6ed6b_aca5b145",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-15T14:07:15Z",
+      "side": 1,
+      "message": "// Maybe a comment here about kPlus\n\n// The kPlus blend mode requires shader-based blending whenever pixels aren\u0027t guaranteed to automatically be normalized (i.e., the FP16 and clamped-FP16 configs) bc ...\n\n?",
+      "revId": "2625d8963ac8a5b34aebf928f12dfa3a3b3cd0d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ee2e438_864ce2a2",
+        "filename": "tests/GrPorterDuffTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-15T14:07:15Z",
+      "side": 1,
+      "message": "Should we test the other code paths too ?",
+      "revId": "2625d8963ac8a5b34aebf928f12dfa3a3b3cd0d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
