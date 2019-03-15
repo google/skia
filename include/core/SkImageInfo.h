@@ -43,6 +43,8 @@ class SkWriteBuffer;
     RGB may have alpha included in each component value; the stored
     value is the original RGB multiplied by alpha. Premultiplied color
     components improve performance.
+
+    @example https://fiddle.skia.org/c/@ImageInfo_000
 */
 enum SkAlphaType {
     kUnknown_SkAlphaType,                          //!< uninitialized
@@ -80,6 +82,26 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     processors, pixels containing 8-bit ARGB components pack into 32-bit
     kBGRA_8888_SkColorType. On big endian processors, pixels pack into 32-bit
     kRGBA_8888_SkColorType.
+
+    @example https://fiddle.skia.org/c/@ImageInfo_003
+
+    @example https://fiddle.skia.org/c/@ImageInfo_004
+
+    @example https://fiddle.skia.org/c/@ImageInfo_005
+
+    @example https://fiddle.skia.org/c/@ImageInfo_006
+
+    @example https://fiddle.skia.org/c/@ImageInfo_007
+
+    @example https://fiddle.skia.org/c/@ImageInfo_008
+
+    @example https://fiddle.skia.org/c/@ImageInfo_009
+
+    @example https://fiddle.skia.org/c/@ImageInfo_010
+
+    @example https://fiddle.skia.org/c/@ImageInfo_011
+
+    @example https://fiddle.skia.org/c/@ImageInfo_012
 */
 enum SkColorType {
     kUnknown_SkColorType,      //!< uninitialized
@@ -202,6 +224,8 @@ public:
         a width and height of zero, and no SkColorSpace.
 
         @return  empty SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_016
     */
     SkImageInfo()
         : fColorSpace(nullptr)
@@ -231,6 +255,8 @@ public:
                        kUnpremul_SkAlphaType
         @param cs      range of colors; may be nullptr
         @return        created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_017
     */
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                             sk_sp<SkColorSpace> cs = nullptr) {
@@ -272,6 +298,8 @@ public:
                        kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                        kUnpremul_SkAlphaType
         @return        created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_019
     */
     static SkImageInfo MakeS32(int width, int height, SkAlphaType at);
 
@@ -288,6 +316,8 @@ public:
         @param height  pixel row count; must be zero or greater
         @param cs      range of colors; may be nullptr
         @return        created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_020
     */
     static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr) {
         return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
@@ -304,6 +334,8 @@ public:
 
         @param size  width and height, each must be zero or greater
         @return      created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_021
     */
     static SkImageInfo MakeN32Premul(const SkISize& size) {
         return MakeN32Premul(size.width(), size.height());
@@ -315,6 +347,8 @@ public:
         @param width   pixel column count; must be zero or greater
         @param height  pixel row count; must be zero or greater
         @return        created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_022
     */
     static SkImageInfo MakeA8(int width, int height) {
         return Make(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
@@ -329,6 +363,8 @@ public:
         @param width   pixel column count; must be zero or greater
         @param height  pixel row count; must be zero or greater
         @return        created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_023
     */
     static SkImageInfo MakeUnknown(int width, int height) {
         return Make(width, height, kUnknown_SkColorType, kUnknown_SkAlphaType, nullptr);
@@ -341,6 +377,8 @@ public:
         can not be drawn to.
 
         @return  created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_024
     */
     static SkImageInfo MakeUnknown() {
         return MakeUnknown(0, 0);
@@ -349,12 +387,16 @@ public:
     /** Returns pixel count in each row.
 
         @return  pixel width
+
+        @example https://fiddle.skia.org/c/@ImageInfo_025
     */
     int width() const { return fDimensions.width(); }
 
     /** Returns pixel row count.
 
         @return  pixel height
+
+        @example https://fiddle.skia.org/c/@ImageInfo_026
     */
     int height() const { return fDimensions.height(); }
 
@@ -365,6 +407,8 @@ public:
         kGray_8_SkColorType, kRGBA_F16_SkColorType.
 
         @return  SkColorType
+
+        @example https://fiddle.skia.org/c/@ImageInfo_027
     */
     SkColorType colorType() const { return fColorType; }
 
@@ -373,6 +417,8 @@ public:
         kUnpremul_SkAlphaType.
 
         @return  SkAlphaType
+
+        @example https://fiddle.skia.org/c/@ImageInfo_028
     */
     SkAlphaType alphaType() const { return fAlphaType; }
 
@@ -380,6 +426,8 @@ public:
         SkColorSpace is unchanged. The returned SkColorSpace is immutable.
 
         @return  SkColorSpace, or nullptr
+
+        @example https://fiddle.skia.org/c/@ImageInfo_029
     */
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
 
@@ -390,6 +438,8 @@ public:
         The returned SkColorSpace is immutable.
 
         @return  SkColorSpace wrapped in a smart pointer
+
+        @example https://fiddle.skia.org/c/@ImageInfo_030
     */
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
 
@@ -397,6 +447,8 @@ public:
         width or height is zero or smaller.
 
         @return  true if either dimension is zero or smaller
+
+        @example https://fiddle.skia.org/c/@ImageInfo_031
     */
     bool isEmpty() const { return fDimensions.isEmpty(); }
 
@@ -408,6 +460,8 @@ public:
         transparency.
 
         @return  true if SkAlphaType is kOpaque_SkAlphaType
+
+        @example https://fiddle.skia.org/c/@ImageInfo_032
     */
     bool isOpaque() const {
         return SkAlphaTypeIsOpaque(fAlphaType);
@@ -416,12 +470,16 @@ public:
     /** Returns SkISize { width(), height() }.
 
         @return  integral size of width() and height()
+
+        @example https://fiddle.skia.org/c/@ImageInfo_033
     */
     SkISize dimensions() const { return fDimensions; }
 
     /** Returns SkIRect { 0, 0, width(), height() }.
 
         @return  integral rectangle from origin to width() and height()
+
+        @example https://fiddle.skia.org/c/@ImageInfo_034
     */
     SkIRect bounds() const { return SkIRect::MakeSize(fDimensions); }
 
@@ -430,6 +488,8 @@ public:
         This includes the
 
         @return  true if SkColorSpace gamma is approximately the same as sRGB
+
+        @example https://fiddle.skia.org/c/@ImageInfo_035
     */
     bool gammaCloseToSRGB() const {
         return fColorSpace && fColorSpace->gammaCloseToSRGB();
@@ -441,6 +501,8 @@ public:
         @param newWidth   pixel column count; must be zero or greater
         @param newHeight  pixel row count; must be zero or greater
         @return           created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_036
     */
     SkImageInfo makeWH(int newWidth, int newHeight) const {
         return Make(newWidth, newHeight, fColorType, fAlphaType, fColorSpace);
@@ -456,6 +518,8 @@ public:
                              kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                              kUnpremul_SkAlphaType
         @return              created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_037
     */
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
         return Make(this->width(), this->height(), fColorType, newAlphaType, fColorSpace);
@@ -470,6 +534,8 @@ public:
                              kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType,
                              kRGB_101010x_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType
         @return              created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_038
     */
     SkImageInfo makeColorType(SkColorType newColorType) const {
         return Make(this->width(), this->height(), newColorType, fAlphaType, fColorSpace);
@@ -480,6 +546,8 @@ public:
 
         @param cs  range of colors; may be nullptr
         @return    created SkImageInfo
+
+        @example https://fiddle.skia.org/c/@ImageInfo_039
     */
     SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const {
         return Make(this->width(), this->height(), fColorType, fAlphaType, std::move(cs));
@@ -489,6 +557,8 @@ public:
         Returns zero if colorType( is kUnknown_SkColorType.
 
         @return  bytes in pixel
+
+        @example https://fiddle.skia.org/c/@ImageInfo_040
     */
     int bytesPerPixel() const;
 
@@ -496,6 +566,8 @@ public:
         Returns zero for kUnknown_SkColorType.
 
         @return  one of: 0, 1, 2, 3; left shift to convert pixels to bytes
+
+        @example https://fiddle.skia.org/c/@ImageInfo_041
     */
     int shiftPerPixel() const;
 
@@ -504,6 +576,8 @@ public:
         in 31 bits.
 
         @return  width() times bytesPerPixel() as unsigned 64-bit integer
+
+        @example https://fiddle.skia.org/c/@ImageInfo_042
     */
     uint64_t minRowBytes64() const { return sk_64_mul(this->width(), this->bytesPerPixel()); }
 
@@ -512,6 +586,8 @@ public:
         in 31 bits.
 
         @return  width() times bytesPerPixel() as signed 32-bit integer
+
+        @example https://fiddle.skia.org/c/@ImageInfo_043
     */
     size_t minRowBytes() const {
         uint64_t minRowBytes = this->minRowBytes64();
@@ -530,6 +606,8 @@ public:
         @param y         row index, zero or greater, and less than height()
         @param rowBytes  size of pixel row or larger
         @return          offset within pixel array
+
+        @example https://fiddle.skia.org/c/@ImageInfo_044
     */
     size_t computeOffset(int x, int y, size_t rowBytes) const;
 
@@ -538,6 +616,8 @@ public:
 
         @param other  SkImageInfo to compare
         @return       true if SkImageInfo equals other
+
+        @example https://fiddle.skia.org/c/@ImageInfo_045
     */
     bool operator==(const SkImageInfo& other) const {
         return fDimensions == other.fDimensions &&
@@ -550,6 +630,8 @@ public:
 
         @param other  SkImageInfo to compare
         @return       true if SkImageInfo is not equal to other
+
+        @example https://fiddle.skia.org/c/@ImageInfo_046
     */
     bool operator!=(const SkImageInfo& other) const {
         return !(*this == other);
@@ -563,6 +645,8 @@ public:
 
         @param rowBytes  size of pixel row or larger
         @return          memory required by pixel buffer
+
+        @example https://fiddle.skia.org/c/@ImageInfo_047
     */
     size_t computeByteSize(size_t rowBytes) const;
 
@@ -573,6 +657,8 @@ public:
         Returns SIZE_MAX if answer exceeds the range of size_t.
 
         @return  least memory required by pixel buffer
+
+        @example https://fiddle.skia.org/c/@ImageInfo_048
     */
     size_t computeMinByteSize() const {
         return this->computeByteSize(this->minRowBytes());
@@ -583,6 +669,8 @@ public:
 
         @param byteSize  result of computeByteSize() or computeMinByteSize()
         @return          true if computeByteSize() or computeMinByteSize() result exceeds size_t
+
+        @example https://fiddle.skia.org/c/@ImageInfo_049
     */
     static bool ByteSizeOverflowed(size_t byteSize) {
         return SIZE_MAX == byteSize;
@@ -592,6 +680,8 @@ public:
 
         @param rowBytes  size of pixel row or larger
         @return          true if rowBytes is large enough to contain pixel row
+
+        @example https://fiddle.skia.org/c/@ImageInfo_050
     */
     bool validRowBytes(size_t rowBytes) const {
         return rowBytes >= this->minRowBytes64();
@@ -599,6 +689,8 @@ public:
 
     /** Creates an empty SkImageInfo with kUnknown_SkColorType, kUnknown_SkAlphaType,
         a width and height of zero, and no SkColorSpace.
+
+        @example https://fiddle.skia.org/c/@ImageInfo_051
     */
     void reset() {
         fColorSpace = nullptr;

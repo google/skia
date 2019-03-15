@@ -98,6 +98,8 @@ public:
         @param surfaceProps  LCD striping orientation and setting for device independent fonts;
                              may be nullptr
         @return              SkSurface if all parameters are valid; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_001
     */
     static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo& imageInfo, void* pixels,
                                     size_t rowBytes,
@@ -124,6 +126,10 @@ public:
         @param surfaceProps  LCD striping orientation and setting for device independent fonts;
                              may be nullptr
         @return              SkSurface if all parameters are valid; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_002
+
+        @example https://fiddle.skia.org/c/@Surface_003
     */
     static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
                                        const SkSurfaceProps* surfaceProps);
@@ -166,6 +172,8 @@ public:
         @param surfaceProps  LCD striping orientation and setting for device independent
                              fonts; may be nullptr
         @return              SkSurface if all parameters are valid; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_004
     */
     static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
                                                 const SkSurfaceProps* surfaceProps = nullptr);
@@ -208,6 +216,8 @@ public:
         @param textureReleaseProc  function called when texture can be released
         @param releaseContext      state passed to textureReleaseProc
         @return                    SkSurface if all parameters are valid; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_005
     */
     static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
                                                    const GrBackendTexture& backendTexture,
@@ -286,6 +296,8 @@ public:
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
         @return                SkSurface if all parameters are valid; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_006
     */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                             const GrBackendTexture& backendTexture,
@@ -350,6 +362,12 @@ public:
                                      fonts; may be nullptr
         @param shouldCreateWithMips  hint that SkSurface will host mip map images
         @return                      SkSurface if all parameters are valid; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_007
+
+        @example https://fiddle.skia.org/c/@Surface_008
+
+        @example https://fiddle.skia.org/c/@Surface_009
     */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo,
@@ -427,18 +445,24 @@ public:
         @param width   one or greater
         @param height  one or greater
         @return        SkSurface if width and height are positive; otherwise, nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_010
     */
     static sk_sp<SkSurface> MakeNull(int width, int height);
 
     /** Returns pixel count in each row; may be zero or greater.
 
         @return  number of pixel columns
+
+        @example https://fiddle.skia.org/c/@Surface_011
     */
     int width() const { return fWidth; }
 
     /** Returns pixel row count; may be zero or greater.
 
         @return  number of pixel rows
+
+        @example https://fiddle.skia.org/c/@Surface_012
     */
     int height() const { return fHeight; }
 
@@ -447,6 +471,8 @@ public:
         notifyContentWillChange().
 
         @return  unique content identifier
+
+        @example https://fiddle.skia.org/c/@Surface_013
     */
     uint32_t generationID();
 
@@ -464,6 +490,8 @@ public:
         TODO: Can kRetain_ContentChangeMode be deprecated?
 
         @param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode
+
+        @example https://fiddle.skia.org/c/@Surface_013
     */
     void notifyContentWillChange(ContentChangeMode mode);
 
@@ -520,6 +548,8 @@ public:
         is deleted.
 
         @return  drawing SkCanvas for SkSurface
+
+        @example https://fiddle.skia.org/c/@Surface_015
     */
     SkCanvas* getCanvas();
 
@@ -533,6 +563,8 @@ public:
         @param imageInfo  width, height, SkColorType, SkAlphaType, SkColorSpace,
                           of SkSurface; width and height must be greater than zero
         @return           compatible SkSurface or nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_016
     */
     sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
 
@@ -541,6 +573,8 @@ public:
         SkBudgeted::kYes.
 
         @return  SkImage initialized with SkSurface contents
+
+        @example https://fiddle.skia.org/c/@Surface_017
     */
     sk_sp<SkImage> makeImageSnapshot();
 
@@ -552,6 +586,8 @@ public:
      *    it and the surface.
      *  - If bounds does not intersect the surface, then this returns nullptr.
      *  - If bounds == the surface, then this is the same as calling the no-parameter variant.
+
+        @example https://fiddle.skia.org/c/@Surface_018
      */
     sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds);
 
@@ -565,6 +601,8 @@ public:
         @param y       vertical offset in SkCanvas
         @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                        and so on; or nullptr
+
+        @example https://fiddle.skia.org/c/@Surface_019
     */
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
 
@@ -576,6 +614,8 @@ public:
 
         @param pixmap  storage for pixel state if pixels are readable; otherwise, ignored
         @return        true if SkSurface has direct access to pixels
+
+        @example https://fiddle.skia.org/c/@Surface_020
     */
     bool peekPixels(SkPixmap* pixmap);
 
@@ -605,6 +645,8 @@ public:
         @param srcX  offset into readable pixels on x-axis; may be negative
         @param srcY  offset into readable pixels on y-axis; may be negative
         @return      true if pixels were copied
+
+        @example https://fiddle.skia.org/c/@Surface_021
     */
     bool readPixels(const SkPixmap& dst, int srcX, int srcY);
 
@@ -667,6 +709,8 @@ public:
         @param srcX  offset into readable pixels on x-axis; may be negative
         @param srcY  offset into readable pixels on y-axis; may be negative
         @return      true if pixels were copied
+
+        @example https://fiddle.skia.org/c/@Surface_023
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
@@ -682,6 +726,8 @@ public:
         @param src   storage for pixels to copy to SkSurface
         @param dstX  x-axis position relative to SkSurface to begin copy; may be negative
         @param dstY  y-axis position relative to SkSurface to begin copy; may be negative
+
+        @example https://fiddle.skia.org/c/@Surface_024
     */
     void writePixels(const SkPixmap& src, int dstX, int dstY);
 
@@ -697,12 +743,16 @@ public:
         @param src   storage for pixels to copy to SkSurface
         @param dstX  x-axis position relative to SkSurface to begin copy; may be negative
         @param dstY  y-axis position relative to SkSurface to begin copy; may be negative
+
+        @example https://fiddle.skia.org/c/@Surface_025
     */
     void writePixels(const SkBitmap& src, int dstX, int dstY);
 
     /** Returns SkSurfaceProps for surface.
 
         @return  LCD striping orientation and setting for device independent fonts
+
+        @example https://fiddle.skia.org/c/@Surface_026
     */
     const SkSurfaceProps& props() const { return fProps; }
 
@@ -822,6 +872,8 @@ public:
 
         @param characterization  properties for parallel drawing
         @return                  true if supported
+
+        @example https://fiddle.skia.org/c/@Surface_027
     */
     bool characterize(SkSurfaceCharacterization* characterization) const;
 
@@ -833,6 +885,8 @@ public:
 
         @param deferredDisplayList  drawing commands
         @return                     false if deferredDisplayList is not compatible
+
+        @example https://fiddle.skia.org/c/@Surface_028
     */
     bool draw(SkDeferredDisplayList* deferredDisplayList);
 

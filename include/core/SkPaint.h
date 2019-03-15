@@ -50,6 +50,8 @@ public:
     /** Constructs SkPaint with default values.
 
         @return  default initialized SkPaint
+
+        @example https://fiddle.skia.org/c/@Paint_000
     */
     SkPaint();
 
@@ -64,6 +66,8 @@ public:
 
         @param paint  original to copy
         @return       shallow copy of paint
+
+        @example https://fiddle.skia.org/c/@Paint_001
     */
     SkPaint(const SkPaint& paint);
 
@@ -74,6 +78,8 @@ public:
 
         @param paint  original to move
         @return       content of paint
+
+        @example https://fiddle.skia.org/c/@Paint_002
     */
     SkPaint(SkPaint&& paint);
 
@@ -92,6 +98,8 @@ public:
 
         @param paint  original to copy
         @return       content of paint
+
+        @example https://fiddle.skia.org/c/@Paint_004
     */
     SkPaint& operator=(const SkPaint& paint);
 
@@ -104,6 +112,8 @@ public:
 
         @param paint  original to move
         @return       content of paint
+
+        @example https://fiddle.skia.org/c/@Paint_005
     */
     SkPaint& operator=(SkPaint&& paint);
 
@@ -140,16 +150,22 @@ public:
         The hash returned is platform and implementation specific.
 
         @return  a shallow hash
+
+        @example https://fiddle.skia.org/c/@Paint_008
     */
     uint32_t getHash() const;
 
     /** Sets all SkPaint contents to their initial values. This is equivalent to replacing
         SkPaint with the result of SkPaint().
+
+        @example https://fiddle.skia.org/c/@Paint_003
     */
     void reset();
 
     /** Returns true if pixels on the active edges of SkPath may be drawn with partial transparency.
         @return  antialiasing state
+
+        @example https://fiddle.skia.org/c/@Paint_014
     */
     bool isAntiAlias() const {
         return SkToBool(fBitfields.fAntiAlias);
@@ -158,11 +174,19 @@ public:
     /** Requests, but does not require, that edge pixels draw opaque or with
         partial transparency.
         @param aa  setting for antialiasing
+
+        @example https://fiddle.skia.org/c/@Paint_015
+
+        @example https://fiddle.skia.org/c/@Paint_016
+
+        @example https://fiddle.skia.org/c/@Paint_017
     */
     void setAntiAlias(bool aa) { fBitfields.fAntiAlias = static_cast<unsigned>(aa); }
 
     /** Returns true if color error may be distributed to smooth color transition.
         @return  dithering state
+
+        @example https://fiddle.skia.org/c/@Paint_018
     */
     bool isDither() const {
         return SkToBool(fBitfields.fDither);
@@ -170,6 +194,10 @@ public:
 
     /** Requests, but does not require, to distribute color error.
         @param dither  setting for ditering
+
+        @example https://fiddle.skia.org/c/@Paint_019
+
+        @example https://fiddle.skia.org/c/@Paint_020
     */
     void setDither(bool dither) { fBitfields.fDither = static_cast<unsigned>(dither); }
 
@@ -178,6 +206,8 @@ public:
 
         @return  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                  kMedium_SkFilterQuality, kHigh_SkFilterQuality
+
+        @example https://fiddle.skia.org/c/@Paint_035
     */
     SkFilterQuality getFilterQuality() const {
         return (SkFilterQuality)fBitfields.fFilterQuality;
@@ -189,6 +219,10 @@ public:
 
         @param quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                         kMedium_SkFilterQuality, kHigh_SkFilterQuality
+
+        @example https://fiddle.skia.org/c/@Paint_036
+
+        @example https://fiddle.skia.org/c/@Paint_037
     */
     void setFilterQuality(SkFilterQuality quality);
 
@@ -213,6 +247,8 @@ public:
     /** Returns whether the geometry is filled, stroked, or filled and stroked.
 
         @return  one of:kFill_Style, kStroke_Style, kStrokeAndFill_Style
+
+        @example https://fiddle.skia.org/c/@Paint_045
     */
     Style getStyle() const { return (Style)fBitfields.fStyle; }
 
@@ -220,6 +256,10 @@ public:
         Has no effect if style is not a legal SkPaint::Style value.
 
         @param style  one of: kFill_Style, kStroke_Style, kStrokeAndFill_Style
+
+        @example https://fiddle.skia.org/c/@Paint_046
+
+        @example https://fiddle.skia.org/c/@Paint_047
     */
     void setStyle(Style style);
 
@@ -228,6 +268,8 @@ public:
         a color component.
 
         @return  unpremultiplied ARGB
+
+        @example https://fiddle.skia.org/c/@Paint_038
     */
     SkColor getColor() const { return fColor4f.toSkColor(); }
 
@@ -235,6 +277,8 @@ public:
         are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
 
         @return  unpremultiplied RGBA
+
+        @example https://fiddle.skia.org/c/@Paint_039
     */
     SkColor4f getColor4f() const { return fColor4f; }
 
@@ -242,6 +286,8 @@ public:
         unpremultiplied, packing 8-bit components for alpha, red, blue, and green.
 
         @param color  unpremultiplied ARGB
+
+        @example https://fiddle.skia.org/c/@Paint_040
     */
     void setColor(SkColor color);
 
@@ -252,6 +298,8 @@ public:
 
         @param color       unpremultiplied RGBA
         @param colorSpace  SkColorSpace describing the encoding of color
+
+        @example https://fiddle.skia.org/c/@Paint_041
     */
     void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace);
 
@@ -286,6 +334,8 @@ public:
         @param r  amount of red, from no red (0) to full red (255)
         @param g  amount of green, from no green (0) to full green (255)
         @param b  amount of blue, from no blue (0) to full blue (255)
+
+        @example https://fiddle.skia.org/c/@Paint_044
     */
     void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
@@ -293,6 +343,8 @@ public:
         outline the shape.
 
         @return  zero for hairline, greater than zero for pen thickness
+
+        @example https://fiddle.skia.org/c/@Paint_048
     */
     SkScalar getStrokeWidth() const { return fWidth; }
 
@@ -301,12 +353,18 @@ public:
         Has no effect if width is less than zero.
 
         @param width  zero thickness for hairline; greater than zero for pen thickness
+
+        @example https://fiddle.skia.org/c/@Paint_049
+
+        @example https://fiddle.skia.org/c/@Paint_050
     */
     void setStrokeWidth(SkScalar width);
 
     /** Returns the limit at which a sharp corner is drawn beveled.
 
         @return  zero and greater miter limit
+
+        @example https://fiddle.skia.org/c/@Paint_051
     */
     SkScalar getStrokeMiter() const { return fMiterLimit; }
 
@@ -315,6 +373,8 @@ public:
         Has no effect if miter is less than zero.
 
         @param miter  zero and greater miter limit
+
+        @example https://fiddle.skia.org/c/@Paint_052
     */
     void setStrokeMiter(SkScalar miter);
 
@@ -361,6 +421,8 @@ public:
     /** Returns the geometry drawn at the beginning and end of strokes.
 
         @return  one of: kButt_Cap, kRound_Cap, kSquare_Cap
+
+        @example https://fiddle.skia.org/c/@Paint_054
     */
     Cap getStrokeCap() const { return (Cap)fBitfields.fCapType; }
 
@@ -368,12 +430,18 @@ public:
 
         @param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
                     has no effect if cap is not valid
+
+        @example https://fiddle.skia.org/c/@Paint_055
+
+        @example https://fiddle.skia.org/c/@Paint_056
     */
     void setStrokeCap(Cap cap);
 
     /** Returns the geometry drawn at the corners of strokes.
 
         @return  one of: kMiter_Join, kRound_Join, kBevel_Join
+
+        @example https://fiddle.skia.org/c/@Paint_058
     */
     Join getStrokeJoin() const { return (Join)fBitfields.fJoinType; }
 
@@ -381,6 +449,8 @@ public:
 
         @param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
                      otherwise, has no effect
+
+        @example https://fiddle.skia.org/c/@Paint_059
     */
     void setStrokeJoin(Join join);
 
@@ -404,6 +474,12 @@ public:
         @param src  SkPath read to create a filled version
         @param dst  resulting SkPath dst may be the same as src, but may not be nullptr
         @return     true if the path represents style fill, or false if it represents hairline
+
+        @example https://fiddle.skia.org/c/@Paint_061
+
+        @example https://fiddle.skia.org/c/@Paint_062
+
+        @example https://fiddle.skia.org/c/@Paint_063
     */
     bool getFillPath(const SkPath& src, SkPath* dst) const {
         return this->getFillPath(src, dst, nullptr, 1);
@@ -414,6 +490,8 @@ public:
         Does not alter SkShader SkRefCnt.
 
         @return  SkShader if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_064
     */
     SkShader* getShader() const { return fShader.get(); }
 
@@ -422,6 +500,8 @@ public:
         Increases SkShader SkRefCnt by one.
 
         @return  SkShader if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_065
     */
     sk_sp<SkShader> refShader() const;
 
@@ -431,6 +511,10 @@ public:
         Increments shader SkRefCnt by one.
 
         @param shader  how geometry is filled with color; if nullptr, color is used instead
+
+        @example https://fiddle.skia.org/c/@Paint_066
+
+        @example https://fiddle.skia.org/c/@Paint_067
     */
     void setShader(sk_sp<SkShader> shader);
 
@@ -438,6 +522,8 @@ public:
         Does not alter SkColorFilter SkRefCnt.
 
         @return  SkColorFilter if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_068
     */
     SkColorFilter* getColorFilter() const { return fColorFilter.get(); }
 
@@ -445,6 +531,8 @@ public:
         Increases SkColorFilter SkRefCnt by one.
 
         @return  SkColorFilter if set, or nullptr
+
+        @example https://fiddle.skia.org/c/@Paint_069
     */
     sk_sp<SkColorFilter> refColorFilter() const;
 
@@ -454,6 +542,10 @@ public:
         Increments filter SkRefCnt by one.
 
         @param colorFilter  SkColorFilter to apply to subsequent draw
+
+        @example https://fiddle.skia.org/c/@Paint_070
+
+        @example https://fiddle.skia.org/c/@Paint_071
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
@@ -461,12 +553,16 @@ public:
         By default, returns SkBlendMode::kSrcOver.
 
         @return  mode used to combine source color with destination color
+
+        @example https://fiddle.skia.org/c/@Paint_072
     */
     SkBlendMode getBlendMode() const { return (SkBlendMode)fBitfields.fBlendMode; }
 
     /** Returns true if SkBlendMode is SkBlendMode::kSrcOver, the default.
 
         @return  true if SkBlendMode is SkBlendMode::kSrcOver
+
+        @example https://fiddle.skia.org/c/@Paint_074
     */
     bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
 
@@ -474,6 +570,10 @@ public:
         Does not check for valid input.
 
         @param mode  SkBlendMode used to combine source color and destination
+
+        @example https://fiddle.skia.org/c/@Paint_074
+
+        @example https://fiddle.skia.org/c/@Paint_075
     */
     void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
 
@@ -481,6 +581,8 @@ public:
         Does not alter SkPathEffect SkRefCnt.
 
         @return  SkPathEffect if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_076
     */
     SkPathEffect* getPathEffect() const { return fPathEffect.get(); }
 
@@ -488,6 +590,8 @@ public:
         Increases SkPathEffect SkRefCnt by one.
 
         @return  SkPathEffect if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_077
     */
     sk_sp<SkPathEffect> refPathEffect() const;
 
@@ -497,6 +601,10 @@ public:
         Increments pathEffect SkRefCnt by one.
 
         @param pathEffect  replace SkPath with a modification when drawn
+
+        @example https://fiddle.skia.org/c/@Paint_078
+
+        @example https://fiddle.skia.org/c/@Paint_079
     */
     void setPathEffect(sk_sp<SkPathEffect> pathEffect);
 
@@ -504,6 +612,8 @@ public:
         Does not alter SkMaskFilter SkRefCnt.
 
         @return  SkMaskFilter if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_080
     */
     SkMaskFilter* getMaskFilter() const { return fMaskFilter.get(); }
 
@@ -512,6 +622,8 @@ public:
         Increases SkMaskFilter SkRefCnt by one.
 
         @return  SkMaskFilter if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_081
     */
     sk_sp<SkMaskFilter> refMaskFilter() const;
 
@@ -522,6 +634,10 @@ public:
         Increments maskFilter SkRefCnt by one.
 
         @param maskFilter  modifies clipping mask generated from drawn geometry
+
+        @example https://fiddle.skia.org/c/@Paint_082
+
+        @example https://fiddle.skia.org/c/@Paint_083
     */
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
@@ -529,6 +645,8 @@ public:
         Does not alter SkImageFilter SkRefCnt.
 
         @return  SkImageFilter if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_088
     */
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
 
@@ -536,6 +654,8 @@ public:
         Increases SkImageFilter SkRefCnt by one.
 
         @return  SkImageFilter if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_089
     */
     sk_sp<SkImageFilter> refImageFilter() const;
 
@@ -546,6 +666,10 @@ public:
         Increments imageFilter SkRefCnt by one.
 
         @param imageFilter  how SkImage is sampled when transformed
+
+        @example https://fiddle.skia.org/c/@Paint_090
+
+        @example https://fiddle.skia.org/c/@Paint_091
     */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
@@ -553,6 +677,8 @@ public:
         Does not alter SkDrawLooper SkRefCnt.
 
         @return  SkDrawLooper if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_092
     */
     SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
 
@@ -560,6 +686,8 @@ public:
         Increases SkDrawLooper SkRefCnt by one.
 
         @return  SkDrawLooper if previously set, nullptr otherwise
+
+        @example https://fiddle.skia.org/c/@Paint_093
     */
     sk_sp<SkDrawLooper> refDrawLooper() const;
 
@@ -575,6 +703,10 @@ public:
         Increments drawLooper SkRefCnt by one.
 
         @param drawLooper  iterates through drawing one or more time, altering SkPaint
+
+        @example https://fiddle.skia.org/c/@Paint_094
+
+        @example https://fiddle.skia.org/c/@Paint_095
     */
     void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
 
@@ -590,6 +722,8 @@ public:
         new alpha of zero.
 
         @return  true if SkPaint prevents all drawing
+
+        @example https://fiddle.skia.org/c/@Paint_117
     */
     bool nothingToDraw() const;
 
