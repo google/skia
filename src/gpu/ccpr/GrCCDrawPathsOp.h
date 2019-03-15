@@ -35,7 +35,8 @@ public:
 
     const char* name() const override { return "GrCCDrawPathsOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType,
+                                      GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn, VisitorType) const override {
         fProcessors.visitProxies(fn);
@@ -92,7 +93,7 @@ private:
 
         // See the corresponding methods in GrCCDrawPathsOp.
         GrProcessorSet::Analysis finalize(
-                const GrCaps&, const GrAppliedClip*, GrFSAAType, GrProcessorSet*);
+                const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType, GrProcessorSet*);
         void accountForOwnPath(GrCCPathCache*, GrOnFlushResourceProvider*,
                                GrCCPerFlushResourceSpecs*);
         void setupResources(GrCCPathCache*, GrOnFlushResourceProvider*, GrCCPerFlushResources*,
