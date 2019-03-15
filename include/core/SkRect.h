@@ -518,6 +518,8 @@ struct SK_API SkIRect {
      Has no effect if r is empty. Otherwise, if SkIRect is empty, sets SkIRect to r.
 
      @param r  expansion SkIRect
+
+        example: https://fiddle.skia.org/c/@IRect_join_2
      */
     void join(const SkIRect& r);
 
@@ -820,6 +822,8 @@ struct SK_API SkRect {
         TODO: Consider adding parameter to control whether quad is clockwise or counterclockwise.
 
         @param quad  storage for corners of SkRect
+
+        example: https://fiddle.skia.org/c/@Rect_toQuad
     */
     void toQuad(SkPoint quad[4]) const;
 
@@ -882,6 +886,8 @@ struct SK_API SkRect {
         @param pts    SkPoint array
         @param count  entries in array
         @return       true if all SkPoint values are finite
+
+        example: https://fiddle.skia.org/c/@Rect_setBoundsCheck
     */
     bool setBoundsCheck(const SkPoint pts[], int count);
 
@@ -890,6 +896,8 @@ struct SK_API SkRect {
 
         @param pts    SkPoint array
         @param count  entries in array
+
+        example: https://fiddle.skia.org/c/@Rect_setBoundsNoCheck
     */
     void setBoundsNoCheck(const SkPoint pts[], int count);
 
@@ -1062,6 +1070,8 @@ struct SK_API SkRect {
 
         @param r  limit of result
         @return   true if r and SkRect have area in common
+
+        example: https://fiddle.skia.org/c/@Rect_intersect
     */
     bool intersect(const SkRect& r);
 
@@ -1118,6 +1128,8 @@ public:
         SkRect to r.
 
         @param r  expansion SkRect
+
+        example: https://fiddle.skia.org/c/@Rect_join_2
     */
     void join(const SkRect& r);
 
@@ -1306,6 +1318,8 @@ public:
         generate exact binary representations of floating point numbers.
 
         @param asHex  true if SkScalar values are written as hexadecimal
+
+        example: https://fiddle.skia.org/c/@Rect_dump
     */
     void dump(bool asHex) const;
 
