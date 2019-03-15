@@ -10,9 +10,9 @@
 #include "GrContext.h"
 #include "GrContextOptions.h"
 
-#import <Metal/Metal.h>
-
 #ifdef SK_METAL
+
+#import <Metal/Metal.h>
 
 // Helper macros for autorelease pools
 #define SK_BEGIN_AUTORELEASE_BLOCK @autoreleasepool {
@@ -112,21 +112,27 @@ private:
 GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
 #endif
 
-class MtlTestContext : public sk_gpu_test::TestContext {
+class MtlTestContextImpl : public sk_gpu_test::MtlTestContext {
 public:
-    static MtlTestContext* Create(TestContext* sharedContext) {
-        SK_BEGIN_AUTORELEASE_BLOCK
-        SkASSERT(!sharedContext);
-        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-        id<MTLCommandQueue> queue = [device newCommandQueue];
+    static MtlTestContext* Create(MtlTestContext* sharedContext) {
+        GrMtlBackendContext backendContext;
+        bool ownsContext = true;
+        if (sharedContext) {
+            backendContext = sharedContext->getMtlBackendContext();
+            ownsContext = false;
+        } else {
+            SK_BEGIN_AUTORELEASE_BLOCK
+            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+            id<MTLCommandQueue> queue = [device newCommandQueue];
+            backendContext.fDevice = (__bridge_retained void*)device;
+            backendContext.fQueue = (__bridge_retained void*)queue;
+            SK_END_AUTORELEASE_BLOCK
+        }
 
-        return new MtlTestContext(device, queue);
-        SK_END_AUTORELEASE_BLOCK
+        return new MtlTestContextImpl(backendContext, ownsContext);
     }
 
-    ~MtlTestContext() override { this->teardown(); }
-
-    GrBackendApi backend() override { return GrBackendApi::kMetal; }
+    ~MtlTestContextImpl() override { this->teardown(); }
 
     void testAbandon() override {}
 
@@ -136,14 +142,24 @@ public:
     void finish() override {}
 
     sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeMetal((__bridge_retained void*)fDevice,
-                                    (__bridge_retained void*)fQueue,
-                                    options);
+        return GrContext::MakeMetal(fMtl.fDevice, fMtl.fQueue, options);
+    }
+
+protected:
+    void teardown() override {
+        INHERITED::teardown();
+        if (fOwnsContext) {
+            // transfer object back to Objective-C so it gets released
+            id<MTLDevice> device __attribute__((unused)) =
+                    (__bridge_transfer id<MTLDevice>)fMtl.fDevice;
+            id<MTLCommandQueue> queue __attribute__((unused)) =
+                    (__bridge_transfer id<MTLCommandQueue>)fMtl.fQueue;
+        }
     }
 
 private:
-    MtlTestContext(id<MTLDevice> device, id<MTLCommandQueue> queue)
-            : fDevice(device), fQueue(queue) {
+    MtlTestContextImpl(const GrMtlBackendContext& backendContext, bool ownsContext)
+            : INHERITED(backendContext, ownsContext) {
         fFenceSync.reset(nullptr);
     }
 
@@ -151,19 +167,17 @@ private:
     std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
     void onPlatformSwapBuffers() const override {}
 
-    id<MTLDevice> fDevice;
-    id<MTLCommandQueue>  fQueue;
-
-    typedef sk_gpu_test::TestContext INHERITED;
+    typedef sk_gpu_test::MtlTestContext INHERITED;
 };
 
 }  // anonymous namespace
 
 namespace sk_gpu_test {
 
-TestContext* CreatePlatformMtlTestContext(TestContext* sharedContext) {
-    return MtlTestContext::Create(sharedContext);
+MtlTestContext* CreatePlatformMtlTestContext(MtlTestContext* sharedContext) {
+    return MtlTestContextImpl::Create(sharedContext);
 }
+
 }  // namespace sk_gpu_test
 
 

@@ -138,9 +138,21 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
 static const int CONTROL_ARRAY_SIZE = DEV_W * DEV_H;
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGBA4444TextureTest, reporter, ctxInfo) {
+#ifdef SK_BUILD_FOR_MAC
+    // Metal on Mac doesn't support 4444
+    if (sk_gpu_test::GrContextFactory::kMetal_ContextType == ctxInfo.type()) {
+        return;
+    }
+#endif
     run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, kARGB_4444_SkColorType);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RGB565TextureTest, reporter, ctxInfo) {
+#ifdef SK_BUILD_FOR_MAC
+    // Metal on Mac doesn't support 565
+    if (sk_gpu_test::GrContextFactory::kMetal_ContextType == ctxInfo.type()) {
+        return;
+    }
+#endif
     run_test(reporter, ctxInfo.grContext(), CONTROL_ARRAY_SIZE, kRGB_565_SkColorType);
 }
