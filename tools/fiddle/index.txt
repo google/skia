@@ -1,0 +1,1134 @@
+
+This file contains pointers from where these documumentation examples
+(fiddlke.skia.org/c/@Pixmap_000) should be inserted into the headers (in the
+comment block above SkPixmap::SkPixmap())
+
+###########################################################################
+
+@example https://fiddle.skia.org/c/@Pixmap_000 	SkPixmap()
+@example https://fiddle.skia.org/c/@Pixmap_001 	SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)
+@example https://fiddle.skia.org/c/@Pixmap_002 	void reset()
+@example https://fiddle.skia.org/c/@Pixmap_003 	void reset(const SkImageInfo& info, const void* addr, size_t rowBytes)
+@example https://fiddle.skia.org/c/@Pixmap_004 	void setColorSpace(sk_sp<SkColorSpace> colorSpace)
+@example https://fiddle.skia.org/c/@Pixmap_005 	bool extractSubset(SkPixmap* subset, const SkIRect& area) const
+@example https://fiddle.skia.org/c/@Pixmap_006 	const SkImageInfo& info() const
+@example https://fiddle.skia.org/c/@Pixmap_007 	size_t rowBytes() const
+@example https://fiddle.skia.org/c/@Pixmap_008 	const void* addr() const
+@example https://fiddle.skia.org/c/@Pixmap_009 	int width() const
+@example https://fiddle.skia.org/c/@Pixmap_010 	int height() const
+@example https://fiddle.skia.org/c/@Pixmap_011 	SkColorType colorType() const
+@example https://fiddle.skia.org/c/@Pixmap_012 	SkAlphaType alphaType() const
+@example https://fiddle.skia.org/c/@Pixmap_013 	SkColorSpace* colorSpace() const
+@example https://fiddle.skia.org/c/@Pixmap_014 	bool isOpaque() const
+@example https://fiddle.skia.org/c/@Pixmap_015 	SkIRect bounds() const
+@example https://fiddle.skia.org/c/@Pixmap_016 	int rowBytesAsPixels() const
+@example https://fiddle.skia.org/c/@Pixmap_017 	int shiftPerPixel() const
+@example https://fiddle.skia.org/c/@Pixmap_018 	size_t computeByteSize() const
+@example https://fiddle.skia.org/c/@Pixmap_019 	bool computeIsOpaque() const
+@example https://fiddle.skia.org/c/@Pixmap_020 	SkColor getColor(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_021 	const void* addr(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_022 	const uint8_t* addr8() const
+@example https://fiddle.skia.org/c/@Pixmap_023 	const uint16_t* addr16() const
+@example https://fiddle.skia.org/c/@Pixmap_024 	const uint32_t* addr32() const
+@example https://fiddle.skia.org/c/@Pixmap_025 	const uint64_t* addr64() const
+@example https://fiddle.skia.org/c/@Pixmap_026 	const uint16_t* addrF16() const
+@example https://fiddle.skia.org/c/@Pixmap_027 	const uint8_t* addr8(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_028 	const uint16_t* addr16(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_029 	const uint32_t* addr32(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_030 	const uint64_t* addr64(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_031 	const uint16_t* addrF16(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_032 	void* writable_addr() const
+@example https://fiddle.skia.org/c/@Pixmap_033 	void* writable_addr(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_034 	uint8_t* writable_addr8(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_035 	uint16_t* writable_addr16(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_036 	uint32_t* writable_addr32(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_037 	uint64_t* writable_addr64(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_038 	uint16_t* writable_addrF16(int x, int y) const
+@example https://fiddle.skia.org/c/@Pixmap_039 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const
+@example https://fiddle.skia.org/c/@Pixmap_040 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) const
+@example https://fiddle.skia.org/c/@Pixmap_041 	bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
+@example https://fiddle.skia.org/c/@Pixmap_042 	bool readPixels(const SkPixmap& dst) const
+@example https://fiddle.skia.org/c/@Pixmap_043 	bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const
+@example https://fiddle.skia.org/c/@Pixmap_044 	bool erase(SkColor color, const SkIRect& subset) const
+@example https://fiddle.skia.org/c/@Pixmap_045 	bool erase(SkColor color) const
+@example https://fiddle.skia.org/c/@Pixmap_046 	bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const
+@example https://fiddle.skia.org/c/@Rect_000 	static constexpr SkRect MakeEmpty()
+@example https://fiddle.skia.org/c/@Rect_001 	static constexpr SkRect MakeWH(SkScalar w, SkScalar h)
+@example https://fiddle.skia.org/c/@Rect_002 	static SkRect MakeIWH(int w, int h)
+@example https://fiddle.skia.org/c/@Rect_003 	static constexpr SkRect MakeSize(const SkSize& size)
+@example https://fiddle.skia.org/c/@Rect_004 	static constexpr SkRect MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b)
+@example https://fiddle.skia.org/c/@Rect_005 	static constexpr SkRect MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
+@example https://fiddle.skia.org/c/@Rect_006 	static SkRect Make(const SkISize& size)
+@example https://fiddle.skia.org/c/@Rect_007 	static SkRect Make(const SkIRect& irect)
+@example https://fiddle.skia.org/c/@Rect_008 	bool isEmpty() const
+@example https://fiddle.skia.org/c/@Rect_009 	bool isSorted() const
+@example https://fiddle.skia.org/c/@Rect_010 	bool isFinite() const
+@example https://fiddle.skia.org/c/@Rect_011 	SkScalar    x() const
+@example https://fiddle.skia.org/c/@Rect_012 	SkScalar    y() const
+@example https://fiddle.skia.org/c/@Rect_013 	SkScalar    left() const
+@example https://fiddle.skia.org/c/@Rect_014 	SkScalar    top() const
+@example https://fiddle.skia.org/c/@Rect_015 	SkScalar    right() const
+@example https://fiddle.skia.org/c/@Rect_016 	SkScalar    bottom() const
+@example https://fiddle.skia.org/c/@Rect_017 	SkScalar    width() const
+@example https://fiddle.skia.org/c/@Rect_018 	SkScalar    height() const
+@example https://fiddle.skia.org/c/@Rect_019 	SkScalar    centerX() const
+@example https://fiddle.skia.org/c/@Rect_020 	SkScalar    centerY() const
+@example https://fiddle.skia.org/c/@Rect_021 	bool operator==(const SkRect& a, const SkRect& b)
+@example https://fiddle.skia.org/c/@Rect_022 	bool operator!=(const SkRect& a, const SkRect& b)
+@example https://fiddle.skia.org/c/@Rect_023 	void toQuad(SkPoint quad[4]) const
+@example https://fiddle.skia.org/c/@Rect_024 	void setBounds(const SkPoint pts[], int count)
+@example https://fiddle.skia.org/c/@Rect_025 	bool setBoundsCheck(const SkPoint pts[], int count)
+@example https://fiddle.skia.org/c/@Rect_026 	void setBoundsNoCheck(const SkPoint pts[], int count)
+@example https://fiddle.skia.org/c/@Rect_027 	void setEmpty()
+@example https://fiddle.skia.org/c/@Rect_028 	void set(const SkIRect& src)
+@example https://fiddle.skia.org/c/@Rect_029 	void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+@example https://fiddle.skia.org/c/@Rect_030 	void setLTRB(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+@example https://fiddle.skia.org/c/@Rect_031 	void set(const SkPoint pts[], int count)
+@example https://fiddle.skia.org/c/@Rect_032 	void set(const SkPoint& p0, const SkPoint& p1)
+@example https://fiddle.skia.org/c/@Rect_033 	void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height)
+@example https://fiddle.skia.org/c/@Rect_034 	void setWH(SkScalar width, SkScalar height)
+@example https://fiddle.skia.org/c/@Rect_035 	void iset(int left, int top, int right, int bottom)
+@example https://fiddle.skia.org/c/@Rect_036 	void isetWH(int width, int height)
+@example https://fiddle.skia.org/c/@Rect_037 	SkRect makeOffset(SkScalar dx, SkScalar dy) const
+@example https://fiddle.skia.org/c/@Rect_038 	SkRect makeInset(SkScalar dx, SkScalar dy) const
+@example https://fiddle.skia.org/c/@Rect_039 	SkRect makeOutset(SkScalar dx, SkScalar dy) const
+@example https://fiddle.skia.org/c/@Rect_040 	void offset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Rect_041 	void offset(const SkPoint& delta)
+@example https://fiddle.skia.org/c/@Rect_042 	void offsetTo(SkScalar newX, SkScalar newY)
+@example https://fiddle.skia.org/c/@Rect_043 	void inset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Rect_044 	void outset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Rect_045 	bool contains(SkScalar x, SkScalar y) const
+@example https://fiddle.skia.org/c/@Rect_046 	bool contains(const SkRect& r) const
+@example https://fiddle.skia.org/c/@Rect_047 	bool contains(const SkIRect& r) const
+@example https://fiddle.skia.org/c/@Rect_048 	bool intersect(const SkRect& r)
+@example https://fiddle.skia.org/c/@Rect_049 	bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+@example https://fiddle.skia.org/c/@Rect_050 	bool intersect(const SkRect& a, const SkRect& b)
+@example https://fiddle.skia.org/c/@Rect_051 	bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const
+@example https://fiddle.skia.org/c/@Rect_052 	bool intersects(const SkRect& r) const
+@example https://fiddle.skia.org/c/@Rect_053 	static bool Intersects(const SkRect& a, const SkRect& b)
+@example https://fiddle.skia.org/c/@Rect_054 	void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+@example https://fiddle.skia.org/c/@Rect_055 	void join(const SkRect& r)
+@example https://fiddle.skia.org/c/@Rect_056 	void joinNonEmptyArg(const SkRect& r)
+@example https://fiddle.skia.org/c/@Rect_057 	void joinPossiblyEmptyRect(const SkRect& r)
+@example https://fiddle.skia.org/c/@Rect_058 	void round(SkIRect* dst) const
+@example https://fiddle.skia.org/c/@Rect_059 	void roundOut(SkIRect* dst) const
+@example https://fiddle.skia.org/c/@Rect_060 	void roundOut(SkRect* dst) const
+@example https://fiddle.skia.org/c/@Rect_061 	void roundIn(SkIRect* dst) const
+@example https://fiddle.skia.org/c/@Rect_062 	SkIRect round() const
+@example https://fiddle.skia.org/c/@Rect_063 	SkIRect roundOut() const
+@example https://fiddle.skia.org/c/@Rect_064 	void sort()
+@example https://fiddle.skia.org/c/@Rect_065 	SkRect makeSorted() const
+@example https://fiddle.skia.org/c/@Rect_066 	const SkScalar* asScalars() const
+@example https://fiddle.skia.org/c/@Rect_067 	void dump(bool asHex) const
+@example https://fiddle.skia.org/c/@Rect_068 	void dump() const
+@example https://fiddle.skia.org/c/@Rect_069 	void dumpHex() const
+@example https://fiddle.skia.org/c/@ImageInfo_000 	enum SkAlphaType {
+@example https://fiddle.skia.org/c/@ImageInfo_001 	stored color = original color * alpha / max alpha
+@example https://fiddle.skia.org/c/@ImageInfo_002 	stored color = original color * alpha / max alpha
+@example https://fiddle.skia.org/c/@ImageInfo_003 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_004 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_005 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_006 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_007 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_008 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_009 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_010 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_011 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_012 	enum SkColorType {
+@example https://fiddle.skia.org/c/@ImageInfo_013 	int SkColorTypeBytesPerPixel(SkColorType ct)
+@example https://fiddle.skia.org/c/@ImageInfo_014 	bool SkColorTypeIsAlwaysOpaque(SkColorType ct)
+@example https://fiddle.skia.org/c/@ImageInfo_015 	bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
+@example https://fiddle.skia.org/c/@ImageInfo_016 	SkImageInfo()
+@example https://fiddle.skia.org/c/@ImageInfo_017 	static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
+@example https://fiddle.skia.org/c/@ImageInfo_018 	static SkImageInfo MakeN32(int width, int height, SkAlphaType at, sk_sp<SkColorSpace> cs = nullptr)
+@example https://fiddle.skia.org/c/@ImageInfo_019 	static SkImageInfo MakeS32(int width, int height, SkAlphaType at)
+@example https://fiddle.skia.org/c/@ImageInfo_020 	static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
+@example https://fiddle.skia.org/c/@ImageInfo_021 	static SkImageInfo MakeN32Premul(const SkISize& size)
+@example https://fiddle.skia.org/c/@ImageInfo_022 	static SkImageInfo MakeA8(int width, int height)
+@example https://fiddle.skia.org/c/@ImageInfo_023 	static SkImageInfo MakeUnknown(int width, int height)
+@example https://fiddle.skia.org/c/@ImageInfo_024 	static SkImageInfo MakeUnknown()
+@example https://fiddle.skia.org/c/@ImageInfo_025 	int width() const
+@example https://fiddle.skia.org/c/@ImageInfo_026 	int height() const
+@example https://fiddle.skia.org/c/@ImageInfo_027 	SkColorType colorType() const
+@example https://fiddle.skia.org/c/@ImageInfo_028 	SkAlphaType alphaType() const
+@example https://fiddle.skia.org/c/@ImageInfo_029 	SkColorSpace* colorSpace() const
+@example https://fiddle.skia.org/c/@ImageInfo_030 	sk_sp<SkColorSpace> refColorSpace() const
+@example https://fiddle.skia.org/c/@ImageInfo_031 	bool isEmpty() const
+@example https://fiddle.skia.org/c/@ImageInfo_032 	bool isOpaque() const
+@example https://fiddle.skia.org/c/@ImageInfo_033 	SkISize dimensions() const
+@example https://fiddle.skia.org/c/@ImageInfo_034 	SkIRect bounds() const
+@example https://fiddle.skia.org/c/@ImageInfo_035 	bool gammaCloseToSRGB() const
+@example https://fiddle.skia.org/c/@ImageInfo_036 	SkImageInfo makeWH(int newWidth, int newHeight) const
+@example https://fiddle.skia.org/c/@ImageInfo_037 	SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const
+@example https://fiddle.skia.org/c/@ImageInfo_038 	SkImageInfo makeColorType(SkColorType newColorType) const
+@example https://fiddle.skia.org/c/@ImageInfo_039 	SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
+@example https://fiddle.skia.org/c/@ImageInfo_040 	int bytesPerPixel() const
+@example https://fiddle.skia.org/c/@ImageInfo_041 	int shiftPerPixel() const
+@example https://fiddle.skia.org/c/@ImageInfo_042 	uint64_t minRowBytes64() const
+@example https://fiddle.skia.org/c/@ImageInfo_043 	size_t minRowBytes() const
+@example https://fiddle.skia.org/c/@ImageInfo_044 	size_t computeOffset(int x, int y, size_t rowBytes) const
+@example https://fiddle.skia.org/c/@ImageInfo_045 	bool operator==(const SkImageInfo& other) const
+@example https://fiddle.skia.org/c/@ImageInfo_046 	bool operator!=(const SkImageInfo& other) const
+@example https://fiddle.skia.org/c/@ImageInfo_047 	size_t computeByteSize(size_t rowBytes) const
+@example https://fiddle.skia.org/c/@ImageInfo_048 	size_t computeMinByteSize() const
+@example https://fiddle.skia.org/c/@ImageInfo_049 	static bool ByteSizeOverflowed(size_t byteSize)
+@example https://fiddle.skia.org/c/@ImageInfo_050 	bool validRowBytes(size_t rowBytes) const
+@example https://fiddle.skia.org/c/@ImageInfo_051 	void reset()
+@example https://fiddle.skia.org/c/@Bitmap_000 	bool allocPixelRef(SkBitmap* bitmap) override
+@example https://fiddle.skia.org/c/@Bitmap_001 	SkBitmap()
+@example https://fiddle.skia.org/c/@Bitmap_002 	SkBitmap(const SkBitmap& src)
+@example https://fiddle.skia.org/c/@Bitmap_003 	SkBitmap(SkBitmap&& src)
+@example https://fiddle.skia.org/c/@Bitmap_004 	SkBitmap& operator=(const SkBitmap& src)
+@example https://fiddle.skia.org/c/@Bitmap_005 	SkBitmap& operator=(SkBitmap&& src)
+@example https://fiddle.skia.org/c/@Bitmap_006 	void swap(SkBitmap& other)
+@example https://fiddle.skia.org/c/@Bitmap_007 	const SkPixmap& pixmap() const
+@example https://fiddle.skia.org/c/@Bitmap_008 	const SkImageInfo& info() const
+@example https://fiddle.skia.org/c/@Bitmap_009 	int width() const
+@example https://fiddle.skia.org/c/@Bitmap_010 	int height() const
+@example https://fiddle.skia.org/c/@Bitmap_011 	SkColorType colorType() const
+@example https://fiddle.skia.org/c/@Pixmap_012 	SkAlphaType alphaType() const
+@example https://fiddle.skia.org/c/@Bitmap_013 	SkColorSpace* colorSpace() const
+@example https://fiddle.skia.org/c/@Bitmap_014 	sk_sp<SkColorSpace> refColorSpace() const
+@example https://fiddle.skia.org/c/@Bitmap_015 	int bytesPerPixel() const
+@example https://fiddle.skia.org/c/@Bitmap_016 	int rowBytesAsPixels() const
+@example https://fiddle.skia.org/c/@Bitmap_017 	int shiftPerPixel() const
+@example https://fiddle.skia.org/c/@Bitmap_018 	bool empty() const
+@example https://fiddle.skia.org/c/@Bitmap_019 	bool isNull() const
+@example https://fiddle.skia.org/c/@Bitmap_020 	bool drawsNothing() const
+@example https://fiddle.skia.org/c/@Bitmap_021 	size_t rowBytes() const
+@example https://fiddle.skia.org/c/@Bitmap_022 	bool setAlphaType(SkAlphaType alphaType)
+@example https://fiddle.skia.org/c/@Bitmap_023 	void* getPixels() const
+@example https://fiddle.skia.org/c/@Bitmap_024 	size_t computeByteSize() const
+@example https://fiddle.skia.org/c/@Bitmap_025 	bool isImmutable() const
+@example https://fiddle.skia.org/c/@Bitmap_026 	void setImmutable()
+@example https://fiddle.skia.org/c/@Bitmap_027 	bool isOpaque() const
+@example https://fiddle.skia.org/c/@Bitmap_028 	bool isVolatile() const
+@example https://fiddle.skia.org/c/@Bitmap_029 	void setIsVolatile(bool isVolatile)
+@example https://fiddle.skia.org/c/@Bitmap_030 	void reset()
+@example https://fiddle.skia.org/c/@Bitmap_031 	static bool ComputeIsOpaque(const SkBitmap& bm)
+@example https://fiddle.skia.org/c/@Bitmap_032 	void getBounds(SkRect* bounds) const
+@example https://fiddle.skia.org/c/@Bitmap_033 	void getBounds(SkIRect* bounds) const
+@example https://fiddle.skia.org/c/@Bitmap_034 	SkIRect bounds() const
+@example https://fiddle.skia.org/c/@Bitmap_035 	SkISize dimensions() const
+@example https://fiddle.skia.org/c/@Bitmap_036 	SkIRect getSubset() const
+@example https://fiddle.skia.org/c/@Bitmap_037 	bool setInfo(const SkImageInfo& imageInfo, size_t rowBytes = 0)
+@example https://fiddle.skia.org/c/@Bitmap_038 	bool tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags)
+@example https://fiddle.skia.org/c/@Bitmap_039 	void allocPixelsFlags(const SkImageInfo& info, uint32_t flags)
+@example https://fiddle.skia.org/c/@Bitmap_040 	bool tryAllocPixels(const SkImageInfo& info, size_t rowBytes)
+@example https://fiddle.skia.org/c/@Bitmap_041 	void allocPixels(const SkImageInfo& info, size_t rowBytes)
+@example https://fiddle.skia.org/c/@Bitmap_042 	bool tryAllocPixels(const SkImageInfo& info)
+@example https://fiddle.skia.org/c/@Bitmap_043 	void allocPixels(const SkImageInfo& info)
+@example https://fiddle.skia.org/c/@Bitmap_044 	bool tryAllocN32Pixels(int width, int height, bool isOpaque = false)
+@example https://fiddle.skia.org/c/@Bitmap_045 	void allocN32Pixels(int width, int height, bool isOpaque = false)
+@example https://fiddle.skia.org/c/@Bitmap_046 	bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, void (*releaseProc)
+@example https://fiddle.skia.org/c/@Bitmap_047 	bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes)
+@example https://fiddle.skia.org/c/@Bitmap_048 	bool installPixels(const SkPixmap& pixmap)
+@example https://fiddle.skia.org/c/@Bitmap_049 	void setPixels(void* pixels)
+@example https://fiddle.skia.org/c/@Bitmap_050 	bool tryAllocPixels()
+@example https://fiddle.skia.org/c/@Bitmap_051 	void allocPixels()
+@example https://fiddle.skia.org/c/@Bitmap_052 	bool tryAllocPixels(Allocator* allocator)
+@example https://fiddle.skia.org/c/@Bitmap_053 	void allocPixels(Allocator* allocator)
+@example https://fiddle.skia.org/c/@Bitmap_054 	SkPixelRef* pixelRef() const
+@example https://fiddle.skia.org/c/@Bitmap_055 	SkIPoint pixelRefOrigin() const
+@example https://fiddle.skia.org/c/@Bitmap_056 	void setPixelRef(sk_sp<SkPixelRef> pixelRef, int dx, int dy)
+@example https://fiddle.skia.org/c/@Bitmap_057 	bool readyToDraw() const
+@example https://fiddle.skia.org/c/@Bitmap_058 	uint32_t getGenerationID() const
+@example https://fiddle.skia.org/c/@Bitmap_059 	void notifyPixelsChanged() const
+@example https://fiddle.skia.org/c/@Bitmap_060 	void eraseColor(SkColor c) const
+@example https://fiddle.skia.org/c/@Bitmap_061 	void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const
+@example https://fiddle.skia.org/c/@Bitmap_062 	void erase(SkColor c, const SkIRect& area) const
+@example https://fiddle.skia.org/c/@Bitmap_063 	SkColor getColor(int x, int y) const
+@example https://fiddle.skia.org/c/@Bitmap_064 	void* getAddr(int x, int y) const
+@example https://fiddle.skia.org/c/@Bitmap_065 	uint32_t* getAddr32(int x, int y) const
+@example https://fiddle.skia.org/c/@Bitmap_066 	uint16_t* getAddr16(int x, int y) const
+@example https://fiddle.skia.org/c/@Bitmap_067 	uint8_t* getAddr8(int x, int y) const
+@example https://fiddle.skia.org/c/@Bitmap_068 	bool extractSubset(SkBitmap* dst, const SkIRect& subset) const
+@example https://fiddle.skia.org/c/@Bitmap_069 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) const
+@example https://fiddle.skia.org/c/@Bitmap_070 	bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
+@example https://fiddle.skia.org/c/@Bitmap_071 	bool readPixels(const SkPixmap& dst) const
+@example https://fiddle.skia.org/c/@Bitmap_072 	bool writePixels(const SkPixmap& src, int dstX, int dstY)
+@example https://fiddle.skia.org/c/@Bitmap_073 	bool writePixels(const SkPixmap& src)
+@example https://fiddle.skia.org/c/@Bitmap_074 	bool extractAlpha(SkBitmap* dst) const
+@example https://fiddle.skia.org/c/@Bitmap_075 	bool extractAlpha(SkBitmap* dst, const SkPaint* paint, SkIPoint* offset) const
+@example https://fiddle.skia.org/c/@Bitmap_076 	bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator, SkIPoint* offset) const
+@example https://fiddle.skia.org/c/@Bitmap_077 	bool peekPixels(SkPixmap* pixmap) const
+@example https://fiddle.skia.org/c/@TextBlobBuilder_000 	SkTextBlobBuilder()
+@example https://fiddle.skia.org/c/@TextBlobBuilder_001 	sk_sp<SkTextBlob> make()
+@example https://fiddle.skia.org/c/@TextBlobBuilder_002 	const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
+@example https://fiddle.skia.org/c/@TextBlobBuilder_003 	const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
+@example https://fiddle.skia.org/c/@TextBlobBuilder_004 	const RunBuffer& allocRunPos(const SkFont& font, int count, const SkRect* bounds = nullptr)
+@example https://fiddle.skia.org/c/@BlendMode_000 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_001 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_002 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_003 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_004 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_005 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_006 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_007 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_008 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_009 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_010 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_011 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_012 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_013 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_014 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_015 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_016 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_017 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_018 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_019 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_020 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_021 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_022 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_023 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_024 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_025 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_026 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_027 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_028 	enum class SkBlendMode {
+@example https://fiddle.skia.org/c/@BlendMode_029 	const char* SkBlendMode_Name(SkBlendMode blendMode)
+@example https://fiddle.skia.org/c/@RRect_000 	SkRRect()
+@example https://fiddle.skia.org/c/@RRect_001 	SkRRect(const SkRRect& rrect)
+@example https://fiddle.skia.org/c/@RRect_002 	SkRRect& operator=(const SkRRect& rrect)
+@example https://fiddle.skia.org/c/@RRect_003 	enum Type {
+@example https://fiddle.skia.org/c/@RRect_004 	Type getType() const
+@example https://fiddle.skia.org/c/@RRect_005 	Type type() const
+@example https://fiddle.skia.org/c/@RRect_006 	bool isEmpty() const
+@example https://fiddle.skia.org/c/@RRect_007 	bool isRect() const
+@example https://fiddle.skia.org/c/@RRect_008 	bool isOval() const
+@example https://fiddle.skia.org/c/@RRect_009 	bool isSimple() const
+@example https://fiddle.skia.org/c/@RRect_010 	bool isNinePatch() const
+@example https://fiddle.skia.org/c/@RRect_011 	bool isComplex() const
+@example https://fiddle.skia.org/c/@RRect_012 	SkScalar width() const
+@example https://fiddle.skia.org/c/@RRect_013 	SkScalar height() const
+@example https://fiddle.skia.org/c/@RRect_014 	SkVector getSimpleRadii() const
+@example https://fiddle.skia.org/c/@RRect_015 	void setEmpty()
+@example https://fiddle.skia.org/c/@RRect_016 	void setRect(const SkRect& rect)
+@example https://fiddle.skia.org/c/@RRect_017 	static SkRRect MakeEmpty()
+@example https://fiddle.skia.org/c/@RRect_018 	static SkRRect MakeRect(const SkRect& r)
+@example https://fiddle.skia.org/c/@RRect_019 	static SkRRect MakeOval(const SkRect& oval)
+@example https://fiddle.skia.org/c/@RRect_020 	static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
+@example https://fiddle.skia.org/c/@RRect_021 	void setOval(const SkRect& oval)
+@example https://fiddle.skia.org/c/@RRect_022 	void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad)
+@example https://fiddle.skia.org/c/@RRect_023 	void setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad, SkScalar rightRad,
+@example https://fiddle.skia.org/c/@RRect_024 	void setRectRadii(const SkRect& rect, const SkVector radii[4])
+@example https://fiddle.skia.org/c/@RRect_025 	enum Corner {
+@example https://fiddle.skia.org/c/@RRect_026 	const SkRect& rect() const
+@example https://fiddle.skia.org/c/@RRect_027 	SkVector radii(Corner corner) const
+@example https://fiddle.skia.org/c/@RRect_028 	const SkRect& getBounds() const
+@example https://fiddle.skia.org/c/@RRect_029 	bool operator==(const SkRRect& a, const SkRRect& b)
+@example https://fiddle.skia.org/c/@RRect_030 	bool operator!=(const SkRRect& a, const SkRRect& b)
+@example https://fiddle.skia.org/c/@RRect_031 	void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const
+@example https://fiddle.skia.org/c/@RRect_032 	void inset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@RRect_033 	void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const
+@example https://fiddle.skia.org/c/@RRect_034 	void outset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@RRect_035 	void offset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@RRect_036 	SkRRect makeOffset(SkScalar dx, SkScalar dy) const
+@example https://fiddle.skia.org/c/@RRect_037 	bool contains(const SkRect& rect) const
+@example https://fiddle.skia.org/c/@RRect_038 	bool isValid() const
+@example https://fiddle.skia.org/c/@RRect_039 	size_t writeToMemory(void* buffer) const
+@example https://fiddle.skia.org/c/@RRect_040 	size_t readFromMemory(const void* buffer, size_t length)
+@example https://fiddle.skia.org/c/@RRect_041 	bool transform(const SkMatrix& matrix, SkRRect* dst) const
+@example https://fiddle.skia.org/c/@RRect_042 	void dump(bool asHex) const
+@example https://fiddle.skia.org/c/@RRect_043 	void dump() const
+@example https://fiddle.skia.org/c/@RRect_044 	void dumpHex() const
+@example https://fiddle.skia.org/c/@Point_000 	static constexpr SkPoint Make(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Point_001 	SkScalar x() const
+@example https://fiddle.skia.org/c/@Point_002 	SkScalar y() const
+@example https://fiddle.skia.org/c/@Point_003 	bool isZero() const
+@example https://fiddle.skia.org/c/@Point_004 	void set(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Point_005 	void iset(int32_t x, int32_t y)
+@example https://fiddle.skia.org/c/@Point_006 	void iset(const SkIPoint& p)
+@example https://fiddle.skia.org/c/@Point_007 	void setAbs(const SkPoint& pt)
+@example https://fiddle.skia.org/c/@Point_008 	static void Offset(SkPoint points[], int count, const SkVector& offset)
+@example https://fiddle.skia.org/c/@Point_009 	static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Point_010 	void offset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Point_011 	SkScalar length() const
+@example https://fiddle.skia.org/c/@Point_012 	SkScalar distanceToOrigin() const
+@example https://fiddle.skia.org/c/@Point_013 	bool normalize()
+@example https://fiddle.skia.org/c/@Point_014 	bool setNormalize(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Point_015 	bool setLength(SkScalar length)
+@example https://fiddle.skia.org/c/@Point_016 	bool setLength(SkScalar x, SkScalar y, SkScalar length)
+@example https://fiddle.skia.org/c/@Point_017 	void scale(SkScalar scale, SkPoint* dst) const
+@example https://fiddle.skia.org/c/@Point_018 	void scale(SkScalar value)
+@example https://fiddle.skia.org/c/@Point_019 	void negate()
+@example https://fiddle.skia.org/c/@Point_020 	SkPoint operator-() const
+@example https://fiddle.skia.org/c/@Point_021 	void operator+=(const SkVector& v)
+@example https://fiddle.skia.org/c/@Point_022 	void operator-=(const SkVector& v)
+@example https://fiddle.skia.org/c/@Point_023 	SkPoint operator*(SkScalar scale) const
+@example https://fiddle.skia.org/c/@Point_024 	SkPoint& operator*=(SkScalar scale)
+@example https://fiddle.skia.org/c/@Point_025 	bool isFinite() const
+@example https://fiddle.skia.org/c/@Point_026 	bool equals(SkScalar x, SkScalar y) const
+@example https://fiddle.skia.org/c/@Point_027 	bool operator==(const SkPoint& a, const SkPoint& b)
+@example https://fiddle.skia.org/c/@Point_028 	bool operator!=(const SkPoint& a, const SkPoint& b)
+@example https://fiddle.skia.org/c/@Point_029 	SkVector operator-(const SkPoint& a, const SkPoint& b)
+@example https://fiddle.skia.org/c/@Point_030 	SkPoint operator+(const SkPoint& a, const SkVector& b)
+@example https://fiddle.skia.org/c/@Point_031 	static SkScalar Length(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Point_032 	static SkScalar Normalize(SkVector* vec)
+@example https://fiddle.skia.org/c/@Point_033 	static SkScalar Distance(const SkPoint& a, const SkPoint& b)
+@example https://fiddle.skia.org/c/@Point_034 	static SkScalar DotProduct(const SkVector& a, const SkVector& b)
+@example https://fiddle.skia.org/c/@Point_035 	static SkScalar CrossProduct(const SkVector& a, const SkVector& b)
+@example https://fiddle.skia.org/c/@Point_036 	SkScalar cross(const SkVector& vec) const
+@example https://fiddle.skia.org/c/@Point_037 	SkScalar dot(const SkVector& vec) const
+@example https://fiddle.skia.org/c/@Image_000 	static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap)
+@example https://fiddle.skia.org/c/@Image_001 	static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels, size_t rowBytes)
+@example https://fiddle.skia.org/c/@Image_002 	static sk_sp<SkImage> MakeFromRaster(const SkPixmap& pixmap, RasterReleaseProc rasterReleaseProc,
+@example https://fiddle.skia.org/c/@Image_003 	static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap)
+@example https://fiddle.skia.org/c/@Image_004 	static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
+@example https://fiddle.skia.org/c/@Image_005 	static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr)
+@example https://fiddle.skia.org/c/@Image_006 	static sk_sp<SkImage> MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture,
+@example https://fiddle.skia.org/c/@Image_007 	static sk_sp<SkImage> MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture,
+@example https://fiddle.skia.org/c/@Image_008 	static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data,
+@example https://fiddle.skia.org/c/@Image_009 	static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
+@example https://fiddle.skia.org/c/@Image_010 	static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
+@example https://fiddle.skia.org/c/@Image_011 	static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
+@example https://fiddle.skia.org/c/@Image_012 	int width() const
+@example https://fiddle.skia.org/c/@Image_013 	int height() const
+@example https://fiddle.skia.org/c/@Image_014 	SkISize dimensions() const
+@example https://fiddle.skia.org/c/@Image_015 	SkIRect bounds() const
+@example https://fiddle.skia.org/c/@Image_016 	uint32_t uniqueID() const
+@example https://fiddle.skia.org/c/@Image_017 	SkAlphaType alphaType() const
+@example https://fiddle.skia.org/c/@Image_018 	SkColorType colorType() const
+@example https://fiddle.skia.org/c/@Image_019 	SkColorSpace* colorSpace() const
+@example https://fiddle.skia.org/c/@Image_020 	sk_sp<SkColorSpace> refColorSpace() const
+@example https://fiddle.skia.org/c/@Image_021 	bool isAlphaOnly() const
+@example https://fiddle.skia.org/c/@Image_022 	bool isOpaque() const
+@example https://fiddle.skia.org/c/@Image_023 	sk_sp<SkShader> makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2,
+@example https://fiddle.skia.org/c/@Image_024 	sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const
+@example https://fiddle.skia.org/c/@Image_025 	bool peekPixels(SkPixmap* pixmap) const
+@example https://fiddle.skia.org/c/@Image_026 	bool isTextureBacked() const
+@example https://fiddle.skia.org/c/@Image_027 	bool isValid(GrContext* context) const
+@example https://fiddle.skia.org/c/@Image_028 	GrBackendTexture getBackendTexture(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
+@example https://fiddle.skia.org/c/@Image_029 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY,
+@example https://fiddle.skia.org/c/@Image_030 	bool readPixels(const SkPixmap& dst, int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const
+@example https://fiddle.skia.org/c/@Image_031 	bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
+@example https://fiddle.skia.org/c/@Image_032 	sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const
+@example https://fiddle.skia.org/c/@Image_033 	sk_sp<SkData> encodeToData() const
+@example https://fiddle.skia.org/c/@Image_034 	sk_sp<SkData> refEncodedData() const
+@example https://fiddle.skia.org/c/@Image_035 	sk_sp<SkImage> makeSubset(const SkIRect& subset) const
+@example https://fiddle.skia.org/c/@Image_036 	sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+@example https://fiddle.skia.org/c/@Image_037 	sk_sp<SkImage> makeNonTextureImage() const
+@example https://fiddle.skia.org/c/@Image_038 	sk_sp<SkImage> makeRasterImage() const
+@example https://fiddle.skia.org/c/@Image_039 	sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+@example https://fiddle.skia.org/c/@Image_040 	static bool MakeBackendTextureFromSkImage(GrContext* context, sk_sp<SkImage> image,
+@example https://fiddle.skia.org/c/@Image_041 	bool isLazyGenerated() const
+@example https://fiddle.skia.org/c/@Image_042 	bool isLazyGenerated() const
+@example https://fiddle.skia.org/c/@Image_043 	sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const
+@example https://fiddle.skia.org/c/@AutoCanvasRestore_000 	SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
+@example https://fiddle.skia.org/c/@AutoCanvasRestore_001 	void restore()
+@example https://fiddle.skia.org/c/@Region_000 	Iterator()
+@example https://fiddle.skia.org/c/@Region_001 	Iterator(const SkRegion& region)
+@example https://fiddle.skia.org/c/@Region_002 	bool rewind()
+@example https://fiddle.skia.org/c/@Region_003 	void reset(const SkRegion& region)
+@example https://fiddle.skia.org/c/@Region_004 	bool done() const
+@example https://fiddle.skia.org/c/@Region_005 	void next()
+@example https://fiddle.skia.org/c/@Region_006 	const SkIRect& rect() const
+@example https://fiddle.skia.org/c/@Region_007 	const SkRegion* rgn() const
+@example https://fiddle.skia.org/c/@Region_008 	Cliperator(const SkRegion& region, const SkIRect& clip)
+@example https://fiddle.skia.org/c/@Region_009 	bool done()
+@example https://fiddle.skia.org/c/@Region_010 	void  next()
+@example https://fiddle.skia.org/c/@Region_011 	const SkIRect& rect() const
+@example https://fiddle.skia.org/c/@Region_012 	Spanerator(const SkRegion& region, int y, int left, int right)
+@example https://fiddle.skia.org/c/@Region_013 	bool next(int* left, int* right)
+@example https://fiddle.skia.org/c/@Region_014 	SkRegion()
+@example https://fiddle.skia.org/c/@Region_015 	SkRegion(const SkRegion& region)
+@example https://fiddle.skia.org/c/@Region_016 	explicit SkRegion(const SkIRect& rect)
+@example https://fiddle.skia.org/c/@Region_017 	~SkRegion()
+@example https://fiddle.skia.org/c/@Region_018 	SkRegion& operator=(const SkRegion& region)
+@example https://fiddle.skia.org/c/@Region_019 	bool operator==(const SkRegion& other) const
+@example https://fiddle.skia.org/c/@Region_020 	bool operator!=(const SkRegion& other) const
+@example https://fiddle.skia.org/c/@Region_021 	bool set(const SkRegion& src)
+@example https://fiddle.skia.org/c/@Region_022 	void swap(SkRegion& other)
+@example https://fiddle.skia.org/c/@Region_023 	bool isEmpty() const
+@example https://fiddle.skia.org/c/@Region_024 	bool isRect() const
+@example https://fiddle.skia.org/c/@Region_025 	bool isComplex() const
+@example https://fiddle.skia.org/c/@Region_026 	const SkIRect& getBounds() const
+@example https://fiddle.skia.org/c/@Region_027 	int computeRegionComplexity() const
+@example https://fiddle.skia.org/c/@Region_028 	bool getBoundaryPath(SkPath* path) const
+@example https://fiddle.skia.org/c/@Region_029 	bool setEmpty()
+@example https://fiddle.skia.org/c/@Region_030 	bool setRect(const SkIRect& rect)
+@example https://fiddle.skia.org/c/@Region_031 	bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom)
+@example https://fiddle.skia.org/c/@Region_032 	bool setRects(const SkIRect rects[], int count)
+@example https://fiddle.skia.org/c/@Region_033 	bool setRegion(const SkRegion& region)
+@example https://fiddle.skia.org/c/@Region_034 	bool setPath(const SkPath& path, const SkRegion& clip)
+@example https://fiddle.skia.org/c/@Region_035 	bool intersects(const SkIRect& rect) const
+@example https://fiddle.skia.org/c/@Region_036 	bool intersects(const SkRegion& other) const
+@example https://fiddle.skia.org/c/@Region_037 	bool contains(int32_t x, int32_t y) const
+@example https://fiddle.skia.org/c/@Region_038 	bool contains(const SkIRect& other) const
+@example https://fiddle.skia.org/c/@Region_039 	bool contains(const SkRegion& other) const
+@example https://fiddle.skia.org/c/@Region_040 	bool quickContains(const SkIRect& r) const
+@example https://fiddle.skia.org/c/@Region_041 	bool quickContains(int32_t left, int32_t top, int32_t right, int32_t bottom) const
+@example https://fiddle.skia.org/c/@Region_042 	bool quickReject(const SkIRect& rect) const
+@example https://fiddle.skia.org/c/@Region_043 	bool quickReject(const SkRegion& rgn) const
+@example https://fiddle.skia.org/c/@Region_044 	void translate(int dx, int dy)
+@example https://fiddle.skia.org/c/@Region_045 	void translate(int dx, int dy, SkRegion* dst) const
+@example https://fiddle.skia.org/c/@Region_046 	enum Op {
+@example https://fiddle.skia.org/c/@Region_047 	bool op(const SkIRect& rect, Op op)
+@example https://fiddle.skia.org/c/@Region_048 	bool op(int left, int top, int right, int bottom, Op op)
+@example https://fiddle.skia.org/c/@Region_049 	bool op(const SkRegion& rgn, Op op)
+@example https://fiddle.skia.org/c/@Region_050 	bool op(const SkIRect& rect, const SkRegion& rgn, Op op)
+@example https://fiddle.skia.org/c/@Region_051 	bool op(const SkRegion& rgn, const SkIRect& rect, Op op)
+@example https://fiddle.skia.org/c/@Region_052 	bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op)
+@example https://fiddle.skia.org/c/@Region_053 	size_t writeToMemory(void* buffer) const
+@example https://fiddle.skia.org/c/@Region_054 	size_t readFromMemory(const void* buffer, size_t length)
+@example https://fiddle.skia.org/c/@IPoint_000 	static constexpr SkIPoint Make(int32_t x, int32_t y)
+@example https://fiddle.skia.org/c/@IPoint_001 	int32_t x() const
+@example https://fiddle.skia.org/c/@IPoint_002 	int32_t y() const
+@example https://fiddle.skia.org/c/@IPoint_003 	bool isZero() const
+@example https://fiddle.skia.org/c/@IPoint_004 	void set(int32_t x, int32_t y)
+@example https://fiddle.skia.org/c/@IPoint_005 	SkIPoint operator-() const
+@example https://fiddle.skia.org/c/@IPoint_006 	void operator+=(const SkIVector& v)
+@example https://fiddle.skia.org/c/@IPoint_007 	void operator-=(const SkIVector& v)
+@example https://fiddle.skia.org/c/@IPoint_008 	bool equals(int32_t x, int32_t y) const
+@example https://fiddle.skia.org/c/@IPoint_009 	bool operator==(const SkIPoint& a, const SkIPoint& b)
+@example https://fiddle.skia.org/c/@IPoint_010 	bool operator!=(const SkIPoint& a, const SkIPoint& b)
+@example https://fiddle.skia.org/c/@IPoint_011 	SkIVector operator-(const SkIPoint& a, const SkIPoint& b)
+@example https://fiddle.skia.org/c/@IPoint_012 	SkIPoint operator+(const SkIPoint& a, const SkIVector& b)
+@example https://fiddle.skia.org/c/@Matrix_000 	static SkMatrix MakeScale(SkScalar sx, SkScalar sy)
+@example https://fiddle.skia.org/c/@Matrix_001 	static SkMatrix MakeScale(SkScalar scale)
+@example https://fiddle.skia.org/c/@Matrix_002 	static SkMatrix MakeTrans(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Matrix_003 	static SkMatrix MakeAll(SkScalar scaleX, SkScalar skewX, SkScalar transX, SkScalar skewY,
+@example https://fiddle.skia.org/c/@Matrix_004 	enum TypeMask {
+@example https://fiddle.skia.org/c/@Matrix_005 	TypeMask getType() const
+@example https://fiddle.skia.org/c/@Matrix_006 	bool isIdentity() const
+@example https://fiddle.skia.org/c/@Matrix_007 	bool isScaleTranslate() const
+@example https://fiddle.skia.org/c/@Matrix_008 	bool isTranslate() const
+@example https://fiddle.skia.org/c/@Matrix_009 	bool rectStaysRect() const
+@example https://fiddle.skia.org/c/@Matrix_010 	bool preservesAxisAlignment() const
+@example https://fiddle.skia.org/c/@Matrix_011 	bool hasPerspective() const
+@example https://fiddle.skia.org/c/@Matrix_012 	bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const
+@example https://fiddle.skia.org/c/@Matrix_013 	bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const
+@example https://fiddle.skia.org/c/@Matrix_014 	static constexpr int kMScaleX = 0;
+@example https://fiddle.skia.org/c/@Matrix_015 	SkScalar operator[](int index) const
+@example https://fiddle.skia.org/c/@Matrix_016 	SkScalar get(int index) const
+@example https://fiddle.skia.org/c/@Matrix_017 	SkScalar getScaleX() const
+@example https://fiddle.skia.org/c/@Matrix_018 	SkScalar getScaleY() const
+@example https://fiddle.skia.org/c/@Matrix_019 	SkScalar getSkewY() const
+@example https://fiddle.skia.org/c/@Matrix_020 	SkScalar getSkewX() const
+@example https://fiddle.skia.org/c/@Matrix_021 	SkScalar getTranslateX() const
+@example https://fiddle.skia.org/c/@Matrix_022 	SkScalar getTranslateY() const
+@example https://fiddle.skia.org/c/@Matrix_023 	SkScalar getPerspX() const
+@example https://fiddle.skia.org/c/@Matrix_024 	SkScalar getPerspY() const
+@example https://fiddle.skia.org/c/@Matrix_105 	SkScalar& operator[](int index)
+@example https://fiddle.skia.org/c/@Matrix_026 	void set(int index, SkScalar value)
+@example https://fiddle.skia.org/c/@Matrix_027 	void setScaleX(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_028 	void setScaleY(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_029 	void setSkewY(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_030 	void setSkewX(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_031 	void setTranslateX(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_032 	void setTranslateY(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_033 	void setPerspX(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_034 	void setPerspY(SkScalar v)
+@example https://fiddle.skia.org/c/@Matrix_035 	void setAll(SkScalar scaleX, SkScalar skewX, SkScalar transX, SkScalar skewY, SkScalar scaleY,
+@example https://fiddle.skia.org/c/@Matrix_036 	void get9(SkScalar buffer[9]) const
+@example https://fiddle.skia.org/c/@Matrix_037 	void set9(const SkScalar buffer[9])
+@example https://fiddle.skia.org/c/@Matrix_038 	void reset()
+@example https://fiddle.skia.org/c/@Matrix_039 	void setIdentity()
+@example https://fiddle.skia.org/c/@Matrix_040 	void setTranslate(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Matrix_041 	void setTranslate(const SkVector& v)
+@example https://fiddle.skia.org/c/@Matrix_042 	void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_043 	void setScale(SkScalar sx, SkScalar sy)
+@example https://fiddle.skia.org/c/@Matrix_044 	void setRotate(SkScalar degrees, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_045 	void setRotate(SkScalar degrees)
+@example https://fiddle.skia.org/c/@Matrix_046 	void setSinCos(SkScalar sinValue, SkScalar cosValue, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_047 	void setSinCos(SkScalar sinValue, SkScalar cosValue)
+@example https://fiddle.skia.org/c/@Matrix_048 	SkMatrix& setRSXform(const SkRSXform& rsxForm)
+@example https://fiddle.skia.org/c/@Matrix_049 	void setSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_050 	void setSkew(SkScalar kx, SkScalar ky)
+@example https://fiddle.skia.org/c/@Matrix_051 	void setConcat(const SkMatrix& a, const SkMatrix& b)
+@example https://fiddle.skia.org/c/@Matrix_052 	void preTranslate(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Matrix_053 	void preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_054 	void preScale(SkScalar sx, SkScalar sy)
+@example https://fiddle.skia.org/c/@Matrix_055 	void preRotate(SkScalar degrees, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_056 	void preRotate(SkScalar degrees)
+@example https://fiddle.skia.org/c/@Matrix_057 	void preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_058 	void preSkew(SkScalar kx, SkScalar ky)
+@example https://fiddle.skia.org/c/@Matrix_059 	void preConcat(const SkMatrix& other)
+@example https://fiddle.skia.org/c/@Matrix_060 	void postTranslate(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Matrix_061 	void postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_062 	void postScale(SkScalar sx, SkScalar sy)
+@example https://fiddle.skia.org/c/@Matrix_063 	| sx  0  0 | | J K L |   | sx*J sx*K sx*L |
+@example https://fiddle.skia.org/c/@Matrix_064 	void postRotate(SkScalar degrees, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_065 	void postRotate(SkScalar degrees)
+@example https://fiddle.skia.org/c/@Matrix_066 	void postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Matrix_067 	void postSkew(SkScalar kx, SkScalar ky)
+@example https://fiddle.skia.org/c/@Matrix_068 	void postConcat(const SkMatrix& other)
+@example https://fiddle.skia.org/c/@Matrix_069 	enum ScaleToFit {
+@example https://fiddle.skia.org/c/@Matrix_070 	bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
+@example https://fiddle.skia.org/c/@Matrix_071 	static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
+@example https://fiddle.skia.org/c/@Matrix_072 	bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count)
+@example https://fiddle.skia.org/c/@Matrix_073 	bool invert(SkMatrix* inverse) const
+@example https://fiddle.skia.org/c/@Matrix_074 	static void SetAffineIdentity(SkScalar affine[6])
+@example https://fiddle.skia.org/c/@Matrix_075 	bool asAffine(SkScalar affine[6]) const
+@example https://fiddle.skia.org/c/@Matrix_076 	void setAffine(const SkScalar affine[6])
+@example https://fiddle.skia.org/c/@Matrix_077 	void mapPoints(SkPoint dst[], const SkPoint src[], int count) const
+@example https://fiddle.skia.org/c/@Matrix_078 	void mapPoints(SkPoint pts[], int count) const
+@example https://fiddle.skia.org/c/@Matrix_079 	void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const
+@example https://fiddle.skia.org/c/@Matrix_080 	void mapXY(SkScalar x, SkScalar y, SkPoint* result) const
+@example https://fiddle.skia.org/c/@Matrix_081 	SkPoint mapXY(SkScalar x, SkScalar y) const
+@example https://fiddle.skia.org/c/@Matrix_082 	void mapVectors(SkVector dst[], const SkVector src[], int count) const
+@example https://fiddle.skia.org/c/@Matrix_083 	void mapVectors(SkVector vecs[], int count) const
+@example https://fiddle.skia.org/c/@Matrix_084 	void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const
+@example https://fiddle.skia.org/c/@Matrix_085 	SkVector mapVector(SkScalar dx, SkScalar dy) const
+@example https://fiddle.skia.org/c/@Matrix_086 	bool mapRect(SkRect* dst, const SkRect& src) const
+@example https://fiddle.skia.org/c/@Matrix_087 	bool mapRect(SkRect* rect) const
+@example https://fiddle.skia.org/c/@Matrix_088 	SkRect mapRect(const SkRect& src) const
+@example https://fiddle.skia.org/c/@Matrix_089 	void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const
+@example https://fiddle.skia.org/c/@Matrix_090 	void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const
+@example https://fiddle.skia.org/c/@Matrix_091 	SkScalar mapRadius(SkScalar radius) const
+@example https://fiddle.skia.org/c/@Matrix_092 	bool isFixedStepInX() const
+@example https://fiddle.skia.org/c/@Matrix_093 	SkVector fixedStepInX(SkScalar y) const
+@example https://fiddle.skia.org/c/@Matrix_094 	bool cheapEqualTo(const SkMatrix& m) const
+@example https://fiddle.skia.org/c/@Matrix_095 	bool operator==(const SkMatrix& a, const SkMatrix& b)
+@example https://fiddle.skia.org/c/@Matrix_096 	bool operator!=(const SkMatrix& a, const SkMatrix& b)
+@example https://fiddle.skia.org/c/@Matrix_097 	void dump() const
+@example https://fiddle.skia.org/c/@Matrix_098 	SkScalar getMinScale() const
+@example https://fiddle.skia.org/c/@Matrix_099 	SkScalar getMaxScale() const
+@example https://fiddle.skia.org/c/@Matrix_100 	bool getMinMaxScales(SkScalar scaleFactors[2]) const
+@example https://fiddle.skia.org/c/@Matrix_101 	bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const
+@example https://fiddle.skia.org/c/@Matrix_102 	static const SkMatrix& I()
+@example https://fiddle.skia.org/c/@Matrix_103 	static const SkMatrix& InvalidMatrix()
+@example https://fiddle.skia.org/c/@Matrix_104 	static SkMatrix Concat(const SkMatrix& a, const SkMatrix& b)
+@example https://fiddle.skia.org/c/@Matrix_105 	void dirtyMatrixTypeCache()
+@example https://fiddle.skia.org/c/@Matrix_106 	void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty)
+@example https://fiddle.skia.org/c/@Matrix_107 	bool isFinite() const
+@example https://fiddle.skia.org/c/@Paint_000 	SkPaint()
+@example https://fiddle.skia.org/c/@Paint_001 	SkPaint(const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Paint_002 	SkPaint(SkPaint&& paint)
+@example https://fiddle.skia.org/c/@Paint_003 	void reset()
+@example https://fiddle.skia.org/c/@Paint_004 	SkPaint& operator=(const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Paint_005 	SkPaint& operator=(SkPaint&& paint)
+@example https://fiddle.skia.org/c/@Paint_006 	bool operator==(const SkPaint& a, const SkPaint& b)
+@example https://fiddle.skia.org/c/@Paint_007 	bool operator!=(const SkPaint& a, const SkPaint& b)
+@example https://fiddle.skia.org/c/@Paint_008 	uint32_t getHash() const
+@example https://fiddle.skia.org/c/@Paint_009 	void setHinting(SkFontHinting hintingLevel)
+@example https://fiddle.skia.org/c/@Paint_010 	SkFontHinting getHinting() const
+@example https://fiddle.skia.org/c/@Paint_011 	uint32_t getFlags() const
+@example https://fiddle.skia.org/c/@Paint_012 	void setFlags(uint32_t flags)
+@example https://fiddle.skia.org/c/@Paint_013 	void setFlags(uint32_t flags)
+@example https://fiddle.skia.org/c/@Paint_014 	bool isAntiAlias() const
+@example https://fiddle.skia.org/c/@Paint_015 	void setAntiAlias(bool aa)
+@example https://fiddle.skia.org/c/@Paint_016 	void setAntiAlias(bool aa)
+@example https://fiddle.skia.org/c/@Paint_017 	void setAntiAlias(bool aa)
+@example https://fiddle.skia.org/c/@Paint_018 	bool isDither() const
+@example https://fiddle.skia.org/c/@Paint_019 	void setDither(bool dither)
+@example https://fiddle.skia.org/c/@Paint_020 	void setDither(bool dither)
+@example https://fiddle.skia.org/c/@Paint_021 	bool isLinearText() const
+@example https://fiddle.skia.org/c/@Paint_022 	void setLinearText(bool linearText)
+@example https://fiddle.skia.org/c/@Paint_023 	bool isSubpixelText() const
+@example https://fiddle.skia.org/c/@Paint_024 	void setSubpixelText(bool subpixelText)
+@example https://fiddle.skia.org/c/@Paint_025 	bool isLCDRenderText() const
+@example https://fiddle.skia.org/c/@Paint_026 	void setLCDRenderText(bool lcdText)
+@example https://fiddle.skia.org/c/@Paint_027 	bool isEmbeddedBitmapText() const
+@example https://fiddle.skia.org/c/@Paint_028 	void setEmbeddedBitmapText(bool useEmbeddedBitmapText)
+@example https://fiddle.skia.org/c/@Paint_029 	bool isAutohinted() const
+@example https://fiddle.skia.org/c/@Paint_030 	void setAutohinted(bool useAutohinter)
+@example https://fiddle.skia.org/c/@Paint_031 	void setAutohinted(bool useAutohinter)
+@example https://fiddle.skia.org/c/@Paint_032 	bool isFakeBoldText() const
+@example https://fiddle.skia.org/c/@Paint_033 	void setFakeBoldText(bool fakeBoldText)
+@example https://fiddle.skia.org/c/@Paint_034 	void setFakeBoldText(bool fakeBoldText)
+@example https://fiddle.skia.org/c/@Paint_035 	SkFilterQuality getFilterQuality() const
+@example https://fiddle.skia.org/c/@Paint_036 	void setFilterQuality(SkFilterQuality quality)
+@example https://fiddle.skia.org/c/@Paint_037 	void setFilterQuality(SkFilterQuality quality)
+@example https://fiddle.skia.org/c/@Paint_038 	SkColor getColor() const
+@example https://fiddle.skia.org/c/@Paint_039 	SkColor4f getColor4f() const
+@example https://fiddle.skia.org/c/@Paint_040 	void setColor(SkColor color)
+@example https://fiddle.skia.org/c/@Paint_041 	void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace)
+@example https://fiddle.skia.org/c/@Paint_042 	uint8_t getAlpha() const
+@example https://fiddle.skia.org/c/@Paint_043 	void setAlpha(U8CPU a)
+@example https://fiddle.skia.org/c/@Paint_044 	void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+@example https://fiddle.skia.org/c/@Paint_045 	Style getStyle() const
+@example https://fiddle.skia.org/c/@Paint_046 	void setStyle(Style style)
+@example https://fiddle.skia.org/c/@Paint_047 	void setStyle(Style style)
+@example https://fiddle.skia.org/c/@Paint_048 	SkScalar getStrokeWidth() const
+@example https://fiddle.skia.org/c/@Paint_049 	void setStrokeWidth(SkScalar width)
+@example https://fiddle.skia.org/c/@Paint_050 	void setStrokeWidth(SkScalar width)
+@example https://fiddle.skia.org/c/@Paint_051 	SkScalar getStrokeMiter() const
+@example https://fiddle.skia.org/c/@Paint_052 	void setStrokeMiter(SkScalar miter)
+@example https://fiddle.skia.org/c/@Paint_053 	static constexpr int kCapCount = kLast_Cap + 1;
+@example https://fiddle.skia.org/c/@Paint_054 	Cap getStrokeCap() const
+@example https://fiddle.skia.org/c/@Paint_055 	void setStrokeCap(Cap cap)
+@example https://fiddle.skia.org/c/@Paint_056 	void setStrokeCap(Cap cap)
+@example https://fiddle.skia.org/c/@Paint_057 	static constexpr int kJoinCount = kLast_Join + 1;
+@example https://fiddle.skia.org/c/@Paint_058 	Join getStrokeJoin() const
+@example https://fiddle.skia.org/c/@Paint_059 	void setStrokeJoin(Join join)
+@example https://fiddle.skia.org/c/@Paint_060 	bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect, SkScalar resScale = 1) const
+@example https://fiddle.skia.org/c/@Paint_061 	bool getFillPath(const SkPath& src, SkPath* dst) const
+@example https://fiddle.skia.org/c/@Paint_062 	bool getFillPath(const SkPath& src, SkPath* dst) const
+@example https://fiddle.skia.org/c/@Paint_063 	bool getFillPath(const SkPath& src, SkPath* dst) const
+@example https://fiddle.skia.org/c/@Paint_064 	SkShader* getShader() const
+@example https://fiddle.skia.org/c/@Paint_065 	sk_sp<SkShader> refShader() const
+@example https://fiddle.skia.org/c/@Paint_066 	void setShader(sk_sp<SkShader> shader)
+@example https://fiddle.skia.org/c/@Paint_067 	void setShader(sk_sp<SkShader> shader)
+@example https://fiddle.skia.org/c/@Paint_068 	SkColorFilter* getColorFilter() const
+@example https://fiddle.skia.org/c/@Paint_069 	sk_sp<SkColorFilter> refColorFilter() const
+@example https://fiddle.skia.org/c/@Paint_070 	void setColorFilter(sk_sp<SkColorFilter> colorFilter)
+@example https://fiddle.skia.org/c/@Paint_071 	void setColorFilter(sk_sp<SkColorFilter> colorFilter)
+@example https://fiddle.skia.org/c/@Paint_072 	SkBlendMode getBlendMode() const
+@example https://fiddle.skia.org/c/@Paint_074 	bool isSrcOver() const
+@example https://fiddle.skia.org/c/@Paint_074 	void setBlendMode(SkBlendMode mode)
+@example https://fiddle.skia.org/c/@Paint_075 	void setBlendMode(SkBlendMode mode)
+@example https://fiddle.skia.org/c/@Paint_076 	SkPathEffect* getPathEffect() const
+@example https://fiddle.skia.org/c/@Paint_077 	sk_sp<SkPathEffect> refPathEffect() const
+@example https://fiddle.skia.org/c/@Paint_078 	void setPathEffect(sk_sp<SkPathEffect> pathEffect)
+@example https://fiddle.skia.org/c/@Paint_079 	void setPathEffect(sk_sp<SkPathEffect> pathEffect)
+@example https://fiddle.skia.org/c/@Paint_080 	SkMaskFilter* getMaskFilter() const
+@example https://fiddle.skia.org/c/@Paint_081 	sk_sp<SkMaskFilter> refMaskFilter() const
+@example https://fiddle.skia.org/c/@Paint_082 	void setMaskFilter(sk_sp<SkMaskFilter> maskFilter)
+@example https://fiddle.skia.org/c/@Paint_083 	void setMaskFilter(sk_sp<SkMaskFilter> maskFilter)
+@example https://fiddle.skia.org/c/@Paint_084 	SkTypeface* getTypeface() const
+@example https://fiddle.skia.org/c/@Paint_085 	sk_sp<SkTypeface> refTypeface() const
+@example https://fiddle.skia.org/c/@Paint_086 	void setTypeface(sk_sp<SkTypeface> typeface)
+@example https://fiddle.skia.org/c/@Paint_087 	void setTypeface(sk_sp<SkTypeface> typeface)
+@example https://fiddle.skia.org/c/@Paint_088 	SkImageFilter* getImageFilter() const
+@example https://fiddle.skia.org/c/@Paint_089 	sk_sp<SkImageFilter> refImageFilter() const
+@example https://fiddle.skia.org/c/@Paint_090 	void setImageFilter(sk_sp<SkImageFilter> imageFilter)
+@example https://fiddle.skia.org/c/@Paint_091 	void setImageFilter(sk_sp<SkImageFilter> imageFilter)
+@example https://fiddle.skia.org/c/@Paint_092 	SkDrawLooper* getDrawLooper() const
+@example https://fiddle.skia.org/c/@Paint_093 	sk_sp<SkDrawLooper> refDrawLooper() const
+@example https://fiddle.skia.org/c/@Paint_094 	void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
+@example https://fiddle.skia.org/c/@Paint_095 	void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
+@example https://fiddle.skia.org/c/@Paint_096 	SkScalar getTextSize() const
+@example https://fiddle.skia.org/c/@Paint_097 	void setTextSize(SkScalar textSize)
+@example https://fiddle.skia.org/c/@Paint_098 	void setTextSize(SkScalar textSize)
+@example https://fiddle.skia.org/c/@Paint_099 	SkScalar getTextScaleX() const
+@example https://fiddle.skia.org/c/@Paint_100 	void setTextScaleX(SkScalar scaleX)
+@example https://fiddle.skia.org/c/@Paint_101 	void setTextScaleX(SkScalar scaleX)
+@example https://fiddle.skia.org/c/@Paint_102 	SkScalar getTextSkewX() const
+@example https://fiddle.skia.org/c/@Paint_103 	void setTextSkewX(SkScalar skewX)
+@example https://fiddle.skia.org/c/@Paint_104 	void setTextSkewX(SkScalar skewX)
+@example https://fiddle.skia.org/c/@Paint_105 	SkTextEncoding getTextEncoding() const
+@example https://fiddle.skia.org/c/@Paint_106 	void setTextEncoding(SkTextEncoding encoding)
+@example https://fiddle.skia.org/c/@Paint_107 	SkScalar getFontMetrics(SkFontMetrics* metrics) const
+@example https://fiddle.skia.org/c/@Paint_108 	SkScalar getFontSpacing() const
+@example https://fiddle.skia.org/c/@Paint_109 	int textToGlyphs(const void* text, size_t byteLength, SkGlyphID glyphs[]) const
+@example https://fiddle.skia.org/c/@Paint_110 	int countText(const void* text, size_t byteLength) const
+@example https://fiddle.skia.org/c/@Paint_111 	bool containsText(const void* text, size_t byteLength) const
+@example https://fiddle.skia.org/c/@Paint_112 	SkScalar measureText(const void* text, size_t length, SkRect* bounds) const
+@example https://fiddle.skia.org/c/@Paint_113 	SkScalar measureText(const void* text, size_t length) const
+@example https://fiddle.skia.org/c/@Paint_114 	int getTextWidths(const void* text, size_t byteLength, SkScalar widths[], SkRect bounds[] = nullptr) const
+@example https://fiddle.skia.org/c/@Paint_115 	void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y, SkPath* path) const
+@example https://fiddle.skia.org/c/@Paint_116 	void getPosTextPath(const void* text, size_t length, const SkPoint pos[], SkPath* path) const
+@example https://fiddle.skia.org/c/@Paint_117 	bool nothingToDraw() const
+@example https://fiddle.skia.org/c/@Color_000 	static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+@example https://fiddle.skia.org/c/@Color_001 	#define SkColorSetRGB(r, g, b) SkColorSetARGB(0xFF, r, g, b)
+@example https://fiddle.skia.org/c/@Color_002 	#define SkColorGetA(color) (((color) >> 24) & 0xFF)
+@example https://fiddle.skia.org/c/@Color_003 	#define SkColorGetR(color) (((color) >> 16) & 0xFF)
+@example https://fiddle.skia.org/c/@Color_004 	#define SkColorGetG(color) (((color) >> 8) & 0xFF)
+@example https://fiddle.skia.org/c/@Color_005 	#define SkColorGetB(color) (((color) >> 0) & 0xFF)
+@example https://fiddle.skia.org/c/@Color_006 	static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a)
+@example https://fiddle.skia.org/c/@Color_007 	constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00;
+@example https://fiddle.skia.org/c/@Color_008 	constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00;
+@example https://fiddle.skia.org/c/@Color_009 	constexpr SkColor SK_ColorTRANSPARENT;
+@example https://fiddle.skia.org/c/@Color_010 	constexpr SkColor SK_ColorTRANSPARENT;
+@example https://fiddle.skia.org/c/@Color_011 	constexpr SkColor SK_ColorTRANSPARENT;
+@example https://fiddle.skia.org/c/@Color_012 	constexpr SkColor SK_ColorTRANSPARENT;
+@example https://fiddle.skia.org/c/@Color_013 	void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3])
+@example https://fiddle.skia.org/c/@Color_014 	static void SkColorToHSV(SkColor color, SkScalar hsv[3])
+@example https://fiddle.skia.org/c/@Color_015 	SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3])
+@example https://fiddle.skia.org/c/@Color_016 	static SkColor SkHSVToColor(const SkScalar hsv[3])
+@example https://fiddle.skia.org/c/@Color_017 	SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+@example https://fiddle.skia.org/c/@Color_018 	SkPMColor SkPreMultiplyColor(SkColor c)
+@example https://fiddle.skia.org/c/@Picture_000 	virtual bool abort() = 0
+@example https://fiddle.skia.org/c/@Picture_001 	static sk_sp<SkPicture> MakeFromStream(SkStream* stream, const SkDeserialProcs* procs = nullptr)
+@example https://fiddle.skia.org/c/@Picture_002 	static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs* procs = nullptr)
+@example https://fiddle.skia.org/c/@Picture_003 	static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
+@example https://fiddle.skia.org/c/@Picture_004 	virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0
+@example https://fiddle.skia.org/c/@Picture_005 	virtual SkRect cullRect() const = 0
+@example https://fiddle.skia.org/c/@Picture_006 	uint32_t uniqueID() const
+@example https://fiddle.skia.org/c/@Picture_007 	sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const
+@example https://fiddle.skia.org/c/@Picture_003 	void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const
+@example https://fiddle.skia.org/c/@Picture_009 	static sk_sp<SkPicture> MakePlaceholder(SkRect cull)
+@example https://fiddle.skia.org/c/@Picture_010 	virtual int approximateOpCount() const = 0
+@example https://fiddle.skia.org/c/@Picture_011 	virtual size_t approximateBytesUsed() const = 0
+@example https://fiddle.skia.org/c/@Color4f_000 	bool operator==(const SkRGBA4f& other) const
+@example https://fiddle.skia.org/c/@Color4f_001 	bool operator!=(const SkRGBA4f& other) const
+@example https://fiddle.skia.org/c/@Color4f_002 	const float* vec() const
+@example https://fiddle.skia.org/c/@Color4f_003 	float* vec()
+@example https://fiddle.skia.org/c/@Color4f_004 	static SkRGBA4f FromColor(SkColor color)
+@example https://fiddle.skia.org/c/@Color4f_005 	SkColor toSkColor() const
+@example https://fiddle.skia.org/c/@Path_000 	enum Verb {
+@example https://fiddle.skia.org/c/@Path_001 	enum Direction : int {
+@example https://fiddle.skia.org/c/@Path_002 	SkPath()
+@example https://fiddle.skia.org/c/@Path_003 	SkPath(const SkPath& path)
+@example https://fiddle.skia.org/c/@Path_004 	~SkPath()
+@example https://fiddle.skia.org/c/@Path_005 	SkPath& operator=(const SkPath& path)
+@example https://fiddle.skia.org/c/@Path_006 	bool operator==(const SkPath& a, const SkPath& b)
+@example https://fiddle.skia.org/c/@Path_007 	bool operator!=(const SkPath& a, const SkPath& b)
+@example https://fiddle.skia.org/c/@Path_008 	bool isInterpolatable(const SkPath& compare) const
+@example https://fiddle.skia.org/c/@Path_009 	bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
+@example https://fiddle.skia.org/c/@Path_010 	enum FillType {
+@example https://fiddle.skia.org/c/@Path_011 	enum FillType {
+@example https://fiddle.skia.org/c/@Path_012 	FillType getFillType() const
+@example https://fiddle.skia.org/c/@Path_013 	void setFillType(FillType ft)
+@example https://fiddle.skia.org/c/@Path_014 	bool isInverseFillType() const
+@example https://fiddle.skia.org/c/@Path_015 	void toggleInverseFillType()
+@example https://fiddle.skia.org/c/@Path_016 	enum Convexity : uint8_t {
+@example https://fiddle.skia.org/c/@Path_017 	Convexity getConvexity() const
+@example https://fiddle.skia.org/c/@Path_018 	Convexity getConvexityOrUnknown() const
+@example https://fiddle.skia.org/c/@Path_019 	void setConvexity(Convexity convexity)
+@example https://fiddle.skia.org/c/@Path_020 	bool isConvex() const
+@example https://fiddle.skia.org/c/@Path_021 	bool isOval(SkRect* bounds) const
+@example https://fiddle.skia.org/c/@Path_022 	bool isRRect(SkRRect* rrect) const
+@example https://fiddle.skia.org/c/@Path_023 	SkPath& reset()
+@example https://fiddle.skia.org/c/@Path_024 	SkPath& rewind()
+@example https://fiddle.skia.org/c/@Path_025 	bool isEmpty() const
+@example https://fiddle.skia.org/c/@Path_026 	bool isLastContourClosed() const
+@example https://fiddle.skia.org/c/@Path_027 	bool isFinite() const
+@example https://fiddle.skia.org/c/@Path_028 	bool isVolatile() const
+@example https://fiddle.skia.org/c/@Path_029 	void setIsVolatile(bool isVolatile)
+@example https://fiddle.skia.org/c/@Path_030 	static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact)
+@example https://fiddle.skia.org/c/@Path_031 	static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3, bool exact)
+@example https://fiddle.skia.org/c/@Path_032 	static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3,
+@example https://fiddle.skia.org/c/@Path_033 	bool isLine(SkPoint line[2]) const
+@example https://fiddle.skia.org/c/@Path_034 	int getPoints(SkPoint points[], int max) const
+@example https://fiddle.skia.org/c/@Path_035 	int countPoints() const
+@example https://fiddle.skia.org/c/@Path_036 	SkPoint getPoint(int index) const
+@example https://fiddle.skia.org/c/@Path_037 	int countVerbs() const
+@example https://fiddle.skia.org/c/@Path_038 	int getVerbs(uint8_t verbs[], int max) const
+@example https://fiddle.skia.org/c/@Path_039 	void swap(SkPath& other)
+@example https://fiddle.skia.org/c/@Path_040 	const SkRect& getBounds() const
+@example https://fiddle.skia.org/c/@Path_041 	void updateBoundsCache() const
+@example https://fiddle.skia.org/c/@Path_042 	SkRect computeTightBounds() const
+@example https://fiddle.skia.org/c/@Path_043 	bool conservativelyContainsRect(const SkRect& rect) const
+@example https://fiddle.skia.org/c/@Path_044 	void incReserve(int extraPtCount)
+@example https://fiddle.skia.org/c/@Path_045 	SkPath& moveTo(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Path_046 	SkPath& moveTo(const SkPoint& p)
+@example https://fiddle.skia.org/c/@Path_047 	SkPath& rMoveTo(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Path_048 	SkPath& lineTo(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Path_049 	SkPath& lineTo(const SkPoint& p)
+@example https://fiddle.skia.org/c/@Path_050 	SkPath& rLineTo(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Path_051 	SkPath& rLineTo(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Path_052 	SkPath& rLineTo(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Path_053 	SkPath& quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2)
+@example https://fiddle.skia.org/c/@Path_054 	SkPath& quadTo(const SkPoint& p1, const SkPoint& p2)
+@example https://fiddle.skia.org/c/@Path_055 	SkPath& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2)
+@example https://fiddle.skia.org/c/@Path_056 	SkPath& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2)
+@example https://fiddle.skia.org/c/@Path_057 	SkPath& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2)
+@example https://fiddle.skia.org/c/@Path_058 	SkPath& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2)
+@example https://fiddle.skia.org/c/@Path_059 	SkPath& conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar w)
+@example https://fiddle.skia.org/c/@Path_060 	SkPath& conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w)
+@example https://fiddle.skia.org/c/@Path_061 	SkPath& rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar w)
+@example https://fiddle.skia.org/c/@Path_062 	SkPath& rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar w)
+@example https://fiddle.skia.org/c/@Path_063 	SkPath& cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3)
+@example https://fiddle.skia.org/c/@Path_064 	SkPath& cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3)
+@example https://fiddle.skia.org/c/@Path_065 	SkPath& rCubicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar dx3, SkScalar dy3)
+@example https://fiddle.skia.org/c/@Path_066 	SkPath& rCubicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar dx3, SkScalar dy3)
+@example https://fiddle.skia.org/c/@Path_067 	SkPath& arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)
+@example https://fiddle.skia.org/c/@Path_068 	SkPath& arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)
+@example https://fiddle.skia.org/c/@Path_069 	SkPath& arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)
+@example https://fiddle.skia.org/c/@Path_070 	SkPath& arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)
+@example https://fiddle.skia.org/c/@Path_071 	SkPath& arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius)
+@example https://fiddle.skia.org/c/@Path_072 	enum ArcSize {
+@example https://fiddle.skia.org/c/@Path_073 	SkPath& arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+@example https://fiddle.skia.org/c/@Path_074 	SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+@example https://fiddle.skia.org/c/@Path_074 	SkPath& rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+@example https://fiddle.skia.org/c/@Path_076 	SkPath& close()
+@example https://fiddle.skia.org/c/@Path_077 	static bool IsInverseFillType(FillType fill)
+@example https://fiddle.skia.org/c/@Path_078 	static FillType ConvertToNonInverseFillType(FillType fill)
+@example https://fiddle.skia.org/c/@Path_079 	static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w,
+@example https://fiddle.skia.org/c/@Path_080 	bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const
+@example https://fiddle.skia.org/c/@Path_081 	bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const
+@example https://fiddle.skia.org/c/@Path_082 	SkPath& addRect(const SkRect& rect, Direction dir = kCW_Direction)
+@example https://fiddle.skia.org/c/@Path_083 	SkPath& addRect(const SkRect& rect, Direction dir, unsigned start)
+@example https://fiddle.skia.org/c/@Path_084 	SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
+@example https://fiddle.skia.org/c/@Path_085 	SkPath& addOval(const SkRect& oval, Direction dir = kCW_Direction)
+@example https://fiddle.skia.org/c/@Path_086 	SkPath& addOval(const SkRect& oval, Direction dir, unsigned start)
+@example https://fiddle.skia.org/c/@Path_087 	SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir = kCW_Direction)
+@example https://fiddle.skia.org/c/@Path_088 	SkPath& addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle)
+@example https://fiddle.skia.org/c/@Path_089 	SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW_Direction)
+@example https://fiddle.skia.org/c/@Path_090 	SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir = kCW_Direction)
+@example https://fiddle.skia.org/c/@Path_091 	SkPath& addRRect(const SkRRect& rrect, Direction dir = kCW_Direction)
+@example https://fiddle.skia.org/c/@Path_092 	SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start)
+@example https://fiddle.skia.org/c/@Path_093 	SkPath& addPoly(const SkPoint pts[], int count, bool close)
+@example https://fiddle.skia.org/c/@Path_094 	SkPath& addPoly(const std::initializer_list<SkPoint>& list, bool close)
+@example https://fiddle.skia.org/c/@Path_095 	enum AddPathMode {
+@example https://fiddle.skia.org/c/@Path_096 	SkPath& addPath(const SkPath& src, SkScalar dx, SkScalar dy, AddPathMode mode = kAppend_AddPathMode)
+@example https://fiddle.skia.org/c/@Path_097 	SkPath& addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode)
+@example https://fiddle.skia.org/c/@Path_098 	SkPath& addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend_AddPathMode)
+@example https://fiddle.skia.org/c/@Path_099 	SkPath& reverseAddPath(const SkPath& src)
+@example https://fiddle.skia.org/c/@Path_100 	void offset(SkScalar dx, SkScalar dy, SkPath* dst) const
+@example https://fiddle.skia.org/c/@Path_101 	void offset(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Path_102 	void transform(const SkMatrix& matrix, SkPath* dst) const
+@example https://fiddle.skia.org/c/@Path_103 	void transform(const SkMatrix& matrix)
+@example https://fiddle.skia.org/c/@Path_104 	bool getLastPt(SkPoint* lastPt) const
+@example https://fiddle.skia.org/c/@Path_105 	void setLastPt(SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Path_106 	void setLastPt(const SkPoint& p)
+@example https://fiddle.skia.org/c/@Path_107 	enum SegmentMask {
+@example https://fiddle.skia.org/c/@Path_108 	uint32_t getSegmentMasks() const
+@example https://fiddle.skia.org/c/@Path_109 	bool contains(SkScalar x, SkScalar y) const
+@example https://fiddle.skia.org/c/@Path_110 	void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
+@example https://fiddle.skia.org/c/@Path_111 	void dump() const
+@example https://fiddle.skia.org/c/@Path_112 	void dumpHex() const
+@example https://fiddle.skia.org/c/@Path_113 	size_t writeToMemory(void* buffer) const
+@example https://fiddle.skia.org/c/@Path_114 	sk_sp<SkData> serialize() const
+@example https://fiddle.skia.org/c/@Path_115 	size_t readFromMemory(const void* buffer, size_t length)
+@example https://fiddle.skia.org/c/@Path_116 	uint32_t getGenerationID() const
+@example https://fiddle.skia.org/c/@Path_117 	class Iter {
+@example https://fiddle.skia.org/c/@Path_118 	Iter()
+@example https://fiddle.skia.org/c/@Path_119 	Iter(const SkPath& path, bool forceClose)
+@example https://fiddle.skia.org/c/@Path_120 	void setPath(const SkPath& path, bool forceClose)
+@example https://fiddle.skia.org/c/@Path_121 	Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)
+@example https://fiddle.skia.org/c/@Path_122 	SkScalar conicWeight() const
+@example https://fiddle.skia.org/c/@Path_123 	bool isCloseLine() const
+@example https://fiddle.skia.org/c/@Path_124 	bool isClosedContour() const
+@example https://fiddle.skia.org/c/@Path_125 	Verb next(SkPoint pts[4])
+@example https://fiddle.skia.org/c/@Path_126 	Verb peek() const
+@example https://fiddle.skia.org/c/@Path_127 	SkScalar conicWeight() const
+@example https://fiddle.skia.org/c/@Font_029 	enum class Edging {
+@example https://fiddle.skia.org/c/@Font_029 	SkFont()
+@example https://fiddle.skia.org/c/@Font_029 	SkFont(sk_sp<SkTypeface> typeface, SkScalar size)
+@example https://fiddle.skia.org/c/@Font_029 	SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)
+@example https://fiddle.skia.org/c/@Font_029 	bool operator==(const SkFont& font) const
+@example https://fiddle.skia.org/c/@Font_029 	bool isForceAutoHinting() const
+@example https://fiddle.skia.org/c/@Font_029 	bool isEmbeddedBitmaps() const
+@example https://fiddle.skia.org/c/@Font_029 	bool isSubpixel() const
+@example https://fiddle.skia.org/c/@Font_029 	bool isLinearMetrics() const
+@example https://fiddle.skia.org/c/@Font_029 	bool isEmbolden() const
+@example https://fiddle.skia.org/c/@Font_029 	void setForceAutoHinting(bool forceAutoHinting)
+@example https://fiddle.skia.org/c/@Font_029 	void setEmbeddedBitmaps(bool embeddedBitmaps)
+@example https://fiddle.skia.org/c/@Font_029 	void setSubpixel(bool subpixel)
+@example https://fiddle.skia.org/c/@Font_029 	void setLinearMetrics(bool linearMetrics)
+@example https://fiddle.skia.org/c/@Font_029 	void setEmbolden(bool embolden)
+@example https://fiddle.skia.org/c/@Font_029 	Edging getEdging() const
+@example https://fiddle.skia.org/c/@Font_029 	void setEdging(Edging edging)
+@example https://fiddle.skia.org/c/@Font_029 	void setHinting(SkFontHinting hintingLevel)
+@example https://fiddle.skia.org/c/@Font_029 	SkFontHinting getHinting() const
+@example https://fiddle.skia.org/c/@Font_029 	SkFont makeWithSize(SkScalar size) const
+@example https://fiddle.skia.org/c/@Font_029 	SkTypeface* getTypeface() const
+@example https://fiddle.skia.org/c/@Font_029 	SkScalar    getSize() const
+@example https://fiddle.skia.org/c/@Font_029 	SkScalar    getScaleX() const
+@example https://fiddle.skia.org/c/@Font_029 	SkScalar    getSkewX() const
+@example https://fiddle.skia.org/c/@Font_029 	sk_sp<SkTypeface> refTypeface() const
+@example https://fiddle.skia.org/c/@Font_029 	void setTypeface(sk_sp<SkTypeface> tf)
+@example https://fiddle.skia.org/c/@Font_029 	void setSize(SkScalar textSize)
+@example https://fiddle.skia.org/c/@Font_029 	void setScaleX(SkScalar scaleX)
+@example https://fiddle.skia.org/c/@Font_029 	void setSkewX(SkScalar skewX)
+@example https://fiddle.skia.org/c/@Font_029 	int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding, SkGlyphID glyphs[],
+@example https://fiddle.skia.org/c/@Font_029 	uint16_t unicharToGlyph(SkUnichar uni) const
+@example https://fiddle.skia.org/c/@Font_029 	int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const
+@example https://fiddle.skia.org/c/@Font_029 	bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const
+@example https://fiddle.skia.org/c/@Font_033 	size_t breakText(const void* text, size_t length, SkTextEncoding encoding, SkScalar maxWidth,
+@example https://fiddle.skia.org/c/@Font_029 	SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+@example https://fiddle.skia.org/c/@Font_029 	bool getPath(uint16_t glyphID, SkPath* path) const
+@example https://fiddle.skia.org/c/@Font_029 	void getPaths(const uint16_t glyphIDs[], int count, void (*glyphPathProc) (const SkPath* pathOrNull,
+@example https://fiddle.skia.org/c/@Font_029 	SkScalar getMetrics(SkFontMetrics* metrics) const
+@example https://fiddle.skia.org/c/@Font_029 	SkScalar getSpacing() const
+@example https://fiddle.skia.org/c/@TextBlob_000 	const SkRect& bounds() const
+@example https://fiddle.skia.org/c/@TextBlob_001 	uint32_t uniqueID() const
+@example https://fiddle.skia.org/c/@TextBlob_002 	int getIntercepts(const SkScalar bounds[2], SkScalar intervals[], const SkPaint* paint = nullptr) const;
+@example https://fiddle.skia.org/c/@TextBlob_003 	static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
+@example https://fiddle.skia.org/c/@TextBlob_004 	static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
+@example https://fiddle.skia.org/c/@TextBlob_005 	size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const
+@example https://fiddle.skia.org/c/@TextBlob_006 	sk_sp<SkData> serialize(const SkSerialProcs& procs) const
+@example https://fiddle.skia.org/c/@TextBlob_007 	static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs& procs)
+@example https://fiddle.skia.org/c/@Surface_000 	static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels, size_t rowBytes,
+@example https://fiddle.skia.org/c/@Surface_001 	static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo& imageInfo, void* pixels,
+@example https://fiddle.skia.org/c/@Surface_002 	static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
+@example https://fiddle.skia.org/c/@Surface_003 	static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
+@example https://fiddle.skia.org/c/@Surface_004 	static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
+@example https://fiddle.skia.org/c/@Surface_005 	static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
+@example https://fiddle.skia.org/c/@Surface_006 	static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
+@example https://fiddle.skia.org/c/@Surface_007 	static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+@example https://fiddle.skia.org/c/@Surface_008 	static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+@example https://fiddle.skia.org/c/@Surface_009 	static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+@example https://fiddle.skia.org/c/@Surface_010 	static sk_sp<SkSurface> MakeNull(int width, int height)
+@example https://fiddle.skia.org/c/@Surface_011 	int width() const
+@example https://fiddle.skia.org/c/@Surface_012 	int height() const
+@example https://fiddle.skia.org/c/@Surface_013 	uint32_t generationID()
+@example https://fiddle.skia.org/c/@Surface_013 	void notifyContentWillChange(ContentChangeMode mode)
+@example https://fiddle.skia.org/c/@Surface_015 	SkCanvas* getCanvas()
+@example https://fiddle.skia.org/c/@Surface_016 	sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo)
+@example https://fiddle.skia.org/c/@Surface_017 	sk_sp<SkImage> makeImageSnapshot()
+@example https://fiddle.skia.org/c/@Surface_018 	sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds)
+@example https://fiddle.skia.org/c/@Surface_019 	void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Surface_020 	bool peekPixels(SkPixmap* pixmap)
+@example https://fiddle.skia.org/c/@Surface_021 	bool readPixels(const SkPixmap& dst, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Surface_022 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Surface_023 	bool readPixels(const SkBitmap& dst, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Surface_024 	void writePixels(const SkPixmap& src, int dstX, int dstY)
+@example https://fiddle.skia.org/c/@Surface_025 	void writePixels(const SkBitmap& src, int dstX, int dstY)
+@example https://fiddle.skia.org/c/@Surface_026 	const SkSurfaceProps& props() const
+@example https://fiddle.skia.org/c/@Surface_027 	bool characterize(SkSurfaceCharacterization* characterization) const
+@example https://fiddle.skia.org/c/@Surface_028 	bool draw(SkDeferredDisplayList* deferredDisplayList)
+@example https://fiddle.skia.org/c/@Canvas_000 	static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
+@example https://fiddle.skia.org/c/@Canvas_001 	static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
+@example https://fiddle.skia.org/c/@Canvas_002 	SkCanvas()
+@example https://fiddle.skia.org/c/@Canvas_003 	SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_004 	explicit SkCanvas(const SkBitmap& bitmap)
+@example https://fiddle.skia.org/c/@Canvas_005 	SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
+@example https://fiddle.skia.org/c/@Canvas_006 	virtual ~SkCanvas()
+@example https://fiddle.skia.org/c/@Canvas_008 	SkImageInfo imageInfo() const
+@example https://fiddle.skia.org/c/@Canvas_009 	bool getProps(SkSurfaceProps* props) const
+@example https://fiddle.skia.org/c/@Canvas_010 	virtual SkISize getBaseLayerSize() const
+@example https://fiddle.skia.org/c/@Canvas_011 	sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_012 	virtual GrContext* getGrContext()
+@example https://fiddle.skia.org/c/@Canvas_013 	void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_014 	void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_015 	SkRasterHandleAllocator::Handle accessTopRasterHandle() const
+@example https://fiddle.skia.org/c/@Canvas_016 	bool peekPixels(SkPixmap* pixmap)
+@example https://fiddle.skia.org/c/@Canvas_017 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Canvas_018 	bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Canvas_019 	bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Canvas_020 	bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
+@example https://fiddle.skia.org/c/@Canvas_021 	bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y)
+@example https://fiddle.skia.org/c/@Canvas_022 	bool writePixels(const SkBitmap& bitmap, int x, int y)
+@example https://fiddle.skia.org/c/@Canvas_023 	bool writePixels(const SkBitmap& bitmap, int x, int y)
+@example https://fiddle.skia.org/c/@Canvas_024 	bool writePixels(const SkBitmap& bitmap, int x, int y)
+@example https://fiddle.skia.org/c/@Canvas_025 	int save()
+@example https://fiddle.skia.org/c/@Canvas_026 	void restore()
+@example https://fiddle.skia.org/c/@Canvas_027 	int getSaveCount() const
+@example https://fiddle.skia.org/c/@Canvas_028 	void restoreToCount(int saveCount)
+@example https://fiddle.skia.org/c/@Canvas_029 	int saveLayer(const SkRect* bounds, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_030 	int saveLayer(const SkRect& bounds, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_031 	int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_032 	int saveLayerAlpha(const SkRect* bounds, U8CPU alpha)
+@example https://fiddle.skia.org/c/@Canvas_033 	enum SaveLayerFlagsSet {
+@example https://fiddle.skia.org/c/@Canvas_034 	struct SaveLayerRec {
+@example https://fiddle.skia.org/c/@Canvas_035 	SaveLayerRec()
+@example https://fiddle.skia.org/c/@Canvas_036 	SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
+@example https://fiddle.skia.org/c/@Canvas_037 	SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+@example https://fiddle.skia.org/c/@Canvas_038 	int saveLayer(const SaveLayerRec& layerRec)
+@example https://fiddle.skia.org/c/@Canvas_039 	void translate(SkScalar dx, SkScalar dy)
+@example https://fiddle.skia.org/c/@Canvas_040 	void scale(SkScalar sx, SkScalar sy)
+@example https://fiddle.skia.org/c/@Canvas_041 	void rotate(SkScalar degrees)
+@example https://fiddle.skia.org/c/@Canvas_042 	void rotate(SkScalar degrees, SkScalar px, SkScalar py)
+@example https://fiddle.skia.org/c/@Canvas_043 	void skew(SkScalar sx, SkScalar sy)
+@example https://fiddle.skia.org/c/@Canvas_044 	void concat(const SkMatrix& matrix)
+@example https://fiddle.skia.org/c/@Canvas_045 	void setMatrix(const SkMatrix& matrix)
+@example https://fiddle.skia.org/c/@Canvas_046 	void resetMatrix()
+@example https://fiddle.skia.org/c/@Canvas_047 	const SkMatrix& getTotalMatrix() const
+@example https://fiddle.skia.org/c/@Canvas_048 	const SkMatrix& getTotalMatrix() const
+@example https://fiddle.skia.org/c/@Canvas_049 	void clipRect(const SkRect& rect, SkClipOp op, bool doAntiAlias)
+@example https://fiddle.skia.org/c/@Canvas_050 	void clipRect(const SkRect& rect, SkClipOp op)
+@example https://fiddle.skia.org/c/@Canvas_051 	void clipRect(const SkRect& rect, bool doAntiAlias = false)
+@example https://fiddle.skia.org/c/@Canvas_052 	void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias)
+@example https://fiddle.skia.org/c/@Canvas_053 	void clipRRect(const SkRRect& rrect, SkClipOp op)
+@example https://fiddle.skia.org/c/@Canvas_054 	void clipRRect(const SkRRect& rrect, bool doAntiAlias = false)
+@example https://fiddle.skia.org/c/@Canvas_055 	void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias)
+@example https://fiddle.skia.org/c/@Canvas_056 	void clipPath(const SkPath& path, SkClipOp op)
+@example https://fiddle.skia.org/c/@Canvas_057 	void clipPath(const SkPath& path, bool doAntiAlias = false)
+@example https://fiddle.skia.org/c/@Canvas_058 	void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect)
+@example https://fiddle.skia.org/c/@Canvas_059 	bool quickReject(const SkRect& rect) const
+@example https://fiddle.skia.org/c/@Canvas_060 	bool quickReject(const SkPath& path) const
+@example https://fiddle.skia.org/c/@Canvas_061 	SkRect getLocalClipBounds() const
+@example https://fiddle.skia.org/c/@Canvas_062 	bool getLocalClipBounds(SkRect* bounds) const
+@example https://fiddle.skia.org/c/@Canvas_063 	SkIRect getDeviceClipBounds() const
+@example https://fiddle.skia.org/c/@Canvas_064 	bool getDeviceClipBounds(SkIRect* bounds) const
+@example https://fiddle.skia.org/c/@Canvas_065 	void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver)
+@example https://fiddle.skia.org/c/@Canvas_066 	void clear(SkColor color)
+@example https://fiddle.skia.org/c/@Canvas_067 	void drawPaint(const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_068 	enum PointMode {
+@example https://fiddle.skia.org/c/@Canvas_069 	void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_070 	void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_071 	void drawPoint(SkPoint p, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_072 	void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_073 	void drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_074 	void drawRect(const SkRect& rect, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_075 	void drawIRect(const SkIRect& rect, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_076 	void drawRegion(const SkRegion& region, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_077 	void drawOval(const SkRect& oval, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_078 	void drawRRect(const SkRRect& rrect, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_079 	void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_080 	void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_081 	void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_082 	void drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_083 	void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+@example https://fiddle.skia.org/c/@Canvas_084 	void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+@example https://fiddle.skia.org/c/@Canvas_085 	void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_086 	void drawPath(const SkPath& path, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_087 	void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_088 	void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
+@example https://fiddle.skia.org/c/@Canvas_089 	enum SrcRectConstraint {
+@example https://fiddle.skia.org/c/@Canvas_090 	void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst, const SkPaint* paint,
+@example https://fiddle.skia.org/c/@Canvas_091 	void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst, const SkPaint* paint,
+@example https://fiddle.skia.org/c/@Canvas_092 	void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_093 	void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_094 	void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_095 	void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_104 	void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_097 	void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_098 	void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPaint* paint = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_099 	void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_100 	void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_101 	void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
+@example https://fiddle.skia.org/c/@Canvas_102 	void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_103 	void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_104 	void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+@example https://fiddle.skia.org/c/@Canvas_105 	void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_106 	void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_107 	void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_108 	void drawPosText(const void* text, size_t byteLength, const SkPoint pos[], const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_109 	void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY,
+@example https://fiddle.skia.org/c/@Canvas_110 	void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+@example https://fiddle.skia.org/c/@Canvas_111 	void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_112 	void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_114 	void drawPicture(const SkPicture* picture)
+@example https://fiddle.skia.org/c/@Canvas_114 	void drawPicture(const sk_sp<SkPicture>& picture)
+@example https://fiddle.skia.org/c/@Canvas_115 	void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_116 	void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint)
+@example https://fiddle.skia.org/c/@Canvas_117 	void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_118 	void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint)
+@example https://fiddle.skia.org/c/@Canvas_119 	void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
+@example https://fiddle.skia.org/c/@Canvas_120 	void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
+@example https://fiddle.skia.org/c/@Canvas_121 	void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
+@example https://fiddle.skia.org/c/@Canvas_122 	void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
+@example https://fiddle.skia.org/c/@Canvas_123 	void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+@example https://fiddle.skia.org/c/@Canvas_124 	void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
+@example https://fiddle.skia.org/c/@Canvas_125 	void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[], int count,
+@example https://fiddle.skia.org/c/@Canvas_126 	void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)
+@example https://fiddle.skia.org/c/@Canvas_127 	void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y)
+@example https://fiddle.skia.org/c/@Canvas_128 	void drawAnnotation(const SkRect& rect, const char key[], SkData* value)
+@example https://fiddle.skia.org/c/@Canvas_128 	void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value)
+@example https://fiddle.skia.org/c/@Canvas_130 	virtual bool isClipEmpty() const
+@example https://fiddle.skia.org/c/@Canvas_131 	virtual bool isClipRect() const
+@example https://fiddle.skia.org/c/@IRect_000 	static constexpr SkIRect MakeEmpty()
+@example https://fiddle.skia.org/c/@IRect_001 	static constexpr SkIRect MakeWH(int32_t w, int32_t h)
+@example https://fiddle.skia.org/c/@IRect_002 	static constexpr SkIRect MakeSize(const SkISize& size)
+@example https://fiddle.skia.org/c/@IRect_003 	static constexpr SkIRect MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
+@example https://fiddle.skia.org/c/@IRect_004 	static constexpr SkIRect MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h)
+@example https://fiddle.skia.org/c/@IRect_005 	int32_t left() const
+@example https://fiddle.skia.org/c/@IRect_006 	int32_t top() const
+@example https://fiddle.skia.org/c/@IRect_007 	int32_t right() const
+@example https://fiddle.skia.org/c/@IRect_008 	int32_t bottom() const
+@example https://fiddle.skia.org/c/@IRect_009 	int32_t x() const
+@example https://fiddle.skia.org/c/@IRect_010 	int32_t y() const
+@example https://fiddle.skia.org/c/@IRect_011 	int32_t width() const
+@example https://fiddle.skia.org/c/@IRect_012 	int64_t width64() const
+@example https://fiddle.skia.org/c/@IRect_013 	int32_t height() const
+@example https://fiddle.skia.org/c/@IRect_014 	int64_t height64() const
+@example https://fiddle.skia.org/c/@IRect_015 	SkISize size() const
+@example https://fiddle.skia.org/c/@IRect_016 	bool isEmpty() const
+@example https://fiddle.skia.org/c/@IRect_017 	bool isEmpty64() const
+@example https://fiddle.skia.org/c/@IRect_018 	bool operator==(const SkIRect& a, const SkIRect& b)
+@example https://fiddle.skia.org/c/@IRect_019 	bool operator!=(const SkIRect& a, const SkIRect& b)
+@example https://fiddle.skia.org/c/@IRect_020 	void setEmpty()
+@example https://fiddle.skia.org/c/@IRect_021 	void set(int32_t left, int32_t top, int32_t right, int32_t bottom)
+@example https://fiddle.skia.org/c/@IRect_022 	void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom)
+@example https://fiddle.skia.org/c/@IRect_023 	void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height)
+@example https://fiddle.skia.org/c/@IRect_024 	SkIRect makeOffset(int32_t dx, int32_t dy) const
+@example https://fiddle.skia.org/c/@IRect_025 	SkIRect makeInset(int32_t dx, int32_t dy) const
+@example https://fiddle.skia.org/c/@IRect_026 	SkIRect makeOutset(int32_t dx, int32_t dy) const
+@example https://fiddle.skia.org/c/@IRect_027 	void offset(int32_t dx, int32_t dy)
+@example https://fiddle.skia.org/c/@IRect_028 	void offset(const SkIPoint& delta)
+@example https://fiddle.skia.org/c/@IRect_029 	void offsetTo(int32_t newX, int32_t newY)
+@example https://fiddle.skia.org/c/@IRect_030 	void inset(int32_t dx, int32_t dy)
+@example https://fiddle.skia.org/c/@IRect_031 	void outset(int32_t dx, int32_t dy)
+@example https://fiddle.skia.org/c/@IRect_032 	void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB)
+@example https://fiddle.skia.org/c/@IRect_033 	bool contains(int32_t x, int32_t y) const
+@example https://fiddle.skia.org/c/@IRect_034 	bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const
+@example https://fiddle.skia.org/c/@IRect_035 	bool contains(const SkIRect& r) const
+@example https://fiddle.skia.org/c/@IRect_036 	bool contains(const SkRect& r) const
+@example https://fiddle.skia.org/c/@IRect_037 	bool containsNoEmptyCheck(int32_t left, int32_t top, int32_t right, int32_t bottom) const
+@example https://fiddle.skia.org/c/@IRect_038 	bool containsNoEmptyCheck(const SkIRect& r) const
+@example https://fiddle.skia.org/c/@IRect_039 	bool intersect(const SkIRect& r)
+@example https://fiddle.skia.org/c/@IRect_040 	bool intersect(const SkIRect& a, const SkIRect& b)
+@example https://fiddle.skia.org/c/@IRect_041 	bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b)
+@example https://fiddle.skia.org/c/@IRect_042 	bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom)
+@example https://fiddle.skia.org/c/@IRect_043 	static bool Intersects(const SkIRect& a, const SkIRect& b)
+@example https://fiddle.skia.org/c/@IRect_044 	static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b)
+@example https://fiddle.skia.org/c/@IRect_045 	void join(int32_t left, int32_t top, int32_t right, int32_t bottom)
+@example https://fiddle.skia.org/c/@IRect_046 	void join(const SkIRect& r)
+@example https://fiddle.skia.org/c/@IRect_047 	void sort()
+@example https://fiddle.skia.org/c/@IRect_048 	SkIRect makeSorted() const
+@example https://fiddle.skia.org/c/@IRect_049 	static const SkIRect& EmptyIRect()
