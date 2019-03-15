@@ -95,5 +95,47 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
+    it('can draw text following a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            // This is taken from example.html
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const font = new CanvasKit.SkFont(null, 24);
+            const fontPaint = new CanvasKit.SkPaint();
+            fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+
+
+            const arc = new CanvasKit.SkPath();
+            arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+            arc.lineTo(210, 140);
+            arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+
+            // Only 1 dot should show up in the image, because we run out of path.
+            const str = 'This téxt should follow the curve across contours...';
+            const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);
+
+            canvas.drawPath(arc, paint);
+            canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+            surface.flush();
+
+            textBlob.delete();
+            arc.delete();
+            paint.delete();
+            font.delete();
+            fontPaint.delete();
+
+            reportSurface(surface, 'text_on_path', done);
+        }));
+    });
+
     // TODO more tests
 });
