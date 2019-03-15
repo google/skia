@@ -104,6 +104,8 @@ struct SK_API SkIRect {
         Call sort() to reverse fLeft and fRight if needed.
 
         @return  fLeft
+
+        @example https://fiddle.skia.org/c/@IRect_005
     */
     int32_t left() const { return fLeft; }
 
@@ -111,6 +113,8 @@ struct SK_API SkIRect {
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fTop
+
+        @example https://fiddle.skia.org/c/@IRect_006
     */
     int32_t top() const { return fTop; }
 
@@ -118,6 +122,8 @@ struct SK_API SkIRect {
         Call sort() to reverse fLeft and fRight if needed.
 
         @return  fRight
+
+        @example https://fiddle.skia.org/c/@IRect_007
     */
     int32_t right() const { return fRight; }
 
@@ -125,6 +131,8 @@ struct SK_API SkIRect {
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_008
     */
     int32_t bottom() const { return fBottom; }
 
@@ -132,6 +140,8 @@ struct SK_API SkIRect {
         and sort() to reverse fLeft and fRight if needed.
 
         @return  fLeft
+
+        @example https://fiddle.skia.org/c/@IRect_009
     */
     int32_t x() const { return fLeft; }
 
@@ -139,6 +149,8 @@ struct SK_API SkIRect {
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fTop
+
+        @example https://fiddle.skia.org/c/@IRect_010
     */
     int32_t y() const { return fTop; }
 
@@ -149,6 +161,8 @@ struct SK_API SkIRect {
         result fits in 32-bit signed integer; result may be negative.
 
         @return  fRight minus fLeft
+
+        @example https://fiddle.skia.org/c/@IRect_011
     */
     int32_t width() const { return Sk32_can_overflow_sub(fRight, fLeft); }
 
@@ -156,6 +170,8 @@ struct SK_API SkIRect {
         result fits in 32-bit signed integer; result may be negative.
 
         @return  fBottom minus fTop
+
+        @example https://fiddle.skia.org/c/@IRect_013
     */
     int32_t height() const { return Sk32_can_overflow_sub(fBottom, fTop); }
 
@@ -163,6 +179,8 @@ struct SK_API SkIRect {
         or if result fits in 32-bit signed integer; result may be negative.
 
         @return  SkISize (width, height)
+
+        @example https://fiddle.skia.org/c/@IRect_015
     */
     SkISize size() const { return SkISize::Make(this->width(), this->height()); }
 
@@ -171,6 +189,8 @@ struct SK_API SkIRect {
         overflow in its calculation.
 
         @return  fRight minus fLeft cast to int64_t
+
+        @example https://fiddle.skia.org/c/@IRect_012
     */
     int64_t width64() const { return (int64_t)fRight - (int64_t)fLeft; }
 
@@ -179,6 +199,8 @@ struct SK_API SkIRect {
         overflow in its calculation.
 
         @return  fBottom minus fTop cast to int64_t
+
+        @example https://fiddle.skia.org/c/@IRect_014
     */
     int64_t height64() const { return (int64_t)fBottom - (int64_t)fTop; }
 
@@ -187,12 +209,18 @@ struct SK_API SkIRect {
         width64() or height64().
 
         @return  true if width64() or height64() are zero or negative
+
+        @example https://fiddle.skia.org/c/@IRect_017
     */
     bool isEmpty64() const { return fRight <= fLeft || fBottom <= fTop; }
 
     /** Returns true if width() or height() are zero or negative.
 
         @return  true if width() or height() are zero or negative
+
+        @example https://fiddle.skia.org/c/@Rect_008
+
+        @example https://fiddle.skia.org/c/@IRect_016
     */
     bool isEmpty() const {
         int64_t w = this->width64();
@@ -231,6 +259,10 @@ struct SK_API SkIRect {
         Many other rectangles are empty; if left is equal to or greater than right,
         or if top is equal to or greater than bottom. Setting all members to zero
         is a convenience, but does not designate a special empty rectangle.
+
+        @example https://fiddle.skia.org/c/@Rect_027
+
+        @example https://fiddle.skia.org/c/@IRect_020
     */
     void setEmpty() { memset(this, 0, sizeof(*this)); }
 
@@ -242,6 +274,8 @@ struct SK_API SkIRect {
         @param top     assigned to fTop
         @param right   assigned to fRight
         @param bottom  assigned to fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_021
     */
     void set(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         fLeft   = left;
@@ -258,6 +292,8 @@ struct SK_API SkIRect {
         @param top     stored in fTop
         @param right   stored in fRight
         @param bottom  stored in fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_022
     */
     void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         this->set(left, top, right, bottom);
@@ -270,6 +306,8 @@ struct SK_API SkIRect {
         @param y       stored in fTop
         @param width   added to x and stored in fRight
         @param height  added to y and stored in fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_023
     */
     void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height) {
         fLeft   = x;
@@ -288,6 +326,8 @@ struct SK_API SkIRect {
         @param dx  offset added to fLeft and fRight
         @param dy  offset added to fTop and fBottom
         @return    SkIRect offset by dx and dy, with original width and height
+
+        @example https://fiddle.skia.org/c/@IRect_024
     */
     SkIRect makeOffset(int32_t dx, int32_t dy) const {
         return {
@@ -306,6 +346,8 @@ struct SK_API SkIRect {
         @param dx  offset added to fLeft and subtracted from fRight
         @param dy  offset added to fTop and subtracted from fBottom
         @return    SkIRect inset symmetrically left and right, top and bottom
+
+        @example https://fiddle.skia.org/c/@IRect_025
     */
     SkIRect makeInset(int32_t dx, int32_t dy) const {
         return {
@@ -324,6 +366,8 @@ struct SK_API SkIRect {
         @param dx  offset subtracted to fLeft and added from fRight
         @param dy  offset subtracted to fTop and added from fBottom
         @return    SkIRect outset symmetrically left and right, top and bottom
+
+        @example https://fiddle.skia.org/c/@IRect_026
     */
     SkIRect makeOutset(int32_t dx, int32_t dy) const {
         return {
@@ -341,6 +385,8 @@ struct SK_API SkIRect {
 
         @param dx  offset added to fLeft and fRight
         @param dy  offset added to fTop and fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_027
     */
     void offset(int32_t dx, int32_t dy) {
         fLeft   = Sk32_sat_add(fLeft,   dx);
@@ -358,6 +404,8 @@ struct SK_API SkIRect {
         If delta.fY is positive, moves SkIRect returned downward.
 
         @param delta  offset added to SkIRect
+
+        @example https://fiddle.skia.org/c/@IRect_028
     */
     void offset(const SkIPoint& delta) {
         this->offset(delta.fX, delta.fY);
@@ -368,6 +416,8 @@ struct SK_API SkIRect {
 
         @param newX  stored in fLeft, preserving width()
         @param newY  stored in fTop, preserving height()
+
+        @example https://fiddle.skia.org/c/@IRect_029
     */
     void offsetTo(int32_t newX, int32_t newY) {
         fRight  = Sk64_pin_to_s32((int64_t)fRight + newX - fLeft);
@@ -385,6 +435,8 @@ struct SK_API SkIRect {
 
         @param dx  offset added to fLeft and subtracted from fRight
         @param dy  offset added to fTop and subtracted from fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_030
     */
     void inset(int32_t dx, int32_t dy) {
         fLeft   = Sk32_sat_add(fLeft,   dx);
@@ -402,6 +454,8 @@ struct SK_API SkIRect {
 
         @param dx  subtracted to fLeft and added from fRight
         @param dy  subtracted to fTop and added from fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_031
     */
     void outset(int32_t dx, int32_t dy)  { this->inset(-dx, -dy); }
 
@@ -420,6 +474,8 @@ struct SK_API SkIRect {
         @param dT  offset added to fTop
         @param dR  offset added to fRight
         @param dB  offset added to fBottom
+
+        @example https://fiddle.skia.org/c/@IRect_032
     */
     void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB) {
         fLeft   = Sk32_sat_add(fLeft,   dL);
@@ -437,6 +493,8 @@ struct SK_API SkIRect {
         @param x  test SkIPoint x-coordinate
         @param y  test SkIPoint y-coordinate
         @return   true if (x, y) is inside SkIRect
+
+        @example https://fiddle.skia.org/c/@IRect_033
     */
     bool contains(int32_t x, int32_t y) const {
         return x >= fLeft && x < fRight && y >= fTop && y < fBottom;
@@ -453,6 +511,8 @@ struct SK_API SkIRect {
         @param right   x-axis maximum of constructed SkIRect
         @param bottom  y-axis maximum of constructed SkIRect
         @return        true if all sides of SkIRect are outside construction
+
+        @example https://fiddle.skia.org/c/@IRect_034
     */
     bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const {
         return  left < right && top < bottom && !this->isEmpty() && // check for empties
@@ -467,6 +527,10 @@ struct SK_API SkIRect {
 
         @param r  SkIRect contained
         @return   true if all sides of SkIRect are outside r
+
+        @example https://fiddle.skia.org/c/@Rect_047
+
+        @example https://fiddle.skia.org/c/@IRect_035
     */
     bool contains(const SkIRect& r) const {
         return  !r.isEmpty() && !this->isEmpty() &&     // check for empties
@@ -481,6 +545,10 @@ struct SK_API SkIRect {
 
         @param r  SkRect contained
         @return   true if all sides of SkIRect are outside r
+
+        @example https://fiddle.skia.org/c/@Rect_046
+
+        @example https://fiddle.skia.org/c/@IRect_036
     */
     bool contains(const SkRect& r) const;
 
@@ -514,6 +582,8 @@ struct SK_API SkIRect {
 
         @param r  SkIRect contained
         @return   true if all sides of SkIRect are outside r
+
+        @example https://fiddle.skia.org/c/@IRect_038
     */
     bool containsNoEmptyCheck(const SkIRect& r) const {
         return containsNoEmptyCheck(r.fLeft, r.fTop, r.fRight, r.fBottom);
@@ -526,6 +596,8 @@ struct SK_API SkIRect {
 
         @param r  limit of result
         @return   true if r and SkIRect have area in common
+
+        @example https://fiddle.skia.org/c/@IRect_039
     */
     bool intersect(const SkIRect& r) {
         return this->intersect(*this, r);
@@ -584,6 +656,8 @@ struct SK_API SkIRect {
         @param right   x-axis maximum of constructed SkIRect
         @param bottom  y-axis maximum of constructed SkIRect
         @return        true if construction and SkIRect have area in common
+
+        @example https://fiddle.skia.org/c/@IRect_042
     */
     bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         return this->intersect(*this, {left, top, right, bottom});
@@ -595,6 +669,8 @@ struct SK_API SkIRect {
         @param a  SkIRect to intersect
         @param b  SkIRect to intersect
         @return   true if a and b have area in common
+
+        @example https://fiddle.skia.org/c/@IRect_043
     */
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
         SkIRect dummy;
@@ -607,6 +683,8 @@ struct SK_API SkIRect {
         @param a  SkIRect to intersect
         @param b  SkIRect to intersect
         @return   true if a and b have area in common
+
+        @example https://fiddle.skia.org/c/@IRect_044
     */
     static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
         SkIRect dummy;
@@ -625,6 +703,8 @@ struct SK_API SkIRect {
         @param top     y-axis minimum of constructed SkIRect
         @param right   x-axis maximum of constructed SkIRect
         @param bottom  y-axis maximum of constructed SkIRect
+
+        @example https://fiddle.skia.org/c/@IRect_045
     */
     void join(int32_t left, int32_t top, int32_t right, int32_t bottom);
 
@@ -633,6 +713,8 @@ struct SK_API SkIRect {
         Has no effect if r is empty. Otherwise, if SkIRect is empty, sets SkIRect to r.
 
         @param r  expansion SkIRect
+
+        @example https://fiddle.skia.org/c/@IRect_046
     */
     void join(const SkIRect& r) {
         this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
@@ -641,6 +723,10 @@ struct SK_API SkIRect {
     /** Swaps fLeft and fRight if fLeft is greater than fRight; and swaps
         fTop and fBottom if fTop is greater than fBottom. Result may be empty,
         and width() and height() will be zero or positive.
+
+        @example https://fiddle.skia.org/c/@Rect_064
+
+        @example https://fiddle.skia.org/c/@IRect_047
     */
     void sort() {
         using std::swap;
@@ -657,6 +743,8 @@ struct SK_API SkIRect {
         and width() and height() will be zero or positive.
 
         @return  sorted SkIRect
+
+        @example https://fiddle.skia.org/c/@IRect_048
     */
     SkIRect makeSorted() const {
         return MakeLTRB(SkMin32(fLeft, fRight), SkMin32(fTop, fBottom),
@@ -770,6 +858,8 @@ struct SK_API SkRect {
 
         @param size  integer values for SkRect width and height
         @return      bounds (0, 0, size.width(), size.height())
+
+        @example https://fiddle.skia.org/c/@Rect_006
     */
     static SkRect Make(const SkISize& size) {
         return MakeIWH(size.width(), size.height());
@@ -808,6 +898,8 @@ struct SK_API SkRect {
         width() or height().
 
         @return  true if width() or height() are zero or positive
+
+        @example https://fiddle.skia.org/c/@Rect_009
     */
     bool isSorted() const { return fLeft <= fRight && fTop <= fBottom; }
 
@@ -815,6 +907,8 @@ struct SK_API SkRect {
         and SK_ScalarMax or smaller.
 
         @return  true if no member is infinite or NaN
+
+        @example https://fiddle.skia.org/c/@Rect_010
     */
     bool isFinite() const {
         float accum = 0;
@@ -835,6 +929,8 @@ struct SK_API SkRect {
         Call sort() to reverse fLeft and fRight if needed.
 
         @return  fLeft
+
+        @example https://fiddle.skia.org/c/@Rect_011
     */
     SkScalar    x() const { return fLeft; }
 
@@ -842,6 +938,8 @@ struct SK_API SkRect {
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fTop
+
+        @example https://fiddle.skia.org/c/@Rect_012
     */
     SkScalar    y() const { return fTop; }
 
@@ -849,6 +947,8 @@ struct SK_API SkRect {
         Call sort() to reverse fLeft and fRight if needed.
 
         @return  fLeft
+
+        @example https://fiddle.skia.org/c/@Rect_013
     */
     SkScalar    left() const { return fLeft; }
 
@@ -856,6 +956,8 @@ struct SK_API SkRect {
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fTop
+
+        @example https://fiddle.skia.org/c/@Rect_014
     */
     SkScalar    top() const { return fTop; }
 
@@ -863,6 +965,8 @@ struct SK_API SkRect {
         Call sort() to reverse fLeft and fRight if needed.
 
         @return  fRight
+
+        @example https://fiddle.skia.org/c/@Rect_015
     */
     SkScalar    right() const { return fRight; }
 
@@ -870,6 +974,8 @@ struct SK_API SkRect {
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_016
     */
     SkScalar    bottom() const { return fBottom; }
 
@@ -877,6 +983,8 @@ struct SK_API SkRect {
         result fits in 32-bit float; result may be negative or infinity.
 
         @return  fRight minus fLeft
+
+        @example https://fiddle.skia.org/c/@Rect_017
     */
     SkScalar    width() const { return fRight - fLeft; }
 
@@ -884,6 +992,8 @@ struct SK_API SkRect {
         result fits in 32-bit float; result may be negative or infinity.
 
         @return  fBottom minus fTop
+
+        @example https://fiddle.skia.org/c/@Rect_018
     */
     SkScalar    height() const { return fBottom - fTop; }
 
@@ -941,6 +1051,8 @@ struct SK_API SkRect {
         TODO: Consider adding parameter to control whether quad is clockwise or counterclockwise.
 
         @param quad  storage for corners of SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_023
     */
     void toQuad(SkPoint quad[4]) const;
 
@@ -956,6 +1068,8 @@ struct SK_API SkRect {
         Very large values in src may lose precision.
 
         @param src  integer SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_028
     */
     void set(const SkIRect& src) {
         fLeft   = SkIntToScalar(src.fLeft);
@@ -972,6 +1086,8 @@ struct SK_API SkRect {
         @param top     stored in fTop
         @param right   stored in fRight
         @param bottom  stored in fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_029
     */
     void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
         fLeft   = left;
@@ -988,6 +1104,8 @@ struct SK_API SkRect {
         @param top     stored in fTop
         @param right   stored in fRight
         @param bottom  stored in fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_030
     */
     void setLTRB(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
         this->set(left, top, right, bottom);
@@ -1002,6 +1120,8 @@ struct SK_API SkRect {
         @param top     promoted to SkScalar and stored in fTop
         @param right   promoted to SkScalar and stored in fRight
         @param bottom  promoted to SkScalar and stored in fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_035
     */
     void iset(int left, int top, int right, int bottom) {
         fLeft   = SkIntToScalar(left);
@@ -1016,6 +1136,8 @@ struct SK_API SkRect {
 
         @param width   promoted to SkScalar and stored in fRight
         @param height  promoted to SkScalar and stored in fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_036
     */
     void isetWH(int width, int height) {
         fLeft = fTop = 0;
@@ -1031,6 +1153,8 @@ struct SK_API SkRect {
 
         @param pts    SkPoint array
         @param count  entries in array
+
+        @example https://fiddle.skia.org/c/@Rect_031
     */
     void set(const SkPoint pts[], int count) {
         // set() had been checking for non-finite values, so keep that behavior
@@ -1047,6 +1171,8 @@ struct SK_API SkRect {
 
         @param pts    SkPoint array
         @param count  entries in array
+
+        @example https://fiddle.skia.org/c/@Rect_024
     */
     void setBounds(const SkPoint pts[], int count) {
         (void)this->setBoundsCheck(pts, count);
@@ -1062,6 +1188,8 @@ struct SK_API SkRect {
         @param pts    SkPoint array
         @param count  entries in array
         @return       true if all SkPoint values are finite
+
+        @example https://fiddle.skia.org/c/@Rect_025
     */
     bool setBoundsCheck(const SkPoint pts[], int count);
 
@@ -1070,6 +1198,8 @@ struct SK_API SkRect {
 
         @param pts    SkPoint array
         @param count  entries in array
+
+        @example https://fiddle.skia.org/c/@Rect_026
     */
     void setBoundsNoCheck(const SkPoint pts[], int count);
 
@@ -1078,6 +1208,8 @@ struct SK_API SkRect {
 
         @param p0  corner to include
         @param p1  corner to include
+
+        @example https://fiddle.skia.org/c/@Rect_032
     */
     void set(const SkPoint& p0, const SkPoint& p1) {
         fLeft =   SkMinScalar(p0.fX, p1.fX);
@@ -1093,6 +1225,8 @@ struct SK_API SkRect {
         @param y       stored in fTop
         @param width   added to x and stored in fRight
         @param height  added to y and stored in fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_033
     */
     void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height) {
         fLeft = x;
@@ -1106,6 +1240,8 @@ struct SK_API SkRect {
 
         @param width   stored in fRight
         @param height  stored in fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_034
     */
     void setWH(SkScalar width, SkScalar height) {
         fLeft = 0;
@@ -1124,6 +1260,8 @@ struct SK_API SkRect {
         @param dx  added to fLeft and fRight
         @param dy  added to fTop and fBottom
         @return    SkRect offset on axes, with original width and height
+
+        @example https://fiddle.skia.org/c/@Rect_037
     */
     SkRect makeOffset(SkScalar dx, SkScalar dy) const {
         return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
@@ -1139,6 +1277,8 @@ struct SK_API SkRect {
         @param dx  added to fLeft and subtracted from fRight
         @param dy  added to fTop and subtracted from fBottom
         @return    SkRect inset symmetrically left and right, top and bottom
+
+        @example https://fiddle.skia.org/c/@Rect_038
     */
     SkRect makeInset(SkScalar dx, SkScalar dy) const {
         return MakeLTRB(fLeft + dx, fTop + dy, fRight - dx, fBottom - dy);
@@ -1154,6 +1294,8 @@ struct SK_API SkRect {
         @param dx  subtracted to fLeft and added from fRight
         @param dy  subtracted to fTop and added from fBottom
         @return    SkRect outset symmetrically left and right, top and bottom
+
+        @example https://fiddle.skia.org/c/@Rect_039
     */
     SkRect makeOutset(SkScalar dx, SkScalar dy) const {
         return MakeLTRB(fLeft - dx, fTop - dy, fRight + dx, fBottom + dy);
@@ -1168,6 +1310,8 @@ struct SK_API SkRect {
 
         @param dx  offset added to fLeft and fRight
         @param dy  offset added to fTop and fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_040
     */
     void offset(SkScalar dx, SkScalar dy) {
         fLeft   += dx;
@@ -1185,6 +1329,8 @@ struct SK_API SkRect {
         If delta.fY is positive, moves SkRect downward.
 
         @param delta  added to SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_041
     */
     void offset(const SkPoint& delta) {
         this->offset(delta.fX, delta.fY);
@@ -1195,6 +1341,8 @@ struct SK_API SkRect {
 
         @param newX  stored in fLeft, preserving width()
         @param newY  stored in fTop, preserving height()
+
+        @example https://fiddle.skia.org/c/@Rect_042
     */
     void offsetTo(SkScalar newX, SkScalar newY) {
         fRight += newX - fLeft;
@@ -1212,6 +1360,8 @@ struct SK_API SkRect {
 
         @param dx  added to fLeft and subtracted from fRight
         @param dy  added to fTop and subtracted from fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_043
     */
     void inset(SkScalar dx, SkScalar dy)  {
         fLeft   += dx;
@@ -1229,6 +1379,8 @@ struct SK_API SkRect {
 
         @param dx  subtracted to fLeft and added from fRight
         @param dy  subtracted to fTop and added from fBottom
+
+        @example https://fiddle.skia.org/c/@Rect_044
     */
     void outset(SkScalar dx, SkScalar dy)  { this->inset(-dx, -dy); }
 
@@ -1239,6 +1391,8 @@ struct SK_API SkRect {
 
         @param r  limit of result
         @return   true if r and SkRect have area in common
+
+        @example https://fiddle.skia.org/c/@Rect_048
     */
     bool intersect(const SkRect& r);
 
@@ -1255,6 +1409,8 @@ struct SK_API SkRect {
         @param right   x-axis maximum of constructed SkRect
         @param bottom  y-axis maximum of constructed SkRect
         @return        true if construction and SkRect have area in common
+
+        @example https://fiddle.skia.org/c/@Rect_049
     */
     bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
 
@@ -1293,6 +1449,8 @@ public:
         @param right   x-axis maximum of constructed SkRect
         @param bottom  y-axis maximum of constructed SkRect
         @return        true if construction and SkRect have area in common
+
+        @example https://fiddle.skia.org/c/@Rect_051
     */
     bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
         return Intersects(fLeft, fTop, fRight, fBottom, left, top, right, bottom);
@@ -1303,6 +1461,8 @@ public:
 
         @param r  SkRect to intersect
         @return   true if r and SkRect have area in common
+
+        @example https://fiddle.skia.org/c/@Rect_052
     */
     bool intersects(const SkRect& r) const {
         return Intersects(fLeft, fTop, fRight, fBottom,
@@ -1315,6 +1475,8 @@ public:
         @param a  SkRect to intersect
         @param b  SkRect to intersect
         @return   true if a and b have area in common
+
+        @example https://fiddle.skia.org/c/@Rect_053
     */
     static bool Intersects(const SkRect& a, const SkRect& b) {
         return Intersects(a.fLeft, a.fTop, a.fRight, a.fBottom,
@@ -1333,6 +1495,8 @@ public:
         @param top     y-axis minimum of constructed SkRect
         @param right   x-axis maximum of constructed SkRect
         @param bottom  y-axis maximum of constructed SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_054
     */
     void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
 
@@ -1342,6 +1506,8 @@ public:
         SkRect to r.
 
         @param r  expansion SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_055
     */
     void join(const SkRect& r) {
         this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
@@ -1355,6 +1521,8 @@ public:
         May produce incorrect results if r is empty.
 
         @param r  expansion SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_056
     */
     void joinNonEmptyArg(const SkRect& r) {
         SkASSERT(!r.isEmpty());
@@ -1371,6 +1539,8 @@ public:
         May produce incorrect results if SkRect or r is empty.
 
         @param r  expansion SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_057
     */
     void joinPossiblyEmptyRect(const SkRect& r) {
         fLeft   = SkMinScalar(fLeft, r.left());
@@ -1385,6 +1555,8 @@ public:
         @param x  test SkPoint x-coordinate
         @param y  test SkPoint y-coordinate
         @return   true if (x, y) is inside SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_045
     */
     bool contains(SkScalar x, SkScalar y) const {
         return x >= fLeft && x < fRight && y >= fTop && y < fBottom;
@@ -1425,6 +1597,8 @@ public:
                         SkScalarRoundToInt(fRight), SkScalarRoundToInt(fBottom)).
 
         @param dst  storage for SkIRect
+
+        @example https://fiddle.skia.org/c/@Rect_058
     */
     void round(SkIRect* dst) const {
         SkASSERT(dst);
@@ -1438,6 +1612,8 @@ public:
          SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom)).
 
         @param dst  storage for SkIRect
+
+        @example https://fiddle.skia.org/c/@Rect_059
     */
     void roundOut(SkIRect* dst) const {
         SkASSERT(dst);
@@ -1451,6 +1627,8 @@ public:
          SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom)).
 
         @param dst  storage for SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_060
     */
     void roundOut(SkRect* dst) const {
         dst->set(SkScalarFloorToScalar(fLeft),
@@ -1465,6 +1643,8 @@ public:
          SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom)).
 
         @param dst  storage for SkIRect
+
+        @example https://fiddle.skia.org/c/@Rect_061
     */
     void roundIn(SkIRect* dst) const {
         SkASSERT(dst);
@@ -1477,6 +1657,8 @@ public:
                         SkScalarRoundToInt(fRight), SkScalarRoundToInt(fBottom)).
 
         @return  rounded SkIRect
+
+        @example https://fiddle.skia.org/c/@Rect_062
     */
     SkIRect round() const {
         SkIRect ir;
@@ -1490,6 +1672,8 @@ public:
          SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom)).
 
         @return  rounded SkIRect
+
+        @example https://fiddle.skia.org/c/@Rect_063
     */
     SkIRect roundOut() const {
         SkIRect ir;
@@ -1517,6 +1701,8 @@ public:
         and width() and height() will be zero or positive.
 
         @return  sorted SkRect
+
+        @example https://fiddle.skia.org/c/@Rect_065
     */
     SkRect makeSorted() const {
         return MakeLTRB(SkMinScalar(fLeft, fRight), SkMinScalar(fTop, fBottom),
@@ -1527,6 +1713,8 @@ public:
         entries.
 
         @return  pointer to fLeft
+
+        @example https://fiddle.skia.org/c/@Rect_066
     */
     const SkScalar* asScalars() const { return &fLeft; }
 
@@ -1534,6 +1722,8 @@ public:
         generate exact binary representations of floating point numbers.
 
         @param asHex  true if SkScalar values are written as hexadecimal
+
+        @example https://fiddle.skia.org/c/@Rect_067
     */
     void dump(bool asHex) const;
 
@@ -1541,6 +1731,8 @@ public:
         directly compiled as C++ code. Floating point values are written
         with limited precision; it may not be possible to reconstruct original SkRect
         from output.
+
+        @example https://fiddle.skia.org/c/@Rect_068
     */
     void dump() const { this->dump(false); }
 
@@ -1550,6 +1742,8 @@ public:
         original SkRect.
 
         Use instead of dump() when submitting
+
+        @example https://fiddle.skia.org/c/@Rect_069
     */
     void dumpHex() const { this->dump(true); }
 };
