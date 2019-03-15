@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b244228b_1f24e619",
+        "filename": "experimental/wasm-skp-debugger/debugger/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-15T14:27:38Z",
+      "side": 1,
+      "message": "Never var unless working with a version of JS that doesn\u0027t support it (e.g. interface.js doesn\u0027t support let/const)",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 3
+      },
+      "revId": "7a744decebc47307e9de960d699f48ec0870d63a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
