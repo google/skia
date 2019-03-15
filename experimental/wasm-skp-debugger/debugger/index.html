@@ -5,12 +5,12 @@
     <title>Debugger Demo</title>
   <script src="bin/debugger.js"></script>
   <script>
-var index = 0;
+let index = 0;
+let surface;
 
 DebuggerInit({
   locateFile: (file) => '/node_modules/debugger/bin/'+file,
 }).ready().then((Debugger) => {
-  let surface;
   const player = new Debugger.SkpDebugPlayer();
 
   // Define an event handler for the file input dialog
@@ -41,7 +41,8 @@ DebuggerInit({
       canvas = document.getElementById('debugger_view');
       canvas.width = bounds.fRight - bounds.fLeft;
       canvas.height = bounds.fBottom - bounds.fTop;
-      surface = Debugger.MakeSWCanvasSurface('debugger_view');
+      //Assume GPU selected initially
+      surface = Debugger.MakeWebGLCanvasSurface('debugger_view', canvas.width, canvas.height);
 
       document.getElementById('command-count').innerHTML = player.getSize();
       player.setClipVizColor(0);
@@ -51,13 +52,21 @@ DebuggerInit({
 
   function playFile() {
     interval = parseFloat(document.getElementById('interval').value);
-    var intervalID = setInterval(function() {
+    let intervalID = setInterval(function() {
         if (index < 789){
           player.drawTo(surface, index);
           surface.flush();
           index++;
         }
     }, interval);
+  }
+
+  // Discard canvas when switching between cpu/gpu backend because it's bound to a context.
+  function replaceCanvas() {
+      canvas = document.getElementById('debugger_view');
+      let newCanvas = canvas.cloneNode(true);
+      let parent = canvas.parentNode;
+      parent.replaceChild(newCanvas, canvas);
   }
 
   document.getElementById('file-input')
@@ -99,12 +108,30 @@ DebuggerInit({
       console.log('parsed json');
     });
 
+  document.getElementById('backend_gpu')
+    .addEventListener('change', function(e) {
+      if (e.target.checked) {
+        replaceCanvas();
+        surface = Debugger.MakeWebGLCanvasSurface('debugger_view', canvas.width, canvas.height);
+      }
+    });
+
+  document.getElementById('backend_cpu')
+    .addEventListener('change', function(e) {
+      if (e.target.checked) {
+        replaceCanvas();
+        surface = Debugger.MakeSWCanvasSurface('debugger_view');
+      }
+    });
+
 });
   </script>
   </head>
   <body>
     <canvas id=debugger_view width=400 height=400></canvas>
     <div style="float:right">
+      <input type="radio" name="backend" value="CPU" id="backend_cpu"> CPU
+      <input type="radio" name="backend" value="WebGL" id="backend_gpu" checked> WebGL<br>
       <input type="file" id="file-input" /> | <span id="command-count">0</span> commands<br>
       <input type="button" id="play_button" value="Play" />
       command interval in ms
