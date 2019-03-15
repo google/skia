@@ -54,7 +54,7 @@
     M(store_u16_be)                                                \
     M(load_src) M(store_src) M(load_dst) M(store_dst)              \
     M(scale_u8) M(scale_565) M(scale_1_float)                      \
-    M( lerp_u8) M( lerp_565) M( lerp_1_float)                      \
+    M( lerp_u8) M( lerp_565) M( lerp_1_float) M(lerp_native)       \
     M(dstatop) M(dstin) M(dstout) M(dstover)                       \
     M(srcatop) M(srcin) M(srcout) M(srcover)                       \
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)    \
