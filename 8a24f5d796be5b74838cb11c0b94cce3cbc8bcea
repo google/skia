@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05047c5d_c2b6e597",
+        "filename": "tools/fiddle/examples.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-15T13:52:11Z",
+      "side": 1,
+      "message": "Why did this switch to unsigned? I thought generally we preferred using signed ints. (See for example https://google.github.io/styleguide/cppguide.html#Integer_Types)",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "8a24f5d796be5b74838cb11c0b94cce3cbc8bcea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

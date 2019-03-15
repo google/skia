@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4243d334_f1a85bf7",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 2251,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-15T13:52:11Z",
+      "side": 1,
+      "message": "(Did you miss this comment? Maybe this is right, and I just don\u0027t understand gn.)",
+      "parentUuid": "c73ae359_9a8b0509",
+      "range": {
+        "startLine": 2251,
+        "startChar": 6,
+        "endLine": 2251,
+        "endChar": 21
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "04980a9f_71ec1955",
         "filename": "docs/examples/TextBlobBuilder_004.cpp",
         "patchSetId": 10
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "6af3a318_e9e390d4",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-15T13:52:11Z",
+      "side": 1,
+      "message": "Ok, cool. Thanks for updating the commit message. If it\u0027s easy, it\u0027d be nice to update the comment explaining why. (\"disabled\" tells me something I already know from \"#if 0\", but something like \"disabled until it is updated to use the current API\" is more helpful.)",
+      "parentUuid": "d018d70b_39be7ff6",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dad5d499_fee23fdd",
         "filename": "docs/examples/TextBlobBuilder_004.cpp",
         "patchSetId": 10
@@ -107,6 +155,30 @@
       "side": 1,
       "message": "everything between line 7 and line 16 is exactly the text that appears at fiddle.skia.org.  Joe will need to extract that to generate fiddles.",
       "parentUuid": "dad5d499_fee23fdd",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 29
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47e91783_16f0fa25",
+        "filename": "docs/examples/TextBlobBuilder_004.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-15T13:52:11Z",
+      "side": 1,
+      "message": "Ah, that makes sense. +jcgregorio",
+      "parentUuid": "3132c6a1_cd47850f",
       "range": {
         "startLine": 7,
         "startChar": 0,
@@ -163,6 +235,30 @@
       "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d22bb52_d98ca997",
+        "filename": "gn/examples.gni",
+        "patchSetId": 10
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-15T13:52:11Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5e44a2e1_4d903cc5",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 47
+      },
+      "revId": "243c67dbe793d13dddd991d7d8044d46544b8526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
