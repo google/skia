@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6548a6fb_f3cec56b",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T19:13:28Z",
+      "side": 1,
+      "message": "Our own lerp impl code is \n\nlerp(a, b, t) : return a(1 - t) + b*t\n\nI find that very readable, since a, b reads in the same order as 0...1 (i.e. it returns a when t is 0).\n\nIf you think this is not as intuitive as a public convention, we should think more. If this comment is about my swizzling as the impl, that can be fixed (in several ways probably). One obvious change could be that I defined mixers in the pipeline to be Mixer(dr,dg,db,da,    r,g,b,a). That would align with our current lerp stage.\n\nOn the Blend front, I see that I picked the opposite param order from other helpers like SkShader::MakeCompose(dst, src, mode). I agree I should match that in the Blend Mixer...",
+      "parentUuid": "70353bf4_274060c8",
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2959993b_4d317e55",
         "filename": "src/core/SkMixer.cpp",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2019-03-15T17:49:49Z",
       "side": 1,
       "message": "Might be clearer if you just write \"storage-\u003efShaderOutput\" like you did for store_src?  Or are you trying to emphasize that it\u0027s loading the red channels, not all four?",
+      "range": {
+        "startLine": 207,
+        "startChar": 60,
+        "endLine": 207,
+        "endChar": 87
+      },
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "334b08a5_200b9e51",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T19:13:28Z",
+      "side": 1,
+      "message": "Yes, that was why.",
+      "parentUuid": "2959993b_4d317e55",
       "range": {
         "startLine": 207,
         "startChar": 60,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "dc713ede_45cffcec",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T19:13:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cab78a18_48385e6e",
+      "range": {
+        "startLine": 1491,
+        "startChar": 0,
+        "endLine": 1498,
+        "endChar": 35
+      },
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2eb90476_f47ee646",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "465996b0_898a2ab0",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3377,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T19:13:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eb90476_f47ee646",
+      "range": {
+        "startLine": 3374,
+        "startChar": 3,
+        "endLine": 3377,
+        "endChar": 30
+      },
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aee1bb49_0d4eb43f",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -102,6 +192,24 @@
       "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0787a7fd_0270e5d9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3382,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-15T19:13:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aee1bb49_0d4eb43f",
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
