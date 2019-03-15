@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70353bf4_274060c8",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T17:49:49Z",
+      "side": 1,
+      "message": "Why don\u0027t we swap Mixers\u0027 lerp convention to A*t + B*(1-t)?  That\u0027ll make MakeLerp() line up with MakeBlend() a little more intuitively; when lerping is used with things that are src-y and dst-y, it\u0027s usually src*t + dst*(1-t).  And then this impl here will become straightforward enough to not need the note.",
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2959993b_4d317e55",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T17:49:49Z",
+      "side": 1,
+      "message": "Might be clearer if you just write \"storage-\u003efShaderOutput\" like you did for store_src?  Or are you trying to emphasize that it\u0027s loading the red channels, not all four?",
+      "range": {
+        "startLine": 207,
+        "startChar": 60,
+        "endLine": 207,
+        "endChar": 87
+      },
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cab78a18_48385e6e",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T17:49:49Z",
+      "side": 1,
+      "message": "I don\u0027t think you need to keep adding this comment... all these lerps lerp from dst to src.  That comment at the top covers them all.  As is, if we put this comment on two but not the others, it makes it read like the others follow a standard, opposite convention (lerping from src to dst) where they actually all agree.\n\nI\u0027d also argue that this is a case where the code is clear enough in both lerp_1_float and lerp_floats that a comment doesn\u0027t add anything for the reader except the need to double-check that the comment and code agree.",
+      "range": {
+        "startLine": 1491,
+        "startChar": 0,
+        "endLine": 1498,
+        "endChar": 35
+      },
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eb90476_f47ee646",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3377,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T17:49:49Z",
+      "side": 1,
+      "message": "These guys are probably also TODOs or implementing lerp_floats is pretty pointless?",
+      "range": {
+        "startLine": 3374,
+        "startChar": 3,
+        "endLine": 3377,
+        "endChar": 30
+      },
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aee1bb49_0d4eb43f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3382,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-15T17:49:49Z",
+      "side": 1,
+      "message": "This is a little tricky, and you probably wouldn\u0027t want this stage to be lerp_floats in that end.  You\u0027d want it to be like, lerp_native, lerping with float values when in the float pipeline, and or with unorm8 values when in the lowp pipeline.  When you\u0027re in lowp, shaders don\u0027t produce floats.",
+      "revId": "5a0c81942d124f0efadf532d13974165e0f32a30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
