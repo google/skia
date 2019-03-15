@@ -56,9 +56,6 @@ public:
     // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
     void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
-    // convenience method for uploading a SkMatrix44 to a 4x4 matrix uniform
-    void setSkMatrix44(UniformHandle, const SkMatrix44&) const;
-
     // for nvpr only
     GR_DEFINE_RESOURCE_HANDLE_CLASS(VaryingHandle);
     virtual void setPathFragmentInputTransform(VaryingHandle u, int components,

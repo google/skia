@@ -25,7 +25,7 @@ public:
     SkString dumpInfo() const override;
 #endif
 
-    const SkMatrix44& colorSpaceMatrix() const { return fColorSpaceMatrix; }
+    SkYUVColorSpace yuvColorSpace() const { return fYUVColorSpace; }
     const SkYUVAIndex& yuvaIndex(int i) const { return fYUVAIndices[i]; }
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
@@ -35,9 +35,9 @@ public:
 private:
     GrYUVtoRGBEffect(const sk_sp<GrTextureProxy> proxies[], const SkSize scales[],
                      const GrSamplerState::Filter filterModes[], int numPlanes,
-                     const SkYUVAIndex yuvaIndices[4], const SkMatrix44& colorSpaceMatrix)
+                     const SkYUVAIndex yuvaIndices[4], SkYUVColorSpace yuvColorSpace)
             : INHERITED(kGrYUVtoRGBEffect_ClassID, kNone_OptimizationFlags)
-            , fColorSpaceMatrix(colorSpaceMatrix) {
+            , fYUVColorSpace(yuvColorSpace) {
         for (int i = 0; i < numPlanes; ++i) {
             fSamplers[i].reset(std::move(proxies[i]),
                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filterModes[i]));
@@ -63,7 +63,7 @@ private:
     SkMatrix44       fSamplerTransforms[4];
     GrCoordTransform fSamplerCoordTransforms[4];
     SkYUVAIndex      fYUVAIndices[4];
-    SkMatrix44       fColorSpaceMatrix;
+    SkYUVColorSpace  fYUVColorSpace;
 
     typedef GrFragmentProcessor INHERITED;
 };
