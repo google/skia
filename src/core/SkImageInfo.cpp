@@ -170,3 +170,22 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
 
     return true;
 }
+
+const char* SkColorTypeToString(SkColorType v) {
+    #define M(X) case k ## X ## _SkColorType: return #X
+    switch (v) {
+        M(Unknown); M(Alpha_8); M(RGB_565); M(ARGB_4444); M(RGBA_8888);
+        M(RGB_888x); M(BGRA_8888); M(RGBA_1010102); M(RGB_101010x); M(Gray_8);
+        M(RGBA_F16Norm); M(RGBA_F16); M(RGBA_F32); default: return nullptr;
+    }
+    #undef M
+}
+
+const char* SkAlphaTypeToString(SkAlphaType v) {
+    #define M(X) case k ## X ## _SkAlphaType: return #X
+    switch (v) {
+        M(Unknown); M(Opaque); M(Premul); M(Unpremul); default: return nullptr;
+    }
+    #undef M
+}
+

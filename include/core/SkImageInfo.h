@@ -42,6 +42,14 @@ enum SkAlphaType {
     kLastEnum_SkAlphaType = kUnpremul_SkAlphaType, //!< last valid value
 };
 
+/** Returns name of alphaType as null-terminated C string.
+
+    @param alphaType  One of kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                      kPremul_SkAlphaType, or kUnpremul_SkAlphaType.
+    @return           C string
+*/
+SK_API const char* SkAlphaTypeToString(SkAlphaType alphaType);
+
 /** Returns true if SkAlphaType equals kOpaque_SkAlphaType. kOpaque_SkAlphaType is a
     hint that the SkColorType is opaque, or that all alpha values are set to
     their 1.0 equivalent. If SkAlphaType is kOpaque_SkAlphaType, and SkColorType is not
@@ -97,6 +105,17 @@ enum SkColorType {
     #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
 #endif
 };
+
+/** Returns name of colorType as null-terminated C string.
+
+    @param colorType  One of kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                      kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
+                      kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                      kGray_8_SkColorType, kRGBA_F16Norm_SkColorType, kRGBA_F16_SkColorType,
+                      or kRGBA_F32_SkColorType.
+    @return           C string
+*/
+SK_API const char* SkColorTypeToString(SkColorType colorType);
 
 /** Returns the number of bytes required to store a pixel, including unused padding.
     Returns zero if ct is kUnknown_SkColorType or invalid.

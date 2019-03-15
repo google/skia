@@ -565,3 +565,35 @@ uint32_t SkPaint::getHash() const {
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));
 }
+
+const char* SkPaintStyleToString(SkPaint::Style v) {
+    #define M(X) case SkPaint::k ## X ## _Style: return #X
+    switch (v) {
+        M(Fill); M(Stroke); M(StrokeAndFill); default: return nullptr;
+    }
+    #undef M
+}
+
+const char* SkPaintCapToString(SkPaint::Cap v) {
+    #define M(X) case SkPaint::k ## X ## _Cap: return #X
+    switch (v) {
+        M(Butt); M(Round); M(Square); default: return nullptr;
+    }
+    #undef M
+}
+
+const char* SkPaintJoinToString(SkPaint::Join v) {
+    #define M(X) case SkPaint::k ## X ## _Join: return #X
+    switch (v) {
+        M(Miter); M(Round); M(Bevel); default: return nullptr;
+    }
+    #undef M
+}
+
+const char* SkFilterQualityToString(SkFilterQuality v) {
+    #define M(X) case k ## X ## _SkFilterQuality: return #X
+    switch (v) {
+        M(None); M(Low); M(Medium); M(High); default: return nullptr;
+    }
+    #undef M
+}

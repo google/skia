@@ -4,9 +4,6 @@
 // HASH=9b3eb5aaa0dfea9feee54e7650fa5446
 REG_FIDDLE(ColorTypeIsAlwaysOpaque, 256, 192, false, 0) {
 void draw(SkCanvas* canvas) {
-    const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
-                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",
-                             "RGBA_F16" };
     SkPaint paint;
     SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
     int y = 15;
@@ -19,7 +16,7 @@ void draw(SkCanvas* canvas) {
                                  } ) {
         bool result = SkColorTypeIsAlwaysOpaque(colorType);
         SkString string;
-        string.printf("%13s %6s", colors[(int) colorType], result ? "true" : "false");
+        string.printf("%13s %6s", SkColorTypeToString(colorType), result ? "true" : "false");
         canvas->drawString(string, 10, y += 14, font, paint);
     }
 }
