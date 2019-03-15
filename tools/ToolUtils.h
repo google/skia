@@ -11,11 +11,13 @@
 #include "SkColor.h"
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
+#include "SkFilterQuality.h"
 #include "SkFont.h"
 #include "SkFontStyle.h"
 #include "SkFontTypes.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
+#include "SkPaint.h"
 #include "SkPixmap.h"
 #include "SkRandom.h"
 #include "SkRect.h"
@@ -271,6 +273,13 @@ private:
     SkPixmap fPM;
     SkIPoint fLoc;
 };
+
+const char* ColorTypeToString(SkColorType);
+const char* AlphaTypeToString(SkAlphaType);
+const char* PaintCapToString(SkPaint::Cap);
+const char* PaintJoinToString(SkPaint::Join);
+const char* PaintStyleToString(SkPaint::Style);
+const char* FilterQualityToString(SkFilterQuality);
 
 }  // namespace ToolUtils
 

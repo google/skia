@@ -438,4 +438,54 @@ void SetDefaultFontMgr() {
 #endif
 }
 
+const char* ColorTypeToString(SkColorType v) {
+    #define M(X) case k ## X ## _SkColorType: return #X
+    switch (v) {
+        M(Unknown); M(Alpha_8); M(RGB_565); M(ARGB_4444); M(RGBA_8888);
+        M(RGB_888x); M(BGRA_8888); M(RGBA_1010102); M(RGB_101010x); M(Gray_8);
+        M(RGBA_F16Norm); M(RGBA_F16); M(RGBA_F32);
+    }
+    #undef M
+}
+
+const char* AlphaTypeToString(SkAlphaType v) {
+    #define M(X) case k ## X ## _SkAlphaType: return #X
+    switch (v) {
+        M(Unknown); M(Opaque); M(Premul); M(Unpremul);
+    }
+    #undef M
+}
+
+const char* PaintCapToString(SkPaint::Cap v) {
+    #define M(X) case SkPaint::k ## X ## _Cap: return #X
+    switch (v) {
+        M(Butt); M(Round); M(Square);
+    }
+    #undef M
+}
+
+const char* PaintJoinToString(SkPaint::Join v) {
+    #define M(X) case SkPaint::k ## X ## _Join: return #X
+    switch (v) {
+        M(Miter); M(Round); M(Bevel);
+    }
+    #undef M
+}
+
+const char* PaintStyleToString(SkPaint::Style v) {
+    #define M(X) case SkPaint::k ## X ## _Style: return #X
+    switch (v) {
+        M(Fill); M(Stroke); M(StrokeAndFill);
+    }
+    #undef M
+}
+
+const char* FilterQualityToString(SkFilterQuality v) {
+    #define M(X) case k ## X ## _SkFilterQuality: return #X
+    switch (v) {
+        M(None); M(Low); M(Medium); M(High);
+    }
+    #undef M
+}
+
 }  // namespace ToolUtils
