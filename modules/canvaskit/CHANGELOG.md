@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `SkPathMeasure`, `RSXFormBuilder`, `SkFont.getWidths`, `SkTextBlob.MakeFromRSXform`
+   which were needed to add the helper function `SkTextBlob.MakeOnPath`.
+
 ### Changed
  - Location in Skia Git repo now `modules/canvaskit` (was `experimental/canvaskit`)
 
