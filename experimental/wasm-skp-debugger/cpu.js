@@ -16,6 +16,7 @@
       if (surface) {
         surface._canvas = canvas;
       }
+      console.log('Made HTML Canvas Surface');
       return surface;
     };
 
