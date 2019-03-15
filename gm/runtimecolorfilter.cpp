@@ -15,26 +15,18 @@
 #include "effects/GrSkSLFP.h"
 
 const char* SKSL_TEST_SRC = R"(
-    in uniform float b;
-
     void main(inout half4 color) {
-        color.rg = color.gr;
-        color.b = half(b);
+        color.rgb = 0.5 * color.rgb;
     }
 )";
 
-static void runtimeCpuFunc(float color[4], const void* context) {
-    std::swap(color[0], color[1]);
-    color[2] = *(float*) context;
-}
-
-DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
+DEF_SIMPLE_GM(runtimecolorfilter, canvas, 768, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
     float b = 0.75;
     sk_sp<SkData> data = SkData::MakeWithoutCopy(&b, sizeof(b));
-    auto cf1 = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC), runtimeCpuFunc).make(data);
+    auto cf1 = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC)).make(data);
     SkPaint p;
     p.setColorFilter(cf1);
     canvas->drawImage(img, 256, 0, &p);
