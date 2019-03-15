@@ -360,6 +360,10 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kAlpha_8_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
+    // Alpha_8_as_Red uses R8Unorm
+    info = &fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
+
     // Gray_8 uses R8Unorm
     info = &fConfigTable[kGray_8_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
