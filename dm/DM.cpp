@@ -382,6 +382,11 @@ void HashAndEncode::write(SkWStream* st) const {
     if (const uint64_t* px = fPixels.get()) {
         st->write(px, sizeof(*px) * fSize.width() * fSize.height());
     }
+
+    // N.B. changing salt will change the hash of all images produced by DM,
+    // and will cause tens of thousands of new images to be uploaded to Gold.
+    int salt = 1;
+    st->write(&salt, sizeof(salt));
 }
 
 bool HashAndEncode::writePngTo(const char* path, const char* md5) const {
