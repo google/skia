@@ -3057,6 +3057,33 @@ STAGE_PP(luminance_to_alpha, Ctx::None) {
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //
 
+STAGE_PP(load_src, const uint16_t* ptr) {
+    r = unaligned_load<U16>(ptr + 0*N);
+    g = unaligned_load<U16>(ptr + 1*N);
+    b = unaligned_load<U16>(ptr + 2*N);
+    a = unaligned_load<U16>(ptr + 3*N);
+}
+STAGE_PP(store_src, uint16_t* ptr) {
+    unaligned_store(ptr + 0*N, r);
+    unaligned_store(ptr + 1*N, g);
+    unaligned_store(ptr + 2*N, b);
+    unaligned_store(ptr + 3*N, a);
+}
+STAGE_PP(load_dst, const uint16_t* ptr) {
+    dr = unaligned_load<U16>(ptr + 0*N);
+    dg = unaligned_load<U16>(ptr + 1*N);
+    db = unaligned_load<U16>(ptr + 2*N);
+    da = unaligned_load<U16>(ptr + 3*N);
+}
+STAGE_PP(store_dst, uint16_t* ptr) {
+    unaligned_store(ptr + 0*N, dr);
+    unaligned_store(ptr + 1*N, dg);
+    unaligned_store(ptr + 2*N, db);
+    unaligned_store(ptr + 3*N, da);
+}
+
+// ~~~~~~ Coverage scales / lerps ~~~~~~ //
+
 STAGE_PP(scale_1_float, const float* f) {
     U16 c = from_float(*f);
     r = div255( r * c );
@@ -3066,6 +3093,13 @@ STAGE_PP(scale_1_float, const float* f) {
 }
 STAGE_PP(lerp_1_float, const float* f) {
     U16 c = from_float(*f);
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
+}
+STAGE_PP(lerp_native, const uint16_t scales[]) {
+    auto c = unaligned_load<U16>(scales);
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
     b = lerp(db, b, c);
@@ -3355,15 +3389,10 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
-    NOT_IMPLEMENTED(load_src) // TODO
-    NOT_IMPLEMENTED(store_src) // TODO
-    NOT_IMPLEMENTED(load_dst) // TODO
-    NOT_IMPLEMENTED(store_dst) // TODO
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
     NOT_IMPLEMENTED(dither)  // TODO
-    NOT_IMPLEMENTED(lerp_native) // TODO
     NOT_IMPLEMENTED(from_srgb)
     NOT_IMPLEMENTED(to_srgb)
     NOT_IMPLEMENTED(load_f16)
