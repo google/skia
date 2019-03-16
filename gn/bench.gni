@@ -77,6 +77,7 @@ bench_sources = [
   "$_bench/MemsetBench.cpp",
   "$_bench/MergeBench.cpp",
   "$_bench/MipMapBench.cpp",
+  "$_bench/MixerBench.cpp",
   "$_bench/MorphologyBench.cpp",
   "$_bench/MutexBench.cpp",
   "$_bench/PatchBench.cpp",
