@@ -12,6 +12,7 @@
 #include "SkGradientShader.h"
 #include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
+#include "SkAnimTimer.h"
 
 namespace {
 
@@ -125,40 +126,72 @@ static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     return img->makeShader(&m);
 }
 
-static sk_sp<SkShader> make_grad(int size) {
-    SkColor colors[] = { 0, 0, SK_ColorRED, SK_ColorRED };
+static sk_sp<SkShader> make_grad(int size, float t) {
+    SkASSERT(t >= 0 && t <= 1);
+    unsigned r = SkScalarRoundToInt(t * 255);
+    SkColor c = SkColorSetARGB(r, r, 0, 0);
+
+    SkColor colors[] = { 0, c, SK_ColorRED };
     SkPoint pts[] = {{0, 0}, {size*1.0f, size*1.0f}};
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
+    SkScalar pos[] = {0, 1 - t, 1.0f};
+    return SkGradientShader::MakeLinear(pts, colors, pos, SK_ARRAY_COUNT(colors),
                                         SkShader::kClamp_TileMode);
 }
 
-DEF_SIMPLE_GM(mixershader_shadermixer, canvas, 542, 542) {
-    const int size = 256;
-    auto sh0 = make_resource_shader("images/mandrill_256.png", size);
-    auto sh1 = make_resource_shader("images/baby_tux.png", size);
-    auto sh2 = make_grad(size);
+class ShaderMixerGM final : public skiagm::GM {
+    enum { SIZE = 256 };
+    float fPos = 0.5f;
+    sk_sp<SkShader> fS0, fS1;
 
-    SkRect r = SkRect::MakeIWH(size, size);
+public:
+    ShaderMixerGM() {}
 
-    SkPaint paint;
+protected:
+    SkString onShortName() override {
+        return SkString("mixershader_shadermixer");
+    }
 
-    canvas->translate(10, 10);
+    void onOnceBeforeDraw() override {
+        fS0 = make_resource_shader("images/mandrill_256.png", SIZE);
+        fS1 = make_resource_shader("images/baby_tux.png", SIZE);
+    }
 
-    canvas->save();
-    paint.setShader(sh0);
-    canvas->drawRect(r, paint);
-    canvas->translate(size + 10.0f, 0);
-    paint.setShader(sh1);
-    canvas->drawRect(r, paint);
-    canvas->restore();
+    SkISize onISize() override { return {542, 542}; }
 
-    canvas->translate(0, size + 10.0f);
-    paint.setShader(sh2);
-    canvas->drawRect(r, paint);
+    void onDraw(SkCanvas* canvas) override {
+        SkRect r = SkRect::MakeIWH(SIZE, SIZE);
 
-    auto mixer = SkMixer::MakeShaderLerp(sh2);  // MakeLerp(0.5)
-    auto sh = SkShader::MakeMixer(sh0, sh1, mixer);
-    canvas->translate(size + 10.0f, 0);
-    paint.setShader(sh);
-    canvas->drawRect(r, paint);
-}
+        SkPaint paint;
+
+        canvas->translate(10, 10);
+
+        canvas->save();
+        paint.setShader(fS0);
+        canvas->drawRect(r, paint);
+        canvas->translate(SIZE + 10.0f, 0);
+        paint.setShader(fS1);
+        canvas->drawRect(r, paint);
+        canvas->restore();
+
+        auto sh2 = make_grad(SIZE, fPos);
+
+        canvas->translate(0, SIZE + 10.0f);
+        paint.setShader(sh2);
+        canvas->drawRect(r, paint);
+
+        auto mixer = SkMixer::MakeShaderLerp(sh2);  // MakeLerp(0.5)
+        auto sh = SkShader::MakeMixer(fS0, fS1, mixer);
+        canvas->translate(SIZE + 10.0f, 0);
+        paint.setShader(sh);
+        canvas->drawRect(r, paint);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        fPos = (sin(timer.secs()) + 1) * 0.5f;
+        return true;
+    }
+
+private:
+    using INHERITED = skiagm::GM;
+};
+DEF_GM( return new ShaderMixerGM; )
