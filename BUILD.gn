@@ -2265,10 +2265,13 @@ if (skia_enable_tools) {
     test_app("fiddle_examples") {
       sources = [
         "tools/fiddle/examples.cpp",
-        "tools/fiddle/examples.h"
+        "tools/fiddle/examples.h",
       ]
       sources += examples_sources
       include_dirs = [ "tools" ]
+      if (is_win) {
+        cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
+      }
       deps = [
         ":skia",
         ":skia.h",
