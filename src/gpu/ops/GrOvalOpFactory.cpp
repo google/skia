@@ -953,7 +953,6 @@ public:
         SkStrokeRec::Style recStyle = stroke.getStyle();
 
         fRoundCaps = false;
-        fWideColor = !SkPMColor4fFitsInBytes(color);
 
         viewMatrix.mapPoints(&center, 1);
         radius = viewMatrix.mapRadius(radius);
@@ -1153,7 +1152,8 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         SkPMColor4f* color = &fCircles.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, color);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, color,
+                                          &fWideColor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -1450,7 +1450,6 @@ public:
                 HasAABloat::kYes, IsZeroArea::kNo);
         fVertCount = circle_type_to_vert_count(true);
         fIndexCount = circle_type_to_index_count(true);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "ButtCappedDashedCircleOp"; }
@@ -1483,7 +1482,8 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         SkPMColor4f* color = &fCircles.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, color);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, color,
+                                          &fWideColor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -1735,7 +1735,6 @@ public:
 
         fStroked = isStrokeOnly && params.fInnerXRadius > 0 && params.fInnerYRadius > 0;
         fViewMatrixIfUsingLocalCoords = viewMatrix;
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "EllipseOp"; }
@@ -1766,7 +1765,8 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, color);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, color,
+                                          &fWideColor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -1960,7 +1960,6 @@ public:
                                          params.fCenter.fY + params.fYRadius + geoDy)});
         this->setTransformedBounds(fEllipses[0].fBounds, viewMatrix, HasAABloat::kYes,
                                    IsZeroArea::kNo);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "DIEllipseOp"; }
@@ -1991,7 +1990,8 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, color);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, color,
+                                          &fWideColor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -2279,7 +2279,6 @@ public:
         fVertCount = rrect_type_to_vert_count(type);
         fIndexCount = rrect_type_to_index_count(type);
         fAllFill = (kFill_RRectType == type);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "CircularRRectOp"; }
@@ -2310,7 +2309,8 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         SkPMColor4f* color = &fRRects.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, color);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, color,
+                                          &fWideColor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -2616,7 +2616,6 @@ public:
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
         // Expand the rect for aa in order to generate the correct vertices.
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
         fRRects.emplace_back(
                 RRect{color, devXRadius, devYRadius, innerXRadius, innerYRadius, bounds});
     }
@@ -2649,7 +2648,8 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         SkPMColor4f* color = &fRRects.front().fColor;
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, color);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, color,
+                                          &fWideColor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }

@@ -413,8 +413,7 @@ void SkGpuDevice::tmp_drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[], i
     SkASSERT(clipCount == 0 || clip);
 
     SkPMColor4f dstColor = SkColor4fPrepForDst(SkColor4f::FromColor(color),
-                                              fRenderTargetContext->colorSpaceInfo(),
-                                              *fContext->priv().caps())
+                                              fRenderTargetContext->colorSpaceInfo())
                            .premul();
 
     GrPaint grPaint;

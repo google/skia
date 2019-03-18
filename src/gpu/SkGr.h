@@ -9,6 +9,7 @@
 #define SkGr_DEFINED
 
 #include "GrBlend.h"
+#include "GrCaps.h"
 #include "GrColor.h"
 #include "GrSamplerState.h"
 #include "GrTypes.h"
@@ -61,9 +62,17 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
 /** Similar, but using SkPMColor4f. */
 SkPMColor4f SkColorToPMColor4f(SkColor, const GrColorSpaceInfo&);
 
-/** Converts an SkColor4f to the destination color space. Pins the color if the destination is
-    normalized, or the device does not support half-float vertex attributes. */
-SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorSpaceInfo&, const GrCaps&);
+/** Converts an SkColor4f to the destination color space. */
+SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorSpaceInfo&);
+
+/** Returns true if half-floats are required to store the color in a vertex (and half-floats
+    are supported). */
+static inline bool SkPMColor4fNeedsWideColor(SkPMColor4f color, GrClampType clampType,
+                                             const GrCaps& caps) {
+    return GrClampType::kNone == clampType &&
+        caps.halfFloatVertexAttributeSupport() &&
+        !color.fitsInBytes();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Paint conversion

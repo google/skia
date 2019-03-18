@@ -14,6 +14,7 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "SkGr.h"
 #include "SkNx.h"
 
 #define AI SK_ALWAYS_INLINE
@@ -688,13 +689,13 @@ static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourcePro
 
 namespace GrQuadPerEdgeAA {
 
-ColorType MinColorType(SkPMColor4f color) {
+// This is a more elaborate version of SkPMColor4fNeedsWideColor that allows "no color" for white
+ColorType MinColorType(SkPMColor4f color, GrClampType clampType, const GrCaps& caps) {
     if (color == SK_PMColor4fWHITE) {
         return ColorType::kNone;
-    } else if (color.fitsInBytes()) {
-        return ColorType::kByte;
     } else {
-        return ColorType::kHalf;
+        return SkPMColor4fNeedsWideColor(color, clampType, caps) ? ColorType::kHalf
+                                                                 : ColorType::kByte;
     }
 }
 
