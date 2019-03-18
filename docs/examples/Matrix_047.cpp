@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=e37a94a53c959951b059fcd624639ef6
-REG_FIDDLE(Matrix_047, 256, 128, false, 0) {
+REG_FIDDLE(Matrix_setSinCos_2, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);

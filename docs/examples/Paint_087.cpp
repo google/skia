@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=ece04ee3d3761e3425f37c8f06f054c1
-REG_FIDDLE(Paint_087, 256, 256, false, 0) {
+REG_FIDDLE(Image_Filter_Methods, 256, 256, false, 0) {
 #include "SkBlurImageFilter.h"
 
 void draw(SkCanvas* canvas) {

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=95c6a7ef82993a8d2add676080e9438a
-REG_FIDDLE(Canvas_109, 256, 40, false, 0) {
+REG_FIDDLE(Canvas_drawPosTextH, 256, 40, false, 0) {
 void draw(SkCanvas* canvas) {
     SkScalar xpos[] = { 20, 40, 80, 160 };
     SkPaint paint;

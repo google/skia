@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=33a360c3404ac21db801943336843d8e
-REG_FIDDLE(ImageInfo_005, 256, 96, false, 0) {
+REG_FIDDLE(Color_Type_ARGB_4444, 256, 96, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->scale(16, 16);
     SkBitmap bitmap;

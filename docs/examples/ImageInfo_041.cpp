@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=e47b911f94fc629f756a829e523a2a89
-REG_FIDDLE(ImageInfo_041, 256, 256, true, 0) {
+REG_FIDDLE(ImageInfo_shiftPerPixel, 256, 256, true, 0) {
 const char* color_type(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return "Unknown";

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=91c9a3e498bb9412e4522a95d076ed5f
-REG_FIDDLE(Paint_095, 256, 135, false, 0) {
+REG_FIDDLE(Text_Size, 256, 135, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     canvas->drawString("12 point", 10, 20, paint);

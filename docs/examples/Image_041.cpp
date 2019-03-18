@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a8b8bd4bfe968e2c63085f867665227f
-REG_FIDDLE(Image_041, 256, 80, false, 0) {
+REG_FIDDLE(Image_isLazyGenerated_a, 256, 80, false, 0) {
 class TestImageGenerator : public SkImageGenerator {
 public:
     TestImageGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(10, 10)) {}

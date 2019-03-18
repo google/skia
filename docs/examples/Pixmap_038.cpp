@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=7822d78f5cacf5c04267cbbc6c6d0b80
-REG_FIDDLE(Pixmap_038, 256, 64, false, 0) {
+REG_FIDDLE(Pixmap_writable_addrF16, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::Make(1, 2, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
     uint16_t storage[2][4];

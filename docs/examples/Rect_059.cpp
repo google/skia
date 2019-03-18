@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0bd13d7e6426ae7a3befa2ab151ac5fc
-REG_FIDDLE(Rect_059, 256, 256, true, 0) {
+REG_FIDDLE(Rect_roundOut, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRect rect = { 30.5f, 50.5f, 40.5f, 60.5f };
     SkIRect round;

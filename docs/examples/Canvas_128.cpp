@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=00b430bd80d740e19c6d020a940f56d5
-REG_FIDDLE(Canvas_128, 256, 1, false, 0) {
+REG_FIDDLE(Canvas_drawAnnotation_2, 256, 1, false, 0) {
 void draw(SkCanvas* canvas) {
     const char text[] = "Click this link!";
     SkRect bounds;

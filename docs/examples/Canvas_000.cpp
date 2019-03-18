@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=525285073aae7e53eb8f454a398f880c
-REG_FIDDLE(Canvas_000, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_MakeRasterDirect, 256, 256, true, 0) {
 void draw(SkCanvas* ) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, Premultiplied
     const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row

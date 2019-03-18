@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0d21e968e9a4c78c902ae3ef494941a0
-REG_FIDDLE(Paint_105, 256, 256, true, 0) {
+REG_FIDDLE(Paint_getTextEncoding, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkDebugf("kUTF8_SkTextEncoding %c= text encoding\n",

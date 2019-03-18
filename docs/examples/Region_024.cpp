@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=b6adbdddf7fe45a1098121c4e5fd57ea
-REG_FIDDLE(Region_024, 256, 256, true, 0) {
+REG_FIDDLE(Region_isRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* label, const SkRegion& region) -> void {
                 SkDebugf("%s: region is %s" "rect\n", label, region.isRect() ? "" : "not ");

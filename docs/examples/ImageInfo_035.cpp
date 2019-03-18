@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=22df72732e898a11773fbfe07388a546
-REG_FIDDLE(ImageInfo_035, 256, 144, false, 0) {
+REG_FIDDLE(ImageInfo_gammaCloseToSRGB, 256, 144, false, 0) {
 void draw(SkCanvas* canvas) {
     const int width = 256;
     const int height = 64;

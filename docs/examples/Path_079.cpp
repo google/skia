@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3ba94448a4ba48f926e643baeb5b1016
-REG_FIDDLE(Path_079, 256, 256, false, 0) {
+REG_FIDDLE(Path_ConvertConicToQuads, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
       SkPaint conicPaint;
       conicPaint.setAntiAlias(true);

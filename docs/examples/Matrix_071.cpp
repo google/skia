@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a1d6a6721b39350f81021f71a1b93208
-REG_FIDDLE(Matrix_071, 256, 256, true, 0) {
+REG_FIDDLE(Matrix_MakeRectToRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const SkRect srcs[] = { {0, 0, 0, 0}, {1, 2, 3, 4} };
     const SkRect dsts[] = { {0, 0, 0, 0}, {5, 6, 8, 9} };

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a0f166715d6479f91258d854e63e586d
-REG_FIDDLE(Path_116, 256, 256, true, 0) {
+REG_FIDDLE(Path_getGenerationID, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
     SkDebugf("empty genID = %u\n", path.getGenerationID());
