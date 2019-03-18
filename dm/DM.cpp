@@ -302,7 +302,10 @@ static void find_culprit() {
         }
 
         if (FLAGS_ignoreSigInt) {
-            signal(SIGINT, SIG_IGN);
+            signal(SIGINT, [](int sig) {
+                SkDebugf("Received signal %d, ignoring it because of --ignoreSigInt.\n"
+                         "This is probably a sign the bot is overloaded with work.\n", sig);
+            });
         }
     }
 #endif
