@@ -38,14 +38,6 @@ bool GrContext_Base::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> 
     return true;
 }
 
-bool GrContext_Base::explicitlyAllocateGPUResources() const {
-#ifdef SK_OLD_STYLE_RESOURCE_ALLOCATION
-    return false;
-#else
-    return true;
-#endif
-}
-
 const GrCaps* GrContext_Base::caps() const { return fCaps.get(); }
 sk_sp<const GrCaps> GrContext_Base::refCaps() const { return fCaps; }
 
