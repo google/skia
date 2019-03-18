@@ -22,6 +22,30 @@
       "revId": "dcd6a2808b926c9f8e3f3033fd0a09ac652c3441",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7436c64_7d863316",
+        "filename": ".clang-format",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-18T21:06:41Z",
+      "side": 1,
+      "message": "I think we should.  :/  We\u0027ve got plenty of room at 100 cols, and I\u0027ve never seen any code that\u0027s less clear with the namespaces indented.  That said, we don\u0027t really use many for it to make much of a difference.\n\nI also think we should indent all preprocessor #if-#endif stuff just like if () { }, but looks like settings for indent-before-# have not yet made their way into clang-format.",
+      "parentUuid": "5387b6a6_18801832",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 25
+      },
+      "revId": "dcd6a2808b926c9f8e3f3033fd0a09ac652c3441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
