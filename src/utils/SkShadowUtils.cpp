@@ -603,6 +603,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 // Pretransform the path to avoid transforming the stroke, below.
                 SkPath devSpacePath;
                 path.transform(viewMatrix, &devSpacePath);
+                devSpacePath.setIsVolatile(true);
 
                 // The tesselator outsets by AmbientBlurRadius (or 'r') to get the outer ring of
                 // the tesselation, and sets the alpha on the path to 1/AmbientRecipAlpha (or 'a').
