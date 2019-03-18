@@ -60,6 +60,50 @@ private:
     using INHERITED = Transform;
 };
 
+template <typename T>
+class Invert final : public Transform {
+public:
+    template <typename = std::enable_if<std::is_same<T, SkMatrix  >::value>>
+    explicit Invert(sk_sp<Transform> t)
+        : fT(std::move(t)) {
+        SkASSERT(fT);
+
+        this->observeInval(fT);
+    }
+
+    ~Invert() override {
+        this->unobserveInval(fT);
+    }
+
+protected:
+    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) override {
+        fT->revalidate(ic, ctm);
+
+        fInverted = TransformPriv::As<T>(fT);
+        if (!fInverted.invert(&fInverted)) {
+            fInverted.reset();
+        }
+
+        return SkRect::MakeEmpty();
+    }
+
+    bool is44() const override { return std::is_same<T, SkMatrix44>::value; }
+
+    SkMatrix asMatrix() const override {
+        return fInverted;
+    }
+
+    SkMatrix44 asMatrix44() const override {
+        return fInverted;
+    }
+
+private:
+    const sk_sp<Transform> fT;
+    T                      fInverted;
+
+    using INHERITED = Transform;
+};
+
 } // namespace
 
 // Transform nodes don't generate damage on their own, but via ancestor TransformEffects.
@@ -77,6 +121,14 @@ sk_sp<Transform> Transform::MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b) {
     return TransformPriv::Is44(a) || TransformPriv::Is44(b)
         ? sk_sp<Transform>(new Concat<SkMatrix44>(std::move(a), std::move(b)))
         : sk_sp<Transform>(new Concat<SkMatrix  >(std::move(a), std::move(b)));
+}
+
+sk_sp<Transform> Transform::MakeInvert(sk_sp<Transform> t) {
+    if (!t) { return nullptr; }
+
+    return TransformPriv::Is44(t)
+            ? sk_sp<Transform>(new Invert<SkMatrix44>(std::move(t)))
+            : sk_sp<Transform>(new Invert<SkMatrix  >(std::move(t)));
 }
 
 TransformEffect::TransformEffect(sk_sp<RenderNode> child, sk_sp<Transform> transform)

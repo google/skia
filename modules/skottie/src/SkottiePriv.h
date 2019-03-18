@@ -44,7 +44,7 @@ using AnimatorScope = sksg::AnimatorList;
 class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
-                     sk_sp<Logger>, sk_sp<MarkerObserver>,
+                     sk_sp<Logger>, sk_sp<MarkerObserver>, const SkSize& size,
                      Animation::Builder::Stats*, float duration, float framerate);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
@@ -173,6 +173,7 @@ private:
     sk_sp<PropertyObserver>    fPropertyObserver;
     sk_sp<Logger>              fLogger;
     sk_sp<MarkerObserver>      fMarkerObserver;
+    SkSize                     fSize;
     Animation::Builder::Stats* fStats;
     const float                fDuration,
                                fFrameRate;

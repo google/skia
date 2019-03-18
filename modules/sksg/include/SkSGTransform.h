@@ -23,6 +23,9 @@ public:
     // Compose T = A x B
     static sk_sp<Transform> MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b);
 
+    // T' = Inv(T)
+    static sk_sp<Transform> MakeInvert(sk_sp<Transform> t);
+
 protected:
     Transform();
 

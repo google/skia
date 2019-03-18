@@ -265,6 +265,7 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver,
+                                   const SkSize& size,
                                    Animation::Builder::Stats* stats,
                                    float duration, float framerate)
     : fResourceProvider(std::move(rp))
@@ -272,6 +273,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
     , fMarkerObserver(std::move(mobserver))
+    , fSize(size)
     , fStats(stats)
     , fDuration(duration)
     , fFrameRate(framerate)
@@ -499,7 +501,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
                                        std::move(fMarkerObserver),
-                                       &fStats, duration, fps);
+                                       size, &fStats, duration, fps);
     auto scene = builder.parse(json);
 
     const auto t2 = SkTime::GetMSecs();

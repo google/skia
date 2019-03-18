@@ -102,6 +102,8 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
 
 void TransformAdapter3D::apply() {
     fMatrixNode->setMatrix(this->totalMatrix());
+    this->totalMatrix().dump();
+    printf("\n");
 }
 
 RepeaterAdapter::RepeaterAdapter(sk_sp<sksg::RenderNode> repeater_node, Composite composite)
