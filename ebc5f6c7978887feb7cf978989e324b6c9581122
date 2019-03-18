@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf442a40_02e3cc6d",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-18T19:36:19Z",
+      "side": 1,
+      "message": "just to be safe, maybe also add \u0026\u0026 reader-\u003eisValid()",
+      "revId": "ebc5f6c7978887feb7cf978989e324b6c9581122",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
