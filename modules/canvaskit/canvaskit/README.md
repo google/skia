@@ -70,7 +70,10 @@ Then, add the following configuration change to the node section of the config:
 
 # Using the CanvasKit API
 
-See `example.html` and `node.example.js` for demos of how to use the API.
+See `example.html` and `node.example.js` for demos of how to use the core API.
+
+See `extra.html` for some optional add-ins like an animation player (Skottie)
+and a particles system.
 
 More detailed docs will be coming soon.
 

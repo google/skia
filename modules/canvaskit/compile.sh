@@ -191,6 +191,12 @@ echo "Generating final wasm"
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
+#
+# Setting -s USE_WEBGL2=1 does two things:
+#  1. Allows users to try to create a WebGL2 context for use with CanvasKit
+#     (this is not supported, only WebGL1 [initially])
+#  2. Makes WebGL1 work better on some graphics cards (for reasons that aren't
+#     super clear, but might have to do with extensions).
 ${EMCXX} \
     $RELEASE_CONF \
     -Iexperimental \
@@ -249,6 +255,6 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
-    -s USE_WEBGL2=0 \
+    -s USE_WEBGL2=1 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

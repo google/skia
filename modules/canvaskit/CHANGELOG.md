@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Extern bug in `CanvasKit.SkMatrix.invert`
  - Fallback to CPU now properly refreshes the canvas to get access to the
    CanvasRenderingContext2D.
+ - Compile flags for better WebGL1 support for some graphics cards.
+
+### Deprecated
+ - `SkCanvas.flush` will be removed soon - client should only call `SkSurface.flush`
+
 
 ## [0.5.0] - 2019-03-08
 
