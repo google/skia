@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cd71811a_13961fe0",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-18T20:55:57Z",
+      "side": 1,
+      "message": "Added values for matrix index, alpha, aa flags, and has clip.",
+      "parentUuid": "1eff8f59_04583f4a",
+      "range": {
+        "startLine": 1832,
+        "startChar": 0,
+        "endLine": 1835,
+        "endChar": 22
+      },
+      "revId": "ebc5f6c7978887feb7cf978989e324b6c9581122",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf442a40_02e3cc6d",
         "filename": "src/core/SkPicturePlayback.cpp",
         "patchSetId": 5
@@ -39,6 +63,24 @@
       "revId": "ebc5f6c7978887feb7cf978989e324b6c9581122",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6261b273_aaccdc63",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-18T20:55:57Z",
+      "side": 1,
+      "message": "Added reader-\u003eisValid() to the matrix loop and entry loop.",
+      "parentUuid": "bf442a40_02e3cc6d",
+      "revId": "ebc5f6c7978887feb7cf978989e324b6c9581122",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
