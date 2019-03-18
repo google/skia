@@ -85,9 +85,9 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     const char* verStr = reinterpret_cast<const char*>(getString(GR_GL_VERSION));
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
-    if (kGLES_GrGLStandard == standard) {
+    if (IS_GR_GLES(standard)) {
         return GrGLMakeAssembledGLESInterface(&getter, win_get_gl_proc);
-    } else if (kGL_GrGLStandard == standard) {
+    } else if (IS_GR_GL(standard)) {
         return GrGLMakeAssembledGLInterface(&getter, win_get_gl_proc);
     }
     return nullptr;
