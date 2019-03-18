@@ -221,7 +221,9 @@ cc_defaults {
         ],
       },
       windows: {
-        enabled: true,
+        // clang-r353983 emits error when building Skia for Windows. Do not
+        // build it for now until the compiler issue is addressed.
+        // enabled: true,
         host_ldlibs: [
             "-lgdi32",
             "-loleaut32",
