@@ -69,29 +69,31 @@ def dm_flags(api, bot):
   if 'Android' not in bot and 'MSAN' not in bot:
     args.append('--randomProcessorTest')
 
+  thread_limit = None
+  MAIN_THREAD_ONLY = 0
+
   # 32-bit desktop bots tend to run out of memory, because they have relatively
   # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
-  if '-x86-' in bot and not 'NexusPlayer' in bot:
-    args.extend(['--threads', '4'])
+  if '-x86-' in bot:
+    thread_limit = 4
 
-  # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
-  if 'CPU' in bot and 'Nexus7' in bot:
-    args.extend(['--threads', '2'])
-
-  # MotoG4 occasionally fails when multiple threads read the same image file.
-  if 'CPU' in bot and 'MotoG4' in bot:
-    args.extend(['--threads', '0'])
-
-  if 'Chromecast' in bot:
-    args.extend(['--threads', '0'])
+  # These bots run out of memory easily.
+  if ('Chromecast' in bot or
+      'MotoG4' in bot or
+      'Nexus7' in bot or
+      'NexusPlayer' in bot):
+    thread_limit = MAIN_THREAD_ONLY
 
   # Avoid issues with dynamically exceeding resource cache limits.
   if 'Test' in bot and 'DISCARDABLE' in bot:
-    args.extend(['--threads', '0'])
+    thread_limit = MAIN_THREAD_ONLY
 
   # See if staying on the main thread helps skia:6748.
   if 'Test-iOS' in bot:
-    args.extend(['--threads', '0'])
+    thread_limit = MAIN_THREAD_ONLY
+
+  if thread_limit is not None:
+    args.extend(['--threads', str(thread_limit)])
 
   # Android's kernel will occasionally attempt to kill our process, using
   # SIGINT, in an effort to free up resources. If requested, that signal
