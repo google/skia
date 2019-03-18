@@ -82,7 +82,7 @@ private:
 
     void initConfigTable();
 
-    bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
+    bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
 

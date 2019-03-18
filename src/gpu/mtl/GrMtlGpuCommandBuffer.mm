@@ -134,9 +134,6 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     if (!meshCount) {
         return;
     }
-    if (pipeline.isScissorEnabled()) {
-        return; // TODO: ScissorRects are not supported.
-    }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     GrMtlPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline,
@@ -158,6 +155,20 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                                      pipeline.getXferProcessor());
     pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
 
+    bool dynamicScissor =
+            pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
+    if (!pipeline.isScissorEnabled()) {
+        GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
+                                                       fRenderTarget, fOrigin,
+                                                       SkIRect::MakeWH(fRenderTarget->width(),
+                                                                       fRenderTarget->height()));
+    } else if (!dynamicScissor) {
+        SkASSERT(fixedDynamicState);
+        GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
+                                                       fRenderTarget, fOrigin,
+                                                       fixedDynamicState->fScissorRect);
+    }
+
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         SkASSERT(nil != fActiveRenderCmdEncoder);
@@ -175,6 +186,12 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
             pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
                                              pipeline.getXferProcessor());
             pipelineState->setDepthStencilState(fActiveRenderCmdEncoder);
+        }
+
+        if (dynamicScissor) {
+            GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
+                                                           fOrigin,
+                                                           dynamicStateArrays->fScissorRects[i]);
         }
 
         mesh.sendToGpu(this);

@@ -9,6 +9,7 @@
 
 #include "GrBackendSurface.h"
 #include "GrMtlUtil.h"
+#include "GrRenderTarget.h"
 #include "GrRenderTargetProxy.h"
 #include "GrShaderCaps.h"
 #include "GrSurfaceProxy.h"
@@ -368,6 +369,10 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kGray_8_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
+    // Gray_8_as_Red uses R8Unorm
+    info = &fConfigTable[kGray_8_as_Red_GrPixelConfig];
+    info->fFlags = ConfigInfo::kAllFlags;
+
     // RGB_565 uses B5G6R5Unorm, even though written opposite this format packs how we want
     info = &fConfigTable[kRGB_565_GrPixelConfig];
     if (this->isMac()) {
@@ -438,6 +443,13 @@ void GrMtlCaps::initConfigTable() {
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
     fPreferredStencilFormat = StencilFormat{ MTLPixelFormatStencil8, 8, 8, true };
+}
+
+bool GrMtlCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
+    if (auto rt = surface->asRenderTarget()) {
+        return rt->numColorSamples() <= 1 && SkToBool(surface->asTexture());
+    }
+    return true;
 }
 
 GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, SkColorType ct) {
