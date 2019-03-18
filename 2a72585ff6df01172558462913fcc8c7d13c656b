@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4e243d0_4f078b5b",
+        "filename": "include/gpu/gl/GrGLAssembleHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T18:07:23Z",
+      "side": 1,
+      "message": "GrGet...",
+      "range": {
+        "startLine": 10,
+        "startChar": 5,
+        "endLine": 10,
+        "endChar": 6
+      },
+      "revId": "2a72585ff6df01172558462913fcc8c7d13c656b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
