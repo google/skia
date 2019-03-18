@@ -175,6 +175,8 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
     }
 }
 
+#ifndef SK_METAL
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsTest, reporter, ctxInfo) {
     // RGBA
     basic_transfer_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888, false);
@@ -184,3 +186,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsTest, reporter, ctxInfo) {
     basic_transfer_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, false);
     basic_transfer_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, true);
 }
+
+#endif
