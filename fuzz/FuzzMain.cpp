@@ -57,6 +57,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "skp\n"
                                          "sksl2glsl\n"
                                          "sksl2metal\n"
+                                         "sksl2pipeline\n"
                                          "sksl2spirv\n"
 #if defined(SK_ENABLE_SKOTTIE)
                                          "skottie_json\n"
@@ -85,6 +86,7 @@ static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 static void fuzz_sksl2metal(sk_sp<SkData>);
 static void fuzz_sksl2spirv(sk_sp<SkData>);
+static void fuzz_sksl2pipeline(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 static void print_api_names();
@@ -216,6 +218,10 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_sksl2spirv(bytes);
         return 0;
     }
+    if (type.equals("sksl2pipeline")) {
+        fuzz_sksl2pipeline(bytes);
+        return 0;
+    }
     if (type.equals("textblob")) {
         fuzz_textblob_deserialize(bytes);
         return 0;
@@ -256,6 +262,7 @@ static std::map<std::string, std::string> cf_map = {
     {"sksl2glsl", "sksl2glsl"},
     {"sksl2metal", "sksl2metal"},
     {"sksl2spirv", "sksl2spirv"},
+    {"sksl2pipeline", "sksl2pipeline"},
 #if defined(SK_ENABLE_SKOTTIE)
     {"skottie_json", "skottie_json"},
 #endif
@@ -739,5 +746,15 @@ static void fuzz_sksl2metal(sk_sp<SkData> bytes) {
         SkDebugf("[terminated] Success! Compiled input to Metal.\n");
     } else {
         SkDebugf("[terminated] Could not compile input to Metal.\n");
+    }
+}
+
+bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes);
+
+static void fuzz_sksl2pipeline(sk_sp<SkData> bytes) {
+    if (FuzzSKSL2Pipeline(bytes)) {
+        SkDebugf("[terminated] Success! Compiled input to pipeline stage.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile input to pipeline stage.\n");
     }
 }

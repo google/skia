@@ -2006,6 +2006,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2GLSL.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2Metal.cpp",
+      "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
