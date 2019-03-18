@@ -132,4 +132,14 @@ DEF_TEST(SkVx, r) {
     REPORTER_ASSERT(r, all(shuffle<2,1>            (float4{1,2,3,4}) == float2{3,2}));
     REPORTER_ASSERT(r, all(shuffle<2,1,2,1,2,1,2,1>(float4{1,2,3,4}) == float8{3,2,3,2,3,2,3,2}));
     REPORTER_ASSERT(r, all(shuffle<3,3,3,3>        (float4{1,2,3,4}) == float4{4,4,4,4}));
+
+    // Test that mixed types can be used where they make sense.  Mostly about ergonomics.
+    REPORTER_ASSERT(r, all(float4{1,2,3,4} < 5));
+    REPORTER_ASSERT(r, all( byte4{1,2,3,4} < 5));
+    REPORTER_ASSERT(r, all(  int4{1,2,3,4} < 5.0f));
+    float4 five = 5;
+    REPORTER_ASSERT(r, all(five == 5.0f));
+    REPORTER_ASSERT(r, all(five == 5));
+
+    REPORTER_ASSERT(r, all(max(2, min(float4{1,2,3,4}, 3)) == float4{2,2,3,3}));
 }

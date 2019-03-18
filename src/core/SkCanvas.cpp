@@ -2883,6 +2883,29 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
+                                       const SkRect& dstRect, int matrixIndex, float alpha,
+                                       unsigned aaFlags, bool hasClip)
+                : fImage(std::move(image))
+                , fSrcRect(srcRect)
+                , fDstRect(dstRect)
+                , fMatrixIndex(matrixIndex)
+                , fAlpha(alpha)
+                , fAAFlags(aaFlags)
+                , fHasClip(hasClip) {}
+
+SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
+                                       const SkRect& dstRect, float alpha, unsigned aaFlags)
+                : fImage(std::move(image))
+                , fSrcRect(srcRect)
+                , fDstRect(dstRect)
+                , fMatrixIndex(-1)
+                , fAlpha(alpha)
+                , fAAFlags(aaFlags)
+                , fHasClip(false) {}
+
+///////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, void* pixels,
                                                      size_t rowBytes, const SkSurfaceProps* props) {
     if (!SkSurfaceValidateRasterInfo(info, rowBytes)) {

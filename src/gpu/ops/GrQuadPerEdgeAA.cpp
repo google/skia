@@ -302,10 +302,15 @@ static float get_exact_coverage(const SkPoint& pixelCenter, const Vertices& quad
     }
 
     // Track whether or not the quad vertices in (xs, ys) are on the proper sides of l, t, r, and b
-    Sk4i leftValid = SkNx_cast<int32_t>(quad.fX >= left);
-    Sk4i rightValid = SkNx_cast<int32_t>(quad.fX <= right);
-    Sk4i topValid = SkNx_cast<int32_t>(quad.fY >= top);
-    Sk4i botValid = SkNx_cast<int32_t>(quad.fY <= bot);
+    Sk4f left4f = quad.fX >= left;
+    Sk4f right4f = quad.fX <= right;
+    Sk4f top4f = quad.fY >= top;
+    Sk4f bot4f = quad.fY <= bot;
+    // Use bit casting so that overflows don't occur on WASM (will be cleaned up in SkVx port)
+    Sk4i leftValid = Sk4i::Load(&left4f);
+    Sk4i rightValid = Sk4i::Load(&right4f);
+    Sk4i topValid = Sk4i::Load(&top4f);
+    Sk4i botValid = Sk4i::Load(&bot4f);
 
     // Intercepts of quad lines with the 4 pixel edges
     Sk4f leftCross = -(edges.fC + edges.fA * left) / edges.fB;
@@ -485,8 +490,8 @@ static Sk4f compute_degenerate_quad(GrQuadAAFlags aaFlags, const Sk4f& mask, con
     Sk4f d2v0 = dists2 < kTolerance;
     // FIXME(michaelludwig): Sk4f has anyTrue() and allTrue(), but not & or |. Sk4i has & or | but
     // not anyTrue() and allTrue(). Moving to SkVx from SkNx will clean this up.
-    Sk4i d1And2 = SkNx_cast<int32_t>(d1v0) & SkNx_cast<int32_t>(d2v0);
-    Sk4i d1Or2 = SkNx_cast<int32_t>(d1v0) | SkNx_cast<int32_t>(d2v0);
+    Sk4i d1And2 = Sk4i::Load(&d1v0) & Sk4i::Load(&d2v0);
+    Sk4i d1Or2 = Sk4i::Load(&d1v0) | Sk4i::Load(&d2v0);
 
     Sk4f coverage;
     if (!d1Or2[0] && !d1Or2[1] && !d1Or2[2] && !d1Or2[3]) {

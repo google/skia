@@ -79,7 +79,15 @@
                                                  height || canvas.height);
         if (!surface) {
           SkDebug('falling back from GPU implementation to a SW based one');
-          return CanvasKit.MakeSWCanvasSurface(arg);
+          // we need to throw away the old canvas (which was locked to
+          // a webGL context) and create a new one so we can
+          var newCanvas = canvas.cloneNode(true);
+          var parent = canvas.parentNode;
+          parent.replaceChild(newCanvas, canvas);
+          // add a class so the user can detect that it was replaced.
+          newCanvas.classList.add('ck-replaced');
+
+          return CanvasKit.MakeSWCanvasSurface(newCanvas);
         }
         return surface;
       };

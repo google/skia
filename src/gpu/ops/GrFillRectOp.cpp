@@ -7,6 +7,7 @@
 
 #include "GrFillRectOp.h"
 
+#include "GrCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrMeshDrawOp.h"
 #include "GrPaint.h"
@@ -147,10 +148,19 @@ public:
         // to the same color (even if they started out with different colors).
         SkPMColor4f colorOverride;
         if (quadColors.isConstant(&colorOverride)) {
+            // TODO: Unified strategy for handling wide color outputs from processor analysis.
+            // skbug.com/8871
+            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride);
+            if (fColorType == ColorType::kHalf && !caps.halfFloatVertexAttributeSupport()) {
+                fColorType = ColorType::kByte;
+                colorOverride = {SkTPin(colorOverride.fR, 0.0f, 1.0f),
+                                 SkTPin(colorOverride.fG, 0.0f, 1.0f),
+                                 SkTPin(colorOverride.fB, 0.0f, 1.0f),
+                                 colorOverride.fA};
+            }
             for (int i = 0; i < this->quadCount(); ++i) {
                 fDeviceQuads.metadata(i).fColor = colorOverride;
             }
-            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride);
         }
 
         return result;

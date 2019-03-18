@@ -1818,6 +1818,14 @@ public:
 
     /** This is used by the experimental API below. */
     struct ImageSetEntry {
+        ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
+                      int matrixIndex, float alpha, unsigned aaFlags, bool hasClip);
+
+        ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
+                      float alpha, unsigned aaFlags);
+
+        ImageSetEntry() = default;
+
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
         SkRect fDstRect;
