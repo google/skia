@@ -69,7 +69,6 @@ Java_org_skia_skottie_SkottieRunner_nCreateProxy(JNIEnv *env, jclass clazz) {
 
     GrContextOptions options;
     options.fDisableDistanceFieldPaths = true;
-    options.fDisableCoverageCountingPaths = true;
     sk_sp<GrContext> grContext = GrContext::MakeGL(std::move(glInterface), options);
     if (!grContext.get()) {
         return 0;
