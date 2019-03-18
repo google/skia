@@ -755,7 +755,7 @@ protected:
 
     SkISize onISize() override {
         int numCols = 2 * (kLastEnum_SkYUVColorSpace + 1); // opacity x color-space
-        int numRows = 1 + (kLast_YUVFormat + 1);  // origin + # yuv formats
+        int numRows = 2 + (kLast_YUVFormat + 1);  // original + # yuv formats
         return SkISize::Make(kLabelWidth  + numCols * (kTileWidthHeight + kPad),
                              kLabelHeight + numRows * (kTileWidthHeight + kPad));
     }
@@ -881,6 +881,9 @@ protected:
                 int y = kLabelHeight;
 
                 draw_col_label(canvas, x+kTileWidthHeight/2, cs, opaque);
+
+                canvas->drawBitmap(fOriginalBMs[opaque], x, y);
+                y += kTileWidthHeight + kPad;
 
                 canvas->drawBitmap(fOriginalBMs[opaque], x, y);
                 y += kTileWidthHeight + kPad;
