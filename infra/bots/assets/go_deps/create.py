@@ -16,12 +16,18 @@ import subprocess
 
 def create_asset(target_dir):
   """Create the asset."""
+  print 'Syncing Go checkouts...'
   env = {}
   env.update(os.environ)
   env['GOPATH'] = target_dir
   subprocess.check_call(
       ['go', 'get', '-u', '-t', 'go.skia.org/infra/...'],
       env=env)
+  skia_log = subprocess.check_output(
+      ['git', 'log', '-n1'],
+      cwd=os.path.join(target_dir, 'src', 'go.skia.org', 'infra'))
+  print 'Got go.skia.org/infra at:\n%s' % skia_log
+
   # There's a broken symlink which causes a lot of problems. Delete it.
   bad_symlink = os.path.join(
       target_dir, 'src', 'go.chromium.org', 'luci', 'machine-db', 'appengine',
