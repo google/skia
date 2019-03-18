@@ -5,12 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  svg, canvas, img {
+  canvas, img {
     border: 1px dashed #AAA;
-  }
-
-  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding,
-  img, canvas {
     width: 300px;
     height: 300px;
   }
@@ -49,37 +45,16 @@
 <canvas id=shape2 width=600 height=600></canvas>
 <canvas id=textonpath width=300 height=300></canvas>
 
-<h2> Skottie </h2>
-<canvas id=sk_legos width=300 height=300></canvas>
-<canvas id=sk_drinks width=500 height=500></canvas>
-<canvas id=sk_party width=500 height=500></canvas>
-<canvas id=sk_onboarding width=500 height=500></canvas>
-<canvas id=sk_animated_gif width=500 height=500
-        title='This is an animated gif being animated in Skottie'></canvas>
-<canvas id=sk_webfont width=500 height=500
-        title='This shows loading of a custom font (e.g. WebFont)'></canvas>
-
-<h2> Particles </h2>
-<canvas id=particles width=500 height=500></canvas>
-
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
-  var legoJSON = null;
-  var drinksJSON = null;
-  var confettiJSON = null;
-  var onboardingJSON = null;
-  var multiFrameJSON = null;
-  var webfontJSON = null;
-  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
   var notoserifData = null;
 
   var bonesImageData = null;
-  var flightAnimGif = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).ready().then((CK) => {
@@ -87,19 +62,6 @@
     DrawingExample(CanvasKit, robotoData);
     PathExample(CanvasKit);
     InkExample(CanvasKit);
-    // Set bounds to fix the 4:3 resolution of the legos
-    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    // Re-size to fit
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-      'image_0.png': flightAnimGif,
-    });
-    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-      'Roboto-Regular': robotoData,
-    });
 
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -119,56 +81,7 @@
     TextShapingAPI2(CanvasKit, notoserifData);
     TextOnPathAPI1(CanvasKit);
 
-    ParticlesAPI1(CanvasKit);
-
     SurfaceAPI1(CanvasKit);
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
-    resp.text().then((str) => {
-      legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
-    resp.text().then((str) => {
-      drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
-    resp.text().then((str) => {
-      confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
-    resp.text().then((str) => {
-      onboardingJSON = str;
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_multiframe.json').then((resp) => {
-    resp.text().then((str) => {
-      multiFrameJSON = str;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_webfont.json').then((resp) => {
-    resp.text().then((str) => {
-      webfontJSON = str;
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-        'Roboto-Regular': robotoData,
-      });
-    });
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
@@ -178,22 +91,10 @@
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/flightAnim.gif').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      flightAnimGif = buffer;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
   fetch('./Roboto-Regular.woff').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
       DrawingExample(CanvasKit, robotoData);
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-        'Roboto-Regular': robotoData,
-      });
     });
   });
 
@@ -428,54 +329,6 @@
       p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
     }
     return p;
-  }
-
-  function fps(frameTimes) {
-    let total = 0;
-    for (let ft of frameTimes) {
-      total += ft;
-    }
-    return frameTimes.length / total;
-  }
-
-  function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
-    if (!CanvasKit || !jsonStr) {
-      return;
-    }
-    const animation = CanvasKit.MakeManagedAnimation(jsonStr, assets);
-    const duration = animation.duration() * 1000;
-    const size = animation.size();
-    let c = document.getElementById(id);
-    bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
-
-    // Basic managed animation test.
-    if (id === 'sk_drinks') {
-      animation.setColor('BACKGROUND_FILL', CanvasKit.Color(0, 163, 199, 1.0));
-    }
-
-    const surface = CanvasKit.MakeCanvasSurface(id);
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
-
-    let firstFrame = Date.now();
-
-    function drawFrame() {
-      let seek = ((Date.now() - firstFrame) / duration) % 1.0;
-      CanvasKit.setCurrentContext(context);
-      animation.seek(seek);
-      canvas.clear(CanvasKit.WHITE);
-      animation.render(canvas, bounds);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
-
-    //animation.delete();
-    return surface;
   }
 
   function CanvasAPI1(CanvasKit) {
@@ -1316,144 +1169,6 @@
     font.delete();
     fontPaint.delete();
   }
-
-  function ParticlesAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('particles');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
-
-    const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
-    particles.start(Date.now() / 1000.0, true);
-
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
-      canvas.clear(CanvasKit.BLACK);
-
-      particles.update(Date.now() / 1000.0);
-      particles.draw(canvas);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
-
-  }
-
-const snowfall = {
-   "MaxCount": 4096,
-   "Duration": 1,
-   "Rate": 30,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": false,
-            "Bidirectional": false,
-            "A0": 10
-         }
-      ]
-   },
-   "Drawable": {
-      "Type": "SkCircleDrawable",
-      "Radius": 1
-   },
-   "Spawn": [
-      {
-         "Type": "SkLinearVelocityAffector",
-         "Enabled": true,
-         "Force": false,
-         "Frame": "World",
-         "Angle": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 170,
-                  "A1": 190
-               }
-            ]
-         },
-         "Strength": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "A1": 30
-               }
-            ]
-         }
-      },
-      {
-         "Type": "SkPositionOnPathAffector",
-         "Enabled": true,
-         "Input": {
-            "Source": "Random",
-            "TileMode": "Clamp",
-            "Left": 0,
-            "Right": 1
-         },
-         "SetHeading": false,
-         "Path": "h500"
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkSizeAffector",
-         "Enabled": true,
-         "Curve": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Cubic",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "B0": 10,
-                  "C0": 10,
-                  "D0": 0,
-                  "A1": 10,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
-               }
-            ]
-         }
-      }
-   ]
-};
 
   function SurfaceAPI1(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('surfaces');
