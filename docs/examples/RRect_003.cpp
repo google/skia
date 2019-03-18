@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a4233634c75b72fc7a2815ddb69bd669
-REG_FIDDLE(RRect_003, 256, 128, false, 0) {
+REG_FIDDLE(RRect_Type, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     struct Radii { SkVector data[4]; };
     auto drawRRectType = [=](const SkRect& rect, const Radii& radii) {

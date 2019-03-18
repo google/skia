@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=86c0399704d8dff4091bf87b8d87d40b
-REG_FIDDLE(Point_022, 256, 128, false, 0) {
+REG_FIDDLE(Point_subtractfrom_operator, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);

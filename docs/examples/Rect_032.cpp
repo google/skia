@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=ee72450381f768f3869153cdbeccdc3e
-REG_FIDDLE(Rect_032, 256, 256, true, 0) {
+REG_FIDDLE(Rect_set_4, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint point1 = {SK_ScalarNaN, 8};
     SkPoint point2 = {3, 4};

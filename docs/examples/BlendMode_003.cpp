@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=2ea9c149964a06cdb4929158cb4f15f8
-REG_FIDDLE(BlendMode_003, 256, 256, false, 0) {
+REG_FIDDLE(Src_Over, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };

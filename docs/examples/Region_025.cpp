@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1fbd76d75ca2d280e81856311de4e54e
-REG_FIDDLE(Region_025, 256, 256, true, 0) {
+REG_FIDDLE(Region_isComplex, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* label, const SkRegion& region) -> void {
                 SkDebugf("%s: region is %s" "complex\n", label, region.isComplex() ? "" : "not ");

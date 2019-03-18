@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3f5aeb870104187643197354a7f1d27a
-REG_FIDDLE(Surface_000, 256, 256, true, 0) {
+REG_FIDDLE(Surface_MakeRasterDirect, 256, 256, true, 0) {
 void draw(SkCanvas* ) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);
     const size_t size = info.computeMinByteSize();

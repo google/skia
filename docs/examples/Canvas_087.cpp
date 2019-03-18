@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=185746dc0faa6f1df30c4afe098646ff
-REG_FIDDLE(Canvas_087, 256, 64, false, 4) {
+REG_FIDDLE(Canvas_drawImage, 256, 64, false, 4) {
 void draw(SkCanvas* canvas) {
    // sk_sp<SkImage> image;
    SkImage* imagePtr = image.get();

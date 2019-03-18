@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=7f60cb030d3f9b2473adbe3e34b19d91
-REG_FIDDLE(Canvas_061, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_getLocalClipBounds, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkCanvas local(256, 256);
     canvas = &local;

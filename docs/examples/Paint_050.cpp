@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=5de2de0f00354e59074a9bb1a42d5a63
-REG_FIDDLE(Paint_050, 384, 170, false, 0) {
+REG_FIDDLE(Miter_Limit, 384, 170, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint pts[] = {{ 10, 50 }, { 110, 80 }, { 10, 110 }};
     SkVector v[] = { pts[0] - pts[1], pts[2] - pts[1] };

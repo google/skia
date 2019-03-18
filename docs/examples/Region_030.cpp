@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=e12575ffcd262f2364e0e6bece98a825
-REG_FIDDLE(Region_030, 256, 256, true, 0) {
+REG_FIDDLE(Region_setRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region({1, 2, 3, 4});
     SkDebugf("region is %s" "empty\n", region.isEmpty() ? "" : "not ");

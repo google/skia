@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a2b255a7dac1926cc3a247d318d63c62
-REG_FIDDLE(Path_031, 256, 256, true, 0) {
+REG_FIDDLE(Path_IsQuadDegenerate, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const SkPath& path, bool exact) -> void {
         SkDebugf("quad (%1.8g,%1.8g), (%1.8g,%1.8g), (%1.8g,%1.8g) is %s" "degenerate, %s\n",

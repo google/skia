@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=026dd8b180fe8e43f477fce43e9217b3
-REG_FIDDLE(Region_046, 256, 256, false, 0) {
+REG_FIDDLE(Region_Op, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion operand({35, 35, 85, 85});
     const char* labels[] = {"difference", "intersect", "union", "xor", "reverse diff", "replace"};

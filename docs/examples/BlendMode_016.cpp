@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=23c974d2759f523ca2f4a78ae86855c3
-REG_FIDDLE(BlendMode_016, 256, 256, false, 3) {
+REG_FIDDLE(Darken, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     canvas->drawImage(image, 0, 0);
     SkColor colors[] = { SK_ColorWHITE, SK_ColorBLACK };

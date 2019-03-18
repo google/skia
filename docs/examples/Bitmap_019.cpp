@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=211ec89418011aa6e54aa2cc9567e003
-REG_FIDDLE(Bitmap_019, 256, 256, true, 0) {
+REG_FIDDLE(Bitmap_isNull, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     SkDebugf("empty bitmap does %shave pixels\n", bitmap.isNull() ? "not " : "");

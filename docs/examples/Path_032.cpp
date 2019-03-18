@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6b97099acdae80b16df0c4241f593991
-REG_FIDDLE(Path_032, 256, 256, true, 0) {
+REG_FIDDLE(Path_IsCubicDegenerate, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint points[] = {{1, 0}, {0, 0}, {0, 0}, {0, 0}};
     SkScalar step = 1;

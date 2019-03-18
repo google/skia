@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6d31686c6c0829c70f284ae716526d6a
-REG_FIDDLE(Bitmap_055, 256, 256, true, 3) {
+REG_FIDDLE(Bitmap_pixelRefOrigin, 256, 256, true, 3) {
 void draw(SkCanvas* canvas) {
     SkBitmap subset;
     source.extractSubset(&subset, SkIRect::MakeXYWH(32, 64, 128, 256));

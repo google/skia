@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=c015dc2010c15e1c00b4f7330232b0f7
-REG_FIDDLE(Paint_062, 256, 256, false, 0) {
+REG_FIDDLE(Shader_Methods_a, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkPoint center = { 50, 50 };

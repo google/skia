@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=eb6f861ca1839146d26e40d56c2a001c
-REG_FIDDLE(Bitmap_052, 256, 100, false, 0) {
+REG_FIDDLE(Bitmap_tryAllocPixels_4, 256, 100, false, 0) {
 class LargePixelRef : public SkPixelRef {
 public:
     LargePixelRef(const SkImageInfo& info, char* storage, size_t rowBytes)
