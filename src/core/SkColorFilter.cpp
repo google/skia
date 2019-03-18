@@ -382,6 +382,8 @@ sk_sp<SkColorFilter> SkColorFilter::MakeLerp(sk_sp<SkColorFilter> cf0,
 #if SK_SUPPORT_GPU
 #include "effects/GrSkSLFP.h"
 #include "GrRecordingContext.h"
+#include "SkSLByteCode.h"
+#include "SkSLInterpreter.h"
 
 class SkRuntimeColorFilter : public SkColorFilter {
 public:
@@ -402,21 +404,32 @@ public:
 #endif
 
     void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
-        // if this assert fails, it either means no CPU function was provided when this filter was
-        // created, or we have flattened and unflattened the filter, which nulls out this pointer.
-        // We don't currently have a means to flatten colorfilters containing CPU functions.
-        SkASSERT(fCpuFunction);
         struct Ctx : public SkRasterPipeline_CallbackCtx {
-            SkRuntimeColorFilterFn cpuFn;
+            SkSL::ByteCodeFunction* main;
+            std::unique_ptr<SkSL::Interpreter> interpreter;
             const void* inputs;
         };
         auto ctx = rec.fAlloc->make<Ctx>();
         ctx->inputs = fInputs->data();
-        ctx->cpuFn = fCpuFunction;
+        SkSL::Compiler c;
+        std::unique_ptr<SkSL::Program> prog = c.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                                               SkSL::String(fSkSL.c_str()),
+                                                               SkSL::Program::Settings());
+        if (c.errorCount()) {
+            SkDebugf("%s\n", c.errorText().c_str());
+            SkASSERT(false);
+        }
+        std::unique_ptr<SkSL::ByteCode> byteCode = c.toByteCode(*prog);
+        ctx->main = byteCode->fFunctions[0].get();
+        ctx->interpreter.reset(new SkSL::Interpreter(std::move(prog), std::move(byteCode)));
         ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
             auto ctx = (Ctx*)arg;
             for (int i = 0; i < active_pixels; i++) {
-                ctx->cpuFn(ctx->rgba + i * 4, ctx->inputs);
+//                printf("before: %f, %f, %f, %f\n", ctx->rgba[i * 4], ctx->rgba[i * 4 + 1], ctx->rgba[i * 4 + 2], ctx->rgba[i * 4 + 3]);
+                SkSL::Interpreter::Value inputs(0.75f);
+                ctx->interpreter->run(*ctx->main, (SkSL::Interpreter::Value*) (ctx->rgba + i * 4),
+                                      &inputs);
+//                printf("after: %f, %f, %f, %f\n", ctx->rgba[i * 4], ctx->rgba[i * 4 + 1], ctx->rgba[i * 4 + 2], ctx->rgba[i * 4 + 3]);
             }
         };
         rec.fPipeline->append(SkRasterPipeline::callback, ctx);
