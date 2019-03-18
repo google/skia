@@ -77,6 +77,7 @@ protected:
             fPaints.push_back(p);
         }
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         {
             // AA with stroke and fill style
             SkPaint p;
@@ -85,6 +86,7 @@ protected:
             p.setStrokeWidth(SkIntToScalar(3));
             fPaints.push_back(p);
         }
+#endif
     }
 
     void makeMatrices() {

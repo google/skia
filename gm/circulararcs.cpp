@@ -103,6 +103,7 @@ DEF_ARC_GM(stroke_round) {
     draw_arcs(canvas, setStroke);
 }
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
 DEF_ARC_GM(stroke_and_fill_butt) {
     auto setStroke = [] (SkPaint* p) {
         p->setStyle(SkPaint::kStrokeAndFill_Style);
@@ -126,7 +127,7 @@ DEF_ARC_GM(stroke_and_fill_round) {
     };
     draw_arcs(canvas, setStroke);
 }
-
+#endif
 DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     constexpr SkScalar kS = 50;
     struct Arc {
@@ -169,9 +170,11 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     // hairline
     paints.push_back().setStyle(SkPaint::kStroke_Style);
     paints.back().setStrokeWidth(0.f);
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
     // stroke and fill
     paints.push_back().setStyle(SkPaint::kStrokeAndFill_Style);
     paints.back().setStrokeWidth(kS / 6.f);
+#endif
     // dash effect
     paints.push_back().setStyle(SkPaint::kStroke_Style);
     paints.back().setStrokeWidth(kS / 6.f);

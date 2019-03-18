@@ -1462,9 +1462,15 @@ HRESULT SkXPSDevice::shadePath(IXpsOMPath* shadedPath,
 
     const SkPaint::Style style = shaderPaint.getStyle();
     const bool hasFill = SkPaint::kFill_Style == style
-                      || SkPaint::kStrokeAndFill_Style == style;
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                      || SkPaint::kStrokeAndFill_Style == style
+#endif
+    ;
     const bool hasStroke = SkPaint::kStroke_Style == style
-                        || SkPaint::kStrokeAndFill_Style == style;
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+                        || SkPaint::kStrokeAndFill_Style == style
+#endif
+    ;
 
     //TODO(bungeman): use dictionaries and lookups.
     if (hasFill) {
@@ -1914,7 +1920,9 @@ static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
     const SkPaint::Style style = paint.getStyle();
     return matrix.hasPerspective()
         || SkPaint::kStroke_Style == style
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         || SkPaint::kStrokeAndFill_Style == style
+#endif
         || paint.getMaskFilter()
     ;
 }

@@ -58,7 +58,9 @@ protected:
         constexpr StyleAndName gStyles[] = {
             {SkPaint::kFill_Style, "Fill"},
             {SkPaint::kStroke_Style, "Stroke"},
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
+#endif
         };
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);

@@ -131,7 +131,7 @@ DEF_TEST(Paint_filterQuality, reporter) {
 DEF_TEST(Paint_copy, reporter) {
     SkPaint paint;
     // set a few member variables
-    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
     SkLayerDrawLooper::Builder looperBuilder;
@@ -210,7 +210,9 @@ DEF_TEST(Paint_flattening, reporter) {
     const SkPaint::Style styles[] = {
         SkPaint::kFill_Style,
         SkPaint::kStroke_Style,
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
         SkPaint::kStrokeAndFill_Style,
+#endif
     };
 
 #define FOR_SETUP(index, array, setter)                                 \

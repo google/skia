@@ -12,6 +12,8 @@
 #include "SkTextFormatParams.h"
 #include "SkTypeface.h"
 
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
+
 /* Generated on a Mac with:
  * paint.setTypeface(SkTypeface::CreateByName("Papyrus"));
  * paint.getTextPath("H", 1, 100, 80, &textPath);
@@ -401,3 +403,6 @@ DEF_SIMPLE_GM(bug6987, canvas, 200, 200) {
     canvas->drawPath(path, paint);
     canvas->restore();
 }
+
+#endif
+

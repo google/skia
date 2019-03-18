@@ -820,10 +820,12 @@ static void apply_paint_style(const SkPaint& paint, SkJSONWriter& writer) {
                 writer.appendString(SKDEBUGCANVAS_ATTRIBUTE_STYLE, SKDEBUGCANVAS_STYLE_STROKE);
                 break;
             }
+#ifdef SK_SUPPORT_LEGACY_STROKEANDFILL
             case SkPaint::kStrokeAndFill_Style: {
                 writer.appendString(SKDEBUGCANVAS_ATTRIBUTE_STYLE, SKDEBUGCANVAS_STYLE_STROKEANDFILL);
                 break;
             }
+#endif
             default: SkASSERT(false);
         }
     }

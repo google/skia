@@ -1148,8 +1148,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     enum_<SkPaint::Style>("PaintStyle")
         .value("Fill",            SkPaint::Style::kFill_Style)
-        .value("Stroke",          SkPaint::Style::kStroke_Style)
-        .value("StrokeAndFill",   SkPaint::Style::kStrokeAndFill_Style);
+        .value("Stroke",          SkPaint::Style::kStroke_Style);
 
     enum_<SkPathOp>("PathOp")
         .value("Difference",         SkPathOp::kDifference_SkPathOp)
