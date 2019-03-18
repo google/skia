@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4208cd8_4379a96c",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T21:18:26Z",
+      "side": 1,
+      "message": "Given that we\u0027re likely going tripartite (GL, GLES, WebGL), maybe the macros should assume a standard (and maybe assert) rather than exclude?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 0
+      },
+      "revId": "0628f05b11b47818ee0221b8be0dc391a5df61ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
