@@ -291,18 +291,19 @@ static void find_culprit() {
     #endif
         fflush(stdout);
 
-        signal(sig, previous_handler[sig]);
-        raise(sig);
+        if (sig == SIGINT && FLAGS_ignoreSigInt) {
+            info("Ignoring signal %d because of --ignoreSigInt.\n"
+                 "This is probably a sign the bot is overloaded with work.\n", sig);
+        } else {
+            signal(sig, previous_handler[sig]);
+            raise(sig);
+        }
     }
 
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM };
         for (int sig : kSignals) {
             previous_handler[sig] = signal(sig, crash_handler);
-        }
-
-        if (FLAGS_ignoreSigInt) {
-            signal(SIGINT, SIG_IGN);
         }
     }
 #endif
