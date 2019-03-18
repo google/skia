@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1742ba3d_4e2947ce",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-18T19:31:48Z",
+      "side": 1,
+      "message": "lets just add a comment that says we could support pure render targets, but until we find a use case for that we just support texture render targets.",
+      "range": {
+        "startLine": 450,
+        "startChar": 44,
+        "endLine": 450,
+        "endChar": 76
+      },
+      "revId": "8032a26a0751d926db3b9a4a4847cfe2ae9f7d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
