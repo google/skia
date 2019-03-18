@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "339569f2_85999926",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-18T14:16:50Z",
+      "side": 1,
+      "message": "These ops don\u0027t use vertex colors at all, so wide color is always supported. I added a comment to the four ops explaining the nullptr.",
+      "parentUuid": "681203d5_039237ea",
+      "revId": "e36821a709228a207dde07b76fdd8bfcbc4fc426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea561c87_8a0100a0",
         "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "e36821a709228a207dde07b76fdd8bfcbc4fc426",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33f786a4_06e754e1",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-18T14:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea561c87_8a0100a0",
+      "revId": "e36821a709228a207dde07b76fdd8bfcbc4fc426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

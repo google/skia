@@ -34,6 +34,24 @@
       "revId": "90fed71191464a42945f6178a6e62e0df1cae42b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26311ade_f94a3dea",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-18T14:16:50Z",
+      "side": 1,
+      "message": "Yes. And after looking at the code again, I don\u0027t actually need to pin the colors. That was done in the old code as a signal to the ops that the colors should be stored in bytes. But now we\u0027re making that decision in the op, so we can just leave the colors unclamped - SkPMColor4f::toBytes_RGBA handles the pinning (and uses SkNx to do it).",
+      "parentUuid": "55bd9a7f_a59778dd",
+      "revId": "90fed71191464a42945f6178a6e62e0df1cae42b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
