@@ -10,6 +10,7 @@
 #include "GrProcessorSet.h"
 #include "GrRect.h"
 #include "GrUserStencilSettings.h"
+#include "SkGr.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
                                                    Flags flags)
@@ -64,11 +65,14 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
 
 GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
         const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType, GrClampType clampType,
-        GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor) {
+        GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor, bool* wideColor) {
     GrProcessorAnalysisColor color = *geometryColor;
     auto result = this->finalizeProcessors(
             caps, clip, fsaaType, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
+    if (wideColor) {
+        *wideColor = SkPMColor4fNeedsWideColor(*geometryColor, clampType, caps);
+    }
     return result;
 }
 
@@ -150,11 +154,14 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionF
 
 GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors(
         const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType, GrClampType clampType,
-        GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor) {
+        GrProcessorAnalysisCoverage geometryCoverage, SkPMColor4f* geometryColor, bool* wideColor) {
     GrProcessorAnalysisColor color = *geometryColor;
     auto result = this->finalizeProcessors(
             caps, clip, fsaaType, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
+    if (wideColor) {
+        *wideColor = SkPMColor4fNeedsWideColor(*geometryColor, clampType, caps);
+    }
     return result;
 }
 

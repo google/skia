@@ -840,8 +840,10 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       GrFSAAType fsaaType, GrClampType clampType) override {
+        // This Op uses uniform (not vertex) color, so doesn't need to track wide color.
         return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
-                                          GrProcessorAnalysisCoverage::kSingleChannel, &fColor);
+                                          GrProcessorAnalysisCoverage::kSingleChannel, &fColor,
+                                          nullptr);
     }
 
 private:

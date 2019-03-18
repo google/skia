@@ -229,12 +229,18 @@ public:
 #endif
 
     GrProcessorSet::Analysis finalize(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
+            const GrCaps& caps, const GrAppliedClip*, GrFSAAType, GrClampType clampType) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy->addPendingRead();
             fProxies[p].fProxy->unref();
+        }
+        fColorType = static_cast<unsigned>(ColorType::kNone);
+        for (int q = 0; q < fQuads.count(); ++q) {
+            const ColorDomainAndAA& info = fQuads.metadata(q);
+            auto colorType = GrQuadPerEdgeAA::MinColorType(info.fColor, clampType, caps);
+            fColorType = SkTMax(fColorType, static_cast<unsigned>(colorType));
         }
         return GrProcessorSet::EmptySetAnalysis();
     }
@@ -292,7 +298,6 @@ private:
         auto bounds = dstQuad.bounds(dstQuadType);
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(domain);
-        fColorType = static_cast<unsigned>(GrQuadPerEdgeAA::MinColorType(color));
         fCanSkipAllocatorGather =
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
@@ -373,7 +378,6 @@ private:
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(false);
-        fColorType = static_cast<unsigned>(allOpaque ? ColorType::kNone : ColorType::kByte);
     }
 
     void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy, int start,

@@ -16,6 +16,7 @@
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "GrVertexWriter.h"
 #include "SkBitmap.h"
+#include "SkGr.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
 #include "SkRect.h"
@@ -165,7 +166,6 @@ public:
 
         // setup bounds
         this->setTransformedBounds(patch.fDst, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "NonAALatticeOp"; }
@@ -203,6 +203,7 @@ public:
                                                  GrProcessorAnalysisCoverage::kNone,
                                                  &analysisColor);
         analysisColor.isConstant(&fPatches[0].fColor);
+        fWideColor = SkPMColor4fNeedsWideColor(fPatches[0].fColor, clampType, caps);
         return result;
     }
 

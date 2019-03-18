@@ -392,7 +392,9 @@ public:
         GrProcessorAnalysisCoverage gpCoverage =
                 this->coverage() == 0xFF ? GrProcessorAnalysisCoverage::kNone
                                          : GrProcessorAnalysisCoverage::kSingleChannel;
-        return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType, gpCoverage, &fColor);
+        // This Op uses uniform (not vertex) color, so doesn't need to track wide color.
+        return fHelper.finalizeProcessors(
+                caps, clip, fsaaType, clampType, gpCoverage, &fColor, nullptr);
     }
 
 private:

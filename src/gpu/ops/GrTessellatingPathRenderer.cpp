@@ -236,7 +236,9 @@ public:
         GrProcessorAnalysisCoverage coverage = fAntiAlias
                                                        ? GrProcessorAnalysisCoverage::kSingleChannel
                                                        : GrProcessorAnalysisCoverage::kNone;
-        return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType, coverage, &fColor);
+        // This Op uses uniform (not vertex) color, so doesn't need to track wide color.
+        return fHelper.finalizeProcessors(
+                caps, clip, fsaaType, clampType, coverage, &fColor, nullptr);
     }
 
 private:
