@@ -87,10 +87,6 @@ def dm_flags(api, bot):
   if 'Test' in bot and 'DISCARDABLE' in bot:
     thread_limit = MAIN_THREAD_ONLY
 
-  # See if staying on the main thread helps skia:6748.
-  if 'Test-iOS' in bot:
-    thread_limit = MAIN_THREAD_ONLY
-
   if thread_limit is not None:
     args.extend(['--threads', str(thread_limit)])
 
