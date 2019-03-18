@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40a640d2_ce11ebe8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2902,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T21:10:01Z",
+      "side": 1,
+      "message": "Minor, but initializing this and fHasClip here is now unnecessary.",
+      "range": {
+        "startLine": 2902,
+        "startChar": 18,
+        "endLine": 2902,
+        "endChar": 34
+      },
+      "revId": "ad947b011f36d65d2023d0e162149261ff1d4340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
