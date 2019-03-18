@@ -494,8 +494,10 @@ time.sleep(60)
     else:
       self._scale_for_dm()
     app = self.host_dirs.bin_dir.join(cmd[0])
-    self._adb('push %s' % cmd[0],
-              'push', app, self.device_dirs.bin_dir)
+
+    if not kwargs.get('skip_push', False):
+      self._adb('push %s' % cmd[0],
+                'push', app, self.device_dirs.bin_dir)
 
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
