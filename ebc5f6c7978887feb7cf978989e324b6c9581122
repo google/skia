@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1eff8f59_04583f4a",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T19:37:47Z",
+      "side": 1,
+      "message": "Maybe we should have default values for these guys, or at least for fHasClip and fMatrixIndex which implicitly access an array.",
+      "range": {
+        "startLine": 1832,
+        "startChar": 0,
+        "endLine": 1835,
+        "endChar": 22
+      },
+      "revId": "ebc5f6c7978887feb7cf978989e324b6c9581122",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf442a40_02e3cc6d",
         "filename": "src/core/SkPicturePlayback.cpp",
         "patchSetId": 5
