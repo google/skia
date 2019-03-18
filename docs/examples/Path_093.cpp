@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=182b3999772f330f3b0b891b492634ae
-REG_FIDDLE(Path_093, 256, 256, false, 0) {
+REG_FIDDLE(Path_addPoly, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStrokeWidth(15);

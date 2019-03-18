@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=09ef49d07cb7005ba3e34d5ea53896f5
-REG_FIDDLE(ImageInfo_013, 256, 192, false, 0) {
+REG_FIDDLE(ColorTypeBytesPerPixel, 256, 192, false, 0) {
 void draw(SkCanvas* canvas) {
     const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=8ed1488a503cd5282b86a51614aa90b1
-REG_FIDDLE(Paint_002, 256, 256, true, 0) {
+REG_FIDDLE(Paint_move_SkPaint, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     float intervals[] = { 5, 5 };

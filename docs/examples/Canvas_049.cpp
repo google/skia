@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6a614faa0fbcf19958b5559c19b02d0f
-REG_FIDDLE(Canvas_049, 256, 128, false, 0) {
+REG_FIDDLE(Canvas_clipRect, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->rotate(10);
     SkPaint paint;

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=def7dba38947c33b203e4f9db6c88be3
-REG_FIDDLE(Region_043, 256, 256, true, 0) {
+REG_FIDDLE(Region_quickReject_2, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region({1, 2, 3, 4});
     SkRegion test;

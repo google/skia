@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=8b5aa7e555a0dc31be69db7cadf471a1
-REG_FIDDLE(Paint_085, 256, 256, true, 0) {
+REG_FIDDLE(Paint_refTypeface, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint1, paint2;
    paint1.setTypeface(SkTypeface::MakeFromName("monospace",

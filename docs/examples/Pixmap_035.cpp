@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6da54774f6432b46b47ea9013c15f280
-REG_FIDDLE(Pixmap_035, 256, 64, false, 0) {
+REG_FIDDLE(Pixmap_writable_addr16, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     uint16_t storage[][5] = {{ 0xCABF, 0xDABE, 0xCA9D, 0xC96C, 0xA39B },
                              { 0xACEE, 0xA87C, 0x893A, 0x4779, 0x8708 },

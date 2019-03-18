@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6631d36406efa3b3e27960c876421a7f
-REG_FIDDLE(Region_028, 256, 100, false, 0) {
+REG_FIDDLE(Region_getBoundaryPath, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
     region.setRect({10, 20, 90, 60});

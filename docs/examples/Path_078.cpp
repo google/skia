@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=319f6b124458dcc0f9ce4d7bbde65810
-REG_FIDDLE(Path_078, 256, 256, true, 0) {
+REG_FIDDLE(Path_ConvertToNonInverseFillType, 256, 256, true, 0) {
 #define nameValue(fill) { SkPath::fill, #fill }
 
 void draw(SkCanvas* canvas) {

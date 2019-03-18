@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d56f93e4bc763c7ba4914321ed07a8b5
-REG_FIDDLE(Matrix_079, 256, 256, false, 0) {
+REG_FIDDLE(Matrix_mapHomogeneousPoints, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint3 src[] = {{3, 3, 1}, {8, 2, 2}, {5, 0, 4}, {0, 1, 3},
                       {3, 7, 1}, {8, 6, 2}, {5, 4, 4}, {0, 5, 3}};

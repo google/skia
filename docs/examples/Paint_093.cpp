@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=2a3782c33f04ed17a725d0e449c6f7c3
-REG_FIDDLE(Paint_093, 256, 256, true, 0) {
+REG_FIDDLE(Paint_refDrawLooper, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint1, paint2;
     SkLayerDrawLooper::Builder looperBuilder;

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a8f36f2fa90003e3691fd0da0bb0c243
-REG_FIDDLE(Path_017, 256, 256, true, 0) {
+REG_FIDDLE(Path_getConvexity, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
         SkDebugf("%s path convexity is %s\n", prefix,

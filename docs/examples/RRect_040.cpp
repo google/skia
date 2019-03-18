@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=50969745cf2b23544362f4cff5592b75
-REG_FIDDLE(RRect_040, 256, 110, false, 0) {
+REG_FIDDLE(RRect_readFromMemory, 256, 110, false, 0) {
 void draw(SkCanvas* canvas) {
     SkVector radii[] = {{5, 5},  {10, 10}, {15, 15}, {5, 5}};
     SkRRect rrect;

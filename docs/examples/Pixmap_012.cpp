@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=070b1a60232be499eb10c6ea62371804
-REG_FIDDLE(Pixmap_012, 256, 256, true, 0) {
+REG_FIDDLE(Pixmap_alphaType, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* alphas[] = {"Unknown", "Opaque", "Premul", "Unpremul"};
     SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);

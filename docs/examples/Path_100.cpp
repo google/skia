@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1d1892196ba5bda257df4f3351abd084
-REG_FIDDLE(Path_100, 256, 60, false, 0) {
+REG_FIDDLE(Path_offset, 256, 60, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPath pattern;
     pattern.moveTo(20, 20);

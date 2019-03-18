@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=4f153cf1d0dbe1a95acf5badeec14dae
-REG_FIDDLE(Canvas_104, 256, 128, false, 0) {
+REG_FIDDLE(Canvas_drawImageNine, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect center = { 20, 10, 50, 40 };
     SkBitmap bitmap;

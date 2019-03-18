@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=027f920259888fc19591ea9a90d92873
-REG_FIDDLE(Canvas_036, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkCanvas::SaveLayerRec rec1;
     SkCanvas::SaveLayerRec rec2(nullptr, nullptr);

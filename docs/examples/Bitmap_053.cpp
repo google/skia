@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1b2800d23c9ea249b45c2c21a34b6d14
-REG_FIDDLE(Bitmap_053, 256, 32, false, 0) {
+REG_FIDDLE(Bitmap_allocPixels_4, 256, 32, false, 0) {
 class TinyAllocator : public SkBitmap::Allocator {
 public:
     bool allocPixelRef(SkBitmap* bitmap) override {

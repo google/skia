@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=33f65524736736fd91802b4198ba6fa8
-REG_FIDDLE(ImageInfo_030, 256, 256, true, 0) {
+REG_FIDDLE(ImageInfo_refColorSpace, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkImageInfo info1 = SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             SkColorSpace::MakeSRGBLinear());

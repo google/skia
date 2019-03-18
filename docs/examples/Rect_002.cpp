@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=faa660ac19eaddc3f3eab57a0bddfdcb
-REG_FIDDLE(Rect_002, 256, 256, true, 0) {
+REG_FIDDLE(Rect_MakeIWH, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect i_rect = SkIRect::MakeWH(25, 35);
     SkRect  f_rect = SkRect::MakeIWH(25, 35);

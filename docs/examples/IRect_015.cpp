@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=8b3224641cb3053a7b8a5798b6cd1cf6
-REG_FIDDLE(IRect_015, 256, 256, true, 0) {
+REG_FIDDLE(IRect_size, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkIRect& rect) -> void {
         SkISize size = rect.size();

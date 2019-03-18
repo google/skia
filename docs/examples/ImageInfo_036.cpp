@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=cd203a3f9c5fb68272f21f302dd54fbc
-REG_FIDDLE(ImageInfo_036, 256, 144, false, 3) {
+REG_FIDDLE(ImageInfo_makeWH, 256, 144, false, 3) {
 void draw(SkCanvas* canvas) {
     SkImageInfo canvasImageInfo = canvas->imageInfo();
     SkRect canvasBounds = SkRect::Make(canvasImageInfo.bounds());

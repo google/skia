@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d11136d8a74f63009da2a7f550710823
-REG_FIDDLE(Paint_109, 256, 64, false, 0) {
+REG_FIDDLE(Paint_textToGlyphs, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };

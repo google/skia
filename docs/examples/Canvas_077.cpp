@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=8b6b86f8a022811cd29a9c6ab771df12
-REG_FIDDLE(Canvas_077, 256, 256, false, 0) {
+REG_FIDDLE(Canvas_drawOval, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->clear(0xFF3f5f9f);
     SkColor  kColor1 = SkColorSetARGB(0xff, 0xff, 0x7f, 0);

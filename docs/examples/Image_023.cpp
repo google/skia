@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1c6de6fe72b00b5be970f5f718363449
-REG_FIDDLE(Image_023, 256, 256, false, 4) {
+REG_FIDDLE(Image_makeShader, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setRotate(45);

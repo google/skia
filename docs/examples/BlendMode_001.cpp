@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0fc85dd916cc1a5896d36c80b9847391
-REG_FIDDLE(BlendMode_001, 256, 256, false, 3) {
+REG_FIDDLE(Src, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     canvas->drawImage(image, 0, 0);
     canvas->clipRect({50, 50, 200, 200});

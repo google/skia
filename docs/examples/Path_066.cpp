@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=5acc77eba0cb4d00bbf3a8f4db0c0aee
-REG_FIDDLE(Path_066, 256, 128, false, 0) {
+REG_FIDDLE(Arc, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRect oval = {8, 8, 56, 56};
     SkPaint ovalPaint;

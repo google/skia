@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=eae55f284818d9965ec5834747d14a48
-REG_FIDDLE(IRect_034, 256, 256, true, 0) {
+REG_FIDDLE(IRect_contains_2, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect rect = { 30, 50, 40, 60 };
     SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };

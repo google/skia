@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=15bb9a9596b40c5e2045f76e8c1dcf8e
-REG_FIDDLE(Picture_005, 256, 256, false, 0) {
+REG_FIDDLE(Picture_cullRect, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPictureRecorder recorder;
     SkCanvas* pictureCanvas = recorder.beginRecording({64, 64, 192, 192});

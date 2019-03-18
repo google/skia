@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=424741e26e1b174e43087d67422ce14f
-REG_FIDDLE(Paint_108, 256, 256, true, 0) {
+REG_FIDDLE(Paint_getFontSpacing, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     for (SkScalar textSize : { 12, 18, 24, 32 } ) {

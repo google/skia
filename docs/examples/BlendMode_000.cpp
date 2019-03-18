@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a9b56a26ca469bab9ab10e16f62fb2e2
-REG_FIDDLE(BlendMode_000, 256, 256, false, 0) {
+REG_FIDDLE(Clear, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->saveLayer(nullptr, nullptr);
     canvas->drawColor(SK_ColorYELLOW, SkBlendMode::kClear);

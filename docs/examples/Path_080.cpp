@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=81a2aac1b8f0ff3d4c8d35ccb9149b16
-REG_FIDDLE(Path_080, 256, 256, true, 0) {
+REG_FIDDLE(Path_isRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
         SkRect rect;

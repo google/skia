@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6fb11419e99297fe2fe666c296117fb9
-REG_FIDDLE(Path_058, 256, 256, true, 0) {
+REG_FIDDLE(Conic_Weight_c, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* verbNames[] = { "move", "line", "quad", "conic", "cubic", "close", "done" };
     const int pointCount[]  = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };

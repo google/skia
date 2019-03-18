@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=092739b4cd5d732a27c07ced8ef45f01
-REG_FIDDLE(Bitmap_075, 256, 160, false, 0) {
+REG_FIDDLE(Bitmap_extractAlpha_2, 256, 160, false, 0) {
 void draw(SkCanvas* canvas) {
     auto radiusToSigma = [](SkScalar radius) -> SkScalar {
          static const SkScalar kBLUR_SIGMA_SCALE = 0.57735f;

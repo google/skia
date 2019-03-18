@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=b5cea1eed80a0eb04ddbab3f36dff73f
-REG_FIDDLE(Canvas_035, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_SaveLayerRec_SaveLayerRec, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkCanvas::SaveLayerRec rec1;
     rec1.fSaveLayerFlags = SkCanvas::kPreserveLCDText_SaveLayerFlag;

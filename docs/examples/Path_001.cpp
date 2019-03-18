@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=4bbae00b40ed2cfcd0007921ad693a7b
-REG_FIDDLE(Path_001, 256, 100, false, 0) {
+REG_FIDDLE(Path_Direction, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     const SkPoint arrow[] = { {40, -5}, {45, 0}, {40, 5} };
     const SkRect rect = {10, 10, 90, 90};

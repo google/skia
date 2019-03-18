@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=481e990e923a0ed34654f4361b94f096
-REG_FIDDLE(Canvas_018, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_readPixels_b, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     canvas->clear(0x8055aaff);
     for (SkAlphaType alphaType : { kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {

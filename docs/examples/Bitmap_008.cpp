@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=ec47c4dc23e2925ad565eaba55a91553
-REG_FIDDLE(Bitmap_008, 256, 256, true, 4) {
+REG_FIDDLE(Bitmap_info, 256, 256, true, 4) {
 void draw(SkCanvas* canvas) {
     // SkBitmap source;  // pre-populated with soccer ball by fiddle.skia.org
     const SkImageInfo& info = source.info();

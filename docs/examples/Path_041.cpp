@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=bb761cd858e6d0ca05627262cd22ff5e
-REG_FIDDLE(Path_041, 256, 256, true, 0) {
+REG_FIDDLE(Path_updateBoundsCache, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     double times[2] = { 0, 0 };
     int N = 100;

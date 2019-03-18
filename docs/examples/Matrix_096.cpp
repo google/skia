@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=088ab41f877599f980a99523749b0afd
-REG_FIDDLE(Matrix_096, 256, 256, true, 0) {
+REG_FIDDLE(Matrix_notequal_operator, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkMatrix& a, const SkMatrix& b) -> void {
         SkDebugf("%s: a %c= b a.cheapEqualTo(b): %s\n", prefix,

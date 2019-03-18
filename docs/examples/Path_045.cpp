@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=84101d341e934a535a41ad6cf42218ce
-REG_FIDDLE(Path_045, 140, 100, false, 0) {
+REG_FIDDLE(Path_moveTo, 140, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRect rect = { 20, 20, 120, 80 };
     SkPath path;

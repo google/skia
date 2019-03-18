@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=c77ac50f506106fdfef94d20bc1a6934
-REG_FIDDLE(TextBlobBuilder_003, 256, 60, false, 0) {
+REG_FIDDLE(TextBlobBuilder_allocRunPosH, 256, 60, false, 0) {
 void draw(SkCanvas* canvas) {
     SkTextBlobBuilder builder;
     SkPaint paint;

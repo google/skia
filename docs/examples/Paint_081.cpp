@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=084b0dc3cebd78718c651d58f257f799
-REG_FIDDLE(Paint_081, 256, 256, true, 0) {
+REG_FIDDLE(Paint_refMaskFilter, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint1, paint2;
     paint1.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 1));

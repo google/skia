@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=ecdbaff44a02c310ef672b7d393c6dea
-REG_FIDDLE(Image_037, 256, 256, false, 5) {
+REG_FIDDLE(Image_makeNonTextureImage, 256, 256, false, 5) {
 void draw(SkCanvas* canvas) {
     auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
         if (nullptr == image) {

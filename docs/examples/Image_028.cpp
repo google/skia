@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d093aad721261f421c4bef4a296aab48
-REG_FIDDLE(Image_028, 256, 256, false, 3) {
+REG_FIDDLE(Image_getBackendTexture, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     GrContext* grContext = canvas->getGrContext();
     if (!grContext) {

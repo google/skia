@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=024200960eb52fee1f471514607e6001
-REG_FIDDLE(Region_045, 256, 256, false, 0) {
+REG_FIDDLE(Region_translate_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion test;
     SkIRect rects[] = {{40, 20, 50, 30}, {70, 40, 80, 50}, { 60, 10, 70, 20}};

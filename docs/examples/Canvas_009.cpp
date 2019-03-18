@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0fbf2dedc2619bbfbf173c9e3bc1a508
-REG_FIDDLE(Canvas_009, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_getProps, 256, 256, true, 0) {
 void draw(SkCanvas* ) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(1, 1);

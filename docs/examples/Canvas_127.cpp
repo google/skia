@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1bdc07ad3b154c89b771722c2fcaee3f
-REG_FIDDLE(Canvas_127, 256, 100, false, 0) {
+REG_FIDDLE(Canvas_drawDrawable_2, 256, 100, false, 0) {
 struct MyDrawable : public SkDrawable {
     SkRect onGetBounds() override { return SkRect::MakeWH(50, 100);  }
     void onDraw(SkCanvas* canvas) override {

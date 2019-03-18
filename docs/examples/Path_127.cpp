@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=69f360a0ba8f40c51ef4cd9f972c5893
-REG_FIDDLE(Path_127, 256, 256, true, 0) {
+REG_FIDDLE(Path_RawIter_conicWeight, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPath path;
    path.conicTo(1, 2, 3, 4, .5f);

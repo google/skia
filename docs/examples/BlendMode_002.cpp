@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=35915a2273be1076f00f2e47998ce808
-REG_FIDDLE(BlendMode_002, 256, 256, false, 3) {
+REG_FIDDLE(Dst, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     SkRSXform xforms[] = { { .5f, 0, 0, 0 }, {0, .5f, 125, 128 } };
     SkRect tex[] = { { 0, 0, 250, 250 }, { 0, 0, 250, 250 } };

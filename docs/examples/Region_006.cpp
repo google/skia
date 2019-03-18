@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0e7c58ab5d3bcfb36b1f8464cf6c7d89
-REG_FIDDLE(Region_006, 256, 256, true, 0) {
+REG_FIDDLE(Region_Iterator_rect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
     SkRegion::Iterator iter(region);

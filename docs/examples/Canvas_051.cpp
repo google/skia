@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1d4e0632c97e42692775d834fe10aa99
-REG_FIDDLE(Canvas_051, 256, 133, false, 0) {
+REG_FIDDLE(Canvas_clipRect_3, 256, 133, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
     SkPaint paint;

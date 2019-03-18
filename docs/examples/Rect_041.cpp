@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=b24cf65561c98c1858a06c39f10fb797
-REG_FIDDLE(Rect_041, 256, 256, true, 0) {
+REG_FIDDLE(Rect_offset_2, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRect rect = { 10, 14, 50, 73 };
     rect.offset({5, 13});

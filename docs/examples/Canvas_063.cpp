@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=556832ac5711af662a98c21c547185e9
-REG_FIDDLE(Canvas_063, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_getDeviceClipBounds, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkCanvas device(256, 256);
     canvas = &device;

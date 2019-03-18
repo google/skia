@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=e2491817695290d0218be77f091b8460
-REG_FIDDLE(ImageInfo_025, 256, 96, false, 4) {
+REG_FIDDLE(ImageInfo_width, 256, 96, false, 4) {
 void draw(SkCanvas* canvas) {
     canvas->translate(10, 10);
     canvas->drawBitmap(source, 0, 0);

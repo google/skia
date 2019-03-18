@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=8cc1f21c98c0416f7724ad218f557a00
-REG_FIDDLE(RRect_038, 256, 110, false, 0) {
+REG_FIDDLE(RRect_isValid, 256, 110, false, 0) {
 void draw(SkCanvas* canvas) {
     SkRRect rrect = SkRRect::MakeRect({10, 10, 110, 80});
     SkRRect corrupt = rrect;

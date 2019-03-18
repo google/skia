@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=9547e74a9d37553a667b913ffd1312dd
-REG_FIDDLE(Pixmap_000, 256, 256, true, 0) {
+REG_FIDDLE(Pixmap_empty_constructor, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* alphas[] = {"Unknown", "Opaque", "Premul", "Unpremul"};
     const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a476548d0001296afd8e58c1eba1b70b
-REG_FIDDLE(Rect_057, 256, 256, true, 0) {
+REG_FIDDLE(Rect_joinPossiblyEmptyRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRect rect = { 10, 100, 15, 0};
     SkRect sorted = rect.makeSorted();

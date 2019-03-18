@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1d400a92ca826cc89bcb88ea051f28c8
-REG_FIDDLE(Matrix_026, 256, 256, true, 0) {
+REG_FIDDLE(Matrix_set, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setIdentity();

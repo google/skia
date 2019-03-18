@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=12f8b5ce9fb25604f33df336677f5d62
-REG_FIDDLE(Pixmap_029, 256, 256, true, 0) {
+REG_FIDDLE(Pixmap_addr32_2, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const int w = 4;
     const int h = 4;

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=17c3070b31b700ea8f52e48af9a66b6e
-REG_FIDDLE(Matrix_069, 256, 256, false, 0) {
+REG_FIDDLE(Matrix_ScaleToFit, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     const char* labels[] = { "Fill", "Start", "Center", "End" };
     SkRect rects[] = {{5, 5, 59, 59}, {5, 74, 59, 108}, {10, 123, 44, 172}, {10, 187, 54, 231}};

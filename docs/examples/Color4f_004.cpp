@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=33b029064e8d1928e42a587c953d0e4e
-REG_FIDDLE(Color4f_004, 256, 256, true, 0) {
+REG_FIDDLE(RGBA4f_FromColor, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     uint8_t red = 77, green = 101, blue = 153, alpha = 43;
     SkColor argb = SkColorSetARGB(alpha, red, green, blue);

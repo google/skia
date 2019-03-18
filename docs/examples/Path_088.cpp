@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=9cf5122475624e4cf39f06c698f80b1a
-REG_FIDDLE(Path_088, 256, 256, false, 0) {
+REG_FIDDLE(Path_addArc, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     for (auto start : { 0, 90, 135, 180, 270 } ) {

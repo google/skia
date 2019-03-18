@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=5ce718e5a184baaac80e7098d7dad67b
-REG_FIDDLE(Paint_084, 256, 256, true, 0) {
+REG_FIDDLE(Paint_getTypeface, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');

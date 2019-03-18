@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=22e7ce79ab2fe94252d23319f2258127
-REG_FIDDLE(Image_001, 256, 256, false, 3) {
+REG_FIDDLE(Image_MakeRasterData, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     size_t rowBytes = image->width() * SkColorTypeBytesPerPixel(kRGBA_8888_SkColorType);
     sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());

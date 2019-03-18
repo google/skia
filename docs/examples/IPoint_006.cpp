@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=4eb2d95c9e9a66f05296e345bb68bd51
-REG_FIDDLE(IPoint_006, 256, 64, false, 0) {
+REG_FIDDLE(IPoint_addto_operator, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {
         for (size_t i = 0; i < count - 1; ++i) {

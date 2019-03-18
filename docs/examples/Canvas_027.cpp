@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=005f2b207e078baac596681924fe591e
-REG_FIDDLE(Canvas_027, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_getSaveCount, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkCanvas simple;
     SkDebugf("depth = %d\n", simple.getSaveCount());

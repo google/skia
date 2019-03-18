@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=78f3c65fa900610bb52518989b547095
-REG_FIDDLE(Path_069, 256, 128, false, 0) {
+REG_FIDDLE(Path_arcTo_2_b, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint tangentPaint;
     tangentPaint.setAntiAlias(true);

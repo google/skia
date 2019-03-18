@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=651632582d385d2531e7aa551c31e331
-REG_FIDDLE(Region_026, 256, 256, true, 0) {
+REG_FIDDLE(Region_getBounds, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region({1, 2, 3, 4});
     region.op({2, 3, 4, 5}, SkRegion::kUnion_Op);

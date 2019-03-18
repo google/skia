@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=80856fe921ce36f8d5a32d8672bccbfc
-REG_FIDDLE(Image_034, 256, 256, false, 3) {
+REG_FIDDLE(Image_refEncodedData, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     struct {
         const char* name;

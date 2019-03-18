@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=81345f7619a072bb2b0cf59810fe86d0
-REG_FIDDLE(RRect_014, 256, 100, false, 0) {
+REG_FIDDLE(RRect_getSimpleRadii, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     auto drawDetails = [=](const SkRRect& rrect) {
         SkPaint paint;

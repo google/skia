@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=229057023515224358a36acf15508cf6
-REG_FIDDLE(Color4f_002, 256, 256, true, 0) {
+REG_FIDDLE(RGBA4f_vec, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkColor4f color = SkColor4f::FromColor(0x884488CC);
     SkDebugf("red=%g green=%g blue=%g alpha=%g\n", color.fR, color.fG, color.fB, color.fA);

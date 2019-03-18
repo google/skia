@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=e8bdae9bea3227758989028424fcac3d
-REG_FIDDLE(Canvas_118, 256, 256, false, 0) {
+REG_FIDDLE(Canvas_drawVertices_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkPoint points[] = { { 0, 0 }, { 250, 0 }, { 100, 100 }, { 0, 250 } };

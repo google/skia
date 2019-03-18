@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=f6959ea422a7c6e98ddfad216a52c707
-REG_FIDDLE(RRect_009, 256, 100, false, 0) {
+REG_FIDDLE(RRect_isSimple, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);

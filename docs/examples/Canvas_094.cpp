@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d307e7e1237f39fb54d80723e5449857
-REG_FIDDLE(Canvas_094, 256, 64, false, 0) {
+REG_FIDDLE(Canvas_drawImageRect_5, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     uint32_t pixels[][2] = { { 0x00000000, 0x55555555},
                              { 0xAAAAAAAA, 0xFFFFFFFF} };

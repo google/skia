@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6ef37d5be03d0bfaec992dbb5a94c66f
-REG_FIDDLE(Pixmap_019, 256, 256, true, 0) {
+REG_FIDDLE(Pixmap_computeIsOpaque, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     std::vector<uint32_t> pixels;
     const int height = 2;

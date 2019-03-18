@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=a1e059c8f6740fa2044cc64152b39dda
-REG_FIDDLE(Paint_072, 256, 256, true, 0) {
+REG_FIDDLE(Paint_getBlendMode, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkDebugf("kSrcOver %c= getBlendMode\n",

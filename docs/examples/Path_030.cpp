@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=97a031f9186ade586928563840ce9116
-REG_FIDDLE(Path_030, 256, 256, true, 0) {
+REG_FIDDLE(Path_IsLineDegenerate, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint points[] = { {100, 100}, {100.000001f, 100.000001f}, {100.0001f, 100.0001f} };
     for (size_t i = 0; i < SK_ARRAY_COUNT(points) - 1; ++i) {

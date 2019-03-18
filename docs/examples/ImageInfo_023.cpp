@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=75f13a78b28b08c72baf32b7d868de1c
-REG_FIDDLE(ImageInfo_023, 384, 32, false, 0) {
+REG_FIDDLE(ImageInfo_MakeUnknown, 384, 32, false, 0) {
 void draw(SkCanvas* canvas) {
     SkImageInfo info;  // default constructor
     SkString string;

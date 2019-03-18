@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=eb93d5fa66a5f7a10f4f9210494d7222
-REG_FIDDLE(Canvas_039, 256, 128, false, 0) {
+REG_FIDDLE(Canvas_translate, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint filledPaint;
     SkPaint outlinePaint;

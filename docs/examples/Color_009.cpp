@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1c2e38321464818847f953ddd45cb5a1
-REG_FIDDLE(Color_009, 256, 256, false, 0) {
+REG_FIDDLE(Color_Constants_a, 256, 256, false, 0) {
 #define SKIA_COLOR_PAIR(name) "SK_Color" #name, SK_Color##name
 
 void draw(SkCanvas* canvas) {

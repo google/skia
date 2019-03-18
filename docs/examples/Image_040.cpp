@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=06aeb3cf63ffccf7b49fe556e5def351
-REG_FIDDLE(Image_040, 256, 64, false, 0) {
+REG_FIDDLE(Image_MakeBackendTextureFromSkImage, 256, 64, false, 0) {
 static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info));

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=897230ecfb36095486beca324fd369f9
-REG_FIDDLE(ImageInfo_043, 256, 256, true, 0) {
+REG_FIDDLE(ImageInfo_minRowBytes, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     for (int shift = 24; shift < 32; ++shift) {
         int width = 1 << shift;

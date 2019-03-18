@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=79146a1a41d58d22582fdc567c6ffe4e
-REG_FIDDLE(ImageInfo_000, 256, 64, false, 0) {
+REG_FIDDLE(Alpha_Type_Opaque, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPMColor color = SkPreMultiplyARGB(255, 50, 100, 150);
     SkString s;

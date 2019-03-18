@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3f964be1e1fd2fbb977b655d3a928f0a
-REG_FIDDLE(Region_050, 256, 128, false, 0) {
+REG_FIDDLE(Region_op_4, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(128);

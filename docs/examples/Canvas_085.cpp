@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=199fe818c09026c114e165bff166a39f
-REG_FIDDLE(Canvas_085, 256, 256, false, 0) {
+REG_FIDDLE(Canvas_drawRoundRect, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkVector radii[] = { {0, 20}, {10, 10}, {10, 20}, {10, 40} };
     SkPaint paint;
