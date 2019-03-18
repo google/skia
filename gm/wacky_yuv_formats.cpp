@@ -755,7 +755,7 @@ protected:
 
     SkISize onISize() override {
         int numCols = 2 * (kLastEnum_SkYUVColorSpace + 1); // opacity x color-space
-        int numRows = 1 + (kLast_YUVFormat + 1);  // origin + # yuv formats
+        int numRows = 2 + (kLast_YUVFormat + 1);  // original + # yuv formats
         return SkISize::Make(kLabelWidth  + numCols * (kTileWidthHeight + kPad),
                              kLabelHeight + numRows * (kTileWidthHeight + kPad));
     }
@@ -885,6 +885,9 @@ protected:
                 canvas->drawBitmap(fOriginalBMs[opaque], x, y);
                 y += kTileWidthHeight + kPad;
 
+                canvas->drawBitmap(fOriginalBMs[opaque], x, y);
+                y += kTileWidthHeight + kPad;
+
                 for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
                     if (fUseTargetColorSpace && fImages[opaque][cs][format]) {
@@ -946,7 +949,7 @@ protected:
 
     SkISize onISize() override {
         int numCols = 4; // (transparent, opaque) x (untagged, tagged)
-        int numRows = 5; // original, YUV, subset, readPixels, makeNonTextureImage
+        int numRows = 6; // original, YUV, subset, readPixels, makeNonTextureImage
         return SkISize::Make(numCols * (kTileWidthHeight + kPad) + kPad,
                              numRows * (kTileWidthHeight + kPad) + kPad);
     }
@@ -1027,6 +1030,9 @@ protected:
 
                 auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
                     ->makeColorSpace(fTargetColorSpace);
+                canvas->drawImage(raster, x, y);
+                y += kTileWidthHeight + kPad;
+
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 
