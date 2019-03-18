@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8b57661_3bb71252",
+        "filename": "infra/bots/assets/go_deps/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-18T14:27:12Z",
+      "side": 1,
+      "message": "I think you mean \"At go.skia.oarg/infra got: \\n%s\" but this is just for debugging so..",
+      "range": {
+        "startLine": 29,
+        "startChar": 9,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "c481dd1e9677a4b0a6983843b0a7c046bb98f567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
