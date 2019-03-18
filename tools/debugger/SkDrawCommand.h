@@ -43,7 +43,6 @@ public:
         kDrawImageLattice_OpType,
         kDrawImageNine_OpType,
         kDrawImageRect_OpType,
-        kDrawImageSet_OpType,
         kDrawOval_OpType,
         kDrawArc_OpType,
         kDrawPaint_OpType,
@@ -51,7 +50,6 @@ public:
         kDrawPath_OpType,
         kDrawPoints_OpType,
         kDrawRect_OpType,
-        kDrawEdgeAARect_OpType,
         kDrawRRect_OpType,
         kDrawRegion_OpType,
         kDrawShadow_OpType,
@@ -59,6 +57,8 @@ public:
         kDrawVertices_OpType,
         kDrawAtlas_OpType,
         kDrawDrawable_OpType,
+        kDrawEdgeAAQuad_OpType,
+        kDrawEdgeAAImageSet_OpType,
         kEndDrawPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
@@ -360,20 +360,6 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkDrawImageSetCommand : public SkDrawCommand {
-public:
-    SkDrawImageSetCommand(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality, SkBlendMode);
-    void execute(SkCanvas* canvas) const override;
-
-private:
-    SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
-    int fCount;
-    SkFilterQuality fFilterQuality;
-    SkBlendMode fMode;
-
-    typedef SkDrawCommand INHERITED;
-};
-
 class SkDrawOvalCommand : public SkDrawCommand {
 public:
     SkDrawOvalCommand(const SkRect& oval, const SkPaint& paint);
@@ -543,21 +529,6 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkDrawEdgeAARectCommand : public SkDrawCommand {
-public:
-    SkDrawEdgeAARectCommand(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
-                            SkBlendMode mode);
-    void execute(SkCanvas* canvas) const override;
-
-private:
-    SkRect  fRect;
-    SkCanvas::QuadAAFlags fAA;
-    SkColor fColor;
-    SkBlendMode fMode;
-
-    typedef SkDrawCommand INHERITED;
-};
-
 class SkDrawRRectCommand : public SkDrawCommand {
 public:
     SkDrawRRectCommand(const SkRRect& rrect, const SkPaint& paint);
@@ -679,6 +650,40 @@ public:
 private:
     sk_sp<SkDrawable> fDrawable;
     SkTLazy<SkMatrix> fMatrix;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawEdgeAAQuadCommand : public SkDrawCommand {
+public:
+    SkDrawEdgeAAQuadCommand(const SkRect& rect, const SkPoint clip[4],
+                            SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode);
+    void execute(SkCanvas* canvas) const override;
+
+private:
+    SkRect  fRect;
+    SkPoint fClip[4];
+    int fHasClip;
+    SkCanvas::QuadAAFlags fAA;
+    SkColor fColor;
+    SkBlendMode fMode;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawEdgeAAImageSetCommand : public SkDrawCommand {
+public:
+    SkDrawEdgeAAImageSetCommand(const SkCanvas::ImageSetEntry[], int count, const SkPoint[],
+                                const SkMatrix[], const SkPaint*, SkCanvas::SrcRectConstraint);
+    void execute(SkCanvas* canvas) const override;
+
+private:
+    SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
+    int fCount;
+    SkAutoTArray<SkPoint> fDstClips;
+    SkAutoTArray<SkMatrix> fPreViewMatrices;
+    SkTLazy<SkPaint> fPaint;
+    SkCanvas::SrcRectConstraint fConstraint;
 
     typedef SkDrawCommand INHERITED;
 };
