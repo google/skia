@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e21e1b8b_65bf980c",
+        "filename": "include/gpu/gl/GrGLAssembleHelpers.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T17:44:00Z",
+      "side": 1,
+      "message": "Given how horrendous these macros are I might prefer duplicating them in each file. They rely on the user of them to have a GrGLGetProc by the name \"get\". If we don\u0027t do that then their names should at least be scoped somehow, e.g. GR_GET_GL_PROC.",
+      "revId": "71f6646a2391115764713a8778dd32df002943de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3426dfc_b0f9d727",
+        "filename": "include/gpu/gl/GrGLAssembleHelpers.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T17:44:00Z",
+      "side": 1,
+      "message": "we_use_hacker_style_for_functions_local_to_a_cpp_file GrAndPrefixedCamelCaseForExternallyVisibleFunctions.",
+      "revId": "71f6646a2391115764713a8778dd32df002943de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
