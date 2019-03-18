@@ -16,6 +16,24 @@
       "revId": "90fed71191464a42945f6178a6e62e0df1cae42b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55bd9a7f_a59778dd",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T12:35:51Z",
+      "side": 1,
+      "message": "Yeah, would it be better if MinColorType handled the call to SkPMColor4fNeedsWideColor?",
+      "parentUuid": "1e17e6e6_d2f2032c",
+      "revId": "90fed71191464a42945f6178a6e62e0df1cae42b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "681203d5_039237ea",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T12:35:51Z",
+      "side": 1,
+      "message": "Do we not support wide color hairlines? Just curious if this is intentional or just a case that hasn\u0027t been gotten around to yet.",
+      "revId": "e36821a709228a207dde07b76fdd8bfcbc4fc426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea561c87_8a0100a0",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T12:35:51Z",
+      "side": 1,
+      "message": "same Q",
+      "revId": "e36821a709228a207dde07b76fdd8bfcbc4fc426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
