@@ -568,7 +568,7 @@ static inline SkFixed partialTriangleToAlpha16(SkFixed a, SkFixed b) {
 
 // The alpha of right-triangle (a, a*b)
 static inline SkAlpha partialTriangleToAlpha(SkFixed a, SkFixed b) {
-    return partialTriangleToAlpha16(a, b) >> 8;
+    return (partialTriangleToAlpha16(a, b) >> 8) & 0xFF;
 }
 
 static inline SkAlpha getPartialAlpha(SkAlpha alpha, SkFixed partialHeight) {
