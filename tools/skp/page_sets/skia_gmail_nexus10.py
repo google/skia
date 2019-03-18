@@ -4,6 +4,8 @@
 # pylint: disable=W0401,W0614
 
 
+from page_sets.login_helpers import google_login
+
 from telemetry import story
 from telemetry.page import page as page_module
 from telemetry.page import shared_page_state
@@ -16,15 +18,21 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        shared_page_state_class=shared_page_state.Shared10InchTabletPageState)
+        shared_page_state_class=shared_page_state.SharedTabletPageState)
     self.archive_data_file = 'data/skia_gmail_nexus10.json'
 
   def RunSmoothness(self, action_runner):
     action_runner.ScrollElement()
 
   def RunNavigateSteps(self, action_runner):
-    action_runner.Navigate(self.url)
-    action_runner.Wait(10)
+    google_login.NewLoginGoogleAccount(action_runner, 'google')
+    super(SkiaBuildbotDesktopPage, self).RunNavigateSteps(action_runner)
+    action_runner.WaitForJavaScriptCondition(
+        'window.gmonkey !== undefined &&'
+        'document.getElementById("gb") !== null')
+    # google_login.LoginGoogleAccount(action_runner, 'google')
+    # action_runner.Navigate(self.url)
+    # action_runner.Wait(10)
 
 
 class SkiaGmailNexus10PageSet(story.StorySet):
@@ -37,7 +45,8 @@ class SkiaGmailNexus10PageSet(story.StorySet):
 
     urls_list = [
       # Why: productivity, top google properties
-      'https://mail.google.com/mail/',
+      # 'https://mail.google.com/mail/',
+      'https://gmail.com',
     ]
 
     for url in urls_list:
