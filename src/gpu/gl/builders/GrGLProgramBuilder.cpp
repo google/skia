@@ -109,29 +109,6 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const char* glsl,
     return true;
 }
 
-bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
-                                                 GrGLuint programId,
-                                                 GrGLenum type,
-                                                 SkTDArray<GrGLuint>* shaderIds,
-                                                 const SkSL::Program::Settings& settings,
-                                                 SkSL::Program::Inputs* outInputs) {
-    SkSL::String glsl;
-    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(gpu()->glContext(), type,
-                                                 shader.fCompilerStrings.begin(),
-                                                 shader.fCompilerStringLengths.begin(),
-                                                 shader.fCompilerStrings.count(),
-                                                 settings,
-                                                 &glsl);
-    *outInputs = program->fInputs;
-    return this->compileAndAttachShaders(glsl.c_str(),
-                                         glsl.size(),
-                                         programId,
-                                         type,
-                                         shaderIds,
-                                         settings,
-                                         *outInputs);
-}
-
 void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
                                                  const GrPrimitiveProcessor& primProc,
                                                  bool bindAttribLocations) {
