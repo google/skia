@@ -273,3 +273,28 @@ void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> render
         [renderCmdEncoder setDepthStencilState:state];
     }
 }
+
+void GrMtlPipelineState::SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                                    const GrRenderTarget* renderTarget,
+                                                    GrSurfaceOrigin rtOrigin,
+                                                    SkIRect scissorRect) {
+    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
+        scissorRect.setEmpty();
+    }
+
+    MTLScissorRect scissor;
+    scissor.x = scissorRect.fLeft;
+    scissor.width = scissorRect.width();
+    if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
+        scissor.y = scissorRect.fTop;
+    } else {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
+        scissor.y = renderTarget->height() - scissorRect.fBottom;
+    }
+    scissor.height = scissorRect.height();
+
+    SkASSERT(scissor.x >= 0);
+    SkASSERT(scissor.y >= 0);
+
+    [renderCmdEncoder setScissorRect: scissor];
+}

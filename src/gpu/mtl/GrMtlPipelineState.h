@@ -57,6 +57,11 @@ public:
 
     void setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder);
 
+    static void SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                           const GrRenderTarget* renderTarget,
+                                           GrSurfaceOrigin rtOrigin,
+                                           SkIRect scissorRect);
+
 private:
     /**
     * We use the RT's size and origin to adjust from Skia device space to Metal normalized device

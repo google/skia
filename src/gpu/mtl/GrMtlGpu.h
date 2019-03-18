@@ -166,6 +166,7 @@ private:
                           int left, int top, int width, int height,
                           GrColorType, GrGpuBuffer*,
                           size_t offset, size_t rowBytes) override {
+        // TODO: not sure this is worth the work since nobody uses it
         return false;
     }
 
@@ -185,6 +186,8 @@ private:
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
+    // Function that fills texture with transparent black
+    bool clearTexture(GrMtlTexture*, GrColorType);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
