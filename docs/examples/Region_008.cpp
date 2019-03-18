@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3831fb6006a7e0ad5d140c266c22be78
-REG_FIDDLE(Region_008, 256, 256, true, 0) {
+REG_FIDDLE(Region_Cliperator_const_SkRegion_const_SkIRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
     region.setRect({1, 2, 3, 4});

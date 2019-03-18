@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3a90a91030f7289d5df0671d342dbbad
-REG_FIDDLE(Path_098, 256, 160, false, 0) {
+REG_FIDDLE(Path_addPath_3, 256, 160, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);

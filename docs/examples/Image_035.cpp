@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=889e495ce3e3b3bacc96e8230932331c
-REG_FIDDLE(Image_035, 256, 256, false, 3) {
+REG_FIDDLE(Image_makeSubset, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     canvas->scale(.5f, .5f);
     const int width = 64;

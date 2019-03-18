@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=08464e32d22421d2b254c71a84545ef5
-REG_FIDDLE(Matrix_022, 256, 256, true, 0) {
+REG_FIDDLE(Matrix_getTranslateY, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setTranslate(42, 24);

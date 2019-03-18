@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=c851d1313e8909aaea4f0591699fdb7b
-REG_FIDDLE(Matrix_072, 256, 256, false, 0) {
+REG_FIDDLE(Matrix_setPolyToPoly, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     const SkPoint src[] = { { 0, 0}, {30,   0}, {30, -30}, { 0, -30} };
     const SkPoint dst[] = { {50, 0}, {80, -10}, {90, -30}, {60, -40} };

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3357caa9d8d810f200cbccb668182496
-REG_FIDDLE(Region_020, 256, 256, true, 0) {
+REG_FIDDLE(Region_notequal1_operator, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {
                 SkDebugf("%s one %c= two\n", prefix, a != b ? '!' : '=');

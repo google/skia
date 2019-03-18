@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=3bbcc7eec19c808a8167bbcc987199f8
-REG_FIDDLE(Region_010, 256, 256, true, 0) {
+REG_FIDDLE(Region_Cliperator_next, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRegion region;
     SkIRect rects[] = {{1, 2, 3, 4}, {5, 6, 7, 8}};

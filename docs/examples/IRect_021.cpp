@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1912c37076b7f3bf6aebfa167e971bec
-REG_FIDDLE(IRect_021, 256, 256, true, 0) {
+REG_FIDDLE(IRect_set, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect rect1 = {3, 4, 1, 2};
     SkDebugf("rect1: {%d, %d, %d, %d}\n", rect1.fLeft, rect1.fTop, rect1.fRight, rect1.fBottom);

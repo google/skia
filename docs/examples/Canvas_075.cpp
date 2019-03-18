@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d3d8ca584134560750b1efa4a4c6e138
-REG_FIDDLE(Canvas_075, 256, 256, false, 0) {
+REG_FIDDLE(Canvas_drawIRect, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect rect = { 64, 48, 192, 160 };
     SkPaint paint;

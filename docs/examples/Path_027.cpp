@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=dd4e4dd2aaa8039b2430729c6b3af817
-REG_FIDDLE(Path_027, 256, 256, true, 0) {
+REG_FIDDLE(Path_isFinite, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
         SkDebugf("%s path is %s" "finite\n", prefix, path.isFinite() ? "" : "not ");

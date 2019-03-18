@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=68b6d0208eb0b4de67fc152381af7a58
-REG_FIDDLE(TextBlob_007, 256, 24, false, 0) {
+REG_FIDDLE(TextBlob_Deserialize, 256, 24, false, 0) {
 #include "SkSerialProcs.h"
 
 void draw(SkCanvas* canvas) {

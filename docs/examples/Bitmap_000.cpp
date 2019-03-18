@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=fe79a9c1ec350264eb9c7b2509dd3638
-REG_FIDDLE(Bitmap_000, 256, 256, true, 0) {
+REG_FIDDLE(Bitmap_HeapAllocator_allocPixelRef, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkBitmap bitmap;
     bitmap.setInfo(SkImageInfo::MakeN32(16, 16, kPremul_SkAlphaType));

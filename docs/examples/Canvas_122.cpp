@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=1df575f9b8132306ce0552a2554ed132
-REG_FIDDLE(Canvas_122, 256, 256, false, 3) {
+REG_FIDDLE(Canvas_drawAtlas, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
   // SkBitmap source = mandrill;
   SkRSXform xforms[] = { { .5f, 0, 0, 0 }, {0, .5f, 200, 100 } };
