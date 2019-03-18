@@ -53,15 +53,17 @@ protected:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // This is under active development for Chrome and not used in Android. Hold off on adding
     // implementations in Android's SkCanvas subclasses until this stabilizes.
-    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
-                        SkBlendMode) override {};
-    void onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags edgeAA, SkColor color,
-                          SkBlendMode mode) override {};
+    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+            SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) override {}
+    void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
+            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
+            SkCanvas::SrcRectConstraint constraint) override {}
 #else
-    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
-                        SkBlendMode) override = 0;
-    void onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags edgeAA, SkColor color,
-                          SkBlendMode mode) override = 0;
+    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+            SkCanvas::QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) override = 0;
+    void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
+            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
+            SkCanvas::SrcRectConstraint constraint) override = 0;
 #endif
 
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,

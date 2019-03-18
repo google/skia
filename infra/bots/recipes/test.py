@@ -484,6 +484,7 @@ def dm_flags(api, bot):
   bad_serialize_gms.append('makecolorspace')
   bad_serialize_gms.append('readpixels')
   bad_serialize_gms.append('draw_image_set_rect_to_rect')
+  bad_serialize_gms.append('compositor_quads_shader')
 
   # This GM forces a path to be convex. That property doesn't survive
   # serialization.
@@ -672,6 +673,7 @@ def dm_flags(api, bot):
     # skia:8659
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
+    blacklist(['vk', 'gm', '_', 'compositor_quads_filter'])
     blacklist(['vk', 'gm', '_', 'crbug_892988'])
     blacklist(['vk', 'gm', '_', 'dftext'])
     blacklist(['vk', 'gm', '_', 'dftext_blob_persp'])

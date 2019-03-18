@@ -66,10 +66,6 @@ void SkLiteRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
 void SkLiteRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fDL->drawRect(rect, paint);
 }
-void SkLiteRecorder::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
-                                      SkBlendMode mode) {
-    fDL->drawEdgeAARect(rect, aa, color, mode);
-}
 void SkLiteRecorder::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     fDL->drawRegion(region, paint);
 }
@@ -147,11 +143,6 @@ void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
     fDL->drawImageLattice(sk_ref_sp(img), lattice, dst, paint);
 }
 
-void SkLiteRecorder::onDrawImageSet(const ImageSetEntry set[], int count,
-                                    SkFilterQuality filterQuality, SkBlendMode mode) {
-    fDL->drawImageSet(set, count, filterQuality, mode);
-}
-
 void SkLiteRecorder::onDrawPatch(const SkPoint cubics[12],
                                  const SkColor colors[4], const SkPoint texCoords[4],
                                  SkBlendMode bmode, const SkPaint& paint) {
@@ -179,4 +170,15 @@ void SkLiteRecorder::onDrawAtlas(const SkImage* atlas,
 }
 void SkLiteRecorder::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     fDL->drawShadowRec(path, rec);
+}
+
+void SkLiteRecorder::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+                                      QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) {
+  fDL->drawEdgeAAQuad(rect, clip, aaFlags, color, mode);
+}
+void SkLiteRecorder::onDrawEdgeAAImageSet(const ImageSetEntry set[], int count,
+                                          const SkPoint dstClips[],
+                                          const SkMatrix preViewMatrices[], const SkPaint* paint,
+                                          SkCanvas::SrcRectConstraint constraint) {
+  fDL->drawEdgeAAImageSet(set, count, dstClips, preViewMatrices, paint, constraint);
 }
