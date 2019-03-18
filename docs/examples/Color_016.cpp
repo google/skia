@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d355a17547908cdbc2c38720974b5d11
-REG_FIDDLE(Color_016, 256, 256, false, 3) {
+REG_FIDDLE(HSVToColor_2, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     canvas->drawBitmap(source, 0, 0);
     for (int y = 0; y < 256; ++y) {

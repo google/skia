@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=24b9cf7e6f9a08394e1e07413bd8733a
-REG_FIDDLE(Canvas_045, 256, 128, false, 0) {
+REG_FIDDLE(Canvas_setMatrix, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkFont font;

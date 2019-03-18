@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=05be7844e9afdd7b9bfc31c5423a70a2
-REG_FIDDLE(Matrix_050, 256, 256, false, 0) {
+REG_FIDDLE(Matrix_setSkew_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint p;
     p.setAntiAlias(true);

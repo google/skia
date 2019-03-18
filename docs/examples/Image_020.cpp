@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=59b2078ebfbda8736a57c0486ae33332
-REG_FIDDLE(Image_020, 256, 256, false, 3) {
+REG_FIDDLE(Image_refColorSpace, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     SkPixmap pixmap;
     source.peekPixels(&pixmap);

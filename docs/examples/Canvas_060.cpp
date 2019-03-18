@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=56dcd14f943aea6f7d7aafe0de7e6c25
-REG_FIDDLE(Canvas_060, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_quickReject_2, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint testPoints[] = {{30,  30}, {120,  30}, {120, 129} };
     SkPoint clipPoints[] = {{30, 130}, {120, 130}, {120, 230} };

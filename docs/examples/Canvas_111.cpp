@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=005502b502c1282cb8d306d6c8d998fb
-REG_FIDDLE(Canvas_111, 256, 120, false, 0) {
+REG_FIDDLE(Canvas_drawTextBlob, 256, 120, false, 0) {
 void draw(SkCanvas* canvas) {
     SkTextBlobBuilder textBlobBuilder;
     const char bunny[] = "/(^x^)\\";

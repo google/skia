@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=7f27c93472aa99a7542fb3493076f072
-REG_FIDDLE(Paint_116, 256, 85, false, 0) {
+REG_FIDDLE(Paint_getPosTextPath, 256, 85, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(80);

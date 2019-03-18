@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6e70f18300bd676a3c056ceb6b62f8df
-REG_FIDDLE(Paint_040, 256, 256, true, 0) {
+REG_FIDDLE(Paint_setColor, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint green1, green2;
     unsigned a = 255;

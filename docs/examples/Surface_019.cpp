@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0de693f4d8dd898a60be8cfba23952be
-REG_FIDDLE(Surface_019, 256, 64, false, 0) {
+REG_FIDDLE(Surface_draw, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));
     sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));

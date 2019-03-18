@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=f4ce93f6c5e7335436a985377fd980c0
-REG_FIDDLE(Paint_018, 256, 256, true, 0) {
+REG_FIDDLE(Paint_isDither, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkDebugf("paint.isDither() %c= !!(paint.getFlags() & SkPaint::kDither_Flag)\n",

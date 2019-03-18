@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=d266e70977847001f7c42f8a2513bee7
-REG_FIDDLE(Point_000, 256, 256, true, 0) {
+REG_FIDDLE(Point_Make, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint pt1 = {45, 66};
     SkPoint pt2 = SkPoint::Make(45, 66);

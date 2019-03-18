@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=f54d1f85b16073b80b9eef2e1a1d151d
-REG_FIDDLE(Paint_032, 256, 256, true, 0) {
+REG_FIDDLE(Paint_isFakeBoldText, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkDebugf("paint.isFakeBoldText() %c= !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\n",
