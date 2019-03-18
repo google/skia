@@ -22,6 +22,18 @@ GrGLInterface::GrGLInterface() {
     static int kIsDebug = 0;
 #endif
 
+#ifdef DISABLE_GL_INTERFACE
+    #define IS_GR_GL_STANDARD (false)
+#else
+    #define IS_GR_GL_STANDARD (kGL_GrGLStandard == fStandard)
+#endif
+
+#ifdef DISABLE_GLES_INTERFACE
+    #define IS_GR_GLES_STANDARD (false)
+#else
+    #define IS_GR_GLES_STANDARD (kGLES_GrGLStandard == fStandard)
+#endif
+
 #define RETURN_FALSE_INTERFACE                                                                   \
     if (kIsDebug) { SkDebugf("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); } \
     return false
@@ -156,7 +168,7 @@ bool GrGLInterface::validate() const {
     // these functions are part of ES2, we assume they are available
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
-    if (kGL_GrGLStandard == fStandard) {
+    if (IS_GR_GL_STANDARD) {
         if (glVer >= GR_GL_VER(3,0) && !fFunctions.fBindFragDataLocation) {
             RETURN_FALSE_INTERFACE;
         }
@@ -177,14 +189,15 @@ bool GrGLInterface::validate() const {
     }
 
     // part of desktop GL, but not ES
-    if (kGL_GrGLStandard == fStandard &&
+    if (IS_GR_GL_STANDARD &&
         (!fFunctions.fDrawBuffer ||
          !fFunctions.fPolygonMode)) {
         RETURN_FALSE_INTERFACE;
     }
 
     // ES 3.0 (or ES 2.0 extended) has glDrawBuffers but not glDrawBuffer
-    if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0)) {
+    if (IS_GR_GL_STANDARD ||
+       (IS_GR_GLES_STANDARD && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fDrawBuffers) {
             RETURN_FALSE_INTERFACE;
         }
