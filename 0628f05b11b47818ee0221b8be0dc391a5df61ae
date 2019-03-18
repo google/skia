@@ -22,6 +22,30 @@
       "revId": "0628f05b11b47818ee0221b8be0dc391a5df61ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b84a57be_4932a31f",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T21:23:38Z",
+      "side": 1,
+      "message": "e.g. the public macro could be something like\n\n#define SK_ASSUME_GL_ES 1\n\nand then if private code we could do something like:\n\n#if SK_ASSUME_GL_ES\n\n#define SK_STANDARD_IS_GL_ES(standard) true\n\n#elif SK_ASSUME_GL\n\n#define SK_STANDARD_IS_GL_ES(standard) false\n\n#else\n\n#define SK_STANDARD_IS_GL_ES(standard) (standard \u003d\u003d kGLES_GrGLStandard)\n\n#endif",
+      "parentUuid": "a4208cd8_4379a96c",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 0
+      },
+      "revId": "0628f05b11b47818ee0221b8be0dc391a5df61ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
