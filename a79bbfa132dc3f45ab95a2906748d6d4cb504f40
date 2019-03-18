@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "db2bb561_b44a6ea9",
+        "filename": "gm/penpatheffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-18T16:16:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6cc5b0a_10938dcf",
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "858bba7e_2c9a334d",
         "filename": "gm/penpatheffect.cpp",
         "patchSetId": 5
@@ -56,6 +74,24 @@
       "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dad6929_70aad656",
+        "filename": "gm/penpatheffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-18T16:16:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "858bba7e_2c9a334d",
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +118,30 @@
     },
     {
       "key": {
+        "uuid": "6f313a7e_b000328d",
+        "filename": "include/effects/SkPenPathEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-18T16:16:49Z",
+      "side": 1,
+      "message": "Done\n\nWhy ignore anything?  Let\u0027s just store and use the entire a matrix.",
+      "parentUuid": "870af93e_fc03bd2d",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 13,
+        "endChar": 39
+      },
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c14a5b1_47fda420",
         "filename": "src/effects/SkPenPathEffectImpl.h",
         "patchSetId": 5
@@ -93,6 +153,30 @@
       "writtenOn": "2019-03-18T15:16:13Z",
       "side": 1,
       "message": "nit: almost all of our files have a different format\n\n/*\n * Copyright 2019 Google Inc.\n *\n * Use of this source code is governed by a BSD-style license that can be\n * found in the LICENSE file.\n */\n\n--- with a blank before the first line",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 17
+      },
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a05cfd6_48b84ced",
+        "filename": "src/effects/SkPenPathEffectImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-03-18T16:16:49Z",
+      "side": 1,
+      "message": "https://groups.google.com/a/google.com/d/topic/skia-staff/enV4g1WpW7c/discussion\n\nTLDR: \"Google Inc\" does not exist anymore.  We work for \"Google LLC\"",
+      "parentUuid": "3c14a5b1_47fda420",
       "range": {
         "startLine": 1,
         "startChar": 3,
