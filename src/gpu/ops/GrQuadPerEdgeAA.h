@@ -17,6 +17,7 @@
 #include "SkPoint.h"
 #include "SkPoint3.h"
 
+class GrCaps;
 class GrColorSpaceXform;
 class GrShaderCaps;
 
@@ -27,7 +28,7 @@ namespace GrQuadPerEdgeAA {
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
     // Gets the minimum ColorType that can represent a color.
-    ColorType MinColorType(SkPMColor4f);
+    ColorType MinColorType(SkPMColor4f, GrClampType, const GrCaps&);
 
     // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
     // order (when enabled) is device position, color, local position, domain, aa edge equations.

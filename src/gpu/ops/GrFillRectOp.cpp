@@ -14,6 +14,7 @@
 #include "GrQuad.h"
 #include "GrQuadPerEdgeAA.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "SkGr.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -79,8 +80,7 @@ public:
                const GrPerspQuad& deviceQuad, GrQuadType deviceQuadType,
                const GrPerspQuad& localQuad, GrQuadType localQuadType)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil)
-            , fColorType(GrQuadPerEdgeAA::MinColorType(paintColor)) {
+            , fHelper(args, aaType, stencil) {
         // The color stored with the quad is the clear color if a scissor-clear is decided upon
         // when executing the op.
         fDeviceQuads.push_back(deviceQuad, deviceQuadType, { paintColor, edgeFlags });
@@ -149,18 +149,17 @@ public:
         // to the same color (even if they started out with different colors).
         SkPMColor4f colorOverride;
         if (quadColors.isConstant(&colorOverride)) {
-            // TODO: Unified strategy for handling wide color outputs from processor analysis.
-            // skbug.com/8871
-            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride);
-            if (fColorType == ColorType::kHalf && !caps.halfFloatVertexAttributeSupport()) {
-                fColorType = ColorType::kByte;
-                colorOverride = {SkTPin(colorOverride.fR, 0.0f, 1.0f),
-                                 SkTPin(colorOverride.fG, 0.0f, 1.0f),
-                                 SkTPin(colorOverride.fB, 0.0f, 1.0f),
-                                 colorOverride.fA};
-            }
+            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride, clampType, caps);
             for (int i = 0; i < this->quadCount(); ++i) {
                 fDeviceQuads.metadata(i).fColor = colorOverride;
+            }
+        } else {
+            // Otherwise compute the color type needed as the max over all quads.
+            fColorType = ColorType::kNone;
+            for (int i = 0; i < this->quadCount(); ++i) {
+                SkPMColor4f* color = &fDeviceQuads.metadata(i).fColor;
+                fColorType = SkTMax(fColorType,
+                                    GrQuadPerEdgeAA::MinColorType(*color, clampType, caps));
             }
         }
 
@@ -306,10 +305,6 @@ private:
             // else the new quad could have been downgraded but the other quads can't be, so don't
             // reset the op's accumulated aa type.
         }
-
-        // clear compatible won't need to be updated, since device quad type and paint is the same,
-        // but this quad has a new color, so maybe update color type
-        fColorType = SkTMax(fColorType, GrQuadPerEdgeAA::MinColorType(color));
 
         // Update the bounds and add the quad to this op's storage
         SkRect newBounds = this->bounds();

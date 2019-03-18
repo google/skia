@@ -267,18 +267,9 @@ SkPMColor4f SkColorToPMColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo
     return color.premul();
 }
 
-SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorSpaceInfo& colorSpaceInfo,
-                              const GrCaps& caps) {
+SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorSpaceInfo& colorSpaceInfo) {
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         color = xform->apply(color);
-    }
-    // TODO: Should we clamp here if config is kRGBA_half_Clamped_GrPixelConfig?
-    if (!GrPixelConfigIsFloatingPoint(colorSpaceInfo.config()) ||
-        !caps.halfFloatVertexAttributeSupport()) {
-        color = { SkTPin(color.fR, 0.0f, 1.0f),
-                  SkTPin(color.fG, 0.0f, 1.0f),
-                  SkTPin(color.fB, 0.0f, 1.0f),
-                         color.fA };
     }
     return color;
 }
@@ -384,8 +375,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
-    SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), colorSpaceInfo,
-                                              *context->priv().caps());
+    SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), colorSpaceInfo);
 
     const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 
