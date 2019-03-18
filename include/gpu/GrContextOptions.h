@@ -82,7 +82,8 @@ struct SK_API GrContextOptions {
      * rendering artifacts along shared edges if care isn't taken to ensure both contours wind in
      * the same direction.
      */
-    bool fDisableCoverageCountingPaths = false;
+    // FIXME: Once this is removed from Chrome and Android, rename to fEnable"".
+    bool fDisableCoverageCountingPaths = true;
 
     /**
      * Disables distance field rendering for paths. Distance field computation can be expensive,
@@ -218,7 +219,7 @@ struct SK_API GrContextOptions {
     /**
      * Include or exclude specific GPU path renderers.
      */
-    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
 #endif
 
 #if SK_SUPPORT_ATLAS_TEXT
