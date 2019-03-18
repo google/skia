@@ -225,12 +225,14 @@ protected:
         kFunctions,
         kMain,
         kCode,
+
+        kPrealloc = kCode + 6,  // 6 == Reasonable upper bound on number of processor stages
     };
 
     GrGLSLProgramBuilder* fProgramBuilder;
-    SkSTArray<kCode, const char*, true> fCompilerStrings;
-    SkSTArray<kCode, int, true> fCompilerStringLengths;
-    SkSTArray<kCode, SkString> fShaderStrings;
+    SkSTArray<kPrealloc, const char*, true> fCompilerStrings;
+    SkSTArray<kPrealloc, int, true> fCompilerStringLengths;
+    SkSTArray<kPrealloc, SkString> fShaderStrings;
     SkString fCode;
     SkString fFunctions;
     SkString fExtensions;
