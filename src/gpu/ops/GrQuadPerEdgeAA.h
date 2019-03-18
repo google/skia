@@ -26,6 +26,9 @@ namespace GrQuadPerEdgeAA {
     enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
+    // Gets the minimum ColorType that can represent a color.
+    ColorType MinColorType(SkPMColor4f);
+
     // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
     // order (when enabled) is device position, color, local position, domain, aa edge equations.
     // This order matches the constructor argument order of VertexSpec and is the order that
