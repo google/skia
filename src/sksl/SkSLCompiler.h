@@ -13,6 +13,7 @@
 #include <vector>
 #include "ir/SkSLProgram.h"
 #include "ir/SkSLSymbolTable.h"
+#include "SkSLByteCode.h"
 #include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
@@ -110,6 +111,8 @@ public:
     bool toCPP(Program& program, String name, OutputStream& out);
 
     bool toH(Program& program, String name, OutputStream& out);
+
+    std::unique_ptr<ByteCode> toByteCode(Program& program);
 
     bool toPipelineStage(const Program& program, String* out,
                          std::vector<FormatArg>* outFormatArgs);
