@@ -70,9 +70,8 @@ void GrRecordingContext::setupDrawingManager(bool explicitlyAllocate, bool sortO
 #if GR_TEST_UTILS
     prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
 #endif
-    // FIXME: Once this is removed from Chrome and Android, rename to fEnable"".
-    if (!this->options().fDisableCoverageCountingPaths) {
-        prcOptions.fGpuPathRenderers |= GpuPathRenderers::kCoverageCounting;
+    if (this->options().fDisableCoverageCountingPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
     }
     if (this->options().fDisableDistanceFieldPaths) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
