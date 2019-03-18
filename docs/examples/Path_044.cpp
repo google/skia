@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=f2260f2a170a54aef5bafe5b91c121b3
-REG_FIDDLE(Path_044, 256, 192, false, 0) {
+REG_FIDDLE(Path_incReserve, 256, 192, false, 0) {
 void draw(SkCanvas* canvas) {
     auto addPoly = [](int sides, SkScalar size, SkPath* path) -> void {
         path->moveTo(size, 0);

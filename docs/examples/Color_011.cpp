@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6971489f28291f08e429cc6ccc73b09b
-REG_FIDDLE(Color_011, 256, 256, false, 0) {
+REG_FIDDLE(SK_ColorMAGENTA_b, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     std::vector<uint32_t> srcPixels;
     constexpr int width = 256;

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=69b7162e8324d9239dd02dd9ada2bdff
-REG_FIDDLE(Paint_019, 256, 256, true, 0) {
+REG_FIDDLE(Paint_setDither, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint1, paint2;
     paint1.setDither(true);

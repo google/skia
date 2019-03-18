@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=85a76163138a2720ac003691d6363938
-REG_FIDDLE(Image_039, 256, 256, false, 5) {
+REG_FIDDLE(Image_makeWithFilter, 256, 256, false, 5) {
 void draw(SkCanvas* canvas) {
     sk_sp<SkImageFilter> shadowFilter = SkDropShadowImageFilter::Make(
                 -10.0f * frame, 5.0f * frame, 3.0f, 3.0f, SK_ColorBLUE,

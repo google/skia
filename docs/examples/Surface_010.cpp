@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=99a54b814ccab7d2b1143c88581649ff
-REG_FIDDLE(Surface_010, 256, 256, true, 0) {
+REG_FIDDLE(Surface_MakeNull, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkDebugf("SkSurface::MakeNull(0, 0) %c= nullptr\n", SkSurface::MakeNull(0, 0) == nullptr ?
              '=' : '!');

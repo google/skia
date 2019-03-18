@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=0e1db8c86678c004e504f47641b44b17
-REG_FIDDLE(IRect_023, 256, 256, true, 0) {
+REG_FIDDLE(IRect_setXYWH, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect rect;
     rect.setXYWH(5, 35, -15, 25);

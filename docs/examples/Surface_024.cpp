@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=760793bcf0ef193fa61ea03e6e8fc825
-REG_FIDDLE(Surface_024, 256, 96, false, 4) {
+REG_FIDDLE(Surface_writePixels, 256, 96, false, 4) {
 void draw(SkCanvas* canvas) {
     sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));
     auto surfCanvas = surf->getCanvas();

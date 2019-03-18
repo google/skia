@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=2a59cbfd1330a0db520d6ebb2b7c68c7
-REG_FIDDLE(IRect_009, 256, 256, true, 0) {
+REG_FIDDLE(IRect_x, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect unsorted = { 15, 5, 10, 25 };
     SkDebugf("unsorted.fLeft: %d unsorted.x(): %d\n", unsorted.fLeft, unsorted.x());

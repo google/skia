@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=b3538117c7ae2cb7de3b42ca45fe1b13
-REG_FIDDLE(Region_021, 256, 256, true, 0) {
+REG_FIDDLE(Region_set, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* label, SkRegion& region) -> void {
         auto r = region.getBounds();

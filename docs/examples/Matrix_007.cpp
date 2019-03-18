@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=6287e29674a487eb94174992d45b9a34
-REG_FIDDLE(Matrix_007, 256, 256, true, 0) {
+REG_FIDDLE(Matrix_isScaleTranslate, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     for (SkScalar scaleX : { 1, 2 } ) {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=b1ead09c67a177ab8eace12b061610a7
-REG_FIDDLE(Matrix_081, 256, 256, false, 4) {
+REG_FIDDLE(Matrix_mapXY_2, 256, 256, false, 4) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {30, 206}};

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=4486d0c0b22ad2931db130f42da4c80c
-REG_FIDDLE(Canvas_015, 256, 256, true, 0) {
+REG_FIDDLE(Canvas_accessTopRasterHandle, 256, 256, true, 0) {
 static void DeleteCallback(void*, void* context) {
     delete (char*) context;
 }

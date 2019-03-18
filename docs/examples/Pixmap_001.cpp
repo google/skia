@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "fiddle/examples.h"
 // HASH=9a00774be57d7308313b3a9073e6e696
-REG_FIDDLE(Pixmap_001, 256, 256, true, 3) {
+REG_FIDDLE(Pixmap_const_SkImageInfo_const_star, 256, 256, true, 3) {
 void draw(SkCanvas* canvas) {
     SkDebugf("image alpha only = %s\n", image->isAlphaOnly() ? "true" : "false");
     SkPMColor pmColors = 0;
