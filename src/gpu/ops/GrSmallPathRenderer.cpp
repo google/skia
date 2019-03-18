@@ -268,8 +268,6 @@ public:
         fShapeCache = shapeCache;
         fShapeList = shapeList;
         fGammaCorrect = gammaCorrect;
-        fWideColor = !SkPMColor4fFitsInBytes(color);
-
     }
 
     const char* name() const override { return "SmallPathOp"; }
@@ -302,7 +300,7 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         return fHelper.finalizeProcessors(
                 caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kSingleChannel,
-                &fShapes.front().fColor);
+                &fShapes.front().fColor, &fWideColor);
     }
 
 private:

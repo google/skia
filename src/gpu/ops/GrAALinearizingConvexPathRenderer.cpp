@@ -160,7 +160,6 @@ public:
             bounds.outset(w, w);
         }
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
@@ -191,7 +190,7 @@ public:
                                       GrFSAAType fsaaType, GrClampType clampType) override {
         return fHelper.finalizeProcessors(
                 caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kSingleChannel,
-                &fPaths.back().fColor);
+                &fPaths.back().fColor, &fWideColor);
     }
 
 private:
