@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5387b6a6_18801832",
+        "filename": ".clang-format",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-18T21:02:42Z",
+      "side": 1,
+      "message": "Don\u0027t we not indent namespaces in most places?",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 25
+      },
+      "revId": "dcd6a2808b926c9f8e3f3033fd0a09ac652c3441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
