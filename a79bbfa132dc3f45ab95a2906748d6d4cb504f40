@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f6f0a4a_da60a6f0",
+        "filename": "gm/penpatheffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-18T15:16:13Z",
+      "side": 1,
+      "message": "see nit about formatting the copyright",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 13
+      },
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6cc5b0a_10938dcf",
+        "filename": "gm/penpatheffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-18T15:16:13Z",
+      "side": 1,
+      "message": "nit : space before and after includes",
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "858bba7e_2c9a334d",
+        "filename": "gm/penpatheffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-18T15:16:13Z",
+      "side": 1,
+      "message": "good example why taking a matrix will be convenient/readable",
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "870af93e_fc03bd2d",
+        "filename": "include/effects/SkPenPathEffect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-18T15:16:13Z",
+      "side": 1,
+      "message": "Let\u0027s take SkMatrix in the factory. We just document what parts we ignore (just as MS does): translate and perspective",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 13,
+        "endChar": 39
+      },
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c14a5b1_47fda420",
+        "filename": "src/effects/SkPenPathEffectImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-18T15:16:13Z",
+      "side": 1,
+      "message": "nit: almost all of our files have a different format\n\n/*\n * Copyright 2019 Google Inc.\n *\n * Use of this source code is governed by a BSD-style license that can be\n * found in the LICENSE file.\n */\n\n--- with a blank before the first line",
+      "range": {
+        "startLine": 1,
+        "startChar": 3,
+        "endLine": 1,
+        "endChar": 17
+      },
+      "revId": "a79bbfa132dc3f45ab95a2906748d6d4cb504f40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
