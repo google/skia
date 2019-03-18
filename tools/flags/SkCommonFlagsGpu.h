@@ -49,7 +49,7 @@ inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
         return GpuPathRenderers::kDefault;
     }
     GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
-            ? GpuPathRenderers::kAll : GpuPathRenderers::kNone;
+            ? GpuPathRenderers::kDefault : GpuPathRenderers::kNone;
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
         const char* name = FLAGS_pr[i];
         if (name[0] == '~') {
