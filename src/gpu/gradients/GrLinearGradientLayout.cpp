@@ -25,8 +25,9 @@ public:
         auto gradientMatrix = _outer.gradientMatrix();
         (void)gradientMatrix;
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-        fragBuilder->codeAppendf("half t = half(%s.x);\n%s = half4(t, 1.0, 0.0, 0.0);\n",
-                                 sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
+        fragBuilder->codeAppendf(
+                "half t = half(%s.x) + 1.0000000000000001e-05;\n%s = half4(t, 1.0, 0.0, 0.0);\n",
+                sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
     }
 
 private:
