@@ -106,6 +106,7 @@ private:
 
     void internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer = nullptr);
     void internalUnmap(GrVkGpu* gpu, size_t size);
+    void copyCpuDataToGpuBuffer(GrVkGpu* gpu, size_t size, const void* srcData);
 
     void validate() const;
     bool vkIsMapped() const;

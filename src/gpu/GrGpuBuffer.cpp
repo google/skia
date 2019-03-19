@@ -15,7 +15,8 @@ GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
         , fMapPtr(nullptr)
         , fSizeInBytes(sizeInBytes)
         , fAccessPattern(pattern)
-        , fIntendedType(type) {}
+        , fIntendedType(type) {
+}
 
 void GrGpuBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType intendedType,
                                                  GrScratchKey* key) {
