@@ -93,6 +93,30 @@
       "revId": "fc9cbf1ef850204089f2b46b53179226af440d47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01d3bb59_b222f19e",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T18:10:45Z",
+      "side": 1,
+      "message": "I think a comment that this is an API limitation would be helpful... or make the code self documenting by having a named helper. I wasn\u0027t sure whether this was an API limitation or some performance threshold.",
+      "parentUuid": "e6b589bc_f2dc05ca",
+      "range": {
+        "startLine": 189,
+        "startChar": 8,
+        "endLine": 189,
+        "endChar": 45
+      },
+      "revId": "fc9cbf1ef850204089f2b46b53179226af440d47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
