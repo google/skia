@@ -1817,7 +1817,7 @@ public:
     };
 
     /** This is used by the experimental API below. */
-    struct ImageSetEntry {
+    struct SK_API ImageSetEntry {
         ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
                       int matrixIndex, float alpha, unsigned aaFlags, bool hasClip);
 
