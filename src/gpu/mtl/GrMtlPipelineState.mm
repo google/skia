@@ -118,6 +118,13 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     }
 }
 
+void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                      GrPixelConfig config, const GrXferProcessor& xferProcessor) {
+    this->bind(renderCmdEncoder);
+    this->setBlendConstants(renderCmdEncoder, config, xferProcessor);
+    this->setDepthStencilState(renderCmdEncoder);
+}
+
 void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     if (fGeometryUniformBuffer) {
         [renderCmdEncoder setVertexBuffer: fGeometryUniformBuffer->mtlBuffer()
