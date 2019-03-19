@@ -22,6 +22,30 @@
       "revId": "a2a5cc0a3c3ca57a03488a6c3c1dd424702ebdb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7801e73a_d73f8b38",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-19T20:18:11Z",
+      "side": 1,
+      "message": "Yeah. There\u0027d probably be more blank lines in here if a person wrote this.  I really wouldn\u0027t worry about it unless we start disliking its formatting of non-generated code.",
+      "parentUuid": "8480d1eb_abc33644",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 79
+      },
+      "revId": "a2a5cc0a3c3ca57a03488a6c3c1dd424702ebdb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
