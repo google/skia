@@ -15,6 +15,11 @@
 
 #define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Fn*)get(ctx, "egl" #F #S)
 
+#if SK_DISABLE_GL_ES_INTERFACE
+sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc get) {
+    return nullptr;
+}
+#else
 sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
@@ -455,3 +460,4 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
 
     return std::move(interface);
 }
+#endif
