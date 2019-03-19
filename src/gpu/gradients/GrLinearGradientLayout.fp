@@ -12,7 +12,14 @@ in half4x4 gradientMatrix;
 }
 
 void main() {
-    half t = half(sk_TransformedCoords2D[0].x);
+    // We add a tiny delta to t. When gradient stops are set up so that a hard stop in a vertically
+    // or horizontally oriented gradient falls exactly at a column or row of pixel centers we can
+    // we can get slightly different interpolated t values along the column/row. By adding the delta
+    // we will consistently get the color to the "right" of the stop. Of course if the hard stop
+    // falls at X.5 - delta then we still could get inconsistent results, but that is much less
+    // likely. crbug.com/938592
+    // If/when we add filtering of the gradient this can be removed.
+    half t = half(sk_TransformedCoords2D[0].x) + 0.00001;
     sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
 }
 
