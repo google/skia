@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `SkPathMeasure`, `RSXFormBuilder`, `SkFont.getWidths`, `SkTextBlob.MakeFromRSXform`
    which were needed to add the helper function `SkTextBlob.MakeOnPath`.
+ - `SkSurface.requestAnimationFrame` - wrapper around window.requestAnimationFrame that
+   takes care of the setup/tear down required to use CanvasKit optimally.
 
 ### Changed
  - Location in Skia Git repo now `modules/canvaskit` (was `experimental/canvaskit`)

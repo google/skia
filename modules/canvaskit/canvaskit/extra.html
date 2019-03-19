@@ -150,21 +150,17 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
 
     let firstFrame = Date.now();
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       let seek = ((Date.now() - firstFrame) / duration) % 1.0;
-      CanvasKit.setCurrentContext(context);
       animation.seek(seek);
       canvas.clear(CanvasKit.WHITE);
       animation.render(canvas, bounds);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
 
     //animation.delete();
     return surface;
@@ -182,17 +178,14 @@
     const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
     particles.start(Date.now() / 1000.0, true);
 
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       canvas.clear(CanvasKit.BLACK);
 
       particles.update(Date.now() / 1000.0);
       particles.draw(canvas);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
-
+    surface.requestAnimationFrame(drawFrame);
   }
 
 const snowfall = {
