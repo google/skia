@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "45a0bc37_9746373b",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-19T16:59:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c200de21_c104a433",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 20
+      },
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e544d3cb_fa709c3c",
         "filename": "include/gpu/gl/GrGLTypes.h",
         "patchSetId": 12
@@ -194,6 +218,24 @@
       "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2559e2d9_19ddcfef",
+        "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-19T16:59:23Z",
+      "side": 1,
+      "message": "Left as DISABLE_FOO_INTERFACE",
+      "parentUuid": "69f971b1_c5115d5e",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
