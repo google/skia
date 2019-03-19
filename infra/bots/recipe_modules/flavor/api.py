@@ -36,7 +36,8 @@ VERSION_FILE_SVG = 'SVG_VERSION'
 VERSION_NONE = -1
 
 def is_android(vars_api):
-  return 'Android' in vars_api.extra_tokens
+  return ('Android' in vars_api.extra_tokens or
+          'AndroidSkottieTracing' in vars_api.extra_tokens)
 
 def is_chromecast(vars_api):
   return ('Chromecast' in vars_api.extra_tokens or
