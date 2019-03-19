@@ -454,12 +454,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Otherwise don't know how to draw it
 }
 
-// For ease-of-use, the temporary API treats null dstClipCounts as if it were the proper sized
-// array, filled with all 0s (so dstClips can be null too)
-void SkGpuDevice::tmp_drawImageSetV3(const SkCanvas::ImageSetEntry set[], int dstClipCounts[],
-                                     int preViewMatrixIdx[], int count, const SkPoint dstClips[],
-                                     const SkMatrix preViewMatrices[], const SkPaint& paint,
-                                     SkCanvas::SrcRectConstraint constraint) {
+void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                     const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                     const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
 
     if (!can_use_draw_texture(paint)) {
@@ -467,19 +464,16 @@ void SkGpuDevice::tmp_drawImageSetV3(const SkCanvas::ImageSetEntry set[], int ds
         int dstClipIndex = 0;
         for (int i = 0; i < count; ++i) {
             // Only no clip or quad clip are supported
-            SkASSERT(!dstClipCounts || dstClipCounts[i] == 0 || dstClipCounts[i] == 4);
-
-            int xform = preViewMatrixIdx ? preViewMatrixIdx[i] : -1;
-            SkASSERT(xform < 0 || preViewMatrices);
+            SkASSERT(!set[i].fHasClip || dstClips);
+            SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
 
             // Always send GrAA::kYes to preserve seaming across tiling in MSAA
             this->drawImageQuad(set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
-                    (dstClipCounts && dstClipCounts[i] > 0) ? dstClips + dstClipIndex : nullptr,
+                    set[i].fHasClip ? dstClips + dstClipIndex : nullptr,
                     GrAA::kYes, SkToGrQuadAAFlags(set[i].fAAFlags),
-                    xform < 0 ? nullptr : preViewMatrices + xform, paint, constraint);
-            if (dstClipCounts) {
-                dstClipIndex += dstClipCounts[i];
-            }
+                    set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
+                    paint, constraint);
+            dstClipIndex += 4 * set[i].fHasClip;
         }
         return;
     }
@@ -506,12 +500,10 @@ void SkGpuDevice::tmp_drawImageSetV3(const SkCanvas::ImageSetEntry set[], int ds
     for (int i = 0; i < count; ++i) {
         // Manage the dst clip pointer tracking before any continues are used so we don't lose
         // our place in the dstClips array.
-        int clipCount = (dstClipCounts ? dstClipCounts[i] : 0);
-        SkASSERT(clipCount == 0 || (dstClipCounts[i] == 4 && dstClips));
-        const SkPoint* clip = clipCount > 0 ? dstClips + dstClipIndex : nullptr;
-        if (dstClipCounts) {
-            dstClipIndex += dstClipCounts[i];
-        }
+        SkASSERT(!set[i].fHasClip || dstClips);
+        const SkPoint* clip = set[i].fHasClip ? dstClips + dstClipIndex : nullptr;
+        dstClipIndex += 4 * set[i].fHasClip;
+
         // The default SkBaseDevice implementation is based on drawImageRect which does not allow
         // non-sorted src rects. TODO: Decide this is OK or make sure we handle it.
         if (!set[i].fSrcRect.isSorted()) {
@@ -544,13 +536,13 @@ void SkGpuDevice::tmp_drawImageSetV3(const SkCanvas::ImageSetEntry set[], int ds
             }
         }
 
-        int xform = preViewMatrixIdx ? preViewMatrixIdx[i] : -1;
-        SkASSERT(xform < 0 || preViewMatrices);
+        SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
 
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fDstClipQuad = clip;
-        textures[i].fPreViewMatrix = xform < 0 ? nullptr : preViewMatrices + xform;
+        textures[i].fPreViewMatrix =
+                set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex;
         textures[i].fAlpha = set[i].fAlpha * paint.getAlphaf();
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
 

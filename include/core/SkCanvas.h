@@ -1818,11 +1818,21 @@ public:
 
     /** This is used by the experimental API below. */
     struct ImageSetEntry {
+        ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
+                      int matrixIndex, float alpha, unsigned aaFlags, bool hasClip);
+
+        ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
+                      float alpha, unsigned aaFlags);
+
+        ImageSetEntry() = default;
+
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
         SkRect fDstRect;
-        float fAlpha;
-        unsigned fAAFlags;  // QuadAAFlags
+        int fMatrixIndex = -1; // Index into the preViewMatrices arg, or < 0
+        float fAlpha = 1.f;
+        unsigned fAAFlags = kNone_QuadAAFlags; // QuadAAFlags
+        bool fHasClip = false; // True to use next 4 points in dstClip arg as quad
     };
 
     /**
@@ -1832,6 +1842,9 @@ public:
      * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
      * current implementation only antialiases if all edges are flagged, however.
      * Results are undefined if an image's src rect is not within the image's bounds.
+     *
+     * Ignores fDstClipCount and fMatrixIndex in the image set entries.
+     * <!deprecated in favor of experimental_DrawEdgeAAImageSet
      */
     void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
@@ -1842,9 +1855,64 @@ public:
      * over each edge's AA status, to allow perfect seaming for tile sets.
      *
      * When not fully supported, the implementation only antialiases if all edges are flagged.
+     * <!deprecated in favor of experimental_DrawEdgeAAQuad
      */
     void experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
                                        SkBlendMode mode);
+
+    /**
+     * This is an experimental API for the SkiaRenderer Chromium project, and its API will surely
+     * evolve if it is not removed outright.
+     *
+     * This behaves very similarly to drawRect() combined with a clipPath() formed by clip
+     * quadrilateral. 'rect' and 'clip' are in the same coordinate space. If 'clip' is null, then it
+     * is as if the rectangle was not clipped (or, alternatively, clipped to itself). If not null,
+     * then it must provide 4 points.
+     *
+     * In addition to combining the draw and clipping into one operation, this function adds the
+     * additional capability of controlling each of the rectangle's edges anti-aliasing
+     * independently.  The edges of the clip will respect the per-edge AA flags. It is required that
+     * 'clip' be contained inside 'rect'. In terms of mapping to edge labels, the 'clip' points
+     * should be ordered top-left, top-right, bottom-right, bottom-left so that the edge between [0]
+     * and [1] is "top", [1] and [2] is "right", [2] and [3] is "bottom", and [3] and [0] is "left".
+     * This ordering matches SkRect::toQuad().
+     *
+     * This API only draws solid color, filled rectangles so it does not accept a full SkPaint.
+     */
+    void experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], QuadAAFlags aaFlags,
+                                     SkColor color, SkBlendMode mode);
+    /**
+     * This is an bulk variant of experimental_DrawEdgeAAQuad() that renders 'cnt' textured quads.
+     * For each entry, 'fDstRect' is rendered with its clip (determined by entry's 'fHasClip' and
+     * the current index in 'dstClip'). The entry's fImage is applied to the destination rectangle
+     * by sampling from 'fSrcRect' sub-image.  The corners of 'fSrcRect' map to the corners of
+     * 'fDstRect', just like in drawImageRect(), and they will be properly interpolated when
+     * applying a clip.
+     *
+     * Like experimental_DrawEdgeAAQuad(), each entry can specify edge AA flags that apply to both
+     * the destination rect and its clip.
+     *
+     * If provided, the 'dstClips' array must have length equal 4 * the number of entries with
+     * fHasClip true. If 'dstClips' is null, every entry must have 'fHasClip' set to false. The
+     * destination clip coordinates will be read consecutively with the image set entries, advancing
+     * by 4 points every time an entry with fHasClip is passed.
+     *
+     * This entry point supports per-entry manipulations to the canvas's current matrix. If an
+     * entry provides 'fMatrixIndex' >= 0, it will be drawn as if the canvas's CTM was
+     * canvas->getTotalMatrix() * preViewMatrices[fMatrixIndex]. If 'fMatrixIndex' is less than 0,
+     * the pre-view matrix transform is implicitly the identity, so it will be drawn using just the
+     * current canvas matrix. The pre-view matrix modifies the canvas's view matrix, it does not
+     * affect the local coordinates of each entry.
+     *
+     * An optional paint may be provided, which supports the same subset of features usable with
+     * drawImageRect (i.e. assumed to be filled and no path effects). When a paint is provided, the
+     * image set is drawn as if each image used the applied paint independently, so each is affected
+     * by the image, color, and/or mask filter.
+     */
+    void experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], int cnt,
+                                         const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                         const SkPaint* paint = nullptr,
+                                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
@@ -2379,8 +2447,6 @@ protected:
     // that mechanism  will be required to implement the new function.
     virtual void onDrawPaint(const SkPaint& paint);
     virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
-    virtual void onDrawEdgeAARect(const SkRect& rect, QuadAAFlags edgeAA, SkColor color,
-                                  SkBlendMode mode);
     virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
     virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
     virtual void onDrawOval(const SkRect& rect, const SkPaint& paint);
@@ -2413,9 +2479,6 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
-    virtual void onDrawImageSet(const ImageSetEntry imageSet[], int count, SkFilterQuality,
-                                SkBlendMode);
-
     virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                               const SkPaint* paint);
     virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
@@ -2435,6 +2498,12 @@ protected:
     virtual void onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix);
     virtual void onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                const SkPaint* paint);
+
+    virtual void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], QuadAAFlags aaFlags,
+                                  SkColor color, SkBlendMode mode);
+    virtual void onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
+                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                      const SkPaint* paint, SrcRectConstraint constraint);
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
@@ -2563,7 +2632,6 @@ private:
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
-    friend class ClipTileRenderer;  // GM needs getTopDevice() until API is in SkCanvas
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds);
