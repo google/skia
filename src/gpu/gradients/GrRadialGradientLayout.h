@@ -21,10 +21,10 @@ public:
     const SkMatrix44& gradientMatrix() const { return fGradientMatrix; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(const SkRadialGradient& gradient,
-                                                     const GrFPArgs& args);
+                                                     const GrFPArgs&         args);
     GrRadialGradientLayout(const GrRadialGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char* name() const override { return "RadialGradientLayout"; }
+    const char*                          name() const override { return "RadialGradientLayout"; }
 
 private:
     GrRadialGradientLayout(SkMatrix44 gradientMatrix)
@@ -38,8 +38,8 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkMatrix44 fGradientMatrix;
-    GrCoordTransform fCoordTransform0;
+    SkMatrix44                  fGradientMatrix;
+    GrCoordTransform            fCoordTransform0;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

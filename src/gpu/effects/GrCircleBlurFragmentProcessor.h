@@ -16,17 +16,20 @@
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
     const SkRect& circleRect() const { return fCircleRect; }
-    float textureRadius() const { return fTextureRadius; }
-    float solidRadius() const { return fSolidRadius; }
+    float         textureRadius() const { return fTextureRadius; }
+    float         solidRadius() const { return fSolidRadius; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider*, const SkRect& circle,
-                                                     float sigma);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider*,
+                                                     const SkRect& circle,
+                                                     float         sigma);
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
 
 private:
-    GrCircleBlurFragmentProcessor(SkRect circleRect, float textureRadius, float solidRadius,
+    GrCircleBlurFragmentProcessor(SkRect                circleRect,
+                                  float                 textureRadius,
+                                  float                 solidRadius,
                                   sk_sp<GrTextureProxy> blurProfileSampler)
             : INHERITED(kGrCircleBlurFragmentProcessor_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
@@ -41,10 +44,10 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkRect fCircleRect;
-    float fTextureRadius;
-    float fSolidRadius;
-    TextureSampler fBlurProfileSampler;
+    SkRect                      fCircleRect;
+    float                       fTextureRadius;
+    float                       fSolidRadius;
+    TextureSampler              fBlurProfileSampler;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

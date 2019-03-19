@@ -15,26 +15,30 @@
 #include "GrCoordTransform.h"
 class GrTiledGradientEffect : public GrFragmentProcessor {
 public:
-    int colorizer_index() const { return fColorizer_index; }
-    int gradLayout_index() const { return fGradLayout_index; }
+    int  colorizer_index() const { return fColorizer_index; }
+    int  gradLayout_index() const { return fGradLayout_index; }
     bool mirror() const { return fMirror; }
     bool makePremul() const { return fMakePremul; }
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
     static std::unique_ptr<GrFragmentProcessor> Make(
             std::unique_ptr<GrFragmentProcessor> colorizer,
-            std::unique_ptr<GrFragmentProcessor> gradLayout, bool mirror, bool makePremul,
-            bool colorsAreOpaque) {
+            std::unique_ptr<GrFragmentProcessor> gradLayout,
+            bool                                 mirror,
+            bool                                 makePremul,
+            bool                                 colorsAreOpaque) {
         return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(
                 std::move(colorizer), std::move(gradLayout), mirror, makePremul, colorsAreOpaque));
     }
     GrTiledGradientEffect(const GrTiledGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char* name() const override { return "TiledGradientEffect"; }
+    const char*                          name() const override { return "TiledGradientEffect"; }
 
 private:
     GrTiledGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
-                          std::unique_ptr<GrFragmentProcessor> gradLayout, bool mirror,
-                          bool makePremul, bool colorsAreOpaque)
+                          std::unique_ptr<GrFragmentProcessor> gradLayout,
+                          bool                                 mirror,
+                          bool                                 makePremul,
+                          bool                                 colorsAreOpaque)
             : INHERITED(kGrTiledGradientEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                                 (colorsAreOpaque && gradLayout->preservesOpaqueInput()
@@ -54,11 +58,11 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fColorizer_index = -1;
-    int fGradLayout_index = -1;
-    bool fMirror;
-    bool fMakePremul;
-    bool fColorsAreOpaque;
+    int                         fColorizer_index  = -1;
+    int                         fGradLayout_index = -1;
+    bool                        fMirror;
+    bool                        fMakePremul;
+    bool                        fColorsAreOpaque;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

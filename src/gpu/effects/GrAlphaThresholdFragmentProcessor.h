@@ -16,13 +16,13 @@
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     inline OptimizationFlags optFlags(float outerThreshold);
-    float innerThreshold() const { return fInnerThreshold; }
-    float outerThreshold() const { return fOuterThreshold; }
+    float                    innerThreshold() const { return fInnerThreshold; }
+    float                    outerThreshold() const { return fOuterThreshold; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> mask,
-                                                     float innerThreshold,
-                                                     float outerThreshold,
-                                                     const SkIRect& bounds) {
+                                                     float                 innerThreshold,
+                                                     float                 outerThreshold,
+                                                     const SkIRect&        bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
                 mask, innerThreshold, outerThreshold, bounds));
     }
@@ -31,8 +31,10 @@ public:
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
 
 private:
-    GrAlphaThresholdFragmentProcessor(sk_sp<GrTextureProxy> mask, float innerThreshold,
-                                      float outerThreshold, const SkIRect& bounds)
+    GrAlphaThresholdFragmentProcessor(sk_sp<GrTextureProxy> mask,
+                                      float                 innerThreshold,
+                                      float                 outerThreshold,
+                                      const SkIRect&        bounds)
             : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , fMask(std::move(mask))
             , fInnerThreshold(innerThreshold)
@@ -48,10 +50,10 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    TextureSampler fMask;
-    float fInnerThreshold;
-    float fOuterThreshold;
-    GrCoordTransform fMaskCoordTransform;
+    TextureSampler              fMask;
+    float                       fInnerThreshold;
+    float                       fOuterThreshold;
+    GrCoordTransform            fMaskCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

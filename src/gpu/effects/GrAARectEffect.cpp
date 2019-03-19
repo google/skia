@@ -20,13 +20,13 @@ public:
     GrGLSLAARectEffect() {}
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrAARectEffect& _outer = args.fFp.cast<GrAARectEffect>();
+        const GrAARectEffect&    _outer      = args.fFp.cast<GrAARectEffect>();
         (void)_outer;
         auto edgeType = _outer.edgeType();
         (void)edgeType;
         auto rect = _outer.rect();
         (void)rect;
-        prevRect = float4(-1.0);
+        prevRect        = float4(-1.0);
         fRectUniformVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat4_GrSLType, "rectUniform");
         fragBuilder->codeAppendf(
@@ -59,9 +59,9 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
-        const GrAARectEffect& _outer = _proc.cast<GrAARectEffect>();
-        auto edgeType = _outer.edgeType();
+                   const GrFragmentProcessor&      _proc) override {
+        const GrAARectEffect& _outer   = _proc.cast<GrAARectEffect>();
+        auto                  edgeType = _outer.edgeType();
         (void)edgeType;
         auto rect = _outer.rect();
         (void)rect;
@@ -74,21 +74,23 @@ private:
             prevRect = newRect;
         }
     }
-    SkRect prevRect = float4(0);
+    SkRect        prevRect = float4(0);
     UniformHandle fRectUniformVar;
 };
 GrGLSLFragmentProcessor* GrAARectEffect::onCreateGLSLInstance() const {
     return new GrGLSLAARectEffect();
 }
-void GrAARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrAARectEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                            GrProcessorKeyBuilder* b) const {
     b->add32((int32_t)fEdgeType);
 }
 bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAARectEffect& that = other.cast<GrAARectEffect>();
     (void)that;
-    if (fEdgeType != that.fEdgeType) return false;
-    if (fRect != that.fRect) return false;
+    if (fEdgeType != that.fEdgeType)
+        return false;
+    if (fRect != that.fRect)
+        return false;
     return true;
 }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
@@ -101,7 +103,7 @@ std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAARectEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::TestCreate(GrProcessorTestData* d) {
-    SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
+    SkRect                               rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());

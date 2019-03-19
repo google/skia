@@ -21,12 +21,12 @@
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
-                                                          float sigma) {
+                                                          float            sigma) {
         unsigned int profileSize = SkScalarCeilToInt(6 * sigma);
 
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
+        GrUniqueKey                      key;
+        GrUniqueKey::Builder             builder(&key, kDomain, 1, "Rect Blur Mask");
         builder[0] = profileSize;
         builder.finish();
 
@@ -48,9 +48,11 @@ public:
                 return nullptr;
             }
 
-            blurProfile =
-                    proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
-                                                      SkBudgeted::kYes, SkBackingFit::kExact);
+            blurProfile = proxyProvider->createTextureProxy(std::move(image),
+                                                            kNone_GrSurfaceFlags,
+                                                            1,
+                                                            SkBudgeted::kYes,
+                                                            SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;
             }
@@ -62,11 +64,12 @@ public:
         return blurProfile;
     }
     const SkRect& rect() const { return fRect; }
-    float sigma() const { return fSigma; }
+    float         sigma() const { return fSigma; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
-                                                     const GrShaderCaps& caps, const SkRect& rect,
-                                                     float sigma) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider*    proxyProvider,
+                                                     const GrShaderCaps& caps,
+                                                     const SkRect&       rect,
+                                                     float               sigma) {
         if (!caps.floatIs32Bits()) {
             // We promote the rect uniform from half to float when it has large values for
             // precision. If we don't have full float then fail.
@@ -90,16 +93,20 @@ public:
         }
 
         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
-                rect, sigma, std::move(blurProfile),
+                rect,
+                sigma,
+                std::move(blurProfile),
                 GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kBilerp)));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char* name() const override { return "RectBlurEffect"; }
+    const char*                          name() const override { return "RectBlurEffect"; }
 
 private:
-    GrRectBlurEffect(SkRect rect, float sigma, sk_sp<GrTextureProxy> blurProfile,
-                     GrSamplerState samplerParams)
+    GrRectBlurEffect(SkRect                rect,
+                     float                 sigma,
+                     sk_sp<GrTextureProxy> blurProfile,
+                     GrSamplerState        samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fRect(rect)
@@ -112,9 +119,9 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkRect fRect;
-    float fSigma;
-    TextureSampler fBlurProfile;
+    SkRect                      fRect;
+    float                       fSigma;
+    TextureSampler              fBlurProfile;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

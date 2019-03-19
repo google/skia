@@ -29,7 +29,7 @@ class GrGLSLAlphaThresholdFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLAlphaThresholdFragmentProcessor() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder*                 fragBuilder = args.fFragBuilder;
         const GrAlphaThresholdFragmentProcessor& _outer =
                 args.fFp.cast<GrAlphaThresholdFragmentProcessor>();
         (void)_outer;
@@ -37,10 +37,10 @@ public:
         (void)innerThreshold;
         auto outerThreshold = _outer.outerThreshold();
         (void)outerThreshold;
-        fInnerThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kHalf_GrSLType, "innerThreshold");
-        fOuterThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kHalf_GrSLType, "outerThreshold");
+        fInnerThresholdVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kHalf_GrSLType, "innerThreshold");
+        fOuterThresholdVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kHalf_GrSLType, "outerThreshold");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "half4 color = %s;\nhalf4 mask_color = texture(%s, %s).%s;\nif (mask_color.w < "
@@ -57,12 +57,13 @@ public:
                 args.fUniformHandler->getUniformCStr(fOuterThresholdVar),
                 args.fUniformHandler->getUniformCStr(fInnerThresholdVar),
                 args.fUniformHandler->getUniformCStr(fInnerThresholdVar),
-                args.fUniformHandler->getUniformCStr(fInnerThresholdVar), args.fOutputColor);
+                args.fUniformHandler->getUniformCStr(fInnerThresholdVar),
+                args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor&      _proc) override {
         const GrAlphaThresholdFragmentProcessor& _outer =
                 _proc.cast<GrAlphaThresholdFragmentProcessor>();
         {
@@ -76,14 +77,17 @@ private:
 GrGLSLFragmentProcessor* GrAlphaThresholdFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLAlphaThresholdFragmentProcessor();
 }
-void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                                               GrProcessorKeyBuilder* b) const {}
 bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAlphaThresholdFragmentProcessor& that = other.cast<GrAlphaThresholdFragmentProcessor>();
     (void)that;
-    if (fMask != that.fMask) return false;
-    if (fInnerThreshold != that.fInnerThreshold) return false;
-    if (fOuterThreshold != that.fOuterThreshold) return false;
+    if (fMask != that.fMask)
+        return false;
+    if (fInnerThreshold != that.fInnerThreshold)
+        return false;
+    if (fOuterThreshold != that.fOuterThreshold)
+        return false;
     return true;
 }
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
@@ -109,16 +113,16 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
         GrProcessorTestData* testData) {
     sk_sp<GrTextureProxy> maskProxy = testData->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx);
     // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
-    float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
-    float outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
-    const int kMaxWidth = 1000;
-    const int kMaxHeight = 1000;
-    uint32_t width = testData->fRandom->nextULessThan(kMaxWidth);
-    uint32_t height = testData->fRandom->nextULessThan(kMaxHeight);
-    uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
-    uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
-    SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskProxy), innerThresh, outerThresh,
-                                                   bounds);
+    float     innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
+    float     outerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
+    const int kMaxWidth   = 1000;
+    const int kMaxHeight  = 1000;
+    uint32_t  width       = testData->fRandom->nextULessThan(kMaxWidth);
+    uint32_t  height      = testData->fRandom->nextULessThan(kMaxHeight);
+    uint32_t  x           = testData->fRandom->nextULessThan(kMaxWidth - width);
+    uint32_t  y           = testData->fRandom->nextULessThan(kMaxHeight - height);
+    SkIRect   bounds      = SkIRect::MakeXYWH(x, y, width, height);
+    return GrAlphaThresholdFragmentProcessor::Make(
+            std::move(maskProxy), innerThresh, outerThresh, bounds);
 }
 #endif
