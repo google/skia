@@ -162,6 +162,12 @@ def compile_fn(api, checkout_root, out_dir):
   if 'MSAN' in extra_tokens:
     extra_ldflags.append('-L' + clang_linux + '/msan')
 
+  if 'GLESonly' in extra_tokens:
+    args.update({'skia_gles_only': 'true'})
+
+  if 'GLonly' in extra_tokens:
+    args.update({'skia_gl_only': 'true'})
+
   if configuration != 'Debug':
     args['is_debug'] = 'false'
   if 'ANGLE' in extra_tokens:

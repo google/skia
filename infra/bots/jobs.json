@@ -47,6 +47,8 @@
   "Build-Debian9-Clang-x86_64-Release-CMake",
   "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
   "Build-Debian9-Clang-x86_64-Release-Fast",
+  "Build-Debian9-Clang-x86_64-Release-GLESonly",
+  "Build-Debian9-Clang-x86_64-Release-GLonly",
   "Build-Debian9-Clang-x86_64-Release-NoDEPS",
   "Build-Debian9-Clang-x86_64-Release-ParentRevision",
   "Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD",
