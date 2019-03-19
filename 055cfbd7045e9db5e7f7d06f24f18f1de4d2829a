@@ -46,6 +46,30 @@
       "revId": "055cfbd7045e9db5e7f7d06f24f18f1de4d2829a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91a04706_f94552ff",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-19T19:19:22Z",
+      "side": 1,
+      "message": "Right. Windows-ARM64 is ANGLE only (so gles)",
+      "parentUuid": "dc1076c9_7374e168",
+      "range": {
+        "startLine": 74,
+        "startChar": 19,
+        "endLine": 74,
+        "endChar": 24
+      },
+      "revId": "055cfbd7045e9db5e7f7d06f24f18f1de4d2829a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
