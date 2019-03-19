@@ -13,9 +13,6 @@
 #define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*)get(ctx, "gl" #F)
 
 sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get) {
-#if IS_WEBGL==1
-    return GrGLMakeAssembledGLESInterface(ctx, get);
-#else
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
         return nullptr;
@@ -28,13 +25,12 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get
 
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
-    if (kGLES_GrGLStandard == standard) {
+    if (GR_IS_GR_GL_ES(standard)) {
         return GrGLMakeAssembledGLESInterface(ctx, get);
-    } else if (kGL_GrGLStandard == standard) {
+    } else if (GR_IS_GR_GL(standard)) {
         return GrGLMakeAssembledGLInterface(ctx, get);
     }
     return nullptr;
-#endif
 }
 
 SK_API const GrGLInterface* GrGLAssembleInterface(void *ctx, GrGLGetProc get) {
