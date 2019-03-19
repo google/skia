@@ -1663,6 +1663,16 @@ public:
         params.fYRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewY] * ellipseXRadius +
                                       viewMatrix[SkMatrix::kMScaleY] * ellipseYRadius);
 
+        // For very large ovals, we fall back to the path renderer
+        // First, this is better for fill rate because we use a quad as our rendering geometry.
+        // Second, to compute the AA at the edge we divide by the gradient, which is clamped to
+        // a minimum value to avoid divides by zero. For large ovals this leads to blurring at
+        // the edge of the oval.
+        const SkScalar kMaxOvalRadius = 1.0e4f; // min gradient is 1.0e-4f, so this is our max
+        if (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius) {
+            return nullptr;
+        }
+
         // do (potentially) anisotropic mapping of stroke
         SkVector scaledStroke;
         SkScalar strokeWidth = stroke.getWidth();
@@ -1888,6 +1898,16 @@ public:
         params.fCenter = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
         params.fXRadius = SkScalarHalf(ellipse.width());
         params.fYRadius = SkScalarHalf(ellipse.height());
+
+        // For very large ovals, we fall back to the path renderer
+        // First, this is better for fill rate because we use a quad as our rendering geometry.
+        // Second, to compute the AA at the edge we divide by the gradient, which is clamped to
+        // a minimum value to avoid divides by zero. For large ovals this leads to blurring at
+        // the edge of the oval.
+        const SkScalar kMaxOvalRadius = 1.0e4f; // min gradient is 1.0e-4f, so this is our max
+        if (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius) {
+            return nullptr;
+        }
 
         SkStrokeRec::Style style = stroke.getStyle();
         params.fStyle = (SkStrokeRec::kStroke_Style == style)
