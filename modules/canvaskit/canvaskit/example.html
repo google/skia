@@ -115,9 +115,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext(); // only needed for WebGL; no-op for CPU
-
-    const canvas = surface.getCanvas();
 
     const paint = new CanvasKit.SkPaint();
 
@@ -135,12 +132,11 @@
     let X = 128;
     let Y = 128;
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       const path = starPath(CanvasKit, X, Y);
       // Some animations see performance improvements by marking their
       // paths as volatile.
       path.setIsVolatile(true);
-      CanvasKit.setCurrentContext(context);
       const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
       i++;
 
@@ -155,13 +151,11 @@
       canvas.drawPath(path, paint);
       canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
 
-      surface.flush();
-
       dpe.delete();
       path.delete();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
 
     // Make animation interactive
     let interact = (e) => {
@@ -186,12 +180,8 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
 
-    const canvas = surface.getCanvas();
-
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       const paint = new CanvasKit.SkPaint();
       paint.setStrokeWidth(1.0);
       paint.setAntiAlias(true);
@@ -228,14 +218,12 @@
 
       canvas.drawPath(rrect, paint);
 
-      surface.flush();
-
       path.delete();
       rrect.delete();
       paint.delete();
       // Intentionally just draw frame once
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
   }
 
   function preventScrolling(canvas) {
@@ -252,9 +240,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-
-    const canvas = surface.getCanvas();
 
     let paint = new CanvasKit.SkPaint();
     paint.setAntiAlias(true);
@@ -282,16 +267,14 @@
     let paths = [path];
     let paints = [paint];
 
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       for (let i = 0; i < paints.length && i < paths.length; i++) {
         canvas.drawPath(paths[i], paints[i]);
       }
-      surface.flush();
 
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
 
     let hold = false;
@@ -318,7 +301,7 @@
     document.getElementById('ink').addEventListener('lostpointercapture', interact);
     document.getElementById('ink').addEventListener('pointerup', interact);
     preventScrolling(document.getElementById('ink'));
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
   }
 
   function starPath(CanvasKit, X=128, Y=128, R=116) {
@@ -865,7 +848,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
 
@@ -879,7 +861,6 @@
                                             false /*isVolatile*/);
 
     canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
-    surface.flush();
 
     vertices.delete();
 
@@ -902,7 +883,7 @@
     surface.delete();
   }
 
-  // bonesImageDatae is passed in as raw, encoded bytes.
+  // bonesImageData is passed in as raw, encoded bytes.
   function VertexAPI2(CanvasKit, bonesImageData) {
     if (!CanvasKit || !bonesImageData) {
       return;
@@ -912,8 +893,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
     let bonesImage = CanvasKit.MakeImageFromEncoded(bonesImageData);
 
@@ -934,7 +913,7 @@
     let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
                                             points, texs, null, boneidxs, bonewts);
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       let now = Date.now();
       let bones = [
         [[1,0, // world bone (move 10px down and to the right to center)
@@ -951,15 +930,13 @@
           0,30*Math.cos(now/500)]],
       ];
       let tVerts = vertices.applyBones(bones);
-      CanvasKit.setCurrentContext(context);
-      //canvas.clear(CanvasKit.TRANSPARENT);
+      canvas.clear(CanvasKit.TRANSPARENT);
       canvas.drawVertices(tVerts, CanvasKit.BlendMode.Src, paint);
-      surface.flush();
 
       tVerts.delete();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
     //tVerts.delete();
     //vertices.delete();
 
@@ -976,7 +953,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
 
@@ -1011,7 +987,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     const paint = new CanvasKit.SkPaint();
     paint.setColor(CanvasKit.BLUE);
@@ -1080,8 +1055,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
     const paint = new CanvasKit.SkPaint();
     paint.setColor(CanvasKit.BLUE);
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -1098,8 +1071,7 @@
     let X = 240;
     let Y = 190;
 
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       canvas.clear(CanvasKit.TRANSPARENT);
 
       const shapedText = new CanvasKit.ShapedText({
@@ -1113,13 +1085,11 @@
       canvas.drawText(shapedText, 10, 40, textPaint, smallFont);
       canvas.drawText('Try Clicking!', 10, 480, textPaint, bigFont);
 
-      surface.flush();
-
       shapedText.delete();
 
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
 
     // Make animation interactive
     let interact = (e) => {
@@ -1140,7 +1110,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     const paint = new CanvasKit.SkPaint();
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -1176,8 +1145,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
 
     // create a subsurface as a temporary workspace.
     const subSurface = surface.makeSurface({
@@ -1214,7 +1181,7 @@
     // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
     const img = subSurface.makeImageSnapshot();
 
-    // clean up the temporary surface
+    // clean up the temporary surface (which also cleans up subCanvas)
     subSurface.delete();
     paint.delete();
 
@@ -1225,16 +1192,14 @@
 
     let i = 0;
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       i++;
-      CanvasKit.setCurrentContext(context);
       canvas.clear(CanvasKit.WHITE);
 
       canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
 
   }
 </script>

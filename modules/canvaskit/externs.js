@@ -497,8 +497,9 @@ CanvasKit.SkPath.prototype.stroke = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};
 CanvasKit.SkPath.prototype.trim = function() {};
 
-CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.dispose = function() {};
+CanvasKit.SkSurface.prototype.flush = function() {};
+CanvasKit.SkSurface.prototype.requestAnimationFrame = function() {};
 
 /** @return {CanvasKit.SkVertices} */
 CanvasKit.SkVertices.prototype.applyBones = function() {};

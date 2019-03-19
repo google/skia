@@ -498,6 +498,19 @@ CanvasKit.onRuntimeInitialized = function() {
     return font;
   }
 
+  CanvasKit.SkSurface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
+    if (!this._cached_canvas) {
+      this._cached_canvas = this.getCanvas();
+    }
+    window.requestAnimationFrame(function() {
+      CanvasKit.setCurrentContext(this._context);
+
+      callback(this._cached_canvas);
+
+      this.flush();
+    }.bind(this));
+  }
+
   CanvasKit.SkTextBlob.MakeOnPath = function(str, path, font, initialOffset) {
     if (!str || !str.length) {
       SkDebug('ignoring 0 length string');
