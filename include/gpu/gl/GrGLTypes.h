@@ -22,6 +22,19 @@ enum GrGLStandard {
 };
 static const int kGrGLStandardCnt = 3;
 
+// The following allow certain interfaces to be turned off at compile time
+// (for example, to lower code size).
+#if SK_ASSUME_GL_ES
+    #define IS_GR_GL(standard) false
+    #define IS_GR_GL_ES(standard) (kGLES_GrGLStandard == standard)
+#elif SK_ASSUME_GL
+    #define IS_GR_GL(standard) (kGL_GrGLStandard == standard)
+    #define IS_GR_GL_ES(standard) false
+#else
+    #define IS_GR_GL(standard) (kGL_GrGLStandard == standard)
+    #define IS_GR_GL_ES(standard) (kGLES_GrGLStandard == standard)
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
