@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "6222f068_9bcdcf86",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T14:05:35Z",
+      "side": 1,
+      "message": "To be consistent with other GL-related enums these would ideally begin with GR_GL. Maybe something like:\n\nGR_GL_STANDARD_IS_GL_ES()\nGR_GL_STANDARD_IS_GL()\nGR_GL_STANDARD_IS_WEB_GL()\n\nthough not particularly married to those choices.",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 20
+      },
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e544d3cb_fa709c3c",
         "filename": "include/gpu/gl/GrGLTypes.h",
         "patchSetId": 12
@@ -69,6 +92,41 @@
       "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5e85678_27f1675f",
+        "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T14:05:35Z",
+      "side": 1,
+      "message": "Or just make this:\n\n#if !SK_ASSUME_GL_ES\n\nand dispense with SK_DISABLE_GLES_INTERFACE.",
+      "parentUuid": "ae0acc8d_f64adca1",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6904831_e6f867d2",
+        "filename": "src/gpu/gl/GrGLInterface.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T14:05:35Z",
+      "side": 1,
+      "message": "curious about this, are these not in WebGL? Right now this looks like a tautology.",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
