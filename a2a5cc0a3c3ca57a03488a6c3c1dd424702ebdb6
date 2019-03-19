@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8480d1eb_abc33644",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T20:15:09Z",
+      "side": 1,
+      "message": "Wow, this makes me question AlignConsecutiveDeclarations. I guess a lot more line breaks?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 79
+      },
+      "revId": "a2a5cc0a3c3ca57a03488a6c3c1dd424702ebdb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
