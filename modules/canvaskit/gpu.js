@@ -89,6 +89,7 @@
 
           return CanvasKit.MakeSWCanvasSurface(newCanvas);
         }
+        surface._context = ctx;
         return surface;
       };
       // Default to trying WebGL first.
