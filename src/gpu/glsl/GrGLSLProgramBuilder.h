@@ -51,7 +51,7 @@ public:
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
-    const GrShaderVar& samplerVariable(SamplerHandle handle) const {
+    const char* samplerVariable(SamplerHandle handle) const {
         return this->uniformHandler()->samplerVariable(handle);
     }
 
