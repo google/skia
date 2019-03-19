@@ -7,6 +7,7 @@
 
 #include "SkottieAdapter.h"
 
+#include "Sk3D.h"
 #include "SkFont.h"
 #include "SkMatrix.h"
 #include "SkMatrix44.h"
@@ -75,10 +76,14 @@ TransformAdapter3D::Vec3::Vec3(const VectorValue& v) {
     fZ = v.size() > 2 ? v[2] : 0;
 }
 
-TransformAdapter3D::TransformAdapter3D(sk_sp<sksg::Matrix<SkMatrix44>> matrix)
-    : fMatrixNode(std::move(matrix)) {}
+TransformAdapter3D::TransformAdapter3D()
+    : fMatrixNode(sksg::Matrix<SkMatrix44>::Make(SkMatrix::I())) {}
 
 TransformAdapter3D::~TransformAdapter3D() = default;
+
+sk_sp<sksg::Transform> TransformAdapter3D::refTransform() const {
+    return fMatrixNode;
+}
 
 SkMatrix44 TransformAdapter3D::totalMatrix() const {
     SkMatrix44 t;
@@ -102,6 +107,62 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
 
 void TransformAdapter3D::apply() {
     fMatrixNode->setMatrix(this->totalMatrix());
+}
+
+CameraAdapter:: CameraAdapter(const SkSize& viewport_size)
+    : fViewportSize(viewport_size) {}
+
+CameraAdapter::~CameraAdapter() = default;
+
+SkMatrix44 CameraAdapter::totalMatrix() const {
+    // Camera parameters:
+    //
+    //   * location          -> position attribute
+    //   * point of interest -> anchor point attribute
+    //   * orientation       -> rotation attribute
+    //
+    // Note: the orientation is specified post position/POI adjustment.
+    //
+    SkPoint3 pos = { this->getPosition().fX,
+                     this->getPosition().fY,
+                    -this->getPosition().fZ },
+             poi = { this->getAnchorPoint().fX,
+                     this->getAnchorPoint().fY,
+                    -this->getAnchorPoint().fZ },
+              up = { 0, 1, 0 };
+
+    SkMatrix44 cam_t;
+    Sk3LookAt(&cam_t, pos, poi, up);
+
+    {
+        SkMatrix44 rot;
+        rot.setRotateDegreesAbout(1, 0, 0, this->getRotation().fX);
+        cam_t.postConcat(rot);
+        rot.setRotateDegreesAbout(0, 1, 0, this->getRotation().fY);
+        cam_t.postConcat(rot);
+        rot.setRotateDegreesAbout(0, 0, 1, this->getRotation().fZ);
+        cam_t.postConcat(rot);
+    }
+
+    // View parameters:
+    //
+    //   * size     -> composition size (TODO: AE seems to base it on width only?)
+    //   * distance -> "zoom" camera attribute
+    //
+    const auto view_size     = SkTMax(fViewportSize.width(), fViewportSize.height()),
+               view_distance = this->getZoom(),
+               view_angle    = std::atan(view_size * 0.5f / view_distance);
+
+    SkMatrix44 view_t;
+    Sk3Perspective(&view_t, 0, view_distance, 2 * view_angle);
+    view_t.postScale(view_size * 0.5f, view_size * 0.5f, 1);
+
+    SkMatrix44 t;
+    t.setTranslate(fViewportSize.width() * 0.5f, fViewportSize.height() * 0.5f, 0);
+    t.preConcat(view_t);
+    t.preConcat(cam_t);
+
+    return t;
 }
 
 RepeaterAdapter::RepeaterAdapter(sk_sp<sksg::RenderNode> repeater_node, Composite composite)

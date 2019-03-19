@@ -29,10 +29,15 @@ class RadialGradient;
 class RenderNode;
 class RRect;
 class TextBlob;
+class Transform;
 class TransformEffect;
 class TrimEffect;
 
 };
+
+namespace skjson {
+    class ObjectValue;
+}
 
 namespace skottie {
 
@@ -108,10 +113,10 @@ private:
     sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
 };
 
-class TransformAdapter3D final : public SkNVRefCnt<TransformAdapter3D> {
+class TransformAdapter3D : public SkRefCnt {
 public:
-    explicit TransformAdapter3D(sk_sp<sksg::Matrix<SkMatrix44>>);
-    ~TransformAdapter3D();
+    TransformAdapter3D();
+    ~TransformAdapter3D() override;
 
     struct Vec3 {
         float fX, fY, fZ;
@@ -129,12 +134,32 @@ public:
     ADAPTER_PROPERTY(Rotation   , Vec3, Vec3({  0,   0,   0}))
     ADAPTER_PROPERTY(Scale      , Vec3, Vec3({100, 100, 100}))
 
-    SkMatrix44 totalMatrix() const;
+    sk_sp<sksg::Transform> refTransform() const;
 
-private:
+protected:
     void apply();
 
+private:
+    virtual SkMatrix44 totalMatrix() const;
+
     sk_sp<sksg::Matrix<SkMatrix44>> fMatrixNode;
+
+    using INHERITED = SkRefCnt;
+};
+
+class CameraAdapter final : public TransformAdapter3D {
+public:
+    explicit CameraAdapter(const SkSize& viewport_size);
+    ~CameraAdapter() override;
+
+    ADAPTER_PROPERTY(Zoom, SkScalar, 0)
+
+private:
+    SkMatrix44 totalMatrix() const override;
+
+    const SkSize fViewportSize;
+
+    using INHERITED = TransformAdapter3D;
 };
 
 class RepeaterAdapter final : public SkNVRefCnt<RepeaterAdapter> {
