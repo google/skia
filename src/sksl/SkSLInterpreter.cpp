@@ -27,189 +27,42 @@
 
 namespace SkSL {
 
-void Interpreter::run() {
-    for (const auto& e : *fProgram) {
-        if (ProgramElement::kFunction_Kind == e.fKind) {
-            const FunctionDefinition& f = (const FunctionDefinition&) e;
-            if ("appendStages" == f.fDeclaration.fName) {
-                this->run(f);
-                return;
+static constexpr int UNINITIALIZED = 0xDEADBEEF;
+
+Interpreter::Value Interpreter::run(const ByteCodeFunction& f, Interpreter::Value args[],
+                                    Interpreter::Value inputs[]) {
+    fIP = 0;
+    fCurrentFunction = &f;
+    fStack.clear();
+    fGlobals.clear();
+#ifdef TRACE
+    this->disassemble(f);
+#endif
+    for (int i = 0; i < f.fParameterCount; ++i) {
+        this->push(args[i]);
+    }
+    for (int i = 0; i < f.fLocalCount; ++i) {
+        this->push(Value((int) UNINITIALIZED));
+    }
+    for (int i = 0; i < f.fOwner.fGlobalCount; ++i) {
+        fGlobals.push_back(Value((int) UNINITIALIZED));
+    }
+    for (int i = f.fOwner.fInputSlots.size() - 1; i >= 0; --i) {
+        fGlobals[f.fOwner.fInputSlots[i]] = inputs[i];
+    }
+    run();
+    int offset = 0;
+    for (const auto& p : f.fDeclaration.fParameters) {
+        if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
+            for (int i = p->fType.columns() * p->fType.rows() - 1; i >= 0; --i) {
+                args[offset] = fStack[offset];
+                ++offset;
             }
+        } else {
+            offset += p->fType.columns() * p->fType.rows();
         }
     }
-    SkASSERT(false);
-}
-
-static int SizeOf(const Type& type) {
-    return 1;
-}
-
-void Interpreter::run(const FunctionDefinition& f) {
-    fVars.emplace_back();
-    StackIndex current = (StackIndex) fStack.size();
-    for (int i = f.fDeclaration.fParameters.size() - 1; i >= 0; --i) {
-        current -= SizeOf(f.fDeclaration.fParameters[i]->fType);
-        fVars.back()[f.fDeclaration.fParameters[i]] = current;
-    }
-    fCurrentIndex.push_back({ f.fBody.get(), 0 });
-    while (fCurrentIndex.size()) {
-        this->runStatement();
-    }
-}
-
-void Interpreter::push(Value value) {
-    fStack.push_back(value);
-}
-
-Interpreter::Value Interpreter::pop() {
-    auto iter = fStack.end() - 1;
-    Value result = *iter;
-    fStack.erase(iter);
-    return result;
-}
-
- Interpreter::StackIndex Interpreter::stackAlloc(int count) {
-    int result = fStack.size();
-    for (int i = 0; i < count; ++i) {
-        fStack.push_back(Value((int) 0xDEADBEEF));
-    }
-    return result;
-}
-
-void Interpreter::runStatement() {
-    const Statement& stmt = *fCurrentIndex.back().fStatement;
-    const size_t index = fCurrentIndex.back().fIndex;
-    fCurrentIndex.pop_back();
-    switch (stmt.fKind) {
-        case Statement::kBlock_Kind: {
-            const Block& b = (const Block&) stmt;
-            if (!b.fStatements.size()) {
-                break;
-            }
-            SkASSERT(index < b.fStatements.size());
-            if (index < b.fStatements.size() - 1) {
-                fCurrentIndex.push_back({ &b, index + 1 });
-            }
-            fCurrentIndex.push_back({ b.fStatements[index].get(), 0 });
-            break;
-        }
-        case Statement::kBreak_Kind:
-            SkASSERT(index == 0);
-            abort();
-        case Statement::kContinue_Kind:
-            SkASSERT(index == 0);
-            abort();
-        case Statement::kDiscard_Kind:
-            SkASSERT(index == 0);
-            abort();
-        case Statement::kDo_Kind:
-            abort();
-        case Statement::kExpression_Kind:
-            SkASSERT(index == 0);
-            this->evaluate(*((const ExpressionStatement&) stmt).fExpression);
-            break;
-        case Statement::kFor_Kind: {
-            ForStatement& f = (ForStatement&) stmt;
-            switch (index) {
-                case 0:
-                    // initializer
-                    fCurrentIndex.push_back({ &f, 1 });
-                    if (f.fInitializer) {
-                        fCurrentIndex.push_back({ f.fInitializer.get(), 0 });
-                    }
-                    break;
-                case 1:
-                    // test & body
-                    if (f.fTest && !evaluate(*f.fTest).fBool) {
-                        break;
-                    } else {
-                        fCurrentIndex.push_back({ &f, 2 });
-                        fCurrentIndex.push_back({ f.fStatement.get(), 0 });
-                    }
-                    break;
-                case 2:
-                    // next
-                    if (f.fNext) {
-                        this->evaluate(*f.fNext);
-                    }
-                    fCurrentIndex.push_back({ &f, 1 });
-                    break;
-                default:
-                    SkASSERT(false);
-            }
-            break;
-        }
-        case Statement::kGroup_Kind:
-            abort();
-        case Statement::kIf_Kind: {
-            IfStatement& i = (IfStatement&) stmt;
-            if (evaluate(*i.fTest).fBool) {
-                fCurrentIndex.push_back({ i.fIfTrue.get(), 0 });
-            } else if (i.fIfFalse) {
-                fCurrentIndex.push_back({ i.fIfFalse.get(), 0 });
-            }
-            break;
-        }
-        case Statement::kNop_Kind:
-            SkASSERT(index == 0);
-            break;
-        case Statement::kReturn_Kind:
-            SkASSERT(index == 0);
-            abort();
-        case Statement::kSwitch_Kind:
-            abort();
-        case Statement::kVarDeclarations_Kind:
-            SkASSERT(index == 0);
-            for (const auto& decl :((const VarDeclarationsStatement&) stmt).fDeclaration->fVars) {
-                const Variable* var = ((VarDeclaration&) *decl).fVar;
-                StackIndex pos = this->stackAlloc(SizeOf(var->fType));
-                fVars.back()[var] = pos;
-                if (var->fInitialValue) {
-                    fStack[pos] = this->evaluate(*var->fInitialValue);
-                }
-            }
-            break;
-        case Statement::kWhile_Kind:
-            abort();
-        default:
-            abort();
-    }
-}
-
-static Interpreter::TypeKind type_kind(const Type& type) {
-    if (type.fName == "int") {
-        return Interpreter::kInt_TypeKind;
-    } else if (type.fName == "float") {
-        return Interpreter::kFloat_TypeKind;
-    }
-    ABORT("unsupported type: %s\n", type.description().c_str());
-}
-
-Interpreter::StackIndex Interpreter::getLValue(const Expression& expr) {
-    switch (expr.fKind) {
-        case Expression::kFieldAccess_Kind:
-            break;
-        case Expression::kIndex_Kind: {
-            const IndexExpression& idx = (const IndexExpression&) expr;
-            return this->evaluate(*idx.fBase).fInt + this->evaluate(*idx.fIndex).fInt;
-        }
-        case Expression::kSwizzle_Kind:
-            break;
-        case Expression::kVariableReference_Kind:
-            SkASSERT(fVars.size());
-            SkASSERT(fVars.back().find(&((VariableReference&) expr).fVariable) !=
-                   fVars.back().end());
-            return fVars.back()[&((VariableReference&) expr).fVariable];
-        case Expression::kTernary_Kind: {
-            const TernaryExpression& t = (const TernaryExpression&) expr;
-            return this->getLValue(this->evaluate(*t.fTest).fBool ? *t.fIfTrue : *t.fIfFalse);
-        }
-        case Expression::kTypeReference_Kind:
-            break;
-        default:
-            break;
-    }
-    ABORT("unsupported lvalue");
+    return fReturnValue;
 }
 
 struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
@@ -217,254 +70,421 @@ struct CallbackCtx : public SkRasterPipeline_CallbackCtx {
     const FunctionDefinition* fFunction;
 };
 
-static void do_callback(SkRasterPipeline_CallbackCtx* raw, int activePixels) {
-    CallbackCtx& ctx = (CallbackCtx&) *raw;
-    for (int i = 0; i < activePixels; ++i) {
-        ctx.fInterpreter->push(Interpreter::Value(ctx.rgba[i * 4 + 0]));
-        ctx.fInterpreter->push(Interpreter::Value(ctx.rgba[i * 4 + 1]));
-        ctx.fInterpreter->push(Interpreter::Value(ctx.rgba[i * 4 + 2]));
-        ctx.fInterpreter->run(*ctx.fFunction);
-        ctx.read_from[i * 4 + 2] = ctx.fInterpreter->pop().fFloat;
-        ctx.read_from[i * 4 + 1] = ctx.fInterpreter->pop().fFloat;
-        ctx.read_from[i * 4 + 0] = ctx.fInterpreter->pop().fFloat;
-    }
+uint8_t Interpreter::read8() {
+    return fCurrentFunction->fCode[fIP++];
 }
 
-void Interpreter::appendStage(const AppendStage& a) {
-    switch (a.fStage) {
-        case SkRasterPipeline::matrix_4x5: {
-            SkASSERT(a.fArguments.size() == 1);
-            StackIndex transpose = evaluate(*a.fArguments[0]).fInt;
-            fPipeline.append(SkRasterPipeline::matrix_4x5, &fStack[transpose]);
-            break;
-        }
-        case SkRasterPipeline::callback: {
-            SkASSERT(a.fArguments.size() == 1);
-            CallbackCtx* ctx = new CallbackCtx();
-            ctx->fInterpreter = this;
-            ctx->fn = do_callback;
-            for (const auto& e : *fProgram) {
-                if (ProgramElement::kFunction_Kind == e.fKind) {
-                    const FunctionDefinition& f = (const FunctionDefinition&) e;
-                    if (&f.fDeclaration ==
-                                      ((const FunctionReference&) *a.fArguments[0]).fFunctions[0]) {
-                        ctx->fFunction = &f;
-                    }
+uint16_t Interpreter::read16() {
+    uint16_t result = (fCurrentFunction->fCode[fIP ] << 8) +
+                       fCurrentFunction->fCode[fIP + 1];
+    fIP += 2;
+    return result;
+}
+
+uint32_t Interpreter::read32() {
+    uint32_t result = (fCurrentFunction->fCode[fIP]     << 24) +
+                      (fCurrentFunction->fCode[fIP + 1] << 16) +
+                      (fCurrentFunction->fCode[fIP + 2] <<  8) +
+                       fCurrentFunction->fCode[fIP + 3];
+    fIP += 4;
+    return result;
+}
+
+void Interpreter::push(Value v) {
+    fStack.push_back(v);
+}
+
+Interpreter::Value Interpreter::pop() {
+    Value v = fStack.back();
+    fStack.pop_back();
+    return v;
+}
+
+static String value_string(uint32_t v) {
+    union { uint32_t u; float f; } pun = { v };
+    return to_string(v) + "(" + to_string(pun.f) + ")";
+}
+
+void Interpreter::disassemble(const ByteCodeFunction& f) {
+    SkASSERT(fIP == 0);
+    while (fIP < (int) f.fCode.size()) {
+        printf("%d: ", fIP);
+        switch ((ByteCodeInstruction) this->read8()) {
+            case ByteCodeInstruction::kAddF: printf("addf"); break;
+            case ByteCodeInstruction::kAddI: printf("addi"); break;
+            case ByteCodeInstruction::kAndB: printf("andb"); break;
+            case ByteCodeInstruction::kAndI: printf("andi"); break;
+            case ByteCodeInstruction::kBranch: printf("branch %d", this->read16()); break;
+            case ByteCodeInstruction::kCompareIEQ: printf("comparei eq"); break;
+            case ByteCodeInstruction::kCompareINEQ: printf("comparei neq"); break;
+            case ByteCodeInstruction::kCompareFEQ: printf("comparef eq"); break;
+            case ByteCodeInstruction::kCompareFGT: printf("comparef gt"); break;
+            case ByteCodeInstruction::kCompareFGTEQ: printf("comparef gteq"); break;
+            case ByteCodeInstruction::kCompareFLT: printf("comparef lt"); break;
+            case ByteCodeInstruction::kCompareFLTEQ: printf("comparef lteq"); break;
+            case ByteCodeInstruction::kCompareFNEQ: printf("comparef neq"); break;
+            case ByteCodeInstruction::kCompareSGT: printf("compares sgt"); break;
+            case ByteCodeInstruction::kCompareSGTEQ: printf("compares sgteq"); break;
+            case ByteCodeInstruction::kCompareSLT: printf("compares lt"); break;
+            case ByteCodeInstruction::kCompareSLTEQ: printf("compares lteq"); break;
+            case ByteCodeInstruction::kCompareUGT: printf("compareu gt"); break;
+            case ByteCodeInstruction::kCompareUGTEQ: printf("compareu gteq"); break;
+            case ByteCodeInstruction::kCompareULT: printf("compareu lt"); break;
+            case ByteCodeInstruction::kCompareULTEQ: printf("compareu lteq"); break;
+            case ByteCodeInstruction::kConditionalBranch:
+                printf("conditionalbranch %d", this->read16());
+                break;
+            case ByteCodeInstruction::kDebugPrint: printf("debugprint"); break;
+            case ByteCodeInstruction::kDivideF: printf("dividef"); break;
+            case ByteCodeInstruction::kDivideS: printf("divides"); break;
+            case ByteCodeInstruction::kDivideU: printf("divideu"); break;
+            case ByteCodeInstruction::kDup: printf("dup"); break;
+            case ByteCodeInstruction::kDupDown: printf("dupdown %d", this->read8()); break;
+            case ByteCodeInstruction::kFloatToInt: printf("floattoint"); break;
+            case ByteCodeInstruction::kLoad: printf("load"); break;
+            case ByteCodeInstruction::kLoadGlobal: printf("loadglobal"); break;
+            case ByteCodeInstruction::kLoadSwizzle: {
+                int count = this->read8();
+                printf("loadswizzle %d", count);
+                for (int i = 0; i < count; ++i) {
+                    printf(", %d", this->read8());
                 }
+                break;
             }
-            fPipeline.append(SkRasterPipeline::callback, ctx);
+            case ByteCodeInstruction::kMultiplyF: printf("multiplyf"); break;
+            case ByteCodeInstruction::kMultiplyS: printf("multiplys"); break;
+            case ByteCodeInstruction::kMultiplyU: printf("multiplyu"); break;
+            case ByteCodeInstruction::kNegateF: printf("negatef"); break;
+            case ByteCodeInstruction::kNegateS: printf("negates"); break;
+            case ByteCodeInstruction::kNot: printf("not"); break;
+            case ByteCodeInstruction::kOrB: printf("orb"); break;
+            case ByteCodeInstruction::kOrI: printf("ori"); break;
+            case ByteCodeInstruction::kParameter: printf("parameter"); break;
+            case ByteCodeInstruction::kPop: printf("pop %d", this->read8()); break;
+            case ByteCodeInstruction::kPushImmediate:
+                printf("pushimmediate %s", value_string(this->read32()).c_str());
+                break;
+            case ByteCodeInstruction::kRemainderS: printf("remainders"); break;
+            case ByteCodeInstruction::kRemainderU: printf("remainderu"); break;
+            case ByteCodeInstruction::kSignedToFloat: printf("signedtofloat"); break;
+            case ByteCodeInstruction::kStore: printf("store"); break;
+            case ByteCodeInstruction::kStoreSwizzle: {
+                int count = this->read8();
+                printf("storeswizzle %d", count);
+                for (int i = 0; i < count; ++i) {
+                    printf(", %d", this->read8());
+                }
+                break;
+            }
+            case ByteCodeInstruction::kSubtractF: printf("subtractf"); break;
+            case ByteCodeInstruction::kSubtractI: printf("subtracti"); break;
+            case ByteCodeInstruction::kSwizzle: {
+                printf("swizzle %d, ", this->read8());
+                int count = this->read8();
+                printf("%d", count);
+                for (int i = 0; i < count; ++i) {
+                    printf(", %d", this->read8());
+                }
+                break;
+            }
+            case ByteCodeInstruction::kUnsignedToFloat: printf("unsignedtofloat"); break;
+            case ByteCodeInstruction::kVector: printf("vector%d", this->read8()); break;
+            default: SkASSERT(false);
+        }
+        printf("\n");
+    }
+    fIP = 0;
+}
+
+void Interpreter::dumpStack() {
+    printf("STACK:");
+    for (size_t i = 0; i < fStack.size(); ++i) {
+        printf(" %d(%f)", fStack[i].fSigned, fStack[i].fFloat);
+    }
+    printf("\n");
+}
+
+#define BINARY_OP(inst, type, field, op) \
+    case ByteCodeInstruction::inst: {    \
+        type b = this->pop().field;      \
+        type a = this->pop().field;      \
+        this->push(Value(a op b));       \
+        break;                           \
+    }
+
+void Interpreter::next() {
+#ifdef TRACE
+    printf("at %d\n", fIP);
+#endif
+    ByteCodeInstruction inst = (ByteCodeInstruction) this->read8();
+    switch (inst) {
+        BINARY_OP(kAddI, int32_t, fSigned, +)
+        BINARY_OP(kAddF, float, fFloat, +)
+        case ByteCodeInstruction::kBranch:
+            fIP = this->read16();
+            break;
+        BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
+        BINARY_OP(kCompareFEQ, float, fFloat, ==)
+        BINARY_OP(kCompareINEQ, int32_t, fSigned, !=)
+        BINARY_OP(kCompareFNEQ, float, fFloat, !=)
+        BINARY_OP(kCompareSGT, int32_t, fSigned, >)
+        BINARY_OP(kCompareUGT, uint32_t, fUnsigned, >)
+        BINARY_OP(kCompareFGT, float, fFloat, >)
+        BINARY_OP(kCompareSGTEQ, int32_t, fSigned, >=)
+        BINARY_OP(kCompareUGTEQ, uint32_t, fUnsigned, >=)
+        BINARY_OP(kCompareFGTEQ, float, fFloat, >=)
+        BINARY_OP(kCompareSLT, int32_t, fSigned, <)
+        BINARY_OP(kCompareULT, uint32_t, fUnsigned, <)
+        BINARY_OP(kCompareFLT, float, fFloat, <)
+        BINARY_OP(kCompareSLTEQ, int32_t, fSigned, <=)
+        BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, <=)
+        BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
+        case ByteCodeInstruction::kConditionalBranch: {
+            int target = this->read16();
+            if (this->pop().fBool) {
+                fIP = target;
+            }
             break;
         }
+        case ByteCodeInstruction::kDebugPrint: {
+            Value v = this->pop();
+            printf("Debug: %d(int), %d(uint), %f(float)\n", v.fSigned, v.fUnsigned, v.fFloat);
+            break;
+        }
+        BINARY_OP(kDivideS, int32_t, fSigned, /)
+        BINARY_OP(kDivideU, uint32_t, fUnsigned, /)
+        BINARY_OP(kDivideF, float, fFloat, /)
+        case ByteCodeInstruction::kDup:
+            this->push(fStack.back());
+            break;
+        case ByteCodeInstruction::kDupDown: {
+            int count = this->read8();
+            for (int i = 0; i < count; ++i) {
+                fStack.insert(fStack.end() - i - count - 1, fStack[fStack.size() - i - 1]);
+            }
+            break;
+        }
+        case ByteCodeInstruction::kFloatToInt: {
+            Value& top = fStack.back();
+            top.fSigned = (int) top.fFloat;
+            break;
+        }
+        case ByteCodeInstruction::kSignedToFloat: {
+            Value& top = fStack.back();
+            top.fFloat = (float) top.fSigned;
+            break;
+        }
+        case ByteCodeInstruction::kUnsignedToFloat: {
+            Value& top = fStack.back();
+            top.fFloat = (float) top.fUnsigned;
+            break;
+        }
+        case ByteCodeInstruction::kLoad: {
+            int target = this->pop().fSigned;
+            SkASSERT(target < (int) fStack.size());
+            this->push(fStack[target]);
+            break;
+        }
+        case ByteCodeInstruction::kLoadGlobal: {
+            int target = this->read8();
+            SkASSERT(target < (int) fGlobals.size());
+            this->push(fGlobals[target]);
+            break;
+        }
+        case ByteCodeInstruction::kLoadSwizzle: {
+            Value target = this->pop();
+            int count = read8();
+            for (int i = 0; i < count; ++i) {
+                SkASSERT(target.fSigned + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
+                this->push(fStack[target.fSigned + fCurrentFunction->fCode[fIP + i]]);
+            }
+            fIP += count;
+            break;
+        }
+        BINARY_OP(kMultiplyS, int32_t, fSigned, *)
+        BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
+        BINARY_OP(kMultiplyF, float, fFloat, *)
+        case ByteCodeInstruction::kNot: {
+            Value& top = fStack.back();
+            top.fBool = !top.fBool;
+            break;
+        }
+        case ByteCodeInstruction::kNegateF:
+            this->push(-this->pop().fFloat);
+        case ByteCodeInstruction::kNegateS:
+            this->push(-this->pop().fSigned);
+        case ByteCodeInstruction::kPop:
+            for (int i = read8(); i > 0; --i) {
+                this->pop();
+            }
+            break;
+        case ByteCodeInstruction::kPushImmediate:
+            this->push(Value((int) read32()));
+            break;
+        BINARY_OP(kRemainderS, int32_t, fSigned, %)
+        BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
+        case ByteCodeInstruction::kStore: {
+            Value value = this->pop();
+            int target = this->pop().fSigned;
+            SkASSERT(target < (int) fStack.size());
+            fStack[target] = value;
+            break;
+        }
+        case ByteCodeInstruction::kStoreGlobal: {
+            Value value = this->pop();
+            int target = this->pop().fSigned;
+            SkASSERT(target < (int) fGlobals.size());
+            fGlobals[target] = value;
+            break;
+        }
+        case ByteCodeInstruction::kStoreSwizzle: {
+            int count = read8();
+            int target = fStack[fStack.size() - count - 1].fSigned;
+            for (int i = count - 1; i >= 0; --i) {
+                SkASSERT(target + fCurrentFunction->fCode[fIP + i] < (int) fStack.size());
+                fStack[target + fCurrentFunction->fCode[fIP + i]] = this->pop();
+            }
+            this->pop();
+            fIP += count;
+            break;
+        }
+        BINARY_OP(kSubtractI, int32_t, fSigned, -)
+        BINARY_OP(kSubtractF, float, fFloat, -)
+        case ByteCodeInstruction::kSwizzle: {
+            Value vec[4];
+            for (int i = this->read8() - 1; i >= 0; --i) {
+                vec[i] = this->pop();
+            }
+            for (int i = this->read8() - 1; i >= 0; --i) {
+                this->push(vec[this->read8()]);
+            }
+            break;
+        }
+        case ByteCodeInstruction::kVector:
+            this->nextVector(this->read8());
+            break;
         default:
-            fPipeline.append(a.fStage);
+            printf("unsupported instruction %d\n", (int) inst);
+            SkASSERT(false);
     }
+#ifdef TRACE
+    this->dumpStack();
+#endif
 }
 
-Interpreter::Value Interpreter::call(const FunctionCall& c) {
-    abort();
-}
+static constexpr int VECTOR_MAX = 16;
 
-Interpreter::Value Interpreter::evaluate(const Expression& expr) {
-    switch (expr.fKind) {
-        case Expression::kAppendStage_Kind:
-            this->appendStage((const AppendStage&) expr);
-            return Value((int) 0xDEADBEEF);
-        case Expression::kBinary_Kind: {
-            #define ARITHMETIC(op) {                               \
-                Value left = this->evaluate(*b.fLeft);             \
-                Value right = this->evaluate(*b.fRight);           \
-                switch (type_kind(b.fLeft->fType)) {               \
-                    case kFloat_TypeKind:                          \
-                        return Value(left.fFloat op right.fFloat); \
-                    case kInt_TypeKind:                            \
-                        return Value(left.fInt op right.fInt);     \
-                    default:                                       \
-                        abort();                                   \
-                }                                                  \
-            }
-            #define BITWISE(op) {                                  \
-                Value left = this->evaluate(*b.fLeft);             \
-                Value right = this->evaluate(*b.fRight);           \
-                switch (type_kind(b.fLeft->fType)) {               \
-                    case kInt_TypeKind:                            \
-                        return Value(left.fInt op right.fInt);     \
-                    default:                                       \
-                        abort();                                   \
-                }                                                  \
-            }
-            #define LOGIC(op) {                                    \
-                Value left = this->evaluate(*b.fLeft);             \
-                Value right = this->evaluate(*b.fRight);           \
-                switch (type_kind(b.fLeft->fType)) {               \
-                    case kFloat_TypeKind:                          \
-                        return Value(left.fFloat op right.fFloat); \
-                    case kInt_TypeKind:                            \
-                        return Value(left.fInt op right.fInt);     \
-                    default:                                       \
-                        abort();                                   \
-                }                                                  \
-            }
-            #define COMPOUND_ARITHMETIC(op) {                      \
-                StackIndex left = this->getLValue(*b.fLeft);       \
-                Value right = this->evaluate(*b.fRight);           \
-                Value result = fStack[left];                       \
-                switch (type_kind(b.fLeft->fType)) {               \
-                    case kFloat_TypeKind:                          \
-                        result.fFloat op right.fFloat;             \
-                        break;                                     \
-                    case kInt_TypeKind:                            \
-                        result.fInt op right.fInt;                 \
-                        break;                                     \
-                    default:                                       \
-                        abort();                                   \
-                }                                                  \
-                fStack[left] = result;                             \
-                return result;                                     \
-            }
-            #define COMPOUND_BITWISE(op) {                         \
-                StackIndex left = this->getLValue(*b.fLeft);       \
-                Value right = this->evaluate(*b.fRight);           \
-                Value result = fStack[left];                       \
-                switch (type_kind(b.fLeft->fType)) {               \
-                    case kInt_TypeKind:                            \
-                        result.fInt op right.fInt;                 \
-                        break;                                     \
-                    default:                                       \
-                        abort();                                   \
-                }                                                  \
-                fStack[left] = result;                             \
-                return result;                                     \
-            }
-            const BinaryExpression& b = (const BinaryExpression&) expr;
-            switch (b.fOperator) {
-                case Token::PLUS:       ARITHMETIC(+)
-                case Token::MINUS:      ARITHMETIC(-)
-                case Token::STAR:       ARITHMETIC(*)
-                case Token::SLASH:      ARITHMETIC(/)
-                case Token::BITWISEAND: BITWISE(&)
-                case Token::BITWISEOR:  BITWISE(|)
-                case Token::BITWISEXOR: BITWISE(^)
-                case Token::LT:         LOGIC(<)
-                case Token::GT:         LOGIC(>)
-                case Token::LTEQ:       LOGIC(<=)
-                case Token::GTEQ:       LOGIC(>=)
-                case Token::LOGICALAND: {
-                    Value result = this->evaluate(*b.fLeft);
-                    if (result.fBool) {
-                        result = this->evaluate(*b.fRight);
-                    }
-                    return result;
-                }
-                case Token::LOGICALOR: {
-                    Value result = this->evaluate(*b.fLeft);
-                    if (!result.fBool) {
-                        result = this->evaluate(*b.fRight);
-                    }
-                    return result;
-                }
-                case Token::EQ: {
-                    StackIndex left = this->getLValue(*b.fLeft);
-                    Value right = this->evaluate(*b.fRight);
-                    fStack[left] = right;
-                    return right;
-                }
-                case Token::PLUSEQ:       COMPOUND_ARITHMETIC(+=)
-                case Token::MINUSEQ:      COMPOUND_ARITHMETIC(-=)
-                case Token::STAREQ:       COMPOUND_ARITHMETIC(*=)
-                case Token::SLASHEQ:      COMPOUND_ARITHMETIC(/=)
-                case Token::BITWISEANDEQ: COMPOUND_BITWISE(&=)
-                case Token::BITWISEOREQ:  COMPOUND_BITWISE(|=)
-                case Token::BITWISEXOREQ: COMPOUND_BITWISE(^=)
-                default:
-                    ABORT("unsupported operator: %s\n", expr.description().c_str());
+#define VECTOR_BINARY_OP(inst, type, field, op)               \
+    case ByteCodeInstruction::inst: {                         \
+        Value result[VECTOR_MAX];                             \
+        for (int i = count - 1; i >= 0; --i) {                \
+            result[i] = this->pop();                          \
+        }                                                     \
+        for (int i = count - 1; i >= 0; --i) {                \
+            result[i] = this->pop().field op result[i].field; \
+        }                                                     \
+        for (int i = 0; i < count; ++i) {                     \
+            this->push(result[i]);                            \
+        }                                                     \
+        break;                                                \
+    }
+
+void Interpreter::nextVector(int count) {
+    ByteCodeInstruction inst = (ByteCodeInstruction) this->read8();
+    switch (inst) {
+        VECTOR_BINARY_OP(kAddI, int32_t, fSigned, +)
+        VECTOR_BINARY_OP(kAddF, float, fFloat, +)
+        case ByteCodeInstruction::kBranch:
+            fIP = this->read16();
+            break;
+        VECTOR_BINARY_OP(kCompareIEQ, int32_t, fSigned, ==)
+        VECTOR_BINARY_OP(kCompareFEQ, float, fFloat, ==)
+        VECTOR_BINARY_OP(kCompareINEQ, int32_t, fSigned, !=)
+        VECTOR_BINARY_OP(kCompareFNEQ, float, fFloat, !=)
+        VECTOR_BINARY_OP(kCompareSGT, int32_t, fSigned, >)
+        VECTOR_BINARY_OP(kCompareUGT, uint32_t, fUnsigned, >)
+        VECTOR_BINARY_OP(kCompareFGT, float, fFloat, >)
+        VECTOR_BINARY_OP(kCompareSGTEQ, int32_t, fSigned, >=)
+        VECTOR_BINARY_OP(kCompareUGTEQ, uint32_t, fUnsigned, >=)
+        VECTOR_BINARY_OP(kCompareFGTEQ, float, fFloat, >=)
+        VECTOR_BINARY_OP(kCompareSLT, int32_t, fSigned, <)
+        VECTOR_BINARY_OP(kCompareULT, uint32_t, fUnsigned, <)
+        VECTOR_BINARY_OP(kCompareFLT, float, fFloat, <)
+        VECTOR_BINARY_OP(kCompareSLTEQ, int32_t, fSigned, <=)
+        VECTOR_BINARY_OP(kCompareULTEQ, uint32_t, fUnsigned, <=)
+        VECTOR_BINARY_OP(kCompareFLTEQ, float, fFloat, <=)
+        case ByteCodeInstruction::kConditionalBranch: {
+            int target = this->read16();
+            if (this->pop().fBool) {
+                fIP = target;
             }
             break;
         }
-        case Expression::kBoolLiteral_Kind:
-            return Value(((const BoolLiteral&) expr).fValue);
-        case Expression::kConstructor_Kind:
-            break;
-        case Expression::kIntLiteral_Kind:
-            return Value((int) ((const IntLiteral&) expr).fValue);
-        case Expression::kFieldAccess_Kind:
-            break;
-        case Expression::kFloatLiteral_Kind:
-            return Value((float) ((const FloatLiteral&) expr).fValue);
-        case Expression::kFunctionCall_Kind:
-            return this->call((const FunctionCall&) expr);
-        case Expression::kIndex_Kind: {
-            const IndexExpression& idx = (const IndexExpression&) expr;
-            StackIndex pos = this->evaluate(*idx.fBase).fInt +
-                             this->evaluate(*idx.fIndex).fInt;
-            return fStack[pos];
-        }
-        case Expression::kPrefix_Kind: {
-            const PrefixExpression& p = (const PrefixExpression&) expr;
-            switch (p.fOperator) {
-                case Token::MINUS: {
-                    Value base = this->evaluate(*p.fOperand);
-                    switch (type_kind(p.fType)) {
-                        case kFloat_TypeKind:
-                            return Value(-base.fFloat);
-                        case kInt_TypeKind:
-                            return Value(-base.fInt);
-                        default:
-                            abort();
-                    }
-                }
-                case Token::LOGICALNOT: {
-                    Value base = this->evaluate(*p.fOperand);
-                    return Value(!base.fBool);
-                }
-                default:
-                    abort();
+        VECTOR_BINARY_OP(kDivideS, int32_t, fSigned, /)
+        VECTOR_BINARY_OP(kDivideU, uint32_t, fUnsigned, /)
+        VECTOR_BINARY_OP(kDivideF, float, fFloat, /)
+        case ByteCodeInstruction::kFloatToInt: {
+            for (int i = 0; i < count; ++i) {
+                Value& v = fStack[fStack.size() - i - 1];
+                v.fSigned = (int) v.fFloat;
             }
+            break;
         }
-        case Expression::kPostfix_Kind: {
-            const PostfixExpression& p = (const PostfixExpression&) expr;
-            StackIndex lvalue = this->getLValue(*p.fOperand);
-            Value result = fStack[lvalue];
-            switch (type_kind(p.fType)) {
-                case kFloat_TypeKind:
-                    if (Token::PLUSPLUS == p.fOperator) {
-                        ++fStack[lvalue].fFloat;
-                    } else {
-                        SkASSERT(Token::MINUSMINUS == p.fOperator);
-                        --fStack[lvalue].fFloat;
-                    }
-                    break;
-                case kInt_TypeKind:
-                    if (Token::PLUSPLUS == p.fOperator) {
-                        ++fStack[lvalue].fInt;
-                    } else {
-                        SkASSERT(Token::MINUSMINUS == p.fOperator);
-                        --fStack[lvalue].fInt;
-                    }
-                    break;
-                default:
-                    abort();
+        case ByteCodeInstruction::kSignedToFloat: {
+            for (int i = 0; i < count; ++i) {
+                Value& v = fStack[fStack.size() - i - 1];
+                v.fFloat = (float) v.fSigned;
             }
-            return result;
+            break;
         }
-        case Expression::kSetting_Kind:
+        case ByteCodeInstruction::kUnsignedToFloat: {
+            for (int i = 0; i < count; ++i) {
+                Value& v = fStack[fStack.size() - i - 1];
+                v.fFloat = (float) v.fUnsigned;
+            }
             break;
-        case Expression::kSwizzle_Kind:
-            break;
-        case Expression::kVariableReference_Kind:
-            SkASSERT(fVars.size());
-            SkASSERT(fVars.back().find(&((VariableReference&) expr).fVariable) !=
-                   fVars.back().end());
-            return fStack[fVars.back()[&((VariableReference&) expr).fVariable]];
-        case Expression::kTernary_Kind: {
-            const TernaryExpression& t = (const TernaryExpression&) expr;
-            return this->evaluate(this->evaluate(*t.fTest).fBool ? *t.fIfTrue : *t.fIfFalse);
         }
-        case Expression::kTypeReference_Kind:
+        case ByteCodeInstruction::kLoad: {
+            int target = this->pop().fSigned;
+            for (int i = 0; i < count; ++i) {
+                SkASSERT(target < (int) fStack.size());
+                this->push(fStack[target++]);
+            }
             break;
+        }
+        case ByteCodeInstruction::kLoadGlobal: {
+            int target = this->read8();
+            SkASSERT(target < (int) fGlobals.size());
+            this->push(fGlobals[target]);
+            break;
+        }
+        VECTOR_BINARY_OP(kMultiplyS, int32_t, fSigned, *)
+        VECTOR_BINARY_OP(kMultiplyU, uint32_t, fUnsigned, *)
+        VECTOR_BINARY_OP(kMultiplyF, float, fFloat, *)
+        VECTOR_BINARY_OP(kRemainderS, int32_t, fSigned, %)
+        VECTOR_BINARY_OP(kRemainderU, uint32_t, fUnsigned, %)
+        case ByteCodeInstruction::kStore: {
+            int target = fStack[fStack.size() - count - 1].fSigned + count;
+            for (int i = count - 1; i >= 0; --i) {
+                SkASSERT(target < (int) fStack.size());
+                fStack[--target] = this->pop();
+            }
+            break;
+        }
+        VECTOR_BINARY_OP(kSubtractI, int32_t, fSigned, -)
+        VECTOR_BINARY_OP(kSubtractF, float, fFloat, -)
+        case ByteCodeInstruction::kVector:
+            this->nextVector(this->read8());
         default:
-            break;
+            printf("unsupported instruction %d\n", (int) inst);
+            SkASSERT(false);
     }
-    ABORT("unsupported expression: %s\n", expr.description().c_str());
+}
+
+void Interpreter::run() {
+    while (fIP < (int) fCurrentFunction->fCode.size()) {
+        next();
+    }
 }
 
 } // namespace
