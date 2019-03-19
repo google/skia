@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cea520c2_0c348bff",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T17:15:13Z",
+      "side": 1,
+      "message": "These should also be prefixed GR_ or SK_.",
+      "revId": "d4e65faa26017c0adad04fa02829e2bedc69ff6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
