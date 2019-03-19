@@ -34,7 +34,7 @@ class SkiaPokemonwikiDesktopPageSet(story.StorySet):
 
     urls_list = [
       # Why: http://code.google.com/p/chromium/issues/detail?id=136555
-      'http://en.wikipedia.org/wiki/List_of_Pok%C3%A9mon',
+      'https://pokemondb.net/pokedex/all',
     ]
 
     for url in urls_list:
