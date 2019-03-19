@@ -14,6 +14,8 @@
 #include "GrRect.h"
 #include "GrRenderTargetContextPriv.h"
 #include "Resources.h"
+#include "SkAutoMalloc.h"
+#include "SkCodecImageGenerator.h"
 #include "SkColorMatrixFilter.h"
 #include "SkFont.h"
 #include "SkGpuDevice.h"
@@ -23,6 +25,8 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkShaderMaskFilter.h"
+#include "SkYUVAIndex.h"
+#include "SkYUVASizeInfo.h"
 
 #include <array>
 
@@ -619,8 +623,7 @@ private:
     typedef ClipTileRenderer INHERITED;
 };
 
-// Tests tmp_drawImageSet(), but can batch the entries together in different ways
-// TODO(michaelludwig) - add transform batching
+// Tests drawEdgeAAImageSet(), but can batch the entries together in different ways
 class TextureSetRenderer : public ClipTileRenderer {
 public:
 
@@ -676,7 +679,6 @@ public:
     }
 
     int drawTiles(SkCanvas* canvas) override {
-        SkASSERT(fImage); // initImage should be called before any drawing
         int draws = this->INHERITED::drawTiles(canvas);
         // Push the last tile set
         draws += this->drawAndReset(canvas);
@@ -871,6 +873,163 @@ private:
     typedef ClipTileRenderer INHERITED;
 };
 
+class YUVTextureSetRenderer : public ClipTileRenderer {
+public:
+    static sk_sp<ClipTileRenderer> MakeFromJPEG(sk_sp<SkData> imageData) {
+        return sk_sp<ClipTileRenderer>(new YUVTextureSetRenderer(std::move(imageData)));
+    }
+
+    int drawTiles(SkCanvas* canvas) override {
+        // Refresh the SkImage if possible
+        GrContext* ctx = canvas->getGrContext();
+        if (!this->ensureYUVImage(ctx)) {
+            return 0;
+        }
+
+        int draws = this->INHERITED::drawTiles(canvas);
+        // Push the last tile set
+        draws += this->drawAndReset(canvas);
+        return draws;
+    }
+
+    int drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
+                  int tileID, int quadID) override {
+        // Now don't actually draw the tile, accumulate it in the growing entry set
+        bool hasClip = false;
+        if (clip) {
+            // Record the four points into fDstClips
+            fDstClips.push_back_n(4, clip);
+            hasClip = true;
+        }
+
+        // This acts like the whole image is rendered over the entire tile grid, so derive local
+        // coordinates from 'rect', based on the grid to image transform.
+        SkMatrix gridToImage = SkMatrix::MakeRectToRect(SkRect::MakeWH(kColCount * kTileWidth,
+                                                                       kRowCount * kTileHeight),
+                                                        SkRect::MakeWH(fYUVImage->width(),
+                                                                       fYUVImage->height()),
+                                                        SkMatrix::kFill_ScaleToFit);
+        SkRect localRect = gridToImage.mapRect(rect);
+
+        // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr
+        // is not null.
+        fSetEntries.push_back(
+                {fYUVImage, localRect, rect, -1, 1.f, this->maskToFlags(edgeAA), hasClip});
+        return 0;
+    }
+
+    void drawBanner(SkCanvas* canvas) override {
+        draw_text(canvas, "Texture");
+        canvas->translate(0.f, 15.f);
+        draw_text(canvas, "YUV");
+    }
+
+private:
+    // YUV encoding extracted from jpeg, remembered for each time YUVImage needs to be re-alloc'ed
+    SkYUVASizeInfo fSizeInfo;
+    SkYUVColorSpace fColorSpace;
+    SkYUVAIndex fComponents[SkYUVAIndex::kIndexCount];
+    SkAutoMalloc fPlaneData;
+    SkPixmap fPlanes[SkYUVASizeInfo::kMaxCount];
+    bool fValidPlanes;
+
+    // This is a GPU-backed image specific to a GrContext
+    sk_sp<SkImage> fYUVImage;
+    const GrContext* fOwningContext;
+
+    SkTArray<SkPoint> fDstClips;
+    SkTArray<SkCanvas::ImageSetEntry> fSetEntries;
+
+    YUVTextureSetRenderer(sk_sp<SkData> jpegData)
+            : fValidPlanes(true)
+            , fYUVImage(nullptr)
+            , fOwningContext(nullptr) {
+        auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(jpegData);
+        if (!codec) {
+            SkDebugf("Unable to decode jpeg for YUV image\n");
+            fValidPlanes = false;
+            return;
+        }
+
+        if (!codec->queryYUVA8(&fSizeInfo, fComponents, &fColorSpace)) {
+            SkDebugf("Unable to query YUV info from jpeg\n");
+            fValidPlanes = false;
+            return;
+        }
+
+        fPlaneData.reset(fSizeInfo.computeTotalBytes());
+        void* planes[SkYUVASizeInfo::kMaxCount];
+        fSizeInfo.computePlanes(fPlaneData.get(), planes);
+        if (!codec->getYUVA8Planes(fSizeInfo, fComponents, planes)) {
+            SkDebugf("Unable to extract YUV planes from jpeg\n");
+            fValidPlanes = false;
+            return;
+        }
+
+        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
+            if (fSizeInfo.fSizes[i].isEmpty()) {
+                fPlanes[i].reset();
+            } else {
+                SkASSERT(planes[i]);
+                SkAlphaType at = (-1 != fComponents[SkYUVAIndex::kA_Index].fIndex)
+                         ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+                auto planeInfo = SkImageInfo::Make(fSizeInfo.fSizes[i].fWidth,
+                                                   fSizeInfo.fSizes[i].fHeight,
+                                                   kGray_8_SkColorType, at, nullptr);
+                fPlanes[i].reset(planeInfo, planes[i], fSizeInfo.fWidthBytes[i]);
+            }
+        }
+        // The SkPixmap data is fully configured now for MakeFromYUVAPixmaps once we get a GrContext
+    }
+
+    bool ensureYUVImage(GrContext* context) {
+        if (!context || !fValidPlanes) {
+            return false; // Cannot make a YUV image from planes
+        }
+        if (context == fOwningContext) {
+            return fYUVImage != nullptr; // Have already made a YUV image (or tried and failed)
+        }
+        // Must make a new YUV image
+        fYUVImage = SkImage::MakeFromYUVAPixmaps(context, fColorSpace, fPlanes, fComponents,
+                fSizeInfo.fSizes[0], kTopLeft_GrSurfaceOrigin, false, false);
+        fOwningContext = context;
+        return fYUVImage != nullptr;
+    }
+
+    int drawAndReset(SkCanvas* canvas) {
+        // Early out if there's nothing to draw
+        if (fSetEntries.count() == 0) {
+            SkASSERT(fDstClips.count() == 0);
+            return 0;
+        }
+
+#ifdef SK_DEBUG
+        int expectedDstClipCount = 0;
+        for (int i = 0; i < fSetEntries.count(); ++i) {
+            expectedDstClipCount += 4 * fSetEntries[i].fHasClip;
+        }
+        SkASSERT(expectedDstClipCount == fDstClips.count());
+#endif
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
+
+        canvas->experimental_DrawEdgeAAImageSet(
+                fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(), nullptr, &paint,
+                SkCanvas::kFast_SrcRectConstraint);
+
+        // Reset for next tile
+        fDstClips.reset();
+        fSetEntries.reset();
+
+        return 1;
+    }
+
+    typedef ClipTileRenderer INHERITED;
+};
+
 static SkTArray<sk_sp<ClipTileRenderer>> make_debug_renderers() {
     SkTArray<sk_sp<ClipTileRenderer>> renderers;
     renderers.push_back(DebugTileRenderer::Make());
@@ -903,6 +1062,8 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_image_renderers() {
     renderers.push_back(TextureSetRenderer::MakeUnbatched(mandrill));
     renderers.push_back(TextureSetRenderer::MakeBatched(mandrill, 0));
     renderers.push_back(TextureSetRenderer::MakeBatched(mandrill, kMatrixCount));
+    renderers.push_back(YUVTextureSetRenderer::MakeFromJPEG(
+            GetResourceAsData("images/mandrill_h1v1.jpg")));
     return renderers;
 }
 
