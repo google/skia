@@ -156,7 +156,7 @@ bool GrGLInterface::validate() const {
     // these functions are part of ES2, we assume they are available
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3,0) && !fFunctions.fBindFragDataLocation) {
             RETURN_FALSE_INTERFACE;
         }
@@ -177,27 +177,26 @@ bool GrGLInterface::validate() const {
     }
 
     // part of desktop GL, but not ES
-    if (kGL_GrGLStandard == fStandard &&
+    if (GR_IS_GR_GL(fStandard) &&
         (!fFunctions.fDrawBuffer ||
          !fFunctions.fPolygonMode)) {
         RETURN_FALSE_INTERFACE;
     }
 
     // ES 3.0 (or ES 2.0 extended) has glDrawBuffers but not glDrawBuffer
-    if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0)) {
+    if (GR_IS_GR_GL(fStandard) ||
+       (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fDrawBuffers) {
             RETURN_FALSE_INTERFACE;
         }
-    }
-
-    if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0)) {
         if (!fFunctions.fReadBuffer) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
     // glGetTexLevelParameteriv was added to ES in 3.1.
-    if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,1)) {
+    if (GR_IS_GR_GL(fStandard) ||
+       (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fGetTexLevelParameteriv) {
             RETURN_FALSE_INTERFACE;
         }
@@ -205,7 +204,7 @@ bool GrGLInterface::validate() const {
 
     // GL_EXT_texture_storage is part of desktop 4.2
     // There is a desktop ARB extension and an ES+desktop EXT extension
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(4,2) ||
             fExtensions.has("GL_ARB_texture_storage") ||
             fExtensions.has("GL_EXT_texture_storage")) {
@@ -213,14 +212,16 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_texture_storage")) {
-        if (!fFunctions.fTexStorage2D) {
-            RETURN_FALSE_INTERFACE;
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
+         if (fExtensions.has("GL_EXT_texture_storage")) {
+            if (!fFunctions.fTexStorage2D) {
+                RETURN_FALSE_INTERFACE;
+            }
         }
     }
 
     // glTextureBarrier is part of desktop 4.5. There are also ARB and NV extensions.
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(4,5) ||
             fExtensions.has("GL_ARB_texture_barrier") ||
             fExtensions.has("GL_NV_texture_barrier")) {
@@ -228,9 +229,11 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else if (fExtensions.has("GL_NV_texture_barrier")) {
-        if (!fFunctions.fTextureBarrier) {
-            RETURN_FALSE_INTERFACE;
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
+        if (fExtensions.has("GL_NV_texture_barrier")) {
+            if (!fFunctions.fTextureBarrier) {
+                RETURN_FALSE_INTERFACE;
+            }
         }
     }
 
@@ -248,8 +251,9 @@ bool GrGLInterface::validate() const {
     }
 
     // Required since OpenGL 1.5 and ES 3.0 or with GL_EXT_occlusion_query_boolean
-    if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0) ||
-        fExtensions.has("GL_EXT_occlusion_query_boolean")) {
+    if (GR_IS_GR_GL(fStandard) ||
+       (GR_IS_GR_GL_ES(fStandard) && (glVer >= GR_GL_VER(3,0) ||
+                                  fExtensions.has("GL_EXT_occlusion_query_boolean")))) {
 #if 0 // Not yet added to chrome's bindings.
         if (!fFunctions.fGenQueries ||
             !fFunctions.fDeleteQueries ||
@@ -262,12 +266,12 @@ bool GrGLInterface::validate() const {
 #endif
     }
     // glGetQueryObjectiv doesn't exist in ES.
-    if (kGL_GrGLStandard == fStandard && !fFunctions.fGetQueryObjectiv) {
+    if (GR_IS_GR_GL(fStandard) && !fFunctions.fGetQueryObjectiv) {
         RETURN_FALSE_INTERFACE;
     }
 
     // FBO MSAA
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         // GL 3.0 and the ARB extension have multisample + blit
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_ARB_framebuffer_object")) {
             if (!fFunctions.fRenderbufferStorageMultisample ||
@@ -284,7 +288,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (!fFunctions.fRenderbufferStorageMultisample ||
                 !fFunctions.fBlitFramebuffer) {
@@ -318,7 +322,8 @@ bool GrGLInterface::validate() const {
     // On ES buffer mapping is an extension. On Desktop
     // buffer mapping was part of original VBO extension
     // which we require.
-    if (kGL_GrGLStandard == fStandard || fExtensions.has("GL_OES_mapbuffer")) {
+    if (GR_IS_GR_GL(fStandard) ||
+       (GR_IS_GR_GL_ES(fStandard) && fExtensions.has("GL_OES_mapbuffer"))) {
         if (!fFunctions.fMapBuffer ||
             !fFunctions.fUnmapBuffer) {
             RETURN_FALSE_INTERFACE;
@@ -326,13 +331,13 @@ bool GrGLInterface::validate() const {
     }
 
     // Dual source blending
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_blend_func_extended")) {
             if (!fFunctions.fBindFragDataLocationIndexed) {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3,0) && fExtensions.has("GL_EXT_blend_func_extended")) {
             if (!fFunctions.fBindFragDataLocation ||
                 !fFunctions.fBindFragDataLocationIndexed) {
@@ -341,22 +346,20 @@ bool GrGLInterface::validate() const {
         }
     }
 
-
-    // glGetStringi was added in version 3.0 of both desktop and ES.
-    if (glVer >= GR_GL_VER(3, 0)) {
-        if (!fFunctions.fGetStringi) {
-            RETURN_FALSE_INTERFACE;
+    if (GR_IS_GR_GL(fStandard) || GR_IS_GR_GL_ES(fStandard)) {
+        if (glVer >= GR_GL_VER(3, 0)) {
+            // glGetStringi was added in version 3.0 of both desktop and ES.
+            if (!fFunctions.fGetStringi) {
+                RETURN_FALSE_INTERFACE;
+            }
+            // glVertexAttribIPointer was added in version 3.0 of both desktop and ES.
+            if (!fFunctions.fVertexAttribIPointer) {
+                RETURN_FALSE_INTERFACE;
+            }
         }
     }
 
-    // glVertexAttribIPointer was added in version 3.0 of both desktop and ES.
-    if (glVer >= GR_GL_VER(3, 0)) {
-        if (!fFunctions.fVertexAttribIPointer) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3,1)) {
             if (!fFunctions.fTexBuffer) {
                 RETURN_FALSE_INTERFACE;
@@ -367,7 +370,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_OES_texture_buffer") ||
             fExtensions.has("GL_EXT_texture_buffer")) {
             if (!fFunctions.fTexBuffer ||
@@ -377,7 +380,7 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_ARB_vertex_array_object")) {
             if (!fFunctions.fBindVertexArray ||
                 !fFunctions.fDeleteVertexArrays ||
@@ -385,7 +388,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_OES_vertex_array_object")) {
             if (!fFunctions.fBindVertexArray ||
                 !fFunctions.fDeleteVertexArrays ||
@@ -403,7 +406,7 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+    if ((GR_IS_GR_GL(fStandard) && glVer >= GR_GL_VER(4,3)) ||
         fExtensions.has("GL_ARB_invalidate_subdata")) {
         if (!fFunctions.fInvalidateBufferData ||
             !fFunctions.fInvalidateBufferSubData ||
@@ -413,7 +416,7 @@ bool GrGLInterface::validate() const {
             !fFunctions.fInvalidateTexSubImage) {
             RETURN_FALSE_INTERFACE;
         }
-    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
+    } else if (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,0)) {
         // ES 3.0 adds the framebuffer functions but not the others.
         if (!fFunctions.fInvalidateFramebuffer ||
             !fFunctions.fInvalidateSubFramebuffer) {
@@ -421,7 +424,7 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_CHROMIUM_map_sub")) {
+    if (GR_IS_GR_GL_ES(fStandard) && fExtensions.has("GL_CHROMIUM_map_sub")) {
         if (!fFunctions.fMapBufferSubData ||
             !fFunctions.fMapTexSubImage2D ||
             !fFunctions.fUnmapBufferSubData ||
@@ -430,33 +433,33 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    // These functions are added to the 3.0 version of both GLES and GL.
-    if (glVer >= GR_GL_VER(3,0) ||
-        (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_map_buffer_range")) ||
-        (kGL_GrGLStandard == fStandard && fExtensions.has("GL_ARB_map_buffer_range"))) {
+    if ((GR_IS_GR_GL(fStandard) && fExtensions.has("GL_ARB_map_buffer_range")) ||
+        (GR_IS_GR_GL_ES(fStandard) && fExtensions.has("GL_EXT_map_buffer_range")) ||
+        // These functions are added to the 3.0 version of both GLES and GL.
+        ((GR_IS_GR_GL(fStandard) || GR_IS_GR_GL_ES(fStandard)) && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fMapBufferRange ||
             !fFunctions.fFlushMappedBufferRange) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_texture_multisample"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
+    if ((GR_IS_GR_GL(fStandard) &&
+            (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_texture_multisample"))) ||
+        (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fGetMultisamplefv) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_program_interface_query"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
+    if ((GR_IS_GR_GL(fStandard) &&
+            (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_program_interface_query"))) ||
+        (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fGetProgramResourceLocation) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
-    if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4,1) ||
+    if (GR_IS_GR_GL_ES(fStandard) || glVer >= GR_GL_VER(4,1) ||
         fExtensions.has("GL_ARB_ES2_compatibility")) {
         if (!fFunctions.fGetShaderPrecisionFormat) {
             RETURN_FALSE_INTERFACE;
@@ -509,7 +512,7 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3,1) ||
             fExtensions.has("GL_EXT_draw_instanced") || fExtensions.has("GL_ARB_draw_instanced")) {
             if (!fFunctions.fDrawArraysInstanced ||
@@ -517,7 +520,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else if (kGLES_GrGLStandard == fStandard) {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
             if (!fFunctions.fDrawArraysInstanced ||
                 !fFunctions.fDrawElementsInstanced) {
@@ -526,13 +529,13 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_instanced_arrays")) {
             if (!fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else if (kGLES_GrGLStandard == fStandard) {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
             if (!fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE;
@@ -540,25 +543,25 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,0) || fExtensions.has("GL_ARB_draw_indirect"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
+    if ((GR_IS_GR_GL(fStandard) &&
+             (glVer >= GR_GL_VER(4,0) || fExtensions.has("GL_ARB_draw_indirect"))) ||
+        (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fDrawArraysIndirect ||
             !fFunctions.fDrawElementsIndirect) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_multi_draw_indirect"))) ||
-        (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_multi_draw_indirect"))) {
+    if ((GR_IS_GR_GL(fStandard) &&
+            (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_multi_draw_indirect"))) ||
+        (GR_IS_GR_GL_ES(fStandard) && fExtensions.has("GL_EXT_multi_draw_indirect"))) {
         if (!fFunctions.fMultiDrawArraysIndirect ||
             !fFunctions.fMultiDrawElementsIndirect) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+    if ((GR_IS_GR_GL(fStandard) && glVer >= GR_GL_VER(4,3)) ||
         fExtensions.has("GL_KHR_debug")) {
         if (!fFunctions.fDebugMessageControl ||
             !fFunctions.fDebugMessageInsert ||
@@ -577,7 +580,7 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (kGL_GrGLStandard == fStandard) {
+    if (GR_IS_GR_GL(fStandard)) {
         if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
             if (!fFunctions.fFenceSync ||
                 !fFunctions.fIsSync ||
@@ -587,7 +590,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else if (kGLES_GrGLStandard == fStandard) {
+    } else if (GR_IS_GR_GL_ES(fStandard)) {
         if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_APPLE_sync")) {
             if (!fFunctions.fFenceSync ||
                 !fFunctions.fIsSync ||
@@ -607,23 +610,24 @@ bool GrGLInterface::validate() const {
     }
 
     // glDrawRangeElements was added to ES in 3.0.
-    if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0)) {
+    if (GR_IS_GR_GL(fStandard) ||
+       (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fDrawRangeElements) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
     // getInternalformativ was added in GL 4.2, ES 3.0, and with extension ARB_internalformat_query
-    if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_internalformat_query"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0))) {
+    if ((GR_IS_GR_GL(fStandard) && (glVer >= GR_GL_VER(4,2) ||
+        (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,0)) ||
+         fExtensions.has("GL_ARB_internalformat_query")))) {
         if (!fFunctions.fGetInternalformativ) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,1)) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0))) {
+    if ((GR_IS_GR_GL(fStandard) && glVer >= GR_GL_VER(4,1)) ||
+        (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fGetProgramBinary ||
             !fFunctions.fProgramBinary ||
             !fFunctions.fProgramParameteri) {
@@ -631,8 +635,8 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,1)) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0))) {
+    if ((GR_IS_GR_GL(fStandard) && glVer >= GR_GL_VER(4,1)) ||
+        (GR_IS_GR_GL_ES(fStandard) && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fBindSampler ||
             !fFunctions.fDeleteSamplers  ||
             !fFunctions.fGenSamplers ||
