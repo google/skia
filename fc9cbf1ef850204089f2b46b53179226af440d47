@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6383cf91_b4506e4f",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-19T17:54:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94aedcbf_3ba0e107",
+      "range": {
+        "startLine": 187,
+        "startChar": 66,
+        "endLine": 187,
+        "endChar": 67
+      },
+      "revId": "fc9cbf1ef850204089f2b46b53179226af440d47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a34c6e21_a0561797",
         "filename": "src/gpu/vk/GrVkBuffer.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-19T17:38:53Z",
       "side": 1,
       "message": "what kind of voodoo is this?",
+      "range": {
+        "startLine": 189,
+        "startChar": 8,
+        "endLine": 189,
+        "endChar": 45
+      },
+      "revId": "fc9cbf1ef850204089f2b46b53179226af440d47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6b589bc_f2dc05ca",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-19T17:54:08Z",
+      "side": 1,
+      "message": "hopefully the extra ()s help clarify things. Basically you can only use vkCmdUpdateBuffer if the size is less than 65536 and the size must 4 byte aligned.",
+      "parentUuid": "a34c6e21_a0561797",
       "range": {
         "startLine": 189,
         "startChar": 8,
