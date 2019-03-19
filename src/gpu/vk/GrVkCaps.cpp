@@ -232,7 +232,6 @@ template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatu
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                     uint32_t physicalDeviceVersion, const GrVkExtensions& extensions) {
-
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
@@ -339,6 +338,20 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         // TODO: Evaluate on ARM, Imagination, and ATI.
         fPreferFullscreenClears = true;
     }
+
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // On Qualcomm mapping a gpu buffer and doing both reads and writes to it is slow. Thus for
+        // index and vertex buffers we will force to use a cpu side buffer and then copy the whole
+        // buffer up to the gpu.
+        fBufferMapThreshold = SK_MaxS32;
+    }
+
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // On Qualcomm it looks like using vkCmdUpdateBuffer is slower than using a transfer buffer
+        // even for small sizes.
+        fAvoidUpdateBuffers = true;
+    }
+
 
     this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
