@@ -46,7 +46,6 @@ public:
     void drawPaint (const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);
     void drawRect  (const SkRect&, const SkPaint&);
-    void drawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode);
     void drawRegion(const SkRegion&, const SkPaint&);
     void drawOval  (const SkRect&, const SkPaint&);
     void drawArc   (const SkRect&, SkScalar, SkScalar, bool, const SkPaint&);
@@ -65,7 +64,6 @@ public:
                        SkCanvas::SrcRectConstraint);
     void drawImageLattice(sk_sp<const SkImage>, const SkCanvas::Lattice&,
                           const SkRect&, const SkPaint*);
-    void drawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality, SkBlendMode);
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
                    SkBlendMode, const SkPaint&);
@@ -75,6 +73,12 @@ public:
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
                    SkBlendMode, const SkRect*, const SkPaint*);
     void drawShadowRec(const SkPath&, const SkDrawShadowRec&);
+
+    void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], SkCanvas::QuadAAFlags aaFlags,
+                        SkColor color, SkBlendMode mode);
+    void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count, const SkPoint dstClips[],
+                            const SkMatrix preViewMatrices[], const SkPaint* paint,
+                            SkCanvas::SrcRectConstraint constraint);
 
 private:
     template <typename T, typename... Args>
