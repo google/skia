@@ -78,11 +78,10 @@ def dm_flags(api, bot):
     thread_limit = 4
 
   # These bots run out of memory easily.
-  if ('Chromecast' in bot or
-      'MotoG4' in bot or
-      'Nexus7' in bot or
-      'NexusPlayer' in bot):
+  if 'Chromecast' in bot or 'MotoG4' in bot or 'Nexus7' in bot:
     thread_limit = MAIN_THREAD_ONLY
+  if 'NexusPlayer' in bot:
+    thread_limit = 2
 
   # Avoid issues with dynamically exceeding resource cache limits.
   if 'Test' in bot and 'DISCARDABLE' in bot:
