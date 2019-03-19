@@ -1709,6 +1709,22 @@ public:
             params.fXRadius += scaledStroke.fX;
             params.fYRadius += scaledStroke.fY;
         }
+
+        // For very large ovals, we fall back to the path renderer.
+        // First, this is better for fill rate because we use a quad as our rendering geometry.
+        // Second, to compute the AA at the edge we divide by the gradient, which is clamped to
+        // a minimum value to avoid divides by zero. For large ovals this leads to blurring at
+        // the edge of the oval.
+
+        // TODO: Empirically this value works for managing blurring. However, since the min
+        // gradient is 1.0e-4, I would expect the max radius to be 1/2*1/1.0e-4, or 5000. So
+        // this may warrant investigation at some point. Despite that, for the fill rate case
+        // this is a reasonable choice.
+        const SkScalar kMaxOvalRadius = 500;
+        if (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius) {
+            return nullptr;
+        }
+
         return Helper::FactoryHelper<EllipseOp>(context, std::move(paint), viewMatrix,
                                                 params, stroke);
     }
@@ -1937,6 +1953,22 @@ public:
             (params.fInnerXRadius <= 0 || params.fInnerYRadius <= 0)) {
             params.fStyle = DIEllipseStyle::kFill;
         }
+
+        // For very large ovals, we fall back to the path renderer
+        // First, this is better for fill rate because we use a quad as our rendering geometry.
+        // Second, to compute the AA at the edge we divide by the gradient, which is clamped to
+        // a minimum value to avoid divides by zero. For large ovals this leads to blurring at
+        // the edge of the oval.
+
+        // TODO: Empirically this value works for managing blurring. However, since the min
+        // gradient is 1.0e-4, I would expect the max radius to be 1/2*1/1.0e-4, or 5000. So
+        // this may warrant investigation at some point. Despite that, for the fill rate case
+        // this is a reasonable choice.
+        const SkScalar kMaxOvalRadius = 500;
+        if (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius) {
+            return nullptr;
+        }
+
         return Helper::FactoryHelper<DIEllipseOp>(context, std::move(paint), params, viewMatrix);
     }
 
