@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "99d82e33_5c7b1217",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-19T14:18:15Z",
+      "side": 1,
+      "message": "What about:\nGR_IS_GL_ES()\nGR_IS_GL()\nGR_IS_WEB_GL()\n\nRationale for removing GL - it\u0027s already in the macro (I\u0027m fine keeping GL for consistency though)\n\nRationale for removing STANDARD - when reading the actual code, the variable name makes it clear (to me, at least) that we are dealing with a standard:\n\n    if (GR_IS_GR_GL(standard)) {\n\n    } else if (GR_IS_GR_GL_ES(standard)) {\n\n    }\n\nis cleaner than\n    if (GR_STANDARD_IS_GR_GL(standard)) {\n\n    } else if (GR_STANDARD_IS_GR_GL_ES(standard)) {\n\n    }\n\nThoughts?",
+      "parentUuid": "6222f068_9bcdcf86",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 20
+      },
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e544d3cb_fa709c3c",
         "filename": "include/gpu/gl/GrGLTypes.h",
         "patchSetId": 12
@@ -113,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "2f5e912f_1f026990",
+        "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-19T14:18:15Z",
+      "side": 1,
+      "message": "That doesn\u0027t scale well to the WebGL case, unless you are ok with \n#if SK_ASSUME_GL_ES || SK_ASSUME_WEBGL\n//null interface\n#else\n// full interface\n#endif",
+      "parentUuid": "b5e85678_27f1675f",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f6904831_e6f867d2",
         "filename": "src/gpu/gl/GrGLInterface.cpp",
         "patchSetId": 12
@@ -124,6 +166,24 @@
       "writtenOn": "2019-03-19T14:05:35Z",
       "side": 1,
       "message": "curious about this, are these not in WebGL? Right now this looks like a tautology.",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35098e76_91020509",
+        "filename": "src/gpu/gl/GrGLInterface.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-19T14:18:15Z",
+      "side": 1,
+      "message": "I think it is in WebGL, but I didn\u0027t want to implicitly say it was by accident",
+      "parentUuid": "f6904831_e6f867d2",
       "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
