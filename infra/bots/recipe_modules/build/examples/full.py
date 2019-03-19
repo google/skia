@@ -41,6 +41,8 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-ASAN',
   'Build-Debian9-Clang-x86_64-Release-CMake',
   'Build-Debian9-Clang-x86_64-Release-Fast',
+  'Build-Debian9-Clang-x86_64-Release-GLESonly',
+  'Build-Debian9-Clang-x86_64-Release-GLonly',
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
   'Build-Debian9-Clang-x86_64-Release-Static',
   'Build-Debian9-Clang-x86_64-Release-SwiftShader',
