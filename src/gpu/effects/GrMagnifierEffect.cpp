@@ -20,7 +20,7 @@ public:
     GrGLSLMagnifierEffect() {}
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrMagnifierEffect& _outer = args.fFp.cast<GrMagnifierEffect>();
+        const GrMagnifierEffect& _outer      = args.fFp.cast<GrMagnifierEffect>();
         (void)_outer;
         auto bounds = _outer.bounds();
         (void)bounds;
@@ -72,7 +72,7 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor&      _proc) override {
         const GrMagnifierEffect& _outer = _proc.cast<GrMagnifierEffect>();
         {
             pdman.set1f(fXInvZoomVar, (_outer.xInvZoom()));
@@ -81,7 +81,7 @@ private:
             pdman.set1f(fYInvInsetVar, (_outer.yInvInset()));
         }
         GrSurfaceProxy& srcProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& src = *srcProxy.peekTexture();
+        GrTexture&      src      = *srcProxy.peekTexture();
         (void)src;
         auto bounds = _outer.bounds();
         (void)bounds;
@@ -135,18 +135,25 @@ private:
 GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
     return new GrGLSLMagnifierEffect();
 }
-void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                               GrProcessorKeyBuilder* b) const {}
 bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMagnifierEffect& that = other.cast<GrMagnifierEffect>();
     (void)that;
-    if (fSrc != that.fSrc) return false;
-    if (fBounds != that.fBounds) return false;
-    if (fSrcRect != that.fSrcRect) return false;
-    if (fXInvZoom != that.fXInvZoom) return false;
-    if (fYInvZoom != that.fYInvZoom) return false;
-    if (fXInvInset != that.fXInvInset) return false;
-    if (fYInvInset != that.fYInvInset) return false;
+    if (fSrc != that.fSrc)
+        return false;
+    if (fBounds != that.fBounds)
+        return false;
+    if (fSrcRect != that.fSrcRect)
+        return false;
+    if (fXInvZoom != that.fXInvZoom)
+        return false;
+    if (fYInvZoom != that.fYInvZoom)
+        return false;
+    if (fXInvInset != that.fXInvInset)
+        return false;
+    if (fYInvInset != that.fYInvInset)
+        return false;
     return true;
 }
 GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
@@ -171,16 +178,16 @@ const GrFragmentProcessor::TextureSampler& GrMagnifierEffect::onTextureSampler(i
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(0);
-    const int kMaxWidth = 200;
-    const int kMaxHeight = 200;
-    const SkScalar kMaxInset = 20.0f;
-    uint32_t width = d->fRandom->nextULessThan(kMaxWidth);
-    uint32_t height = d->fRandom->nextULessThan(kMaxHeight);
-    SkScalar inset = d->fRandom->nextRangeScalar(1.0f, kMaxInset);
+    sk_sp<GrTextureProxy> proxy      = d->textureProxy(0);
+    const int             kMaxWidth  = 200;
+    const int             kMaxHeight = 200;
+    const SkScalar        kMaxInset  = 20.0f;
+    uint32_t              width      = d->fRandom->nextULessThan(kMaxWidth);
+    uint32_t              height     = d->fRandom->nextULessThan(kMaxHeight);
+    SkScalar              inset      = d->fRandom->nextRangeScalar(1.0f, kMaxInset);
 
-    SkIRect bounds = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
-    SkRect srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
+    SkIRect bounds  = SkIRect::MakeWH(SkIntToScalar(kMaxWidth), SkIntToScalar(kMaxHeight));
+    SkRect  srcRect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
     auto effect = GrMagnifierEffect::Make(std::move(proxy),
                                           bounds,

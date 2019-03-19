@@ -19,7 +19,7 @@ class GrGLSLDualIntervalGradientColorizer : public GrGLSLFragmentProcessor {
 public:
     GrGLSLDualIntervalGradientColorizer() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder*               fragBuilder = args.fFragBuilder;
         const GrDualIntervalGradientColorizer& _outer =
                 args.fFp.cast<GrDualIntervalGradientColorizer>();
         (void)_outer;
@@ -33,30 +33,32 @@ public:
         (void)bias23;
         auto threshold = _outer.threshold();
         (void)threshold;
-        fScale01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       "scale01");
-        fBias01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                      "bias01");
-        fScale23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       "scale23");
-        fBias23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                      "bias23");
-        fThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                         "threshold");
+        fScale01Var = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "scale01");
+        fBias01Var = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "bias01");
+        fScale23Var = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "scale23");
+        fBias23Var = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "bias23");
+        fThresholdVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kHalf_GrSLType, "threshold");
         fragBuilder->codeAppendf(
                 "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) {\n    scale = %s;\n    bias = "
                 "%s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = half4(float(t) * scale + "
                 "bias);\n",
-                args.fInputColor, args.fUniformHandler->getUniformCStr(fThresholdVar),
+                args.fInputColor,
+                args.fUniformHandler->getUniformCStr(fThresholdVar),
                 args.fUniformHandler->getUniformCStr(fScale01Var),
                 args.fUniformHandler->getUniformCStr(fBias01Var),
                 args.fUniformHandler->getUniformCStr(fScale23Var),
-                args.fUniformHandler->getUniformCStr(fBias23Var), args.fOutputColor);
+                args.fUniformHandler->getUniformCStr(fBias23Var),
+                args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor&      _proc) override {
         const GrDualIntervalGradientColorizer& _outer =
                 _proc.cast<GrDualIntervalGradientColorizer>();
         {
@@ -87,11 +89,11 @@ private:
             }
         }
     }
-    SkPMColor4f fScale01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f fBias01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f fScale23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f fBias23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    float fThresholdPrev = SK_FloatNaN;
+    SkPMColor4f   fScale01Prev   = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f   fBias01Prev    = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f   fScale23Prev   = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f   fBias23Prev    = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    float         fThresholdPrev = SK_FloatNaN;
     UniformHandle fScale01Var;
     UniformHandle fBias01Var;
     UniformHandle fScale23Var;
@@ -101,16 +103,21 @@ private:
 GrGLSLFragmentProcessor* GrDualIntervalGradientColorizer::onCreateGLSLInstance() const {
     return new GrGLSLDualIntervalGradientColorizer();
 }
-void GrDualIntervalGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrDualIntervalGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                                             GrProcessorKeyBuilder* b) const {}
 bool GrDualIntervalGradientColorizer::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDualIntervalGradientColorizer& that = other.cast<GrDualIntervalGradientColorizer>();
     (void)that;
-    if (fScale01 != that.fScale01) return false;
-    if (fBias01 != that.fBias01) return false;
-    if (fScale23 != that.fScale23) return false;
-    if (fBias23 != that.fBias23) return false;
-    if (fThreshold != that.fThreshold) return false;
+    if (fScale01 != that.fScale01)
+        return false;
+    if (fBias01 != that.fBias01)
+        return false;
+    if (fScale23 != that.fScale23)
+        return false;
+    if (fBias23 != that.fBias23)
+        return false;
+    if (fThreshold != that.fThreshold)
+        return false;
     return true;
 }
 GrDualIntervalGradientColorizer::GrDualIntervalGradientColorizer(
@@ -131,18 +138,20 @@ std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::Make(const
                                                                            const SkPMColor4f& c3,
                                                                            float threshold) {
     // Derive scale and biases from the 4 colors and threshold
-    auto vc0 = Sk4f::Load(c0.vec());
-    auto vc1 = Sk4f::Load(c1.vec());
+    auto vc0     = Sk4f::Load(c0.vec());
+    auto vc1     = Sk4f::Load(c1.vec());
     auto scale01 = (vc1 - vc0) / threshold;
     // bias01 = c0
 
-    auto vc2 = Sk4f::Load(c2.vec());
-    auto vc3 = Sk4f::Load(c3.vec());
+    auto vc2     = Sk4f::Load(c2.vec());
+    auto vc3     = Sk4f::Load(c3.vec());
     auto scale23 = (vc3 - vc2) / (1 - threshold);
-    auto bias23 = vc2 - threshold * scale23;
+    auto bias23  = vc2 - threshold * scale23;
 
-    return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(
-            {scale01[0], scale01[1], scale01[2], scale01[3]}, c0,
-            {scale23[0], scale23[1], scale23[2], scale23[3]},
-            {bias23[0], bias23[1], bias23[2], bias23[3]}, threshold));
+    return std::unique_ptr<GrFragmentProcessor>(
+            new GrDualIntervalGradientColorizer({scale01[0], scale01[1], scale01[2], scale01[3]},
+                                                c0,
+                                                {scale23[0], scale23[1], scale23[2], scale23[3]},
+                                                {bias23[0], bias23[1], bias23[2], bias23[3]},
+                                                threshold));
 }

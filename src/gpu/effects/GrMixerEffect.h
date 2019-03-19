@@ -45,28 +45,28 @@ public:
                    c1 = (this->numChildProcessors() > 1)
                                 ? ConstantOutputForConstantInput(this->childProcessor(1), input)
                                 : input;
-        return {c0.fR + (c1.fR - c0.fR) * fWeight, c0.fG + (c1.fG - c0.fG) * fWeight,
-                c0.fB + (c1.fB - c0.fB) * fWeight, c0.fA + (c1.fA - c0.fA) * fWeight};
+        return {c0.fR + (c1.fR - c0.fR) * fWeight,
+                c0.fG + (c1.fG - c0.fG) * fWeight,
+                c0.fB + (c1.fB - c0.fB) * fWeight,
+                c0.fA + (c1.fA - c0.fA) * fWeight};
     }
-    int fp0_index() const { return fFp0_index; }
-    int fp1_index() const { return fFp1_index; }
-    float weight() const { return fWeight; }
+    int                                         fp0_index() const { return fFp0_index; }
+    int                                         fp1_index() const { return fFp1_index; }
+    float                                       weight() const { return fWeight; }
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp0,
-                                                     std::unique_ptr<GrFragmentProcessor>
-                                                             fp1,
-                                                     float weight) {
+                                                     std::unique_ptr<GrFragmentProcessor> fp1,
+                                                     float                                weight) {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrMixerEffect(std::move(fp0), std::move(fp1), weight));
     }
     GrMixerEffect(const GrMixerEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char* name() const override { return "MixerEffect"; }
+    const char*                          name() const override { return "MixerEffect"; }
 
 private:
     GrMixerEffect(std::unique_ptr<GrFragmentProcessor> fp0,
-                  std::unique_ptr<GrFragmentProcessor>
-                          fp1,
-                  float weight)
+                  std::unique_ptr<GrFragmentProcessor> fp1,
+                  float                                weight)
             : INHERITED(kGrMixerEffect_ClassID, (OptimizationFlags)OptFlags(fp0, fp1))
             , fWeight(weight) {
         SkASSERT(fp0);
@@ -81,9 +81,9 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fFp0_index = -1;
-    int fFp1_index = -1;
-    float fWeight;
+    int                         fFp0_index = -1;
+    int                         fFp1_index = -1;
+    float                       fWeight;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

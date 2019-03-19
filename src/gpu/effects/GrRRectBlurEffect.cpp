@@ -11,10 +11,10 @@
 #include "GrRRectBlurEffect.h"
 
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext* context,
-                                                             float sigma,
-                                                             float xformedSigma,
-                                                             const SkRRect& srcRRect,
-                                                             const SkRRect& devRRect) {
+                                                             float               sigma,
+                                                             float               xformedSigma,
+                                                             const SkRRect&      srcRRect,
+                                                             const SkRRect&      devRRect) {
     SkASSERT(!SkRRectPriv::IsCircle(devRRect) &&
              !devRRect.isRect());  // Should've been caught up-stream
 
@@ -26,15 +26,26 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext*
     // Make sure we can successfully ninepatch this rrect -- the blur sigma has to be
     // sufficiently small relative to both the size of the corner radius and the
     // width (and height) of the rrect.
-    SkRRect rrectToDraw;
-    SkISize size;
+    SkRRect  rrectToDraw;
+    SkISize  size;
     SkScalar ignored[kSkBlurRRectMaxDivisions];
-    int ignoredSize;
+    int      ignoredSize;
     uint32_t ignored32;
 
-    bool ninePatchable = SkComputeBlurredRRectParams(
-            srcRRect, devRRect, SkRect::MakeEmpty(), sigma, xformedSigma, &rrectToDraw, &size,
-            ignored, ignored, ignored, ignored, &ignoredSize, &ignoredSize, &ignored32);
+    bool ninePatchable = SkComputeBlurredRRectParams(srcRRect,
+                                                     devRRect,
+                                                     SkRect::MakeEmpty(),
+                                                     sigma,
+                                                     xformedSigma,
+                                                     &rrectToDraw,
+                                                     &size,
+                                                     ignored,
+                                                     ignored,
+                                                     ignored,
+                                                     ignored,
+                                                     &ignoredSize,
+                                                     &ignoredSize,
+                                                     &ignored32);
     if (!ninePatchable) {
         return nullptr;
     }
@@ -46,8 +57,10 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrRecordingContext*
     }
 
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrRRectBlurEffect(xformedSigma, devRRect.getBounds(),
-                                  SkRRectPriv::GetSimpleRadii(devRRect).fX, std::move(mask)));
+            new GrRRectBlurEffect(xformedSigma,
+                                  devRRect.getBounds(),
+                                  SkRRectPriv::GetSimpleRadii(devRRect).fX,
+                                  std::move(mask)));
 }
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -60,7 +73,7 @@ public:
     GrGLSLRRectBlurEffect() {}
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrRRectBlurEffect& _outer = args.fFp.cast<GrRRectBlurEffect>();
+        const GrRRectBlurEffect& _outer      = args.fFp.cast<GrRRectBlurEffect>();
         (void)_outer;
         auto sigma = _outer.sigma();
         (void)sigma;
@@ -68,12 +81,12 @@ public:
         (void)rect;
         auto cornerRadius = _outer.cornerRadius();
         (void)cornerRadius;
-        fCornerRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                            "cornerRadius");
-        fProxyRectVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                         "proxyRect");
-        fBlurRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                          "blurRadius");
+        fCornerRadiusVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kHalf_GrSLType, "cornerRadius");
+        fProxyRectVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kFloat4_GrSLType, "proxyRect");
+        fBlurRadiusVar = args.fUniformHandler->addUniform(
+                kFragment_GrShaderFlag, kHalf_GrSLType, "blurRadius");
         fragBuilder->codeAppendf(
                 "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
                 "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "
@@ -92,14 +105,15 @@ public:
                 "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
                 "threshold + 1.0);\nhalf2 texCoord = translatedFragPos / proxyDims;\n%s = %s * "
                 "texture(%s, float2(texCoord)).%s;\n",
-                args.fOutputColor, args.fInputColor,
+                args.fOutputColor,
+                args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor&      _proc) override {
         const GrRRectBlurEffect& _outer = _proc.cast<GrRRectBlurEffect>();
         { pdman.set1f(fCornerRadiusVar, (_outer.cornerRadius())); }
         auto sigma = _outer.sigma();
@@ -109,7 +123,7 @@ private:
         UniformHandle& cornerRadius = fCornerRadiusVar;
         (void)cornerRadius;
         GrSurfaceProxy& ninePatchSamplerProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& ninePatchSampler = *ninePatchSamplerProxy.peekTexture();
+        GrTexture&      ninePatchSampler      = *ninePatchSamplerProxy.peekTexture();
         (void)ninePatchSampler;
         UniformHandle& proxyRect = fProxyRectVar;
         (void)proxyRect;
@@ -130,15 +144,19 @@ private:
 GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRRectBlurEffect();
 }
-void GrRRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrRRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                               GrProcessorKeyBuilder* b) const {}
 bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRRectBlurEffect& that = other.cast<GrRRectBlurEffect>();
     (void)that;
-    if (fSigma != that.fSigma) return false;
-    if (fRect != that.fRect) return false;
-    if (fCornerRadius != that.fCornerRadius) return false;
-    if (fNinePatchSampler != that.fNinePatchSampler) return false;
+    if (fSigma != that.fSigma)
+        return false;
+    if (fRect != that.fRect)
+        return false;
+    if (fCornerRadius != that.fCornerRadius)
+        return false;
+    if (fNinePatchSampler != that.fNinePatchSampler)
+        return false;
     return true;
 }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
@@ -158,11 +176,11 @@ const GrFragmentProcessor::TextureSampler& GrRRectBlurEffect::onTextureSampler(i
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d) {
-    SkScalar w = d->fRandom->nextRangeScalar(100.f, 1000.f);
-    SkScalar h = d->fRandom->nextRangeScalar(100.f, 1000.f);
-    SkScalar r = d->fRandom->nextRangeF(1.f, 9.f);
+    SkScalar w     = d->fRandom->nextRangeScalar(100.f, 1000.f);
+    SkScalar h     = d->fRandom->nextRangeScalar(100.f, 1000.f);
+    SkScalar r     = d->fRandom->nextRangeF(1.f, 9.f);
     SkScalar sigma = d->fRandom->nextRangeF(1.f, 10.f);
-    SkRRect rrect;
+    SkRRect  rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
     return GrRRectBlurEffect::Make(d->context(), sigma, sigma, rrect, rrect);
 }

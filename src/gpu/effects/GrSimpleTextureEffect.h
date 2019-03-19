@@ -18,35 +18,38 @@ public:
     const SkMatrix44& matrix() const { return fMatrix; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     const SkMatrix& matrix) {
+                                                     const SkMatrix&       matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix,
+                new GrSimpleTextureEffect(std::move(proxy),
+                                          matrix,
                                           GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                          GrSamplerState::Filter::kNearest)));
     }
 
     /* clamp mode */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     const SkMatrix& matrix,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>  proxy,
+                                                     const SkMatrix&        matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(
-                std::move(proxy), matrix,
+                std::move(proxy),
+                matrix,
                 GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     const SkMatrix& matrix,
+                                                     const SkMatrix&       matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrSimpleTextureEffect(std::move(proxy), matrix, p));
     }
     GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char* name() const override { return "SimpleTextureEffect"; }
+    const char*                          name() const override { return "SimpleTextureEffect"; }
 
 private:
-    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix,
-                          GrSamplerState samplerParams)
+    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image,
+                          SkMatrix44            matrix,
+                          GrSamplerState        samplerParams)
             : INHERITED(kGrSimpleTextureEffect_ClassID,
                         (OptimizationFlags)ModulateForSamplerOptFlags(
                                 image->config(),
@@ -65,9 +68,9 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    TextureSampler fImage;
-    SkMatrix44 fMatrix;
-    GrCoordTransform fImageCoordTransform;
+    TextureSampler              fImage;
+    SkMatrix44                  fMatrix;
+    GrCoordTransform            fImageCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

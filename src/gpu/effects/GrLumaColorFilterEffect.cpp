@@ -19,23 +19,24 @@ class GrGLSLLumaColorFilterEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLLumaColorFilterEffect() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrLumaColorFilterEffect& _outer = args.fFp.cast<GrLumaColorFilterEffect>();
+        GrGLSLFPFragmentBuilder*       fragBuilder = args.fFragBuilder;
+        const GrLumaColorFilterEffect& _outer      = args.fFp.cast<GrLumaColorFilterEffect>();
         (void)_outer;
         fragBuilder->codeAppendf(
                 "\nhalf luma = clamp(dot(half3(0.21260000000000001, 0.71519999999999995, 0.0722), "
                 "%s.xyz), 0.0, 1.0);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
-                args.fInputColor, args.fOutputColor);
+                args.fInputColor,
+                args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor&      _proc) override {}
 };
 GrGLSLFragmentProcessor* GrLumaColorFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLLumaColorFilterEffect();
 }
-void GrLumaColorFilterEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrLumaColorFilterEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                                     GrProcessorKeyBuilder* b) const {}
 bool GrLumaColorFilterEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrLumaColorFilterEffect& that = other.cast<GrLumaColorFilterEffect>();

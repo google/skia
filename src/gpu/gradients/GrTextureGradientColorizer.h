@@ -33,7 +33,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    TextureSampler fGradient;
+    TextureSampler              fGradient;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

@@ -20,7 +20,7 @@ public:
     GrGLSLMixerEffect() {}
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrMixerEffect& _outer = args.fFp.cast<GrMixerEffect>();
+        const GrMixerEffect&     _outer      = args.fFp.cast<GrMixerEffect>();
         (void)_outer;
         auto weight = _outer.weight();
         (void)weight;
@@ -38,14 +38,16 @@ public:
             fragBuilder->codeAppendf("half4 %s;", _child1.c_str());
         }
         fragBuilder->codeAppendf("\nhalf4 in1 = %s ? %s : %s;\n%s = mix(in0, in1, %s);\n",
-                                 _outer.fp1_index() >= 0 ? "true" : "false", _child1.c_str(),
-                                 args.fInputColor, args.fOutputColor,
+                                 _outer.fp1_index() >= 0 ? "true" : "false",
+                                 _child1.c_str(),
+                                 args.fInputColor,
+                                 args.fOutputColor,
                                  args.fUniformHandler->getUniformCStr(fWeightVar));
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor&      _proc) override {
         const GrMixerEffect& _outer = _proc.cast<GrMixerEffect>();
         { pdman.set1f(fWeightVar, (_outer.weight())); }
     }
@@ -54,12 +56,13 @@ private:
 GrGLSLFragmentProcessor* GrMixerEffect::onCreateGLSLInstance() const {
     return new GrGLSLMixerEffect();
 }
-void GrMixerEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrMixerEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                           GrProcessorKeyBuilder* b) const {}
 bool GrMixerEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMixerEffect& that = other.cast<GrMixerEffect>();
     (void)that;
-    if (fWeight != that.fWeight) return false;
+    if (fWeight != that.fWeight)
+        return false;
     return true;
 }
 GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)

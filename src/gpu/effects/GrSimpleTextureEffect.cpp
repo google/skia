@@ -19,14 +19,16 @@ class GrGLSLSimpleTextureEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLSimpleTextureEffect() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrSimpleTextureEffect& _outer = args.fFp.cast<GrSimpleTextureEffect>();
+        GrGLSLFPFragmentBuilder*     fragBuilder = args.fFragBuilder;
+        const GrSimpleTextureEffect& _outer      = args.fFp.cast<GrSimpleTextureEffect>();
         (void)_outer;
         auto matrix = _outer.matrix();
         (void)matrix;
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
-                "%s = %s * texture(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
+                "%s = %s * texture(%s, %s).%s;\n",
+                args.fOutputColor,
+                args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
@@ -34,18 +36,20 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor&      _proc) override {}
 };
 GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
     return new GrGLSLSimpleTextureEffect();
 }
-void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                                   GrProcessorKeyBuilder* b) const {}
 bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSimpleTextureEffect& that = other.cast<GrSimpleTextureEffect>();
     (void)that;
-    if (fImage != that.fImage) return false;
-    if (fMatrix != that.fMatrix) return false;
+    if (fImage != that.fImage)
+        return false;
+    if (fMatrix != that.fMatrix)
+        return false;
     return true;
 }
 GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
@@ -78,9 +82,9 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
         wrapModes[1] = GrSamplerState::WrapMode::kClamp;
     }
 
-    GrSamplerState params(wrapModes, testData->fRandom->nextBool()
-                                             ? GrSamplerState::Filter::kBilerp
-                                             : GrSamplerState::Filter::kNearest);
+    GrSamplerState params(wrapModes,
+                          testData->fRandom->nextBool() ? GrSamplerState::Filter::kBilerp
+                                                        : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
     return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx), matrix, params);

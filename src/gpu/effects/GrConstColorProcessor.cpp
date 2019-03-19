@@ -19,8 +19,8 @@ class GrGLSLConstColorProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLConstColorProcessor() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrConstColorProcessor& _outer = args.fFp.cast<GrConstColorProcessor>();
+        GrGLSLFPFragmentBuilder*     fragBuilder = args.fFragBuilder;
+        const GrConstColorProcessor& _outer      = args.fFp.cast<GrConstColorProcessor>();
         (void)_outer;
         auto color = _outer.color();
         (void)color;
@@ -32,16 +32,20 @@ public:
                 "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
                 "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "
                 "break;\n}\n",
-                (int)_outer.mode(), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(fColorVar), args.fOutputColor,
-                args.fInputColor, args.fUniformHandler->getUniformCStr(fColorVar),
-                args.fOutputColor, args.fInputColor,
+                (int)_outer.mode(),
+                args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(fColorVar),
+                args.fOutputColor,
+                args.fInputColor,
+                args.fUniformHandler->getUniformCStr(fColorVar),
+                args.fOutputColor,
+                args.fInputColor,
                 args.fUniformHandler->getUniformCStr(fColorVar));
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor&      _proc) override {
         const GrConstColorProcessor& _outer = _proc.cast<GrConstColorProcessor>();
         {
             const SkPMColor4f& colorValue = _outer.color();
@@ -51,21 +55,23 @@ private:
             }
         }
     }
-    SkPMColor4f fColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f   fColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle fColorVar;
 };
 GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
     return new GrGLSLConstColorProcessor();
 }
-void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32((int32_t)fMode);
 }
 bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConstColorProcessor& that = other.cast<GrConstColorProcessor>();
     (void)that;
-    if (fColor != that.fColor) return false;
-    if (fMode != that.fMode) return false;
+    if (fColor != that.fColor)
+        return false;
+    if (fMode != that.fMode)
+        return false;
     return true;
 }
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
@@ -79,22 +85,20 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
     SkPMColor4f color;
-    int colorPicker = d->fRandom->nextULessThan(3);
+    int         colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {
         case 0: {
             uint32_t a = d->fRandom->nextULessThan(0x100);
             uint32_t r = d->fRandom->nextULessThan(a + 1);
             uint32_t g = d->fRandom->nextULessThan(a + 1);
             uint32_t b = d->fRandom->nextULessThan(a + 1);
-            color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(r, g, b, a));
+            color      = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(r, g, b, a));
             break;
         }
-        case 1:
-            color = SK_PMColor4fTRANSPARENT;
-            break;
+        case 1: color = SK_PMColor4fTRANSPARENT; break;
         case 2:
             uint32_t c = d->fRandom->nextULessThan(0x100);
-            color = SkPMColor4f::FromBytes_RGBA(c | (c << 8) | (c << 16) | (c << 24));
+            color      = SkPMColor4f::FromBytes_RGBA(c | (c << 8) | (c << 16) | (c << 24));
             break;
     }
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
