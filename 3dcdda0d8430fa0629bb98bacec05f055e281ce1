@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e544d3cb_fa709c3c",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-19T13:39:31Z",
+      "side": 1,
+      "message": "Should this (and IS_GR_GL below) just be defined to true here?",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae0acc8d_f64adca1",
+        "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-19T13:39:31Z",
+      "side": 1,
+      "message": "Could we just tie these to the ASSUME macros, too? Eg, When SK_ASSUME_GL is set, automatically define SK_DISABLE_GLES_INTERFACE ?",
+      "revId": "3dcdda0d8430fa0629bb98bacec05f055e281ce1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
