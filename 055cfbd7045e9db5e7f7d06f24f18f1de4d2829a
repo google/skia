@@ -70,6 +70,30 @@
       "revId": "055cfbd7045e9db5e7f7d06f24f18f1de4d2829a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f68d9bdc_2716f141",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-19T19:31:14Z",
+      "side": 1,
+      "message": "Done, with the conservative settings",
+      "parentUuid": "91a04706_f94552ff",
+      "range": {
+        "startLine": 74,
+        "startChar": 19,
+        "endLine": 74,
+        "endChar": 24
+      },
+      "revId": "055cfbd7045e9db5e7f7d06f24f18f1de4d2829a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
