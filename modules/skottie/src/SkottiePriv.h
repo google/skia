@@ -37,6 +37,9 @@ class Transform;
 
 namespace skottie {
 
+class TransformAdapter2D;
+class TransformAdapter3D;
+
 namespace internal {
 
 using AnimatorScope = sksg::AnimatorList;
@@ -45,7 +48,8 @@ class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
                      sk_sp<Logger>, sk_sp<MarkerObserver>,
-                     Animation::Builder::Stats*, float duration, float framerate);
+                     Animation::Builder::Stats*, const SkSize& size,
+                     float duration, float framerate);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
@@ -74,7 +78,8 @@ public:
     sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, AnimatorScope*,
                                           sk_sp<sksg::Transform>) const;
     sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, AnimatorScope*,
-                                          sk_sp<sksg::Transform>) const;
+                                          sk_sp<sksg::Transform>,
+                                          sk_sp<TransformAdapter3D> = nullptr) const;
     sk_sp<sksg::RenderNode> attachOpacity(const skjson::ObjectValue&, AnimatorScope*,
                                       sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::Path> attachPath(const skjson::Value&, AnimatorScope*) const;
@@ -174,6 +179,7 @@ private:
     sk_sp<Logger>              fLogger;
     sk_sp<MarkerObserver>      fMarkerObserver;
     Animation::Builder::Stats* fStats;
+    const SkSize               fSize;
     const float                fDuration,
                                fFrameRate;
     mutable const char*        fPropertyObserverContext;
