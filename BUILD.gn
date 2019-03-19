@@ -1601,10 +1601,6 @@ if (skia_enable_tools) {
     deps = [
       ":experimental_svg_model",
       ":flags",
-      "//third_party/libpng",
-    ]
-    public_deps = [
-      ":common_flags",
     ]
   }
 
