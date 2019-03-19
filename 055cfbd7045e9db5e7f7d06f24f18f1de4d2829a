@@ -22,6 +22,30 @@
       "revId": "055cfbd7045e9db5e7f7d06f24f18f1de4d2829a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc1076c9_7374e168",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-19T19:16:34Z",
+      "side": 1,
+      "message": "I might prefer something like:\n\nskia_gl_type \u003d \"gles\"\nor\nskia_gl_standard \u003d \"gl\"\n\nand then if the string isn\u0027t a known value we don\u0027t define any macros.\n\nAs for defaults, conservative would be \"gl\" for MacOS, \"gles\" for iOS, and \"\" everywhere else. This allows ANGLE to work on Windows, and NVIDIA\u0027s reguler ole GL on Android to work without any extra steps. Aggressive would be \"gl\" on all desktop systems and \"gles\" on all mobile systems... Linux I guess is \"\" since it can be either. In this aggressive mode we\u0027d need some overrides for our bots to test ANGLE, SwiftShader, and what not.\n\nBrian what was the deal with ARM64 windows? No GL of any sort? GLES?",
+      "parentUuid": "40e655e7_8a536e91",
+      "range": {
+        "startLine": 74,
+        "startChar": 19,
+        "endLine": 74,
+        "endChar": 24
+      },
+      "revId": "055cfbd7045e9db5e7f7d06f24f18f1de4d2829a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
