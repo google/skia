@@ -91,6 +91,11 @@ public:
         return fShouldAlwaysUseDedicatedImageMemory;
     }
 
+    // Always use a transfer buffer instead of vkCmdUpdateBuffer to upload data to a VkBuffer.
+    bool avoidUpdateBuffers() const {
+        return fAvoidUpdateBuffers;
+    }
+
     /**
      * Returns both a supported and most preferred stencil format to use in draws.
      */
@@ -224,6 +229,8 @@ private:
     bool fMustSleepOnTearDown = false;
     bool fNewCBOnPipelineChange = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
+
+    bool fAvoidUpdateBuffers = false;
 
     bool fSupportsSwapchain = false;
 
