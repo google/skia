@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPathMeasure.h"
 #include "SkRandom.h"
@@ -52,7 +52,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fRotate = timer.scaled(1, 360);
         return true;
     }
@@ -138,7 +138,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fRotate = timer.scaled(60, 360);
         return true;
     }
@@ -191,7 +191,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fRotate = timer.scaled(60, 360);
         return true;
     }

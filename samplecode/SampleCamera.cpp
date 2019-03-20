@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "DecodeFile.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
 #include "SkCamera.h"
+#include "SkCanvas.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
@@ -83,7 +83,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (timer.isStopped()) {
             fRY = 0;
         } else {

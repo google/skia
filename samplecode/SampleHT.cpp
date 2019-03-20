@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkInterpolator.h"
@@ -154,7 +154,7 @@ protected:
         canvas->drawDrawable(fRoot.get());
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fTime = timer.msec();
         for (int i = 0; i < N; ++i) {
             fArray[i].fDrawable->setTime(fTime);

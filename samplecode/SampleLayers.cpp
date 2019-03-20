@@ -184,8 +184,8 @@ DEF_SAMPLE( return new LayersView; )
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 
+#include "AnimTimer.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
 
 class BackdropView : public Sample {
     SkPoint fCenter;
@@ -231,7 +231,7 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fAngle = SkDoubleToScalar(fmod(timer.secs() * 360 / 5, 360));
         return true;
     }

@@ -26,7 +26,7 @@ public:
     SkISize getDimensions() const override;
 
     void draw(SkCanvas*) override;
-    bool animate(const SkAnimTimer&) override;
+    bool animate(const AnimTimer&) override;
 
     bool onChar(SkUnichar) override;
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;

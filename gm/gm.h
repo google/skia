@@ -17,7 +17,7 @@
 #include "SkSize.h"
 #include "SkString.h"
 
-class SkAnimTimer;
+class AnimTimer;
 class SkMetaData;
 struct GrContextOptions;
 
@@ -142,7 +142,7 @@ namespace skiagm {
             fCanvasIsDeferred = isDeferred;
         }
 
-        bool animate(const SkAnimTimer&);
+        bool animate(const AnimTimer&);
         bool handleKey(SkUnichar uni) {
             return this->onHandleKey(uni);
         }
@@ -160,7 +160,7 @@ namespace skiagm {
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
-        virtual bool onAnimate(const SkAnimTimer&);
+        virtual bool onAnimate(const AnimTimer&);
         virtual bool onHandleKey(SkUnichar uni);
         virtual bool onGetControls(SkMetaData*);
         virtual void onSetControls(const SkMetaData&);

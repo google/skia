@@ -7,7 +7,7 @@
 
 #include "SlideDir.h"
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCubicMap.h"
 #include "SkMakeUnique.h"
@@ -84,7 +84,7 @@ protected:
 
 private:
     void tick(SkMSec t) {
-        fSlide->animate(SkAnimTimer(t * 1e6));
+        fSlide->animate(AnimTimer(t * 1e6));
         this->invalidate();
     }
 
@@ -353,7 +353,7 @@ void SlideDir::draw(SkCanvas* canvas) {
     fScene->render(canvas);
 }
 
-bool SlideDir::animate(const SkAnimTimer& timer) {
+bool SlideDir::animate(const AnimTimer& timer) {
     if (fTimeBase == 0) {
         // Reset the animation time.
         fTimeBase = timer.msec();

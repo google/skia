@@ -5,8 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCamera.h"
@@ -341,7 +341,7 @@ protected:
                                lightPos, kLightWidth, .5f);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fAnimTranslate = timer.pingPong(30, 0, 125, -125);
         fAnimAngle = timer.pingPong(15, 0, 0, 20);
         if (fDoAlphaAnimation) {

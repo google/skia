@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include <string>
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
-#include <string>
 
 // This draws an animation where every cubic has a cusp, to test drawing a circle
 // at the cusp point. Create a unit square. A cubic with its control points
@@ -171,7 +171,7 @@ protected:
         SkDebugf("");
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         curTime = timer.msec();
         if (!start) {
             start = curTime;

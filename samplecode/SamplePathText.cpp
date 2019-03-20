@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -167,7 +167,7 @@ public:
         fLastTick = 0;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) final {
+    bool onAnimate(const AnimTimer& timer) final {
         fBackgroundAnimationTask.wait();
         this->swapAnimationBuffers();
 

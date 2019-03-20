@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "DecodeFile.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkUTF.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkUTF.h"
 #include "SkVertices.h"
 
 #include "SkOSFile.h"
@@ -292,7 +292,7 @@ protected:
         drawpatches(canvas, paint, nu, nv, &patch);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fAngle = timer.scaled(60, 360);
         return true;
     }
@@ -396,9 +396,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        return true;
-    }
+    bool onAnimate(const AnimTimer& timer) override { return true; }
 
     void onDrawContent(SkCanvas* canvas) override {
         if (fDirty) {

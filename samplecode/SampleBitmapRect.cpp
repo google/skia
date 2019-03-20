@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkUTF.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkUTF.h"
 
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -136,7 +136,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (timer.isStopped()) {
             this->resetBounce();
         } else if (timer.isRunning()) {
@@ -232,7 +232,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (timer.isStopped()) {
             this->resetBounce();
         } else if (timer.isRunning()) {

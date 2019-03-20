@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "ToolUtils.h"
@@ -61,7 +61,7 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         constexpr SkScalar kDesiredDurationSecs = 3.0f;
 
         // Make the animation ping-pong back and forth but start in the fully drawn state
@@ -141,7 +141,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         SkScalar time = (float)(fmod(timer.secs(), fDur) / fDur);
         for (auto anim : fAnims) {
             anim->seek(time);

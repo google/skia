@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
-#include "SkColorPriv.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkMaskFilter.h"
 #include "SkRandom.h"
 
@@ -55,7 +55,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fBlurSigma = get_anim_sin(timer.secs(), 100, 4, 5);
         fCircleRadius = 3 + get_anim_sin(timer.secs(), 150, 25, 3);
         return true;

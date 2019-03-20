@@ -81,7 +81,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fLightAngle += 0.015f;
         fColorFactor += 0.01f;
         if (fColorFactor > 1.0f) {

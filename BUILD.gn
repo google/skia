@@ -1580,7 +1580,7 @@ if (skia_enable_tools) {
       "tools/fonts/TestTypeface.h",
       "tools/fonts/ToolUtilsFont.cpp",
       "tools/random_parse_path.cpp",
-      "tools/timer/SkAnimTimer.h",
+      "tools/timer/AnimTimer.h",
       "tools/timer/Timer.cpp",
       "tools/trace/SkChromeTracingTracer.cpp",
       "tools/trace/SkChromeTracingTracer.h",

@@ -8,8 +8,8 @@
 #include "SkScalar.h"
 #include "SkTime.h"
 
-#ifndef SkAnimTimer_DEFINED
-#define SkAnimTimer_DEFINED
+#ifndef AnimTimer_DEFINED
+#define AnimTimer_DEFINED
 
 /**
  *  Class to track a "timer". It supports 3 states: stopped, paused, and running.
@@ -20,24 +20,17 @@
  *  are consistent if called repeatedly, as they only reflect the time since the last
  *  calle to updateTimer().
  */
-class SkAnimTimer {
+class AnimTimer {
 public:
-    enum State {
-        kStopped_State,
-        kPaused_State,
-        kRunning_State
-    };
+    enum State { kStopped_State, kPaused_State, kRunning_State };
 
     /**
      *  Class begins in the "stopped" state.
      */
-    SkAnimTimer() : fPreviousNanos(0), fElapsedNanos(0), fSpeed(1), fState(kStopped_State) {}
+    AnimTimer() : fPreviousNanos(0), fElapsedNanos(0), fSpeed(1), fState(kStopped_State) {}
 
-    SkAnimTimer(double elapsed)
-        : fPreviousNanos(0)
-        , fElapsedNanos(elapsed)
-        , fSpeed(1)
-        , fState(kRunning_State) {}
+    AnimTimer(double elapsed)
+            : fPreviousNanos(0), fElapsedNanos(elapsed), fSpeed(1), fState(kRunning_State) {}
 
     bool isStopped() const { return kStopped_State == fState; }
     bool isRunning() const { return kRunning_State == fState; }
@@ -47,22 +40,18 @@ public:
      *  Stops the timer, and resets it, such that the next call to run or togglePauseResume
      *  will begin at time 0.
      */
-    void stop() {
-        this->setState(kStopped_State);
-    }
+    void stop() { this->setState(kStopped_State); }
 
     /**
      *  If the timer is paused or stopped, it will resume (or start if it was stopped).
      */
-    void run() {
-        this->setState(kRunning_State);
-    }
+    void run() { this->setState(kRunning_State); }
 
     /**
      *  Control the rate at which time advances.
      */
     float getSpeed() const { return fSpeed; }
-    void setSpeed(float speed) { fSpeed = speed; }
+    void  setSpeed(float speed) { fSpeed = speed; }
 
     /**
      *  If the timer is stopped, start running, else it toggles between paused and running.
@@ -128,12 +117,15 @@ public:
         return PingPong(this->secs(), period, phase, ends, mid);
     }
 
-    /** Helper for computing a ping-pong value without a SkAnimTimer object. */
-    static SkScalar PingPong(double t, SkScalar period, SkScalar phase, SkScalar ends,
+    /** Helper for computing a ping-pong value without a AnimTimer object. */
+    static SkScalar PingPong(double   t,
+                             SkScalar period,
+                             SkScalar phase,
+                             SkScalar ends,
                              SkScalar mid) {
         double value = ::fmod(t + phase, period);
-        double half = period / 2.0;
-        double diff = ::fabs(value - half);
+        double half  = period / 2.0;
+        double diff  = ::fabs(value - half);
         return SkDoubleToScalar(ends + (1.0 - diff / half) * (mid - ends));
     }
 
@@ -147,24 +139,23 @@ private:
         switch (newState) {
             case kStopped_State:
                 fPreviousNanos = fElapsedNanos = 0;
-                fState = kStopped_State;
+                fState                         = kStopped_State;
                 break;
             case kPaused_State:
                 if (kRunning_State == fState) {
                     fState = kPaused_State;
-                } // else stay stopped or paused
+                }  // else stay stopped or paused
                 break;
             case kRunning_State:
                 switch (fState) {
                     case kStopped_State:
                         fPreviousNanos = SkTime::GetNSecs();
-                        fElapsedNanos = 0;
+                        fElapsedNanos  = 0;
                         break;
                     case kPaused_State:  // they want "resume"
                         fPreviousNanos = SkTime::GetNSecs();
                         break;
-                    case kRunning_State:
-                        break;
+                    case kRunning_State: break;
                 }
                 fState = kRunning_State;
                 break;

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkGradientShader.h"
@@ -73,7 +73,7 @@ protected:
                            SkFont(), SkPaint());
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fTime = SkDoubleToScalar(timer.secs() / 15);
         return true;
     }
