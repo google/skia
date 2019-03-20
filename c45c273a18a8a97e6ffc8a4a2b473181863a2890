@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cea77a36_ce2a41ff",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-20T16:10:54Z",
+      "side": 1,
+      "message": "knowing little about how any of the raster pipeline actually works... should we be storing any of this stuff for the next invocation of onAppendStages?",
+      "range": {
+        "startLine": 423,
+        "startChar": 0,
+        "endLine": 449,
+        "endChar": 14
+      },
+      "revId": "c45c273a18a8a97e6ffc8a4a2b473181863a2890",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86580003_ae28f962",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-20T16:10:54Z",
+      "side": 1,
+      "message": "value1?",
+      "range": {
+        "startLine": 49,
+        "startChar": 84,
+        "endLine": 49,
+        "endChar": 90
+      },
+      "revId": "c45c273a18a8a97e6ffc8a4a2b473181863a2890",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
