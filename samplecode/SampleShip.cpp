@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Sample.h"
+#include "AnimTimer.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkRSXform.h"
@@ -156,7 +156,7 @@ protected:
 
 #if 0
     // TODO: switch over to use this for our animation
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;

@@ -7,9 +7,9 @@
 
 #include "ParticlesSlide.h"
 
+#include "AnimTimer.h"
 #include "ImGuiLayer.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkParticleAffector.h"
@@ -322,7 +322,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
     }
 }
 
-bool ParticlesSlide::animate(const SkAnimTimer& timer) {
+bool ParticlesSlide::animate(const AnimTimer& timer) {
     fTimer = &timer;
     for (const auto& effect : fRunning) {
         effect.fEffect->update(timer.secs());

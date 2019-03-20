@@ -14,7 +14,7 @@
 
 #ifdef SK_ENABLE_SKOTTIE
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "Resources.h"
 #include "SkStream.h"
 #include "Skottie.h"
@@ -182,7 +182,7 @@ protected:
 
     SkString onShortName() override { return SkString("3dgm"); }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (!fAnim) {
             return false;
         }

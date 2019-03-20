@@ -16,7 +16,7 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 
-class SkAnimTimer;
+class AnimTimer;
 class SkCanvas;
 class Sample;
 
@@ -81,7 +81,7 @@ public:
     static void DoClickUp(Click*, int x, int y, unsigned modi);
 
     void setBGColor(SkColor color) { fBGColor = color; }
-    bool animate(const SkAnimTimer& timer) { return this->onAnimate(timer); }
+    bool animate(const AnimTimer& timer) { return this->onAnimate(timer); }
 
     class Event {
     public:
@@ -209,7 +209,7 @@ protected:
 
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
-    virtual bool onAnimate(const SkAnimTimer&) { return false; }
+    virtual bool onAnimate(const AnimTimer&) { return false; }
     virtual void onOnceBeforeDraw() {}
 
 private:

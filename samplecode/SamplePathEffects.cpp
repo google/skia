@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
+#include "Sk1DPathEffect.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
+#include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
+#include "SkPathMeasure.h"
+#include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUTF.h"
-#include "Sk1DPathEffect.h"
-#include "SkCornerPathEffect.h"
-#include "SkPathMeasure.h"
-#include "SkRandom.h"
-#include "SkColorPriv.h"
 
 #define CORNER_RADIUS   12
 
@@ -138,7 +138,7 @@ protected:
         canvas->drawPath(fPath, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fPhase = timer.scaled(40);
         return true;
     }

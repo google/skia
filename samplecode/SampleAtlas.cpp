@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkPath.h"
-#include "SkRandom.h"
 #include "SkRSXform.h"
+#include "SkRandom.h"
 #include "SkSurface.h"
 #include "SkTextUtils.h"
 
@@ -234,12 +234,10 @@ protected:
         canvas->drawDrawable(fDrawable.get());
     }
 
-    bool onAnimate(const SkAnimTimer&) override {
-        return true;
-    }
+    bool onAnimate(const AnimTimer&) override { return true; }
 #if 0
     // TODO: switch over to use this for our animation
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;
