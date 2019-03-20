@@ -10,6 +10,7 @@
 #include "CommonFlagsGpu.h"
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
+#include "DebugCanvas.h"
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -23,7 +24,6 @@
 #include "SkColorSpace.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkData.h"
-#include "SkDebugCanvas.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkDocument.h"
 #include "SkExecutor.h"
@@ -1629,7 +1629,7 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkDebugCanvas debugCanvas(src.size().width(), src.size().height());
+    DebugCanvas debugCanvas(src.size().width(), src.size().height());
     Error err = src.draw(&debugCanvas);
     if (!err.isEmpty()) {
         return err;

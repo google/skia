@@ -922,7 +922,7 @@ Returns true if <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> has direct ac
 Pixels are readable when <a href='undocumented#SkBaseDevice'>SkBaseDevice</a> is raster. Pixels are not readable when <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>
 is returned from  <a href='undocumented#GPU_Surface'>GPU surface</a>, returned by <a href='undocumented#SkDocument'>SkDocument</a>::<a href='#SkDocument_beginPage'>beginPage</a>, returned by
 <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>::<a href='#SkPictureRecorder_beginRecording'>beginRecording</a>, or <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is the base of a utility class
-like <a href='undocumented#SkDebugCanvas'>SkDebugCanvas</a>.
+like <a href='undocumented#DebugCanvas'>DebugCanvas</a>.
 
 <a href='#SkCanvas_peekPixels_pixmap'>pixmap</a> is valid only while <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is in scope and unchanged. Any
 <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> or <a href='SkSurface_Reference#SkSurface'>SkSurface</a> call may invalidate the <a href='#SkCanvas_peekPixels_pixmap'>pixmap</a> values.
@@ -973,7 +973,7 @@ converting to <a href='#SkCanvas_readPixels_dstInfo'>dstInfo</a>.<a href='#SkIma
 Pixels are readable when <a href='undocumented#Device'>Device</a> is raster, or backed by a GPU.
 Pixels are not readable when <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is returned by <a href='undocumented#SkDocument'>SkDocument</a>::<a href='#SkDocument_beginPage'>beginPage</a>,
 returned by <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>::<a href='#SkPictureRecorder_beginRecording'>beginRecording</a>, or <a href='SkCanvas_Reference#Canvas'>Canvas</a> is the base of a utility
-class like <a href='undocumented#SkDebugCanvas'>SkDebugCanvas</a>.
+class like <a href='undocumented#DebugCanvas'>DebugCanvas</a>.
 
 The destination  <a href='undocumented#Pixel_Storage'>pixel storage</a> must be allocated by the caller.
 
@@ -1067,7 +1067,7 @@ converting to <a href='#SkCanvas_readPixels_2_pixmap'>pixmap</a>.<a href='#SkPix
 Pixels are readable when <a href='undocumented#Device'>Device</a> is raster, or backed by a GPU.
 Pixels are not readable when <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is returned by <a href='undocumented#SkDocument'>SkDocument</a>::<a href='#SkDocument_beginPage'>beginPage</a>,
 returned by <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>::<a href='#SkPictureRecorder_beginRecording'>beginRecording</a>, or <a href='SkCanvas_Reference#Canvas'>Canvas</a> is the base of a utility
-class like <a href='undocumented#SkDebugCanvas'>SkDebugCanvas</a>.
+class like <a href='undocumented#DebugCanvas'>DebugCanvas</a>.
 
 Caller must allocate  <a href='undocumented#Pixel_Storage'>pixel storage</a> in <a href='#SkCanvas_readPixels_2_pixmap'>pixmap</a> if needed.
 
@@ -1147,7 +1147,7 @@ converting to <a href='#SkCanvas_readPixels_3_bitmap'>bitmap</a>.<a href='#SkBit
 Pixels are readable when <a href='undocumented#Device'>Device</a> is raster, or backed by a GPU.
 Pixels are not readable when <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is returned by <a href='undocumented#SkDocument'>SkDocument</a>::<a href='#SkDocument_beginPage'>beginPage</a>,
 returned by <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>::<a href='#SkPictureRecorder_beginRecording'>beginRecording</a>, or <a href='SkCanvas_Reference#Canvas'>Canvas</a> is the base of a utility
-class like <a href='undocumented#SkDebugCanvas'>SkDebugCanvas</a>.
+class like <a href='undocumented#DebugCanvas'>DebugCanvas</a>.
 
 Caller must allocate  <a href='undocumented#Pixel_Storage'>pixel storage</a> in <a href='#SkCanvas_readPixels_3_bitmap'>bitmap</a> if needed.
 
@@ -1227,7 +1227,7 @@ converting to <a href='#SkCanvas_imageInfo'>imageInfo</a>().<a href='#SkImageInf
 Pixels are writable when <a href='undocumented#Device'>Device</a> is raster, or backed by a GPU.
 Pixels are not writable when <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is returned by <a href='undocumented#SkDocument'>SkDocument</a>::<a href='#SkDocument_beginPage'>beginPage</a>,
 returned by <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>::<a href='#SkPictureRecorder_beginRecording'>beginRecording</a>, or <a href='SkCanvas_Reference#Canvas'>Canvas</a> is the base of a utility
-class like <a href='undocumented#SkDebugCanvas'>SkDebugCanvas</a>.
+class like <a href='undocumented#DebugCanvas'>DebugCanvas</a>.
 
 <a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='#Image_Info_Color_Type'>Color_Type</a> and <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>
 do not match. Only <a href='#SkCanvas_writePixels_pixels'>pixels</a> within both source and destination rectangles
@@ -1301,7 +1301,7 @@ converting to <a href='#SkCanvas_imageInfo'>imageInfo</a>().<a href='#SkImageInf
 Pixels are writable when <a href='undocumented#Device'>Device</a> is raster, or backed by a GPU.
 Pixels are not writable when <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> is returned by <a href='undocumented#SkDocument'>SkDocument</a>::<a href='#SkDocument_beginPage'>beginPage</a>,
 returned by <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>::<a href='#SkPictureRecorder_beginRecording'>beginRecording</a>, or <a href='SkCanvas_Reference#Canvas'>Canvas</a> is the base of a utility
-class like <a href='undocumented#SkDebugCanvas'>SkDebugCanvas</a>.
+class like <a href='undocumented#DebugCanvas'>DebugCanvas</a>.
 
 <a href='undocumented#Pixel'>Pixel</a> values are converted only if <a href='#Image_Info_Color_Type'>Color_Type</a> and <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>
 do not match. Only pixels within both source and destination rectangles

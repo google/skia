@@ -79,7 +79,7 @@ std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; SK_API
 
 ---
 
-<a name='SkDebugCanvas'></a>
+<a name='DebugCanvas'></a>
 
 ---
 
