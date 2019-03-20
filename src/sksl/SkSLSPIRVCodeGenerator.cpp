@@ -926,6 +926,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                 // Flipping Y also negates the Y derivatives.
                 SpvId flipped = this->nextId();
                 this->writeInstruction(SpvOpFNegate, this->getType(c.fType), flipped, result, out);
+                this->writePrecisionModifier(c.fType, flipped);
                 return flipped;
             }
             break;
@@ -979,7 +980,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
         return this->writeIntrinsicCall(c, out);
     }
     // stores (variable, type, lvalue) pairs to extract and save after the function call is complete
-    std::vector<std::tuple<SpvId, SpvId, std::unique_ptr<LValue>>> lvalues;
+    std::vector<std::tuple<SpvId, const Type*, std::unique_ptr<LValue>>> lvalues;
     std::vector<SpvId> arguments;
     for (size_t i = 0; i < c.fArguments.size(); i++) {
         // id of temporary variable that we will use to hold this argument, or 0 if it is being
@@ -999,8 +1000,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
                 // update the lvalue.
                 tmpValueId = lv->load(out);
                 tmpVar = this->nextId();
-                lvalues.push_back(std::make_tuple(tmpVar, this->getType(c.fArguments[i]->fType),
-                                  std::move(lv)));
+                lvalues.push_back(std::make_tuple(tmpVar, &c.fArguments[i]->fType, std::move(lv)));
             }
         } else {
             // see getFunctionType for an explanation of why we're always using pointer parameters
@@ -1028,7 +1028,9 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     // arguments
     for (const auto& tuple : lvalues) {
         SpvId load = this->nextId();
-        this->writeInstruction(SpvOpLoad, std::get<1>(tuple), load, std::get<0>(tuple), out);
+        this->writeInstruction(SpvOpLoad, getType(*std::get<1>(tuple)), load, std::get<0>(tuple),
+                               out);
+        this->writePrecisionModifier(*std::get<1>(tuple), load);
         std::get<2>(tuple)->store(load, out);
     }
     return result;
@@ -1525,10 +1527,12 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
 
 class PointerLValue : public SPIRVCodeGenerator::LValue {
 public:
-    PointerLValue(SPIRVCodeGenerator& gen, SpvId pointer, SpvId type)
+    PointerLValue(SPIRVCodeGenerator& gen, SpvId pointer, SpvId type,
+                  SPIRVCodeGenerator::Precision precision)
     : fGen(gen)
     , fPointer(pointer)
-    , fType(type) {}
+    , fType(type)
+    , fPrecision(precision) {}
 
     virtual SpvId getPointer() override {
         return fPointer;
@@ -1537,6 +1541,7 @@ public:
     virtual SpvId load(OutputStream& out) override {
         SpvId result = fGen.nextId();
         fGen.writeInstruction(SpvOpLoad, fType, result, fPointer, out);
+        fGen.writePrecisionModifier(fPrecision, result);
         return result;
     }
 
@@ -1548,17 +1553,20 @@ private:
     SPIRVCodeGenerator& fGen;
     const SpvId fPointer;
     const SpvId fType;
+    const SPIRVCodeGenerator::Precision fPrecision;
 };
 
 class SwizzleLValue : public SPIRVCodeGenerator::LValue {
 public:
     SwizzleLValue(SPIRVCodeGenerator& gen, SpvId vecPointer, const std::vector<int>& components,
-                  const Type& baseType, const Type& swizzleType)
+                  const Type& baseType, const Type& swizzleType,
+                  SPIRVCodeGenerator::Precision precision)
     : fGen(gen)
     , fVecPointer(vecPointer)
     , fComponents(components)
     , fBaseType(baseType)
-    , fSwizzleType(swizzleType) {}
+    , fSwizzleType(swizzleType)
+    , fPrecision(precision) {}
 
     virtual SpvId getPointer() override {
         return 0;
@@ -1567,6 +1575,7 @@ public:
     virtual SpvId load(OutputStream& out) override {
         SpvId base = fGen.nextId();
         fGen.writeInstruction(SpvOpLoad, fGen.getType(fBaseType), base, fVecPointer, out);
+        fGen.writePrecisionModifier(fPrecision, base);
         SpvId result = fGen.nextId();
         fGen.writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) fComponents.size(), out);
         fGen.writeWord(fGen.getType(fSwizzleType), out);
@@ -1576,6 +1585,7 @@ public:
         for (int component : fComponents) {
             fGen.writeWord(component, out);
         }
+        fGen.writePrecisionModifier(fPrecision, result);
         return result;
     }
 
@@ -1614,6 +1624,7 @@ public:
             }
             fGen.writeWord(offset, out);
         }
+        fGen.writePrecisionModifier(fPrecision, shuffle);
         fGen.writeInstruction(SpvOpStore, fVecPointer, shuffle, out);
     }
 
@@ -1623,10 +1634,12 @@ private:
     const std::vector<int>& fComponents;
     const Type& fBaseType;
     const Type& fSwizzleType;
+    const SPIRVCodeGenerator::Precision fPrecision;
 };
 
 std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const Expression& expr,
                                                                           OutputStream& out) {
+    Precision precision = expr.fType.highPrecision() ? Precision::kHigh : Precision::kLow;
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             SpvId type;
@@ -1641,7 +1654,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             SkASSERT(entry != fVariableMap.end());
             return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(*this,
                                                                                  entry->second,
-                                                                                 type));
+                                                                                 type,
+                                                                                 precision));
         }
         case Expression::kIndex_Kind: // fall through
         case Expression::kFieldAccess_Kind: {
@@ -1656,7 +1670,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
                                                                         *this,
                                                                         member,
-                                                                        this->getType(expr.fType)));
+                                                                        this->getType(expr.fType),
+                                                                        precision));
         }
         case Expression::kSwizzle_Kind: {
             Swizzle& swizzle = (Swizzle&) expr;
@@ -1676,14 +1691,16 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
                                                                        *this,
                                                                        member,
-                                                                       this->getType(expr.fType)));
+                                                                       this->getType(expr.fType),
+                                                                       precision));
             } else {
                 return std::unique_ptr<SPIRVCodeGenerator::LValue>(new SwizzleLValue(
                                                                               *this,
                                                                               base,
                                                                               swizzle.fComponents,
                                                                               swizzle.fBase->fType,
-                                                                              expr.fType));
+                                                                              expr.fType,
+                                                                              precision));
             }
         }
         case Expression::kTernary_Kind: {
@@ -1709,7 +1726,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
                                                                        *this,
                                                                        result,
-                                                                       this->getType(expr.fType)));
+                                                                       this->getType(expr.fType),
+                                                                       precision));
         }
         default:
             // expr isn't actually an lvalue, create a dummy variable for it. This case happens due
@@ -1724,7 +1742,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
                                                                        *this,
                                                                        result,
-                                                                       this->getType(expr.fType)));
+                                                                       this->getType(expr.fType),
+                                                                       precision));
     }
 }
 
@@ -1734,6 +1753,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     SkASSERT(entry != fVariableMap.end());
     SpvId var = entry->second;
     this->writeInstruction(SpvOpLoad, this->getType(ref.fVariable.fType), result, var, out);
+    this->writePrecisionModifier(ref.fVariable.fType, result);
     if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
         fProgram.fSettings.fFlipY) {
         // need to remap to a top-left coordinate system
@@ -2387,6 +2407,7 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
     this->writeLabel(end, out);
     SpvId result = this->nextId();
     this->writeInstruction(SpvOpLoad, this->getType(t.fType), result, var, out);
+    this->writePrecisionModifier(t.fType, result);
     return result;
 }
 
@@ -2413,6 +2434,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         } else {
             ABORT("unsupported prefix expression %s", p.description().c_str());
         }
+        this->writePrecisionModifier(p.fType, result);
         return result;
     }
     switch (p.fOperator) {
@@ -2718,7 +2740,11 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 }
 
 void SPIRVCodeGenerator::writePrecisionModifier(const Type& type, SpvId id) {
-    if (!type.highPrecision()) {
+    this->writePrecisionModifier(type.highPrecision() ? Precision::kHigh : Precision::kLow, id);
+}
+
+void SPIRVCodeGenerator::writePrecisionModifier(Precision precision, SpvId id) {
+    if (precision == Precision::kLow) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationRelaxedPrecision, fDecorationBuffer);
     }
 }
