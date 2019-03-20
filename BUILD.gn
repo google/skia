@@ -1584,10 +1584,12 @@ if (skia_enable_tools) {
       "tools/timer/Timer.cpp",
       "tools/trace/ChromeTracingTracer.cpp",
       "tools/trace/ChromeTracingTracer.h",
-      "tools/trace/SkDebugfTracer.cpp",
-      "tools/trace/SkDebugfTracer.h",
       "tools/trace/EventTracingPriv.cpp",
       "tools/trace/EventTracingPriv.h",
+      "tools/trace/RealTimeTracer.cpp",
+      "tools/trace/RealTimeTracer.h",
+      "tools/trace/SkDebugfTracer.cpp",
+      "tools/trace/SkDebugfTracer.h",
     ]
     libs = []
     if (is_ios) {

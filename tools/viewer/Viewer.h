@@ -21,6 +21,7 @@
 #include "sk_app/CommandSet.h"
 #include "sk_app/Window.h"
 
+class RealTimeTracer;
 class SkCanvas;
 
 class Viewer : public sk_app::Application, sk_app::Window::Layer {
@@ -187,7 +188,8 @@ private:
     SkFont fFont;
     SkFontFields fFontOverrides;
     bool fPixelGeometryOverrides = false;
-};
 
+    RealTimeTracer* fTracer;
+};
 
 #endif
