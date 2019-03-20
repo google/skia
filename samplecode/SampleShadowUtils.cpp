@@ -5,8 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCamera.h"

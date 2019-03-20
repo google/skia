@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "CommandLineFlags.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkColor.h"
@@ -131,7 +131,7 @@ private:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (!fCodec || fTotalFrames == 1) {
             return false;
         }
@@ -214,7 +214,7 @@ private:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (fBaseMSec == 0) {
             fBaseMSec = timer.msec();
         }

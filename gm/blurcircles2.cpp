@@ -5,15 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkString.h"
 #include "SkRandom.h"
+#include "SkString.h"
+#include "gm.h"
 
 /**
  * In GM mode this draws an array of circles with different radii and different blur radii. Below
@@ -28,11 +28,13 @@
 class BlurCircles2GM : public skiagm::GM {
 public:
     BlurCircles2GM() {
-        fAnimRadius = SkAnimTimer::PingPong(0, kRadiusPingPoingPeriod, kRadiusPingPoingShift,
-                                            kMinRadius, kMaxRadius);
-        fAnimBlurRadius = SkAnimTimer::PingPong(0, kBlurRadiusPingPoingPeriod,
-                                                kBlurRadiusPingPoingShift, kMinBlurRadius,
-                                                kMaxBlurRadius);
+        fAnimRadius = AnimTimer::PingPong(
+                0, kRadiusPingPoingPeriod, kRadiusPingPoingShift, kMinRadius, kMaxRadius);
+        fAnimBlurRadius = AnimTimer::PingPong(0,
+                                              kBlurRadiusPingPoingPeriod,
+                                              kBlurRadiusPingPoingShift,
+                                              kMinBlurRadius,
+                                              kMaxBlurRadius);
     }
 
 protected:
@@ -133,7 +135,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fAnimRadius = timer.pingPong(kRadiusPingPoingPeriod, kRadiusPingPoingShift, kMinRadius,
                                      kMaxRadius);
         fAnimBlurRadius = timer.pingPong(kBlurRadiusPingPoingPeriod, kBlurRadiusPingPoingShift,

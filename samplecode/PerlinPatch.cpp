@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPatchUtils.h"
@@ -125,11 +125,10 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fSeed += 0.005f;
         return true;
     }
-
 
     void onDrawContent(SkCanvas* canvas) override {
         if (!canvas->getTotalMatrix().invert(&fInvMatrix)) {

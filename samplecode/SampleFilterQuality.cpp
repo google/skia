@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Resources.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
-#include "SkInterpolator.h"
+#include "SkData.h"
 #include "SkFont.h"
 #include "SkGradientShader.h"
-#include "SkData.h"
+#include "SkInterpolator.h"
 #include "SkPath.h"
-#include "SkSurface.h"
 #include "SkRandom.h"
+#include "SkSurface.h"
 #include "SkTime.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
@@ -283,7 +283,7 @@ protected:
         canvas->drawString(SkStringPrintf("%.8g", trans[1]     ), textX, 250, font, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fCurrTime = timer.msec();
         return true;
     }

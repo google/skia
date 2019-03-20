@@ -24,9 +24,7 @@ public:
         fSample->setSize(winWidth, winHeight);
     }
     void unload() override;
-    bool animate(const SkAnimTimer& timer) override {
-        return fSample->animate(timer);
-    }
+    bool animate(const AnimTimer& timer) override { return fSample->animate(timer); }
 
     bool onChar(SkUnichar c) override;
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,

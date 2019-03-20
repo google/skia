@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "SkAndroidCodec.h"
 #include "SkAnimatedImage.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkPaint.h"
@@ -56,7 +56,7 @@ protected:
         canvas->drawDrawable(fDrawable.get(), fImage->getBounds().width(), 0);
     }
 
-    bool onAnimate(const SkAnimTimer& animTimer) override {
+    bool onAnimate(const AnimTimer& animTimer) override {
         if (!fImage) {
             return false;
         }

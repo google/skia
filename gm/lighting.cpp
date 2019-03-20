@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkLightingImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPoint3.h"
@@ -156,7 +156,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         constexpr SkScalar kDesiredDurationSecs = 15.0f;
 
         fAzimuth = kStartAzimuth + timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
