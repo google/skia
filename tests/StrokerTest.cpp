@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "CommonFlags.h"
 #include "PathOpsCubicIntersectionTestData.h"
 #include "PathOpsQuadIntersectionTestData.h"
-#include "SkCommonFlags.h"
-#include "SkPathOpsCubic.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathOpsCubic.h"
 #include "SkPointPriv.h"
 #include "SkRandom.h"
 #include "SkStrokerPriv.h"

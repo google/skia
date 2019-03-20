@@ -7,9 +7,9 @@
 #ifndef CodecPriv_DEFINED
 #define CodecPriv_DEFINED
 
+#include "CommonFlags.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkImageEncoder.h"

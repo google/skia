@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkFontMgr.h"
 #include "SkOTTable_name.h"
 #include "SkTypeface.h"

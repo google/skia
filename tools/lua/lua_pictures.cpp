@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
+#include "SkData.h"
+#include "SkGraphics.h"
 #include "SkLua.h"
 #include "SkLuaCanvas.h"
-#include "SkPicture.h"
-#include "SkCommandLineFlags.h"
-#include "SkGraphics.h"
-#include "SkStream.h"
-#include "SkData.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPicture.h"
+#include "SkStream.h"
 
 #include <stdlib.h>
 
@@ -63,8 +63,8 @@ static void call_canvas(lua_State* L, SkLuaCanvas* canvas,
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("apply lua script to .skp files.");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage("apply lua script to .skp files.");
+    CommandLineFlags::Parse(argc, argv);
 
     if (FLAGS_skpPath.isEmpty()) {
         SkDebugf(".skp files or directories are required.\n");

@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkString.h"
 #include "SkTime.h"
 

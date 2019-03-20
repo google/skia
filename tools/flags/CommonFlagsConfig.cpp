@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "CommonFlagsConfig.h"
 #include "SkColorSpacePriv.h"
-#include "SkCommonFlagsConfig.h"
 #include "SkImageInfo.h"
 #include "SkTHash.h"
 
@@ -15,17 +15,17 @@
 using sk_gpu_test::GrContextFactory;
 
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
-#    define DEFAULT_GPU_CONFIG "gles"
+#define DEFAULT_GPU_CONFIG "gles"
 #else
-#    define DEFAULT_GPU_CONFIG "gl"
+#define DEFAULT_GPU_CONFIG "gl"
 #endif
 
-static const char defaultConfigs[] =
-    "8888 " DEFAULT_GPU_CONFIG " nonrendering "
+static const char defaultConfigs[] = "8888 " DEFAULT_GPU_CONFIG
+                                     " nonrendering "
 #if defined(SK_BUILD_FOR_WIN)
-    " angle_d3d11_es2"
+                                     " angle_d3d11_es2"
 #endif
-    ;
+        ;
 
 #undef DEFAULT_GPU_CONFIG
 
@@ -110,7 +110,7 @@ static const struct {
 // clang-format on
 
 static const char configHelp[] =
-    "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps";
+        "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps";
 
 static const char* config_help_fn() {
     static SkString helpString;
@@ -193,21 +193,18 @@ static const char* config_extended_help_fn() {
 
 DEFINE_extended_string(config, defaultConfigs, config_help_fn(), config_extended_help_fn());
 
-SkCommandLineConfig::SkCommandLineConfig(const SkString& tag, const SkString& backend,
+SkCommandLineConfig::SkCommandLineConfig(const SkString&           tag,
+                                         const SkString&           backend,
                                          const SkTArray<SkString>& viaParts)
-        : fTag(tag)
-        , fBackend(backend)
-        , fViaParts(viaParts) {
-}
-SkCommandLineConfig::~SkCommandLineConfig() {
-}
+        : fTag(tag), fBackend(backend), fViaParts(viaParts) {}
+SkCommandLineConfig::~SkCommandLineConfig() {}
 
 static bool parse_option_int(const SkString& value, int* outInt) {
     if (value.isEmpty()) {
         return false;
     }
-    char* endptr = nullptr;
-    long intValue = strtol(value.c_str(), &endptr, 10);
+    char* endptr   = nullptr;
+    long  intValue = strtol(value.c_str(), &endptr, 10);
     if (*endptr != '\0') {
         return false;
     }
@@ -225,7 +222,7 @@ static bool parse_option_bool(const SkString& value, bool* outBool) {
     }
     return false;
 }
-static bool parse_option_gpu_api(const SkString& value,
+static bool parse_option_gpu_api(const SkString&                      value,
                                  SkCommandLineConfigGpu::ContextType* outContextType) {
     if (value.equals("gl")) {
         *outContextType = GrContextFactory::kGL_ContextType;
@@ -282,46 +279,46 @@ static bool parse_option_gpu_api(const SkString& value,
     return false;
 }
 
-static bool parse_option_gpu_color(const SkString& value,
-                                   SkColorType* outColorType,
-                                   SkAlphaType* alphaType,
+static bool parse_option_gpu_color(const SkString&      value,
+                                   SkColorType*         outColorType,
+                                   SkAlphaType*         alphaType,
                                    sk_sp<SkColorSpace>* outColorSpace) {
     // We always use premul unless the color type is 565.
     *alphaType = kPremul_SkAlphaType;
 
     if (value.equals("8888")) {
-        *outColorType = kRGBA_8888_SkColorType;
+        *outColorType  = kRGBA_8888_SkColorType;
         *outColorSpace = nullptr;
     } else if (value.equals("888x")) {
-        *outColorType = kRGB_888x_SkColorType;
+        *outColorType  = kRGB_888x_SkColorType;
         *outColorSpace = nullptr;
     } else if (value.equals("4444")) {
-        *outColorType = kARGB_4444_SkColorType;
+        *outColorType  = kARGB_4444_SkColorType;
         *outColorSpace = nullptr;
     } else if (value.equals("565")) {
-        *outColorType = kRGB_565_SkColorType;
-        *alphaType = kOpaque_SkAlphaType;
+        *outColorType  = kRGB_565_SkColorType;
+        *alphaType     = kOpaque_SkAlphaType;
         *outColorSpace = nullptr;
     } else if (value.equals("1010102")) {
-        *outColorType = kRGBA_1010102_SkColorType;
+        *outColorType  = kRGBA_1010102_SkColorType;
         *outColorSpace = nullptr;
     } else if (value.equals("srgb")) {
-        *outColorType = kRGBA_8888_SkColorType;
+        *outColorType  = kRGBA_8888_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("p3")) {
-        *outColorType = kRGBA_8888_SkColorType;
+        *outColorType  = kRGBA_8888_SkColorType;
         *outColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
     } else if (value.equals("esrgb")) {
-        *outColorType = kRGBA_F16_SkColorType;
+        *outColorType  = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("narrow") || value.equals("enarrow")) {
-        *outColorType = value.equals("narrow") ? kRGBA_8888_SkColorType : kRGBA_F16_SkColorType;
+        *outColorType  = value.equals("narrow") ? kRGBA_8888_SkColorType : kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50);
     } else if (value.equals("f16")) {
-        *outColorType = kRGBA_F16_SkColorType;
+        *outColorType  = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGBLinear();
     } else if (value.equals("f16norm")) {
-        *outColorType = kRGBA_F16Norm_SkColorType;
+        *outColorType  = kRGBA_F16Norm_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else {
         return false;
@@ -329,7 +326,7 @@ static bool parse_option_gpu_color(const SkString& value,
     return true;
 }
 
-static bool parse_option_gpu_surf_type(const SkString& value,
+static bool parse_option_gpu_surf_type(const SkString&                   value,
                                        SkCommandLineConfigGpu::SurfType* surfType) {
     if (value.equals("default")) {
         *surfType = SkCommandLineConfigGpu::SurfType::kDefault;
@@ -360,7 +357,7 @@ public:
                 *outParseSucceeded = false;
                 return;
             }
-            const SkString& key = keyValueParts[0];
+            const SkString& key   = keyValueParts[0];
             const SkString& value = keyValueParts[1];
             if (fOptionsMap.find(key) == nullptr) {
                 fOptionsMap.set(key, value);
@@ -373,11 +370,11 @@ public:
         *outParseSucceeded = true;
     }
 
-    bool get_option_gpu_color(const char* optionKey,
-                              SkColorType* outColorType,
-                              SkAlphaType* alphaType,
+    bool get_option_gpu_color(const char*          optionKey,
+                              SkColorType*         outColorType,
+                              SkAlphaType*         alphaType,
                               sk_sp<SkColorSpace>* outColorSpace,
-                              bool optional = true) const {
+                              bool                 optional = true) const {
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
         if (optionValue == nullptr) {
             return optional;
@@ -385,9 +382,9 @@ public:
         return parse_option_gpu_color(*optionValue, outColorType, alphaType, outColorSpace);
     }
 
-    bool get_option_gpu_api(const char* optionKey,
+    bool get_option_gpu_api(const char*                          optionKey,
                             SkCommandLineConfigGpu::ContextType* outContextType,
-                            bool optional = true) const {
+                            bool                                 optional = true) const {
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
         if (optionValue == nullptr) {
             return optional;
@@ -395,9 +392,9 @@ public:
         return parse_option_gpu_api(*optionValue, outContextType);
     }
 
-    bool get_option_gpu_surf_type(const char* optionKey,
+    bool get_option_gpu_surf_type(const char*                       optionKey,
                                   SkCommandLineConfigGpu::SurfType* outSurfType,
-                                  bool optional = true) const {
+                                  bool                              optional = true) const {
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
         if (optionValue == nullptr) {
             return optional;
@@ -425,11 +422,19 @@ private:
     SkTHashMap<SkString, SkString> fOptionsMap;
 };
 
-SkCommandLineConfigGpu::SkCommandLineConfigGpu(
-        const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType,
-        bool useNVPR, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading,
-        bool testPersistentCache, SurfType surfType)
+SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
+                                               const SkTArray<SkString>& viaParts,
+                                               ContextType               contextType,
+                                               bool                      useNVPR,
+                                               bool                      useDIText,
+                                               int                       samples,
+                                               SkColorType               colorType,
+                                               SkAlphaType               alphaType,
+                                               sk_sp<SkColorSpace>       colorSpace,
+                                               bool                      useStencilBuffers,
+                                               bool                      testThreading,
+                                               bool                      testPersistentCache,
+                                               SurfType                  surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
@@ -453,23 +458,23 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     }
 }
 
-SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
+SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           tag,
                                                       const SkTArray<SkString>& vias,
-                                                      const SkString& options) {
+                                                      const SkString&           options) {
     // Defaults for GPU backend.
-    SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kGL_ContextType;
-    bool useNVPR = false;
-    bool useDIText = false;
-    int samples = 1;
-    SkColorType colorType = kRGBA_8888_SkColorType;
-    SkAlphaType alphaType = kPremul_SkAlphaType;
-    sk_sp<SkColorSpace> colorSpace = nullptr;
-    bool useStencils = true;
-    bool testThreading = false;
-    bool testPersistentCache = false;
-    SkCommandLineConfigGpu::SurfType surfType = SkCommandLineConfigGpu::SurfType::kDefault;
+    SkCommandLineConfigGpu::ContextType contextType         = GrContextFactory::kGL_ContextType;
+    bool                                useNVPR             = false;
+    bool                                useDIText           = false;
+    int                                 samples             = 1;
+    SkColorType                         colorType           = kRGBA_8888_SkColorType;
+    SkAlphaType                         alphaType           = kPremul_SkAlphaType;
+    sk_sp<SkColorSpace>                 colorSpace          = nullptr;
+    bool                                useStencils         = true;
+    bool                                testThreading       = false;
+    bool                                testPersistentCache = false;
+    SkCommandLineConfigGpu::SurfType    surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
-    bool parseSucceeded = false;
+    bool            parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
     if (!parseSucceeded) {
         return nullptr;
@@ -491,22 +496,33 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         return nullptr;
     }
 
-    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
-                                      colorType, alphaType, colorSpace, useStencils, testThreading,
-                                      testPersistentCache, surfType);
+    return new SkCommandLineConfigGpu(tag,
+                                      vias,
+                                      contextType,
+                                      useNVPR,
+                                      useDIText,
+                                      samples,
+                                      colorType,
+                                      alphaType,
+                                      colorSpace,
+                                      useStencils,
+                                      testThreading,
+                                      testPersistentCache,
+                                      surfType);
 }
 
-SkCommandLineConfigSvg::SkCommandLineConfigSvg(const SkString& tag,
-                                               const SkTArray<SkString>& viaParts, int pageIndex)
+SkCommandLineConfigSvg::SkCommandLineConfigSvg(const SkString&           tag,
+                                               const SkTArray<SkString>& viaParts,
+                                               int                       pageIndex)
         : SkCommandLineConfig(tag, SkString("svg"), viaParts), fPageIndex(pageIndex) {}
 
-SkCommandLineConfigSvg* parse_command_line_config_svg(const SkString& tag,
+SkCommandLineConfigSvg* parse_command_line_config_svg(const SkString&           tag,
                                                       const SkTArray<SkString>& vias,
-                                                      const SkString& options) {
+                                                      const SkString&           options) {
     // Defaults for SVG backend.
     int pageIndex = 0;
 
-    bool parseSucceeded = false;
+    bool            parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
     if (!parseSucceeded) {
         return nullptr;
@@ -521,16 +537,16 @@ SkCommandLineConfigSvg* parse_command_line_config_svg(const SkString& tag,
     return new SkCommandLineConfigSvg(tag, vias, pageIndex);
 }
 
-void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
-                  SkCommandLineConfigArray* outResult) {
+void ParseConfigs(const CommandLineFlags::StringArray& configs,
+                  SkCommandLineConfigArray*            outResult) {
     outResult->reset();
     for (int i = 0; i < configs.count(); ++i) {
-        SkString extendedBackend;
-        SkString extendedOptions;
-        SkString simpleBackend;
+        SkString           extendedBackend;
+        SkString           extendedOptions;
+        SkString           simpleBackend;
         SkTArray<SkString> vias;
 
-        SkString tag(configs[i]);
+        SkString           tag(configs[i]);
         SkTArray<SkString> parts;
         SkStrSplit(tag.c_str(), "[", kStrict_SkStrSplitMode, &parts);
         if (parts.count() == 2) {

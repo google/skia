@@ -8,7 +8,7 @@
 #include "Request.h"
 #include "Response.h"
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkGraphics.h"
 
 #include "urlhandlers/UrlHandler.h"
@@ -133,7 +133,7 @@ int skiaserve_main() {
 
 #if !defined SK_BUILD_FOR_IOS
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     return skiaserve_main();
 }
 #endif

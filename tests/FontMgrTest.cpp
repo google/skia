@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "SkAdvancedTypefaceMetrics.h"
-#include "SkCommandLineFlags.h"
 #include "SkFont.h"
 #include "SkFontMgr.h"
 #include "SkPaint.h"
-#include "SkTypeface.h"
 #include "SkStream.h"
+#include "SkTypeface.h"
 #include "Test.h"
 
 #include <initializer_list>

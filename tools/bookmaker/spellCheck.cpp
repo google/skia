@@ -7,7 +7,7 @@
 
 #include "bmhParser.h"
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
@@ -41,7 +41,8 @@ public:
         this->reset();
     }
     bool check(const char* match);
-    void report(SkCommandLineFlags::StringArray report);
+    void report(CommandLineFlags::StringArray report);
+
 private:
     enum class TableState {
         kNone,
@@ -103,13 +104,13 @@ private:
    modifiers to try to maintain a consistent voice.
    Maybe also look for passive verbs (e.g. 'is') and suggest active ones?
  */
-void BmhParser::spellCheck(const char* match, SkCommandLineFlags::StringArray report) const {
+void BmhParser::spellCheck(const char* match, CommandLineFlags::StringArray report) const {
     SpellCheck checker(*this);
     checker.check(match);
     checker.report(report);
 }
 
-void BmhParser::spellStatus(const char* statusFile, SkCommandLineFlags::StringArray report) const {
+void BmhParser::spellStatus(const char* statusFile, CommandLineFlags::StringArray report) const {
     SpellCheck checker(*this);
     StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
     string file;
@@ -506,7 +507,7 @@ static bool stringCompare(const std::pair<string, CheckEntry>& i, const std::pai
     return i.first.compare(j.first) < 0;
 }
 
-void SpellCheck::report(SkCommandLineFlags::StringArray report) {
+void SpellCheck::report(CommandLineFlags::StringArray report) {
     vector<std::pair<string, CheckEntry>> elems(fWords.begin(), fWords.end());
     std::sort(elems.begin(), elems.end(), stringCompare);
     if (report.contains("once")) {

@@ -7,9 +7,9 @@
 
 #include "Test.h"
 
+#include "CommandLineFlags.h"
 #include "Resources.h"
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
 #include "SkFixed.h"
 #include "SkFont.h"
 #include "SkFontMgr_android.h"
