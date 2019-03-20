@@ -465,7 +465,7 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
                 dst16 += 8;
                 count -= 8;
                 fx += dx8;
-            };
+            }
             xy = (uint32_t *) dst16;
         }
 
