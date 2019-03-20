@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d61101d_e97d887a",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1640,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-20T14:58:15Z",
+      "side": 1,
+      "message": "Is there a bug tracking this?  It used to, right?",
+      "range": {
+        "startLine": 1639,
+        "startChar": 8,
+        "endLine": 1640,
+        "endChar": 25
+      },
+      "revId": "ad1ec05c29c8e92e6c501dc9e7cebda9afa5c1a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
