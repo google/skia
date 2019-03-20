@@ -22,6 +22,30 @@
       "revId": "73c7d37be450fef4917747da8cf2b98f258a30d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef3123d_4ebbfbda",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T18:11:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "004894e0_dcac24db",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 52
+      },
+      "revId": "73c7d37be450fef4917747da8cf2b98f258a30d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
