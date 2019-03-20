@@ -339,10 +339,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferFullscreenClears = true;
     }
 
-    if (kQualcomm_VkVendor == properties.vendorID) {
-        // On Qualcomm mapping a gpu buffer and doing both reads and writes to it is slow. Thus for
-        // index and vertex buffers we will force to use a cpu side buffer and then copy the whole
-        // buffer up to the gpu.
+    if (kQualcomm_VkVendor == properties.vendorID || kARM_VkVendor == properties.vendorID) {
+        // On Qualcomm and ARM mapping a gpu buffer and doing both reads and writes to it is slow.
+        // Thus for index and vertex buffers we will force to use a cpu side buffer and then copy
+        // the whole buffer up to the gpu.
         fBufferMapThreshold = SK_MaxS32;
     }
 
