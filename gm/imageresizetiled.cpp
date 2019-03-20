@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkImageFilter.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -23,7 +23,7 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                                                              kNone_SkFilterQuality,
                                                              nullptr));
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 100);
+        SkFont         font(ToolUtils::create_portable_typeface(), 100);
         const SkScalar tile_size = SkIntToScalar(100);
         for (SkScalar y = 0; y < HEIGHT; y += tile_size) {
             for (SkScalar x = 0; x < WIDTH; x += tile_size) {

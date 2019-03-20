@@ -31,7 +31,7 @@
  * it will use lossy.
  *
  * For examples of encoding an image to a file or to a block of memory,
- * see tools/sk_tool_utils.h.
+ * see tools/ToolUtils.h.
  */
 SK_API bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                           SkEncodedImageFormat format, int quality);

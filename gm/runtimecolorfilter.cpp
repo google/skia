@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
 #include "Resources.h"
+#include "SkCanvas.h"
 #include "SkColorFilterPriv.h"
+#include "SkImage.h"
 #include "SkReadBuffer.h"
+#include "ToolUtils.h"
 #include "effects/GrSkSLFP.h"
+#include "gm.h"
 
 const char* SKSL_TEST_SRC = R"(
     in uniform float b;

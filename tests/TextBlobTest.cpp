@@ -13,7 +13,7 @@
 #include "SkTypeface.h"
 
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 class TextBlobTester {
 public:
@@ -176,7 +176,7 @@ public:
         // Kitchen sink font.
         font.setSize(42);
         font.setScaleX(4.2f);
-        font.setTypeface(sk_tool_utils::create_portable_typeface());
+        font.setTypeface(ToolUtils::create_portable_typeface());
         font.setSkewX(0.42f);
         font.setHinting(kFull_SkFontHinting);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
@@ -429,7 +429,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkImage> img0 = render(blob0.get());
     sk_sp<SkImage> img1 = render(blob1.get());
     if (img0 && img1) {
-        REPORTER_ASSERT(reporter, sk_tool_utils::equal_pixels(img0.get(), img1.get()));
+        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
     }
 }
 

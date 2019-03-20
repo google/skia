@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "sk_tool_utils.h"
 #include "Sample.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkPaint.h"
 #include "SkShader.h"
+#include "ToolUtils.h"
 
 static int inflate5To8(int x) {
     return (x << 3) | (x >> 2);
@@ -116,8 +116,7 @@ class ColorFilterView : public Sample {
 protected:
     void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
-        fShader = sk_tool_utils::create_checkerboard_shader(
-                0xFFCCCCCC, 0xFFFFFFFF, 12);
+        fShader = ToolUtils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, 12);
 
         if (false) { // avoid bit rot, suppress warning
             test_5bits();

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkTypeface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 /* This test tries to define the effect of using hairline strokes on text.
  * Provides non-hairline images for reference and consistency checks.
@@ -87,7 +87,7 @@ static void drawTestCase(SkCanvas* canvas,
     paint.setStrokeWidth(strokeWidth);
     paint.setStyle(strokeStyle);
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), kTextHeight * textScale);
+    SkFont font(ToolUtils::create_portable_typeface(), kTextHeight * textScale);
 
     // This demonstrates that we can not measure the text if
     // there's a device transform. The canvas total matrix will

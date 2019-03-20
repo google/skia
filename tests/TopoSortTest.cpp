@@ -9,9 +9,9 @@
 #include "SkTTopoSort.h"
 #include "Test.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
-typedef void (*CreateGraphPF)(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph);
+typedef void (*CreateGraphPF)(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph);
 
 /* Simple diamond
  *       3
@@ -20,8 +20,8 @@ typedef void (*CreateGraphPF)(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* grap
  *     \   /
  *       0
  */
-static void create_graph0(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
-    sk_tool_utils::TopoTestNode::AllocNodes(graph, 4);
+static void create_graph0(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
+    ToolUtils::TopoTestNode::AllocNodes(graph, 4);
 
     (*graph)[0]->dependsOn((*graph)[1].get());
     (*graph)[0]->dependsOn((*graph)[2].get());
@@ -38,8 +38,8 @@ static void create_graph0(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
  *     |
  *     0
  */
-static void create_graph1(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
-    sk_tool_utils::TopoTestNode::AllocNodes(graph, 4);
+static void create_graph1(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
+    ToolUtils::TopoTestNode::AllocNodes(graph, 4);
 
     (*graph)[0]->dependsOn((*graph)[1].get());
     (*graph)[1]->dependsOn((*graph)[2].get());
@@ -51,8 +51,8 @@ static void create_graph1(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
  *     /   \
  *    0 --- 1
  */
-static void create_graph2(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
-    sk_tool_utils::TopoTestNode::AllocNodes(graph, 3);
+static void create_graph2(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
+    ToolUtils::TopoTestNode::AllocNodes(graph, 3);
 
     (*graph)[0]->dependsOn((*graph)[1].get());
     (*graph)[1]->dependsOn((*graph)[2].get());
@@ -70,8 +70,8 @@ static void create_graph2(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
  *     \   /
  *       0
  */
-static void create_graph3(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
-    sk_tool_utils::TopoTestNode::AllocNodes(graph, 7);
+static void create_graph3(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
+    ToolUtils::TopoTestNode::AllocNodes(graph, 7);
 
     (*graph)[0]->dependsOn((*graph)[1].get());
     (*graph)[0]->dependsOn((*graph)[2].get());
@@ -91,8 +91,8 @@ static void create_graph3(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
  *     \   /       \   /
  *       0           4
  */
-static void create_graph4(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
-    sk_tool_utils::TopoTestNode::AllocNodes(graph, 8);
+static void create_graph4(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
+    ToolUtils::TopoTestNode::AllocNodes(graph, 8);
 
     (*graph)[0]->dependsOn((*graph)[1].get());
     (*graph)[0]->dependsOn((*graph)[2].get());
@@ -120,13 +120,13 @@ DEF_TEST(TopoSort, reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(tests); ++i) {
-        SkTArray<sk_sp<sk_tool_utils::TopoTestNode>> graph;
+        SkTArray<sk_sp<ToolUtils::TopoTestNode>> graph;
 
         (tests[i].fCreate)(&graph);
 
-        sk_tool_utils::TopoTestNode::Shuffle(&graph, &rand);
+        ToolUtils::TopoTestNode::Shuffle(&graph, &rand);
 
-        bool actualResult = SkTTopoSort<sk_tool_utils::TopoTestNode>(&graph);
+        bool actualResult = SkTTopoSort<ToolUtils::TopoTestNode>(&graph);
         REPORTER_ASSERT(reporter, actualResult == tests[i].fExpectedResult);
 
         if (tests[i].fExpectedResult) {

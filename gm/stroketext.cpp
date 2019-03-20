@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkTextBlob.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void test_nulldev(SkCanvas* canvas) {
     SkBitmap bm;
@@ -75,7 +75,7 @@ DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), kBelowThreshold_TextSize);
+    SkFont font(ToolUtils::create_portable_typeface(), kBelowThreshold_TextSize);
     draw_text_set(canvas, paint, font);
 
     canvas->translate(600, 0);

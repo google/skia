@@ -4,8 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
@@ -13,6 +11,8 @@
 #include "SkShader.h"
 #include "SkTextUtils.h"
 #include "SkUTF.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // effects
 #include "SkGradientShader.h"
@@ -78,7 +78,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint textPaint;
-        SkFont font(sk_tool_utils::create_portable_typeface(), 12);
+        SkFont  font(ToolUtils::create_portable_typeface(), 12);
 
         float scale = 32.f/kPOTSize;
 
@@ -166,7 +166,7 @@ static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
-    SkColor colors[] = { 0xFFFF0000, sk_tool_utils::color_to_565(0xFF0044FF) };
+    SkColor  colors[] = {0xFFFF0000, ToolUtils::color_to_565(0xFF0044FF)};
 
     int index = (int)ty;
     switch (index % 3) {
@@ -216,7 +216,7 @@ protected:
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(66);
 
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont font(ToolUtils::create_portable_typeface());
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);

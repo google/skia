@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // Create a square atlas of:
 //   opaque white  |     opaque red
@@ -20,7 +20,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     const int kBlockSize = atlasSize/2;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
-    auto surface(sk_tool_utils::makeSurface(caller, info));
+    auto        surface(ToolUtils::makeSurface(caller, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
@@ -128,7 +128,7 @@ protected:
             quadColors[i] = gColors[i];
         }
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), kTextPad);
+        SkFont font(ToolUtils::create_portable_typeface(), kTextPad);
 
         for (int i = 0; i < numModes; ++i) {
             const char* label = SkBlendMode_Name(gModes[i]);

@@ -7,13 +7,12 @@
 
 #include "Resources.h"
 #include "SkImage.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 static skiagm::DrawResult draw_rotated_image(SkCanvas* canvas, const SkImage* image,
                                              SkString* errorMsg) {
-    sk_tool_utils::draw_checkerboard(canvas, SkColorSetRGB(156, 154, 156),
-                                     SK_ColorWHITE, 12);
+    ToolUtils::draw_checkerboard(canvas, SkColorSetRGB(156, 154, 156), SK_ColorWHITE, 12);
     if (!image) {
         *errorMsg = "No image. Did you forget to set the resourcePath?";
         return skiagm::DrawResult::kFail;

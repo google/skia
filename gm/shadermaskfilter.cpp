@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
@@ -14,6 +12,8 @@
 #include "SkPictureRecorder.h"
 #include "SkShaderMaskFilter.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x, SkScalar y,
                               const SkImage* mask, sk_sp<SkMaskFilter> outer, SkBlendMode mode) {
@@ -178,7 +178,7 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
 #include "SkMaskFilter.h"
 static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
     const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
-    auto surf = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
+    auto      surf = ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
     SkPaint paint;
     paint.setAntiAlias(true);
     surf->getCanvas()->drawCircle(n * 0.5f, n * 0.5f, radius, paint);
@@ -240,21 +240,22 @@ DEF_SIMPLE_GM(shadermaskfilter_localmatrix, canvas, 1500, 1000) {
 
     using ShaderMakerT = sk_sp<SkShader>(*)(SkCanvas*, const SkMatrix& lm);
     static const ShaderMakerT gShaderMakers[] = {
-        [](SkCanvas* canvas, const SkMatrix& lm) -> sk_sp<SkShader> {
-            auto surface = sk_tool_utils::makeSurface(canvas,
-                                                      SkImageInfo::MakeN32Premul(kSize, kSize));
-            draw_mask(surface->getCanvas());
-            return surface->makeImageSnapshot()->makeShader(SkShader::kClamp_TileMode,
-                                                            SkShader::kClamp_TileMode, &lm);
-        },
-        [](SkCanvas*, const SkMatrix& lm) -> sk_sp<SkShader> {
-            SkPictureRecorder recorder;
-            draw_mask(recorder.beginRecording(kSize, kSize));
-            return SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
-                                               SkShader::kClamp_TileMode,
-                                               SkShader::kClamp_TileMode,
-                                               &lm, nullptr);
-        },
+            [](SkCanvas* canvas, const SkMatrix& lm) -> sk_sp<SkShader> {
+                auto surface =
+                        ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(kSize, kSize));
+                draw_mask(surface->getCanvas());
+                return surface->makeImageSnapshot()->makeShader(
+                        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &lm);
+            },
+            [](SkCanvas*, const SkMatrix& lm) -> sk_sp<SkShader> {
+                SkPictureRecorder recorder;
+                draw_mask(recorder.beginRecording(kSize, kSize));
+                return SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
+                                                   SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode,
+                                                   &lm,
+                                                   nullptr);
+            },
     };
 
     struct Config {

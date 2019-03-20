@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkBlurMask.h"
 #include "SkImage.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
     SkBlurStyle NONE = SkBlurStyle(-999);
@@ -46,7 +46,7 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
     }
     // draw text
     {
-        SkFont font(sk_tool_utils::create_portable_typeface(), 25);
+        SkFont font(ToolUtils::create_portable_typeface(), 25);
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4))));
         SkScalar x = SkIntToScalar(70);

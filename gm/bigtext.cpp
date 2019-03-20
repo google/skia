@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 /**
  *  Skia may draw from outlines when the size is very large, so we exercise that
@@ -33,7 +33,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font(sk_tool_utils::create_portable_typeface(), 1500);
+        SkFont font(ToolUtils::create_portable_typeface(), 1500);
 
         SkRect r;
         (void)font.measureText("/", 1, kUTF8_SkTextEncoding, &r);

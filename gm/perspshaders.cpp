@@ -5,20 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkPath.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    auto surface(sk_tool_utils::makeSurface(origCanvas, info));
+    auto        surface(ToolUtils::makeSurface(origCanvas, info));
     SkCanvas* canvas = surface->getCanvas();
 
-    sk_tool_utils::draw_checkerboard(canvas, SK_ColorRED, SK_ColorGREEN, w/10);
+    ToolUtils::draw_checkerboard(canvas, SK_ColorRED, SK_ColorGREEN, w / 10);
     return surface->makeImageSnapshot();
 }
 
@@ -41,9 +40,8 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap = sk_tool_utils::create_checkerboard_bitmap(kCellSize, kCellSize,
-                                                            SK_ColorBLUE, SK_ColorYELLOW,
-                                                            kCellSize/10);
+        fBitmap = ToolUtils::create_checkerboard_bitmap(
+                kCellSize, kCellSize, SK_ColorBLUE, SK_ColorYELLOW, kCellSize / 10);
 
         fBitmapShader = SkShader::MakeBitmapShader(fBitmap, SkShader::kClamp_TileMode,
                                                    SkShader::kClamp_TileMode);

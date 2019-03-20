@@ -7,7 +7,7 @@
 
 #include "Resources.h"
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include "SkBitmap.h"
 #include "SkCodec.h"
@@ -38,5 +38,5 @@ DEF_TEST(AlphaEncodedInfo, r) {
     result = codec->getPixels(bm2.pixmap());
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-    REPORTER_ASSERT(r, sk_tool_utils::equal_pixels(bm.pixmap(), bm2.pixmap()));
+    REPORTER_ASSERT(r, ToolUtils::equal_pixels(bm.pixmap(), bm2.pixmap()));
 }

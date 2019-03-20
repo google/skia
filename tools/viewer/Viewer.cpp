@@ -239,7 +239,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
     if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
+        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
     }
 
     initializeEventTracingForTools();

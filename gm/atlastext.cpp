@@ -18,10 +18,10 @@
 #include "SkFont.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
+#include "ToolUtils.h"
 #include "gpu/TestContext.h"
 #include "gpu/atlastext/GLTestAtlasTextRenderer.h"
 #include "gpu/atlastext/TestAtlasTextRenderer.h"
-#include "sk_tool_utils.h"
 
 // GM that draws text using the Atlas Text interface offscreen and then blits that to the canvas.
 
@@ -76,14 +76,12 @@ protected:
 
         fTarget = SkAtlasTextTarget::Make(fContext, kSize, kSize, targetHandle);
 
-        fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic());
-        fTypefaces[1] =
-                sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Italic());
-        fTypefaces[2] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Normal());
-        fTypefaces[3] =
-                sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
-        fTypefaces[4] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Bold());
-        fTypefaces[5] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
+        fTypefaces[0] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());
+        fTypefaces[1] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Italic());
+        fTypefaces[2] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Normal());
+        fTypefaces[3] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
+        fTypefaces[4] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold());
+        fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
