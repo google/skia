@@ -22,6 +22,30 @@
       "revId": "99529e7723e3a1cbf66222ec08a5911f2e3c074a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "971564c5_4e6c0da7",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-20T22:04:08Z",
+      "side": 1,
+      "message": "Also need to add \u0027origin\u0027 to this position.",
+      "parentUuid": "6666ada5_e7c69faa",
+      "range": {
+        "startLine": 573,
+        "startChar": 70,
+        "endLine": 573,
+        "endChar": 71
+      },
+      "revId": "99529e7723e3a1cbf66222ec08a5911f2e3c074a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
