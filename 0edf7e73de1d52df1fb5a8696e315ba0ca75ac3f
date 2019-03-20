@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e8d9f5a_7beea394",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-20T19:49:37Z",
+      "side": 1,
+      "message": "I did this just to avoid having to repeat:\n\n\nINHERITED::onDraw(canvas, x, y, paint);\nreturn;\n\nat each point of failure (or have four of nested ifs of success)",
+      "range": {
+        "startLine": 210,
+        "startChar": 4,
+        "endLine": 210,
+        "endChar": 24
+      },
+      "revId": "0edf7e73de1d52df1fb5a8696e315ba0ca75ac3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
