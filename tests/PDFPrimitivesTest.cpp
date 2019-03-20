@@ -32,7 +32,7 @@
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypes.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include <cstdlib>
 #include <cmath>
@@ -314,8 +314,7 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
         REPORTER_ASSERT(reporter,
                         !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &doc));
     }
-    sk_sp<SkTypeface> portableTypeface(
-            sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle()));
+    sk_sp<SkTypeface> portableTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle()));
     REPORTER_ASSERT(reporter,
                     SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &doc));
 }

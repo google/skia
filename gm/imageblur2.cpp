@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // TODO deprecate imageblur
 
@@ -31,7 +31,7 @@ DEF_SIMPLE_GM(imageblur2, canvas, kWidth, kHeight) {
     constexpr SkScalar dy = kHeight / sigmaCount;
     constexpr SkScalar textSize = 12;
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), textSize);
+    SkFont font(ToolUtils::create_portable_typeface(), textSize);
     font.setEdging(SkFont::Edging::kAlias);
 
     for (int x = 0; x < sigmaCount; x++) {
@@ -45,7 +45,7 @@ DEF_SIMPLE_GM(imageblur2, canvas, kWidth, kHeight) {
 
             SkRandom rand;
             SkPaint textPaint;
-            textPaint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
+            textPaint.setColor(ToolUtils::color_to_565(rand.nextBits(24) | 0xFF000000));
             for (int i = 0; i < testStringCount; i++) {
                 canvas->drawString(kTestStrings[i],
                                    SkIntToScalar(x * dx),

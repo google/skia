@@ -7,8 +7,8 @@
 
 // This test only works with the GPU backend.
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "GrContext.h"
 #include "GrContextPriv.h"

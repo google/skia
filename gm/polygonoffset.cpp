@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkPolyUtils.h"
 #include "SkPathPriv.h"
+#include "SkPolyUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPath::Direction dir) {
     float angleStep = 360.0f / n, angle = 0.0f, sin, cos;
@@ -572,7 +572,7 @@ protected:
                 }
                 path.close();
 
-                paint.setColor(sk_tool_utils::color_to_565(colors[i]));
+                paint.setColor(ToolUtils::color_to_565(colors[i]));
                 canvas->save();
                 canvas->translate(center.fX, center.fY);
                 canvas->drawPath(path, paint);

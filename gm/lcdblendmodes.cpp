@@ -10,11 +10,11 @@
  * Tests text rendering with LCD and the various blend modes.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -48,7 +48,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard = sk_tool_utils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
+        fCheckerboard = ToolUtils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
     }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
@@ -62,7 +62,7 @@ protected:
         canvas->drawRect(r, p);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-        auto surface(sk_tool_utils::makeSurface(canvas, info));
+        auto        surface(ToolUtils::makeSurface(canvas, info));
 
         SkCanvas* surfCanvas = surface->getCanvas();
         this->drawColumn(surfCanvas, SK_ColorBLACK, SK_ColorWHITE, false);
@@ -119,7 +119,7 @@ protected:
             SkPaint paint;
             paint.setColor(textColor);
             paint.setBlendMode(gModes[m]);
-            SkFont font(sk_tool_utils::create_portable_typeface(), fTextHeight);
+            SkFont font(ToolUtils::create_portable_typeface(), fTextHeight);
             font.setSubpixel(true);
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
             if (useGrad) {

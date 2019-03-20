@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 /**
  *  Test drawing a primitive w/ an imagefilter (in this case, just matrix w/ identity) to see
@@ -70,7 +70,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
 
 static sk_sp<SkImage> make_image(SkCanvas* canvas) {
     const SkImageInfo info = SkImageInfo::MakeS32(100, 100, kPremul_SkAlphaType);
-    auto surface(sk_tool_utils::makeSurface(canvas, info));
+    auto              surface(ToolUtils::makeSurface(canvas, info));
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), SkPaint());
     return surface->makeImageSnapshot();
 }

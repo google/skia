@@ -9,9 +9,9 @@
 #include "../GLWindowContext.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
+#include "ToolUtils.h"
 #include "WindowContextFactory_mac.h"
 #include "gl/GrGLInterface.h"
-#include "sk_tool_utils.h"
 
 #include <OpenGL/gl.h>
 

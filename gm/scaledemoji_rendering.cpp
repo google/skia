@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -27,7 +27,7 @@ protected:
         typefaces[0] = MakeResourceAsTypeface("fonts/colr.ttf");
         typefaces[1] = MakeResourceAsTypeface("fonts/sbix.ttf");
         typefaces[2] = MakeResourceAsTypeface("fonts/cbdt.ttf");
-        typefaces[3] = sk_tool_utils::create_portable_typeface("Emoji", SkFontStyle());
+        typefaces[3] = ToolUtils::create_portable_typeface("Emoji", SkFontStyle());
     }
 
     SkString onShortName() override {
@@ -46,7 +46,7 @@ protected:
             font.setEdging(SkFont::Edging::kAlias);
 
             SkPaint paint;
-            const char* text = sk_tool_utils::emoji_sample_text();
+            const char*   text = ToolUtils::emoji_sample_text();
             SkFontMetrics metrics;
 
             for (SkScalar textSize : { 70, 150 }) {

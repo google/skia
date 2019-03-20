@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "SkAlphaThresholdFilter.h"
 #include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -104,7 +104,7 @@ static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width,
 
     SkImageInfo info = SkImageInfo::Make(width, height, ct, at, std::move(cs));
 
-    return sk_tool_utils::makeSurface(canvas, info);
+    return ToolUtils::makeSurface(canvas, info);
 }
 
 class ImageAlphaThresholdSurfaceGM : public skiagm::GM {

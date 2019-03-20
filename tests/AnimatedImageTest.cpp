@@ -22,7 +22,7 @@
 #include "SkTypes.h"
 #include "SkUnPreMultiply.h"
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include <algorithm>
 #include <memory>
@@ -207,7 +207,7 @@ DEF_TEST(AnimatedImage, r) {
                 bm.eraseColor(0);
             } else {
                 const SkBitmap& priorFrame = frames[options.fPriorFrame];
-                if (!sk_tool_utils::copy_to(&bm, priorFrame.colorType(), priorFrame)) {
+                if (!ToolUtils::copy_to(&bm, priorFrame.colorType(), priorFrame)) {
                     ERRORF(r, "Failed to copy %s frame %i", file, options.fPriorFrame);
                     options.fPriorFrame = SkCodec::kNoFrame;
                 }

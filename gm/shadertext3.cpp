@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -70,7 +70,7 @@ protected:
         bmpPaint.setAlphaf(0.5f);
         canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), SkIntToScalar(kPointSize));
+        SkFont  font(ToolUtils::create_portable_typeface(), SkIntToScalar(kPointSize));
         SkPaint outlinePaint;
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);

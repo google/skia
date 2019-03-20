@@ -29,8 +29,8 @@
 #include "Test.h"
 
 #include "Resources.h"
+#include "ToolUtils.h"
 #include "sk_pixel_iter.h"
-#include "sk_tool_utils.h"
 
 #include "GrContextPriv.h"
 #include "GrContextThreadSafeProxy.h"
@@ -1365,7 +1365,7 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
             surf->getCanvas()->drawImageRect(img, dst, &paint);
 
             // we should draw nothing
-            sk_tool_utils::PixelIter iter(surf.get());
+            ToolUtils::PixelIter iter(surf.get());
             while (void* addr = iter.next()) {
                 REPORTER_ASSERT(reporter, *(SkPMColor*)addr == 0);
             }

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "GrContext.h"
 #include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
 #include "SkBlendModePriv.h"
 #include "SkColorPriv.h"
+#include "SkGradientShader.h"
+#include "SkSurface.h"
 #include "SkTextUtils.h"
-#include "GrContext.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -23,7 +23,7 @@ namespace skiagm {
  */
 class Xfermodes3GM : public GM {
 public:
-    Xfermodes3GM() { this->setBGColor(sk_tool_utils::color_to_565(0xFF70D0E0)); }
+    Xfermodes3GM() { this->setBGColor(ToolUtils::color_to_565(0xFF70D0E0)); }
 
 protected:
     SkString onShortName() override {
@@ -37,7 +37,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont  font(ToolUtils::create_portable_typeface());
         SkPaint labelP;
 
         constexpr SkColor kSolidColors[] = {

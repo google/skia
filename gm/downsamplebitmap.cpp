@@ -6,8 +6,8 @@
  */
 
 #include "Resources.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 static const char* kFilterQualityNames[] = { "none", "low", "medium", "high" };
 
@@ -87,13 +87,13 @@ static SkBitmap make_text(SkImageInfo info) {
     font.setSubpixel(true);
     font.setSize(textSize);
 
-    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle()));
     canvas.drawString("Hamburgefons", textSize/2, 1.2f*textSize, font, paint);
-    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Bold()));
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold()));
     canvas.drawString("Hamburgefons", textSize/2, 2.4f*textSize, font, paint);
-    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic()));
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic()));
     canvas.drawString("Hamburgefons", textSize/2, 3.6f*textSize, font, paint);
-    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::BoldItalic()));
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::BoldItalic()));
     canvas.drawString("Hamburgefons", textSize/2, 4.8f*textSize, font, paint);
 
     return bm;

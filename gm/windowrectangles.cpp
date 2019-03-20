@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkClipStack.h"
 #include "SkRRect.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
@@ -38,7 +38,7 @@ private:
 };
 
 DrawResult WindowRectanglesBaseGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
-    sk_tool_utils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6, 25);
+    ToolUtils::draw_checkerboard(canvas, 0xffffffff, 0xffc6c3c6, 25);
 
     SkClipStack stack;
     stack.clipRect(SkRect::MakeXYWH(370.75, 80.25, 149, 100), SkMatrix::I(),
