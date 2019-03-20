@@ -204,6 +204,42 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     return true;
 }
 
+void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
+    // If the dst is also GPU we try to not force a new image snapshot (by calling the base class
+    // onDraw) since that may not always perform the copy-on-write optimization.
+    auto tryDraw = [&] {
+        SkASSERT(fDevice->context()->priv().asDirectContext());
+        GrContext* context = fDevice->context();
+        GrContext* canvasContext = canvas->getGrContext();
+        if (!canvasContext) {
+            return false;
+        }
+        if (!canvasContext->priv().asDirectContext() ||
+            canvasContext->priv().contextID() != context->priv().contextID()) {
+            return false;
+        }
+        GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+        if (!rtc) {
+            return false;
+        }
+        sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
+        if (!srcProxy) {
+            return false;
+        }
+        // Possibly we could skip making an image here if SkGpuDevice exposed a lower level way
+        // of drawing a texture proxy.
+        const SkImageInfo info = fDevice->imageInfo();
+        sk_sp<SkImage> image;
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, info.alphaType(),
+                                        std::move(srcProxy), info.refColorSpace());
+        canvas->drawImage(image, x, y, paint);
+        return true;
+    };
+    if (!tryDraw()) {
+        INHERITED::onDraw(canvas, x, y, paint);
+    }
+}
+
 bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterization) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
