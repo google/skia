@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a08eaaa7_08c84c3a",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T16:07:01Z",
+      "side": 1,
+      "message": "Can you explain how this works?  If we don\u0027t push the binary, we have no guarantee that it\u0027s up to date.",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 49
+      },
+      "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
