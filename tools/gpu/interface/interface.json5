@@ -1,0 +1,47 @@
+[
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"ext": "<core>"}],
+    "WebGL": [{"ext": "<core>"}],
+
+    "functions": [
+      "ActiveTexture", "AttachShader", "BindAttribLocation", "BindBuffer",
+      "BindTexture",
+    ],
+    "required": true,
+  },
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_vertex_array_object"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "OES_vertex_array_object"}],
+
+    // WebGL uses createVertexArray instead of genVertexArrays, but Emscripten
+    // creates an alias called genVertexArray which papers over this difference.
+    "functions": [
+      "BindVertexArray", "DeleteVertexArrays", "GenVertexArrays",
+    ]
+  },
+  {
+    "GL":    [{"ext": "GL_KHR_blend_equation_advanced"},
+              {"ext": "GL_NV_blend_equation_advanced"}],
+    "GLES":  [{"ext": "GL_KHR_blend_equation_advanced"},
+              {"ext": "GL_NV_blend_equation_advanced"}],
+    "WebGL": null, // Not available
+
+    "functions": [
+      "BlendBarrier",
+    ],
+  },
+  {
+    "GL":    [{"min_version": [4, 4], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_clear_texture"}],
+    "GLES":  [{"ext": "GL_EXT_clear_texture", "suffix": "EXT"}],
+    "WebGL": null, // Not available
+
+    "functions": [
+      "ClearTexImage", "ClearTexSubImage",
+    ]
+  },
+]
