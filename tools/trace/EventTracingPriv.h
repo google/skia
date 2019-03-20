@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkEventTracingPriv_DEFINED
-#define SkEventTracingPriv_DEFINED
+#ifndef EventTracingPriv_DEFINED
+#define EventTracingPriv_DEFINED
 
 #include "SkMutex.h"
 
@@ -23,20 +23,20 @@ class SkEventTracingCategories {
 public:
     SkEventTracingCategories() : fNumCategories(0) {}
 
-    uint8_t* getCategoryGroupEnabled(const char* name);
+    uint8_t*    getCategoryGroupEnabled(const char* name);
     const char* getCategoryGroupName(const uint8_t* categoryEnabledFlag);
 
 private:
     enum { kMaxCategories = 256 };
 
     struct CategoryState {
-        uint8_t fEnabled;
+        uint8_t     fEnabled;
         const char* fName;
     };
 
     CategoryState fCategories[kMaxCategories];
-    int fNumCategories;
-    SkMutex fMutex;
+    int           fNumCategories;
+    SkMutex       fMutex;
 };
 
 #endif
