@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "657a179a_8be6626c",
+        "filename": "tools/debugger/DrawCommand.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-20T17:52:05Z",
+      "side": 1,
+      "message": "I get not changing all the DrawCommand derived classes, but these macros still refer to SKDEBUGCANVAS now... worth search \u0026 replace to strip that off?",
+      "revId": "55153788ff67ec6d0c488172a719e590259f4f57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
