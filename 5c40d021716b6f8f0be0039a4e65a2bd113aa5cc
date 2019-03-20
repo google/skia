@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "218b491d_ab0b5e14",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T17:22:10Z",
+      "side": 1,
+      "message": "Just curious: what\u0027s up with these file names?",
+      "range": {
+        "startLine": 38,
+        "startChar": 34,
+        "endLine": 38,
+        "endChar": 55
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "328325ed_49406bcc",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T17:22:10Z",
+      "side": 1,
+      "message": "nit: \"cumulative\"",
+      "range": {
+        "startLine": 154,
+        "startChar": 2,
+        "endLine": 154,
+        "endChar": 19
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "937b1ded_5c22bfc3",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T17:22:10Z",
+      "side": 1,
+      "message": "This isn\u0027t going to show up in logs.  If you need logs, you might consider making this a step with an inline python script.",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 37
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "508ed72e_b853270c",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T17:22:10Z",
+      "side": 1,
+      "message": "This is not going to work well in a recipe.  It\u0027ll cause a purple overall result with no red steps and no helpful output.  I recommend putting this whole function in an inline python script.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 54
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
