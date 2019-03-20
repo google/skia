@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -39,7 +39,7 @@ protected:
         canvas->drawBitmap(bm, 0, 0);
 
         // This should dither or we will see artifacts in the background of the image.
-        SkAssertResult(sk_tool_utils::copy_to(&bm4444, kARGB_4444_SkColorType, bm));
+        SkAssertResult(ToolUtils::copy_to(&bm4444, kARGB_4444_SkColorType, bm));
         canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
         return DrawResult::kOk;
     }

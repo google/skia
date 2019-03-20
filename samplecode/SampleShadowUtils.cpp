@@ -9,15 +9,15 @@
 #include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
 #include "SkCamera.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPoint3.h"
 #include "SkShadowUtils.h"
 #include "SkUTF.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 

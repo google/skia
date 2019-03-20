@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkColorPriv.h"
 #include "SkImageGenerator.h"
@@ -152,9 +152,9 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
 }
 
 static SkBitmap make_bitmap(const SkPath& path, const SkTDArray<SkRect>& circles, bool opaque) {
-    const SkColor kGreen  = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 178, 240, 104));
-    const SkColor kBlue   = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 173, 167, 252));
-    const SkColor kYellow = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 255, 221, 117));
+    const SkColor kGreen  = ToolUtils::color_to_565(SkColorSetARGB(0xFF, 178, 240, 104));
+    const SkColor kBlue   = ToolUtils::color_to_565(SkColorSetARGB(0xFF, 173, 167, 252));
+    const SkColor kYellow = ToolUtils::color_to_565(SkColorSetARGB(0xFF, 255, 221, 117));
 
     SkImageInfo ii = SkImageInfo::MakeN32(kTileWidthHeight, kTileWidthHeight, kPremul_SkAlphaType);
 
@@ -631,7 +631,7 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint paint;
-    SkFont font(sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle::Bold()), 16);
+    SkFont  font(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()), 16);
     font.setEdging(SkFont::Edging::kAlias);
 
     SkRect textRect;
@@ -656,7 +656,7 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
     SkPaint paint;
-    SkFont font(sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle::Bold()), 16);
+    SkFont  font(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()), 16);
     font.setEdging(SkFont::Edging::kAlias);
 
     SkRect textRect;

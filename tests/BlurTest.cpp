@@ -686,7 +686,7 @@ DEF_TEST(BlurZeroSigma, reporter) {
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
         surf->getCanvas()->drawRect(r, paint);
 
-        sk_tool_utils::PixelIter iter(surf.get());
+        ToolUtils::PixelIter iter(surf.get());
         SkIPoint  loc;
         while (const SkPMColor* p = (const SkPMColor*)iter.next(&loc)) {
             if (ir.contains(loc.fX, loc.fY)) {

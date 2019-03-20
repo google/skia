@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkRect.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -21,16 +21,16 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        const unsigned oneColor = sk_tool_utils::color_to_565(0xFF8080FF);
+        const unsigned oneColor   = ToolUtils::color_to_565(0xFF8080FF);
         const unsigned twoColor = 0x807F1f1f;
         SkColor blendColor = blend(oneColor, twoColor);
         makePaint(&fOnePaint, oneColor);
         makePaint(&fTwoPaint, twoColor);
         makePaint(&fOpPaint[kDifference_SkPathOp], oneColor);
         makePaint(&fOpPaint[kIntersect_SkPathOp], blendColor);
-        makePaint(&fOpPaint[kUnion_SkPathOp], sk_tool_utils::color_to_565(0xFFc0FFc0));
+        makePaint(&fOpPaint[kUnion_SkPathOp], ToolUtils::color_to_565(0xFFc0FFc0));
         makePaint(&fOpPaint[kReverseDifference_SkPathOp], twoColor);
-        makePaint(&fOpPaint[kXOR_SkPathOp], sk_tool_utils::color_to_565(0xFFa0FFe0));
+        makePaint(&fOpPaint[kXOR_SkPathOp], ToolUtils::color_to_565(0xFFa0FFe0));
         makePaint(&fOutlinePaint, 0xFF000000);
         fOutlinePaint.setStyle(SkPaint::kStroke_Style);
     }

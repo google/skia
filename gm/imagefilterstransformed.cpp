@@ -15,8 +15,8 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkScalar.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 namespace skiagm {
 
@@ -58,7 +58,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         fCheckerboard = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
+                ToolUtils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
         fGradientCircle = make_gradient_circle(64, 64);
     }
 

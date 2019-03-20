@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "sk_tool_utils.h"
 #include "DecodeFile.h"
 #include "Resources.h"
 #include "Sample.h"
-#include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
+#include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkOSFile.h"
@@ -19,6 +18,7 @@
 #include "SkString.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
+#include "ToolUtils.h"
 
 /**
  *  Interprets c as an unpremultiplied color, and returns the
@@ -69,7 +69,7 @@ protected:
     }
 
     void onDrawBackground(SkCanvas* canvas) override {
-        sk_tool_utils::draw_checkerboard(canvas, 0xFFCCCCCC, 0xFFFFFFFF, 12);
+        ToolUtils::draw_checkerboard(canvas, 0xFFCCCCCC, 0xFFFFFFFF, 12);
     }
 
     void onDrawContent(SkCanvas* canvas) override {

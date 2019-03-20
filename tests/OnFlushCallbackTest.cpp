@@ -472,12 +472,12 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
 // Enable this if you want to debug the final draws w/o having the atlasCallback create the
 // atlas
 #if 0
-#include "SkImageEncoder.h"
 #include "SkGrPriv.h"
-#include "sk_tool_utils.h"
+#include "SkImageEncoder.h"
+#include "ToolUtils.h"
 
 static void save_bm(const SkBitmap& bm, const char name[]) {
-    bool result = sk_tool_utils::EncodeImageToFile(name, bm, SkEncodedImageFormat::kPNG, 100);
+    bool result = ToolUtils::EncodeImageToFile(name, bm, SkEncodedImageFormat::kPNG, 100);
     SkASSERT(result);
 }
 

@@ -8,7 +8,7 @@
 #include "TestFontMgr.h"
 #include "SkFontDescriptor.h"
 #include "TestTypeface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #ifdef SK_XML
 #include "TestSVGTypeface.h"
@@ -198,6 +198,6 @@ private:
 };
 }  // namespace
 
-namespace sk_tool_utils {
+namespace ToolUtils {
 sk_sp<SkFontMgr> MakePortableFontMgr() { return sk_make_sp<FontMgr>(); }
-}  // namespace sk_tool_utils
+}  // namespace ToolUtils

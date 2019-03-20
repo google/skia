@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
-#include "SkPaint.h"
 #include "SkDashPathEffect.h"
+#include "SkPaint.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
                      SkScalar finalX = SkIntToScalar(600), SkScalar finalY = SkIntToScalar(0),
@@ -562,7 +562,7 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     p.setStrokeJoin(SkPaint::kRound_Join);
     p.setARGB(0xff, 0xbb, 0x00, 0x00);
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), 100);
+    SkFont font(ToolUtils::create_portable_typeface(), 100);
 
     const SkScalar intervals[] = { 12, 12 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));

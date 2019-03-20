@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkBitmap.h"
 #include "SkPaint.h"
@@ -199,15 +199,15 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     SkRect r = tile;
     r.inset(4, 4);
     SkPaint p;
-    p.setColor(sk_tool_utils::color_to_565(0xFF303F9F));  // dark blue
+    p.setColor(ToolUtils::color_to_565(0xFF303F9F));  // dark blue
     c->drawRect(r, p);
-    p.setColor(sk_tool_utils::color_to_565(0xFFC5CAE9));  // light blue
+    p.setColor(ToolUtils::color_to_565(0xFFC5CAE9));  // light blue
     p.setStrokeWidth(10);
     c->drawLine(20, 20, 80, 80, p);
 
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
-    p.setColor(sk_tool_utils::color_to_565(0xFF8BC34A));  // green
+    p.setColor(ToolUtils::color_to_565(0xFF8BC34A));  // green
     canvas->drawPaint(p);
 
     canvas->clipRect(SkRect::MakeXYWH(0, 0, 400, 350));

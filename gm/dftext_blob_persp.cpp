@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 /**
  * This GM tests reusing the same text blobs with distance fields rendering using various
@@ -38,7 +38,7 @@ protected:
                             SkFont::Edging::kSubpixelAntiAlias));
             font.setSubpixel(true);
             SkTextBlobBuilder builder;
-            sk_tool_utils::add_to_text_blob(&builder, "SkiaText", font, 0, 0);
+            ToolUtils::add_to_text_blob(&builder, "SkiaText", font, 0, 0);
             fBlobs.emplace_back(builder.make());
         }
     }

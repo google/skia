@@ -7,8 +7,8 @@
 
 // This test only works with the GPU backend.
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -103,7 +103,7 @@ protected:
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
                     SkFont labelFont;
-                    labelFont.setTypeface(sk_tool_utils::create_portable_typeface());
+                    labelFont.setTypeface(ToolUtils::create_portable_typeface());
                     labelFont.setEdging(SkFont::Edging::kAntiAlias);
                     labelFont.setSize(10.f);
                     SkPaint labelPaint;

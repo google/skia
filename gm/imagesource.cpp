@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkImage.h"
 #include "SkImageSource.h"
@@ -36,7 +36,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(500, 150); }
 
     void onOnceBeforeDraw() override {
-        SkBitmap bm = sk_tool_utils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
+        SkBitmap bm = ToolUtils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
         fImage = SkImage::MakeFromBitmap(bm);
     }
 

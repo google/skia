@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvasPriv.h"
-
+#include "ToolUtils.h"
+#include "gm.h"
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -25,7 +24,7 @@ static void do_draw(SkCanvas* canvas) {
     SkRandom rand;
 
     for (int i = 0; i < 20; ++i) {
-        paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+        paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
         canvas->drawRect({ 15, 15, 290, 40 }, paint);
         canvas->translate(0, 30);
     }

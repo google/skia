@@ -17,7 +17,7 @@
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 /*
  * A trivial test which benchmarks the performance of a textblob with a single run.
@@ -27,7 +27,7 @@ public:
     SkTextBlobBench() {}
 
     void onDelayedSetup() override {
-        fFont.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
+        fFont.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle()));
         fFont.setSubpixel(true);
 
         // This text seems representative in both length and letter frequency.

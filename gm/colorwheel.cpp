@@ -8,8 +8,8 @@
 #include "Resources.h"
 #include "SkData.h"
 #include "SkImage.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
     sk_sp<SkImage> image(GetResourceAsImage(resource));
@@ -31,7 +31,7 @@ static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
   background and compression artifacts.
  */
 DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
-    sk_tool_utils::draw_checkerboard(canvas);
+    ToolUtils::draw_checkerboard(canvas);
     draw_image(canvas, "images/color_wheel.png", 0, 0);  // top left
     draw_image(canvas, "images/color_wheel.gif", 128, 0);  // top right
     draw_image(canvas, "images/color_wheel.webp", 0, 128);  // bottom left
@@ -40,7 +40,7 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     SkPaint paint;
-    SkFont font(sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold()), 18);
+    SkFont  font(ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold()), 18);
     font.setEdging(SkFont::Edging::kAlias);
 
     canvas->clear(SK_ColorLTGRAY);

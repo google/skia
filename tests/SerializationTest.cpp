@@ -19,9 +19,9 @@
 #include "SkMatrixPriv.h"
 #include "SkNormalSource.h"
 #include "SkOSFile.h"
-#include "SkReadBuffer.h"
 #include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
+#include "SkReadBuffer.h"
 #include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
@@ -29,8 +29,8 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermodeImageFilter.h"
-#include "sk_tool_utils.h"
 #include "Test.h"
+#include "ToolUtils.h"
 
 static const uint32_t kArraySize = 64;
 static const int kBitmapSize = 256;
@@ -588,11 +588,8 @@ DEF_TEST(Serialization, reporter) {
 
         sk_sp<SkLights> fLights = builder.finish();
 
-        SkBitmap diffuse = sk_tool_utils::create_checkerboard_bitmap(
-                kTexSize, kTexSize,
-                0x00000000,
-                sk_tool_utils::color_to_565(0xFF804020),
-                8);
+        SkBitmap diffuse = ToolUtils::create_checkerboard_bitmap(
+                kTexSize, kTexSize, 0x00000000, ToolUtils::color_to_565(0xFF804020), 8);
 
         SkRect bitmapBounds = SkRect::MakeIWH(diffuse.width(), diffuse.height());
 
@@ -605,7 +602,7 @@ DEF_TEST(Serialization, reporter) {
         SkBitmap normals;
         normals.allocN32Pixels(kTexSize, kTexSize);
 
-        sk_tool_utils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
+        ToolUtils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
         sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normals, SkShader::kClamp_TileMode,
                 SkShader::kClamp_TileMode, &matrix);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),

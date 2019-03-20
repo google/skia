@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColor.h"
 #include "SkGradientShader.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -40,7 +40,7 @@ protected:
         SkScalar pos[2] = { 0, 80.0f };
         paint.setShader(SkGradientShader::MakeLinear(
             pts, fColors, pos, 2, SkShader::kClamp_TileMode));
-        SkFont font(sk_tool_utils::create_portable_typeface(), 180.0f);
+        SkFont font(ToolUtils::create_portable_typeface(), 180.0f);
         canvas.drawString("e", -10.0f, 80.0f, font, paint);
     }
 

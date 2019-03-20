@@ -26,9 +26,9 @@
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
 #include "SkTaskGroup.h"
+#include "ToolUtils.h"
 #include "flags/CommandLineFlags.h"
 #include "flags/CommonFlagsConfig.h"
-#include "sk_tool_utils.h"
 
 #ifdef SK_XML
 #include "SkDOM.h"
@@ -473,7 +473,7 @@ int main(int argc, char** argv) {
         if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
             exitf(ExitErr::kIO, "failed to create directory for png \"%s\"", FLAGS_png[0]);
         }
-        if (!sk_tool_utils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
+        if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
     }
@@ -500,7 +500,7 @@ static sk_sp<SkPicture> create_warmup_skp() {
 
     // Use a big path to (theoretically) warmup the CPU.
     SkPath bigPath;
-    sk_tool_utils::make_big_path(bigPath);
+    ToolUtils::make_big_path(bigPath);
     recording->drawPath(bigPath, stroke);
 
     // Use a perlin shader to warmup the GPU.

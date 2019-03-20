@@ -136,7 +136,7 @@ DEF_TEST(Vertices_clipping, reporter) {
     SkPoint pts[] = { { -10, 1 }, { -10, 2 }, { 1e9f, 1.5f } };
     fill_triangle(surf->getCanvas(), pts, SK_ColorBLACK);
 
-    sk_tool_utils::PixelIter iter(surf.get());
+    ToolUtils::PixelIter iter(surf.get());
     SkIPoint loc;
     while (void* addr = iter.next(&loc)) {
         SkPMColor c = *(SkPMColor*)addr;

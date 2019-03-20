@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // Create a hemispherical normal map
 static SkBitmap make_hemi_normalmap(int texSize) {
     SkBitmap hemi;
     hemi.allocN32Pixels(texSize, texSize);
 
-    sk_tool_utils::create_hemi_normal_map(&hemi, SkIRect::MakeWH(texSize, texSize));
+    ToolUtils::create_hemi_normal_map(&hemi, SkIRect::MakeWH(texSize, texSize));
     return hemi;
 }
 
@@ -26,7 +26,7 @@ static SkBitmap make_frustum_normalmap(int texSize) {
     SkBitmap frustum;
     frustum.allocN32Pixels(texSize, texSize);
 
-    sk_tool_utils::create_frustum_normal_map(&frustum, SkIRect::MakeWH(texSize, texSize));
+    ToolUtils::create_frustum_normal_map(&frustum, SkIRect::MakeWH(texSize, texSize));
     return frustum;
 }
 
@@ -35,7 +35,7 @@ static SkBitmap make_tetra_normalmap(int texSize) {
     SkBitmap tetra;
     tetra.allocN32Pixels(texSize, texSize);
 
-    sk_tool_utils::create_tetra_normal_map(&tetra, SkIRect::MakeWH(texSize, texSize));
+    ToolUtils::create_tetra_normal_map(&tetra, SkIRect::MakeWH(texSize, texSize));
     return tetra;
 }
 
@@ -78,11 +78,8 @@ protected:
             fLights = builder.finish();
         }
 
-        fDiffuse = sk_tool_utils::create_checkerboard_bitmap(
-                                                        kTexSize, kTexSize,
-                                                        0x00000000,
-                                                        sk_tool_utils::color_to_565(0xFF804020),
-                                                        8);
+        fDiffuse = ToolUtils::create_checkerboard_bitmap(
+                kTexSize, kTexSize, 0x00000000, ToolUtils::color_to_565(0xFF804020), 8);
 
         fNormalMaps[kHemi_NormalMap]    = make_hemi_normalmap(kTexSize);
         fNormalMaps[kFrustum_NormalMap] = make_frustum_normalmap(kTexSize);

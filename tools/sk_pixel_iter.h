@@ -11,51 +11,49 @@
 #include "SkPixmap.h"
 #include "SkSurface.h"
 
-namespace sk_tool_utils {
+namespace ToolUtils {
 
-    class PixelIter {
-    public:
-        PixelIter();
-        PixelIter(SkSurface* surf) {
-            SkPixmap pm;
-            if (!surf->peekPixels(&pm)) {
-                pm.reset();
-            }
-            this->reset(pm);
+class PixelIter {
+public:
+    PixelIter();
+    PixelIter(SkSurface* surf) {
+        SkPixmap pm;
+        if (!surf->peekPixels(&pm)) {
+            pm.reset();
         }
+        this->reset(pm);
+    }
 
-        void reset(const SkPixmap& pm) {
-            fPM = pm;
-            fLoc = { -1, 0 };
+    void reset(const SkPixmap& pm) {
+        fPM  = pm;
+        fLoc = {-1, 0};
+    }
+
+    void* next(SkIPoint* loc = nullptr) {
+        if (!fPM.addr()) {
+            return nullptr;
         }
-
-        void* next(SkIPoint* loc = nullptr) {
-            if (!fPM.addr()) {
+        fLoc.fX += 1;
+        if (fLoc.fX >= fPM.width()) {
+            fLoc.fX = 0;
+            if (++fLoc.fY >= fPM.height()) {
+                this->setDone();
                 return nullptr;
             }
-            fLoc.fX += 1;
-            if (fLoc.fX >= fPM.width()) {
-                fLoc.fX = 0;
-                if (++fLoc.fY >= fPM.height()) {
-                    this->setDone();
-                    return nullptr;
-                }
-            }
-            if (loc) {
-                *loc = fLoc;
-            }
-            return fPM.writable_addr(fLoc.fX, fLoc.fY);
         }
-
-        void setDone() {
-            fPM.reset();
+        if (loc) {
+            *loc = fLoc;
         }
+        return fPM.writable_addr(fLoc.fX, fLoc.fY);
+    }
 
-    private:
-        SkPixmap    fPM;
-        SkIPoint    fLoc;
-    };
+    void setDone() { fPM.reset(); }
 
-}  // namespace sk_tool_utils
+private:
+    SkPixmap fPM;
+    SkIPoint fLoc;
+};
 
-#endif  // sk_tool_utils_DEFINED
+}  // namespace ToolUtils
+
+#endif  // ToolUtils_DEFINED

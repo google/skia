@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace {
 
@@ -20,7 +20,7 @@ const SkIRect kSubset = SkIRect::MakeLTRB(25, 25, 75, 75);
 const SkRect    kDest = SkRect::MakeXYWH(10, 10, 100, 100);
 
 sk_sp<SkImage> make_mask(const sk_sp<SkSurface>& surface) {
-    sk_tool_utils::draw_checkerboard(surface->getCanvas(), 0x80808080, 0x00000000, 5);
+    ToolUtils::draw_checkerboard(surface->getCanvas(), 0x80808080, 0x00000000, 5);
     return surface->makeImageSnapshot();
 }
 

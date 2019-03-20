@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
@@ -56,7 +56,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(sk_tool_utils::color_to_565(0xFF007700));
+        paint.setColor(ToolUtils::color_to_565(0xFF007700));
 
         canvas->drawPath(path, paint);
     }

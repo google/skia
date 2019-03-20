@@ -7,16 +7,15 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkMaskFilter.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
-
 
 DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLACK);
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), 25);
+    SkFont font(ToolUtils::create_portable_typeface(), 25);
 
     const double sigmas[] = {3.0, 8.0, 16.0, 24.0, 32.0};
 

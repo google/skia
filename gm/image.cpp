@@ -13,8 +13,8 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include <functional>
 
@@ -113,7 +113,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(2, 2);
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 8);
+        SkFont font(ToolUtils::create_portable_typeface(), 8);
 
         canvas->drawString("Original Img",  10,  60, font, SkPaint());
         canvas->drawString("Modified Img",  10, 140, font, SkPaint());
@@ -398,7 +398,7 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
 
 DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, nullptr);
-    auto surf = sk_tool_utils::makeSurface(canvas, info, nullptr);
+    auto        surf = ToolUtils::makeSurface(canvas, info, nullptr);
     auto img = make_lazy_image(surf.get());
     if (!img) {
         *errorMsg = "Failed to make lazy image.";

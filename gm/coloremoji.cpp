@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkBlurImageFilter.h"
@@ -62,8 +62,8 @@ protected:
         const char* text;
     } emojiFont;
     virtual void onOnceBeforeDraw() override {
-        emojiFont.typeface = sk_tool_utils::emoji_typeface();
-        emojiFont.text = sk_tool_utils::emoji_sample_text();
+        emojiFont.typeface = ToolUtils::emoji_typeface();
+        emojiFont.text     = ToolUtils::emoji_sample_text();
     }
 
     SkString onShortName() override {

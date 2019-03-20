@@ -12,7 +12,7 @@
 #include "SkRandom.h"
 #include "SkStrike.h"
 #include "SkStrikeCache.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 static constexpr int kScreenWidth = 1500;
 static constexpr int kScreenHeight = 1500;
@@ -76,7 +76,7 @@ private:
         }
 
         if (fClipped) {
-            fClipPath = sk_tool_utils::make_star(SkRect::MakeIWH(kScreenWidth,kScreenHeight), 11,3);
+            fClipPath = ToolUtils::make_star(SkRect::MakeIWH(kScreenWidth, kScreenHeight), 11, 3);
             fClipPath.setIsVolatile(fUncached);
         }
     }

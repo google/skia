@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkLayerDrawLooper.h"
 #include "SkMaskFilter.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH   200
 #define HEIGHT  200
@@ -39,7 +39,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setLooper(fLooper);
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 72);
+        SkFont font(ToolUtils::create_portable_typeface(), 72);
 
         canvas->drawCircle(50, 50, 30, paint);
         canvas->drawRect({ 150, 50, 200, 100 }, paint);

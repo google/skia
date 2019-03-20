@@ -10,8 +10,8 @@
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkTileImageFilter.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #define WIDTH 400
 #define HEIGHT 200
@@ -36,13 +36,10 @@ protected:
 
     void onOnceBeforeDraw() override {
         fBitmap = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_string_bitmap(50, 50, 0xD000D000, 10, 45, 50, "e"));
+                ToolUtils::create_string_bitmap(50, 50, 0xD000D000, 10, 45, 50, "e"));
 
         fCheckerboard = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(80, 80,
-                                                      0xFFA0A0A0,
-                                                      0xFF404040,
-                                                      8));
+                ToolUtils::create_checkerboard_bitmap(80, 80, 0xFFA0A0A0, 0xFF404040, 8));
     }
 
     void onDraw(SkCanvas* canvas) override {

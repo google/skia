@@ -10,7 +10,7 @@
 #include <algorithm>
 #include "SkGradientShader.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 // Makes a set of m x n tiled images to be drawn with SkCanvas::experimental_drawImageSetV1().
 static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor colors[4],
@@ -183,7 +183,7 @@ private:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_tool_utils::draw_checkerboard(canvas, SK_ColorBLACK, SK_ColorWHITE, 50);
+        ToolUtils::draw_checkerboard(canvas, SK_ColorBLACK, SK_ColorWHITE, 50);
         static constexpr SkScalar kW = kM * kTileW;
         static constexpr SkScalar kH = kN * kTileH;
         SkMatrix matrices[5];

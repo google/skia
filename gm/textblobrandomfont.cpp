@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "RandomScalerContext.h"
 #include "Resources.h"
@@ -42,7 +42,7 @@ protected:
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
         // Setup our random scaler context
-        auto typeface = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
+        auto typeface = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
         if (!typeface) {
             typeface = SkTypeface::MakeDefault();
         }
@@ -52,7 +52,7 @@ protected:
         SkRect bounds;
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         y -= bounds.fTop;
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, y);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, y);
         y += bounds.fBottom;
 
         // A8
@@ -63,21 +63,21 @@ protected:
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.measureText(bigtext1, strlen(bigtext1), kUTF8_SkTextEncoding, &bounds);
         y -= bounds.fTop;
-        sk_tool_utils::add_to_text_blob(&builder, bigtext1, font, 0, y);
+        ToolUtils::add_to_text_blob(&builder, bigtext1, font, 0, y);
         y += bounds.fBottom;
 
         font.measureText(bigtext2, strlen(bigtext2), kUTF8_SkTextEncoding, &bounds);
         y -= bounds.fTop;
-        sk_tool_utils::add_to_text_blob(&builder, bigtext2, font, 0, y);
+        ToolUtils::add_to_text_blob(&builder, bigtext2, font, 0, y);
         y += bounds.fBottom;
 
         // color emoji
-        if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
+        if (sk_sp<SkTypeface> origEmoji = ToolUtils::emoji_typeface()) {
             font.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
-            const char* emojiText = sk_tool_utils::emoji_sample_text();
+            const char* emojiText = ToolUtils::emoji_sample_text();
             font.measureText(emojiText, strlen(emojiText), kUTF8_SkTextEncoding, &bounds);
             y -= bounds.fTop;
-            sk_tool_utils::add_to_text_blob(&builder, emojiText, font, 0, y);
+            ToolUtils::add_to_text_blob(&builder, emojiText, font, 0, y);
             y += bounds.fBottom;
         }
 
@@ -96,7 +96,7 @@ protected:
     DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         // This GM exists to test a specific feature of the GPU backend.
-        // This GM uses sk_tool_utils::makeSurface which doesn't work well with vias.
+        // This GM uses ToolUtils::makeSurface which doesn't work well with vias.
         // This GM uses SkRandomTypeface which doesn't work well with serialization.
         canvas->drawColor(SK_ColorWHITE);
 
@@ -104,7 +104,7 @@ protected:
                                              kPremul_SkAlphaType,
                                              canvas->imageInfo().refColorSpace());
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
+        auto           surface(ToolUtils::makeSurface(canvas, info, &props));
         if (!surface) {
             *errorMsg = "This test requires a surface";
             return DrawResult::kFail;

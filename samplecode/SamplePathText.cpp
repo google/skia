@@ -14,7 +14,7 @@
 #include "SkStrike.h"
 #include "SkStrikeCache.h"
 #include "SkTaskGroup.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static text from paths.
@@ -106,7 +106,7 @@ protected:
 
     Glyph      fGlyphs[kNumPaths];
     SkRandom   fRand{25};
-    SkPath     fClipPath = sk_tool_utils::make_star(SkRect{0,0,1,1}, 11, 3);
+    SkPath     fClipPath = ToolUtils::make_star(SkRect{0, 0, 1, 1}, 11, 3);
     bool       fDoClip = false;
 
     typedef Sample INHERITED;

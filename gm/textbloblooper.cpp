@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Sk2DPathEffect.h"
 #include "SkBlurMask.h"
@@ -24,7 +24,7 @@ namespace skiagm {
 constexpr int kWidth = 1250;
 constexpr int kHeight = 700;
 
-// Unlike the variant in sk_tool_utils, this version positions the glyphs on a diagonal
+// Unlike the variant in ToolUtils, this version positions the glyphs on a diagonal
 static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkFont& font,
                              SkScalar x, SkScalar y) {
     SkTDArray<uint16_t> glyphs;
@@ -143,7 +143,7 @@ protected:
         const char* text = "The quick brown fox jumps over the lazy dog";
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-        font.setTypeface(sk_tool_utils::create_portable_typeface());
+        font.setTypeface(ToolUtils::create_portable_typeface());
         add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
 

@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     static constexpr SkScalar kSize = 50;
     SkImageInfo info = SkImageInfo::MakeN32Premul(kSize, kSize);
-    auto surface = sk_tool_utils::makeSurface(rootCanvas, info);
+    auto                      surface = ToolUtils::makeSurface(rootCanvas, info);
 
     SkPaint p;
     p.setAntiAlias(true);

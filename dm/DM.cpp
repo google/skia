@@ -40,8 +40,8 @@
 #include "SkTypeface_win.h"
 #include "Test.h"
 #include "TestFontMgr.h"
+#include "ToolUtils.h"
 #include "ios_utils.h"
-#include "sk_tool_utils.h"
 
 #include <vector>
 
@@ -1401,8 +1401,8 @@ struct Task {
         if (bitmap) {
             result.gamut         = identify_gamut               (bitmap->colorSpace());
             result.transferFn    = identify_transfer_fn         (bitmap->colorSpace());
-            result.colorType     = sk_tool_utils::colortype_name(bitmap->colorType ());
-            result.alphaType     = sk_tool_utils::alphatype_name(bitmap->alphaType ());
+            result.colorType     = ToolUtils::colortype_name(bitmap->colorType());
+            result.alphaType     = ToolUtils::alphatype_name(bitmap->alphaType());
             result.colorDepth    = color_depth                  (bitmap->colorType());
         }
         JsonWriter::AddBitmapResult(result);
@@ -1518,7 +1518,7 @@ int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
     if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
+        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
     }
 
 #if defined(SK_BUILD_FOR_WIN)

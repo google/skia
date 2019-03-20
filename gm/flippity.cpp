@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkSurface.h"
 
@@ -64,7 +64,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
     SkFont font;
     font.setEdging(SkFont::Edging::kAntiAlias);
-    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(32);
 
     SkRect bounds;

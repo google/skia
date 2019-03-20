@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkPathMeasure.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 class AddArcGM : public skiagm::GM {
 public:
@@ -37,7 +37,7 @@ protected:
 
         SkScalar sign = 1;
         while (r.width() > paint.getStrokeWidth() * 3) {
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             SkScalar startAngle = rand.nextUScalar1() * 360;
 
             SkScalar speed = SkScalarSqrt(16 / r.width()) * 0.5f;
@@ -131,7 +131,7 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->rotate(fRotate * sign);
 
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             canvas->drawOval(r, paint);
             r.inset(delta, delta);
             sign = -sign;
@@ -184,7 +184,7 @@ protected:
         while (r.width() > strokeWidth * 2) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->rotate(fRotate * sign);
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             canvas->drawOval(r, paint);
             r.inset(delta, delta);
             sign = -sign;

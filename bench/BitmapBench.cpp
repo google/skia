@@ -12,7 +12,7 @@
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 /*  Variants for bitmaps
 
@@ -48,7 +48,8 @@ public:
 protected:
     const char* onGetName() override {
         fName.set("bitmap");
-        fName.appendf("_%s%s", sk_tool_utils::colortype_name(fColorType),
+        fName.appendf("_%s%s",
+                      ToolUtils::colortype_name(fColorType),
                       kOpaque_SkAlphaType == fAlphaType ? "" : "_A");
         if (fDoScale) {
             fName.append("_scale");

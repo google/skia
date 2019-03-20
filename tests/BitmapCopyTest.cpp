@@ -15,7 +15,7 @@
 #include "SkSize.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
@@ -102,7 +102,7 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
             // Test copying an extracted subset.
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
                 SkBitmap copy;
-                bool success = sk_tool_utils::copy_to(&copy, gPairs[j].fColorType, subset);
+                bool     success = ToolUtils::copy_to(&copy, gPairs[j].fColorType, subset);
                 if (!success) {
                     // Skip checking that success matches fValid, which is redundant
                     // with the code below.

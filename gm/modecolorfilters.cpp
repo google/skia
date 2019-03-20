@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH 512
 #define HEIGHT 1024
@@ -40,9 +40,9 @@ static sk_sp<SkShader> make_bg_shader(int checkSize) {
     SkBitmap bmp;
     bmp.allocN32Pixels(2 * checkSize, 2 * checkSize);
     SkCanvas canvas(bmp);
-    canvas.clear(sk_tool_utils::color_to_565(0xFF800000));
+    canvas.clear(ToolUtils::color_to_565(0xFF800000));
     SkPaint paint;
-    paint.setColor(sk_tool_utils::color_to_565(0xFF000080));
+    paint.setColor(ToolUtils::color_to_565(0xFF000080));
     SkRect rect0 = SkRect::MakeXYWH(0, 0,
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(checkSize), SkIntToScalar(checkSize),

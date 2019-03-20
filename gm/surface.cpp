@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define W 200
 #define H 100
@@ -43,7 +43,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     paint.setShader(nullptr);
 
     paint.setColor(SK_ColorWHITE);
-    SkFont font(sk_tool_utils::create_portable_typeface(), 32);
+    SkFont font(ToolUtils::create_portable_typeface(), 32);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, font, paint,
                             SkTextUtils::kCenter_Align);
@@ -124,7 +124,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-        auto surf(sk_tool_utils::makeSurface(canvas, info, nullptr));
+        auto surf(ToolUtils::makeSurface(canvas, info, nullptr));
         drawInto(surf->getCanvas());
 
         sk_sp<SkImage> image(surf->makeImageSnapshot());
@@ -149,7 +149,7 @@ DEF_GM( return new NewSurfaceGM )
 
 DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    sk_sp<SkSurface> surf = sk_tool_utils::makeSurface(canvas, info);
+    sk_sp<SkSurface>  surf = ToolUtils::makeSurface(canvas, info);
 
     surf->getCanvas()->clear(SK_ColorRED);
     // its important that image survives longer than the next draw, so the surface will see
@@ -167,7 +167,7 @@ DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    sk_sp<SkSurface> surf = sk_tool_utils::makeSurface(canvas, info);
+    sk_sp<SkSurface>  surf = ToolUtils::makeSurface(canvas, info);
     surf->getCanvas()->clear(SK_ColorRED);
     // its important that image survives longer than the next draw, so the surface will see
     // an outstanding image, and have to decide if it should retain or discard those pixels
@@ -188,7 +188,7 @@ DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256, nullptr);
-    auto surf = sk_tool_utils::makeSurface(canvas, info);
+    auto        surf = ToolUtils::makeSurface(canvas, info);
 
     const SkIRect subset = SkIRect::MakeLTRB(180, 0, 256, 256);
 

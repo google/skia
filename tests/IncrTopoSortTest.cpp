@@ -9,7 +9,7 @@
 #include "SkTSort.h"
 #include "Test.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 // A node in the graph. This corresponds to an opList in the MDB world.
 class Node : public SkRefCnt {

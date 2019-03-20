@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkBlurMask.h"
@@ -37,7 +37,7 @@ protected:
 
         const char* text = "Skia";
 
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, 0);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
 
         // large
         SkRect bounds;
@@ -45,35 +45,35 @@ protected:
         SkScalar yOffset = bounds.height();
         font.setSize(162);
 
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // Medium
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         yOffset += bounds.height();
         font.setSize(72);
 
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // Small
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         yOffset += bounds.height();
         font.setSize(32);
 
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // micro (will fall out of distance field text even if distance field text is enabled)
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         yOffset += bounds.height();
         font.setSize(14);
 
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // Zero size.
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         yOffset += bounds.height();
         font.setSize(0);
 
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // build
         fBlob = builder.make();

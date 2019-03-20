@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkBlendModePriv.h"
@@ -49,7 +49,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, s25, s25, s25);
     mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
-    SkFont font(sk_tool_utils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
 
     SkPaint textPaint;
     textPaint.setAntiAlias(true);

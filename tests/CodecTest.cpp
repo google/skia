@@ -41,8 +41,8 @@
 #include "SkUnPreMultiply.h"
 #include "SkWebpEncoder.h"
 #include "Test.h"
+#include "ToolUtils.h"
 #include "png.h"
-#include "sk_tool_utils.h"
 
 #include <setjmp.h>
 #include <cstring>
@@ -818,7 +818,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
 
     if (decodedBm.colorType() != bm.colorType()) {
         SkBitmap tmp;
-        bool success = sk_tool_utils::copy_to(&tmp, bm.colorType(), decodedBm);
+        bool     success = ToolUtils::copy_to(&tmp, bm.colorType(), decodedBm);
         REPORTER_ASSERT(r, success);
         if (!success) {
             return;

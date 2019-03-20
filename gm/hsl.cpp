@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 // Hue, Saturation, Color, and Luminosity blend modes are oddballs.
 // They nominally convert their inputs to unpremul, then to HSL, then
@@ -146,7 +146,7 @@ static SkColor blend(SkColor dst, SkColor src,
 
 DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
     SkPaint paint;
-    SkFont font(sk_tool_utils::create_portable_typeface());
+    SkFont  font(ToolUtils::create_portable_typeface());
 
     const char* comment = "HSL blend modes are correct when you see no circles in the squares.";
     canvas->drawString(comment, 10,10, font, paint);

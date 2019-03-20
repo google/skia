@@ -12,12 +12,12 @@
 #include "SkRSXform.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-        auto surface(sk_tool_utils::makeSurface(caller, info));
+        auto        surface(ToolUtils::makeSurface(caller, info));
         SkCanvas* canvas = surface->getCanvas();
         // draw red everywhere, but we don't expect to see it in the draw, testing the notion
         // that drawAtlas draws a subset-region of the atlas.
@@ -212,7 +212,7 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
 // Exercise xform blob and its bounds
 DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     SkFont font;
-    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(50);
 
     const char text[] = "CrazyXform";
