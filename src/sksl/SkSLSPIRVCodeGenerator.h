@@ -101,6 +101,11 @@ private:
         kTexture_SpecialIntrinsic,
     };
 
+    enum class Precision {
+        kLow,
+        kHigh,
+    };
+
     void setupIntrinsics();
 
     SpvId nextId();
@@ -119,6 +124,8 @@ private:
 
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
+
+    void writePrecisionModifier(Precision precision, SpvId id);
 
     void writePrecisionModifier(const Type& type, SpvId id);
 
