@@ -22,6 +22,30 @@
       "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad89fda5_d9e1d485",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T16:48:51Z",
+      "side": 1,
+      "message": "The problem I was trying to solve was that I needed to run the same dm multiple times on different files. Example-\n  For file in many files:\n    api.run(api.flavor.step, \u0027dm\u0027, cmd\u003ddm_args_for_file)\n\nThe flavor/android.step was copying over the binary very time even though it was already there after the first invocation, this ended up taking a lot of time. So for all runs except the 1st one when I pass in skip_binary_push\u003dFalse it skipped that unnecessary step.\nI see this flag being used only when you are sure that the binary is up to date.",
+      "parentUuid": "a08eaaa7_08c84c3a",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 49
+      },
+      "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
