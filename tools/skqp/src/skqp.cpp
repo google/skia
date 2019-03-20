@@ -8,7 +8,7 @@
 #include "skqp.h"
 
 #include "../../../src/core/SkStreamPriv.h"
-#include "../../tools/fonts/SkTestFontMgr.h"
+#include "../../tools/fonts/TestFontMgr.h"
 #include "GrContext.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"

@@ -12,7 +12,7 @@
 #include "SkFontMgrPriv.h"
 #include "SkImageFilter.h"
 #include "SkPaint.h"
-#include "SkTestFontMgr.h"
+#include "TestFontMgr.h"
 
 void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
     const int BitmapSize = 24;

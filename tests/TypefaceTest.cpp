@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkData.h"
 #include "SkFixed.h"
@@ -12,14 +13,13 @@
 #include "SkFontMgr.h"
 #include "SkMakeUnique.h"
 #include "SkOTTable_OS_2.h"
+#include "SkRefCnt.h"
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
-#include "SkRefCnt.h"
-#include "SkTestEmptyTypeface.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
-#include "Resources.h"
 #include "Test.h"
+#include "TestEmptyTypeface.h"
 
 #include <memory>
 
@@ -277,12 +277,12 @@ static int count(skiatest::Reporter* reporter, const SkTypefaceCache& cache) {
 }
 
 DEF_TEST(TypefaceCache, reporter) {
-    sk_sp<SkTypeface> t1(SkTestEmptyTypeface::Make());
+    sk_sp<SkTypeface> t1(TestEmptyTypeface::Make());
     {
         SkTypefaceCache cache;
         REPORTER_ASSERT(reporter, count(reporter, cache) == 0);
         {
-            sk_sp<SkTypeface> t0(SkTestEmptyTypeface::Make());
+            sk_sp<SkTypeface> t0(TestEmptyTypeface::Make());
             cache.add(t0);
             REPORTER_ASSERT(reporter, count(reporter, cache) == 1);
             cache.add(t1);
