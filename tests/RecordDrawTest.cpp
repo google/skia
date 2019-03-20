@@ -8,7 +8,7 @@
 #include "Test.h"
 #include "RecordTestUtils.h"
 
-#include "SkDebugCanvas.h"
+#include "DebugCanvas.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkImagePriv.h"
 #include "SkRecord.h"
