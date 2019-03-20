@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkAnimTimer.h"
-#include "SkPath.h"
+#include "AnimTimer.h"
 #include "SkDashPathEffect.h"
+#include "SkPath.h"
+#include "gm.h"
 
 int dash1[] = { 1, 1 };
 int dash2[] = { 1, 3 };
@@ -94,7 +94,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         constexpr SkScalar kDesiredDurationSecs = 100.0f;
 
         fRotation = timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
@@ -215,7 +215,7 @@ protected:
     }
 
 protected:
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fPhaseDegrees = timer.secs();
         return true;
     }

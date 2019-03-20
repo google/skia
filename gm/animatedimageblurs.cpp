@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkBlurImageFilter.h"
-#include "SkRandom.h"
 #include "SkRRect.h"
+#include "SkRandom.h"
+#include "gm.h"
 
 static const SkScalar kBlurMax = 7.0f;
 static const int kNumNodes = 30;
@@ -59,7 +59,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (0.0f != fLastTime) {
             for (int i = 0; i < kNumNodes; ++i) {
                 fNodes[i].update(timer, fLastTime);
@@ -96,8 +96,7 @@ private:
             fSpeed = rand->nextRangeF(20.0f, 60.0f);
         }
 
-        void update(const SkAnimTimer& timer, SkScalar lastTime) {
-
+        void update(const AnimTimer& timer, SkScalar lastTime) {
             SkScalar deltaTime = timer.secs() - lastTime;
 
             fPos.fX += deltaTime * fSpeed * fDir.fX;

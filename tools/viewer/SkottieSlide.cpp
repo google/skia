@@ -9,7 +9,7 @@
 
 #if defined(SK_ENABLE_SKOTTIE)
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkOSPath.h"
@@ -136,7 +136,7 @@ void SkottieSlide::draw(SkCanvas* canvas) {
     }
 }
 
-bool SkottieSlide::animate(const SkAnimTimer& timer) {
+bool SkottieSlide::animate(const AnimTimer& timer) {
     if (fTimeBase == 0) {
         // Reset the animation time.
         fTimeBase = timer.msec();

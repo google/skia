@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkLightingShader.h"
 #include "SkLights.h"
 #include "SkNormalSource.h"
-#include "SkRandom.h"
 #include "SkRSXform.h"
+#include "SkRandom.h"
 
 #include "ToolUtils.h"
 
@@ -482,9 +482,7 @@ protected:
         canvas->drawDrawable(fDrawable.get());
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        return true;
-    }
+    bool onAnimate(const AnimTimer& timer) override { return true; }
 
 private:
     sk_sp<DrawLitAtlasDrawable> fDrawable;

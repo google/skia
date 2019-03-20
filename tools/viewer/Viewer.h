@@ -8,18 +8,18 @@
 #ifndef Viewer_DEFINED
 #define Viewer_DEFINED
 
-#include "sk_app/Application.h"
-#include "sk_app/CommandSet.h"
-#include "sk_app/Window.h"
-#include "gm.h"
+#include "AnimTimer.h"
 #include "ImGuiLayer.h"
-#include "SkAnimTimer.h"
 #include "SkExecutor.h"
 #include "SkFont.h"
 #include "SkScan.h"
 #include "Slide.h"
 #include "StatsLayer.h"
 #include "TouchGesture.h"
+#include "gm.h"
+#include "sk_app/Application.h"
+#include "sk_app/CommandSet.h"
+#include "sk_app/Window.h"
 
 class SkCanvas;
 
@@ -121,7 +121,7 @@ private:
     StatsLayer::Timer      fFlushTimer;
     StatsLayer::Timer      fAnimateTimer;
 
-    SkAnimTimer            fAnimTimer;
+    AnimTimer              fAnimTimer;
     SkTArray<sk_sp<Slide>> fSlides;
     int                    fCurrentSlide;
 

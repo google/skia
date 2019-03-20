@@ -24,7 +24,7 @@ public:
     void draw(SkCanvas* canvas) override;
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
-    bool animate(const SkAnimTimer& timer) override;
+    bool animate(const AnimTimer& timer) override;
 
     bool onChar(SkUnichar c) override;
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,

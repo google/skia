@@ -7,8 +7,8 @@
 
 #include "NIMASlide.h"
 
+#include "AnimTimer.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
 #include "SkOSPath.h"
 #include "imgui.h"
 #include "nima/NimaActor.h"
@@ -88,7 +88,7 @@ void NIMASlide::unload() {
     fActor.reset(nullptr);
 }
 
-bool NIMASlide::animate(const SkAnimTimer& timer) {
+bool NIMASlide::animate(const AnimTimer& timer) {
     // Apply the animation.
     if (fActor) {
         float time = std::fmod(timer.secs(), fActor->duration());

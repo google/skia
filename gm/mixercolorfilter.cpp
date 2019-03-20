@@ -7,12 +7,12 @@
 
 #include "gm.h"
 
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
 #include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
-#include "SkAnimTimer.h"
 
 namespace {
 
@@ -186,7 +186,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fPos = (sin(timer.secs()) + 1) * 0.5f;
         return true;
     }
