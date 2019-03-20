@@ -70,6 +70,30 @@
       "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71c848d9_092c81b6",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T17:06:33Z",
+      "side": 1,
+      "message": "Yep, I don\u0027t love it either but simpler than anything else I could come up with.",
+      "parentUuid": "362d6814_d7355337",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 49
+      },
+      "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
