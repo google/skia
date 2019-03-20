@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "DebugCanvas.h"
 #include "SkCanvas.h"
-#include "SkDebugCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureFlat.h"
 #include "SkPictureRecord.h"
+#include "Test.h"
 
 // This test exercises the Matrix/Clip State collapsing system. It generates
 // example skps and the compares the actual stored operations to the expected
@@ -59,7 +59,7 @@
 
 // Extract the command ops from the input SkPicture
 static void gets_ops(SkPicture& input, SkTDArray<DrawType>* ops) {
-    SkDebugCanvas debugCanvas(input.width(), input.height());
+    DebugCanvas debugCanvas(input.width(), input.height());
     debugCanvas.setBounds(input.width(), input.height());
     input.draw(&debugCanvas);
 
@@ -643,13 +643,13 @@ static void print(const SkTDArray<DrawType>& expected, const SkTDArray<DrawType>
 
     for (int i = 0; i < max; ++i) {
         if (i < expected.count()) {
-            SkDebugf("%16s,    ", SkDrawCommand::GetCommandString(expected[i]));
+            SkDebugf("%16s,    ", DrawCommand::GetCommandString(expected[i]));
         } else {
             SkDebugf("%16s,    ", " ");
         }
 
         if (i < actual.count()) {
-            SkDebugf("%s\n", SkDrawCommand::GetCommandString(actual[i]));
+            SkDebugf("%s\n", DrawCommand::GetCommandString(actual[i]));
         } else {
             SkDebugf("\n");
         }

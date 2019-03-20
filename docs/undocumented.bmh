@@ -211,7 +211,7 @@ FT_Load_Glyph
 ##
 
 #Topic Debug_Canvas
-#Class SkDebugCanvas
+#Class DebugCanvas
 ##
 ##
 

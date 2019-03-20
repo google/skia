@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkDebugCanvas.h"
+#include "DebugCanvas.h"
 #include "SkJSONWriter.h"
 #include "SkPicture.h"
 #include "SkSurface.h"
@@ -62,8 +62,8 @@ class SkpDebugPlayer {
       SkDebugf("Parsed SKP file.\n");
       // Make debug canvas using bounds from SkPicture
       fBounds = fPicture->cullRect().roundOut();
-      fDebugCanvas.reset(new SkDebugCanvas(fBounds));
-      SkDebugf("SkDebugCanvas created.\n");
+      fDebugCanvas.reset(new DebugCanvas(fBounds));
+      SkDebugf("DebugCanvas created.\n");
 
       // Only draw picture to the debug canvas once.
       fDebugCanvas->drawPicture(fPicture);
@@ -118,9 +118,9 @@ class SkpDebugPlayer {
 
   private:
     // admission of ignorance - don't know when to use unique pointer or sk_sp
-    std::unique_ptr<SkDebugCanvas> fDebugCanvas;
-    sk_sp<SkPicture> fPicture;
-    SkIRect fBounds;
+      std::unique_ptr<DebugCanvas> fDebugCanvas;
+      sk_sp<SkPicture>             fPicture;
+      SkIRect                      fBounds;
 };
 
 #if SK_SUPPORT_GPU

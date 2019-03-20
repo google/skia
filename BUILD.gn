@@ -1100,9 +1100,9 @@ if (target_cpu == "wasm") {
 
     sources = [
       "tools/UrlDataManager.cpp",
-      "tools/debugger/SkDebugCanvas.cpp",
-      "tools/debugger/SkDrawCommand.cpp",
-      "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
     ]
 
     deps = [
@@ -1567,9 +1567,9 @@ if (skia_enable_tools) {
       "tools/Resources.cpp",
       "tools/ToolUtils.cpp",
       "tools/UrlDataManager.cpp",
-      "tools/debugger/SkDebugCanvas.cpp",
-      "tools/debugger/SkDrawCommand.cpp",
-      "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
       "tools/fonts/RandomScalerContext.cpp",
       "tools/fonts/TestEmptyTypeface.h",
       "tools/fonts/TestFontMgr.cpp",
@@ -2010,9 +2010,9 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
-      "tools/debugger/SkDebugCanvas.cpp",
-      "tools/debugger/SkDrawCommand.cpp",
-      "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
     ]
     deps = [
       ":flags",
@@ -2456,9 +2456,9 @@ if (skia_enable_tools) {
       }
       sources = [
         "tools/UrlDataManager.cpp",
-        "tools/debugger/SkDebugCanvas.cpp",
-        "tools/debugger/SkDrawCommand.cpp",
-        "tools/debugger/SkJsonWriteBuffer.cpp",
+        "tools/debugger/DebugCanvas.cpp",
+        "tools/debugger/DrawCommand.cpp",
+        "tools/debugger/JsonWriteBuffer.cpp",
         "tools/mdbviz/MainWindow.cpp",
         "tools/mdbviz/Model.cpp",
         "tools/mdbviz/main.cpp",

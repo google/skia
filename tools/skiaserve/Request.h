@@ -12,7 +12,7 @@
 
 #include "GrContextFactory.h"
 
-#include "SkDebugCanvas.h"
+#include "DebugCanvas.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -60,7 +60,7 @@ struct Request {
     SkColor getPixel(int x, int y);
 
     UploadContext* fUploadContext;
-    std::unique_ptr<SkDebugCanvas> fDebugCanvas;
+    std::unique_ptr<DebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
 
 private:
