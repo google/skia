@@ -16,11 +16,13 @@
 #include "SkFontTypes.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
+#include "SkPixmap.h"
 #include "SkRandom.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
@@ -229,6 +231,48 @@ inline bool EncodeImageToFile(const char* path, const T& src, SkEncodedImageForm
 
 bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
 void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
+
+class PixelIter {
+public:
+    PixelIter();
+    PixelIter(SkSurface* surf) {
+        SkPixmap pm;
+        if (!surf->peekPixels(&pm)) {
+            pm.reset();
+        }
+        this->reset(pm);
+    }
+
+    void reset(const SkPixmap& pm) {
+        fPM  = pm;
+        fLoc = {-1, 0};
+    }
+
+    void* next(SkIPoint* loc = nullptr) {
+        if (!fPM.addr()) {
+            return nullptr;
+        }
+        fLoc.fX += 1;
+        if (fLoc.fX >= fPM.width()) {
+            fLoc.fX = 0;
+            if (++fLoc.fY >= fPM.height()) {
+                this->setDone();
+                return nullptr;
+            }
+        }
+        if (loc) {
+            *loc = fLoc;
+        }
+        return fPM.writable_addr(fLoc.fX, fLoc.fY);
+    }
+
+    void setDone() { fPM.reset(); }
+
+private:
+    SkPixmap fPM;
+    SkIPoint fLoc;
+};
+
 }  // namespace ToolUtils
 
 #endif  // ToolUtils_DEFINED

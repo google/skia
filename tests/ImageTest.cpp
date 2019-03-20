@@ -30,7 +30,6 @@
 
 #include "Resources.h"
 #include "ToolUtils.h"
-#include "sk_pixel_iter.h"
 
 #include "GrContextPriv.h"
 #include "GrContextThreadSafeProxy.h"

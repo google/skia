@@ -38,7 +38,7 @@
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include "sk_pixel_iter.h"
+#include "ToolUtils.h"
 
 #include "GrContextFactory.h"
 

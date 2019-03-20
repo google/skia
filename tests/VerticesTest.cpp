@@ -8,8 +8,8 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkVertices.h"
-#include "sk_pixel_iter.h"
 #include "Test.h"
+#include "ToolUtils.h"
 
 static bool equal(const SkVertices* v0, const SkVertices* v1) {
     if (v0->mode() != v1->mode()) {
