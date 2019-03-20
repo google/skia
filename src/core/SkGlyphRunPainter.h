@@ -95,11 +95,17 @@ private:
     // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
 
-    void processARGBFallback(SkScalar maxGlyphDimension,
+    /**
+     *  @param fARGBPositions in source space
+     *  @param fARGBGlyphsIDs the glyphs to process
+     *  @param fGlyphPos used as scratch space
+     *  @param maxSourceGlyphDimension the longest dimension of any glyph as if all fARGBGlyphsIDs
+     *                                 were drawn in source space (as if viewMatrix were identity)
+     */
+    void processARGBFallback(SkScalar maxSourceGlyphDimension,
                              const SkPaint& runPaint,
                              const SkFont& runFont,
                              const SkMatrix& viewMatrix,
-                             SkScalar cacheToSourceScale,
                              SkGlyphRunPainterInterface* process);
 
     // The props as on the actual device.
