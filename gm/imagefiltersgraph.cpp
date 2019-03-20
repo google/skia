@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkArithmeticImageFilter.h"
 #include "SkBlurImageFilter.h"
@@ -39,7 +39,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         fImage = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e"));
+                ToolUtils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e"));
     }
 
     void onDraw(SkCanvas* canvas) override {

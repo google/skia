@@ -24,7 +24,7 @@
 #include "SkTypeface.h"
 #include "gm.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();
@@ -56,7 +56,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(kSize, kSize); }
 
     void onOnceBeforeDraw() override {
-        auto tf = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
+        auto tf = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
 
         static const SkString kTexts[] = {
             SkString("abcdefghijklmnopqrstuvwxyz"),

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkHighContrastFilter.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
@@ -32,7 +32,7 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
              config.fContrast);
 
     SkFont font;
-    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(0.05f);
     font.setEdging(SkFont::Edging::kAlias);
 

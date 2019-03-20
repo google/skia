@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
@@ -32,7 +32,7 @@ static sk_sp<SkPicture> make_picture() {
     SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
-    SkFont font(sk_tool_utils::create_portable_typeface(), 96.0f);
+    SkFont font(ToolUtils::create_portable_typeface(), 96.0f);
     canvas->drawString("e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();
 }
@@ -45,7 +45,7 @@ static sk_sp<SkPicture> make_LCD_picture() {
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
     // this has to be small enough that it doesn't become a path
-    SkFont font(sk_tool_utils::create_portable_typeface(), 36.0f);
+    SkFont font(ToolUtils::create_portable_typeface(), 36.0f);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     canvas->drawString("e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();

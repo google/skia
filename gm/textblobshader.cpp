@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -24,7 +24,7 @@ public:
 private:
     void onOnceBeforeDraw() override {
         {
-            SkFont font(sk_tool_utils::create_portable_typeface());
+            SkFont      font(ToolUtils::create_portable_typeface());
             const char* txt = "Blobber";
             size_t txtLen = strlen(txt);
             fGlyphs.append(font.countText(txt, txtLen, kUTF8_SkTextEncoding));
@@ -35,7 +35,7 @@ private:
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSize(30);
-        font.setTypeface(sk_tool_utils::create_portable_typeface());
+        font.setTypeface(ToolUtils::create_portable_typeface());
 
         SkTextBlobBuilder builder;
         int glyphCount = fGlyphs.count();

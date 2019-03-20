@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkShader.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -127,7 +127,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     SkPaint paint;
     paint.setImageFilter(imf);
     paint.setColor(SK_ColorCYAN);
-    SkFont font(sk_tool_utils::create_portable_typeface(), r.height()/2);
+    SkFont font(ToolUtils::create_portable_typeface(), r.height() / 2);
     SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint,
                             SkTextUtils::kCenter_Align);
 }
@@ -241,7 +241,7 @@ protected:
             SkFont::Edging::kAntiAlias,
             SkFont::Edging::kSubpixelAntiAlias,
         };
-        SkFont font(sk_tool_utils::create_portable_typeface(), 30);
+        SkFont font(ToolUtils::create_portable_typeface(), 30);
 
         SkAutoCanvasRestore acr(canvas, true);
         for (SkFont::Edging edging : kEdgings) {

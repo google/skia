@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Sample.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
@@ -26,8 +26,8 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiFont.fTypeface = sk_tool_utils::emoji_typeface();
-        fEmojiFont.fText = sk_tool_utils::emoji_sample_text();
+        fEmojiFont.fTypeface = ToolUtils::emoji_typeface();
+        fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
     bool onQuery(Sample::Event* evt) override {

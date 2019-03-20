@@ -14,7 +14,7 @@
 #include "SkPaint.h"
 #include "SkVertices.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #define BG_COLOR    0xFFDDDDDD
 
@@ -429,7 +429,7 @@ public:
             canvas.restore();
             SkString str;
             str.printf("/skimages/slide_" SK_SIZE_T_SPECIFIER ".png", i);
-            sk_tool_utils::EncodeImageToFile(str.c_str(), bm, SkEncodedImageFormat::kPNG, 100);
+            ToolUtils::EncodeImageToFile(str.c_str(), bm, SkEncodedImageFormat::kPNG, 100);
         }
         this->setBGColor(BG_COLOR);
     }

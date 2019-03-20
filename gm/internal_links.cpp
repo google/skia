@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkAnnotation.h"
 #include "SkData.h"
@@ -60,7 +60,7 @@ private:
                                        SkIntToScalar(50), SkIntToScalar(20));
         canvas->drawRect(rect, paint);
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 25);
+        SkFont font(ToolUtils::create_portable_typeface(), 25);
         paint.setColor(SK_ColorBLACK);
         canvas->drawString(text, x, y, font, paint);
     }

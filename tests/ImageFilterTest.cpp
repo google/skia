@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkArithmeticImageFilter.h"
 #include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
@@ -38,9 +39,8 @@
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
-#include "Resources.h"
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -713,7 +713,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
 
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);
-    SkFont font(sk_tool_utils::create_portable_typeface(), height);
+    SkFont font(ToolUtils::create_portable_typeface(), height);
 
     const char* text = "ABC";
     const SkScalar yPos = SkIntToScalar(height);
@@ -751,7 +751,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
                 }
             }
 
-            if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult)) {
+            if (!ToolUtils::equal_pixels(untiledResult, tiledResult)) {
                 REPORTER_ASSERT(reporter, false, filters.getName(i));
                 break;
             }

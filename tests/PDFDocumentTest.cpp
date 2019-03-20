@@ -14,7 +14,7 @@
 #include "SkPDFDocument.h"
 #include "SkStream.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;

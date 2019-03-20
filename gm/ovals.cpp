@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkTArray.h"
-#include "SkRandom.h"
-#include "SkMatrix.h"
+#include "SkBlurDrawLooper.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
-#include "SkBlurDrawLooper.h"
+#include "SkMatrix.h"
+#include "SkRandom.h"
 #include "SkRect.h"
+#include "SkTArray.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -133,7 +133,7 @@ protected:
         hsv[1] = rand->nextRangeF(0.75f, 1.0f);
         hsv[2] = rand->nextRangeF(0.75f, 1.0f);
 
-        return sk_tool_utils::color_to_565(SkHSVToColor(hsv));
+        return ToolUtils::color_to_565(SkHSVToColor(hsv));
     }
 
     void onDraw(SkCanvas* canvas) override {

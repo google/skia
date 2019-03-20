@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "skdiff.h"
 #include "skdiff_utils.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkStream.h"
 #include "SkTypes.h"
+#include "ToolUtils.h"
+#include "skdiff.h"
 
 #include <memory>
 
@@ -92,10 +92,9 @@ static void force_all_opaque(const SkBitmap& bitmap) {
 
 bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
     SkBitmap copy;
-    sk_tool_utils::copy_to(&copy, kN32_SkColorType, bitmap);
+    ToolUtils::copy_to(&copy, kN32_SkColorType, bitmap);
     force_all_opaque(copy);
-    return sk_tool_utils::EncodeImageToFile(path.c_str(), copy,
-                                      SkEncodedImageFormat::kPNG, 100);
+    return ToolUtils::EncodeImageToFile(path.c_str(), copy, SkEncodedImageFormat::kPNG, 100);
 }
 
 /// Return a copy of the "input" string, within which we have replaced all instances

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvasPriv.h"
-#include "SkPath.h"
 #include "SkMakeUnique.h"
+#include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -257,7 +257,7 @@ protected:
 
         SkRect r = SkRect::MakeXYWH(0, H/4, W, H/2);
         SkPaint paint;
-        paint.setColor(sk_tool_utils::color_to_565(0xFF8888FF));
+        paint.setColor(ToolUtils::color_to_565(0xFF8888FF));
 
         canvas->drawRect(r, paint);
         this->doDraw(canvas, path);

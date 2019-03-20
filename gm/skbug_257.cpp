@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkImage.h"
 #include "SkRRect.h"
 #include "SkTextBlob.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void rotated_checkerboard_shader(SkPaint* paint,
                                         SkColor c1,
@@ -54,7 +54,7 @@ static void exercise_draw_pos_text_h(SkCanvas* canvas,
 
 static void test_text(SkCanvas* canvas, SkScalar size,
                       SkColor color, SkScalar Y) {
-    SkFont font(sk_tool_utils::create_portable_typeface(), 24);
+    SkFont font(ToolUtils::create_portable_typeface(), 24);
     font.setEdging(SkFont::Edging::kAlias);
     SkPaint type;
     type.setColor(color);

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
 #include "SkTextBlob.h"
@@ -24,7 +24,7 @@ protected:
 
         // make textblob
         // Large text is used to trigger atlas eviction
-        SkFont font(sk_tool_utils::create_portable_typeface(), 56);
+        SkFont font(ToolUtils::create_portable_typeface(), 56);
         font.setEdging(SkFont::Edging::kAlias);
         const char* text = "AB";
 
@@ -32,7 +32,7 @@ protected:
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
 
         SkScalar yOffset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset - 30);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset - 30);
 
         // build
         fBlob = builder.make();

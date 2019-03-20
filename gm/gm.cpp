@@ -8,9 +8,9 @@
 #include "gm.h"
 
 #include "GrContext.h"
-#include "sk_tool_utils.h"
 #include "SkShader.h"
 #include "SkTraceEvent.h"
+#include "ToolUtils.h"
 using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];
@@ -38,7 +38,7 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     bmp.allocN32Pixels(128, 64);
     SkCanvas bmpCanvas(bmp);
     bmpCanvas.drawColor(SK_ColorWHITE);
-    SkFont font(sk_tool_utils::create_portable_typeface(), 20);
+    SkFont  font(ToolUtils::create_portable_typeface(), 20);
     SkPaint paint;
     paint.setColor(SK_ColorRED);
     bmpCanvas.drawString("GPU Only", 20, 40, font, paint);

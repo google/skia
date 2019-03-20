@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
 #include "SkShader.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -97,7 +97,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setShader(fShader);
         paint.setMaskFilter(fMaskFilter);
-        SkFont font(sk_tool_utils::create_portable_typeface(), 72);
+        SkFont font(ToolUtils::create_portable_typeface(), 72);
 
         SkRect temp;
         temp.set(SkIntToScalar(115),

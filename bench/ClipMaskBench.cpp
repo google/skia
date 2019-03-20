@@ -6,16 +6,16 @@
  */
 
 #include "Benchmark.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkColorSpace.h"
 #include "SkImage.h"
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
 
 static void DrawMask(SkCanvas* canvas) {
-    sk_tool_utils::draw_checkerboard(canvas, SK_ColorTRANSPARENT, SK_ColorGREEN, 10);
+    ToolUtils::draw_checkerboard(canvas, SK_ColorTRANSPARENT, SK_ColorGREEN, 10);
 }
 
 class ClipMaskBench : public Benchmark {

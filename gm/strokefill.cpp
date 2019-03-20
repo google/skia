@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkPathPriv.h"
 #include "SkTextFormatParams.h"
 #include "SkTypeface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 /* Generated on a Mac with:
  * paint.setTypeface(SkTypeface::CreateByName("Papyrus"));
@@ -258,7 +258,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
 
         // use the portable typeface to generically test the fake bold code everywhere
         // (as long as the freetype option to do the bolding itself isn't enabled)
-        SkFont font(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()), 100);
+        SkFont  font(ToolUtils::create_portable_typeface("serif", SkFontStyle()), 100);
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(5));

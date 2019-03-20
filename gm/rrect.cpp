@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
-#include "SkRRect.h"
 #include "SkPath.h"
+#include "SkRRect.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 typedef void (*InsetProc)(const SkRRect&, SkScalar dx, SkScalar dy, SkRRect*);
 
@@ -105,7 +105,7 @@ static void draw_rrect_color(SkCanvas* canvas, const SkRRect& rrect) {
     if (rrect.isRect()) {
         paint.setColor(SK_ColorRED);
     } else if (rrect.isOval()) {
-        paint.setColor(sk_tool_utils::color_to_565(0xFF008800));
+        paint.setColor(ToolUtils::color_to_565(0xFF008800));
     } else if (rrect.isSimple()) {
         paint.setColor(SK_ColorBLUE);
     } else {
