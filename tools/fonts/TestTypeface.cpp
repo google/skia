@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "TestTypeface.h"
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -22,7 +23,6 @@
 #include "SkScalerContext.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-#include "SkTestTypeface.h"
 #include "SkTo.h"
 #include "SkUtils.h"
 
@@ -31,14 +31,13 @@
 class SkDescriptor;
 
 SkTestFont::SkTestFont(const SkTestFontData& fontData)
-    : INHERITED()
-    , fCharCodes(fontData.fCharCodes)
-    , fCharCodesCount(fontData.fCharCodes ? fontData.fCharCodesCount : 0)
-    , fWidths(fontData.fWidths)
-    , fMetrics(fontData.fMetrics)
-    , fName(fontData.fName)
-    , fPaths(nullptr)
-{
+        : INHERITED()
+        , fCharCodes(fontData.fCharCodes)
+        , fCharCodesCount(fontData.fCharCodes ? fontData.fCharCodesCount : 0)
+        , fWidths(fontData.fWidths)
+        , fMetrics(fontData.fMetrics)
+        , fName(fontData.fName)
+        , fPaths(nullptr) {
     init(fontData.fPoints, fontData.fVerbs);
 }
 
@@ -59,11 +58,11 @@ SkGlyphID SkTestFont::glyphForUnichar(SkUnichar charCode) const {
 }
 
 void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
-    fPaths = new SkPath* [fCharCodesCount];
+    fPaths = new SkPath*[fCharCodesCount];
     for (unsigned index = 0; index < fCharCodesCount; ++index) {
-        SkPath* path = new SkPath;
+        SkPath*      path = new SkPath;
         SkPath::Verb verb;
-        while ((verb = (SkPath::Verb) *verbs++) != SkPath::kDone_Verb) {
+        while ((verb = (SkPath::Verb)*verbs++) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
                     path->moveTo(pts[0], pts[1]);
@@ -81,12 +80,8 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
                     path->cubicTo(pts[0], pts[1], pts[2], pts[3], pts[4], pts[5]);
                     pts += 6;
                     break;
-                case SkPath::kClose_Verb:
-                    path->close();
-                    break;
-                default:
-                    SkDEBUGFAIL("bad verb");
-                    return;
+                case SkPath::kClose_Verb: path->close(); break;
+                default: SkDEBUGFAIL("bad verb"); return;
             }
         }
         // This should make SkPath::getBounds() queries threadsafe.
@@ -95,64 +90,62 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
     }
 }
 
-SkTestTypeface::SkTestTypeface(sk_sp<SkTestFont> testFont, const SkFontStyle& style)
-    : SkTypeface(style, false)
-    , fTestFont(std::move(testFont)) {
-}
+TestTypeface::TestTypeface(sk_sp<SkTestFont> testFont, const SkFontStyle& style)
+        : SkTypeface(style, false), fTestFont(std::move(testFont)) {}
 
-void SkTestTypeface::getAdvance(SkGlyph* glyph) {
+void TestTypeface::getAdvance(SkGlyph* glyph) {
     SkGlyphID glyphID = glyph->getGlyphID();
-    glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
+    glyphID           = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
 
     // TODO(benjaminwagner): Update users to use floats.
     glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyphID]);
     glyph->fAdvanceY = 0;
 }
 
-void SkTestTypeface::getFontMetrics(SkFontMetrics* metrics) {
-    *metrics = fTestFont->fMetrics;
-}
+void TestTypeface::getFontMetrics(SkFontMetrics* metrics) { *metrics = fTestFont->fMetrics; }
 
-void SkTestTypeface::getPath(SkGlyphID glyphID, SkPath* path) {
+void TestTypeface::getPath(SkGlyphID glyphID, SkPath* path) {
     glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
-    *path = *fTestFont->fPaths[glyphID];
+    *path   = *fTestFont->fPaths[glyphID];
 }
 
-void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
+void TestTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(kNo_SkFontHinting);
 }
 
-void SkTestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
+void TestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     unsigned glyphCount = fTestFont->fCharCodesCount;
     for (unsigned gid = 0; gid < glyphCount; ++gid) {
         glyphToUnicode[gid] = SkTo<SkUnichar>(fTestFont->fCharCodes[gid]);
     }
 }
 
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTestTypeface::onGetAdvancedMetrics() const { // pdf only
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
+std::unique_ptr<SkAdvancedTypefaceMetrics> TestTypeface::onGetAdvancedMetrics() const {  // pdf only
+    std::unique_ptr<SkAdvancedTypefaceMetrics>info(new SkAdvancedTypefaceMetrics);
     info->fFontName.set(fTestFont->fName);
     return info;
 }
 
-void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
+void TestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const {
     desc->setFamilyName(fTestFont->fName);
     desc->setStyle(this->fontStyle());
     *isLocal = false;
 }
 
-int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
-                                    SkGlyphID glyphs[], int glyphCount) const {
-    auto utf8  = (const      char*)chars;
-    auto utf16 = (const  uint16_t*)chars;
+int TestTypeface::onCharsToGlyphs(const void* chars,
+                                  Encoding    encoding,
+                                  SkGlyphID   glyphs[],
+                                  int         glyphCount) const {
+    auto utf8  = (const char*)chars;
+    auto utf16 = (const uint16_t*)chars;
     auto utf32 = (const SkUnichar*)chars;
 
     for (int i = 0; i < glyphCount; ++i) {
         SkUnichar ch;
         switch (encoding) {
-            case kUTF8_Encoding:  ch =  SkUTF8_NextUnichar(&utf8 ); break;
+            case kUTF8_Encoding: ch = SkUTF8_NextUnichar(&utf8); break;
             case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch =                    *utf32++; break;
+            case kUTF32_Encoding: ch = *utf32++; break;
         }
         if (glyphs) {
             glyphs[i] = fTestFont->glyphForUnichar(ch);
@@ -161,47 +154,43 @@ int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     return glyphCount;
 }
 
-void SkTestTypeface::onGetFamilyName(SkString* familyName) const {
-    *familyName = fTestFont->fName;
-}
+void TestTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fTestFont->fName; }
 
-SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const {
+SkTypeface::LocalizedStrings* TestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
-    SkString language("und"); //undetermined
+    SkString language("und");  // undetermined
     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }
 
 class SkTestScalerContext : public SkScalerContext {
 public:
-    SkTestScalerContext(sk_sp<SkTestTypeface> face, const SkScalerContextEffects& effects,
-                        const SkDescriptor* desc)
-        : SkScalerContext(std::move(face), effects, desc)
-    {
+    SkTestScalerContext(sk_sp<TestTypeface>           face,
+                        const SkScalerContextEffects& effects,
+                        const SkDescriptor*           desc)
+            : SkScalerContext(std::move(face), effects, desc) {
         fRec.getSingleMatrix(&fMatrix);
         this->forceGenerateImageFromPath();
     }
 
 protected:
-    SkTestTypeface* getTestTypeface() const {
-        return static_cast<SkTestTypeface*>(this->getTypeface());
+    TestTypeface* getTestTypeface() const {
+        return static_cast<TestTypeface*>(this->getTypeface());
     }
 
-    unsigned generateGlyphCount() override {
-        return this->getTestTypeface()->onCountGlyphs();
-    }
+    unsigned generateGlyphCount() override { return this->getTestTypeface()->onCountGlyphs(); }
 
     uint16_t generateCharToGlyph(SkUnichar uni) override {
         uint16_t glyph;
-        (void) this->getTestTypeface()->onCharsToGlyphs((const void *) &uni,
-                                                        SkTypeface::kUTF32_Encoding, &glyph, 1);
+        (void)this->getTestTypeface()->onCharsToGlyphs(
+                (const void*)&uni, SkTypeface::kUTF32_Encoding, &glyph, 1);
         return glyph;
     }
 
     bool generateAdvance(SkGlyph* glyph) override {
         this->getTestTypeface()->getAdvance(glyph);
 
-        const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
-                                               SkFloatToScalar(glyph->fAdvanceY));
+        const SkVector advance =
+                fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
         glyph->fAdvanceX = SkScalarToFloat(advance.fX);
         glyph->fAdvanceY = SkScalarToFloat(advance.fY);
         return true;
@@ -213,9 +202,7 @@ protected:
         // Always generates from paths, so SkScalerContext::getMetrics will figure the bounds.
     }
 
-    void generateImage(const SkGlyph&) override {
-        SK_ABORT("Should have generated from path.");
-    }
+    void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
 
     bool generatePath(SkGlyphID glyph, SkPath* path) override {
         this->getTestTypeface()->getPath(glyph, path);
@@ -229,11 +216,10 @@ protected:
     }
 
 private:
-    SkMatrix         fMatrix;
+    SkMatrix fMatrix;
 };
 
-SkScalerContext* SkTestTypeface::onCreateScalerContext(
-    const SkScalerContextEffects& effects, const SkDescriptor* desc) const
-{
-    return new SkTestScalerContext(sk_ref_sp(const_cast<SkTestTypeface*>(this)), effects, desc);
+SkScalerContext* TestTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
+                                                     const SkDescriptor*           desc) const {
+    return new SkTestScalerContext(sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
 }
