@@ -298,7 +298,6 @@ gm_sources = [
   "$_gm/shadowutils.cpp",
   "$_gm/shallowgradient.cpp",
   "$_gm/shapes.cpp",
-  "$_gm/shapes_as_paths.cpp",
   "$_gm/sharedcorners.cpp",
   "$_gm/showmiplevels.cpp",
   "$_gm/simpleaaclip.cpp",
