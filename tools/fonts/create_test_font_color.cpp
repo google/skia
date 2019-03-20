@@ -12,11 +12,12 @@
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTestSVGTypeface.h"
+#include "TestSVGTypeface.h"
 
-static void export_ttx(sk_sp<SkTestSVGTypeface> typeface, SkString prefix,
-                       SkSpan<unsigned> cbdtStrikeSizes, SkSpan<unsigned> sbixStrikeSizes)
-{
+static void export_ttx(sk_sp<TestSVGTypeface> typeface,
+                       SkString               prefix,
+                       SkSpan<unsigned>       cbdtStrikeSizes,
+                       SkSpan<unsigned>       sbixStrikeSizes) {
     SkFILEWStream cbdt((SkString(prefix) += "cbdt.ttx").c_str());
     typeface->exportTtxCbdt(&cbdt, cbdtStrikeSizes);
     cbdt.flush();
@@ -42,8 +43,8 @@ int main(int argc, char** argv) {
     // But the planet font cannot get very big in the size limited cbdt format.
     unsigned small[] = { 8, 16 };
 
-    export_ttx(SkTestSVGTypeface::Default(), SkString(        ), usual, usual);
-    export_ttx(SkTestSVGTypeface::Planets(), SkString("planet"), small, usual);
+    export_ttx(TestSVGTypeface::Default(), SkString(), usual, usual);
+    export_ttx(TestSVGTypeface::Planets(), SkString("planet"), small, usual);
 
     return 0;
 }

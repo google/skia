@@ -15,10 +15,10 @@
 #include "SkStrikeCache.h"
 #include "SkSurface.h"
 #include "SkSurfacePriv.h"
-#include "SkTestEmptyTypeface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface_remote.h"
 #include "Test.h"
+#include "TestEmptyTypeface.h"
 
 #include "text/GrTextContext.h"
 
@@ -240,7 +240,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace, reporter,
     SkStrikeClient client(discardableManager, false);
 
     // Server.
-    auto serverTf = SkTestEmptyTypeface::Make();
+    auto serverTf     = TestEmptyTypeface::Make();
     auto serverTfData = server.serializeTypeface(serverTf.get());
     REPORTER_ASSERT(reporter, serverTf->unique());
 

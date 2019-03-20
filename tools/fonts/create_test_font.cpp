@@ -7,7 +7,7 @@
 
 // Running create_test_font generates ./tools/fonts/test_font_index.inc
 // and ./tools/fonts/test_font_<generic name>.inc which are read by
-// ./tools/fonts/SkTestFontMgr.cpp
+// ./tools/fonts/TestFontMgr.cpp
 
 #include "SkFont.h"
 #include "SkFontMetrics.h"

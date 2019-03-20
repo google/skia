@@ -87,9 +87,9 @@ if (defined(is_skia_standalone)) {
         ]
         sources = [
           "../../tools/Resources.cpp",
-          "../../tools/fonts/SkTestFontMgr.cpp",
-          "../../tools/fonts/SkTestSVGTypeface.cpp",
-          "../../tools/fonts/SkTestTypeface.cpp",
+          "../../tools/fonts/TestFontMgr.cpp",
+          "../../tools/fonts/TestSVGTypeface.cpp",
+          "../../tools/fonts/TestTypeface.cpp",
           "fuzz/FuzzSkottieJSON.cpp",
         ]
 

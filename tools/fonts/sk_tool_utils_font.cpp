@@ -13,9 +13,9 @@
 #include "SkFontStyle.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
-#include "SkTestFontMgr.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
+#include "TestFontMgr.h"
 
 namespace sk_tool_utils {
 

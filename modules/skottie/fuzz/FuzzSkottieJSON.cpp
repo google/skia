@@ -8,8 +8,8 @@
 #include "SkData.h"
 #include "SkFontMgrPriv.h"
 #include "SkStream.h"
-#include "SkTestFontMgr.h"
 #include "Skottie.h"
+#include "TestFontMgr.h"
 
 void FuzzSkottieJSON(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);

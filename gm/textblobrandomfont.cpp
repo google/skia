@@ -8,10 +8,10 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
+#include "RandomScalerContext.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
-#include "SkRandomScalerContext.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"

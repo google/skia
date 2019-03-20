@@ -10,8 +10,8 @@
 #include "SkPaint.h"
 #include "SkReadBuffer.h"
 #include "SkSurface.h"
-#include "SkTestFontMgr.h"
 #include "SkTextBlobPriv.h"
+#include "TestFontMgr.h"
 
 void FuzzTextBlobDeserialize(SkReadBuffer& buf) {
     auto tb = SkTextBlobPriv::MakeFromBuffer(buf);

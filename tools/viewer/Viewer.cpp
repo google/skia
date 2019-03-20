@@ -34,10 +34,10 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
-#include "SkTestFontMgr.h"
 #include "SkTo.h"
 #include "SlideDir.h"
 #include "SvgSlide.h"
+#include "TestFontMgr.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
 #include <stdlib.h>

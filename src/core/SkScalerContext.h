@@ -396,7 +396,7 @@ protected:
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
-    friend class SkRandomScalerContext; // For debug purposes
+    friend class RandomScalerContext;  // For debug purposes
 
     static SkScalerContextRec PreprocessRec(const SkTypeface& typeface,
                                             const SkScalerContextEffects& effects,
