@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65b21ac3_92529ea8",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T18:08:56Z",
+      "side": 1,
+      "message": "The lottie-samples asset has some weird filenames. Ex:\n* surprise!.json\n* lottiefiles.com - VR Sickness.json\n* i\u0027m_thirsty!.json",
+      "parentUuid": "218b491d_ab0b5e14",
+      "range": {
+        "startLine": 38,
+        "startChar": 34,
+        "endLine": 38,
+        "endChar": 55
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "328325ed_49406bcc",
         "filename": "infra/bots/recipes/perf_skottietrace.py",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52ddf2c4_9419c49f",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T18:08:56Z",
+      "side": 1,
+      "message": "Done. Thank you tricium.",
+      "parentUuid": "328325ed_49406bcc",
+      "range": {
+        "startLine": 154,
+        "startChar": 2,
+        "endLine": 154,
+        "endChar": 19
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ab4d04bf_ede1a0f1",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T18:08:56Z",
+      "side": 1,
+      "message": "Removed, was just for debugging.",
+      "parentUuid": "937b1ded_5c22bfc3",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 37
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "508ed72e_b853270c",
         "filename": "infra/bots/recipes/perf_skottietrace.py",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2019-03-20T17:22:10Z",
       "side": 1,
       "message": "This is not going to work well in a recipe.  It\u0027ll cause a purple overall result with no red steps and no helpful output.  I recommend putting this whole function in an inline python script.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 54
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3922824_69674208",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-20T18:08:56Z",
+      "side": 1,
+      "message": "I couldn\u0027t figure out how to put the whole thing in an inline python because we need the result of perf_results.\nI instead put an inline step that fails. Little weird but output is more readable. WDYT?\nCould also move the \u0027if frame_start\u0027 into the inline step to actually make it test for something.",
+      "parentUuid": "508ed72e_b853270c",
       "range": {
         "startLine": 166,
         "startChar": 0,
