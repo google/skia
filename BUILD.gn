@@ -1582,12 +1582,12 @@ if (skia_enable_tools) {
       "tools/random_parse_path.cpp",
       "tools/timer/AnimTimer.h",
       "tools/timer/Timer.cpp",
-      "tools/trace/SkChromeTracingTracer.cpp",
-      "tools/trace/SkChromeTracingTracer.h",
+      "tools/trace/ChromeTracingTracer.cpp",
+      "tools/trace/ChromeTracingTracer.h",
       "tools/trace/SkDebugfTracer.cpp",
       "tools/trace/SkDebugfTracer.h",
-      "tools/trace/SkEventTracingPriv.cpp",
-      "tools/trace/SkEventTracingPriv.h",
+      "tools/trace/EventTracingPriv.cpp",
+      "tools/trace/EventTracingPriv.h",
     ]
     libs = []
     if (is_ios) {

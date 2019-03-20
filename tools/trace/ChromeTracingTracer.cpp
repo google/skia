@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkChromeTracingTracer.h"
+#include "ChromeTracingTracer.h"
 #include "SkJSONWriter.h"
-#include "SkThreadID.h"
-#include "SkTraceEvent.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkThreadID.h"
+#include "SkTraceEvent.h"
 
 #include <chrono>
 
@@ -22,53 +22,47 @@ namespace {
  * {TraceEvent} {TraceEventArgs} {Inline Payload}
  */
 struct TraceEventArg {
-    uint8_t fArgType;
+    uint8_t     fArgType;
     const char* fArgName;
-    uint64_t fArgValue;
+    uint64_t    fArgValue;
 };
 
 // These fields are ordered to minimize size due to alignment. Argument types could be packed
 // better, but very few events have many arguments, so the net loss is pretty small.
 struct TraceEvent {
-    char fPhase;
-    uint8_t fNumArgs;
+    char     fPhase;
+    uint8_t  fNumArgs;
     uint32_t fSize;
 
     const char* fName;
     // TODO: Merge fID and fClockEnd (never used together)
-    uint64_t fID;
-    uint64_t fClockBegin;
-    uint64_t fClockEnd;
+    uint64_t   fID;
+    uint64_t   fClockBegin;
+    uint64_t   fClockEnd;
     SkThreadID fThreadID;
 
     TraceEvent* next() {
         return reinterpret_cast<TraceEvent*>(reinterpret_cast<char*>(this) + fSize);
     }
-    TraceEventArg* args() {
-        return reinterpret_cast<TraceEventArg*>(this + 1);
-    }
-    char* stringTable() {
-        return reinterpret_cast<char*>(this->args() + fNumArgs);
-    }
+    TraceEventArg* args() { return reinterpret_cast<TraceEventArg*>(this + 1); }
+    char*          stringTable() { return reinterpret_cast<char*>(this->args() + fNumArgs); }
 };
 
-}
+}  // namespace
 
-SkChromeTracingTracer::SkChromeTracingTracer(const char* filename) : fFilename(filename) {
+ChromeTracingTracer::ChromeTracingTracer(const char* filename) : fFilename(filename) {
     this->createBlock();
 }
 
-SkChromeTracingTracer::~SkChromeTracingTracer() {
-    this->flush();
-}
+ChromeTracingTracer::~ChromeTracingTracer() { this->flush(); }
 
-void SkChromeTracingTracer::createBlock() {
-    fCurBlock.fBlock = BlockPtr(new uint8_t[kBlockSize]);
+void ChromeTracingTracer::createBlock() {
+    fCurBlock.fBlock         = BlockPtr(new uint8_t[kBlockSize]);
     fCurBlock.fEventsInBlock = 0;
-    fCurBlockUsed = 0;
+    fCurBlockUsed            = 0;
 }
 
-SkEventTracer::Handle SkChromeTracingTracer::appendEvent(const void* data, size_t size) {
+SkEventTracer::Handle ChromeTracingTracer::appendEvent(const void* data, size_t size) {
     SkASSERT(size > 0 && size <= kBlockSize);
 
     SkAutoMutexAcquire lock(fMutex);
@@ -83,15 +77,15 @@ SkEventTracer::Handle SkChromeTracingTracer::appendEvent(const void* data, size_
     return handle;
 }
 
-SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
-                                                           const uint8_t* categoryEnabledFlag,
-                                                           const char* name,
-                                                           uint64_t id,
-                                                           int numArgs,
-                                                           const char** argNames,
-                                                           const uint8_t* argTypes,
-                                                           const uint64_t* argValues,
-                                                           uint8_t flags) {
+SkEventTracer::Handle ChromeTracingTracer::addTraceEvent(char            phase,
+                                                         const uint8_t*  categoryEnabledFlag,
+                                                         const char*     name,
+                                                         uint64_t        id,
+                                                         int             numArgs,
+                                                         const char**    argNames,
+                                                         const uint8_t*  argTypes,
+                                                         const uint64_t* argValues,
+                                                         uint8_t         flags) {
     // TODO: Respect flags (or assert). INSTANT events encode scope in flags, should be stored
     // using "s" key in JSON. COPY flag should be supported or rejected.
 
@@ -108,27 +102,27 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     size = SkAlign8(size);
 
     SkSTArray<128, uint8_t, true> storage;
-    uint8_t* storagePtr = storage.push_back_n(size);
+    uint8_t*                      storagePtr = storage.push_back_n(size);
 
-    TraceEvent* traceEvent = reinterpret_cast<TraceEvent*>(storagePtr);
-    traceEvent->fPhase = phase;
-    traceEvent->fNumArgs = numArgs;
-    traceEvent->fSize = size;
-    traceEvent->fName = name;
-    traceEvent->fID = id;
+    TraceEvent* traceEvent  = reinterpret_cast<TraceEvent*>(storagePtr);
+    traceEvent->fPhase      = phase;
+    traceEvent->fNumArgs    = numArgs;
+    traceEvent->fSize       = size;
+    traceEvent->fName       = name;
+    traceEvent->fID         = id;
     traceEvent->fClockBegin = std::chrono::steady_clock::now().time_since_epoch().count();
-    traceEvent->fClockEnd = 0;
-    traceEvent->fThreadID = SkGetThreadID();
+    traceEvent->fClockEnd   = 0;
+    traceEvent->fThreadID   = SkGetThreadID();
 
-    TraceEventArg* traceEventArgs = traceEvent->args();
-    char* stringTableBase = traceEvent->stringTable();
-    char* stringTable = stringTableBase;
+    TraceEventArg* traceEventArgs  = traceEvent->args();
+    char*          stringTableBase = traceEvent->stringTable();
+    char*          stringTable     = stringTableBase;
     for (int i = 0; i < numArgs; ++i) {
         traceEventArgs[i].fArgName = argNames[i];
         traceEventArgs[i].fArgType = argTypes[i];
         if (TRACE_VALUE_TYPE_COPY_STRING == argTypes[i]) {
             // Just write an offset into the arguments array
-            traceEventArgs[i].fArgValue = stringTable  - stringTableBase;
+            traceEventArgs[i].fArgValue = stringTable - stringTableBase;
 
             // Copy string into our buffer (and advance)
             skia::tracing_internals::TraceValueUnion value;
@@ -145,45 +139,33 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     return this->appendEvent(storagePtr, size);
 }
 
-void SkChromeTracingTracer::updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
-                                                     const char* name,
-                                                     SkEventTracer::Handle handle) {
+void ChromeTracingTracer::updateTraceEventDuration(const uint8_t*        categoryEnabledFlag,
+                                                   const char*           name,
+                                                   SkEventTracer::Handle handle) {
     // We could probably get away with not locking here, but let's be totally safe.
     SkAutoMutexAcquire lock(fMutex);
-    TraceEvent* traceEvent = reinterpret_cast<TraceEvent*>(handle);
-    traceEvent->fClockEnd = std::chrono::steady_clock::now().time_since_epoch().count();
+    TraceEvent*        traceEvent = reinterpret_cast<TraceEvent*>(handle);
+    traceEvent->fClockEnd         = std::chrono::steady_clock::now().time_since_epoch().count();
 }
 
-static void trace_value_to_json(SkJSONWriter* writer, uint64_t argValue, uint8_t argType,
-                                const char* stringTableBase) {
+static void trace_value_to_json(SkJSONWriter* writer,
+                                uint64_t      argValue,
+                                uint8_t       argType,
+                                const char*   stringTableBase) {
     skia::tracing_internals::TraceValueUnion value;
     value.as_uint = argValue;
 
     switch (argType) {
-        case TRACE_VALUE_TYPE_BOOL:
-            writer->appendBool(value.as_bool);
-            break;
-        case TRACE_VALUE_TYPE_UINT:
-            writer->appendU64(value.as_uint);
-            break;
-        case TRACE_VALUE_TYPE_INT:
-            writer->appendS64(value.as_int);
-            break;
-        case TRACE_VALUE_TYPE_DOUBLE:
-            writer->appendDouble(value.as_double);
-            break;
-        case TRACE_VALUE_TYPE_POINTER:
-            writer->appendPointer(value.as_pointer);
-            break;
-        case TRACE_VALUE_TYPE_STRING:
-            writer->appendString(value.as_string);
-            break;
+        case TRACE_VALUE_TYPE_BOOL: writer->appendBool(value.as_bool); break;
+        case TRACE_VALUE_TYPE_UINT: writer->appendU64(value.as_uint); break;
+        case TRACE_VALUE_TYPE_INT: writer->appendS64(value.as_int); break;
+        case TRACE_VALUE_TYPE_DOUBLE: writer->appendDouble(value.as_double); break;
+        case TRACE_VALUE_TYPE_POINTER: writer->appendPointer(value.as_pointer); break;
+        case TRACE_VALUE_TYPE_STRING: writer->appendString(value.as_string); break;
         case TRACE_VALUE_TYPE_COPY_STRING:
             writer->appendString(stringTableBase + value.as_uint);
             break;
-        default:
-            writer->appendString("<unknown type>");
-            break;
+        default: writer->appendString("<unknown type>"); break;
     }
 }
 
@@ -202,15 +184,16 @@ struct TraceEventSerializationState {
         return shortID;
     }
 
-    uint64_t fClockOffset;
+    uint64_t                          fClockOffset;
     SkTHashMap<uint64_t, const char*> fBaseTypeResolver;
-    int fNextThreadID;
-    SkTHashMap<SkThreadID, int> fShortThreadIDMap;
+    int                               fNextThreadID;
+    SkTHashMap<SkThreadID, int>       fShortThreadIDMap;
 };
 
-}
+}  // namespace
 
-static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
+static void trace_event_to_json(SkJSONWriter*                 writer,
+                                TraceEvent*                   traceEvent,
                                 TraceEventSerializationState* serializationState) {
     // We track the original (creation time) "name" of each currently live object, so we can
     // automatically insert "base_name" fields in object snapshot events.
@@ -225,7 +208,7 @@ static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
 
     writer->beginObject();
 
-    char phaseString[2] = { traceEvent->fPhase, 0 };
+    char phaseString[2] = {traceEvent->fPhase, 0};
     writer->appendString("ph", phaseString);
     writer->appendString("name", traceEvent->fName);
     if (0 != traceEvent->fID) {
@@ -235,8 +218,8 @@ static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
 
     // Offset timestamps to reduce JSON length, then convert nanoseconds to microseconds
     // (standard time unit for tracing JSON files).
-    uint64_t relativeTimestamp = static_cast<int64_t>(traceEvent->fClockBegin -
-                                                      serializationState->fClockOffset);
+    uint64_t relativeTimestamp =
+            static_cast<int64_t>(traceEvent->fClockBegin - serializationState->fClockOffset);
     writer->appendDoubleDigits("ts", static_cast<double>(relativeTimestamp) * 1E-3, 3);
     if (0 != traceEvent->fClockEnd) {
         double dur = static_cast<double>(traceEvent->fClockEnd - traceEvent->fClockBegin) * 1E-3;
@@ -250,11 +233,11 @@ static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
 
     if (traceEvent->fNumArgs) {
         writer->beginObject("args");
-        const char* stringTable = traceEvent->stringTable();
-        bool addedSnapshot = false;
+        const char* stringTable   = traceEvent->stringTable();
+        bool        addedSnapshot = false;
         if (TRACE_EVENT_PHASE_SNAPSHOT_OBJECT == traceEvent->fPhase &&
-                baseTypeResolver->find(traceEvent->fID) &&
-                0 != strcmp(*baseTypeResolver->find(traceEvent->fID), traceEvent->fName)) {
+            baseTypeResolver->find(traceEvent->fID) &&
+            0 != strcmp(*baseTypeResolver->find(traceEvent->fID), traceEvent->fName)) {
             // Special handling for snapshots where the name differs from creation.
             writer->beginObject("snapshot");
             writer->appendString("base_type", *baseTypeResolver->find(traceEvent->fID));
@@ -286,7 +269,7 @@ static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
     writer->endObject();
 }
 
-void SkChromeTracingTracer::flush() {
+void ChromeTracingTracer::flush() {
     SkAutoMutexAcquire lock(fMutex);
 
     SkString dirname = SkOSPath::Dirname(fFilename.c_str());
@@ -297,7 +280,7 @@ void SkChromeTracingTracer::flush() {
     }
 
     SkFILEWStream fileStream(fFilename.c_str());
-    SkJSONWriter writer(&fileStream, SkJSONWriter::Mode::kFast);
+    SkJSONWriter  writer(&fileStream, SkJSONWriter::Mode::kFast);
     writer.beginArray();
 
     uint64_t clockOffset = 0;
@@ -309,7 +292,8 @@ void SkChromeTracingTracer::flush() {
 
     TraceEventSerializationState serializationState(clockOffset);
 
-    auto event_block_to_json = [](SkJSONWriter* writer, const TraceEventBlock& block,
+    auto event_block_to_json = [](SkJSONWriter*                 writer,
+                                  const TraceEventBlock&        block,
                                   TraceEventSerializationState* serializationState) {
         TraceEvent* traceEvent = reinterpret_cast<TraceEvent*>(block.fBlock.get());
         for (int i = 0; i < block.fEventsInBlock; ++i) {
