@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e985ece_204e2fdc",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-20T20:21:52Z",
+      "side": 0,
+      "message": "The comment kinda speaks for itself, but is the wrong thing to do since we really want to draw something. Also, if the requested size is large this just picks a too big size and nothing draws.",
+      "range": {
+        "startLine": 339,
+        "startChar": 64,
+        "endLine": 339,
+        "endChar": 86
+      },
+      "revId": "17dabb2022dbb70dac5aed3c140808af2ae3f527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaa64bc1_5048e632",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-20T20:21:52Z",
+      "side": 0,
+      "message": "This is still often too big. For example in Noto Color Emoji some glyphs are wider than the EM size (like the monkey). The implied glyph cache hit rate seems dubious, since once everything is big enough everything will fall into the same bucket anyway.",
+      "range": {
+        "startLine": 343,
+        "startChar": 54,
+        "endLine": 343,
+        "endChar": 60
+      },
+      "revId": "17dabb2022dbb70dac5aed3c140808af2ae3f527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

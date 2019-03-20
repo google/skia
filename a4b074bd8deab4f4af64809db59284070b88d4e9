@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1cbc1f5_bf10eb4c",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-20T20:21:52Z",
+      "side": 1,
+      "message": "This isn\u0027t the ideal value to use, but it\u0027s usually the right one.",
+      "range": {
+        "startLine": 593,
+        "startChar": 28,
+        "endLine": 593,
+        "endChar": 60
+      },
+      "revId": "a4b074bd8deab4f4af64809db59284070b88d4e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
