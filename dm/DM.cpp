@@ -37,9 +37,9 @@
 #include "SkSpinlock.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
-#include "SkTestFontMgr.h"
 #include "SkTypeface_win.h"
 #include "Test.h"
+#include "TestFontMgr.h"
 #include "ios_utils.h"
 #include "sk_tool_utils.h"
 
