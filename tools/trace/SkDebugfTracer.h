@@ -8,8 +8,8 @@
 #ifndef SkDebugfTracer_DEFINED
 #define SkDebugfTracer_DEFINED
 
+#include "EventTracingPriv.h"
 #include "SkEventTracer.h"
-#include "SkEventTracingPriv.h"
 #include "SkString.h"
 
 /**
