@@ -9,9 +9,9 @@
 #include "FuzzCommon.h"
 
 // CORE
+#include "DebugCanvas.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkDebugCanvas.h"
 #include "SkFontMgr.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -1729,7 +1729,7 @@ DEF_FUZZ(PDFCanvas, fuzz) {
 
 // not a "real" thing to fuzz, used to debug errors found while fuzzing.
 DEF_FUZZ(_DumpCanvas, fuzz) {
-    SkDebugCanvas debugCanvas(kCanvasSize.width(), kCanvasSize.height());
+    DebugCanvas debugCanvas(kCanvasSize.width(), kCanvasSize.height());
     fuzz_canvas(fuzz, &debugCanvas);
     std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));

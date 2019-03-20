@@ -13,17 +13,17 @@
 #include "SkDrawShadowInfo.h"
 #include "SkFlattenable.h"
 #include "SkJSONWriter.h"
-#include "SkTLazy.h"
 #include "SkPath.h"
-#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
+#include "SkRegion.h"
 #include "SkString.h"
 #include "SkTDArray.h"
+#include "SkTLazy.h"
 #include "SkVertices.h"
 #include "UrlDataManager.h"
 
-class SkDrawCommand {
+class DrawCommand {
 public:
     enum OpType {
         kBeginDrawPicture_OpType,
@@ -72,17 +72,13 @@ public:
 
     static void WritePNG(SkBitmap bitmap, SkWStream& out);
 
-    SkDrawCommand(OpType opType);
+    DrawCommand(OpType opType);
 
-    virtual ~SkDrawCommand() {}
+    virtual ~DrawCommand() {}
 
-    bool isVisible() const {
-        return fVisible;
-    }
+    bool isVisible() const { return fVisible; }
 
-    void setVisible(bool toggle) {
-        fVisible = toggle;
-    }
+    void setVisible(bool toggle) { fVisible = toggle; }
 
     virtual void execute(SkCanvas*) const = 0;
 
@@ -106,11 +102,12 @@ public:
     static void MakeJsonPaint(SkJSONWriter&, const SkPaint& paint, UrlDataManager& urlDataManager);
     static void MakeJsonLattice(SkJSONWriter&, const SkCanvas::Lattice& lattice);
 
-    static void flatten(const SkFlattenable* flattenable, SkJSONWriter& writer,
-                        UrlDataManager& urlDataManager);
-    static bool flatten(const SkImage& image, SkJSONWriter& writer,
-                        UrlDataManager& urlDataManager);
-    static bool flatten(const SkBitmap& bitmap, SkJSONWriter& writer,
+    static void flatten(const SkFlattenable* flattenable,
+                        SkJSONWriter&        writer,
+                        UrlDataManager&      urlDataManager);
+    static bool flatten(const SkImage& image, SkJSONWriter& writer, UrlDataManager& urlDataManager);
+    static bool flatten(const SkBitmap& bitmap,
+                        SkJSONWriter&   writer,
                         UrlDataManager& urlDataManager);
 
 private:
@@ -118,16 +115,16 @@ private:
     bool   fVisible;
 };
 
-class SkRestoreCommand : public SkDrawCommand {
+class SkRestoreCommand : public DrawCommand {
 public:
     SkRestoreCommand();
     void execute(SkCanvas* canvas) const override;
 
 private:
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkClearCommand : public SkDrawCommand {
+class SkClearCommand : public DrawCommand {
 public:
     SkClearCommand(SkColor color);
     void execute(SkCanvas* canvas) const override;
@@ -136,10 +133,10 @@ public:
 private:
     SkColor fColor;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkClipPathCommand : public SkDrawCommand {
+class SkClipPathCommand : public DrawCommand {
 public:
     SkClipPathCommand(const SkPath& path, SkClipOp op, bool doAA);
     void execute(SkCanvas* canvas) const override;
@@ -151,10 +148,10 @@ private:
     SkClipOp fOp;
     bool     fDoAA;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkClipRegionCommand : public SkDrawCommand {
+class SkClipRegionCommand : public DrawCommand {
 public:
     SkClipRegionCommand(const SkRegion& region, SkClipOp op);
     void execute(SkCanvas* canvas) const override;
@@ -164,10 +161,10 @@ private:
     SkRegion fRegion;
     SkClipOp fOp;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkClipRectCommand : public SkDrawCommand {
+class SkClipRectCommand : public DrawCommand {
 public:
     SkClipRectCommand(const SkRect& rect, SkClipOp op, bool doAA);
     void execute(SkCanvas* canvas) const override;
@@ -178,10 +175,10 @@ private:
     SkClipOp fOp;
     bool     fDoAA;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkClipRRectCommand : public SkDrawCommand {
+class SkClipRRectCommand : public DrawCommand {
 public:
     SkClipRRectCommand(const SkRRect& rrect, SkClipOp op, bool doAA);
     void execute(SkCanvas* canvas) const override;
@@ -193,10 +190,10 @@ private:
     SkClipOp fOp;
     bool     fDoAA;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkConcatCommand : public SkDrawCommand {
+class SkConcatCommand : public DrawCommand {
 public:
     SkConcatCommand(const SkMatrix& matrix);
     void execute(SkCanvas* canvas) const override;
@@ -205,27 +202,26 @@ public:
 private:
     SkMatrix fMatrix;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawAnnotationCommand : public SkDrawCommand {
+class SkDrawAnnotationCommand : public DrawCommand {
 public:
     SkDrawAnnotationCommand(const SkRect&, const char key[], sk_sp<SkData> value);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    SkRect          fRect;
-    SkString        fKey;
-    sk_sp<SkData>   fValue;
+    SkRect        fRect;
+    SkString      fKey;
+    sk_sp<SkData> fValue;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawBitmapCommand : public SkDrawCommand {
+class SkDrawBitmapCommand : public DrawCommand {
 public:
-    SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                        const SkPaint* paint);
+    SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPaint* paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -236,13 +232,15 @@ private:
     SkScalar         fTop;
     SkTLazy<SkPaint> fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawBitmapLatticeCommand : public SkDrawCommand {
+class SkDrawBitmapLatticeCommand : public DrawCommand {
 public:
-    SkDrawBitmapLatticeCommand(const SkBitmap& bitmap, const SkCanvas::Lattice& lattice,
-                               const SkRect& dst, const SkPaint* paint);
+    SkDrawBitmapLatticeCommand(const SkBitmap&          bitmap,
+                               const SkCanvas::Lattice& lattice,
+                               const SkRect&            dst,
+                               const SkPaint*           paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -253,13 +251,15 @@ private:
     SkRect            fDst;
     SkTLazy<SkPaint>  fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawBitmapNineCommand : public SkDrawCommand {
+class SkDrawBitmapNineCommand : public DrawCommand {
 public:
-    SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
-                            const SkRect& dst, const SkPaint* paint);
+    SkDrawBitmapNineCommand(const SkBitmap& bitmap,
+                            const SkIRect&  center,
+                            const SkRect&   dst,
+                            const SkPaint*  paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -270,29 +270,31 @@ private:
     SkRect           fDst;
     SkTLazy<SkPaint> fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawBitmapRectCommand : public SkDrawCommand {
+class SkDrawBitmapRectCommand : public DrawCommand {
 public:
-    SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
-                            const SkRect& dst, const SkPaint* paint,
+    SkDrawBitmapRectCommand(const SkBitmap& bitmap,
+                            const SkRect*   src,
+                            const SkRect&   dst,
+                            const SkPaint*  paint,
                             SkCanvas::SrcRectConstraint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    SkBitmap                      fBitmap;
-    SkTLazy<SkRect>               fSrc;
-    SkRect                        fDst;
-    SkTLazy<SkPaint>              fPaint;
-    SkCanvas::SrcRectConstraint   fConstraint;
+    SkBitmap                    fBitmap;
+    SkTLazy<SkRect>             fSrc;
+    SkRect                      fDst;
+    SkTLazy<SkPaint>            fPaint;
+    SkCanvas::SrcRectConstraint fConstraint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawImageCommand : public SkDrawCommand {
+class SkDrawImageCommand : public DrawCommand {
 public:
     SkDrawImageCommand(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint);
     void execute(SkCanvas* canvas) const override;
@@ -305,30 +307,34 @@ private:
     SkScalar             fTop;
     SkTLazy<SkPaint>     fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawImageLatticeCommand : public SkDrawCommand {
+class SkDrawImageLatticeCommand : public DrawCommand {
 public:
-    SkDrawImageLatticeCommand(const SkImage* image, const SkCanvas::Lattice& lattice,
-                              const SkRect& dst, const SkPaint* paint);
+    SkDrawImageLatticeCommand(const SkImage*           image,
+                              const SkCanvas::Lattice& lattice,
+                              const SkRect&            dst,
+                              const SkPaint*           paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    sk_sp<const SkImage>        fImage;
-    SkCanvas::Lattice           fLattice;
-    SkRect                      fDst;
-    SkTLazy<SkPaint>            fPaint;
+    sk_sp<const SkImage> fImage;
+    SkCanvas::Lattice    fLattice;
+    SkRect               fDst;
+    SkTLazy<SkPaint>     fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawImageNineCommand : public SkDrawCommand {
+class SkDrawImageNineCommand : public DrawCommand {
 public:
-    SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,
-                           const SkRect& dst, const SkPaint* paint);
+    SkDrawImageNineCommand(const SkImage* image,
+                           const SkIRect& center,
+                           const SkRect&  dst,
+                           const SkPaint* paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -339,13 +345,16 @@ private:
     SkRect               fDst;
     SkTLazy<SkPaint>     fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawImageRectCommand : public SkDrawCommand {
+class SkDrawImageRectCommand : public DrawCommand {
 public:
-    SkDrawImageRectCommand(const SkImage* image, const SkRect* src, const SkRect& dst,
-                           const SkPaint* paint, SkCanvas::SrcRectConstraint constraint);
+    SkDrawImageRectCommand(const SkImage*              image,
+                           const SkRect*               src,
+                           const SkRect&               dst,
+                           const SkPaint*              paint,
+                           SkCanvas::SrcRectConstraint constraint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -357,10 +366,10 @@ private:
     SkTLazy<SkPaint>            fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawOvalCommand : public SkDrawCommand {
+class SkDrawOvalCommand : public DrawCommand {
 public:
     SkDrawOvalCommand(const SkRect& oval, const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
@@ -371,12 +380,15 @@ private:
     SkRect  fOval;
     SkPaint fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawArcCommand : public SkDrawCommand {
+class SkDrawArcCommand : public DrawCommand {
 public:
-    SkDrawArcCommand(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+    SkDrawArcCommand(const SkRect&  oval,
+                     SkScalar       startAngle,
+                     SkScalar       sweepAngle,
+                     bool           useCenter,
                      const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
@@ -389,10 +401,10 @@ private:
     bool     fUseCenter;
     SkPaint  fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawPaintCommand : public SkDrawCommand {
+class SkDrawPaintCommand : public DrawCommand {
 public:
     SkDrawPaintCommand(const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
@@ -402,10 +414,10 @@ public:
 private:
     SkPaint fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawPathCommand : public SkDrawCommand {
+class SkDrawPathCommand : public DrawCommand {
 public:
     SkDrawPathCommand(const SkPath& path, const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
@@ -413,17 +425,17 @@ public:
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    SkPath   fPath;
-    SkPaint  fPaint;
+    SkPath  fPath;
+    SkPaint fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkBeginDrawPictureCommand : public SkDrawCommand {
+class SkBeginDrawPictureCommand : public DrawCommand {
 public:
     SkBeginDrawPictureCommand(const SkPicture* picture,
-                              const SkMatrix* matrix,
-                              const SkPaint* paint);
+                              const SkMatrix*  matrix,
+                              const SkPaint*   paint);
 
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
@@ -433,10 +445,10 @@ private:
     SkTLazy<SkMatrix>      fMatrix;
     SkTLazy<SkPaint>       fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkEndDrawPictureCommand : public SkDrawCommand {
+class SkEndDrawPictureCommand : public DrawCommand {
 public:
     SkEndDrawPictureCommand(bool restore);
 
@@ -445,13 +457,15 @@ public:
 private:
     bool fRestore;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawPointsCommand : public SkDrawCommand {
+class SkDrawPointsCommand : public DrawCommand {
 public:
-    SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
-                        const SkPaint& paint);
+    SkDrawPointsCommand(SkCanvas::PointMode mode,
+                        size_t              count,
+                        const SkPoint       pts[],
+                        const SkPaint&      paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -461,10 +475,10 @@ private:
     SkTDArray<SkPoint>  fPts;
     SkPaint             fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawRegionCommand : public SkDrawCommand {
+class SkDrawRegionCommand : public DrawCommand {
 public:
     SkDrawRegionCommand(const SkRegion& region, const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
@@ -475,10 +489,10 @@ private:
     SkRegion fRegion;
     SkPaint  fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawTextBlobCommand : public SkDrawCommand {
+class SkDrawTextBlobCommand : public DrawCommand {
 public:
     SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x, SkScalar y, const SkPaint& paint);
 
@@ -492,31 +506,32 @@ private:
     SkScalar          fYPos;
     SkPaint           fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawPatchCommand : public SkDrawCommand {
+class SkDrawPatchCommand : public DrawCommand {
 public:
-    SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],
-                       const SkPoint texCoords[4], SkBlendMode bmode,
+    SkDrawPatchCommand(const SkPoint  cubics[12],
+                       const SkColor  colors[4],
+                       const SkPoint  texCoords[4],
+                       SkBlendMode    bmode,
                        const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    SkPoint fCubics[12];
-    SkColor* fColorsPtr;
-    SkColor  fColors[4];
-    SkPoint* fTexCoordsPtr;
-    SkPoint  fTexCoords[4];
+    SkPoint     fCubics[12];
+    SkColor*    fColorsPtr;
+    SkColor     fColors[4];
+    SkPoint*    fTexCoordsPtr;
+    SkPoint     fTexCoords[4];
     SkBlendMode fBlendMode;
-    SkPaint fPaint;
+    SkPaint     fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-
-class SkDrawRectCommand : public SkDrawCommand {
+class SkDrawRectCommand : public DrawCommand {
 public:
     SkDrawRectCommand(const SkRect& rect, const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
@@ -526,10 +541,10 @@ private:
     SkRect  fRect;
     SkPaint fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawRRectCommand : public SkDrawCommand {
+class SkDrawRRectCommand : public DrawCommand {
 public:
     SkDrawRRectCommand(const SkRRect& rrect, const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
@@ -540,13 +555,12 @@ private:
     SkRRect fRRect;
     SkPaint fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawDRRectCommand : public SkDrawCommand {
+class SkDrawDRRectCommand : public DrawCommand {
 public:
-    SkDrawDRRectCommand(const SkRRect& outer, const SkRRect& inner,
-                        const SkPaint& paint);
+    SkDrawDRRectCommand(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -556,27 +570,33 @@ private:
     SkRRect fInner;
     SkPaint fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawVerticesCommand : public SkDrawCommand {
+class SkDrawVerticesCommand : public DrawCommand {
 public:
     SkDrawVerticesCommand(sk_sp<SkVertices>, SkBlendMode, const SkPaint&);
 
     void execute(SkCanvas* canvas) const override;
 
 private:
-    sk_sp<SkVertices>   fVertices;
-    SkBlendMode         fBlendMode;
-    SkPaint             fPaint;
+    sk_sp<SkVertices> fVertices;
+    SkBlendMode       fBlendMode;
+    SkPaint           fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawAtlasCommand : public SkDrawCommand {
+class SkDrawAtlasCommand : public DrawCommand {
 public:
-    SkDrawAtlasCommand(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                       SkBlendMode, const SkRect*, const SkPaint*);
+    SkDrawAtlasCommand(const SkImage*,
+                       const SkRSXform[],
+                       const SkRect[],
+                       const SkColor[],
+                       int,
+                       SkBlendMode,
+                       const SkRect*,
+                       const SkPaint*);
 
     void execute(SkCanvas* canvas) const override;
 
@@ -589,19 +609,19 @@ private:
     SkTLazy<SkRect>      fCull;
     SkTLazy<SkPaint>     fPaint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkSaveCommand : public SkDrawCommand {
+class SkSaveCommand : public DrawCommand {
 public:
     SkSaveCommand();
     void execute(SkCanvas* canvas) const override;
 
 private:
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkSaveLayerCommand : public SkDrawCommand {
+class SkSaveLayerCommand : public DrawCommand {
 public:
     SkSaveLayerCommand(const SkCanvas::SaveLayerRec&);
     void execute(SkCanvas* canvas) const override;
@@ -613,10 +633,10 @@ private:
     sk_sp<const SkImageFilter> fBackdrop;
     uint32_t                   fSaveLayerFlags;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkSetMatrixCommand : public SkDrawCommand {
+class SkSetMatrixCommand : public DrawCommand {
 public:
     SkSetMatrixCommand(const SkMatrix& matrix);
     void execute(SkCanvas* canvas) const override;
@@ -625,10 +645,10 @@ public:
 private:
     SkMatrix fMatrix;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawShadowCommand : public SkDrawCommand {
+class SkDrawShadowCommand : public DrawCommand {
 public:
     SkDrawShadowCommand(const SkPath& path, const SkDrawShadowRec& rec);
     void execute(SkCanvas* canvas) const override;
@@ -636,13 +656,13 @@ public:
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    SkPath           fPath;
-    SkDrawShadowRec  fShadowRec;
+    SkPath          fPath;
+    SkDrawShadowRec fShadowRec;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawDrawableCommand : public SkDrawCommand {
+class SkDrawDrawableCommand : public DrawCommand {
 public:
     SkDrawDrawableCommand(SkDrawable*, const SkMatrix*);
     void execute(SkCanvas* canvas) const override;
@@ -651,40 +671,47 @@ private:
     sk_sp<SkDrawable> fDrawable;
     SkTLazy<SkMatrix> fMatrix;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawEdgeAAQuadCommand : public SkDrawCommand {
+class SkDrawEdgeAAQuadCommand : public DrawCommand {
 public:
-    SkDrawEdgeAAQuadCommand(const SkRect& rect, const SkPoint clip[4],
-                            SkCanvas::QuadAAFlags aa, SkColor color, SkBlendMode mode);
+    SkDrawEdgeAAQuadCommand(const SkRect&         rect,
+                            const SkPoint         clip[4],
+                            SkCanvas::QuadAAFlags aa,
+                            SkColor               color,
+                            SkBlendMode           mode);
     void execute(SkCanvas* canvas) const override;
 
 private:
-    SkRect  fRect;
-    SkPoint fClip[4];
-    int fHasClip;
+    SkRect                fRect;
+    SkPoint               fClip[4];
+    int                   fHasClip;
     SkCanvas::QuadAAFlags fAA;
-    SkColor fColor;
-    SkBlendMode fMode;
+    SkColor               fColor;
+    SkBlendMode           fMode;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 
-class SkDrawEdgeAAImageSetCommand : public SkDrawCommand {
+class SkDrawEdgeAAImageSetCommand : public DrawCommand {
 public:
-    SkDrawEdgeAAImageSetCommand(const SkCanvas::ImageSetEntry[], int count, const SkPoint[],
-                                const SkMatrix[], const SkPaint*, SkCanvas::SrcRectConstraint);
+    SkDrawEdgeAAImageSetCommand(const SkCanvas::ImageSetEntry[],
+                                int count,
+                                const SkPoint[],
+                                const SkMatrix[],
+                                const SkPaint*,
+                                SkCanvas::SrcRectConstraint);
     void execute(SkCanvas* canvas) const override;
 
 private:
     SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
-    int fCount;
-    SkAutoTArray<SkPoint> fDstClips;
-    SkAutoTArray<SkMatrix> fPreViewMatrices;
-    SkTLazy<SkPaint> fPaint;
-    SkCanvas::SrcRectConstraint fConstraint;
+    int                                   fCount;
+    SkAutoTArray<SkPoint>                 fDstClips;
+    SkAutoTArray<SkMatrix>                fPreViewMatrices;
+    SkTLazy<SkPaint>                      fPaint;
+    SkCanvas::SrcRectConstraint           fConstraint;
 
-    typedef SkDrawCommand INHERITED;
+    typedef DrawCommand INHERITED;
 };
 #endif

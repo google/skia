@@ -610,7 +610,7 @@ converting to dstInfo.colorType() and dstInfo.alphaType() if required.
 Pixels are readable when Device is raster, or backed by a GPU.
 Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDebugCanvas.
+class like DebugCanvas.
 
 The destination pixel storage must be allocated by the caller.
 
@@ -702,7 +702,7 @@ converting to pixmap.colorType() and pixmap.alphaType() if required.
 Pixels are readable when Device is raster, or backed by a GPU.
 Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDebugCanvas.
+class like DebugCanvas.
 
 Caller must allocate pixel storage in pixmap if needed.
 
@@ -765,7 +765,7 @@ converting to bitmap.colorType() and bitmap.alphaType() if required.
 Pixels are readable when Device is raster, or backed by a GPU.
 Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDebugCanvas.
+class like DebugCanvas.
 
 Caller must allocate pixel storage in bitmap if needed.
 
@@ -829,7 +829,7 @@ converting to imageInfo().colorType() and imageInfo().alphaType() if required.
 Pixels are writable when Device is raster, or backed by a GPU.
 Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDebugCanvas.
+class like DebugCanvas.
 
 Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
@@ -887,7 +887,7 @@ converting to imageInfo().colorType() and imageInfo().alphaType() if required.
 Pixels are writable when Device is raster, or backed by a GPU.
 Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
-class like SkDebugCanvas.
+class like DebugCanvas.
 
 Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
