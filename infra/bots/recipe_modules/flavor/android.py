@@ -489,13 +489,14 @@ time.sleep(60)
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, **kwargs):
-    if (cmd[0] == 'nanobench'):
-      self._scale_for_nanobench()
-    else:
-      self._scale_for_dm()
-    app = self.host_dirs.bin_dir.join(cmd[0])
-    self._adb('push %s' % cmd[0],
-              'push', app, self.device_dirs.bin_dir)
+    if not kwargs.get('skip_binary_push', False):
+      if (cmd[0] == 'nanobench'):
+        self._scale_for_nanobench()
+      else:
+        self._scale_for_dm()
+      app = self.host_dirs.bin_dir.join(cmd[0])
+      self._adb('push %s' % cmd[0],
+                'push', app, self.device_dirs.bin_dir)
 
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),

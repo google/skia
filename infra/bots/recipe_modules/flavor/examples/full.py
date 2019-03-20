@@ -49,7 +49,10 @@ def RunSteps(api):
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
       elif 'Perf' in api.properties['buildername']:
-        api.flavor.step('nanobench', ['nanobench', '--some-flag'])
+        if 'SkottieTracing' in api.properties['buildername']:
+          api.flavor.step('dm', ['dm', '--some-flag'], skip_binary_push=True)
+        else:
+          api.flavor.step('nanobench', ['nanobench', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.perf_data_dir,
             api.flavor.host_dirs.perf_data_dir)
@@ -59,6 +62,8 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All'
+   '-Android_SkottieTracing'),
   'Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
