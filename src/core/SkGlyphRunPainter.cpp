@@ -267,19 +267,17 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 //   transformations from the view matrix. Calculate a text scale based on that reduction. This
 //   scale factor is used to increase the size of the destination rectangles. The destination
 //   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
-void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
+void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension,
                                                 const SkPaint& runPaint,
                                                 const SkFont& runFont,
                                                 const SkMatrix& viewMatrix,
-                                                SkScalar cacheToSourceScale,
                                                 SkGlyphRunPainterInterface* process) {
     SkASSERT(!fARGBGlyphsIDs.empty());
 
     SkScalar maxScale = viewMatrix.getMaxScale();
 
-    // This is a conservative estimate of the longest dimension among all the glyph widths and
-    // heights.
-    SkScalar conservativeMaxGlyphDimension = maxGlyphDimension * cacheToSourceScale * maxScale;
+    // This is a linear estimate of the longest dimension among all the glyph widths and heights.
+    SkScalar conservativeMaxGlyphDimension = maxSourceGlyphDimension * maxScale;
 
     // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
     // N.B. If the matrix has scale, that will be reflected in the strike through the viewMatrix
@@ -328,19 +326,8 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxGlyphDimension,
         SkScalar runFontTextSize = runFont.getSize();
 
         // Scale the text size down so the long side of all the glyphs will fit in the atlas.
-        SkScalar reducedTextSize =
-                (maxAtlasDimension / conservativeMaxGlyphDimension) * runFontTextSize;
-
-        // If there's a glyph in the font that's particularly large, it's possible
-        // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
-        // that glyph than make the others blurry, so we set a minimum size of half the
-        // maximum text size to avoid this case.
-        SkScalar fallbackTextSize =
-                SkScalarFloorToScalar(std::max(reducedTextSize, 0.5f * runFontTextSize));
-
-        // Don't allow the text size to get too big. This will also improve glyph cache hit rate
-        // for larger text sizes.
-        fallbackTextSize = std::min(fallbackTextSize, 256.0f);
+        SkScalar fallbackTextSize = SkScalarFloorToScalar(
+                (maxAtlasDimension / maxSourceGlyphDimension) * runFontTextSize);
 
         SkFont fallbackFont{runFont};
         fallbackFont.setSize(fallbackTextSize);
@@ -472,10 +459,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 {
                     // fGlyphPos will be reused here.
                     if (!fARGBGlyphsIDs.empty()) {
-                        this->processARGBFallback(
-                                maxFallbackDimension, runPaint, glyphRun.font(), viewMatrix,
-                                cacheToSourceScale,
-                                process);
+                        this->processARGBFallback(maxFallbackDimension * cacheToSourceScale,
+                                                  runPaint, runFont, viewMatrix, process);
                     }
                 }
             }
@@ -536,10 +521,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
                 // fGlyphPos will be reused here.
                 if (!fARGBGlyphsIDs.empty()) {
-                    this->processARGBFallback(
-                            maxFallbackDimension, runPaint, glyphRun.font(), viewMatrix,
-                            strikeToSourceRatio,
-                            process);
+                    this->processARGBFallback(maxFallbackDimension * strikeToSourceRatio,
+                                              runPaint, runFont, viewMatrix, process);
                 }
             }
         } else {
@@ -556,29 +539,40 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fStrikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
 
             ScopedBuffers _ = this->ensureBuffers(glyphRun);
+            SkScalar maxFallbackDimension{-SK_ScalarInfinity};
 
             SkMatrix mapping = viewMatrix;
             mapping.preTranslate(origin.x(), origin.y());
             SkVector rounding = strike->rounding();
             mapping.postTranslate(rounding.x(), rounding.y());
-            mapping.mapPoints(fPositions,  glyphRun.positions().data(), glyphRun.runSize());
-
-            int drawableGlyphCount = strike->glyphMetrics(
-                    glyphRun.glyphsIDs().data(),
-                    fPositions,
-                    glyphRun.glyphsIDs().size(),
-                    fGlyphPos);
+            mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
             int glyphsWithMaskCount = 0;
-            // N.B. this is using the same underlying fGlyphPos array for input and output.
-            for (int i = 0; i < drawableGlyphCount; i++) {
-                SkGlyphPos glyphPos = fGlyphPos[i];
-                if (SkStrikeCommon::GlyphTooBigForAtlas(*glyphPos.glyph)) {
-                    if (strike->decideCouldDrawFromPath(*glyphPos.glyph)) {
-                        fPaths.push_back(glyphPos);
+            const SkPoint* positionCursor = glyphRun.positions().data();
+            const SkPoint* devicePositionCursor = fPositions;
+            for (auto glyphID : glyphRun.glyphsIDs()) {
+                SkPoint glyphPos = *positionCursor++;
+                SkPoint deviceGlyphPos = *devicePositionCursor++;
+                if (!SkScalarsAreFinite(deviceGlyphPos.x(), deviceGlyphPos.y())) {
+                    continue;
+                }
+
+                const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, deviceGlyphPos);
+                if (glyph.isEmpty()) {
+                    continue;
+                }
+
+                if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
+                    if (strike->decideCouldDrawFromPath(glyph)) {
+                        fPaths.push_back({&glyph, deviceGlyphPos});
+                    } else {
+                        SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
+                        maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
+                        fARGBGlyphsIDs.push_back(glyph.getGlyphID());
+                        fARGBPositions.push_back(origin + glyphPos);
                     }
                 } else {
-                    fGlyphPos[glyphsWithMaskCount++] = glyphPos;
+                    fGlyphPos[glyphsWithMaskCount++] = {&glyph, deviceGlyphPos};
                 }
             }
 
@@ -590,6 +584,12 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 }
                 if (!fPaths.empty()) {
                     process->processDevicePaths(SkSpan<const SkGlyphPos>{fPaths});
+                }
+
+                // fGlyphPos will be reused here.
+                if (!fARGBGlyphsIDs.empty()) {
+                    this->processARGBFallback(maxFallbackDimension / viewMatrix.getMaxScale(),
+                                              runPaint, runFont, viewMatrix, process);
                 }
             }
 
