@@ -16,6 +16,24 @@
       "revId": "55153788ff67ec6d0c488172a719e590259f4f57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa697665_a0ff22f7",
+        "filename": "tools/debugger/DrawCommand.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-20T17:56:58Z",
+      "side": 1,
+      "message": "Yeah, I was mostly focused on file names in this series of patches.  I will follow up... it probably does make sense to update all the derived classes, right?",
+      "parentUuid": "657a179a_8be6626c",
+      "revId": "55153788ff67ec6d0c488172a719e590259f4f57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
