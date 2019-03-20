@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkEventTracingPriv.h"
+#include "EventTracingPriv.h"
 
+#include "ChromeTracingTracer.h"
 #include "CommandLineFlags.h"
 #include "SkATrace.h"
-#include "SkChromeTracingTracer.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracer.h"
 #include "SkTraceEvent.h"
 
-DEFINE_string(trace, "",
+DEFINE_string(trace,
+              "",
               "Log trace events in one of several modes:\n"
               "  debugf     : Show events using SkDebugf\n"
               "  atrace     : Send events to Android ATrace\n"
@@ -22,7 +23,8 @@ DEFINE_string(trace, "",
               "               trace events to specified file as JSON, for viewing\n"
               "               with chrome://tracing");
 
-DEFINE_string(traceMatch, "",
+DEFINE_string(traceMatch,
+              "",
               "Filter which categories are traced.\n"
               "Uses same format as --match\n");
 
@@ -40,7 +42,7 @@ void initializeEventTracingForTools(const char* traceFlag) {
     } else if (0 == strcmp(traceFlag, "debugf")) {
         eventTracer = new SkDebugfTracer();
     } else {
-        eventTracer = new SkChromeTracingTracer(traceFlag);
+        eventTracer = new ChromeTracingTracer(traceFlag);
     }
 
     SkAssertResult(SkEventTracer::SetInstance(eventTracer));

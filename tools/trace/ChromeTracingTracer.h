@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkChromeTracingTracer_DEFINED
-#define SkChromeTracingTracer_DEFINED
+#ifndef ChromeTracingTracer_DEFINED
+#define ChromeTracingTracer_DEFINED
 
+#include "EventTracingPriv.h"
 #include "SkEventTracer.h"
-#include "SkEventTracingPriv.h"
 #include "SkSpinlock.h"
 #include "SkString.h"
 #include "SkTHash.h"
@@ -19,23 +19,23 @@ class SkJSONWriter;
 /**
  * A SkEventTracer implementation that logs events to JSON for viewing with chrome://tracing.
  */
-class SkChromeTracingTracer : public SkEventTracer {
+class ChromeTracingTracer : public SkEventTracer {
 public:
-    SkChromeTracingTracer(const char* filename);
-    ~SkChromeTracingTracer() override;
+    ChromeTracingTracer(const char* filename);
+    ~ChromeTracingTracer() override;
 
-    SkEventTracer::Handle addTraceEvent(char phase,
-                                        const uint8_t* categoryEnabledFlag,
-                                        const char* name,
-                                        uint64_t id,
-                                        int numArgs,
-                                        const char** argNames,
-                                        const uint8_t* argTypes,
+    SkEventTracer::Handle addTraceEvent(char            phase,
+                                        const uint8_t*  categoryEnabledFlag,
+                                        const char*     name,
+                                        uint64_t        id,
+                                        int             numArgs,
+                                        const char**    argNames,
+                                        const uint8_t*  argTypes,
                                         const uint64_t* argValues,
-                                        uint8_t flags) override;
+                                        uint8_t         flags) override;
 
-    void updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
-                                  const char* name,
+    void updateTraceEventDuration(const uint8_t*        categoryEnabledFlag,
+                                  const char*           name,
                                   SkEventTracer::Handle handle) override;
 
     const uint8_t* getCategoryGroupEnabled(const char* name) override {
@@ -59,19 +59,19 @@ private:
     typedef std::unique_ptr<uint8_t[]> BlockPtr;
     struct TraceEventBlock {
         BlockPtr fBlock;
-        int fEventsInBlock;
+        int      fEventsInBlock;
     };
 
     void createBlock();
 
     Handle appendEvent(const void* data, size_t size);
 
-    SkString fFilename;
-    SkSpinlock fMutex;
+    SkString                 fFilename;
+    SkSpinlock               fMutex;
     SkEventTracingCategories fCategories;
 
     TraceEventBlock fCurBlock;
-    size_t fCurBlockUsed;
+    size_t          fCurBlockUsed;
 
     SkTArray<TraceEventBlock> fBlocks;
 };

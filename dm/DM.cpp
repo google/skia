@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "ChromeTracingTracer.h"
 #include "CommonFlags.h"
 #include "CommonFlagsConfig.h"
 #include "CommonFlagsGpu.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
+#include "EventTracingPriv.h"
 #include "ProcStats.h"
 #include "Resources.h"
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
-#include "SkChromeTracingTracer.h"
 #include "SkCodec.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
@@ -22,7 +23,6 @@
 #include "SkData.h"
 #include "SkDebugfTracer.h"
 #include "SkDocument.h"
-#include "SkEventTracingPriv.h"
 #include "SkFontMgr.h"
 #include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
