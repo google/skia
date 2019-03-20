@@ -36,6 +36,7 @@ public:
                                   GrBackendSemaphore signalSemaphores[]) override;
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
+    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;
     bool isCompatible(const SkSurfaceCharacterization&) const;
     bool onDraw(const SkDeferredDisplayList*) override;
 
