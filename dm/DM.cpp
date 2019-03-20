@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "CommonFlags.h"
+#include "CommonFlagsConfig.h"
+#include "CommonFlagsGpu.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
 #include "ProcStats.h"
@@ -16,9 +19,6 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
-#include "SkCommonFlags.h"
-#include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
 #include "SkDocument.h"
@@ -35,9 +35,9 @@
 #include "SkOSPath.h"
 #include "SkScan.h"
 #include "SkSpinlock.h"
-#include "SkTestFontMgr.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
+#include "SkTestFontMgr.h"
 #include "SkTypeface_win.h"
 #include "Test.h"
 #include "ios_utils.h"
@@ -556,9 +556,8 @@ static bool in_shard() {
 
 static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
-    if (in_shard() &&
-        FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+    if (in_shard() && FLAGS_src.contains(tag) &&
+        !CommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -923,8 +922,9 @@ static void push_codec_srcs(Path path) {
 }
 
 template <typename T>
-void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* ext,
-                      const char* src_name = nullptr) {
+void gather_file_srcs(const CommandLineFlags::StringArray& flags,
+                      const char*                          ext,
+                      const char*                          src_name = nullptr) {
     if (!src_name) {
         // With the exception of Lottie files, the source name is the extension.
         src_name = ext;
@@ -1475,7 +1475,7 @@ static void gather_tests() {
         if (!in_shard()) {
             continue;
         }
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
         if (test.needsGpu && FLAGS_gpu) {
@@ -1515,7 +1515,7 @@ int main(int argc, char** argv) {
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 
     if (!FLAGS_nativeFonts) {
         gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "ResourceFactory.h"
 #include "Resources.h"
+#include "CommandLineFlags.h"
+#include "ResourceFactory.h"
 #include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"

@@ -9,7 +9,7 @@
 #define SK_COMMON_FLAGS_H
 
 #include "../private/SkTArray.h"
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkString.h"
 
 DECLARE_bool(cpu);
@@ -43,10 +43,11 @@ DECLARE_bool(forceDeltaAA);
 DECLARE_string(key);
 DECLARE_string(properties);
 DECLARE_int32(backendTiles);
-DECLARE_int32(backendThreads)
+DECLARE_int32(backendThreads);
 
 /**
- *  Helper to assist in collecting image paths from |dir| specified through a command line flag.
+ *  Helper to assist in collecting image paths from |dir| specified through a command line
+ * flag.
  *
  *  Populates |output|, an array of strings with paths to images to test.
  *
@@ -56,6 +57,6 @@ DECLARE_int32(backendThreads)
  *  - If |dir| is a single file, assume the user is deliberately testing this image,
  *    regardless of file type.
  */
-bool CollectImages(SkCommandLineFlags::StringArray dir, SkTArray<SkString>* output);
+bool CollectImages(CommandLineFlags::StringArray dir, SkTArray<SkString>* output);
 
 #endif

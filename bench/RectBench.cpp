@@ -6,9 +6,9 @@
  */
 
 #include "Benchmark.h"
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkRandom.h"

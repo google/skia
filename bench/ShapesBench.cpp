@@ -6,11 +6,11 @@
  */
 
 #include "Benchmark.h"
+#include "CommandLineFlags.h"
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
 #include "SkPaint.h"
-#include "SkRandom.h"
 #include "SkRRect.h"
+#include "SkRandom.h"
 #include "SkString.h"
 
 #include <stdio.h>

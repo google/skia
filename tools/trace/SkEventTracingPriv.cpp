@@ -7,9 +7,9 @@
 
 #include "SkEventTracingPriv.h"
 
+#include "CommandLineFlags.h"
 #include "SkATrace.h"
 #include "SkChromeTracingTracer.h"
-#include "SkCommandLineFlags.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracer.h"
 #include "SkTraceEvent.h"
@@ -69,8 +69,10 @@ uint8_t* SkEventTracingCategories::getCategoryGroupEnabled(const char* name) {
         return reinterpret_cast<uint8_t*>(&fCategories[0]);
     }
 
-    fCategories[fNumCategories].fEnabled = SkCommandLineFlags::ShouldSkip(FLAGS_traceMatch, name)
-            ? 0 : SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
+    fCategories[fNumCategories].fEnabled =
+            CommandLineFlags::ShouldSkip(FLAGS_traceMatch, name)
+                    ? 0
+                    : SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
 
     fCategories[fNumCategories].fName = name;
     return reinterpret_cast<uint8_t*>(&fCategories[fNumCategories++]);

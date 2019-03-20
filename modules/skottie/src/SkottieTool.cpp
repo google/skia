@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
-#include "Skottie.h"
-#include "SkottieUtils.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "Skottie.h"
+#include "SkottieUtils.h"
 
 #include <vector>
 
@@ -157,7 +157,7 @@ private:
 } // namespace
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     SkAutoGraphics ag;
 
     if (FLAGS_input.isEmpty() || FLAGS_writePath.isEmpty()) {

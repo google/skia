@@ -63,7 +63,7 @@
 #include "SkXfermodeImageFilter.h"
 
 // SRC
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkUTF.h"
 
 #if SK_SUPPORT_GPU

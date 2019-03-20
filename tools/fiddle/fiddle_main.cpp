@@ -10,8 +10,8 @@
 #include <sstream>
 #include <string>
 
+#include "CommandLineFlags.h"
 #include "SkAutoPixmapStorage.h"
-#include "SkCommandLineFlags.h"
 #include "SkMipMap.h"
 #include "SkUtils.h"
 
@@ -234,7 +234,7 @@ static bool setup_backend_objects(GrContext* context,
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     duration = FLAGS_duration;
     frame = FLAGS_frame;
     DrawOptions options = GetDrawOptions();

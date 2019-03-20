@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "CommonFlags.h"
 #include "SkCanvas.h"
-#include "SkCommonFlags.h"
 #include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkFontPriv.h"
-#include "SkPath.h"
 #include "SkGraphics.h"
+#include "SkPath.h"
 #include "SkTypeface.h"
+#include "gm.h"
+#include "sk_tool_utils.h"
 
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "CommandLineFlags.h"
+#include "Resources.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkColor.h"
-#include "SkCommandLineFlags.h"
 #include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
-#include "Resources.h"
+#include "gm.h"
+#include "sk_tool_utils.h"
 
 #include <vector>
 

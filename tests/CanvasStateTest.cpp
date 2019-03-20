@@ -6,12 +6,12 @@
  */
 
 #include "CanvasStateHelpers.h"
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkCanvasPriv.h"
 #include "SkCanvasStateUtils.h"
 #include "SkClipOpPriv.h"
 #include "SkColor.h"
-#include "SkCommandLineFlags.h"
 #include "SkImageInfo.h"
 #include "SkPaint.h"
 #include "SkRRect.h"

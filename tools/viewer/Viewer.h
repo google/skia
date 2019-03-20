@@ -15,6 +15,7 @@
 #include "ImGuiLayer.h"
 #include "SkAnimTimer.h"
 #include "SkExecutor.h"
+#include "SkFont.h"
 #include "SkScan.h"
 #include "Slide.h"
 #include "StatsLayer.h"

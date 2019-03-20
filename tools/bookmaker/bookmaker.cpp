@@ -99,13 +99,13 @@ int main(int argc, char** const argv) {
     BmhParser bmhParser(FLAGS_skip);
     bmhParser.validate();
 
-    SkCommandLineFlags::SetUsage(
-        "Common Usage: bookmaker -b path/to/bmh_files -i path/to/include.h -t\n"
-        "              bookmaker -b path/to/bmh_files -e fiddle.json\n"
-        "              ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json\n"
-        "              bookmaker -b path/to/bmh_files -f fiddleout.json -r path/to/md_files\n"
-        "              bookmaker -a path/to/status.json -x\n"
-        "              bookmaker -a path/to/status.json -p\n");
+    CommandLineFlags::SetUsage(
+            "Common Usage: bookmaker -b path/to/bmh_files -i path/to/include.h -t\n"
+            "              bookmaker -b path/to/bmh_files -e fiddle.json\n"
+            "              ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json\n"
+            "              bookmaker -b path/to/bmh_files -f fiddleout.json -r path/to/md_files\n"
+            "              bookmaker -a path/to/status.json -x\n"
+            "              bookmaker -a path/to/status.json -p\n");
     bool help = false;
     for (int i = 1; i < argc; i++) {
         if (0 == strcmp("-h", argv[i]) || 0 == strcmp("--help", argv[i])) {
@@ -120,13 +120,13 @@ int main(int argc, char** const argv) {
         }
     }
     if (!help) {
-        SkCommandLineFlags::Parse(argc, argv);
+        CommandLineFlags::Parse(argc, argv);
     } else {
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         const char* const commands[] = { "", "-h", "bmh", "-h", "examples", "-h", "include",
             "-h", "fiddle", "-h", "ref", "-h", "status", "-h", "tokens",
             "-h", "crosscheck", "-h", "populate", "-h", "spellcheck" };
-        SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), commands);
+        CommandLineFlags::Parse(SK_ARRAY_COUNT(commands), commands);
         return 0;
     }
     bool runAll = false;
@@ -142,54 +142,54 @@ int main(int argc, char** const argv) {
     }
     if (!FLAGS_bmh.isEmpty() && !FLAGS_status.isEmpty()) {
         SkDebugf("requires -b or -a but not both\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if (!FLAGS_include.isEmpty() && !FLAGS_status.isEmpty()) {
         SkDebugf("requires -i or -a but not both\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && FLAGS_catalog) {
          SkDebugf("-c requires -b or -a\n");
-        SkCommandLineFlags::PrintUsage();
-        return 1;
+         CommandLineFlags::PrintUsage();
+         return 1;
     }
     if ((FLAGS_fiddle.isEmpty() || FLAGS_ref.isEmpty()) && FLAGS_catalog) {
         SkDebugf("-c requires -f -r\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && !FLAGS_examples.isEmpty()) {
         SkDebugf("-e requires -b or -a\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_status.isEmpty() &&
             FLAGS_populate) {
         SkDebugf("-p requires -b -i or -a\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && !FLAGS_ref.isEmpty()) {
         SkDebugf("-r requires -b or -a\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && !FLAGS_spellcheck.isEmpty()) {
         SkDebugf("-s requires -b or -a\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if (FLAGS_include.isEmpty() && FLAGS_tokens) {
         SkDebugf("-t requires -b -i\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_status.isEmpty() &&
             FLAGS_crosscheck) {
         SkDebugf("-x requires -b -i or -a\n");
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
     bmhParser.reset();
@@ -205,7 +205,7 @@ int main(int argc, char** const argv) {
     if (FLAGS_hack) {
         if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty()) {
             SkDebugf("-H or --hack requires -a or -b\n");
-            SkCommandLineFlags::PrintUsage();
+            CommandLineFlags::PrintUsage();
             return 1;
         }
         HackParser hacker(bmhParser);

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "CommonFlags.h"
 #include "Fuzz.h"
 #include "SkCanvas.h"
-#include "SkCommonFlags.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkTLazy.h"

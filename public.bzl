@@ -674,8 +674,8 @@ SKOTTIE_TOOL_SRCS = [
     "modules/skottie/utils/SkottieUtils.cpp",
     "modules/skottie/utils/SkottieUtils.h",
     # TODO(benjaminwagner): Add "flags" target.
-    "tools/flags/SkCommandLineFlags.cpp",
-    "tools/flags/SkCommandLineFlags.h",
+    "tools/flags/CommandLineFlags.cpp",
+    "tools/flags/CommandLineFlags.h",
 ]
 
 ################################################################################

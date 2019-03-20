@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkImageInfo.h"
 #include "SkLeanWindows.h"
 #include "SkPoint.h"

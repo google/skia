@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkGraphics.h"
-#include "SkSurface.h"
 #include "SkImage.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkSurface.h"
 
 DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
 DEFINE_string2(text, t, "Hello", "The string to write.");
@@ -55,8 +55,8 @@ static bool do_document(int w, int h, const char path[], const char text[],
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage("");
+    CommandLineFlags::Parse(argc, argv);
 
     SkAutoGraphics ag;
     SkString path("skhello");
