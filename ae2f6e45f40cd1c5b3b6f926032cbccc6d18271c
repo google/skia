@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3363ec10_4974417d",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-20T15:11:33Z",
+      "side": 1,
+      "message": "In practice you\u0027re only going to get A8 planes from the queryYUVA8/getYUVA8Planes so I don\u0027t know what setting the alphaType is going to buy you.",
+      "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1d34923_487fe27e",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-20T15:11:33Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 519,
+        "startChar": 35,
+        "endLine": 519,
+        "endChar": 45
+      },
+      "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d9a083b_89b6433d",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-20T15:11:33Z",
+      "side": 1,
+      "message": "mv uniqueID decl in here ?",
+      "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
