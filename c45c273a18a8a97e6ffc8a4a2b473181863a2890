@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "382e46f1_c89ca62a",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-20T16:40:41Z",
+      "side": 1,
+      "message": "I\u0027m wondering is if we should build a new interface for this that doesn\u0027t rely on SkRasterPipeline::callback, which is kind of a joke as far as performance goes.  If we can\u0027t JIT a stage itself, maybe don\u0027t bother, and instead run through an alternate bulk float-buffer API?\n\nLonger term, I\u0027d be happiest if this effort obsoletse SkRasterPipeline, so it might be worth thinking about what\u0027s the best way to write an SkBlitter that can replace SkRasterPipelineBlitter, something to handles the whole shader-colorFilter-blend job with sksl and either an interpreter or JIT.  If we\u0027re going to have a JIT and/or interpreter, might as well try to have them subsume everything the existing SkRasterPipeline interpreter does.\n\nShort term I\u0027m happy to start whatever makes things work end-to-end, ignoring performance entirely.",
+      "parentUuid": "cea77a36_ce2a41ff",
+      "range": {
+        "startLine": 423,
+        "startChar": 0,
+        "endLine": 449,
+        "endChar": 14
+      },
+      "revId": "c45c273a18a8a97e6ffc8a4a2b473181863a2890",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "86580003_ae28f962",
         "filename": "src/sksl/SkSLByteCode.h",
         "patchSetId": 11
