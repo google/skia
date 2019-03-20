@@ -8,8 +8,8 @@
 #ifndef SK_COMMON_FLAGS_GPU_H
 #define SK_COMMON_FLAGS_GPU_H
 
+#include "CommandLineFlags.h"
 #include "GrTypesPriv.h"
-#include "SkCommandLineFlags.h"
 #include "SkTypes.h"
 
 DECLARE_int32(gpuThreads);
@@ -48,8 +48,8 @@ inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
     if (FLAGS_pr.isEmpty()) {
         return GpuPathRenderers::kDefault;
     }
-    GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
-            ? GpuPathRenderers::kDefault : GpuPathRenderers::kNone;
+    GpuPathRenderers gpuPathRenderers =
+            ('~' == FLAGS_pr[0][0]) ? GpuPathRenderers::kDefault : GpuPathRenderers::kNone;
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
         const char* name = FLAGS_pr[i];
         if (name[0] == '~') {

@@ -8,7 +8,7 @@
 #ifndef bmhParser_DEFINED
 #define bmhParser_DEFINED
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 
 #include "definition.h"
 #include "parserCommon.h"
@@ -131,8 +131,8 @@ public:
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
 	bool skipToString();
-    void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
-    void spellStatus(const char* match, SkCommandLineFlags::StringArray report) const;
+    void           spellCheck(const char* match, CommandLineFlags::StringArray report) const;
+    void           spellStatus(const char* match, CommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
     string typedefName() override;

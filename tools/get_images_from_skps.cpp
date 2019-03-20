@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkJSONWriter.h"
 #include "SkMD5.h"
@@ -18,7 +18,6 @@
 #include "SkSerialProcs.h"
 #include "SkStream.h"
 #include "SkTHash.h"
-
 
 #include <iostream>
 #include <map>
@@ -138,16 +137,16 @@ static bool get_images_from_file(const SkString& file) {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage(
+    CommandLineFlags::SetUsage(
             "Usage: get_images_from_skps -s <dir of skps> -o <dir for output images> --testDecode "
             "-j <output JSON path> --writeImages, --writeFailedImages\n");
 
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     const char* inputs = FLAGS_skps[0];
     gOutputDir = FLAGS_out[0];
 
     if (!sk_isdir(gOutputDir)) {
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
 

@@ -7,8 +7,8 @@
 
 #include "DMJsonWriter.h"
 
+#include "CommonFlags.h"
 #include "ProcStats.h"
-#include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkJSON.h"
 #include "SkJSONWriter.h"

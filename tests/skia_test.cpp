@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include <atomic>
+#include "CommonFlags.h"
 #include "CrashHandler.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "OverwriteLine.h"
 #include "PathOpsDebug.h"
 #include "Resources.h"
-#include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkPathOpsDebug.h"
@@ -20,7 +21,6 @@
 #include "SkTemplates.h"
 #include "SkTime.h"
 #include "Test.h"
-#include <atomic>
 
 using namespace skiatest;
 using namespace sk_gpu_test;
@@ -113,7 +113,7 @@ private:
 };
 
 static bool should_run(const char* testName, bool isGPUTest) {
-    if (SkCommandLineFlags::ShouldSkip(FLAGS_match, testName)) {
+    if (CommandLineFlags::ShouldSkip(FLAGS_match, testName)) {
         return false;
     }
     if (!FLAGS_cpu && !isGPUTest) {
@@ -126,7 +126,7 @@ static bool should_run(const char* testName, bool isGPUTest) {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 #if DEBUG_DUMP_VERIFY
     SkPathOpsDebug::gDumpOp = FLAGS_dumpOp;
     SkPathOpsDebug::gVerifyOp = FLAGS_verifyOp;

@@ -8,7 +8,7 @@
 // running create_test_font_color generates ./<cbdt|sbix|cpal>.ttx
 // which are read by fonttools ttx to produce native fonts.
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -34,7 +34,7 @@ static void export_ttx(sk_sp<SkTestSVGTypeface> typeface, SkString prefix,
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 
     // Most of the time use these sizes.
     unsigned usual[] = { 16, 64, 128 };

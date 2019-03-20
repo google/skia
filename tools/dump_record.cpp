@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "DumpRecord.h"
 #include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkRecordDraw.h"
@@ -38,10 +38,10 @@ static void dump(const char* name, int w, int h, const SkRecord& record) {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 
     for (int i = 0; i < FLAGS_skps.count(); i++) {
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
             continue;
         }
 

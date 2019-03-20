@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "Fuzz.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
-#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
@@ -96,11 +96,12 @@ static void fuzz_skottie_json(sk_sp<SkData>);
 #endif
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
-                                 "       fuzz -b <path/to/file>\n"
-                                 "--help lists the valid types. If type is not specified,\n"
-                                 "fuzz will make a guess based on the name of the file.\n");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage(
+            "Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
+            "       fuzz -b <path/to/file>\n"
+            "--help lists the valid types. If type is not specified,\n"
+            "fuzz will make a guess based on the name of the file.\n");
+    CommandLineFlags::Parse(argc, argv);
 
     SkString path = SkString(FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0]);
     SkString type = SkString(FLAGS_type.isEmpty() ? "" : FLAGS_type[0]);
@@ -227,7 +228,7 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
     SkDebugf("Unknown type %s\n", type.c_str());
-    SkCommandLineFlags::PrintUsage();
+    CommandLineFlags::PrintUsage();
     return 1;
 }
 

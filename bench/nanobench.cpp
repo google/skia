@@ -14,6 +14,9 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBench.h"
 #include "CodecBenchPriv.h"
+#include "CommonFlags.h"
+#include "CommonFlagsConfig.h"
+#include "CommonFlagsGpu.h"
 #include "CrashHandler.h"
 #include "GMBench.h"
 #include "ProcStats.h"
@@ -28,9 +31,6 @@
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkColorSpacePriv.h"
-#include "SkCommonFlags.h"
-#include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracingPriv.h"
@@ -572,8 +572,9 @@ static void cleanup_run(Target* target) {
     delete target;
 }
 
-static void collect_files(const SkCommandLineFlags::StringArray& paths, const char* ext,
-                          SkTArray<SkString>* list) {
+static void collect_files(const CommandLineFlags::StringArray& paths,
+                          const char*                          ext,
+                          SkTArray<SkString>*                  list) {
     for (int i = 0; i < paths.count(); ++i) {
         if (SkStrEndsWith(paths[i], ext)) {
             list->push_back(SkString(paths[i]));
@@ -648,7 +649,7 @@ public:
     static sk_sp<SkPicture> ReadPicture(const char* path) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
             return nullptr;
         }
 
@@ -698,8 +699,8 @@ public:
             if (!bench) {
                 return nullptr;
             }
-        } while(SkCommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
-                SkCommandLineFlags::ShouldSkip(FLAGS_benchType,  fBenchType));
+        } while (CommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
+                 CommandLineFlags::ShouldSkip(FLAGS_benchType, fBenchType));
         return bench.release();
     }
 
@@ -821,7 +822,7 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (CommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -900,7 +901,7 @@ public:
             fBenchType = "skandroidcodec";
 
             const SkString& path = fImages[fCurrentAndroidCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (CommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -945,7 +946,7 @@ public:
             fBenchType = "BRD";
 
             const SkString& path = fImages[fCurrentBRDImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (CommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
 
@@ -1099,7 +1100,7 @@ static void start_keepalive() {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 
     initializeEventTracingForTools();
 
@@ -1203,7 +1204,7 @@ int main(int argc, char** argv) {
     log.beginObject("results");
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
             continue;
         }
 

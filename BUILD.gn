@@ -1532,14 +1532,14 @@ if (skia_enable_tools) {
   test_lib("flags") {
     public_include_dirs = [ "tools/flags" ]
     sources = [
-      "tools/flags/SkCommandLineFlags.cpp",
+      "tools/flags/CommandLineFlags.cpp",
     ]
   }
   test_lib("common_flags") {
     public_include_dirs = [ "tools/flags" ]
     sources = [
-      "tools/flags/SkCommonFlags.cpp",
-      "tools/flags/SkCommonFlagsConfig.cpp",
+      "tools/flags/CommonFlags.cpp",
+      "tools/flags/CommonFlagsConfig.cpp",
     ]
     deps = [
       ":flags",

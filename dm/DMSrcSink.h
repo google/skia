@@ -8,12 +8,12 @@
 #ifndef DMSrcSink_DEFINED
 #define DMSrcSink_DEFINED
 
+#include "CommonFlagsConfig.h"
 #include "SkBBHFactory.h"
 #include "SkBBoxHierarchy.h"
 #include "SkBitmap.h"
 #include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
-#include "SkCommonFlagsConfig.h"
 #include "SkData.h"
 #include "SkMultiPictureDocument.h"
 #include "SkPicture.h"

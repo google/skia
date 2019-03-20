@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkFontDescriptor.h"
 #include "SkPicture.h"
 #include "SkPictureCommon.h"
@@ -32,8 +32,8 @@ static const int kMissingInput = 4;
 static const int kIOError = 5;
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("Prints information about an skp file");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage("Prints information about an skp file");
+    CommandLineFlags::Parse(argc, argv);
 
     if (FLAGS_input.count() != 1) {
         if (!FLAGS_quiet) {
