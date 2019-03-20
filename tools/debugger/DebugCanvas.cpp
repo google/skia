@@ -289,42 +289,42 @@ void DebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkCanvas* canvas) {
 void DebugCanvas::setOverdrawViz(bool overdrawViz) { fOverdrawViz = overdrawViz; }
 
 void DebugCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
-    this->addDrawCommand(new SkClipPathCommand(path, op, kSoft_ClipEdgeStyle == edgeStyle));
+    this->addDrawCommand(new ClipPathCommand(path, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
 void DebugCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
-    this->addDrawCommand(new SkClipRectCommand(rect, op, kSoft_ClipEdgeStyle == edgeStyle));
+    this->addDrawCommand(new ClipRectCommand(rect, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
 void DebugCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
-    this->addDrawCommand(new SkClipRRectCommand(rrect, op, kSoft_ClipEdgeStyle == edgeStyle));
+    this->addDrawCommand(new ClipRRectCommand(rrect, op, kSoft_ClipEdgeStyle == edgeStyle));
 }
 
 void DebugCanvas::onClipRegion(const SkRegion& region, SkClipOp op) {
-    this->addDrawCommand(new SkClipRegionCommand(region, op));
+    this->addDrawCommand(new ClipRegionCommand(region, op));
 }
 
 void DebugCanvas::didConcat(const SkMatrix& matrix) {
-    this->addDrawCommand(new SkConcatCommand(matrix));
+    this->addDrawCommand(new ConcatCommand(matrix));
     this->INHERITED::didConcat(matrix);
 }
 
 void DebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
-    this->addDrawCommand(new SkDrawAnnotationCommand(rect, key, sk_ref_sp(value)));
+    this->addDrawCommand(new DrawAnnotationCommand(rect, key, sk_ref_sp(value)));
 }
 
 void DebugCanvas::onDrawBitmap(const SkBitmap& bitmap,
                                SkScalar        left,
                                SkScalar        top,
                                const SkPaint*  paint) {
-    this->addDrawCommand(new SkDrawBitmapCommand(bitmap, left, top, paint));
+    this->addDrawCommand(new DrawBitmapCommand(bitmap, left, top, paint));
 }
 
 void DebugCanvas::onDrawBitmapLattice(const SkBitmap& bitmap,
                                       const Lattice&  lattice,
                                       const SkRect&   dst,
                                       const SkPaint*  paint) {
-    this->addDrawCommand(new SkDrawBitmapLatticeCommand(bitmap, lattice, dst, paint));
+    this->addDrawCommand(new DrawBitmapLatticeCommand(bitmap, lattice, dst, paint));
 }
 
 void DebugCanvas::onDrawBitmapRect(const SkBitmap&   bitmap,
@@ -333,28 +333,28 @@ void DebugCanvas::onDrawBitmapRect(const SkBitmap&   bitmap,
                                    const SkPaint*    paint,
                                    SrcRectConstraint constraint) {
     this->addDrawCommand(
-            new SkDrawBitmapRectCommand(bitmap, src, dst, paint, (SrcRectConstraint)constraint));
+            new DrawBitmapRectCommand(bitmap, src, dst, paint, (SrcRectConstraint)constraint));
 }
 
 void DebugCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
                                    const SkIRect&  center,
                                    const SkRect&   dst,
                                    const SkPaint*  paint) {
-    this->addDrawCommand(new SkDrawBitmapNineCommand(bitmap, center, dst, paint));
+    this->addDrawCommand(new DrawBitmapNineCommand(bitmap, center, dst, paint));
 }
 
 void DebugCanvas::onDrawImage(const SkImage* image,
                               SkScalar       left,
                               SkScalar       top,
                               const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawImageCommand(image, left, top, paint));
+    this->addDrawCommand(new DrawImageCommand(image, left, top, paint));
 }
 
 void DebugCanvas::onDrawImageLattice(const SkImage* image,
                                      const Lattice& lattice,
                                      const SkRect&  dst,
                                      const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawImageLatticeCommand(image, lattice, dst, paint));
+    this->addDrawCommand(new DrawImageLatticeCommand(image, lattice, dst, paint));
 }
 
 void DebugCanvas::onDrawImageRect(const SkImage*    image,
@@ -362,18 +362,18 @@ void DebugCanvas::onDrawImageRect(const SkImage*    image,
                                   const SkRect&     dst,
                                   const SkPaint*    paint,
                                   SrcRectConstraint constraint) {
-    this->addDrawCommand(new SkDrawImageRectCommand(image, src, dst, paint, constraint));
+    this->addDrawCommand(new DrawImageRectCommand(image, src, dst, paint, constraint));
 }
 
 void DebugCanvas::onDrawImageNine(const SkImage* image,
                                   const SkIRect& center,
                                   const SkRect&  dst,
                                   const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawImageNineCommand(image, center, dst, paint));
+    this->addDrawCommand(new DrawImageNineCommand(image, center, dst, paint));
 }
 
 void DebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawOvalCommand(oval, paint));
+    this->addDrawCommand(new DrawOvalCommand(oval, paint));
 }
 
 void DebugCanvas::onDrawArc(const SkRect&  oval,
@@ -381,48 +381,48 @@ void DebugCanvas::onDrawArc(const SkRect&  oval,
                             SkScalar       sweepAngle,
                             bool           useCenter,
                             const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawArcCommand(oval, startAngle, sweepAngle, useCenter, paint));
+    this->addDrawCommand(new DrawArcCommand(oval, startAngle, sweepAngle, useCenter, paint));
 }
 
 void DebugCanvas::onDrawPaint(const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPaintCommand(paint));
+    this->addDrawCommand(new DrawPaintCommand(paint));
 }
 
 void DebugCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPathCommand(path, paint));
+    this->addDrawCommand(new DrawPathCommand(path, paint));
 }
 
 void DebugCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawRegionCommand(region, paint));
+    this->addDrawCommand(new DrawRegionCommand(region, paint));
 }
 
 void DebugCanvas::onDrawPicture(const SkPicture* picture,
                                 const SkMatrix*  matrix,
                                 const SkPaint*   paint) {
-    this->addDrawCommand(new SkBeginDrawPictureCommand(picture, matrix, paint));
+    this->addDrawCommand(new BeginDrawPictureCommand(picture, matrix, paint));
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
-    this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
+    this->addDrawCommand(new EndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
 void DebugCanvas::onDrawPoints(PointMode      mode,
                                size_t         count,
                                const SkPoint  pts[],
                                const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPointsCommand(mode, count, pts, paint));
+    this->addDrawCommand(new DrawPointsCommand(mode, count, pts, paint));
 }
 
 void DebugCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // NOTE(chudy): Messing up when renamed to DrawRect... Why?
-    addDrawCommand(new SkDrawRectCommand(rect, paint));
+    addDrawCommand(new DrawRectCommand(rect, paint));
 }
 
 void DebugCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawRRectCommand(rrect, paint));
+    this->addDrawCommand(new DrawRRectCommand(rrect, paint));
 }
 
 void DebugCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawDRRectCommand(outer, inner, paint));
+    this->addDrawCommand(new DrawDRRectCommand(outer, inner, paint));
 }
 
 void DebugCanvas::onDrawTextBlob(const SkTextBlob* blob,
@@ -430,7 +430,7 @@ void DebugCanvas::onDrawTextBlob(const SkTextBlob* blob,
                                  SkScalar          y,
                                  const SkPaint&    paint) {
     this->addDrawCommand(
-            new SkDrawTextBlobCommand(sk_ref_sp(const_cast<SkTextBlob*>(blob)), x, y, paint));
+            new DrawTextBlobCommand(sk_ref_sp(const_cast<SkTextBlob*>(blob)), x, y, paint));
 }
 
 void DebugCanvas::onDrawPatch(const SkPoint  cubics[12],
@@ -438,7 +438,7 @@ void DebugCanvas::onDrawPatch(const SkPoint  cubics[12],
                               const SkPoint  texCoords[4],
                               SkBlendMode    bmode,
                               const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, bmode, paint));
+    this->addDrawCommand(new DrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
 void DebugCanvas::onDrawVerticesObject(const SkVertices*      vertices,
@@ -448,7 +448,7 @@ void DebugCanvas::onDrawVerticesObject(const SkVertices*      vertices,
                                        const SkPaint&         paint) {
     // TODO: ANIMATION NOT LOGGED
     this->addDrawCommand(
-            new SkDrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode, paint));
+            new DrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)), bmode, paint));
 }
 
 void DebugCanvas::onDrawAtlas(const SkImage*  image,
@@ -460,15 +460,15 @@ void DebugCanvas::onDrawAtlas(const SkImage*  image,
                               const SkRect*   cull,
                               const SkPaint*  paint) {
     this->addDrawCommand(
-            new SkDrawAtlasCommand(image, xform, tex, colors, count, bmode, cull, paint));
+            new DrawAtlasCommand(image, xform, tex, colors, count, bmode, cull, paint));
 }
 
 void DebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
-    this->addDrawCommand(new SkDrawShadowCommand(path, rec));
+    this->addDrawCommand(new DrawShadowCommand(path, rec));
 }
 
 void DebugCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
-    this->addDrawCommand(new SkDrawDrawableCommand(drawable, matrix));
+    this->addDrawCommand(new DrawDrawableCommand(drawable, matrix));
 }
 
 void DebugCanvas::onDrawEdgeAAQuad(const SkRect& rect,
@@ -476,7 +476,7 @@ void DebugCanvas::onDrawEdgeAAQuad(const SkRect& rect,
                                    QuadAAFlags   aa,
                                    SkColor       color,
                                    SkBlendMode   mode) {
-    this->addDrawCommand(new SkDrawEdgeAAQuadCommand(rect, clip, aa, color, mode));
+    this->addDrawCommand(new DrawEdgeAAQuadCommand(rect, clip, aa, color, mode));
 }
 
 void DebugCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[],
@@ -485,22 +485,22 @@ void DebugCanvas::onDrawEdgeAAImageSet(const ImageSetEntry set[],
                                        const SkMatrix      preViewMatrices[],
                                        const SkPaint*      paint,
                                        SrcRectConstraint   constraint) {
-    this->addDrawCommand(new SkDrawEdgeAAImageSetCommand(
+    this->addDrawCommand(new DrawEdgeAAImageSetCommand(
             set, count, dstClips, preViewMatrices, paint, constraint));
 }
 
 void DebugCanvas::willRestore() {
-    this->addDrawCommand(new SkRestoreCommand());
+    this->addDrawCommand(new RestoreCommand());
     this->INHERITED::willRestore();
 }
 
 void DebugCanvas::willSave() {
-    this->addDrawCommand(new SkSaveCommand());
+    this->addDrawCommand(new SaveCommand());
     this->INHERITED::willSave();
 }
 
 SkCanvas::SaveLayerStrategy DebugCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
-    this->addDrawCommand(new SkSaveLayerCommand(rec));
+    this->addDrawCommand(new SaveLayerCommand(rec));
     (void)this->INHERITED::getSaveLayerStrategy(rec);
     // No need for a full layer.
     return kNoLayer_SaveLayerStrategy;
@@ -512,7 +512,7 @@ bool DebugCanvas::onDoSaveBehind(const SkRect* subset) {
 }
 
 void DebugCanvas::didSetMatrix(const SkMatrix& matrix) {
-    this->addDrawCommand(new SkSetMatrixCommand(matrix));
+    this->addDrawCommand(new SetMatrixCommand(matrix));
     this->INHERITED::didSetMatrix(matrix);
 }
 
