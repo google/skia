@@ -473,7 +473,6 @@ DM_SRCS_ALL = struct(
         "tools/gpu/**/*.h",
         "tools/random_parse_path.cpp",
         "tools/random_parse_path.h",
-        "tools/sk_pixel_iter.h",
         "tools/ToolUtils.cpp",
         "tools/ToolUtils.h",
         "tools/timer/*.cpp",
