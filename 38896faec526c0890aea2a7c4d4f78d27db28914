@@ -46,6 +46,30 @@
       "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "362d6814_d7355337",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T16:58:37Z",
+      "side": 1,
+      "message": "Ok, I don\u0027t love this solution, but it seems simpler than forcing the callers to handle the push.  Ideally we\u0027d only push binaries in install(); I don\u0027t remember why we don\u0027t do that.",
+      "parentUuid": "ad89fda5_d9e1d485",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 49
+      },
+      "revId": "38896faec526c0890aea2a7c4d4f78d27db28914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
