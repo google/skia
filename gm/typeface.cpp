@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkBlurTypes.h"
 #include "SkCanvas.h"
@@ -17,6 +15,8 @@
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {

@@ -10,10 +10,10 @@
 
 #include "SkFontMgr.h"
 
-// An SkFontMgr that always uses sk_tool_utils::create_portable_typeface().
+// An SkFontMgr that always uses ToolUtils::create_portable_typeface().
 
-namespace sk_tool_utils {
+namespace ToolUtils {
 sk_sp<SkFontMgr> MakePortableFontMgr();
-}  // namespace sk_tool_utils
+}  // namespace ToolUtils
 
 #endif  // TestFontMgr_DEFINED

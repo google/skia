@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkLumaColorFilter.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static SkScalar kSize   = 80;
 static SkScalar kInset  = 10;
@@ -19,7 +19,7 @@ static SkColor  kColor2 = SkColorSetARGB(0xff, 0x82, 0xff, 0);
 
 static void draw_label(SkCanvas* canvas, const char* label,
                        const SkPoint& offset) {
-    SkFont font(sk_tool_utils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
     font.setEdging(SkFont::Edging::kAlias);
 
     size_t len = strlen(label);

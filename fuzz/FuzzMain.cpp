@@ -23,7 +23,7 @@
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include <iostream>
 #include <map>
@@ -354,7 +354,7 @@ static void fuzz_api(sk_sp<SkData> bytes, SkString name) {
 
 static void dump_png(SkBitmap bitmap) {
     if (!FLAGS_dump.isEmpty()) {
-        sk_tool_utils::EncodeImageToFile(FLAGS_dump[0], bitmap, SkEncodedImageFormat::kPNG, 100);
+        ToolUtils::EncodeImageToFile(FLAGS_dump[0], bitmap, SkEncodedImageFormat::kPNG, 100);
         SkDebugf("Dumped to %s\n", FLAGS_dump[0]);
     }
 }

@@ -11,7 +11,7 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkString.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 static void draw_into_bitmap(const SkBitmap& bm) {
     const int w = bm.width();
@@ -44,7 +44,8 @@ public:
 
         fBitmap.setInfo(SkImageInfo::Make(w, h, ct, at));
         fName.printf("repeatTile_%s_%c",
-                     sk_tool_utils::colortype_name(ct), kOpaque_SkAlphaType == at ? 'X' : 'A');
+                     ToolUtils::colortype_name(ct),
+                     kOpaque_SkAlphaType == at ? 'X' : 'A');
     }
 
 protected:

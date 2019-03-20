@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -36,7 +36,7 @@ protected:
             tmp.clear(SK_ColorTRANSPARENT);
             SkPaint p;
             p.setAntiAlias(true);
-            p.setColor(sk_tool_utils::color_to_565(kBlue));
+            p.setColor(ToolUtils::color_to_565(kBlue));
             tmp.drawRect(SkRect::MakeLTRB(16, 96, 160, 240), p);
         }
 
@@ -46,7 +46,7 @@ protected:
             tmp.clear(SK_ColorTRANSPARENT);
             SkPaint p;
             p.setAntiAlias(true);
-            p.setColor(sk_tool_utils::color_to_565(kRed));
+            p.setColor(ToolUtils::color_to_565(kRed));
             tmp.drawCircle(160, 95, 80, p);
         }
     }
@@ -65,12 +65,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont font(ToolUtils::create_portable_typeface());
 
-        sk_tool_utils::draw_checkerboard(canvas,
-                                         kWhite,
-                                         kGrey,
-                                         32);
+        ToolUtils::draw_checkerboard(canvas, kWhite, kGrey, 32);
 
         int xOffset = 0, yOffset = 0;
 

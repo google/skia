@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -40,7 +40,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiTypeface = sk_tool_utils::planet_typeface();
+        fEmojiTypeface      = ToolUtils::planet_typeface();
         fEmojiText = "♁♃";
         fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
 
@@ -48,7 +48,7 @@ protected:
 
         // make textblob
         // Text so large we draw as paths
-        SkFont font(sk_tool_utils::create_portable_typeface(), 385);
+        SkFont font(ToolUtils::create_portable_typeface(), 385);
         font.setEdging(SkFont::Edging::kAlias);
         const char* text = "O";
 
@@ -56,7 +56,7 @@ protected:
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
 
         SkScalar yOffset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 10, yOffset);
+        ToolUtils::add_to_text_blob(&builder, text, font, 10, yOffset);
         SkScalar corruptedAx = bounds.width();
         SkScalar corruptedAy = yOffset;
 
@@ -72,8 +72,11 @@ protected:
         font.setSubpixel(true);
         text = "LCD!!!!!";
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset - bounds.width() * 0.25f,
-                                        yOffset - bounds.height() * 0.5f);
+        ToolUtils::add_to_text_blob(&builder,
+                                    text,
+                                    font,
+                                    xOffset - bounds.width() * 0.25f,
+                                    yOffset - bounds.height() * 0.5f);
 
         // color emoji font with large glyph
         if (fEmojiTypeface) {
@@ -81,14 +84,14 @@ protected:
             font.setSubpixel(false);
             font.setTypeface(fEmojiTypeface);
             font.measureText(fEmojiText, strlen(fEmojiText), kUTF8_SkTextEncoding, &bounds);
-            sk_tool_utils::add_to_text_blob(&builder, fEmojiText, font, xOffset, yOffset);
+            ToolUtils::add_to_text_blob(&builder, fEmojiText, font, xOffset, yOffset);
         }
 
         // outline font with large glyph
         font.setSize(12);
         text = "aA";
         font.setTypeface(fReallyBigATypeface);
-        sk_tool_utils::add_to_text_blob(&builder, text, font, corruptedAx, corruptedAy);
+        ToolUtils::add_to_text_blob(&builder, text, font, corruptedAx, corruptedAy);
         fBlob = builder.make();
     }
 

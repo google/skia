@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkFontPriv.h"
@@ -18,6 +16,8 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     constexpr char kSkiaStr[] = "SKIA";
@@ -28,7 +28,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkFont font(sk_tool_utils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
     font.setSubpixel(true);
     font.setEmbolden(true);
 

@@ -14,8 +14,8 @@
 #include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include <vector>
 
@@ -49,7 +49,7 @@ private:
                 SkBitmap& requiredBitmap = fFrames[requiredFrame];
                 // For simplicity, do not try to cache old frames
                 if (requiredBitmap.getPixels() &&
-                        sk_tool_utils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
+                    ToolUtils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
                     opts.fPriorFrame = requiredFrame;
                 }
             }

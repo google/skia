@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
@@ -74,7 +74,7 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
-        SkFont font(sk_tool_utils::create_portable_typeface(), H/4);
+        SkFont  font(ToolUtils::create_portable_typeface(), H / 4);
         paint.setColor(0x80F60000);
 
         const Proc procs[] = {

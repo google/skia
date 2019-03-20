@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 static void make_bm(SkBitmap* bm) {
     const SkColor colors[4] = {
@@ -49,8 +49,8 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     SkScalar x = 0;
     const int scale = 32;
 
-    SkFont font(sk_tool_utils::create_portable_typeface());
-    const char* name = sk_tool_utils::colortype_name(bm.colorType());
+    SkFont      font(ToolUtils::create_portable_typeface());
+    const char* name = ToolUtils::colortype_name(bm.colorType());
     canvas->drawString(name, x, SkIntToScalar(bm.height())*scale*5/8,
                        font, paint);
     canvas->translate(SkIntToScalar(48), 0);
@@ -67,8 +67,8 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
 class FilterGM : public skiagm::GM {
     void onOnceBeforeDraw() override {
         make_bm(&fBM32);
-        sk_tool_utils::copy_to(&fBM4444, kARGB_4444_SkColorType, fBM32);
-        sk_tool_utils::copy_to(&fBM16, kRGB_565_SkColorType, fBM32);
+        ToolUtils::copy_to(&fBM4444, kARGB_4444_SkColorType, fBM32);
+        ToolUtils::copy_to(&fBM16, kRGB_565_SkColorType, fBM32);
     }
 
 public:

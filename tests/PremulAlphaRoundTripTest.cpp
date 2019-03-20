@@ -8,7 +8,7 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include "GrContext.h"
 
@@ -74,8 +74,8 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         readBmp2.eraseColor(0);
 
         surf->readPixels(readBmp1, 0, 0);
-        sk_tool_utils::write_pixels(surf, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
-                                    kUnpremul_SkAlphaType);
+        ToolUtils::write_pixels(
+                surf, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType, kUnpremul_SkAlphaType);
         surf->readPixels(readBmp2, 0, 0);
 
         bool success = true;

@@ -6,10 +6,10 @@
  */
 
 #include "Benchmark.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -27,8 +27,8 @@ static constexpr int kS = 25;
 
 static void make_images(sk_sp<SkImage> imgs[], int cnt) {
     for (int i = 0; i < cnt; ++i) {
-        SkBitmap bmp = sk_tool_utils::create_checkerboard_bitmap(kS, kS, SK_ColorBLACK,
-                                                                 SK_ColorCYAN, 10);
+        SkBitmap bmp =
+                ToolUtils::create_checkerboard_bitmap(kS, kS, SK_ColorBLACK, SK_ColorCYAN, 10);
         imgs[i] = SkImage::MakeFromBitmap(bmp);
     }
 }

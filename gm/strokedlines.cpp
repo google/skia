@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 constexpr int kNumColumns = 6;
 constexpr int kNumRows = 8;
@@ -99,9 +99,7 @@ namespace skiagm {
 // Various shaders are applied to ensure the coordinate spaces work out right.
 class StrokedLinesGM : public GM {
 public:
-    StrokedLinesGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFF1A65D7));
-    }
+    StrokedLinesGM() { this->setBGColor(ToolUtils::color_to_565(0xFF1A65D7)); }
 
 protected:
     SkString onShortName() override {
