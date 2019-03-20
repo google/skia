@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "004894e0_dcac24db",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-20T17:24:15Z",
+      "side": 1,
+      "message": "I think this should be the same as the others, ie.\n\nreturn (\u0027Android\u0027 in vars_api.extra_tokens or\n        \u0027Android\u0027 in vars_api.builder_cfg.get(\u0027os\u0027, \u0027\u0027))",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 52
+      },
+      "revId": "73c7d37be450fef4917747da8cf2b98f258a30d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
