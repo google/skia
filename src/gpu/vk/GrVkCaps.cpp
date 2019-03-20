@@ -864,6 +864,8 @@ static GrPixelConfig get_yuva_config(VkFormat vkFormat) {
             return kRG_88_GrPixelConfig;
         case VK_FORMAT_B8G8R8A8_UNORM:
             return kBGRA_8888_GrPixelConfig;
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+            return kRGBA_1010102_GrPixelConfig;
         default:
             return kUnknown_GrPixelConfig;
     }
