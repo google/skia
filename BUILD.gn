@@ -1493,6 +1493,8 @@ if (skia_enable_tools) {
       "tools/gpu/MemoryCache.h",
       "tools/gpu/ProxyUtils.cpp",
       "tools/gpu/TestContext.cpp",
+      "tools/gpu/YUVUtils.cpp",
+      "tools/gpu/YUVUtils.h",
       "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
       "tools/gpu/gl/GLTestContext.cpp",
       "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",

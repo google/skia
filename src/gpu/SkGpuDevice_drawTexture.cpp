@@ -500,9 +500,11 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
     };
     int dstClipIndex = 0;
     for (int i = 0; i < count; ++i) {
+        SkASSERT(!set[i].fHasClip || dstClips);
+        SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
+
         // Manage the dst clip pointer tracking before any continues are used so we don't lose
         // our place in the dstClips array.
-        SkASSERT(!set[i].fHasClip || dstClips);
         const SkPoint* clip = set[i].fHasClip ? dstClips + dstClipIndex : nullptr;
         dstClipIndex += 4 * set[i].fHasClip;
 
@@ -515,31 +517,33 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             continue;
         }
 
-        uint32_t uniqueID;
-        textures[i].fProxy = as_IB(set[i].fImage.get())->refPinnedTextureProxy(this->context(),
-                                                                               &uniqueID);
-        if (!textures[i].fProxy) {
-            // FIXME(michaelludwig) - If asTextureProxyRef fails, does going through drawImageQuad
-            // make sense? Does that catch the lazy-image cases then?
-            // FIXME(michaelludwig) - Both refPinnedTextureProxy and asTextureProxyRef for YUVA
-            // images force flatten the planes. It would be nice to detect a YUVA image entry and
-            // send it to drawImageQuad (which uses a special effect for YUV)
-            textures[i].fProxy =
-                    as_IB(set[i].fImage.get())
-                            ->asTextureProxyRef(fContext.get(), GrSamplerState::ClampBilerp(),
-                                                nullptr);
-            // If we failed to make a proxy then flush the accumulated set and reset for the next
-            // image.
-            if (!textures[i].fProxy) {
-                draw();
-                base = i + 1;
-                n = 0;
-                continue;
+        sk_sp<GrTextureProxy> proxy;
+        const SkImage_Base* image = as_IB(set[i].fImage.get());
+        // Extract proxy from image, but skip YUV images so they get processed through
+        // drawImageQuad and the proper effect to dynamically sample their planes.
+        if (!image->isYUVA()) {
+            uint32_t uniqueID;
+            proxy = image->refPinnedTextureProxy(this->context(), &uniqueID);
+            if (!proxy) {
+                proxy = image->asTextureProxyRef(this->context(), GrSamplerState::ClampBilerp(),
+                                                 nullptr);
             }
         }
 
-        SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
+        if (!proxy) {
+            // This image can't go through the texture op, send through general image pipeline
+            // after flushing current batch.
+            draw();
+            base = i + 1;
+            n = 0;
+            this->drawImageQuad(image, &set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
+                    SkToGrQuadAAFlags(set[i].fAAFlags),
+                    set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
+                    paint, constraint);
+            continue;
+        }
 
+        textures[i].fProxy = std::move(proxy);
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fDstClipQuad = clip;
