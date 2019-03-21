@@ -40,7 +40,7 @@ fi
 
 mkdir -p $BUILD_DIR
 
-GN_GPU="skia_enable_gpu=true skia_gles_only=true"
+GN_GPU="skia_enable_gpu=true skia_gl_standard = \"gles\""
 GN_GPU_FLAGS="\"-DIS_WEBGL=1\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
