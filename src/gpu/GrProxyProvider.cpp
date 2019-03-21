@@ -202,7 +202,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    SkImageInfo info = as_IB(srcImage)->onImageInfo();
+    const SkImageInfo& info = srcImage->imageInfo();
     GrPixelConfig config = SkImageInfo2GrPixelConfig(info);
 
     if (kUnknown_GrPixelConfig == config) {

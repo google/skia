@@ -34,11 +34,6 @@ class SkImage_Base : public SkImage {
 public:
     virtual ~SkImage_Base();
 
-    // User: returns image info for this SkImage.
-    // Implementors: if you can not return the value, return an invalid ImageInfo with w=0 & h=0
-    // & unknown color space.
-    virtual SkImageInfo onImageInfo() const = 0;
-
     virtual SkIRect onGetSubset() const {
         return { 0, 0, this->width(), this->height() };
     }
@@ -104,7 +99,7 @@ public:
     virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                         SkColorType, sk_sp<SkColorSpace>) const = 0;
 protected:
-    SkImage_Base(int width, int height, uint32_t uniqueID);
+    SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.

@@ -88,7 +88,7 @@ protected:
         sk_sp<GrTextureProxy> proxy;
         if (fFilter == GrSamplerState::Filter::kMipMap) {
             SkBitmap copy;
-            SkImageInfo info = as_IB(fImage)->onImageInfo().makeColorType(kN32_SkColorType);
+            SkImageInfo info = fImage->imageInfo().makeColorType(kN32_SkColorType);
             if (!copy.tryAllocPixels(info) || !fImage->readPixels(copy.pixmap(), 0, 0)) {
                 *errorMsg = "Failed to read pixels.";
                 return DrawResult::kFail;
