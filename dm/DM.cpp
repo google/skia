@@ -104,6 +104,11 @@ static DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for f
 
 static DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
 
+static DEFINE_string(colorImages, "",
+              "List of images and/or directories to decode with color correction. "
+              "A directory with no images is treated as a fatal error.");
+
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;

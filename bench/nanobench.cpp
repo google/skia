@@ -140,6 +140,9 @@ static DEFINE_string(benchType,  "",
 
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
+static DEFINE_bool2(pre_log, p, false,
+                    "Log before running each test. May be incomprehensible when threading");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {

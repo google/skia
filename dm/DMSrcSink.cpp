@@ -1018,6 +1018,9 @@ Name ColorCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static DEFINE_int(skpViewportSize, 1000,
+                  "Width & height of the viewport used to crop skp rendering.");
+
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
@@ -1323,6 +1326,14 @@ static Error compare_bitmaps(const SkBitmap& reference, const SkBitmap& bitmap) 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
+static DEFINE_bool(preAbandonGpuContext, false,
+                   "Test abandoning the GrContext before running the test.");
+static DEFINE_bool(abandonGpuContext, false,
+                   "Test abandoning the GrContext after running each test.");
+static DEFINE_bool(releaseAndAbandonGpuContext, false,
+                   "Test releasing all gpu resources and abandoning the GrContext "
+                   "after running each test");
+static DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  GrContextFactory::ContextOverrides overrides,
@@ -1344,8 +1355,6 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
         , fColorSpace(std::move(colorSpace))
         , fThreaded(threaded)
         , fBaseContextOptions(grCtxOptions) {}
-
-static DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);

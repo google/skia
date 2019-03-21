@@ -16,34 +16,24 @@ DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
 DECLARE_string(images);
-DECLARE_string(colorImages);
 DECLARE_bool(simpleCodec);
 DECLARE_string(match);
 DECLARE_bool(quiet);
-DECLARE_bool(preAbandonGpuContext);
-DECLARE_bool(abandonGpuContext);
-DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
-DECLARE_int(skpViewportSize);
-DECLARE_string(jpgs);
 DECLARE_string(lotties);
 DECLARE_string(svgs);
-DECLARE_string(nimas);
 DECLARE_bool(nativeFonts);
 DECLARE_int(threads);
 DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
-DECLARE_bool(pre_log);
 DECLARE_bool(analyticAA);
 DECLARE_bool(forceAnalyticAA);
 DECLARE_bool(deltaAA);
 DECLARE_bool(forceDeltaAA);
 DECLARE_string(key);
 DECLARE_string(properties);
-DECLARE_int(backendTiles);
-DECLARE_int(backendThreads);
 
 /**
  *  Helper to assist in collecting image paths from |dir| specified through a command line
