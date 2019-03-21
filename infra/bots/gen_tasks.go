@@ -40,11 +40,10 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
-	DEFAULT_OS_MAC       = "Mac-10.13.6"
-	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
-	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
+	DEFAULT_OS_DEBIAN    = "Debian"
+	DEFAULT_OS_LINUX_GCE = "Debian"
+	DEFAULT_OS_MAC       = "Mac"
+	DEFAULT_OS_WIN       = "Windows-2016Server"
 
 	DEFAULT_PROJECT = "skia"
 
@@ -451,29 +450,18 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        DEFAULT_OS_MAC,
-			"Mac10.13":   DEFAULT_OS_MAC,
-			"Mac10.14":   "Mac-10.14.3",
-			"Ubuntu14":   DEFAULT_OS_UBUNTU,
-			"Ubuntu17":   "Ubuntu-17.04",
-			"Ubuntu18":   "Ubuntu-18.04",
+			"Mac10.13":   "Mac-10.13",
+			"Mac10.14":   "Mac-10.14",
+			"Ubuntu18":   "Ubuntu",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-17763.292",
-			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win10":      "Windows-10",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
-			"iOS":        "iOS-11.4.1",
+			"iOS":        "iOS",
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
-		}
-		if os == "Win10" && parts["model"] == "Golo" {
-			// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
-			d["os"] = "Windows-10-16299.309"
-		}
-		if d["os"] == DEFAULT_OS_WIN {
-			// TODO(dogben): Temporarily add image dimension during upgrade.
-			d["image"] = "windows-server-2016-dc-v20190108"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -501,7 +489,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
 			}
 			d["device_type"] = deviceInfo[0]
-			d["device_os"] = deviceInfo[1]
+			// Ignore device_os on branches. d["device_os"] = deviceInfo[1]
 		} else if strings.Contains(parts["os"], "iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
@@ -568,16 +556,16 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return dockerGceDimensions()
 			} else if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
-					"GT610":         "10de:104a-23.21.13.9101",
-					"GTX660":        "10de:11c0-25.21.14.1634",
-					"GTX960":        "10de:1401-25.21.14.1634",
-					"IntelHD4400":   "8086:0a16-20.19.15.4963",
-					"IntelIris540":  "8086:1926-25.20.100.6444",
-					"IntelIris6100": "8086:162b-20.19.15.4963",
-					"IntelIris655":  "8086:3ea5-25.20.100.6444",
-					"RadeonHD7770":  "1002:683d-24.20.13001.1010",
-					"RadeonR9M470X": "1002:6646-24.20.13001.1010",
-					"QuadroP400":    "10de:1cb3-25.21.14.1678",
+					"GT610":         "10de:104a",
+					"GTX660":        "10de:11c0",
+					"GTX960":        "10de:1401",
+					"IntelHD4400":   "8086:0a16",
+					"IntelIris540":  "8086:1926",
+					"IntelIris6100": "8086:162b",
+					"IntelIris655":  "8086:3ea5",
+					"RadeonHD7770":  "1002:683d",
+					"RadeonR9M470X": "1002:6646",
+					"QuadroP400":    "10de:1cb3",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
@@ -590,14 +578,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
-					"QuadroP400":    "10de:1cb3-384.59",
+					"QuadroP400":    "10de:1cb3",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				if parts["os"] == "Ubuntu18" && parts["cpu_or_gpu_value"] == "QuadroP400" {
 					// Ubuntu18 has a newer GPU driver.
-					gpu = "10de:1cb3-415.27"
+					gpu = "10de:1cb3"
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
@@ -605,7 +593,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD6000":   "8086:1626",
 					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
-					"RadeonHD8870M": "1002:6821-4.0.20-3.2.8",
+					"RadeonHD8870M": "1002:6821",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
