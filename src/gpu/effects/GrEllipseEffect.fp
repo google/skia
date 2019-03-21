@@ -19,14 +19,18 @@ float2 prevRadii = float2(-1);
 // The last two terms can underflow when float != fp32, so we also provide a workaround.
 uniform float4 ellipse;
 
-bool useScale = !sk_Caps.floatIs32Bits;
-layout(when=useScale) uniform float2 scale;
+bool lowPrecision = !sk_Caps.floatIs32Bits;
+layout(when=lowPrecision) uniform float2 scale;
 
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
                                                      SkPoint radii, const GrShaderCaps& caps) {
         // Small radii produce bad results on devices without full float.
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
+            return nullptr;
+        }
+        // Large radii produce blurry edges on devices without full float.
+        if (!caps.floatIs32Bits() && (radii.fX > 256 || radii.fY > 256)) {
             return nullptr;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
@@ -70,7 +74,7 @@ void main() {
     // that is normalized by the larger radius. The scale uniform will be scale, 1/scale. The
     // inverse squared radii uniform values are already in this normalized space. The center is
     // not.
-    @if (useScale) {
+    @if (lowPrecision) {
         d *= scale.y;
     }
     float2 Z = d * ellipse.zw;
@@ -79,9 +83,13 @@ void main() {
     // grad_dot is the squared length of the gradient of the implicit.
     float grad_dot = 4 * dot(Z, Z);
     // Avoid calling inversesqrt on zero.
-    grad_dot = max(grad_dot, 1e-4);
+    @if (lowPrecision) {
+        grad_dot = max(grad_dot, 6.1036e-5);
+    } else {
+        grad_dot = max(grad_dot, 1.1755e-38);
+    }
     float approx_dist = implicit * inversesqrt(grad_dot);
-    @if (useScale) {
+    @if (lowPrecision) {
         approx_dist *= scale.x;
     }
 
