@@ -172,12 +172,12 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, rec.fDstColorType, sk_srgb_singleton());
 
     struct CallbackCtx : SkRasterPipeline_CallbackCtx {
-        sk_sp<SkShader> shader;
-        Context*        ctx;
+        sk_sp<const SkShader> shader;
+        Context*              ctx;
     };
     auto cb = rec.fAlloc->make<CallbackCtx>();
-    cb->shader = sk_ref_sp((SkShader*)this);
-    cb->ctx = as_SB(cb->shader)->makeContext(cr, rec.fAlloc);
+    cb->shader = sk_ref_sp(this);
+    cb->ctx = as_SB(this)->makeContext(cr, rec.fAlloc);
     cb->fn  = [](SkRasterPipeline_CallbackCtx* self, int active_pixels) {
         auto c = (CallbackCtx*)self;
         int x = (int)c->rgba[0],
