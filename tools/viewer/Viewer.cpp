@@ -1122,8 +1122,14 @@ public:
             this->filterTextBlob(paint, blob, &cache), x, y, paint);
     }
     bool filterFont(SkTCopyOnFirstWrite<SkFont>* font) const {
-        if (fFontOverrides->fTextSize) {
+        if (fFontOverrides->fSize) {
             font->writable()->setSize(fFont->getSize());
+        }
+        if (fFontOverrides->fScaleX) {
+            font->writable()->setScaleX(fFont->getScaleX());
+        }
+        if (fFontOverrides->fSkewX) {
+            font->writable()->setSkewX(fFont->getSkewX());
         }
         if (fFontOverrides->fHinting) {
             font->writable()->setHinting(fFont->getHinting());
@@ -1798,18 +1804,35 @@ void Viewer::drawImGui() {
                     paramsChanged = true;
                 }
 
-                ImGui::Checkbox("Override TextSize", &fFontOverrides.fTextSize);
-                if (fFontOverrides.fTextSize) {
-                    ImGui::DragFloat2("TextRange", fFontOverrides.fTextSizeRange,
+                ImGui::Checkbox("Override Size", &fFontOverrides.fSize);
+                if (fFontOverrides.fSize) {
+                    ImGui::DragFloat2("TextRange", fFontOverrides.fSizeRange,
                                       0.001f, -10.0f, 300.0f, "%.6f", 2.0f);
                     float textSize = fFont.getSize();
                     if (ImGui::DragFloat("TextSize", &textSize, 0.001f,
-                                         fFontOverrides.fTextSizeRange[0],
-                                         fFontOverrides.fTextSizeRange[1],
+                                         fFontOverrides.fSizeRange[0],
+                                         fFontOverrides.fSizeRange[1],
                                          "%.6f", 2.0f))
                     {
                         fFont.setSize(textSize);
-                        this->preTouchMatrixChanged();
+                        paramsChanged = true;
+                    }
+                }
+
+                ImGui::Checkbox("Override ScaleX", &fFontOverrides.fScaleX);
+                if (fFontOverrides.fScaleX) {
+                    float scaleX = fFont.getScaleX();
+                    if (ImGui::SliderFloat("ScaleX", &scaleX, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
+                        fFont.setScaleX(scaleX);
+                        paramsChanged = true;
+                    }
+                }
+
+                ImGui::Checkbox("Override SkewX", &fFontOverrides.fSkewX);
+                if (fFontOverrides.fSkewX) {
+                    float skewX = fFont.getSkewX();
+                    if (ImGui::SliderFloat("SkewX", &skewX, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
+                        fFont.setSkewX(skewX);
                         paramsChanged = true;
                     }
                 }
