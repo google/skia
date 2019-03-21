@@ -999,8 +999,8 @@ SkMatrix Viewer::computePerspectiveMatrix() {
 
 SkMatrix Viewer::computePreTouchMatrix() {
     SkMatrix m = fDefaultMatrix;
-    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
-                                          : SK_Scalar1 + fZoomLevel;
+
+    SkScalar zoomScale = exp(fZoomLevel);
     m.preTranslate((fOffset.x() - 0.5f) * 2.0f, (fOffset.y() - 0.5f) * 2.0f);
     m.preScale(zoomScale, zoomScale);
 
