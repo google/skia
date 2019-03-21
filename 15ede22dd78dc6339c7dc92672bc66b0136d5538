@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f5b3c05_718a190e",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-21T13:55:58Z",
+      "side": 1,
+      "message": "Can we make this more self-documenting somehow?  It\u0027s not immediately obvious from method names that fill and stroke are exclusive.\n\nMaybe it\u0027s inertia, but a single style + enum value feels more clear to me.  If the intent is to hide kStrokeAndFill, why not just remove that particular enum value?",
+      "range": {
+        "startLine": 233,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 5
+      },
+      "revId": "15ede22dd78dc6339c7dc92672bc66b0136d5538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
