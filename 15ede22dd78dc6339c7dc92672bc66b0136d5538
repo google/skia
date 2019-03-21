@@ -22,6 +22,30 @@
       "revId": "15ede22dd78dc6339c7dc92672bc66b0136d5538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aafb410_852ceb50",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-21T14:06:19Z",
+      "side": 1,
+      "message": "(also, an enum may come in handy for other things... explicit kHairlineStroke?)",
+      "parentUuid": "3f5b3c05_718a190e",
+      "range": {
+        "startLine": 233,
+        "startChar": 0,
+        "endLine": 237,
+        "endChar": 5
+      },
+      "revId": "15ede22dd78dc6339c7dc92672bc66b0136d5538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
