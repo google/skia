@@ -150,21 +150,6 @@ def parse_trace(trace_json, lottie_filename, api):
     'frame_avg_us': 95,
   }
   """
-  """
-  step_result = api.python.inline(
-      'test',
-      '''
-      import json
-      import sys
-      with open(sys.argv[1], 'w') as f:
-        f.write(json.dumps([1,2,3]))
-      ''',
-      args=[api.json.output()])
-  print 'xxxxxxxxxxxxxxx'
-  print step_result.json.output
-  """
-
-
   step_result = api.run(
       api.python.inline,
       'parse %s trace' % lottie_filename,
@@ -215,7 +200,7 @@ def parse_trace(trace_json, lottie_filename, api):
         str(expected_dm_frames))
   perf_results['frame_max_us'] = frame_max
   perf_results['frame_min_us'] = frame_min
-  perf_results['frame_avg_us'] = 123
+  perf_results['frame_avg_us'] = frame_cumulative/total_frames
 
   # Write perf_results to the output json.
   with open(output_json_file, 'w') as f:
@@ -223,10 +208,6 @@ def parse_trace(trace_json, lottie_filename, api):
   """ % (SEEK_TRACE_NAME, RENDER_TRACE_NAME, EXPECTED_DM_FRAMES),
   args=[trace_json, lottie_filename, api.json.output()])
 
-  print 'tttttttttttttttttttt'
-  print lottie_filename
-  print step_result.json.output
-  print dict(step_result.json.output)
   return dict(step_result.json.output)
 
 
