@@ -45,9 +45,10 @@ DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
     wb.writeFlattenable(cf1.get());
     SkReadBuffer rb(buffer, kBufferSize);
     auto cf2 = rb.readColorFilter();
-    SkASSERT(cf2);
-    p.setColorFilter(cf2);
-    canvas->drawImage(img, 512, 0, &p);
+    if (cf2) {
+        p.setColorFilter(cf2);
+        canvas->drawImage(img, 512, 0, &p);
+    }
 }
 
 DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
@@ -67,7 +68,8 @@ DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
     wb.writeFlattenable(cf1.get());
     SkReadBuffer rb(buffer, kBufferSize);
     auto cf2 = rb.readColorFilter();
-    SkASSERT(cf2);
-    p.setColorFilter(cf2);
-    canvas->drawImage(img, 512, 0, &p);
+    if (cf2) {
+        p.setColorFilter(cf2);
+        canvas->drawImage(img, 512, 0, &p);
+    }
 }
