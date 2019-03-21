@@ -322,6 +322,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     *stopIndex = fEndOfOpListOpIndices.count();
 
     if (!fResourceProvider->explicitlyAllocateGPUResources()) {
+#if GR_ALLOCATION_SPEW
+    this->dumpIntervals();
+#endif
         fIntvlList.detachAll(); // arena allocator will clean these up for us
         return true;
     }
@@ -445,9 +448,9 @@ void GrResourceAllocator::dumpIntervals() {
                  cur->start(),
                  cur->end(),
                  cur->proxy()->priv().getProxyRefCnt(),
-                 cur->proxy()->getBackingRefCnt_TestOnly(),
-                 cur->proxy()->getPendingReadCnt_TestOnly(),
-                 cur->proxy()->getPendingWriteCnt_TestOnly());
+                 cur->proxy()->getBackingRefCnt_TestOnly1(),
+                 cur->proxy()->getPendingReadCnt_TestOnly1(),
+                 cur->proxy()->getPendingWriteCnt_TestOnly1());
         min = SkTMin(min, cur->start());
         max = SkTMax(max, cur->end());
     }
