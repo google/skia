@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36a1ea6f_4679fe20",
+        "filename": "tools/flags/CommandLineFlags.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-21T17:05:51Z",
+      "side": 0,
+      "message": "I did a quick check that atoi() and casting from int to uint32_t does indeed do what you\u0027d hope when given a number that fits in a uint32_t but not an int...\n\n  input         int32_t       uint32_t\n  \"2147483647\"  2147483647    2147483647\n  \"2147483648\" -2147483648    2147483648\n  \"2147483649\" -2147483647    2147483649\n\nSo the one uint32_t flag in ProcessorTest should continue to work fine with all possible inputs.",
+      "revId": "40642dec3103fe541934d3590cd41644f32c9e94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
