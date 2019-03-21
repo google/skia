@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "31148b35_612608cd",
+        "filename": "gm/compositor_quads.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-21T14:23:37Z",
+      "side": 1,
+      "message": "Switched to a fixed alpha type in the extracted LazyYUVImage implementation.",
+      "parentUuid": "3363ec10_4974417d",
+      "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1d34923_487fe27e",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "aeca5584_654af700",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-21T14:23:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1d34923_487fe27e",
+      "range": {
+        "startLine": 519,
+        "startChar": 35,
+        "endLine": 519,
+        "endChar": 45
+      },
+      "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d9a083b_89b6433d",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39c5b66e_95e72b8e",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-21T14:23:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d9a083b_89b6433d",
+      "revId": "ae2f6e45f40cd1c5b3b6f926032cbccc6d18271c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
