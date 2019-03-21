@@ -27,7 +27,7 @@ public:
     }
     GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char*                          name() const override { return "LumaColorFilterEffect"; }
+    const char* name() const override { return "LumaColorFilterEffect"; }
 
 private:
     GrLumaColorFilterEffect()

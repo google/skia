@@ -32,21 +32,24 @@ public:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         switch (fMode) {
-            case InputMode::kIgnore: return fColor;
-            case InputMode::kModulateA: return fColor * input.fA;
-            case InputMode::kModulateRGBA: return fColor * input;
+            case InputMode::kIgnore:
+                return fColor;
+            case InputMode::kModulateA:
+                return fColor * input.fA;
+            case InputMode::kModulateRGBA:
+                return fColor * input;
         }
         SK_ABORT("Unexpected mode");
         return SK_PMColor4fTRANSPARENT;
     }
-    const SkPMColor4f&                          color() const { return fColor; }
-    const InputMode&                            mode() const { return fMode; }
+    const SkPMColor4f& color() const { return fColor; }
+    const InputMode& mode() const { return fMode; }
     static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f color, InputMode mode) {
         return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
     }
     GrConstColorProcessor(const GrConstColorProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char*                          name() const override { return "ConstColorProcessor"; }
+    const char* name() const override { return "ConstColorProcessor"; }
 
 private:
     GrConstColorProcessor(SkPMColor4f color, InputMode mode)
@@ -57,8 +60,8 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkPMColor4f                 fColor;
-    InputMode                   fMode;
+    SkPMColor4f fColor;
+    InputMode fMode;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
