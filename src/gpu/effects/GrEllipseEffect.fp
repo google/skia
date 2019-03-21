@@ -29,10 +29,6 @@ layout(when=lowPrecision) uniform float2 scale;
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
             return nullptr;
         }
-        // Large radii produce blurry edges on devices without full float.
-        if (!caps.floatIs32Bits() && (radii.fX > 256 || radii.fY > 256)) {
-            return nullptr;
-        }
         return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
     }
 }
