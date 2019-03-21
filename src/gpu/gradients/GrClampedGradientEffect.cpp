@@ -19,8 +19,8 @@ class GrGLSLClampedGradientEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLSLClampedGradientEffect() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder*       fragBuilder = args.fFragBuilder;
-        const GrClampedGradientEffect& _outer      = args.fFp.cast<GrClampedGradientEffect>();
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        const GrClampedGradientEffect& _outer = args.fFp.cast<GrClampedGradientEffect>();
         (void)_outer;
         auto leftBorderColor = _outer.leftBorderColor();
         (void)leftBorderColor;
@@ -30,8 +30,8 @@ public:
         (void)makePremul;
         auto colorsAreOpaque = _outer.colorsAreOpaque();
         (void)colorsAreOpaque;
-        fLeftBorderColorVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, "leftBorderColor");
+        fLeftBorderColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                               kHalf4_GrSLType, "leftBorderColor");
         fRightBorderColorVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kHalf4_GrSLType, "rightBorderColor");
         SkString _child1("_child1");
@@ -42,25 +42,21 @@ public:
                 _child1.c_str(),
                 (_outer.childProcessor(_outer.gradLayout_index()).preservesOpaqueInput() ? "true"
                                                                                          : "false"),
-                args.fOutputColor,
-                args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(fLeftBorderColorVar),
-                args.fOutputColor,
+                args.fOutputColor, args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(fLeftBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(fRightBorderColorVar));
         SkString _input0("t");
         SkString _child0("_child0");
         this->emitChild(_outer.colorizer_index(), _input0.c_str(), &_child0, args);
         fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
-                                 args.fOutputColor,
-                                 _child0.c_str(),
-                                 (_outer.makePremul() ? "true" : "false"),
-                                 args.fOutputColor,
+                                 args.fOutputColor, _child0.c_str(),
+                                 (_outer.makePremul() ? "true" : "false"), args.fOutputColor,
                                  args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor&      _proc) override {
+                   const GrFragmentProcessor& _proc) override {
         const GrClampedGradientEffect& _outer = _proc.cast<GrClampedGradientEffect>();
         {
             const SkPMColor4f& leftBorderColorValue = _outer.leftBorderColor();
@@ -75,29 +71,25 @@ private:
             }
         }
     }
-    SkPMColor4f   fLeftBorderColorPrev  = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f   fRightBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f fLeftBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f fRightBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle fLeftBorderColorVar;
     UniformHandle fRightBorderColorVar;
 };
 GrGLSLFragmentProcessor* GrClampedGradientEffect::onCreateGLSLInstance() const {
     return new GrGLSLClampedGradientEffect();
 }
-void GrClampedGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
+void GrClampedGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                     GrProcessorKeyBuilder* b) const {
     b->add32((int32_t)fMakePremul);
 }
 bool GrClampedGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrClampedGradientEffect& that = other.cast<GrClampedGradientEffect>();
     (void)that;
-    if (fLeftBorderColor != that.fLeftBorderColor)
-        return false;
-    if (fRightBorderColor != that.fRightBorderColor)
-        return false;
-    if (fMakePremul != that.fMakePremul)
-        return false;
-    if (fColorsAreOpaque != that.fColorsAreOpaque)
-        return false;
+    if (fLeftBorderColor != that.fLeftBorderColor) return false;
+    if (fRightBorderColor != that.fRightBorderColor) return false;
+    if (fMakePremul != that.fMakePremul) return false;
+    if (fColorsAreOpaque != that.fColorsAreOpaque) return false;
     return true;
 }
 GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& src)

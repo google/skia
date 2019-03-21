@@ -19,25 +19,22 @@ class GrGLSLPremulInputFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLPremulInputFragmentProcessor() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder*              fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrPremulInputFragmentProcessor& _outer =
                 args.fFp.cast<GrPremulInputFragmentProcessor>();
         (void)_outer;
-        fragBuilder->codeAppendf("%s = %s;\n%s.xyz *= %s.w;\n",
-                                 args.fOutputColor,
-                                 args.fInputColor,
-                                 args.fOutputColor,
-                                 args.fInputColor);
+        fragBuilder->codeAppendf("%s = %s;\n%s.xyz *= %s.w;\n", args.fOutputColor, args.fInputColor,
+                                 args.fOutputColor, args.fInputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor&      _proc) override {}
+                   const GrFragmentProcessor& _proc) override {}
 };
 GrGLSLFragmentProcessor* GrPremulInputFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLPremulInputFragmentProcessor();
 }
-void GrPremulInputFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
+void GrPremulInputFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                            GrProcessorKeyBuilder* b) const {}
 bool GrPremulInputFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrPremulInputFragmentProcessor& that = other.cast<GrPremulInputFragmentProcessor>();

@@ -19,7 +19,7 @@ class GrGLSLTwoPointConicalGradientLayout : public GrGLSLFragmentProcessor {
 public:
     GrGLSLTwoPointConicalGradientLayout() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder*               fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrTwoPointConicalGradientLayout& _outer =
                 args.fFp.cast<GrTwoPointConicalGradientLayout>();
         (void)_outer;
@@ -39,8 +39,8 @@ public:
         (void)isNativelyFocal;
         auto focalParams = _outer.focalParams();
         (void)focalParams;
-        fFocalParamsVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf2_GrSLType, "focalParams");
+        fFocalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+                                                           "focalParams");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
@@ -50,8 +50,7 @@ public:
                 "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
                 "  t = length(p) - float(r0);\n            } else {\n                t = "
                 "-length(p) - float(r0);\n       ",
-                sk_TransformedCoords2D_0.c_str(),
-                (int)_outer.type(),
+                sk_TransformedCoords2D_0.c_str(), (int)_outer.type(),
                 args.fUniformHandler->getUniformCStr(fFocalParamsVar),
                 args.fUniformHandler->getUniformCStr(fFocalParamsVar),
                 (_outer.isRadiusIncreasing() ? "true" : "false"));
@@ -86,13 +85,12 @@ public:
                 "float(fx);\n                }\n            }\n            @if (%s) {\n            "
                 "    t = 1.0 - t;\n            }\n        }\n        break;\n}\n%s = "
                 "half4(half(t), v, 0.0, 0.0);\n",
-                (_outer.isSwapped() ? "true" : "false"),
-                args.fOutputColor);
+                (_outer.isSwapped() ? "true" : "false"), args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor&      _proc) override {
+                   const GrFragmentProcessor& _proc) override {
         const GrTwoPointConicalGradientLayout& _outer =
                 _proc.cast<GrTwoPointConicalGradientLayout>();
         {
@@ -103,13 +101,13 @@ private:
             }
         }
     }
-    SkPoint       fFocalParamsPrev = SkPoint::Make(SK_FloatNaN, SK_FloatNaN);
+    SkPoint fFocalParamsPrev = SkPoint::Make(SK_FloatNaN, SK_FloatNaN);
     UniformHandle fFocalParamsVar;
 };
 GrGLSLFragmentProcessor* GrTwoPointConicalGradientLayout::onCreateGLSLInstance() const {
     return new GrGLSLTwoPointConicalGradientLayout();
 }
-void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
+void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                             GrProcessorKeyBuilder* b) const {
     b->add32((int32_t)fType);
     b->add32((int32_t)fIsRadiusIncreasing);
@@ -121,22 +119,14 @@ void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& 
 bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTwoPointConicalGradientLayout& that = other.cast<GrTwoPointConicalGradientLayout>();
     (void)that;
-    if (fGradientMatrix != that.fGradientMatrix)
-        return false;
-    if (fType != that.fType)
-        return false;
-    if (fIsRadiusIncreasing != that.fIsRadiusIncreasing)
-        return false;
-    if (fIsFocalOnCircle != that.fIsFocalOnCircle)
-        return false;
-    if (fIsWellBehaved != that.fIsWellBehaved)
-        return false;
-    if (fIsSwapped != that.fIsSwapped)
-        return false;
-    if (fIsNativelyFocal != that.fIsNativelyFocal)
-        return false;
-    if (fFocalParams != that.fFocalParams)
-        return false;
+    if (fGradientMatrix != that.fGradientMatrix) return false;
+    if (fType != that.fType) return false;
+    if (fIsRadiusIncreasing != that.fIsRadiusIncreasing) return false;
+    if (fIsFocalOnCircle != that.fIsFocalOnCircle) return false;
+    if (fIsWellBehaved != that.fIsWellBehaved) return false;
+    if (fIsSwapped != that.fIsSwapped) return false;
+    if (fIsNativelyFocal != that.fIsNativelyFocal) return false;
+    if (fFocalParams != that.fFocalParams) return false;
     return true;
 }
 GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
@@ -160,12 +150,12 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTwoPointConicalGradientLayout);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate(
         GrProcessorTestData* d) {
-    SkScalar scale  = GrGradientShader::RandomParams::kGradientScale;
+    SkScalar scale = GrGradientShader::RandomParams::kGradientScale;
     SkScalar offset = scale / 32.0f;
 
-    SkPoint  center1 = {d->fRandom->nextRangeScalar(0.0f, scale),
+    SkPoint center1 = {d->fRandom->nextRangeScalar(0.0f, scale),
                        d->fRandom->nextRangeScalar(0.0f, scale)};
-    SkPoint  center2 = {d->fRandom->nextRangeScalar(0.0f, scale),
+    SkPoint center2 = {d->fRandom->nextRangeScalar(0.0f, scale),
                        d->fRandom->nextRangeScalar(0.0f, scale)};
     SkScalar radius1 = d->fRandom->nextRangeScalar(0.0f, scale);
     SkScalar radius2 = d->fRandom->nextRangeScalar(0.0f, scale);
@@ -220,24 +210,15 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate
     }
 
     GrGradientShader::RandomParams params(d->fRandom);
-    auto shader = params.fUseColors4f ? SkGradientShader::MakeTwoPointConical(center1,
-                                                                              radius1,
-                                                                              center2,
-                                                                              radius2,
-                                                                              params.fColors4f,
-                                                                              params.fColorSpace,
-                                                                              params.fStops,
-                                                                              params.fColorCount,
-                                                                              params.fTileMode)
-                                      : SkGradientShader::MakeTwoPointConical(center1,
-                                                                              radius1,
-                                                                              center2,
-                                                                              radius2,
-                                                                              params.fColors,
-                                                                              params.fStops,
-                                                                              params.fColorCount,
-                                                                              params.fTileMode);
-    GrTest::TestAsFPArgs                 asFPArgs(d);
+    auto shader = params.fUseColors4f
+                          ? SkGradientShader::MakeTwoPointConical(
+                                    center1, radius1, center2, radius2, params.fColors4f,
+                                    params.fColorSpace, params.fStops, params.fColorCount,
+                                    params.fTileMode)
+                          : SkGradientShader::MakeTwoPointConical(
+                                    center1, radius1, center2, radius2, params.fColors,
+                                    params.fStops, params.fColorCount, params.fTileMode);
+    GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
 
     GrAlwaysAssert(fp);
@@ -261,25 +242,24 @@ GrTwoPointConicalGradientLayout::Type convert_type(SkTwoPointConicalGradient::Ty
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
-        const SkTwoPointConicalGradient& grad,
-        const GrFPArgs&                  args) {
+        const SkTwoPointConicalGradient& grad, const GrFPArgs& args) {
     GrTwoPointConicalGradientLayout::Type grType = convert_type(grad.getType());
 
     // The focalData struct is only valid if isFocal is true
     const SkTwoPointConicalGradient::FocalData& focalData = grad.getFocalData();
-    bool                                        isFocal   = grType == Type::kFocal;
+    bool isFocal = grType == Type::kFocal;
 
     // Calculate optimization switches from gradient specification
     bool isFocalOnCircle = isFocal && focalData.isFocalOnCircle();
-    bool isWellBehaved   = isFocal && focalData.isWellBehaved();
-    bool isSwapped       = isFocal && focalData.isSwapped();
+    bool isWellBehaved = isFocal && focalData.isWellBehaved();
+    bool isSwapped = isFocal && focalData.isSwapped();
     bool isNativelyFocal = isFocal && focalData.isNativelyFocal();
 
     // Type-specific calculations: isRadiusIncreasing, focalParams, and the gradient matrix.
     // However, all types start with the total inverse local matrix calculated from the shader
     // and args
-    bool     isRadiusIncreasing;
-    SkPoint  focalParams;  // really just a 2D tuple
+    bool isRadiusIncreasing;
+    SkPoint focalParams;  // really just a 2D tuple
     SkMatrix matrix;
 
     // Initialize the base matrix
@@ -294,7 +274,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
 
         matrix.postConcat(grad.getGradientMatrix());
     } else if (grType == Type::kRadial) {
-        SkScalar dr        = grad.getDiffRadius();
+        SkScalar dr = grad.getDiffRadius();
         isRadiusIncreasing = dr >= 0;
 
         SkScalar r0 = grad.getStartRadius() / dr;
@@ -317,13 +297,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::Make(
         matrix.postConcat(grad.getGradientMatrix());
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTwoPointConicalGradientLayout(matrix,
-                                                grType,
-                                                isRadiusIncreasing,
-                                                isFocalOnCircle,
-                                                isWellBehaved,
-                                                isSwapped,
-                                                isNativelyFocal,
-                                                focalParams));
+    return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(
+            matrix, grType, isRadiusIncreasing, isFocalOnCircle, isWellBehaved, isSwapped,
+            isNativelyFocal, focalParams));
 }

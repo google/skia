@@ -19,14 +19,14 @@
 class GrSweepGradientLayout : public GrFragmentProcessor {
 public:
     const SkMatrix44& gradientMatrix() const { return fGradientMatrix; }
-    float             bias() const { return fBias; }
-    float             scale() const { return fScale; }
+    float bias() const { return fBias; }
+    float scale() const { return fScale; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(const SkSweepGradient& gradient,
-                                                     const GrFPArgs&        args);
+                                                     const GrFPArgs& args);
     GrSweepGradientLayout(const GrSweepGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char*                          name() const override { return "SweepGradientLayout"; }
+    const char* name() const override { return "SweepGradientLayout"; }
 
 private:
     GrSweepGradientLayout(SkMatrix44 gradientMatrix, float bias, float scale)
@@ -42,10 +42,10 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkMatrix44                  fGradientMatrix;
-    float                       fBias;
-    float                       fScale;
-    GrCoordTransform            fCoordTransform0;
+    SkMatrix44 fGradientMatrix;
+    float fBias;
+    float fScale;
+    GrCoordTransform fCoordTransform0;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

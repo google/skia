@@ -16,8 +16,8 @@
 // kernel values.
 static float make_unnormalized_half_kernel(float* halfKernel, int halfKernelSize, float sigma) {
     const float invSigma = 1.f / sigma;
-    const float b        = -0.5f * invSigma * invSigma;
-    float       tot      = 0.0f;
+    const float b = -0.5f * invSigma * invSigma;
+    float tot = 0.0f;
     // Compute half kernel values at half pixel steps out from the center.
     float t = 0.5f;
     for (int i = 0; i < halfKernelSize; ++i) {
@@ -31,13 +31,11 @@ static float make_unnormalized_half_kernel(float* halfKernel, int halfKernelSize
 
 // Create a Gaussian half-kernel (right side) and a summed area table given a sigma and number
 // of discrete steps. The half kernel is normalized to sum to 0.5.
-static void make_half_kernel_and_summed_table(float* halfKernel,
-                                              float* summedHalfKernel,
-                                              int    halfKernelSize,
-                                              float  sigma) {
+static void make_half_kernel_and_summed_table(float* halfKernel, float* summedHalfKernel,
+                                              int halfKernelSize, float sigma) {
     // The half kernel should sum to 0.5 not 1.0.
     const float tot = 2.f * make_unnormalized_half_kernel(halfKernel, halfKernelSize, sigma);
-    float       sum = 0.f;
+    float sum = 0.f;
     for (int i = 0; i < halfKernelSize; ++i) {
         halfKernel[i] /= tot;
         sum += halfKernel[i];
@@ -47,12 +45,8 @@ static void make_half_kernel_and_summed_table(float* halfKernel,
 
 // Applies the 1D half kernel vertically at points along the x axis to a circle centered at the
 // origin with radius circleR.
-void apply_kernel_in_y(float*       results,
-                       int          numSteps,
-                       float        firstX,
-                       float        circleR,
-                       int          halfKernelSize,
-                       const float* summedHalfKernelTable) {
+void apply_kernel_in_y(float* results, int numSteps, float firstX, float circleR,
+                       int halfKernelSize, const float* summedHalfKernelTable) {
     float x = firstX;
     for (int i = 0; i < numSteps; ++i, x += 1.f) {
         if (x < -circleR || x > circleR) {
@@ -71,7 +65,7 @@ void apply_kernel_in_y(float*       results,
             results[i] = 0.5f;
         } else {
             float yFrac = y - yInt;
-            results[i]  = (1.f - yFrac) * summedHalfKernelTable[yInt] +
+            results[i] = (1.f - yFrac) * summedHalfKernelTable[yInt] +
                          yFrac * summedHalfKernelTable[yInt + 1];
         }
     }
@@ -81,10 +75,7 @@ void apply_kernel_in_y(float*       results,
 // This relies on having a half kernel computed for the Gaussian and a table of applications of
 // the half kernel in y to columns at (evalX - halfKernel, evalX - halfKernel + 1, ..., evalX +
 // halfKernel) passed in as yKernelEvaluations.
-static uint8_t eval_at(float        evalX,
-                       float        circleR,
-                       const float* halfKernel,
-                       int          halfKernelSize,
+static uint8_t eval_at(float evalX, float circleR, const float* halfKernel, int halfKernelSize,
                        const float* yKernelEvaluations) {
     float acc = 0;
 
@@ -115,10 +106,8 @@ static uint8_t eval_at(float        evalX,
 // the size of the profile being computed. Then for each of the n profile entries we walk out k
 // steps in each horizontal direction multiplying the corresponding y evaluation by the half
 // kernel entry and sum these values to compute the profile entry.
-static void create_circle_profile(uint8_t* weights,
-                                  float    sigma,
-                                  float    circleR,
-                                  int      profileTextureWidth) {
+static void create_circle_profile(uint8_t* weights, float sigma, float circleR,
+                                  int profileTextureWidth) {
     const int numSteps = profileTextureWidth;
 
     // The full kernel is 6 sigmas wide.
@@ -130,9 +119,9 @@ static void create_circle_profile(uint8_t* weights,
     int numYSteps = numSteps + 2 * halfKernelSize;
 
     SkAutoTArray<float> bulkAlloc(halfKernelSize + halfKernelSize + numYSteps);
-    float*              halfKernel   = bulkAlloc.get();
-    float*              summedKernel = bulkAlloc.get() + halfKernelSize;
-    float*              yEvals       = bulkAlloc.get() + 2 * halfKernelSize;
+    float* halfKernel = bulkAlloc.get();
+    float* summedKernel = bulkAlloc.get() + halfKernelSize;
+    float* yEvals = bulkAlloc.get() + 2 * halfKernelSize;
     make_half_kernel_and_summed_table(halfKernel, summedKernel, halfKernelSize, sigma);
 
     float firstX = -halfKernelSize + 0.5f;
@@ -140,7 +129,7 @@ static void create_circle_profile(uint8_t* weights,
 
     for (int i = 0; i < numSteps - 1; ++i) {
         float evalX = i + 0.5f;
-        weights[i]  = eval_at(evalX, circleR, halfKernel, halfKernelSize, yEvals + i);
+        weights[i] = eval_at(evalX, circleR, halfKernel, halfKernelSize, yEvals + i);
     }
     // Ensure the tail of the Gaussian goes to zero.
     weights[numSteps - 1] = 0;
@@ -149,14 +138,14 @@ static void create_circle_profile(uint8_t* weights,
 static void create_half_plane_profile(uint8_t* profile, int profileWidth) {
     SkASSERT(!(profileWidth & 0x1));
     // The full kernel is 6 sigmas wide.
-    float sigma          = profileWidth / 6.f;
-    int   halfKernelSize = profileWidth / 2;
+    float sigma = profileWidth / 6.f;
+    int halfKernelSize = profileWidth / 2;
 
     SkAutoTArray<float> halfKernel(halfKernelSize);
 
     // The half kernel should sum to 0.5.
     const float tot = 2.f * make_unnormalized_half_kernel(halfKernel.get(), halfKernelSize, sigma);
-    float       sum = 0.f;
+    float sum = 0.f;
     // Populate the profile from the right edge to the middle.
     for (int i = 0; i < halfKernelSize; ++i) {
         halfKernel[halfKernelSize - i - 1] /= tot;
@@ -174,10 +163,8 @@ static void create_half_plane_profile(uint8_t* profile, int profileWidth) {
 }
 
 static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvider,
-                                                    const SkRect&    circle,
-                                                    float            sigma,
-                                                    float*           solidRadius,
-                                                    float*           textureRadius) {
+                                                    const SkRect& circle, float sigma,
+                                                    float* solidRadius, float* textureRadius) {
     float circleR = circle.width() / 2.0f;
     if (circleR < SK_ScalarNearlyZero) {
         return nullptr;
@@ -190,14 +177,14 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
     // Guassian and the profile texture is a just a Gaussian evaluation. However, we haven't yet
     // implemented this latter optimization.
     sigmaToCircleRRatio = SkTMin(sigmaToCircleRRatio, 8.f);
-    SkFixed               sigmaToCircleRRatioFixed;
+    SkFixed sigmaToCircleRRatioFixed;
     static const SkScalar kHalfPlaneThreshold = 0.1f;
-    bool                  useHalfPlaneApprox  = false;
+    bool useHalfPlaneApprox = false;
     if (sigmaToCircleRRatio <= kHalfPlaneThreshold) {
-        useHalfPlaneApprox       = true;
+        useHalfPlaneApprox = true;
         sigmaToCircleRRatioFixed = 0;
-        *solidRadius             = circleR - 3 * sigma;
-        *textureRadius           = 6 * sigma;
+        *solidRadius = circleR - 3 * sigma;
+        *textureRadius = 6 * sigma;
     } else {
         // Convert to fixed point for the key.
         sigmaToCircleRRatioFixed = SkScalarToFixed(sigmaToCircleRRatio);
@@ -205,14 +192,14 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
         // shave off more than we do.
         sigmaToCircleRRatioFixed &= ~0xff;
         sigmaToCircleRRatio = SkFixedToScalar(sigmaToCircleRRatioFixed);
-        sigma               = circleR * sigmaToCircleRRatio;
-        *solidRadius        = 0;
-        *textureRadius      = circleR + 3 * sigma;
+        sigma = circleR * sigmaToCircleRRatio;
+        *solidRadius = 0;
+        *textureRadius = circleR + 3 * sigma;
     }
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey                      key;
-    GrUniqueKey::Builder             builder(&key, kDomain, 1, "1-D Circular Blur");
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 1, "1-D Circular Blur");
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 
@@ -231,15 +218,15 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
         } else {
             // Rescale params to the size of the texture we're creating.
             SkScalar scale = kProfileTextureWidth / *textureRadius;
-            create_circle_profile(
-                    bm.getAddr8(0, 0), sigma * scale, circleR * scale, kProfileTextureWidth);
+            create_circle_profile(bm.getAddr8(0, 0), sigma * scale, circleR * scale,
+                                  kProfileTextureWidth);
         }
 
         bm.setImmutable();
         sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
 
-        blurProfile = proxyProvider->createTextureProxy(
-                std::move(image), kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, SkBackingFit::kExact);
+        blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+                                                        SkBudgeted::kYes, SkBackingFit::kExact);
         if (!blurProfile) {
             return nullptr;
         }
@@ -252,11 +239,9 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
-        GrProxyProvider* proxyProvider,
-        const SkRect&    circle,
-        float            sigma) {
-    float                 solidRadius;
-    float                 textureRadius;
+        GrProxyProvider* proxyProvider, const SkRect& circle, float sigma) {
+    float solidRadius;
+    float textureRadius;
     sk_sp<GrTextureProxy> profile(
             create_profile_texture(proxyProvider, circle, sigma, &solidRadius, &textureRadius));
     if (!profile) {
@@ -275,7 +260,7 @@ class GrGLSLCircleBlurFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLCircleBlurFragmentProcessor() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder*             fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrCircleBlurFragmentProcessor& _outer =
                 args.fFp.cast<GrCircleBlurFragmentProcessor>();
         (void)_outer;
@@ -285,8 +270,8 @@ public:
         (void)textureRadius;
         auto solidRadius = _outer.solidRadius();
         (void)solidRadius;
-        fCircleDataVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf4_GrSLType, "circleData");
+        fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                          "circleData");
         fragBuilder->codeAppendf(
                 "half2 vec = half2(half((sk_FragCoord.x - float(%s.x)) * float(%s.w)), "
                 "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = length(vec) + "
@@ -296,8 +281,7 @@ public:
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(fCircleDataVar), args.fOutputColor,
                 args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
@@ -305,24 +289,21 @@ public:
 
 private:
     void onSetData(const GrGLSLProgramDataManager& data,
-                   const GrFragmentProcessor&      _proc) override {
+                   const GrFragmentProcessor& _proc) override {
         const GrCircleBlurFragmentProcessor& _outer = _proc.cast<GrCircleBlurFragmentProcessor>();
-        auto                                 circleRect = _outer.circleRect();
+        auto circleRect = _outer.circleRect();
         (void)circleRect;
         auto textureRadius = _outer.textureRadius();
         (void)textureRadius;
         auto solidRadius = _outer.solidRadius();
         (void)solidRadius;
         GrSurfaceProxy& blurProfileSamplerProxy = *_outer.textureSampler(0).proxy();
-        GrTexture&      blurProfileSampler      = *blurProfileSamplerProxy.peekTexture();
+        GrTexture& blurProfileSampler = *blurProfileSamplerProxy.peekTexture();
         (void)blurProfileSampler;
         UniformHandle& circleData = fCircleDataVar;
         (void)circleData;
 
-        data.set4f(circleData,
-                   circleRect.centerX(),
-                   circleRect.centerY(),
-                   solidRadius,
+        data.set4f(circleData, circleRect.centerX(), circleRect.centerY(), solidRadius,
                    1.f / textureRadius);
     }
     UniformHandle fCircleDataVar;
@@ -330,19 +311,15 @@ private:
 GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLCircleBlurFragmentProcessor();
 }
-void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
+void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                           GrProcessorKeyBuilder* b) const {}
 bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrCircleBlurFragmentProcessor& that = other.cast<GrCircleBlurFragmentProcessor>();
     (void)that;
-    if (fCircleRect != that.fCircleRect)
-        return false;
-    if (fTextureRadius != that.fTextureRadius)
-        return false;
-    if (fSolidRadius != that.fSolidRadius)
-        return false;
-    if (fBlurProfileSampler != that.fBlurProfileSampler)
-        return false;
+    if (fCircleRect != that.fCircleRect) return false;
+    if (fTextureRadius != that.fTextureRadius) return false;
+    if (fSolidRadius != that.fSolidRadius) return false;
+    if (fBlurProfileSampler != that.fBlurProfileSampler) return false;
     return true;
 }
 GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
@@ -365,9 +342,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
-    SkScalar wh     = testData->fRandom->nextRangeScalar(100.f, 1000.f);
-    SkScalar sigma  = testData->fRandom->nextRangeF(1.f, 10.f);
-    SkRect   circle = SkRect::MakeWH(wh, wh);
+    SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
+    SkScalar sigma = testData->fRandom->nextRangeF(1.f, 10.f);
+    SkRect circle = SkRect::MakeWH(wh, wh);
     return GrCircleBlurFragmentProcessor::Make(testData->proxyProvider(), circle, sigma);
 }
 #endif

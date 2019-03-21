@@ -16,7 +16,7 @@
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Mode { kGaussian = 0, kSmoothStep = 1 };
-    const Mode&                                 mode() const { return fMode; }
+    const Mode& mode() const { return fMode; }
     static std::unique_ptr<GrFragmentProcessor> Make(Mode mode) {
         return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }
@@ -32,7 +32,7 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    Mode                        fMode;
+    Mode fMode;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

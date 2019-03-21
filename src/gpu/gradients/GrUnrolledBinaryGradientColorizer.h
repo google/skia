@@ -15,8 +15,8 @@
 #include "GrCoordTransform.h"
 class GrUnrolledBinaryGradientColorizer : public GrFragmentProcessor {
 public:
-    static const int   kMaxColorCount = 16;
-    int32_t            intervalCount() const { return fIntervalCount; }
+    static const int kMaxColorCount = 16;
+    int32_t intervalCount() const { return fIntervalCount; }
     const SkPMColor4f& scale0_1() const { return fScale0_1; }
     const SkPMColor4f& scale2_3() const { return fScale2_3; }
     const SkPMColor4f& scale4_5() const { return fScale4_5; }
@@ -33,18 +33,18 @@ public:
     const SkPMColor4f& bias10_11() const { return fBias10_11; }
     const SkPMColor4f& bias12_13() const { return fBias12_13; }
     const SkPMColor4f& bias14_15() const { return fBias14_15; }
-    const SkRect&      thresholds1_7() const { return fThresholds1_7; }
-    const SkRect&      thresholds9_13() const { return fThresholds9_13; }
+    const SkRect& thresholds1_7() const { return fThresholds1_7; }
+    const SkRect& thresholds9_13() const { return fThresholds9_13; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor4f* colors,
-                                                     const SkScalar*    positions,
-                                                     int                count);
+                                                     const SkScalar* positions,
+                                                     int count);
     GrUnrolledBinaryGradientColorizer(const GrUnrolledBinaryGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "UnrolledBinaryGradientColorizer"; }
 
 private:
-    GrUnrolledBinaryGradientColorizer(int32_t     intervalCount,
+    GrUnrolledBinaryGradientColorizer(int32_t intervalCount,
                                       SkPMColor4f scale0_1,
                                       SkPMColor4f scale2_3,
                                       SkPMColor4f scale4_5,
@@ -61,8 +61,8 @@ private:
                                       SkPMColor4f bias10_11,
                                       SkPMColor4f bias12_13,
                                       SkPMColor4f bias14_15,
-                                      SkRect      thresholds1_7,
-                                      SkRect      thresholds9_13)
+                                      SkRect thresholds1_7,
+                                      SkRect thresholds9_13)
             : INHERITED(kGrUnrolledBinaryGradientColorizer_ClassID, kNone_OptimizationFlags)
             , fIntervalCount(intervalCount)
             , fScale0_1(scale0_1)
@@ -87,25 +87,25 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int32_t                     fIntervalCount;
-    SkPMColor4f                 fScale0_1;
-    SkPMColor4f                 fScale2_3;
-    SkPMColor4f                 fScale4_5;
-    SkPMColor4f                 fScale6_7;
-    SkPMColor4f                 fScale8_9;
-    SkPMColor4f                 fScale10_11;
-    SkPMColor4f                 fScale12_13;
-    SkPMColor4f                 fScale14_15;
-    SkPMColor4f                 fBias0_1;
-    SkPMColor4f                 fBias2_3;
-    SkPMColor4f                 fBias4_5;
-    SkPMColor4f                 fBias6_7;
-    SkPMColor4f                 fBias8_9;
-    SkPMColor4f                 fBias10_11;
-    SkPMColor4f                 fBias12_13;
-    SkPMColor4f                 fBias14_15;
-    SkRect                      fThresholds1_7;
-    SkRect                      fThresholds9_13;
+    int32_t fIntervalCount;
+    SkPMColor4f fScale0_1;
+    SkPMColor4f fScale2_3;
+    SkPMColor4f fScale4_5;
+    SkPMColor4f fScale6_7;
+    SkPMColor4f fScale8_9;
+    SkPMColor4f fScale10_11;
+    SkPMColor4f fScale12_13;
+    SkPMColor4f fScale14_15;
+    SkPMColor4f fBias0_1;
+    SkPMColor4f fBias2_3;
+    SkPMColor4f fBias4_5;
+    SkPMColor4f fBias6_7;
+    SkPMColor4f fBias8_9;
+    SkPMColor4f fBias10_11;
+    SkPMColor4f fBias12_13;
+    SkPMColor4f fBias14_15;
+    SkRect fThresholds1_7;
+    SkRect fThresholds9_13;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
