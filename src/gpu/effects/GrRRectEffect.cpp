@@ -536,7 +536,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         case SkRRect::kSimple_Type: {
             const char *invRadiiXYSqdName;
             fInvRadiiSqdUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kHalf2_GrSLType,
+                                                             kFloat2_GrSLType,
                                                              "invRadiiXY",
                                                              &invRadiiXYSqdName);
             fragBuilder->codeAppend("float2 dxy = max(max(dxy0, dxy1), 0.0);");
@@ -550,7 +550,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         case SkRRect::kNinePatch_Type: {
             const char *invRadiiLTRBSqdName;
             fInvRadiiSqdUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kHalf4_GrSLType,
+                                                             kFloat4_GrSLType,
                                                              "invRadiiLTRB",
                                                              &invRadiiLTRBSqdName);
             if (scaleName) {
