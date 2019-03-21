@@ -18,13 +18,11 @@
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
     const GrClipEdgeType& edgeType() const { return fEdgeType; }
-    const SkPoint&        center() const { return fCenter; }
-    const SkPoint&        radii() const { return fRadii; }
+    const SkPoint& center() const { return fCenter; }
+    const SkPoint& radii() const { return fRadii; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType      edgeType,
-                                                     SkPoint             center,
-                                                     SkPoint             radii,
-                                                     const GrShaderCaps& caps) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
+                                                     SkPoint radii, const GrShaderCaps& caps) {
         // Small radii produce bad results on devices without full float.
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
             return nullptr;
@@ -33,7 +31,7 @@ public:
     }
     GrEllipseEffect(const GrEllipseEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char*                          name() const override { return "EllipseEffect"; }
+    const char* name() const override { return "EllipseEffect"; }
 
 private:
     GrEllipseEffect(GrClipEdgeType edgeType, SkPoint center, SkPoint radii)
@@ -46,9 +44,9 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    GrClipEdgeType              fEdgeType;
-    SkPoint                     fCenter;
-    SkPoint                     fRadii;
+    GrClipEdgeType fEdgeType;
+    SkPoint fCenter;
+    SkPoint fRadii;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

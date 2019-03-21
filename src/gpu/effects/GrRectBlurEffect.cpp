@@ -20,7 +20,7 @@ public:
     GrGLSLRectBlurEffect() {}
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        const GrRectBlurEffect&  _outer      = args.fFp.cast<GrRectBlurEffect>();
+        const GrRectBlurEffect& _outer = args.fFp.cast<GrRectBlurEffect>();
         (void)_outer;
         auto rect = _outer.rect();
         (void)rect;
@@ -34,15 +34,15 @@ public:
         fRectVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType, "rect");
         if (!highPrecision) {
-            fProxyRectHalfVar = args.fUniformHandler->addUniform(
-                    kFragment_GrShaderFlag, kHalf4_GrSLType, "proxyRectHalf");
+            fProxyRectHalfVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                 kHalf4_GrSLType, "proxyRectHalf");
         }
         if (highPrecision) {
             fProxyRectFloatVar = args.fUniformHandler->addUniform(
                     kFragment_GrShaderFlag, kFloat4_GrSLType, "proxyRectFloat");
         }
-        fProfileSizeVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kHalf_GrSLType, "profileSize");
+        fProfileSizeVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                           "profileSize");
         fragBuilder->codeAppendf(
                 "/* key */ bool highPrecision = %s;\n@if (highPrecision) {\n    float2 "
                 "translatedPos = sk_FragCoord.xy - %s.xy;\n    float width = %s.z - %s.x;\n    "
@@ -51,8 +51,7 @@ public:
                 "1.0);\n    float2 wh = smallDims - float2(center, center);\n    half hcoord = "
                 "half((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / float(%s));\n    half "
                 "hlookup = texture(%s, float2(float(hcoord), 0.5)).",
-                (highPrecision ? "true" : "false"),
-                args.fUniformHandler->getUniformCStr(fRectVar),
+                (highPrecision ? "true" : "false"), args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
@@ -74,9 +73,7 @@ public:
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fOutputColor,
-                args.fInputColor,
-                args.fUniformHandler->getUniformCStr(fRectVar),
+                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
@@ -96,13 +93,12 @@ public:
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fOutputColor,
-                args.fInputColor);
+                args.fOutputColor, args.fInputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor&      _proc) override {
+                   const GrFragmentProcessor& _proc) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
         { pdman.set4fv(fRectVar, 1, reinterpret_cast<const float*>(&(_outer.rect()))); }
         UniformHandle& rect = fRectVar;
@@ -110,7 +106,7 @@ private:
         auto sigma = _outer.sigma();
         (void)sigma;
         GrSurfaceProxy& blurProfileProxy = *_outer.textureSampler(0).proxy();
-        GrTexture&      blurProfile      = *blurProfileProxy.peekTexture();
+        GrTexture& blurProfile = *blurProfileProxy.peekTexture();
         (void)blurProfile;
         UniformHandle& proxyRectHalf = fProxyRectHalfVar;
         (void)proxyRectHalf;
@@ -121,7 +117,7 @@ private:
 
         pdman.set1f(profileSize, SkScalarCeilToScalar(6 * sigma));
     }
-    bool          highPrecision = false;
+    bool highPrecision = false;
     UniformHandle fProxyRectHalfVar;
     UniformHandle fProxyRectFloatVar;
     UniformHandle fProfileSizeVar;
@@ -130,17 +126,14 @@ private:
 GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRectBlurEffect();
 }
-void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
+void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {}
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();
     (void)that;
-    if (fRect != that.fRect)
-        return false;
-    if (fSigma != that.fSigma)
-        return false;
-    if (fBlurProfile != that.fBlurProfile)
-        return false;
+    if (fRect != that.fRect) return false;
+    if (fSigma != that.fSigma) return false;
+    if (fBlurProfile != that.fBlurProfile) return false;
     return true;
 }
 GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
@@ -159,12 +152,10 @@ const GrFragmentProcessor::TextureSampler& GrRectBlurEffect::onTextureSampler(in
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* data) {
-    float sigma  = data->fRandom->nextRangeF(3, 8);
-    float width  = data->fRandom->nextRangeF(200, 300);
+    float sigma = data->fRandom->nextRangeF(3, 8);
+    float width = data->fRandom->nextRangeF(200, 300);
     float height = data->fRandom->nextRangeF(200, 300);
-    return GrRectBlurEffect::Make(data->proxyProvider(),
-                                  *data->caps()->shaderCaps(),
-                                  SkRect::MakeWH(width, height),
-                                  sigma);
+    return GrRectBlurEffect::Make(data->proxyProvider(), *data->caps()->shaderCaps(),
+                                  SkRect::MakeWH(width, height), sigma);
 }
 #endif

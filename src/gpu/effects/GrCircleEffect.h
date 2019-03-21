@@ -16,12 +16,11 @@
 class GrCircleEffect : public GrFragmentProcessor {
 public:
     const GrClipEdgeType& edgeType() const { return fEdgeType; }
-    const SkPoint&        center() const { return fCenter; }
-    float                 radius() const { return fRadius; }
+    const SkPoint& center() const { return fCenter; }
+    float radius() const { return fRadius; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType,
-                                                     SkPoint        center,
-                                                     float          radius) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
+                                                     float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
         if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
@@ -31,7 +30,7 @@ public:
     }
     GrCircleEffect(const GrCircleEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char*                          name() const override { return "CircleEffect"; }
+    const char* name() const override { return "CircleEffect"; }
 
 private:
     GrCircleEffect(GrClipEdgeType edgeType, SkPoint center, float radius)
@@ -44,9 +43,9 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    GrClipEdgeType              fEdgeType;
-    SkPoint                     fCenter;
-    float                       fRadius;
+    GrClipEdgeType fEdgeType;
+    SkPoint fCenter;
+    float fRadius;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

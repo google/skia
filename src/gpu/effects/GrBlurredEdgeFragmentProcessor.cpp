@@ -19,7 +19,7 @@ class GrGLSLBlurredEdgeFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLBlurredEdgeFragmentProcessor() {}
     void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder*              fragBuilder = args.fFragBuilder;
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrBlurredEdgeFragmentProcessor& _outer =
                 args.fFp.cast<GrBlurredEdgeFragmentProcessor>();
         (void)_outer;
@@ -30,27 +30,24 @@ public:
                 "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
                 "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
                 "half4(factor);\n",
-                args.fInputColor,
-                (int)_outer.mode(),
-                args.fOutputColor);
+                args.fInputColor, (int)_outer.mode(), args.fOutputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor&      _proc) override {}
+                   const GrFragmentProcessor& _proc) override {}
 };
 GrGLSLFragmentProcessor* GrBlurredEdgeFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLBlurredEdgeFragmentProcessor();
 }
-void GrBlurredEdgeFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps&    caps,
+void GrBlurredEdgeFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                            GrProcessorKeyBuilder* b) const {
     b->add32((int32_t)fMode);
 }
 bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrBlurredEdgeFragmentProcessor& that = other.cast<GrBlurredEdgeFragmentProcessor>();
     (void)that;
-    if (fMode != that.fMode)
-        return false;
+    if (fMode != that.fMode) return false;
     return true;
 }
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
