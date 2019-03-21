@@ -9,7 +9,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkEmptyShader.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
@@ -169,15 +169,14 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
     }
 
-    ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, rec.fDstColorType, rec.fDstCS);
+    ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, rec.fDstColorType, sk_srgb_singleton());
 
     struct CallbackCtx : SkRasterPipeline_CallbackCtx {
         sk_sp<SkShader> shader;
         Context*        ctx;
     };
     auto cb = rec.fAlloc->make<CallbackCtx>();
-    cb->shader = rec.fDstCS ? SkColorSpaceXformer::Make(sk_ref_sp(rec.fDstCS))->apply(this)
-                            : sk_ref_sp((SkShader*)this);
+    cb->shader = sk_ref_sp((SkShader*)this);
     cb->ctx = as_SB(cb->shader)->makeContext(cr, rec.fAlloc);
     cb->fn  = [](SkRasterPipeline_CallbackCtx* self, int active_pixels) {
         auto c = (CallbackCtx*)self;
@@ -195,6 +194,9 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     if (cb->ctx) {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append(SkRasterPipeline::callback, cb);
+        rec.fAlloc->make<SkColorSpaceXformSteps>(sk_srgb_singleton(), kPremul_SkAlphaType,
+                                                 rec.fDstCS,          kPremul_SkAlphaType)
+            ->apply(rec.fPipeline, true);
         return true;
     }
     return false;
