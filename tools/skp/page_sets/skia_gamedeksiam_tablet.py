@@ -16,26 +16,24 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        shared_page_state_class=shared_page_state.SharedDesktopPageState)
-    self.archive_data_file = 'data/skia_wowwiki_desktop.json'
+        shared_page_state_class=shared_page_state.SharedTabletPageState)
+    self.archive_data_file = 'data/skia_gamedeksiam_tablet.json'
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.ScrollPage(distance=6000000)
-    action_runner.Wait(60)
+    action_runner.Wait(5)
 
 
-class SkiaWowwikiDesktopPageSet(story.StorySet):
-
+class SkiaGamedeksiamTabletPageSet(story.StorySet):
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaWowwikiDesktopPageSet, self).__init__(
-      archive_data_file='data/skia_wowwiki_desktop.json')
+    super(SkiaGamedeksiamTabletPageSet, self).__init__(
+      archive_data_file='data/skia_gamedeksiam_tablet.json')
 
     urls_list = [
-      # Why: http://code.google.com/p/chromium/issues/detail?id=136555
-      'http://www.wowwiki.com/World_of_Warcraft:_Mists_of_Pandaria',
+      # Why: from Tom W's list.
+      'http://game.deksiam.in.th/',
     ]
 
     for url in urls_list:
