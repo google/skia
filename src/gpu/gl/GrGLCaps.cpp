@@ -3048,6 +3048,9 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_BGRA8:
             config = kBGRA_8888_GrPixelConfig;
             break;
+        case GR_GL_RGB10_A2:
+            config = kRGBA_1010102_GrPixelConfig;
+            break;
     }
 
     return config;
