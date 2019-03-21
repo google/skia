@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61ce03bb_45e22ba5",
+        "filename": "site/dev/testing/automated_testing.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-21T10:51:38Z",
+      "side": 1,
+      "message": "This may be the case, but it\u0027s not necessarily true.  For the most part it\u0027s better to provide the command as part of the swarming task request (ie. part of the task spec) than to do it in the isolate file, which is less flexible.",
+      "range": {
+        "startLine": 158,
+        "startChar": 38,
+        "endLine": 159,
+        "endChar": 43
+      },
+      "revId": "31a146236134cf8b8632bcd4a66853d38f009bb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
