@@ -26,7 +26,7 @@ static DEFINE_string(shapesType, "mixed",
 static DEFINE_string(innerShapesType, "none",
                      "Type of inner shape to use in ShapesBench. Must be one of: "
                      "none, rect, oval, rrect, mixed.");
-static DEFINE_int32(numShapes, 10000, "Number of shapes to draw in ShapesBench.");
+static DEFINE_int(numShapes, 10000, "Number of shapes to draw in ShapesBench.");
 static DEFINE_string(shapesSize, "32x32", "Size of shapes to draw in ShapesBench.");
 static DEFINE_bool(shapesPersp, false, "Use slight perspective tilt in ShapesBench?");
 #endif

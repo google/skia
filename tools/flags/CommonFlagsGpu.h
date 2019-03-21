@@ -12,7 +12,7 @@
 #include "GrTypesPriv.h"
 #include "SkTypes.h"
 
-DECLARE_int32(gpuThreads);
+DECLARE_int(gpuThreads);
 DECLARE_bool(cachePathMasks);
 DECLARE_bool(noGS);
 DECLARE_string(pr);

@@ -55,19 +55,19 @@
  */
 
 static DEFINE_bool(ddl, false, "record the skp into DDLs before rendering");
-static DEFINE_int32(ddlNumAdditionalThreads, 0,
+static DEFINE_int(ddlNumAdditionalThreads, 0,
                     "number of DDL recording threads in addition to main one");
-static DEFINE_int32(ddlTilingWidthHeight, 0, "number of tiles along one edge when in DDL mode");
+static DEFINE_int(ddlTilingWidthHeight, 0, "number of tiles along one edge when in DDL mode");
 static DEFINE_bool(ddlRecordTime, false, "report just the cpu time spent recording DDLs");
 
-static DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
-static DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
+static DEFINE_int(duration, 5000, "number of milliseconds to run the benchmark");
+static DEFINE_int(sampleMs, 50, "minimum duration of a sample");
 static DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
 static DEFINE_bool(fps, false, "use fps instead of ms");
 static DEFINE_string(src, "",
                      "path to a single .skp or .svg file, or 'warmup' for a builtin warmup run");
 static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
-static DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
+static DEFINE_int(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 static DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 
 static const char* header =

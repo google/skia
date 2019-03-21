@@ -84,8 +84,8 @@ static DEFINE_string(uninterestingHashesFile, "",
         "File containing a list of uninteresting hashes. If a result hashes to something in "
         "this list, no image is written for that result.");
 
-static DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
-static DEFINE_int32(shard,  0, "Which shard do I run?");
+static DEFINE_int(shards, 1, "We're splitting source data into this many shards.");
+static DEFINE_int(shard,  0, "Which shard do I run?");
 
 static DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");

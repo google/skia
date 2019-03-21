@@ -19,7 +19,7 @@
  *
  *  DEFINE_bool(name, defaultValue, helpString);
  *  DEFINE_string(name, defaultValue, helpString);
- *  DEFINE_int32(name, defaultValue, helpString);
+ *  DEFINE_int(name, defaultValue, helpString);
  *  DEFINE_double(name, defaultValue, helpString);
  *
  *  Then, in main, call CommandLineFlags::SetUsage() to describe usage and call
@@ -46,11 +46,11 @@
  *
  *  Similarly, the line
  *
- *  DEFINE_int32(integer, .., ..);
+ *  DEFINE_int(integer, .., ..);
  *
  *  will create
  *
- *  int32_t FLAGS_integer;
+ *  int FLAGS_integer;
  *
  *  and
  *
@@ -59,14 +59,6 @@
  *  will create
  *
  *  double FLAGS_real;
- *
- *  and
- *
- *  DEFINE_uint32(unsigned, ...);
- *
- *  will create
- *
- *  uint32_t FLAGS_unsigned;
  *
  *  These flags can be set by specifying, for example, "--integer 7" and
  *  "--real 3.14" on the command line. Unsigned integers are parsed from the
@@ -236,29 +228,17 @@ private:
 
 #define DECLARE_string(name) extern CommandLineFlags::StringArray FLAGS_##name;
 
-#define DEFINE_int32(name, defaultValue, helpString) \
-    int32_t               FLAGS_##name;              \
-    SK_UNUSED static bool unused_##name =            \
+#define DEFINE_int(name, defaultValue, helpString) \
+    int               FLAGS_##name;                \
+    SK_UNUSED static bool unused_##name =          \
             SkFlagInfo::CreateIntFlag(TO_STRING(name), &FLAGS_##name, defaultValue, helpString)
 
-#define DEFINE_int32_2(name, shortName, defaultValue, helpString)    \
-    int32_t               FLAGS_##name;                              \
+#define DEFINE_int_2(name, shortName, defaultValue, helpString)      \
+    int               FLAGS_##name;                                  \
     SK_UNUSED static bool unused_##name = SkFlagInfo::CreateIntFlag( \
             TO_STRING(name), TO_STRING(shortName), &FLAGS_##name, defaultValue, helpString)
 
-#define DECLARE_int32(name) extern int32_t FLAGS_##name;
-
-#define DEFINE_uint32(name, defaultValue, helpString) \
-    uint32_t              FLAGS_##name;               \
-    SK_UNUSED static bool unused_##name =             \
-            SkFlagInfo::CreateUintFlag(TO_STRING(name), &FLAGS_##name, defaultValue, helpString)
-
-#define DEFINE_uint32_2(name, shortName, defaultValue, helpString)    \
-    uint32_t              FLAGS_##name;                               \
-    SK_UNUSED static bool unused_##name = SkFlagInfo::CreateUintFlag( \
-            TO_STRING(name), TO_STRING(shortName), &FLAGS_##name, defaultValue, helpString)
-
-#define DECLARE_uint32(name) extern uint32_t FLAGS_##name;
+#define DECLARE_int(name) extern int FLAGS_##name;
 
 #define DEFINE_double(name, defaultValue, helpString) \
     double                FLAGS_##name;               \
@@ -273,7 +253,6 @@ public:
         kBool_FlagType,
         kString_FlagType,
         kInt_FlagType,
-        kUint_FlagType,
         kDouble_FlagType,
     };
 
@@ -319,8 +298,8 @@ public:
      *  See comments for CreateBoolFlag.
      */
     static bool CreateIntFlag(const char* name,
-                              int32_t*    pInt,
-                              int32_t     defaultValue,
+                              int*    pInt,
+                              int     defaultValue,
                               const char* helpString) {
         SkFlagInfo* info = new SkFlagInfo(name, nullptr, kInt_FlagType, helpString, nullptr);
         info->fIntValue  = pInt;
@@ -330,36 +309,12 @@ public:
 
     static bool CreateIntFlag(const char* name,
                               const char* shortName,
-                              int32_t*    pInt,
-                              int32_t     defaultValue,
+                              int*    pInt,
+                              int     defaultValue,
                               const char* helpString) {
         SkFlagInfo* info = new SkFlagInfo(name, shortName, kInt_FlagType, helpString, nullptr);
         info->fIntValue  = pInt;
         *info->fIntValue = info->fDefaultInt = defaultValue;
-        return true;
-    }
-
-    /**
-     *  See comments for CreateBoolFlag.
-     */
-    static bool CreateUintFlag(const char* name,
-                               uint32_t*   pUint,
-                               uint32_t    defaultValue,
-                               const char* helpString) {
-        SkFlagInfo* info  = new SkFlagInfo(name, nullptr, kUint_FlagType, helpString, nullptr);
-        info->fUintValue  = pUint;
-        *info->fUintValue = info->fDefaultUint = defaultValue;
-        return true;
-    }
-
-    static bool CreateUintFlag(const char* name,
-                               const char* shortName,
-                               uint32_t*   pUint,
-                               uint32_t    defaultValue,
-                               const char* helpString) {
-        SkFlagInfo* info  = new SkFlagInfo(name, shortName, kUint_FlagType, helpString, nullptr);
-        info->fUintValue  = pUint;
-        *info->fUintValue = info->fDefaultUint = defaultValue;
         return true;
     }
 
@@ -409,19 +364,11 @@ public:
         }
     }
 
-    void setInt(int32_t value) {
+    void setInt(int value) {
         if (kInt_FlagType == fFlagType) {
             *fIntValue = value;
         } else {
             SkDEBUGFAIL("Can only call setInt on kInt_FlagType");
-        }
-    }
-
-    void setUint(uint32_t value) {
-        if (kUint_FlagType == fFlagType) {
-            *fUintValue = value;
-        } else {
-            SkDEBUGFAIL("Can only call setUint on kUint_FlagType");
         }
     }
 
@@ -458,7 +405,6 @@ public:
                 break;
             case SkFlagInfo::kString_FlagType: return fDefaultString;
             case SkFlagInfo::kInt_FlagType: result.printf("%i", fDefaultInt); break;
-            case SkFlagInfo::kUint_FlagType: result.printf("0x%08x", fDefaultUint); break;
             case SkFlagInfo::kDouble_FlagType: result.printf("%2.2f", fDefaultDouble); break;
             default: SkDEBUGFAIL("Invalid flag type");
         }
@@ -470,7 +416,6 @@ public:
             case SkFlagInfo::kBool_FlagType: return SkString("bool");
             case SkFlagInfo::kString_FlagType: return SkString("string");
             case SkFlagInfo::kInt_FlagType: return SkString("int");
-            case SkFlagInfo::kUint_FlagType: return SkString("uint");
             case SkFlagInfo::kDouble_FlagType: return SkString("double");
             default: SkDEBUGFAIL("Invalid flag type"); return SkString();
         }
@@ -491,8 +436,6 @@ private:
             , fDefaultBool(false)
             , fIntValue(nullptr)
             , fDefaultInt(0)
-            , fUintValue(nullptr)
-            , fDefaultUint(0)
             , fDoubleValue(nullptr)
             , fDefaultDouble(0)
             , fStrings(nullptr) {
@@ -518,10 +461,8 @@ private:
     SkString                       fExtendedHelpString;
     bool*                          fBoolValue;
     bool                           fDefaultBool;
-    int32_t*                       fIntValue;
-    int32_t                        fDefaultInt;
-    uint32_t*                      fUintValue;
-    uint32_t                       fDefaultUint;
+    int*                           fIntValue;
+    int                            fDefaultInt;
     double*                        fDoubleValue;
     double                         fDefaultDouble;
     CommandLineFlags::StringArray* fStrings;
