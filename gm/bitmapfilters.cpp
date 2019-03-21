@@ -116,7 +116,7 @@ class TestExtractAlphaGM : public skiagm::GM {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(SK_ColorBLUE);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(20);
 
         canvas.drawCircle(50, 50, 39, paint);

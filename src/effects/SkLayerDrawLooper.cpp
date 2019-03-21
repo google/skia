@@ -96,7 +96,7 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
     }
 
     if (bits & kStyle_Bit) {
-        dst->setStyle(src.getStyle());
+        dst->copyStyle(src);
         dst->setStrokeWidth(src.getStrokeWidth());
         dst->setStrokeMiter(src.getStrokeMiter());
         dst->setStrokeCap(src.getStrokeCap());

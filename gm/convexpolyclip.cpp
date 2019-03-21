@@ -67,7 +67,7 @@ static SkBitmap make_bmp(int w, int h) {
     canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
                           texPos.fX, texPos.fY, font, paint);
     paint.setColor(SK_ColorBLACK);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(SK_Scalar1);
     canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
                           texPos.fX, texPos.fY, font, paint);
@@ -185,7 +185,7 @@ protected:
                     SkPaint clipOutlinePaint;
                     clipOutlinePaint.setAntiAlias(true);
                     clipOutlinePaint.setColor(0x50505050);
-                    clipOutlinePaint.setStyle(SkPaint::kStroke_Style);
+                    clipOutlinePaint.setStroke(true);
                     clipOutlinePaint.setStrokeWidth(0);
 
                     if (doLayer) {

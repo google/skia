@@ -18,7 +18,7 @@ static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {
     SkPaint paint;
     paint.setColor(color);
     paint.setStrokeWidth(3);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
 
     canvas->drawCircle(SkScalarHalf(size), SkScalarHalf(size), SkScalarHalf(size), paint);
 

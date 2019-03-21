@@ -34,6 +34,10 @@ class SkPath;
 class SkPathEffect;
 class SkShader;
 
+#ifndef SK_SUPPORT_LEGACY_PAINTSTYLE
+#define SK_SUPPORT_LEGACY_PAINTSTYLE
+#endif
+
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -210,6 +214,9 @@ public:
     */
     static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
 
+#ifndef SK_SUPPORT_LEGACY_PAINTSTYLE
+private:
+#endif
     /** Returns whether the geometry is filled, stroked, or filled and stroked.
 
         @return  one of:kFill_Style, kStroke_Style, kStrokeAndFill_Style
@@ -222,6 +229,19 @@ public:
         @param style  one of: kFill_Style, kStroke_Style, kStrokeAndFill_Style
     */
     void setStyle(Style style);
+public:
+    bool isStroke() const { return this->getStyle() != kFill_Style; }
+    bool isFill() const { return this->getStyle() == kFill_Style; }
+    void setStroke(bool stroke) {
+        this->setStyle(stroke ? kStroke_Style : kFill_Style);
+    }
+
+    // Temporary, until we can find altenatives for clients
+    bool isStrokeAndFill() const { return this->getStyle() == kStrokeAndFill_Style; }
+    void setStrokeAndFill() { this->setStyle(kStrokeAndFill_Style); }
+    void copyStyle(const SkPaint& other) {
+        this->setStyle(other.getStyle());
+    }
 
     /** Retrieves alpha and RGB, unpremultiplied, packed into 32 bits.
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract

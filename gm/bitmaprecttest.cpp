@@ -22,7 +22,7 @@ static void make_bm(SkBitmap* bm) {
     path.lineTo(30, 54);
     canvas.drawPath(path, paint);
 
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     canvas.drawRect(SkRect::MakeLTRB(0.5f, 0.5f, 59.5f, 59.5f), paint);
 }
 

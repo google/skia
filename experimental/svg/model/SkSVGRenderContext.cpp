@@ -264,8 +264,8 @@ void commitToPaint<SkSVGAttribute::kVisibility>(const SkSVGPresentationAttribute
 SkSVGPresentationContext::SkSVGPresentationContext()
     : fInherited(SkSVGPresentationAttributes::MakeInitial()) {
 
-    fFillPaint.setStyle(SkPaint::kFill_Style);
-    fStrokePaint.setStyle(SkPaint::kStroke_Style);
+    fFillPaint.setStroke(false);
+    fStrokePaint.setStroke(true);
 
     // TODO: drive AA off presentation attrs also (shape-rendering?)
     fFillPaint.setAntiAlias(true);
