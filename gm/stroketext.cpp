@@ -32,13 +32,13 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, const SkFo
     SkPoint loc = { 20, 435 };
 
     if (strokeWidth > 0) {
-        p.setStyle(SkPaint::kFill_Style);
+        p.setStroke(false);
         canvas->drawSimpleText("P", 1, kUTF8_SkTextEncoding, loc.fX, loc.fY - 225, font, p);
         canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
     }
 
     p.setColor(SK_ColorRED);
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(strokeWidth);
 
     canvas->drawSimpleText("P", 1, kUTF8_SkTextEncoding, loc.fX, loc.fY - 225, font, p);

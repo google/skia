@@ -114,7 +114,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(20);
     #if 0   // enable to play through the stream above backwards.
         SkPath path;

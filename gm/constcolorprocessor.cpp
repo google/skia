@@ -137,7 +137,7 @@ protected:
                                            inputLabelBounds.fBottom + 2.f - procLabelBounds.fTop);
 
                     labelPaint.setStrokeWidth(0);
-                    labelPaint.setStyle(SkPaint::kStroke_Style);
+                    labelPaint.setStroke(true);
                     canvas->drawRect(renderRect, labelPaint);
 
                     canvas->restore();

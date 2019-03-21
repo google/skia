@@ -434,7 +434,7 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     SkPaint paint;
 
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kFill_Style);
+    paint.setStroke(false);
 
     test_concave(canvas, paint);
     test_reverse_concave(canvas, paint);

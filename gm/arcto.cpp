@@ -47,7 +47,7 @@ The arcto test below should draw the same as this SVG:
 DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(2);
     paint.setColor(0xFF660000);
 //    canvas->scale(2, 2);  // for testing on retina
@@ -199,7 +199,7 @@ DEF_SIMPLE_GM(bug593049, canvas, 300, 300) {
     p.arcTo(oval, 1.25f * 180, .5f * 180, false);
 
     SkPaint paint;
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeCap(SkPaint::kRound_Cap);
     paint.setStrokeWidth(15.36f);
 
@@ -212,7 +212,7 @@ DEF_SIMPLE_GM(bug593049, canvas, 300, 300) {
 DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   const char* d="M60,60 A50,50 0 0 0 160,60 A50,50 0 0 0 60,60z";
   SkPaint p;
-  p.setStyle(SkPaint::kStroke_Style);
+  p.setStroke(true);
   p.setStrokeWidth(100);
   p.setAntiAlias(true);
   p.setColor(0xFF008200);

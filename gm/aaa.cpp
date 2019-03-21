@@ -110,7 +110,7 @@ DEF_SIMPLE_GM(analytic_antialias_general, canvas, W, H) {
         canvas->save();
         canvas->translate(200, 0);
         canvas->rotate(1);
-        p.setStyle(SkPaint::kStroke_Style);
+        p.setStroke(true);
         p.setStrokeWidth(5);
         canvas->drawPath(path, p);
         canvas->restore();
@@ -118,7 +118,7 @@ DEF_SIMPLE_GM(analytic_antialias_general, canvas, W, H) {
 
         // The following two paths test if we correctly cumulates the alpha on the middle pixel
         // column where the left rect and the right rect abut.
-        p.setStyle(SkPaint::kFill_Style);
+        p.setStroke(false);
         canvas->translate(0, 300);
         path.reset();
         path.addRect({20, 20, 100.4999f, 100});
