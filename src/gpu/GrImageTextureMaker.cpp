@@ -113,11 +113,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         filter = GrSamplerState::Filter::kBilerp;
     }
 
-    auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
-                                     fImage->fYUVColorSpace, filter);
-    if (fImage->fFromColorSpace) {
-        fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
-                                           fImage->alphaType(), fImage->colorSpace());
-    }
-    return fp;
+    return GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices, fImage->fYUVColorSpace,
+                                  filter);
 }

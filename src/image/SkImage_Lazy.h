@@ -20,15 +20,13 @@ class SharedGenerator;
 class SkImage_Lazy : public SkImage_Base {
 public:
     struct Validator {
-        Validator(sk_sp<SharedGenerator>, const SkIRect* subset, const SkColorType* colorType,
-                  sk_sp<SkColorSpace> colorSpace);
+        Validator(sk_sp<SharedGenerator>, const SkIRect* subset);
 
         operator bool() const { return fSharedGenerator.get(); }
 
         sk_sp<SharedGenerator> fSharedGenerator;
         SkImageInfo            fInfo;
         SkIPoint               fOrigin;
-        sk_sp<SkColorSpace>    fColorSpace;
         uint32_t               fUniqueID;
     };
 
@@ -74,17 +72,11 @@ private:
     class ScopedGenerator;
 
     // Note that this->imageInfo() is not necessarily the info from the generator. It may be
-    // cropped by onMakeSubset and its color type/space may be changed by
-    // onMakeColorTypeAndColorSpace.
+    // cropped by onMakeSubset.
     sk_sp<SharedGenerator> fSharedGenerator;
     const SkIPoint         fOrigin;
 
     uint32_t fUniqueID;
-
-    // Repeated calls to onMakeColorTypeAndColorSpace will result in a proliferation of unique IDs
-    // and SkImage_Lazy instances. Cache the result of the last successful call.
-    mutable SkMutex             fOnMakeColorTypeAndSpaceMutex;
-    mutable sk_sp<SkImage>      fOnMakeColorTypeAndSpaceResult;
 
 #if SK_SUPPORT_GPU
     // When the SkImage_Lazy goes away, we will iterate over all the unique keys we've used and
