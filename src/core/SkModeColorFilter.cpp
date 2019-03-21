@@ -11,7 +11,6 @@
 #include "SkColorFilter.h"
 #include "SkColorData.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkModeColorFilter.h"
 #include "SkRandom.h"
@@ -69,14 +68,6 @@ void SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
                            rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
     rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
-}
-
-sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkColor color = xformer->apply(fColor);
-    if (color != fColor) {
-        return SkColorFilter::MakeModeFilter(color, fMode);
-    }
-    return this->INHERITED::onMakeColorSpace(xformer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

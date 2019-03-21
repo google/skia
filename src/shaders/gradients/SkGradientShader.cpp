@@ -8,7 +8,6 @@
 #include <algorithm>
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
 #include "SkConvertPixels.h"
 #include "SkFloatBits.h"
 #include "SkGradientShaderPriv.h"
@@ -441,19 +440,6 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     }
     *lum = SkColorSetRGB(rounded_divide(r, n), rounded_divide(g, n), rounded_divide(b, n));
     return true;
-}
-
-SkGradientShaderBase::AutoXformColors::AutoXformColors(const SkGradientShaderBase& grad,
-                                                       SkColorSpaceXformer* xformer)
-    : fColors(grad.fColorCount) {
-    // TODO: stay in 4f to preserve precision?
-
-    SkAutoSTMalloc<8, SkColor> origColors(grad.fColorCount);
-    for (int i = 0; i < grad.fColorCount; ++i) {
-        origColors[i] = grad.getLegacyColor(i);
-    }
-
-    xformer->apply(fColors.get(), origColors.get(), grad.fColorCount);
 }
 
 SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,

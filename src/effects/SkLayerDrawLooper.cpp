@@ -10,7 +10,6 @@
 #include "SkColorSpacePriv.h"
 #include "SkMaskFilter.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformer.h"
 #include "SkColor.h"
 #include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
@@ -205,37 +204,6 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         bsRec->fStyle = maskBlur.fStyle;
     }
     return true;
-}
-
-sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    if (!fCount) {
-        return sk_ref_sp(const_cast<SkLayerDrawLooper*>(this));
-    }
-
-    auto looper = sk_sp<SkLayerDrawLooper>(new SkLayerDrawLooper());
-    looper->fCount = fCount;
-
-    Rec* oldRec = fRecs;
-    Rec* newTopRec = new Rec();
-    newTopRec->fInfo = oldRec->fInfo;
-    newTopRec->fPaint = xformer->apply(oldRec->fPaint);
-    newTopRec->fNext = nullptr;
-
-    Rec* prevNewRec = newTopRec;
-    oldRec = oldRec->fNext;
-    while (oldRec) {
-        Rec* newRec = new Rec();
-        newRec->fInfo = oldRec->fInfo;
-        newRec->fPaint = xformer->apply(oldRec->fPaint);
-        newRec->fNext = nullptr;
-        prevNewRec->fNext = newRec;
-
-        prevNewRec = newRec;
-        oldRec = oldRec->fNext;
-    }
-
-    looper->fRecs = newTopRec;
-    return std::move(looper);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
