@@ -16,6 +16,24 @@
       "revId": "1439ae01d5e07d891cf453d84ed24e10065d18ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "810975dc_ae12c309",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1074,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-21T19:14:50Z",
+      "side": 1,
+      "message": "I didn\u0027t realize we had added alphatype/colortype/colorspace. Those were not part of the original vision for this, but I guess we\u0027ve had to. Sure, we might as well have a getter for the whole info.",
+      "parentUuid": "486185bd_be6dac95",
+      "revId": "1439ae01d5e07d891cf453d84ed24e10065d18ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
