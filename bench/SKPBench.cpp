@@ -14,11 +14,11 @@
 #include "GrContextPriv.h"
 
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
-static DEFINE_int32(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
-static DEFINE_int32(CPUbenchTileH, 256, "Tile height used for CPU SKP playback.");
+static DEFINE_int(CPUbenchTileW, 256, "Tile width  used for CPU SKP playback.");
+static DEFINE_int(CPUbenchTileH, 256, "Tile height used for CPU SKP playback.");
 
-static DEFINE_int32(GPUbenchTileW, 1600, "Tile width  used for GPU SKP playback.");
-static DEFINE_int32(GPUbenchTileH, 512, "Tile height used for GPU SKP playback.");
+static DEFINE_int(GPUbenchTileW, 1600, "Tile width  used for GPU SKP playback.");
+static DEFINE_int(GPUbenchTileH, 512, "Tile height used for GPU SKP playback.");
 
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale,
                    bool useMultiPictureDraw, bool doLooping)

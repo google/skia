@@ -27,8 +27,8 @@ static DEFINE_double(t0,   0, "Timeline start [0..1].");
 static DEFINE_double(t1,   1, "Timeline stop [0..1].");
 static DEFINE_double(fps, 30, "Decode frames per second.");
 
-static DEFINE_int32(width , 800, "Render width.");
-static DEFINE_int32(height, 600, "Render height.");
+static DEFINE_int(width , 800, "Render width.");
+static DEFINE_int(height, 600, "Render height.");
 
 namespace {
 

@@ -74,11 +74,11 @@ static DEFINE_bool(list, false, "List samples?");
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
-static DEFINE_int32(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
+static DEFINE_int(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
 
 static DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
-DECLARE_int32(threads)
+DECLARE_int(threads)
 
 static DEFINE_string2(file, f, "", "Open a single file for viewing.");
 

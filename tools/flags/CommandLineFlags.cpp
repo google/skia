@@ -321,10 +321,6 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                             i++;
                             flag->setInt(atoi(argv[i]));
                             break;
-                        case SkFlagInfo::kUint_FlagType:
-                            i++;
-                            flag->setUint(strtoul(argv[i], nullptr, 0));
-                            break;
                         case SkFlagInfo::kDouble_FlagType:
                             i++;
                             flag->setDouble(atof(argv[i]));
