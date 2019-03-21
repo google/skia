@@ -116,9 +116,8 @@ def dm_flags(api, bot):
         'pdf',
         'g8', '565',
         'pic-8888', 'tiles_rt-8888', 'lite-8888', 'serialize-8888',
-        'gbr-8888',
         'f16', 'srgb', 'esrgb', 'narrow', 'enarrow',
-        'p3', 'ep3', 'rec2020', 'erec2020'])
+        'ep3', 'rec2020', 'erec2020'])
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
@@ -238,7 +237,7 @@ def dm_flags(api, bot):
     # Test SkColorSpaceXformCanvas and rendering to wrapped dsts on a few bots
     # Also test 'glenarrow', which hits F16 surfaces and F16 vertex colors.
     if 'BonusConfigs' in api.vars.extra_tokens:
-      configs = ['gbr-gl', 'glbetex', 'glbert', 'glenarrow']
+      configs = ['glbetex', 'glbert', 'glenarrow']
 
 
     if 'ChromeOS' in bot:
@@ -333,10 +332,6 @@ def dm_flags(api, bot):
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('glsrgb image _ _')
   blacklist('glessrgb image _ _')
-
-  # Not any point to running these.
-  blacklist('gbr-8888 image _ _')
-  blacklist('gbr-8888 colorImage _ _')
 
   # --src image --config g8 means "decode into Gray8", which isn't supported.
   blacklist('g8 image _ _')

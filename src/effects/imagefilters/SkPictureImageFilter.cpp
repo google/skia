@@ -8,7 +8,6 @@
 #include "SkPictureImageFilter.h"
 
 #include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkImageSource.h"
 #include "SkPicturePriv.h"
@@ -113,13 +112,6 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
     SkASSERT(canvas);
     canvas->clear(0x0);
 
-    std::unique_ptr<SkCanvas> xformCanvas;
-    if (fColorSpace) {
-        // Only non-null in the case where onMakeColorSpace() was called.  This instructs
-        // us to do the color space xform on playback.
-        xformCanvas = SkCreateColorSpaceXformCanvas(canvas, fColorSpace);
-        canvas = xformCanvas.get();
-    }
     canvas->translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
     canvas->concat(ctx.ctm());
     canvas->drawPicture(fPicture);
