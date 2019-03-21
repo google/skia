@@ -987,7 +987,19 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  if ('Vulkan' in api.vars.extra_tokens and api.vars.is_linux and
+      'Debug' in api.vars.builder_name):
+    for t in ['TextureStripAtlasManagerColorFilterTest',
+              'TextureStripAtlasManagerGradientTest',
+              'AbandonedContextImage',
+              'ReadOnlyTexture',
+              'GrContextFactory_sharedContexts',
+              'GrContextFactory_abandon',
+              'GrContext_abandonContext']:
+      api.run(api.flavor.step, 'dm ' + t, cmd=args + ['--match', '^%s$' % t],
+              abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
