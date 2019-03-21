@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
