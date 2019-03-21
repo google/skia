@@ -20,7 +20,7 @@ class GrDeinstantiateProxyTracker;
 class GrResourceProvider;
 
 // Print out explicit allocation information
-#define GR_ALLOCATION_SPEW 0
+#define GR_ALLOCATION_SPEW 1
 
 // Print out information about interval creation
 #define GR_TRACK_INTERVAL_CREATION 0
