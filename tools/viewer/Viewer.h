@@ -41,10 +41,10 @@ public:
 
     struct SkFontFields {
         bool fTypeface = false;
-        bool fTextSize = false;
-        SkScalar fTextSizeRange[2] = { 0, 20 };
-        bool fTextScaleX = false;
-        bool fTextSkewX = false;
+        bool fSize = false;
+        SkScalar fSizeRange[2] = { 0, 20 };
+        bool fScaleX = false;
+        bool fSkewX = false;
         bool fHinting = false;
         bool fEdging = false;
         bool fSubpixel = false;
