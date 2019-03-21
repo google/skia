@@ -182,6 +182,11 @@ def compile_fn(api, checkout_root, out_dir):
         '-L%s' % swiftshader_out,
     ])
   if 'CommandBuffer' in extra_tokens:
+    # CommandBuffer runs against GLES version of CommandBuffer also, so
+    # include both.
+    args.update({
+      'skia_gl_standard': '""',
+    })
     chrome_dir = checkout_root
     api.run.run_once(build_command_buffer, api, chrome_dir, skia_dir, out_dir)
   if 'MSAN' in extra_tokens:
