@@ -31,8 +31,6 @@ protected:
                               SkRasterPipeline* postPipeline) const final;
 
 
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
-
 private:
     SK_FLATTENABLE_HOOKS(SkLinearGradient)
 

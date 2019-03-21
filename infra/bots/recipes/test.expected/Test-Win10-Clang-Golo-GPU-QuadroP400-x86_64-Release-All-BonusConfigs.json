@@ -257,7 +257,6 @@
       "--randomProcessorTest",
       "--nocpu",
       "--config",
-      "gbr-gl",
       "glbetex",
       "glbert",
       "glenarrow",

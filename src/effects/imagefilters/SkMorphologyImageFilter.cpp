@@ -9,7 +9,6 @@
 
 #include "SkBitmap.h"
 #include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
@@ -753,17 +752,4 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst, &source->props());
-}
-
-sk_sp<SkImageFilter> SkMorphologyImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const{
-    SkASSERT(1 == this->countInputs());
-    auto input = xformer->apply(this->getInput(0));
-    if (input.get() != this->getInput(0)) {
-        return (SkMorphologyImageFilter::kDilate_Op == this->op())
-                ? SkDilateImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
-                                            this->getCropRectIfSet())
-                : SkErodeImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
-                                           this->getCropRectIfSet());
-    }
-    return this->refMe();
 }

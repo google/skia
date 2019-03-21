@@ -38,7 +38,6 @@ public:
 protected:
     SkComposeShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
     bool onAppendStages(const SkStageRec&) const override;
 
 private:
