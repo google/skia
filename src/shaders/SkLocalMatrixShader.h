@@ -14,7 +14,6 @@
 
 class GrFragmentProcessor;
 class SkArenaAlloc;
-class SkColorSpaceXformer;
 
 class SkLocalMatrixShader final : public SkShaderBase {
 public:
@@ -48,11 +47,6 @@ protected:
     SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override;
 
     bool onAppendStages(const SkStageRec&) const override;
-
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return as_SB(fProxyShader)->makeColorSpace(xformer)->makeWithLocalMatrix(
-            this->getLocalMatrix());
-    }
 
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)

@@ -8,7 +8,6 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformer.h"
 #include "SkDrawLooper.h"
 #include "SkLightingImageFilter.h"
 #include "SkPoint3.h"
@@ -23,10 +22,6 @@ public:
 
     SkDrawLooper::Context* makeContext(SkCanvas*, SkArenaAlloc* alloc) const override {
         return alloc->make<TestDrawLooperContext>();
-    }
-
-    sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const override {
-        return nullptr;
     }
 
 private:

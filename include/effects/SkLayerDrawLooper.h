@@ -77,8 +77,6 @@ public:
     bool asABlurShadow(BlurShadowRec* rec) const override;
 
 protected:
-    sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const override;
-
     SkLayerDrawLooper();
 
     void flatten(SkWriteBuffer&) const override;
