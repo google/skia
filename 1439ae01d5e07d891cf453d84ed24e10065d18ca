@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "486185bd_be6dac95",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1074,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-21T18:38:11Z",
+      "side": 1,
+      "message": "I didn\u0027t make this public, just to make this CL be API-neutral. However, given that every component of SkImageInfo is gettable, I don\u0027t so a good reason not to.\n\nI did make this public on SkImage_Base for internal use via \"using\".",
+      "revId": "1439ae01d5e07d891cf453d84ed24e10065d18ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
