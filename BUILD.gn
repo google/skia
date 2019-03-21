@@ -71,6 +71,14 @@ declare_args() {
   skia_enable_fontmgr_win = is_win
   skia_enable_fontmgr_win_gdi = is_win
 
+  if (is_mac) {
+    skia_gl_standard = "gl"
+  } else if (is_ios) {
+    skia_gl_standard = "gles"
+  } else {
+    skia_gl_standard = ""
+  }
+
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else if (is_fuchsia) {
@@ -132,6 +140,11 @@ config("skia_public") {
   }
   if (is_fuchsia) {
     defines += fuchsia_defines
+  }
+  if (skia_gl_standard == "gles") {
+    defines += [ "SK_ASSUME_GL_ES=1" ]
+  } else if (skia_gl_standard == "gl") {
+    defines += [ "SK_ASSUME_GL=1" ]
   }
 }
 
@@ -1584,10 +1597,10 @@ if (skia_enable_tools) {
       "tools/timer/Timer.cpp",
       "tools/trace/ChromeTracingTracer.cpp",
       "tools/trace/ChromeTracingTracer.h",
-      "tools/trace/SkDebugfTracer.cpp",
-      "tools/trace/SkDebugfTracer.h",
       "tools/trace/EventTracingPriv.cpp",
       "tools/trace/EventTracingPriv.h",
+      "tools/trace/SkDebugfTracer.cpp",
+      "tools/trace/SkDebugfTracer.h",
     ]
     libs = []
     if (is_ios) {

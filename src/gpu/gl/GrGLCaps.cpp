@@ -82,6 +82,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                     const GrGLContextInfo& ctxInfo,
                     const GrGLInterface* gli) {
     GrGLStandard standard = ctxInfo.standard();
+    // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
+    sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
     if (GR_IS_GR_GL(standard)) {
@@ -1383,6 +1385,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         allRenderFlags |= ConfigInfo::kRenderableWithMSAA_Flag;
     }
     GrGLStandard standard = ctxInfo.standard();
+    // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
+    sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
     bool texStorageSupported = false;

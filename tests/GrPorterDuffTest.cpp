@@ -975,6 +975,9 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(blendInfo.fWriteColor);
 }
 
+// The NullGL context does not work correctly if the GL interface/validation
+// logic is disabled.
+#if !SK_DISABLE_GL_INTERFACE
 DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrContextOptions opts = options;
     opts.fSuppressDualSourceBlending = true;
@@ -1029,3 +1032,4 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     }
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
+#endif
