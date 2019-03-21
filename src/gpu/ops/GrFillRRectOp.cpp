@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrAAFillRRectOp.h"
+#include "GrFillRRectOp.h"
 
 #include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
@@ -23,7 +23,7 @@
 // checks to make sure the corners will still all look good if we use HW derivatives.
 static bool can_use_hw_derivatives(const GrShaderCaps&, const SkMatrix&, const SkRRect&);
 
-std::unique_ptr<GrAAFillRRectOp> GrAAFillRRectOp::Make(
+std::unique_ptr<GrFillRRectOp> GrFillRRectOp::Make(
         GrRecordingContext* ctx, const SkMatrix& viewMatrix, const SkRRect& rrect,
         const GrCaps& caps, GrPaint&& paint) {
     if (!caps.instanceAttribSupport()) {
@@ -38,11 +38,11 @@ std::unique_ptr<GrAAFillRRectOp> GrAAFillRRectOp::Make(
     }
 
     GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
-    return pool->allocate<GrAAFillRRectOp>(*caps.shaderCaps(), viewMatrix, rrect, std::move(paint));
+    return pool->allocate<GrFillRRectOp>(*caps.shaderCaps(), viewMatrix, rrect, std::move(paint));
 }
 
-GrAAFillRRectOp::GrAAFillRRectOp(const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
-                                 const SkRRect& rrect, GrPaint&& paint)
+GrFillRRectOp::GrFillRRectOp(const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
+                             const SkRRect& rrect, GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fOriginalColor(paint.getColor4f())
         , fLocalRect(rrect.rect())
@@ -81,8 +81,8 @@ GrAAFillRRectOp::GrAAFillRRectOp(const GrShaderCaps& shaderCaps, const SkMatrix&
     // We will write the color and local rect attribs during finalize().
 }
 
-GrProcessorSet::Analysis GrAAFillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                                   GrFSAAType fsaaType, GrClampType clampType) {
+GrProcessorSet::Analysis GrFillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                                 GrFSAAType fsaaType, GrClampType clampType) {
     SkASSERT(1 == fInstanceCount);
 
     SkPMColor4f overrideColor;
@@ -111,8 +111,8 @@ GrProcessorSet::Analysis GrAAFillRRectOp::finalize(const GrCaps& caps, const GrA
     return analysis;
 }
 
-GrDrawOp::CombineResult GrAAFillRRectOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
-    const auto& that = *op->cast<GrAAFillRRectOp>();
+GrDrawOp::CombineResult GrFillRRectOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
+    const auto& that = *op->cast<GrFillRRectOp>();
     if (fFlags != that.fFlags || fProcessors != that.fProcessors ||
         fInstanceData.count() > std::numeric_limits<int>::max() - that.fInstanceData.count()) {
         return CombineResult::kCannotCombine;
@@ -124,7 +124,7 @@ GrDrawOp::CombineResult GrAAFillRRectOp::onCombineIfPossible(GrOp* op, const GrC
     return CombineResult::kMerged;
 }
 
-void GrAAFillRRectOp::onPrepare(GrOpFlushState* flushState) {
+void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {
     if (void* instanceData = flushState->makeVertexSpace(fInstanceStride, fInstanceCount,
                                                          &fInstanceBuffer, &fBaseInstance)) {
         SkASSERT(fInstanceStride * fInstanceCount == fInstanceData.count());
@@ -264,10 +264,10 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 }
 
-class GrAAFillRRectOp::Processor : public GrGeometryProcessor {
+class GrFillRRectOp::Processor : public GrGeometryProcessor {
 public:
     Processor(Flags flags)
-            : GrGeometryProcessor(kGrAAFillRRectOp_Processor_ClassID)
+            : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
         this->setVertexAttributes(kVertexAttribs, 3);
         fInSkew = { "skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType };
@@ -281,7 +281,7 @@ public:
         SkASSERT(this->vertexStride() == sizeof(Vertex));
     }
 
-    const char* name() const override { return "GrAAFillRRectOp::Processor"; }
+    const char* name() const override { return "GrFillRRectOp::Processor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32(static_cast<uint32_t>(fFlags));
@@ -307,9 +307,9 @@ private:
     class Impl;
 };
 
-constexpr GrPrimitiveProcessor::Attribute GrAAFillRRectOp::Processor::kVertexAttribs[];
+constexpr GrPrimitiveProcessor::Attribute GrFillRRectOp::Processor::kVertexAttribs[];
 
-class GrAAFillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
+class GrFillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
 public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& proc = args.fGP.cast<Processor>();
@@ -443,12 +443,12 @@ public:
     }
 };
 
-GrGLSLPrimitiveProcessor* GrAAFillRRectOp::Processor::createGLSLInstance(
+GrGLSLPrimitiveProcessor* GrFillRRectOp::Processor::createGLSLInstance(
         const GrShaderCaps&) const {
     return new Impl();
 }
 
-void GrAAFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer) {
         return;  // Setup failed.
     }

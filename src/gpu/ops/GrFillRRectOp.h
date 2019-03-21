@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAAFillRRectOp_DEFINED
-#define GrAAFillRRectOp_DEFINED
+#ifndef GrFillRRectOp_DEFINED
+#define GrFillRRectOp_DEFINED
 
 #include "GrDrawOp.h"
 
 class GrRecordingContext;
 
-class GrAAFillRRectOp : public GrDrawOp {
+class GrFillRRectOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrAAFillRRectOp> Make(GrRecordingContext*, const SkMatrix&,
-                                                 const SkRRect&, const GrCaps&, GrPaint&&);
+    static std::unique_ptr<GrFillRRectOp> Make(GrRecordingContext*, const SkMatrix&,
+                                               const SkRRect&, const GrCaps&, GrPaint&&);
 
-    const char* name() const override { return "GrAAFillRRectOp"; }
+    const char* name() const override { return "GrFillRRectOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     GrProcessorSet::Analysis finalize(
             const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override;
@@ -43,7 +43,7 @@ private:
 
     class Processor;
 
-    GrAAFillRRectOp(const GrShaderCaps&, const SkMatrix&, const SkRRect&, GrPaint&&);
+    GrFillRRectOp(const GrShaderCaps&, const SkMatrix&, const SkRRect&, GrPaint&&);
 
     // These methods are used to append data of various POD types to our internal array of instance
     // data. The actual layout of the instance buffer can vary from Op to Op.
@@ -76,6 +76,6 @@ private:
     friend class GrOpMemoryPool;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrAAFillRRectOp::Flags)
+GR_MAKE_BITFIELD_CLASS_OPS(GrFillRRectOp::Flags)
 
 #endif
