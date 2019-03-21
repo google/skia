@@ -12,9 +12,10 @@
 
 class WritePixelsBench : public Benchmark {
 public:
-    WritePixelsBench(SkColorType ct, SkAlphaType at)
+    WritePixelsBench(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
         : fColorType(ct)
         , fAlphaType(at)
+        , fCS(std::move(cs))
         , fName("writepix")
     {
         switch (ct) {
@@ -39,6 +40,7 @@ public:
                 SkASSERT(0);
                 break;
         }
+        fName.append(fCS ? "_srgb" : "_null");
     }
 
 protected:
@@ -51,11 +53,11 @@ protected:
 
         canvas->clear(0xFFFF0000);
 
+        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType,
+                                             fCS);
         SkBitmap bmp;
-        bmp.allocN32Pixels(size.width(), size.height());
+        bmp.allocPixels(info);
         canvas->readPixels(bmp, 0, 0);
-
-        SkImageInfo info = SkImageInfo::Make(bmp.width(), bmp.height(), fColorType, fAlphaType);
 
         for (int loop = 0; loop < loops; ++loop) {
             canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
@@ -65,6 +67,7 @@ protected:
 private:
     SkColorType fColorType;
     SkAlphaType fAlphaType;
+    sk_sp<SkColorSpace> fCS;
     SkString    fName;
 
     typedef Benchmark INHERITED;
@@ -72,5 +75,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType);)
-DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);)
+DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);)
+DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr);)
+DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGB());)
+DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGB());)
