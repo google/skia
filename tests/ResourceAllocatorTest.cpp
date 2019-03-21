@@ -91,7 +91,7 @@ static void cleanup_backend(GrContext* context, const GrBackendTexture& backendT
 static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                          GrSurfaceProxy* p1, GrSurfaceProxy* p2, bool expectedResult) {
     GrDeinstantiateProxyTracker deinstantiateTracker;
-    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
+    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
 
     alloc.addInterval(p1, 0, 4);
     alloc.addInterval(p2, 1, 2);
@@ -114,7 +114,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
                              GrSurfaceProxy* p1, GrSurfaceProxy* p2,
                              bool expectedResult) {
     GrDeinstantiateProxyTracker deinstantiateTracker;
-    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
+    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
 
     alloc.addInterval(p1, 0, 2);
     alloc.addInterval(p2, 3, 5);
@@ -342,7 +342,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
 
         GrDeinstantiateProxyTracker deinstantiateTracker;
         {
-            GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
+            GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
             alloc.addInterval(p0.get(), 0, 1);
             alloc.addInterval(p1.get(), 0, 1);
             alloc.addInterval(p2.get(), 0, 1);

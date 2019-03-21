@@ -96,9 +96,9 @@ public:
 #endif
     }
 
-    int32_t getBackingRefCnt_TestOnly() const;
-    int32_t getPendingReadCnt_TestOnly() const;
-    int32_t getPendingWriteCnt_TestOnly() const;
+    int32_t getBackingRefCnt_TestOnly1() const;
+    int32_t getPendingReadCnt_TestOnly1() const;
+    int32_t getPendingWriteCnt_TestOnly1() const;
 
     void addPendingRead() const {
         this->validate();

@@ -490,3 +490,27 @@ void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
     this->onValidateSurface(surface);
 }
 #endif
+
+int32_t GrIORefProxy::getBackingRefCnt_TestOnly1() const {
+    if (fTarget) {
+        return fTarget->fRefCnt;
+    }
+
+    return -1; // no backing GrSurface
+}
+
+int32_t GrIORefProxy::getPendingReadCnt_TestOnly1() const {
+    if (fTarget) {
+        return fTarget->fPendingReads;
+    }
+
+    return fPendingReads;
+}
+
+int32_t GrIORefProxy::getPendingWriteCnt_TestOnly1() const {
+    if (fTarget) {
+        return fTarget->fPendingWrites;
+    }
+
+    return fPendingWrites;
+}

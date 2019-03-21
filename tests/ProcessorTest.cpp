@@ -151,9 +151,9 @@ inline void testingOnly_getIORefCnts(const T* resource, int* refCnt, int* readCn
 }
 
 void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, int* writeCnt) {
-    *refCnt = proxy->getBackingRefCnt_TestOnly();
-    *readCnt = proxy->getPendingReadCnt_TestOnly();
-    *writeCnt = proxy->getPendingWriteCnt_TestOnly();
+    *refCnt = proxy->getBackingRefCnt_TestOnly1();
+    *readCnt = proxy->getPendingReadCnt_TestOnly1();
+    *writeCnt = proxy->getPendingWriteCnt_TestOnly1();
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
