@@ -292,6 +292,15 @@ static bool parse_option_gpu_color(const SkString&      value,
     } else if (value.equals("888x")) {
         *outColorType  = kRGB_888x_SkColorType;
         *outColorSpace = nullptr;
+    } else if (value.equals("8888s")) {
+        *outColorType  = kRGBA_8888_SkColorType;
+        *outColorSpace = SkColorSpace::MakeSRGB();
+    } else if (value.equals("bgra8")) {
+        *outColorType  = kBGRA_8888_SkColorType;
+        *outColorSpace = nullptr;
+    } else if (value.equals("bgra8s")) {
+        *outColorType  = kBGRA_8888_SkColorType;
+        *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("4444")) {
         *outColorType  = kARGB_4444_SkColorType;
         *outColorSpace = nullptr;
