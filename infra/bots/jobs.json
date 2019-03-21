@@ -146,6 +146,7 @@
   "Housekeeper-Weekly-RecreateSKPs",
   "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android",
   "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android",
+  "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android_SkottieTracing",
   "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android",
   "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android",
   "Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android_NoGPUThreads",
