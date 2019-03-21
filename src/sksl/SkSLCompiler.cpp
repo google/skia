@@ -7,6 +7,7 @@
 
 #include "SkSLCompiler.h"
 
+#include "SkSLByteCodeGenerator.h"
 #include "SkSLCFGGenerator.h"
 #include "SkSLCPPCodeGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
@@ -1465,6 +1466,18 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
         *out = buffer.str();
     }
     return result;
+}
+
+std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
+    if (!this->optimize(program)) {
+        return nullptr;
+    }
+    std::unique_ptr<ByteCode> result(new ByteCode());
+    ByteCodeGenerator cg(fContext.get(), &program, this, result.get());
+    if (cg.generateCode()) {
+        return result;
+    }
+    return nullptr;
 }
 
 const char* Compiler::OperatorName(Token::Kind kind) {
