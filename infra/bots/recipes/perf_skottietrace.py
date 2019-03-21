@@ -3,10 +3,11 @@
 # found in the LICENSE file.
 
 # Recipe which runs DM with trace flag on lottie files and then parses the
-# trace output into perf.json files to ingest to perf.skia.org.
+# trace output into output JSON files to ingest to perf.skia.org.
 # Design doc: go/skottie-tracing
 
 
+import calendar
 import re
 import string
 
@@ -18,6 +19,7 @@ DEPS = [
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/step',
+  'recipe_engine/time',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
@@ -76,7 +78,7 @@ def perf_steps(api):
     perf_results[lottie_filename] = parse_trace(
         trace_file_content, lottie_filename, api)
 
-  # Construct contents of perf.json
+  # Construct contents of the output JSON.
   perf_json = {
       'gitHash': api.properties['revision'],
       'swarming_bot_id': api.vars.swarming_bot_id,
@@ -107,17 +109,21 @@ def perf_steps(api):
   for k in keys:
     perf_json['key'][k] = m.group(k)
 
-  # Create the perf.json file in perf_data_dir for the Upload task to upload.
+  # Create the output JSON file in perf_data_dir for the Upload task to upload.
   api.file.ensure_directory(
       'makedirs perf_dir',
       api.flavor.host_dirs.perf_data_dir)
+  now = api.time.utcnow()
+  ts = int(calendar.timegm(now.utctimetuple()))
+  json_path = api.flavor.host_dirs.perf_data_dir.join(
+      'perf_%s_%d.json' % (api.properties['revision'], ts))
   api.run(
       api.python.inline,
-      'write perf.json',
+      'write output JSON',
       program="""import json
 with open('%s', 'w') as outfile:
   json.dump(obj=%s, fp=outfile, indent=4)
-  """ % (api.flavor.host_dirs.perf_data_dir.join('perf.json'), perf_json))
+  """ % (json_path, perf_json))
 
 
 def get_trace_match(lottie_filename):
