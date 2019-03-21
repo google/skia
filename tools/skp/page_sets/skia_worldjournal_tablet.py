@@ -16,28 +16,20 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        shared_page_state_class=shared_page_state.Shared10InchTabletPageState)
-    self.archive_data_file = 'data/skia_gmail_nexus10.json'
-
-  def RunSmoothness(self, action_runner):
-    action_runner.ScrollElement()
-
-  def RunNavigateSteps(self, action_runner):
-    action_runner.Navigate(self.url)
-    action_runner.Wait(10)
+        shared_page_state_class=shared_page_state.SharedTabletPageState)
+    self.archive_data_file = 'data/skia_worldjournal_tablet.json'
 
 
-class SkiaGmailNexus10PageSet(story.StorySet):
-
+class SkiaWorldjournalTabletPageSet(story.StorySet):
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaGmailNexus10PageSet, self).__init__(
-      archive_data_file='data/skia_gmail_nexus10.json')
+    super(SkiaWorldjournalTabletPageSet, self).__init__(
+      archive_data_file='data/skia_worldjournal_tablet.json')
 
     urls_list = [
-      # Why: productivity, top google properties
-      'https://mail.google.com/mail/',
+      # Why: Chinese font test case
+      'http://worldjournal.com/',
     ]
 
     for url in urls_list:
