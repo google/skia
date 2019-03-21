@@ -72,10 +72,6 @@ public:
                    uint32_t id = kNeedNewImageUniqueID);
     ~SkImage_Raster() override;
 
-    SkImageInfo onImageInfo() const override {
-        return fBitmap.info();
-    }
-
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
@@ -93,7 +89,7 @@ public:
     bool onAsLegacyBitmap(SkBitmap*) const override;
 
     SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
-        : INHERITED(bm.width(), bm.height(),
+        : INHERITED(bm.info(),
                     is_not_subset(bm) ? bm.getGenerationID()
                                       : (uint32_t)kNeedNewImageUniqueID)
         , fBitmap(bm)
@@ -141,7 +137,7 @@ static void release_data(void* addr, void* context) {
 
 SkImage_Raster::SkImage_Raster(const SkImageInfo& info, sk_sp<SkData> data, size_t rowBytes,
                                uint32_t id)
-    : INHERITED(info.width(), info.height(), id)
+    : INHERITED(info, id)
 {
     void* addr = const_cast<void*>(data->data());
 
