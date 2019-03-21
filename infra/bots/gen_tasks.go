@@ -43,7 +43,6 @@ const (
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
 	DEFAULT_OS_MAC       = "Mac-10.13.6"
-	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
 	DEFAULT_PROJECT = "skia"
@@ -453,12 +452,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Mac":        DEFAULT_OS_MAC,
 			"Mac10.13":   DEFAULT_OS_MAC,
 			"Mac10.14":   "Mac-10.14.3",
-			"Ubuntu14":   DEFAULT_OS_UBUNTU,
-			"Ubuntu17":   "Ubuntu-17.04",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-17763.379",
-			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
@@ -472,7 +468,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["os"] = "Windows-10-16299.309"
 		}
 		if d["os"] == DEFAULT_OS_WIN {
-			// TODO(dogben): Temporarily add image dimension during upgrade.
+			// Upgrades result in a new image but not a new OS version.
 			d["image"] = "windows-server-2016-dc-v20190108"
 		}
 	} else {
