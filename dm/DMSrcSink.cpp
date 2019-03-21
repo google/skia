@@ -22,7 +22,6 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
-#include "SkColorSpaceXformCanvas.h"
 #include "SkData.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkDocument.h"
@@ -2011,61 +2010,6 @@ Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     }
 
     return check_against_reference(bitmap, src, fSink.get());
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ViaCSXform::ViaCSXform(Sink* sink, sk_sp<SkColorSpace> cs, bool colorSpin)
-    : Via(sink)
-    , fCS(std::move(cs))
-    , fColorSpin(colorSpin) {}
-
-Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    Error err = draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
-        {
-            SkAutoCanvasRestore acr(canvas, true);
-            auto proxy = SkCreateColorSpaceXformCanvas(canvas, fCS);
-            Error err = src.draw(proxy.get());
-            if (!err.isEmpty()) {
-                return err;
-            }
-        }
-
-        // Undo the color spin, so we can look at the pixels in Gold.
-        if (fColorSpin) {
-            SkBitmap pixels;
-            pixels.allocPixels(canvas->imageInfo());
-            canvas->readPixels(pixels, 0, 0);
-
-            SkPaint rotateColors;
-            SkScalar matrix[20] = { 0, 0, 1, 0, 0,   // B -> R
-                                    1, 0, 0, 0, 0,   // R -> G
-                                    0, 1, 0, 0, 0,   // G -> B
-                                    0, 0, 0, 1, 0 };
-            rotateColors.setBlendMode(SkBlendMode::kSrc);
-            rotateColors.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
-            canvas->drawBitmap(pixels, 0, 0, &rotateColors);
-        }
-
-        return Error("");
-    });
-
-    if (!err.isEmpty()) {
-        return err;
-    }
-
-    if (bitmap && !fColorSpin) {
-        // It should be possible to do this without all the copies, but that (I think) requires
-        // adding API to SkBitmap.
-        SkAutoPixmapStorage pmap;
-        pmap.alloc(bitmap->info());
-        bitmap->readPixels(pmap);
-        pmap.setColorSpace(fCS);
-        bitmap->allocPixels(pmap.info());
-        bitmap->writePixels(pmap);
-    }
-
-    return "";
 }
 
 }  // namespace DM
