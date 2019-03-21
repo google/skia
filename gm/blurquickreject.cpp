@@ -50,7 +50,7 @@ protected:
         SkASSERT(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(blurRects));
 
         SkPaint hairlinePaint;
-        hairlinePaint.setStyle(SkPaint::kStroke_Style);
+        hairlinePaint.setStroke(true);
         hairlinePaint.setColor(SK_ColorWHITE);
         hairlinePaint.setStrokeWidth(0);
 

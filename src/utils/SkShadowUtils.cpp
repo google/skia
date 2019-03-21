@@ -640,7 +640,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 SkPaint paint;
                 paint.setColor(rec.fAmbientColor);
                 paint.setStrokeWidth(strokeWidth);
-                paint.setStyle(SkPaint::kStrokeAndFill_Style);
+                paint.setStrokeAndFill();
                 SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
                 bool respectCTM = false;
                 paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));

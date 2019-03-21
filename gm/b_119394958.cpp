@@ -18,7 +18,7 @@ DEF_SIMPLE_GM(b_119394958, canvas, 100, 100) {
     paint.setAntiAlias(true);
     canvas->drawCircle(50, 50, 45, paint);
     paint.setColor(SK_ColorGREEN);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(5);
     canvas->drawCircle(50, 50, 35, paint);
     paint.setColor(SK_ColorRED);

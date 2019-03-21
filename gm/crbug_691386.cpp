@@ -15,7 +15,7 @@ DEF_SIMPLE_GM_CAN_FAIL(crbug_691386, canvas, errorMsg, 256, 256) {
         return skiagm::DrawResult::kFail;
     }
     SkPaint p;
-    p.setStyle(SkPaint::kStroke_Style);
+    p.setStroke(true);
     p.setStrokeWidth(0.025f);
     canvas->scale(96.0f, 96.0f);
     canvas->translate(1.25f, 1.25f);

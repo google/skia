@@ -206,7 +206,7 @@ protected:
                 SkPaint polyPaint;
                 polyPaint.setColor(0xffA0A0A0);
                 polyPaint.setStrokeWidth(0);
-                polyPaint.setStyle(SkPaint::kStroke_Style);
+                polyPaint.setStroke(true);
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, controlPts, polyPaint);
 
                 SkPaint choppedPtPaint;
@@ -226,7 +226,7 @@ protected:
                     SkPaint boundsPaint;
                     boundsPaint.setColor(0xff808080);
                     boundsPaint.setStrokeWidth(0);
-                    boundsPaint.setStyle(SkPaint::kStroke_Style);
+                    boundsPaint.setStroke(true);
                     canvas->drawRect(bounds, boundsPaint);
 
                     std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(context, gp, bounds,
@@ -407,7 +407,7 @@ protected:
                 SkPaint polyPaint;
                 polyPaint.setColor(0xffA0A0A0);
                 polyPaint.setStrokeWidth(0);
-                polyPaint.setStyle(SkPaint::kStroke_Style);
+                polyPaint.setStroke(true);
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, controlPts, polyPaint);
 
                 SkPaint choppedPtPaint;
@@ -426,7 +426,7 @@ protected:
                     SkPaint boundsPaint;
                     boundsPaint.setColor(0xff808080);
                     boundsPaint.setStrokeWidth(0);
-                    boundsPaint.setStyle(SkPaint::kStroke_Style);
+                    boundsPaint.setStroke(true);
                     canvas->drawRect(bounds, boundsPaint);
 
                     GrPaint grPaint;
