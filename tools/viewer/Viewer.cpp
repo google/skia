@@ -76,11 +76,11 @@ static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BA
 
 static DEFINE_int32(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
 
-DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
+static DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
 DECLARE_int32(threads)
 
-DEFINE_string2(file, f, "", "Open a single file for viewing.");
+static DEFINE_string2(file, f, "", "Open a single file for viewing.");
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",

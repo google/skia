@@ -15,7 +15,7 @@
 #include "SkShader.h"
 #include "SkString.h"
 
-DEFINE_double(strokeWidth, -1.0, "If set, use this stroke width in RectBench.");
+static DEFINE_double(strokeWidth, -1.0, "If set, use this stroke width in RectBench.");
 
 class RectBench : public Benchmark {
 public:

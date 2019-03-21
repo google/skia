@@ -20,13 +20,15 @@
 #define ENABLE_COMMAND_LINE_SHAPES_BENCH 0
 
 #if ENABLE_COMMAND_LINE_SHAPES_BENCH
-DEFINE_string(shapesType, "mixed", "Type of shape to use in ShapesBench. Must be one of: "
-                                   "rect, oval, rrect, mixed.");
-DEFINE_string(innerShapesType, "none", "Type of inner shape to use in ShapesBench. Must be one of: "
-                                       "none, rect, oval, rrect, mixed.");
-DEFINE_int32(numShapes, 10000, "Number of shapes to draw in ShapesBench.");
-DEFINE_string(shapesSize, "32x32", "Size of shapes to draw in ShapesBench.");
-DEFINE_bool(shapesPersp, false, "Use slight perspective tilt in ShapesBench?");
+static DEFINE_string(shapesType, "mixed",
+                     "Type of shape to use in ShapesBench. Must be one of: "
+                     "rect, oval, rrect, mixed.");
+static DEFINE_string(innerShapesType, "none",
+                     "Type of inner shape to use in ShapesBench. Must be one of: "
+                     "none, rect, oval, rrect, mixed.");
+static DEFINE_int32(numShapes, 10000, "Number of shapes to draw in ShapesBench.");
+static DEFINE_string(shapesSize, "32x32", "Size of shapes to draw in ShapesBench.");
+static DEFINE_bool(shapesPersp, false, "Use slight perspective tilt in ShapesBench?");
 #endif
 
 /*
