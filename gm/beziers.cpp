@@ -69,7 +69,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         paint.setStrokeWidth(SkIntToScalar(9)/2);
         paint.setAntiAlias(true);
 

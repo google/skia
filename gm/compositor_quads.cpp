@@ -126,7 +126,7 @@ static void draw_tile_boundaries(SkCanvas* canvas, const SkMatrix& local) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(0.f);
     for (int x = 1; x < kColCount; ++x) {
         SkPoint pts[] = {{x * kTileWidth, 0}, {x * kTileWidth, kRowCount * kTileHeight}};
@@ -143,7 +143,7 @@ static void draw_clipping_boundaries(SkCanvas* canvas, const SkMatrix& local) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorGREEN);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStroke(true);
     paint.setStrokeWidth(0.f);
 
     // Clip the "infinite" line segments to a rectangular region outside the tile grid

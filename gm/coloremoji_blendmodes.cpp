@@ -127,12 +127,12 @@ protected:
             r.set(x, y, x+w, y+h);
 
             SkPaint p;
-            p.setStyle(SkPaint::kFill_Style);
+            p.setStroke(false);
             p.setShader(s);
             canvas->drawRect(r, p);
 
             r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
-            p.setStyle(SkPaint::kStroke_Style);
+            p.setStroke(true);
             p.setShader(nullptr);
             canvas->drawRect(r, p);
 

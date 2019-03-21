@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(check_small_sigma_offset, canvas, 200, 1200) {
         b.inset(0.5f, 0.5f);
         SkPaint p;
         p.setColor(SK_ColorRED);
-        p.setStyle(SkPaint::Style::kStroke_Style);
+        p.setStroke(true);
 
         canvas->drawRect(b, p);
 

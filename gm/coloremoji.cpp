@@ -158,7 +158,7 @@ protected:
 
         SkPaint clipHairline;
         clipHairline.setColor(SK_ColorWHITE);
-        clipHairline.setStyle(SkPaint::kStroke_Style);
+        clipHairline.setStroke(true);
 
         SkPaint paint;
         for (const SkRect& clipRect : clipRects) {

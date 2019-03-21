@@ -199,7 +199,7 @@ void MarkGMGood(SkCanvas* canvas, SkScalar x, SkScalar y) {
         paint.setBlendMode(SkBlendMode::kSrc);
         paint.setColor(0x00000000);
         paint.setStrokeWidth(2);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         canvas->drawLine(-6, 0,
                          -1, 5, paint);
         canvas->drawLine(-1, +5,
@@ -219,7 +219,7 @@ void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
         paint.setBlendMode(SkBlendMode::kSrc);
         paint.setColor(0x00000000);
         paint.setStrokeWidth(2);
-        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStroke(true);
         canvas->drawLine(-5,-5,
                          +5,+5, paint);
         canvas->drawLine(+5,-5,

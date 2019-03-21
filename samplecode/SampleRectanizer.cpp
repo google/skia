@@ -92,7 +92,7 @@ protected:
         SkFont blackBigFont;
         blackBigFont.setSize(20);
         SkPaint blackStroke;
-        blackStroke.setStyle(SkPaint::kStroke_Style);
+        blackStroke.setStroke(true);
         SkPaint redFill;
         redFill.setColor(SK_ColorRED);
 
