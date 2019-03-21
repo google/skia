@@ -7,7 +7,6 @@
 
 #include "SkColorMatrixFilter.h"
 #include "SkColorSpace.h"
-#include "SkColorSpaceXformer.h"
 #include "SkEffectPriv.h"
 
 #if SK_SUPPORT_GPU
@@ -28,7 +27,7 @@ static SkScalar byte_to_scale(U8CPU byte) {
 // to onMakeColorSpace() a new filter.
 class SkLightingColorFilter : public SkColorFilter {
 public:
-    SkLightingColorFilter(SkColor mul, SkColor add) : fMul(mul), fAdd(add) {
+    SkLightingColorFilter(SkColor mul, SkColor add) {
         SkColorMatrix matrix;
         matrix.setScale(byte_to_scale(SkColorGetR(mul)),
                         byte_to_scale(SkColorGetG(mul)),
@@ -39,15 +38,6 @@ public:
                              SkIntToScalar(SkColorGetB(add)),
                              0);
         fMatrixFilter = SkColorFilter::MakeMatrixFilterRowMajor255(matrix.fMat);
-    }
-
-    // Overriding this method is the class' raison d'etre.
-    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        SkColor add = xformer->apply(fAdd);
-        if (add != fAdd) {
-            return sk_make_sp<SkLightingColorFilter>(fMul, add);
-        }
-        return this->INHERITED::onMakeColorSpace(xformer);
     }
 
     // Let fMatrixFilter handle all the other calls directly.
@@ -77,7 +67,6 @@ private:
     Factory      getFactory() const override { return fMatrixFilter->getFactory(); }
     const char* getTypeName() const override { return fMatrixFilter->getTypeName(); }
 
-    SkColor              fMul, fAdd;
     sk_sp<SkColorFilter> fMatrixFilter;
 
     typedef SkColorFilter INHERITED;
