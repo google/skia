@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2019-03-21
+
 ### Added
  - `SkPathMeasure`, `RSXFormBuilder`, `SkFont.getWidths`, `SkTextBlob.MakeFromRSXform`
    which were needed to add the helper function `SkTextBlob.MakeOnPath`.
@@ -21,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Fallback to CPU now properly refreshes the canvas to get access to the
    CanvasRenderingContext2D.
  - Compile flags for better WebGL1 support for some graphics cards.
+ - Antialias bug on large oval paths <https://crbug.com/skia/8873>
 
 ### Deprecated
  - `SkCanvas.flush` will be removed soon - client should only call `SkSurface.flush`
