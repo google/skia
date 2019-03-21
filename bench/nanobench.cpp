@@ -103,39 +103,42 @@ static SkString to_string(int n) {
     return str;
 }
 
-DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
+static DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 
-DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
-DEFINE_int32(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
-DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
-DEFINE_double(overheadGoal, 0.0001,
+static DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
+static DEFINE_int32(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
+static DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
+static DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
-DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
-DEFINE_int32(gpuFrameLag, 5, "If unknown, estimated maximum number of frames GPU allows to lag.");
+static DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
+static DEFINE_int32(gpuFrameLag, 5,
+                    "If unknown, estimated maximum number of frames GPU allows to lag.");
 
-DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
-DEFINE_int32(maxCalibrationAttempts, 3,
+static DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
+static DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
-DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
-DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
-DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
-DEFINE_string(zoom, "1.0,0", "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
-                             "function that ping-pongs between 1.0 and zoomMax.");
-DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
-DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
-DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
-DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
-DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
-DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
-DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
-DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
-DEFINE_bool(csv, false, "Print status in CSV format");
-DEFINE_string(sourceType, "",
+static DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
+static DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
+static DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
+static DEFINE_string(zoom, "1.0,0",
+                     "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
+                     "function that ping-pongs between 1.0 and zoomMax.");
+static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
+static DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
+static DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
+static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
+static DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
+static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
+static DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
+static DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
+static DEFINE_bool(csv, false, "Print status in CSV format");
+static DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
-DEFINE_string(benchType,  "",
-        "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
+static DEFINE_string(benchType,  "",
+        "Apply usual --match rules to bench type: micro, recording, "
+        "piping, playback, skcodec, etc.");
 
-DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 

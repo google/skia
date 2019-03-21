@@ -59,17 +59,17 @@
 
 extern bool gSkForceRasterPipelineBlitter;
 
-DEFINE_string(src, "tests gm skp image", "Source types to test.");
-DEFINE_bool(nameByHash, false,
-            "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
-            "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");
-DEFINE_bool2(pathOpsExtended, x, false, "Run extended pathOps tests.");
-DEFINE_string(matrix, "1 0 0 1",
-              "2x2 scale+skew matrix to apply or upright when using "
-              "'matrix' or 'upright' in config.");
-DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
+static DEFINE_string(src, "tests gm skp image", "Source types to test.");
+static DEFINE_bool(nameByHash, false,
+                   "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
+                   "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");
+static DEFINE_bool2(pathOpsExtended, x, false, "Run extended pathOps tests.");
+static DEFINE_string(matrix, "1 0 0 1",
+                    "2x2 scale+skew matrix to apply or upright when using "
+                    "'matrix' or 'upright' in config.");
+static DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
-DEFINE_string(blacklist, "",
+static DEFINE_string(blacklist, "",
         "Space-separated config/src/srcOptions/name quadruples to blacklist. "
         "'_' matches anything. '~' negates the match. E.g. \n"
         "'--blacklist gpu skp _ _' will blacklist all SKPs drawn into the gpu config.\n"
@@ -77,31 +77,32 @@ DEFINE_string(blacklist, "",
         "'--blacklist ~8888 svg _ svgparse_' blocks non-8888 SVGs that contain \"svgparse_\" in "
                                             "the name.");
 
-DEFINE_string2(readPath, r, "", "If set check for equality with golden results in this directory.");
+static DEFINE_string2(readPath, r, "",
+                      "If set check for equality with golden results in this directory.");
 
-DEFINE_string(uninterestingHashesFile, "",
+static DEFINE_string(uninterestingHashesFile, "",
         "File containing a list of uninteresting hashes. If a result hashes to something in "
         "this list, no image is written for that result.");
 
-DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
-DEFINE_int32(shard,  0, "Which shard do I run?");
+static DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
+static DEFINE_int32(shard,  0, "Which shard do I run?");
 
-DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
-DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
+static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
-DEFINE_string(bisect, "",
+static DEFINE_string(bisect, "",
         "Pair of: SKP file to bisect, followed by an l/r bisect trail string (e.g., 'lrll'). The "
         "l/r trail specifies which half to keep at each step of a binary search through the SKP's "
         "paths. An empty string performs no bisect. Only the SkPaths are bisected; all other draws "
         "are thrown out. This is useful for finding a reduced repo case for path drawing bugs.");
 
-DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
+static DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
-DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
+static DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
 
-DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
+static DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
 
-DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
+static DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;

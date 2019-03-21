@@ -13,7 +13,7 @@
 #include "SkString.h"
 #include "SkTime.h"
 
-DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
+static DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
 
 void skiatest::Reporter::bumpTestCount() {}
 

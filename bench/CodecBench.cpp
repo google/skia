@@ -13,7 +13,8 @@
 #include "SkOSFile.h"
 
 // Actually zeroing the memory would throw off timing, so we just lie.
-DEFINE_bool(zero_init, false, "Pretend our destination is zero-intialized, simulating Android?");
+static DEFINE_bool(zero_init, false,
+                   "Pretend our destination is zero-intialized, simulating Android?");
 
 CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType,
         SkAlphaType alphaType)

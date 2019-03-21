@@ -79,9 +79,9 @@
 
 #include "../third_party/skcms/skcms.h"
 
-DEFINE_bool(multiPage, false, "For document-type backends, render the source"
-            " into multiple pages");
-DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
+static DEFINE_bool(multiPage, false,
+                   "For document-type backends, render the source into multiple pages");
+static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
 
 using sk_gpu_test::GrContextFactory;
 
@@ -1323,7 +1323,7 @@ static Error compare_bitmaps(const SkBitmap& reference, const SkBitmap& bitmap) 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
+static DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  GrContextFactory::ContextOverrides overrides,
@@ -1346,7 +1346,7 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
         , fThreaded(threaded)
         , fBaseContextOptions(grCtxOptions) {}
 
-DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
+static DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
@@ -1712,7 +1712,7 @@ static Error draw_to_canvas(Sink* sink, SkBitmap* bitmap, SkWStream* stream, SkS
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DEFINE_bool(check, true, "If true, have most Via- modes fail if they affect the output.");
+static DEFINE_bool(check, true, "If true, have most Via- modes fail if they affect the output.");
 
 // Is *bitmap identical to what you get drawing src into sink?
 static Error check_against_reference(const SkBitmap* bitmap, const Src& src, Sink* sink) {

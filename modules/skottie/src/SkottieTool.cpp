@@ -19,16 +19,16 @@
 
 #include <vector>
 
-DEFINE_string2(input    , i, nullptr, "Input .json file.");
-DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
-DEFINE_string2(format   , f, "png"  , "Output format (png or skp)");
+static DEFINE_string2(input    , i, nullptr, "Input .json file.");
+static DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
+static DEFINE_string2(format   , f, "png"  , "Output format (png or skp)");
 
-DEFINE_double(t0,   0, "Timeline start [0..1].");
-DEFINE_double(t1,   1, "Timeline stop [0..1].");
-DEFINE_double(fps, 30, "Decode frames per second.");
+static DEFINE_double(t0,   0, "Timeline start [0..1].");
+static DEFINE_double(t1,   1, "Timeline stop [0..1].");
+static DEFINE_double(fps, 30, "Decode frames per second.");
 
-DEFINE_int32(width , 800, "Render width.");
-DEFINE_int32(height, 600, "Render height.");
+static DEFINE_int32(width , 800, "Render width.");
+static DEFINE_int32(height, 600, "Render height.");
 
 namespace {
 
