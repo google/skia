@@ -187,6 +187,9 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         const GrBackendFormat format =
                 ctx->priv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
                                                                            GrSRGBEncoded::kNo);
+        if (!format.isValid()) {
+            return;
+        }
         sk_sp<GrRenderTargetContext> ccbuff =
                 ctx->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox,
                                                                    this->width(), this->height(),
