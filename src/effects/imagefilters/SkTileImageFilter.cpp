@@ -6,7 +6,6 @@
  */
 
 #include "SkTileImageFilter.h"
-#include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkImageFilterPriv.h"
@@ -115,16 +114,6 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     offset->fX = dstIRect.fLeft;
     offset->fY = dstIRect.fTop;
     return surf->makeImageSnapshot();
-}
-
-sk_sp<SkImageFilter> SkTileImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkASSERT(1 == this->countInputs());
-
-    auto input = xformer->apply(this->getInput(0));
-    if (input.get() != this->getInput(0)) {
-        return SkTileImageFilter::Make(fSrcRect, fDstRect, std::move(input));
-    }
-    return this->refMe();
 }
 
 SkIRect SkTileImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,

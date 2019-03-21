@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformer.h"
 #include "SkRadialGradient.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -57,13 +56,6 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter);
     buffer.writeScalar(fRadius);
-}
-
-sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    const AutoXformColors xformedColors(*this, xformer);
-    return SkGradientShader::MakeRadial(fCenter, fRadius, xformedColors.fColors.get(), fOrigPos,
-                                        fColorCount, fTileMode, fGradFlags,
-                                        &this->getLocalMatrix());
 }
 
 void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
