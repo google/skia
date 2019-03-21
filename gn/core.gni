@@ -20,7 +20,6 @@ skia_core_public = [
   "$_include/core/SkColorFilter.h",
   "$_include/core/SkColorPriv.h",
   "$_include/core/SkColorSpace.h",
-  "$_include/core/SkColorSpaceXformCanvas.h",
   "$_include/core/SkContourMeasure.h",
   "$_include/core/SkCoverageMode.h",
   "$_include/core/SkCubicMap.h",
@@ -157,10 +156,7 @@ skia_core_sources = [
   "$_src/core/SkColorMatrixFilterRowMajor255.cpp",
   "$_src/core/SkColorMatrixFilterRowMajor255.h",
   "$_src/core/SkColorSpace.cpp",
-  "$_src/core/SkColorSpaceXformCanvas.cpp",
   "$_src/core/SkColorSpaceXformSteps.cpp",
-  "$_src/core/SkColorSpaceXformer.cpp",
-  "$_src/core/SkColorSpaceXformer.h",
   "$_src/core/SkContourMeasure.cpp",
   "$_src/core/SkConvertPixels.cpp",
   "$_src/core/SkConvertPixels.h",
@@ -484,9 +480,7 @@ skia_core_sources = [
   "$_include/private/SkWeakRefCnt.h",
 ]
 
-skia_pathops_public = [
-  "$_include/pathops/SkPathOps.h",
-]
+skia_pathops_public = [ "$_include/pathops/SkPathOps.h" ]
 
 skia_pathops_sources = [
   "$_src/pathops/SkAddIntersections.cpp",

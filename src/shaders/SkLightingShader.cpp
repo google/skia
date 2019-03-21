@@ -9,7 +9,6 @@
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
-#include "SkColorSpaceXformer.h"
 #include "SkEmptyShader.h"
 #include "SkLightingShader.h"
 #include "SkMathPriv.h"
@@ -85,7 +84,6 @@ protected:
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkLightingShaderImpl)
@@ -472,13 +470,6 @@ SkShaderBase::Context* SkLightingShaderImpl::onMakeContext(
     return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
 }
 #endif
-
-sk_sp<SkShader> SkLightingShaderImpl::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    sk_sp<SkShader> xformedDiffuseShader =
-            fDiffuseShader ? xformer->apply(fDiffuseShader.get()) : nullptr;
-    return SkLightingShader::Make(std::move(xformedDiffuseShader), fNormalSource,
-                                  fLights->makeColorSpace(xformer));
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

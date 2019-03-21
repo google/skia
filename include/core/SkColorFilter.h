@@ -18,7 +18,6 @@ class GrFragmentProcessor;
 class GrRecordingContext;
 class SkBitmap;
 class SkColorSpace;
-class SkColorSpaceXformer;
 struct SkStageRec;
 class SkString;
 
@@ -168,13 +167,6 @@ public:
 protected:
     SkColorFilter() {}
 
-    sk_sp<SkColorFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
-        return this->onMakeColorSpace(xformer);
-    }
-    virtual sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
-        return sk_ref_sp(const_cast<SkColorFilter*>(this));
-    }
-
     /**
      *  If this subclass can optimally createa composition with the inner filter, return it as
      *  a new filter (which the caller must unref() when it is done). If no such optimization
@@ -196,7 +188,6 @@ private:
 
     virtual void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
-    friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
 
     typedef SkFlattenable INHERITED;

@@ -7,7 +7,6 @@
 
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkNx.h"
 #include "SkReadBuffer.h"
@@ -78,8 +77,6 @@ protected:
     }
 
     void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
-
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(ArithmeticImageFilterImpl)
@@ -431,19 +428,6 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
             proc(fK, dst.writable_addr32(r.fLeft, y), r.width());
         }
     }
-}
-
-sk_sp<SkImageFilter> ArithmeticImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
-const {
-    SkASSERT(2 == this->countInputs());
-    auto background = xformer->apply(this->getInput(0));
-    auto foreground = xformer->apply(this->getInput(1));
-    if (background.get() != this->getInput(0) || foreground.get() != this->getInput(1)) {
-        return SkArithmeticImageFilter::Make(fK[0], fK[1], fK[2], fK[3], fEnforcePMColor,
-                                             std::move(background), std::move(foreground),
-                                             getCropRectIfSet());
-    }
-    return this->refMe();
 }
 
 sk_sp<SkImageFilter> SkArithmeticImageFilter::Make(float k1, float k2, float k3, float k4,
