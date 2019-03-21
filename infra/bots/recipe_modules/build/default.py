@@ -293,6 +293,8 @@ def compile_fn(api, checkout_root, out_dir):
               'fetch-clang-format',
               script=skia_dir.join('bin', 'fetch-clang-format'),
               infra_step=True)
+      api.run(api.step, 'cp clang-format .clang-format',
+              cmd=['cp', 'clang-format', '.clang-format'])
 
     with api.env(env):
       api.run(api.step, 'gn gen',

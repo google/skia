@@ -3,6 +3,7 @@
 *.iml
 .DS_Store
 .android_config
+.clang-format
 .deps_sha1
 .gclient*
 .gm-actuals
