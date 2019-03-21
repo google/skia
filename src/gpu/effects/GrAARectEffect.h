@@ -14,28 +14,32 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrAARectEffect : public GrFragmentProcessor {
-public:
-    const GrClipEdgeType&                       edgeType() const { return fEdgeType; }
-    const SkRect&                               rect() const { return fRect; }
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkRect rect) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrAARectEffect(edgeType, rect));
-    }
-    GrAARectEffect(const GrAARectEffect& src);
-    std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char*                          name() const override { return "AARectEffect"; }
+ public:
+  const GrClipEdgeType& edgeType() const { return fEdgeType; }
+  const SkRect& rect() const { return fRect; }
+  static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType,
+                                                   SkRect rect) {
+    return std::unique_ptr<GrFragmentProcessor>(
+        new GrAARectEffect(edgeType, rect));
+  }
+  GrAARectEffect(const GrAARectEffect& src);
+  std::unique_ptr<GrFragmentProcessor> clone() const override;
+  const char* name() const override { return "AARectEffect"; }
 
-private:
-    GrAARectEffect(GrClipEdgeType edgeType, SkRect rect)
-            : INHERITED(kGrAARectEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , fEdgeType(edgeType)
-            , fRect(rect) {}
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
-    bool onIsEqual(const GrFragmentProcessor&) const override;
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    GrClipEdgeType              fEdgeType;
-    SkRect                      fRect;
-    typedef GrFragmentProcessor INHERITED;
+ private:
+  GrAARectEffect(GrClipEdgeType edgeType, SkRect rect)
+      : INHERITED(
+            kGrAARectEffect_ClassID,
+            (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag),
+        fEdgeType(edgeType),
+        fRect(rect) {}
+  GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+  void onGetGLSLProcessorKey(const GrShaderCaps&,
+                             GrProcessorKeyBuilder*) const override;
+  bool onIsEqual(const GrFragmentProcessor&) const override;
+  GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+  GrClipEdgeType fEdgeType;
+  SkRect fRect;
+  typedef GrFragmentProcessor INHERITED;
 };
 #endif

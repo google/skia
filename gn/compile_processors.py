@@ -17,11 +17,13 @@ for p in processors:
     print("Recompiling " + p + "...")
     try:
         subprocess.check_output([skslc, p, path + ".h"])
-        subprocess.check_call(clangFormat + " --sort-includes=false -i \"" +
-                              path + ".h\"", shell=True)
+        subprocess.check_call(clangFormat + " -style=Google" +
+                              " --sort-includes=false -i \"" + path + ".h\"",
+                              shell=True)
         subprocess.check_output([skslc, p, path + ".cpp"])
-        subprocess.check_call(clangFormat + " --sort-includes=false -i \"" +
-                              path + ".cpp\"", shell=True)
+        subprocess.check_call(clangFormat + " -style=Google" +
+                              " --sort-includes=false -i \"" + path + ".cpp\"",
+                              shell=True)
     except subprocess.CalledProcessError as err:
         print("### Error compiling " + p + ":")
         print(err.output)

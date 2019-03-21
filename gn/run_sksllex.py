@@ -16,10 +16,10 @@ try:
     subprocess.check_output([sksllex, src + "/sksl/lex/sksl.lex", "Lexer",
                              "Token", src + "/sksl/SkSLLexer.h", src +
                              "/sksl/SkSLLexer.cpp"])
-    subprocess.check_call(clangFormat + " -i \"" + src + "/sksl/SkSLLexer.h\"",
-                          shell=True)
-    subprocess.check_call(clangFormat + " -i \"" + src +
-                          "/sksl/SkSLLexer.cpp\"", shell=True)
+    subprocess.check_call(clangFormat + " -style=Google" +
+                          " -i \"" + src + "/sksl/SkSLLexer.h\"", shell=True)
+    subprocess.check_call(clangFormat + " -style=Google" +
+                          " -i \"" + src + "/sksl/SkSLLexer.cpp\"", shell=True)
 except subprocess.CalledProcessError as err:
     print("### Lexer error:")
     print(err.output)
