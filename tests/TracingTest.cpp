@@ -13,7 +13,8 @@
 #include "SkTraceEvent.h"
 #include "Test.h"
 
-DEFINE_bool(slowTracingTest, false, "Artificially slow down tracing test to produce nicer JSON");
+static DEFINE_bool(slowTracingTest, false,
+                   "Artificially slow down tracing test to produce nicer JSON");
 
 namespace {
 

@@ -79,7 +79,7 @@
 #include <iostream>
 #include <utility>
 
-DEFINE_bool2(gpuInfo, g, false, "Display GPU information on relevant targets.");
+static DEFINE_bool2(gpuInfo, g, false, "Display GPU information on relevant targets.");
 
 // TODO:
 //   SkTextBlob with Unicode

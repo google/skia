@@ -15,8 +15,8 @@
 #include "SkString.h"
 #include "SkSurface.h"
 
-DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
-DEFINE_string2(text, t, "Hello", "The string to write.");
+static DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
+static DEFINE_string2(text, t, "Hello", "The string to write.");
 
 static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
     SkRect bounds = canvas->getLocalClipBounds();

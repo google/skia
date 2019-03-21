@@ -13,26 +13,26 @@
 #include "includeWriter.h"
 #include "selfCheck.h"
 
-DEFINE_string2(status, a, "", "File containing status of documentation. (Use in place of -b -i)");
-DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
-DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
-DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
-DEFINE_bool2(extract, E, false, "Extract examples into fiddle.json");
-DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
-DEFINE_bool2(hack, H, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
+static DEFINE_string2(status, a, "", "File containing status of documentation. (Use in place of -b -i)");
+static DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
+static DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
+static DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
+static DEFINE_bool2(extract, E, false, "Extract examples into fiddle.json");
+static DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
+static DEFINE_bool2(hack, H, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 // h is reserved for help
-DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
-DEFINE_bool2(selfcheck, k, false, "Check bmh against itself. (Requires -b)");
-DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
-DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
+static DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
+static DEFINE_bool2(selfcheck, k, false, "Check bmh against itself. (Requires -b)");
+static DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
+static DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 // q is reserved for quiet
-DEFINE_string2(ref, r, "", "Resolve refs and write *.md files to path. (Requires -b -f)");
-DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
-DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -i)");
-DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
+static DEFINE_string2(ref, r, "", "Resolve refs and write *.md files to path. (Requires -b -f)");
+static DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
+static DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -i)");
+static DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 // v is reserved for verbose
-DEFINE_bool2(validate, V, false, "Validate that all anchor references have definitions. (Requires -r)");
-DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
+static DEFINE_bool2(validate, V, false, "Validate that all anchor references have definitions. (Requires -r)");
+static DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
 // -b docs -i include/core/SkRect.h -f fiddleout.json -r site/user/api
 // -b docs/SkIRect_Reference.bmh -H

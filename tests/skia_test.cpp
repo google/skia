@@ -25,14 +25,14 @@
 using namespace skiatest;
 using namespace sk_gpu_test;
 
-DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.");
-DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
-DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
-DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
-DEFINE_string2(json, J, "", "write json version of tests.");
+static DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.");
+static DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+static DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
+static DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
+static DEFINE_string2(json, J, "", "write json version of tests.");
 
 #if DEBUG_COIN
-DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
+static DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
 #endif
 
 // need to explicitly declare this, or we get some weird infinite loop llist

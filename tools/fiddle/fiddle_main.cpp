@@ -17,8 +17,10 @@
 
 #include "fiddle_main.h"
 
-DEFINE_double(duration, 1.0, "The total duration, in seconds, of the animation we are drawing.");
-DEFINE_double(frame, 1.0, "A double value in [0, 1] that specifies the point in animation to draw.");
+static DEFINE_double(duration, 1.0,
+                     "The total duration, in seconds, of the animation we are drawing.");
+static DEFINE_double(frame, 1.0,
+                     "A double value in [0, 1] that specifies the point in animation to draw.");
 
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"

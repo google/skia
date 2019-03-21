@@ -15,7 +15,7 @@
 
 #include "microhttpd.h"
 
-DEFINE_string(source, "https://debugger-assets.skia.org", "Where to load the web UI from.");
+static DEFINE_string(source, "https://debugger-assets.skia.org", "Where to load the web UI from.");
 
 static SkString generate_template(SkString source) {
     SkString debuggerTemplate;

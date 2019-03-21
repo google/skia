@@ -22,14 +22,15 @@
 #include <iostream>
 #include <map>
 
-DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
-DEFINE_string2(out, o, "img-out", "A path to an output directory.");
-DEFINE_bool(testDecode, false, "Indicates if we want to test that the images decode successfully.");
-DEFINE_bool(writeImages, true,
-            "Indicates if we want to write out supported/decoded images.");
-DEFINE_bool(writeFailedImages, false,
-            "Indicates if we want to write out unsupported/failed to decode images.");
-DEFINE_string2(failuresJsonPath, j, "",
+static DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
+static DEFINE_string2(out, o, "img-out", "A path to an output directory.");
+static DEFINE_bool(testDecode, false,
+                   "Indicates if we want to test that the images decode successfully.");
+static DEFINE_bool(writeImages, true,
+                   "Indicates if we want to write out supported/decoded images.");
+static DEFINE_bool(writeFailedImages, false,
+                   "Indicates if we want to write out unsupported/failed to decode images.");
+static DEFINE_string2(failuresJsonPath, j, "",
                "Dump SKP and count of unknown images to the specified JSON file. Will not be "
                "written anywhere if empty.");
 

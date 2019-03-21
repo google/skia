@@ -14,7 +14,7 @@
 #include "SkEventTracer.h"
 #include "SkTraceEvent.h"
 
-DEFINE_string(trace,
+static DEFINE_string(trace,
               "",
               "Log trace events in one of several modes:\n"
               "  debugf     : Show events using SkDebugf\n"
@@ -23,7 +23,7 @@ DEFINE_string(trace,
               "               trace events to specified file as JSON, for viewing\n"
               "               with chrome://tracing");
 
-DEFINE_string(traceMatch,
+static DEFINE_string(traceMatch,
               "",
               "Filter which categories are traced.\n"
               "Uses same format as --match\n");

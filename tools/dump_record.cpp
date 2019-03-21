@@ -17,13 +17,14 @@
 
 #include <stdio.h>
 
-DEFINE_string2(skps, r, "", ".SKPs to dump.");
-DEFINE_string(match, "", "The usual filters on file names to dump.");
-DEFINE_bool2(optimize, O, false, "Run SkRecordOptimize before dumping.");
-DEFINE_bool(optimize2, false, "Run SkRecordOptimize2 before dumping.");
-DEFINE_int32(tile, 1000000000, "Simulated tile size.");
-DEFINE_bool(timeWithCommand, false, "If true, print time next to command, else in first column.");
-DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
+static DEFINE_string2(skps, r, "", ".SKPs to dump.");
+static DEFINE_string(match, "", "The usual filters on file names to dump.");
+static DEFINE_bool2(optimize, O, false, "Run SkRecordOptimize before dumping.");
+static DEFINE_bool(optimize2, false, "Run SkRecordOptimize2 before dumping.");
+static DEFINE_int32(tile, 1000000000, "Simulated tile size.");
+static DEFINE_bool(timeWithCommand, false,
+                   "If true, print time next to command, else in first column.");
+static DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
 
 static void dump(const char* name, int w, int h, const SkRecord& record) {
     SkBitmap bitmap;

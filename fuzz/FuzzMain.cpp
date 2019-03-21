@@ -30,13 +30,13 @@
 #include <regex>
 #include <signal.h>
 
-DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
-        "contents will be used as the fuzz bytes. If a directory, all files "
-        "in the directory will be used as fuzz bytes for the fuzzer, one at a "
-        "time.");
-DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
-DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
-        "PNG with this name.");
+static DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
+                      "contents will be used as the fuzz bytes. If a directory, all files "
+                      "in the directory will be used as fuzz bytes for the fuzzer, one at a "
+                      "time.");
+static DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
+static DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
+                                   "PNG with this name.");
 DEFINE_bool2(verbose, v, false, "Print more information while fuzzing.");
 
 // This cannot be inlined in DEFINE_string2 due to interleaved ifdefs
@@ -64,7 +64,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
 #endif
                                          "textblob";
 
-DEFINE_string2(type, t, "", g_type_message);
+static DEFINE_string2(type, t, "", g_type_message);
 
 static int fuzz_file(SkString path, SkString type);
 static uint8_t calculate_option(SkData*);

@@ -17,7 +17,7 @@
 #include "SkTime.h"
 #include "Test.h"
 
-DEFINE_bool(timeout, true, "run until alloted time expires");
+static DEFINE_bool(timeout, true, "run until alloted time expires");
 
 #define MS_TEST_DURATION 10
 

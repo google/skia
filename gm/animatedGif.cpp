@@ -19,7 +19,7 @@
 
 #include <vector>
 
-DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
+static DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
 class AnimatedGifGM : public skiagm::GM {
 private:
