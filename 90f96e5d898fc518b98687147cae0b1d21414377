@@ -22,6 +22,30 @@
       "revId": "90f96e5d898fc518b98687147cae0b1d21414377",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57a3cd1f_314bf2f4",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-21T16:18:31Z",
+      "side": 1,
+      "message": "I think I\u0027ve done a better job of explaining this by moving things around, renaming things, and documenting parameters. Let me know if patch set 6 is easier to understand.",
+      "parentUuid": "e966431f_6d435fea",
+      "range": {
+        "startLine": 598,
+        "startChar": 28,
+        "endLine": 598,
+        "endChar": 61
+      },
+      "revId": "90f96e5d898fc518b98687147cae0b1d21414377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
