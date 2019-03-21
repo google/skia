@@ -177,13 +177,6 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fRadius2);
 }
 
-sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    const AutoXformColors xformedColors(*this, xformer);
-    return SkGradientShader::MakeTwoPointConical(fCenter1, fRadius1, fCenter2, fRadius2,
-                                                 xformedColors.fColors.get(), fOrigPos, fColorCount,
-                                                 fTileMode, fGradFlags, &this->getLocalMatrix());
-}
-
 void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                                      SkRasterPipeline* postPipeline) const {
     const auto dRadius = fRadius2 - fRadius1;

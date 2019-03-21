@@ -18,7 +18,6 @@
 
 class  SkArenaAlloc;
 class  SkCanvas;
-class  SkColorSpaceXformer;
 class  SkPaint;
 struct SkRect;
 class  SkString;
@@ -113,16 +112,9 @@ public:
     }
 
 protected:
-    sk_sp<SkDrawLooper> makeColorSpace(SkColorSpaceXformer* xformer) const {
-        return this->onMakeColorSpace(xformer);
-    }
-    virtual sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const = 0;
-
     SkDrawLooper() {}
 
 private:
-    friend class SkColorSpaceXformer;
-
     typedef SkFlattenable INHERITED;
 };
 

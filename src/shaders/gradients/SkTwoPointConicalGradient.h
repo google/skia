@@ -8,7 +8,6 @@
 #ifndef SkTwoPointConicalGradient_DEFINED
 #define SkTwoPointConicalGradient_DEFINED
 
-#include "SkColorSpaceXformer.h"
 #include "SkGradientShaderPriv.h"
 
 class SkTwoPointConicalGradient final : public SkGradientShaderBase {
@@ -66,7 +65,6 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;

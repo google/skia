@@ -21,11 +21,9 @@
 #endif
 
 class GrContext;
-class GrColorSpaceInfo;
 class GrFragmentProcessor;
 class SkArenaAlloc;
 class SkColorSpace;
-class SkColorSpaceXformer;
 class SkImage;
 struct SkImageInfo;
 class SkPaint;
@@ -152,13 +150,6 @@ public:
      */
     bool asLuminanceColor(SkColor*) const;
 
-    /**
-     *  Returns a shader transformed into a new color space via the |xformer|.
-     */
-    sk_sp<SkShader> makeColorSpace(SkColorSpaceXformer* xformer) const {
-        return this->onMakeColorSpace(xformer);
-    }
-
     // If this returns false, then we draw nothing (do not fall back to shader context)
     bool appendStages(const SkStageRec&) const;
 
@@ -211,10 +202,6 @@ protected:
 
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
-    }
-
-    virtual sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer*) const {
-        return sk_ref_sp(const_cast<SkShaderBase*>(this));
     }
 
     // Default impl creates shadercontext and calls that (not very efficient)

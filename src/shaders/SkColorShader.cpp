@@ -67,13 +67,6 @@ void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
 }
 
 
-sk_sp<SkShader> SkColor4Shader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkColor4f color = fColor;
-    SkColorSpaceXformSteps(fColorSpace.get(),    kUnpremul_SkAlphaType,
-                           xformer->dst().get(), kUnpremul_SkAlphaType).apply(color.vec());
-    return SkShader::MakeColorShader(color.toSkColor());
-}
-
 sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorSpace> space) {
     if (!SkScalarsAreFinite(color.vec(), 4)) {
         return nullptr;

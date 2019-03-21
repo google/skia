@@ -8,7 +8,6 @@
 #include "SkLinearGradient.h"
 
 #include "Sk4fLinearGradient.h"
-#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
@@ -86,13 +85,6 @@ SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
 void SkLinearGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline*,
                                             SkRasterPipeline*) const {
     // No extra stage needed for linear gradients.
-}
-
-sk_sp<SkShader> SkLinearGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    const AutoXformColors xformedColors(*this, xformer);
-    SkPoint pts[2] = { fStart, fEnd };
-    return SkGradientShader::MakeLinear(pts, xformedColors.fColors.get(), fOrigPos, fColorCount,
-                                        fTileMode, fGradFlags, &this->getLocalMatrix());
 }
 
 SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {

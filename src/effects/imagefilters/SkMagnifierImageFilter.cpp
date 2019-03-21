@@ -9,7 +9,6 @@
 
 #include "SkBitmap.h"
 #include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -187,14 +186,4 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
     offset->fY = bounds.top();
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
-}
-
-sk_sp<SkImageFilter> SkMagnifierImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkASSERT(1 == this->countInputs());
-    auto input = xformer->apply(this->getInput(0));
-    if (input.get() != this->getInput(0)) {
-        return SkMagnifierImageFilter::Make(fSrcRect, fInset, std::move(input),
-                                            this->getCropRectIfSet());
-    }
-    return this->refMe();
 }
