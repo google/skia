@@ -8,61 +8,58 @@
 #include "Benchmark.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorSpace.h"
 
-
-/**
- * This bench mark tests the use case where the user writes the a canvas
- * and then reads small chunks from it repeatedly. This can cause trouble
- * for the GPU as readbacks are very expensive.
- */
+// Time variants of read-pixels
+//  [ colortype ][ alphatype ][ colorspace ]
+//  Different combinations can trigger fast or slow paths in the impls
+//
 class ReadPixBench : public Benchmark {
 public:
-    ReadPixBench() {}
+    ReadPixBench(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
+        : fCT(ct), fAT(at), fCS(cs)
+    {
+        fName.printf("readpix_%s_%s_%s",
+                     at == kPremul_SkAlphaType ? "pm" : "um",
+                     ct == kRGBA_8888_SkColorType ? "rgba" : "bgra",
+                     cs ? "srgb" : "null");
+    }
 
 protected:
     const char* onGetName() override {
-        return "readpix";
+        return fName.c_str();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        canvas->clear(SK_ColorBLACK);
+        canvas->clear(0x80000000);
 
         SkISize size = canvas->getBaseLayerSize();
 
-        int offX = (size.width() - kWindowSize) / kNumStepsX;
-        int offY = (size.height() - kWindowSize) / kNumStepsY;
-
-        SkPaint paint;
-
-        paint.setColor(SK_ColorBLUE);
-
-        canvas->drawCircle(SkIntToScalar(size.width()/2),
-                           SkIntToScalar(size.height()/2),
-                           SkIntToScalar(size.width()/2),
-                           paint);
-
+        auto info = SkImageInfo::Make(size.width(), size.height(), fCT, fAT, fCS);
         SkBitmap bitmap;
-
-        bitmap.allocPixels(SkImageInfo::MakeN32Premul(kWindowSize, kWindowSize));
+        bitmap.allocPixels(info);
 
         for (int i = 0; i < loops; i++) {
-            for (int x = 0; x < kNumStepsX; ++x) {
-                for (int y = 0; y < kNumStepsY; ++y) {
-                    canvas->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(),
-                                       x * offX, y * offY);
-                }
-            }
+            canvas->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
         }
     }
 
 private:
-    static const int kNumStepsX = 30;
-    static const int kNumStepsY = 30;
-    static const int kWindowSize = 5;
-
+    SkColorType fCT;
+    SkAlphaType fAT;
+    sk_sp<SkColorSpace> fCS;
+    SkString fName;
     typedef Benchmark INHERITED;
 };
-DEF_BENCH( return new ReadPixBench(); )
+DEF_BENCH( return new ReadPixBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr); )
+DEF_BENCH( return new ReadPixBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr); )
+DEF_BENCH( return new ReadPixBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB()); )
+DEF_BENCH( return new ReadPixBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB()); )
+
+DEF_BENCH( return new ReadPixBench(kBGRA_8888_SkColorType, kPremul_SkAlphaType, nullptr); )
+DEF_BENCH( return new ReadPixBench(kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr); )
+DEF_BENCH( return new ReadPixBench(kBGRA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB()); )
+DEF_BENCH( return new ReadPixBench(kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, SkColorSpace::MakeSRGB()); )
 
 ////////////////////////////////////////////////////////////////////////////////
 #include "SkBitmap.h"
