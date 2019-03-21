@@ -9,20 +9,15 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrClip.h"
-#include "GrContext.h"
-#include "GrRect.h"
-#include "GrRenderTargetContextPriv.h"
 #include "Resources.h"
 #include "SkColorMatrixFilter.h"
 #include "SkFont.h"
-#include "SkGpuDevice.h"
 #include "SkGradientShader.h"
-#include "SkImage_Base.h"
 #include "SkLineClipper.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkShaderMaskFilter.h"
+#include "YUVUtils.h"
 
 #include <array>
 
@@ -619,8 +614,7 @@ private:
     typedef ClipTileRenderer INHERITED;
 };
 
-// Tests tmp_drawImageSet(), but can batch the entries together in different ways
-// TODO(michaelludwig) - add transform batching
+// Tests drawEdgeAAImageSet(), but can batch the entries together in different ways
 class TextureSetRenderer : public ClipTileRenderer {
 public:
 
@@ -676,7 +670,6 @@ public:
     }
 
     int drawTiles(SkCanvas* canvas) override {
-        SkASSERT(fImage); // initImage should be called before any drawing
         int draws = this->INHERITED::drawTiles(canvas);
         // Push the last tile set
         draws += this->drawAndReset(canvas);
@@ -871,6 +864,106 @@ private:
     typedef ClipTileRenderer INHERITED;
 };
 
+class YUVTextureSetRenderer : public ClipTileRenderer {
+public:
+    static sk_sp<ClipTileRenderer> MakeFromJPEG(sk_sp<SkData> imageData) {
+        return sk_sp<ClipTileRenderer>(new YUVTextureSetRenderer(std::move(imageData)));
+    }
+
+    int drawTiles(SkCanvas* canvas) override {
+        // Refresh the SkImage at the start, so that it's not attempted for every set entry
+        if (fYUVData) {
+            fImage = fYUVData->refImage(canvas->getGrContext());
+            if (!fImage) {
+                return 0;
+            }
+        }
+
+        int draws = this->INHERITED::drawTiles(canvas);
+        // Push the last tile set
+        draws += this->drawAndReset(canvas);
+        return draws;
+    }
+
+    int drawTile(SkCanvas* canvas, const SkRect& rect, const SkPoint clip[4], const bool edgeAA[4],
+                  int tileID, int quadID) override {
+        SkASSERT(fImage);
+        // Now don't actually draw the tile, accumulate it in the growing entry set
+        bool hasClip = false;
+        if (clip) {
+            // Record the four points into fDstClips
+            fDstClips.push_back_n(4, clip);
+            hasClip = true;
+        }
+
+        // This acts like the whole image is rendered over the entire tile grid, so derive local
+        // coordinates from 'rect', based on the grid to image transform.
+        SkMatrix gridToImage = SkMatrix::MakeRectToRect(SkRect::MakeWH(kColCount * kTileWidth,
+                                                                       kRowCount * kTileHeight),
+                                                        SkRect::MakeWH(fImage->width(),
+                                                                       fImage->height()),
+                                                        SkMatrix::kFill_ScaleToFit);
+        SkRect localRect = gridToImage.mapRect(rect);
+
+        // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr
+        // is not null.
+        fSetEntries.push_back(
+                {fImage, localRect, rect, -1, 1.f, this->maskToFlags(edgeAA), hasClip});
+        return 0;
+    }
+
+    void drawBanner(SkCanvas* canvas) override {
+        draw_text(canvas, "Texture");
+        canvas->translate(0.f, 15.f);
+        draw_text(canvas, "YUV - GPU Only");
+    }
+
+private:
+    std::unique_ptr<sk_gpu_test::LazyYUVImage> fYUVData;
+    // The last accessed SkImage from fYUVData, held here for easy access by drawTile
+    sk_sp<SkImage> fImage;
+
+    SkTArray<SkPoint> fDstClips;
+    SkTArray<SkCanvas::ImageSetEntry> fSetEntries;
+
+    YUVTextureSetRenderer(sk_sp<SkData> jpegData)
+            : fYUVData(sk_gpu_test::LazyYUVImage::Make(std::move(jpegData)))
+            , fImage(nullptr) {}
+
+    int drawAndReset(SkCanvas* canvas) {
+        // Early out if there's nothing to draw
+        if (fSetEntries.count() == 0) {
+            SkASSERT(fDstClips.count() == 0);
+            return 0;
+        }
+
+#ifdef SK_DEBUG
+        int expectedDstClipCount = 0;
+        for (int i = 0; i < fSetEntries.count(); ++i) {
+            expectedDstClipCount += 4 * fSetEntries[i].fHasClip;
+        }
+        SkASSERT(expectedDstClipCount == fDstClips.count());
+#endif
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
+
+        canvas->experimental_DrawEdgeAAImageSet(
+                fSetEntries.begin(), fSetEntries.count(), fDstClips.begin(), nullptr, &paint,
+                SkCanvas::kFast_SrcRectConstraint);
+
+        // Reset for next tile
+        fDstClips.reset();
+        fSetEntries.reset();
+
+        return 1;
+    }
+
+    typedef ClipTileRenderer INHERITED;
+};
+
 static SkTArray<sk_sp<ClipTileRenderer>> make_debug_renderers() {
     SkTArray<sk_sp<ClipTileRenderer>> renderers;
     renderers.push_back(DebugTileRenderer::Make());
@@ -903,6 +996,8 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_image_renderers() {
     renderers.push_back(TextureSetRenderer::MakeUnbatched(mandrill));
     renderers.push_back(TextureSetRenderer::MakeBatched(mandrill, 0));
     renderers.push_back(TextureSetRenderer::MakeBatched(mandrill, kMatrixCount));
+    renderers.push_back(YUVTextureSetRenderer::MakeFromJPEG(
+            GetResourceAsData("images/mandrill_h1v1.jpg")));
     return renderers;
 }
 
