@@ -1125,6 +1125,12 @@ public:
         if (fFontOverrides->fTextSize) {
             font->writable()->setSize(fFont->getSize());
         }
+        if (fFontOverrides->fTextScaleX) {
+            font->writable()->setScaleX(fFont->getScaleX());
+        }
+        if (fFontOverrides->fTextSkewX) {
+            font->writable()->setSkewX(fFont->getSkewX());
+        }
         if (fFontOverrides->fHinting) {
             font->writable()->setHinting(fFont->getHinting());
         }
@@ -1809,7 +1815,24 @@ void Viewer::drawImGui() {
                                          "%.6f", 2.0f))
                     {
                         fFont.setSize(textSize);
-                        this->preTouchMatrixChanged();
+                        paramsChanged = true;
+                    }
+                }
+
+                ImGui::Checkbox("Override TextScaleX", &fFontOverrides.fTextScaleX);
+                if (fFontOverrides.fTextScaleX) {
+                    float fontScaleX = fFont.getScaleX();
+                    if (ImGui::SliderFloat("TextScaleX", &fontScaleX, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
+                        fFont.setScaleX(fontScaleX);
+                        paramsChanged = true;
+                    }
+                }
+
+                ImGui::Checkbox("Override TextSkewX", &fFontOverrides.fTextSkewX);
+                if (fFontOverrides.fTextSkewX) {
+                    float fontSkewX = fFont.getSkewX();
+                    if (ImGui::SliderFloat("TextSkewX", &fontSkewX, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
+                        fFont.setSkewX(fontSkewX);
                         paramsChanged = true;
                     }
                 }
