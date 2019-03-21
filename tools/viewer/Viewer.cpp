@@ -82,6 +82,14 @@ DECLARE_int(threads)
 
 static DEFINE_string2(file, f, "", "Open a single file for viewing.");
 
+#if defined(SK_BUILD_FOR_ANDROID)
+    static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
+    static DEFINE_string(nimas, "/data/local/tmp/nimas", "Directory to read NIMA animations from.");
+#else
+    static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
+    static DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
+#endif
+
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)

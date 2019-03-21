@@ -25,11 +25,6 @@ DEFINE_string(images,
               "List of images and/or directories to decode. A directory with no images"
               " is treated as a fatal error.");
 
-DEFINE_string(colorImages,
-              "",
-              "List of images and/or directories to decode with color correction. "
-              "A directory with no images is treated as a fatal error.");
-
 DEFINE_bool(simpleCodec,
             false,
             "Runs of a subset of the codec tests.  "
@@ -51,15 +46,6 @@ DEFINE_string2(match,
 
 DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
 
-DEFINE_bool(preAbandonGpuContext, false, "Test abandoning the GrContext before running the test.");
-
-DEFINE_bool(abandonGpuContext, false, "Test abandoning the GrContext after running each test.");
-
-DEFINE_bool(releaseAndAbandonGpuContext,
-            false,
-            "Test releasing all gpu resources and abandoning the GrContext after running each "
-            "test");
-
 DEFINE_bool(disableDriverCorrectnessWorkarounds,
             false,
             "Disables all GPU driver correctness "
@@ -67,17 +53,11 @@ DEFINE_bool(disableDriverCorrectnessWorkarounds,
 
 #ifdef SK_BUILD_FOR_ANDROID
 DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
-DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
 DEFINE_string(lotties, "/data/local/tmp/lotties", "Directory to read (Bodymovin) jsons from.");
-DEFINE_string(nimas, "/data/local/tmp/nimas", "Directory to read NIMA animations from.");
 #else
 DEFINE_string(skps, "skps", "Directory to read skps from.");
-DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
-DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
 #endif
-
-DEFINE_int(skpViewportSize, 1000, "Width & height of the viewport used to crop skp rendering.");
 
 DEFINE_bool(nativeFonts,
             true,
@@ -102,10 +82,6 @@ DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifyi
 DEFINE_string(properties,
               "",
               "Space-separated key/value pairs to add to JSON identifying this run.");
-DEFINE_bool2(pre_log,
-             p,
-             false,
-             "Log before running each test. May be incomprehensible when threading");
 
 DEFINE_bool(analyticAA, true, "If false, disable analytic anti-aliasing");
 
@@ -119,9 +95,6 @@ DEFINE_bool(deltaAA,
             false,
             "If true, use delta anti-aliasing in suitable cases (it overrides forceAnalyticAA.");
 DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
-
-DEFINE_int(backendTiles, 3, "Number of tiles in the experimental threaded backend.");
-DEFINE_int(backendThreads, 2, "Number of threads in the experimental threaded backend.");
 
 bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
