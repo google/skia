@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bec36ec_c8932e14",
+        "filename": "tools/gpu/YUVUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-21T14:28:09Z",
+      "side": 1,
+      "message": "we should compare context IDs rather than context pointers just in case an original is destroyed and another is created at the same address.",
+      "range": {
+        "startLine": 76,
+        "startChar": 8,
+        "endLine": 76,
+        "endChar": 33
+      },
+      "revId": "fc92c32b3ec1b888731e24a7e522234dfdef7123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
