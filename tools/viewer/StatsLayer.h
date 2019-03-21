@@ -24,6 +24,7 @@ public:
     void endTiming(Timer);
     double getLastTime(Timer);
 
+    void onPrePaint() override;
     void onPaint(SkSurface*) override;
 
     void setDisplayScale(float scale) { fDisplayScale = scale; }
@@ -37,7 +38,9 @@ private:
         SkColor fLabelColor;
     };
     SkTArray<TimerData> fTimers;
+    double fTotalTimes[kMeasurementCount];
     int fCurrentMeasurement;
+    double fLastTotalBegin;
     double fCumulativeMeasurementTime;
     int fCumulativeMeasurementCount;
     float fDisplayScale;
