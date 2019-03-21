@@ -41,7 +41,7 @@
 using namespace sk_gpu_test;
 
 SkImageInfo read_pixels_info(SkImage* image) {
-    if (as_IB(image)->onImageInfo().colorSpace()) {
+    if (image->colorSpace()) {
         return SkImageInfo::MakeS32(image->width(), image->height(), image->alphaType());
     }
 

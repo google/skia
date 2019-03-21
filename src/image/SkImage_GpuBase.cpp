@@ -23,11 +23,9 @@
 #include "effects/GrYUVtoRGBEffect.h"
 
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
-                                 SkAlphaType at, sk_sp<SkColorSpace> cs)
-        : INHERITED(width, height, uniqueID)
-        , fContext(std::move(context))
-        , fAlphaType(at)
-        , fColorSpace(std::move(cs)) {}
+                                 SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
+        : INHERITED(SkImageInfo::Make(width, height, ct, at, std::move(cs)), uniqueID)
+        , fContext(std::move(context)) {}
 
 SkImage_GpuBase::~SkImage_GpuBase() {}
 
@@ -79,18 +77,18 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     SkBitmapCache::RecPtr rec = nullptr;
     SkPixmap pmap;
     if (kAllow_CachingHint == chint) {
-        rec = SkBitmapCache::Alloc(desc, this->onImageInfo(), &pmap);
+        rec = SkBitmapCache::Alloc(desc, this->imageInfo(), &pmap);
         if (!rec) {
             return false;
         }
     } else {
-        if (!dst->tryAllocPixels(this->onImageInfo()) || !dst->peekPixels(&pmap)) {
+        if (!dst->tryAllocPixels(this->imageInfo()) || !dst->peekPixels(&pmap)) {
             return false;
         }
     }
 
     sk_sp<GrSurfaceContext> sContext = direct->priv().makeWrappedSurfaceContext(
-        this->asTextureProxyRef(direct), fColorSpace);
+            this->asTextureProxyRef(direct), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -137,7 +135,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
     }
 
     // MDB: this call is okay bc we know 'sContext' was kExact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
                                    sContext->asTextureProxyRef(), this->refColorSpace());
 }
 
@@ -171,7 +169,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         return false;
     }
 
-    if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
+    if (!SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
         return false;
     }
 
@@ -183,7 +181,8 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     // TODO: this seems to duplicate code in GrTextureContext::onReadPixels and
     // GrRenderTargetContext::onReadPixels
     uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fAlphaType) {
+    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() &&
+        kPremul_SkAlphaType == this->alphaType()) {
         // let the GPU perform this transformation for us
         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
     }
@@ -206,7 +205,8 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     //
     // Should this be handled by Ganesh? todo:?
     //
-    if (kPremul_SkAlphaType == rec.fInfo.alphaType() && kUnpremul_SkAlphaType == fAlphaType) {
+    if (kPremul_SkAlphaType == rec.fInfo.alphaType() &&
+        kUnpremul_SkAlphaType == this->alphaType()) {
         apply_premul(rec.fInfo, rec.fPixels, rec.fRowBytes);
     }
     return true;
@@ -220,8 +220,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* con
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context), fAlphaType,
-                               this->uniqueID(), fColorSpace.get());
+    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context), this->alphaType(),
+                               this->uniqueID(), this->colorSpace());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
 
