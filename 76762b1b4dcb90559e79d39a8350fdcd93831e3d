@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe16b37f_8791c965",
+        "filename": "tools/gpu/YUVUtils.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-21T17:07:14Z",
+      "side": 1,
+      "message": "FWIW this is redundant",
+      "range": {
+        "startLine": 45,
+        "startChar": 21,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "76762b1b4dcb90559e79d39a8350fdcd93831e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
