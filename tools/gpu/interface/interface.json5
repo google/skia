@@ -1,0 +1,246 @@
+[
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"ext": "<core>"}],
+
+    "functions": [
+      "ActiveTexture", "AttachShader", "BindAttribLocation", "BindBuffer", "BindFramebuffer",
+      "BindRenderbuffer", "BindTexture", "BlendColor", "BlendEquation", "BlendFunc",
+      "BufferData", "BufferSubData", "CheckFramebufferStatus", "Clear", "ClearColor",
+      "ClearStencil", "ColorMask", "CompileShader", "CompressedTexImage2D",
+      "CompressedTexSubImage2D", "CopyTexSubImage2D", "CreateProgram", "CreateShader",
+      "CullFace", "DeleteBuffers", "DeleteFramebuffers", "DeleteProgram",
+      "DeleteRenderbuffers", "DeleteShader", "DeleteTextures", "DepthMask", "Disable",
+      "DisableVertexAttribArray", "DrawArrays", "DrawElements", "Enable",
+      "EnableVertexAttribArray", "Finish", "Flush", "FramebufferRenderbuffer",
+      "FramebufferTexture2D", "FrontFace", "GenBuffers", "GenFramebuffers", "GenRenderbuffers",
+      "GenTextures", "GenerateMipmap", "GetBufferParameteriv", "GetError",
+      "GetFramebufferAttachmentParameteriv", "GetIntegerv", "GetProgramInfoLog",
+      "GetProgramiv", "GetRenderbufferParameteriv", "GetShaderInfoLog",
+      "GetShaderPrecisionFormat", "GetShaderiv", "GetString", "GetStringi",
+      "GetUniformLocation", "InvalidateBufferData", "InvalidateBufferSubData",
+      "InvalidateFramebuffer", "InvalidateSubFramebuffer", "InvalidateTexImage",
+      "InvalidateTexSubImage", "IsTexture", "LineWidth", "LinkProgram", "PixelStorei",
+      "ReadPixels", "RenderbufferStorage", "Scissor", "ShaderSource", "StencilFunc",
+      "StencilFuncSeparate", "StencilMask", "StencilMaskSeparate", "StencilOp",
+      "StencilOpSeparate", "TexImage2D", "TexParameterf", "TexParameterfv", "TexParameteri",
+      "TexParameteriv", "TexSubImage2D", "Uniform1f", "Uniform1fv", "Uniform1i", "Uniform1iv",
+      "Uniform2f", "Uniform2fv", "Uniform2i", "Uniform2iv", "Uniform3f", "Uniform3fv", "Uniform3i",
+      "Uniform3iv", "Uniform4f", "Uniform4fv", "Uniform4i", "Uniform4iv", "UniformMatrix2fv",
+      "UniformMatrix3fv", "UniformMatrix4fv", "UseProgram", "VertexAttrib1f",
+      "VertexAttrib2fv", "VertexAttrib3fv", "VertexAttrib4fv", "VertexAttribPointer",
+      "Viewport",
+    ],
+  },
+
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_vertex_array_object"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "OES_vertex_array_object"}],
+
+    // WebGL uses createVertexArray instead of genVertexArrays, but Emscripten
+    // creates an alias called genVertexArray which papers over this difference.
+    "functions": [
+      "BindVertexArray", "DeleteVertexArrays", "GenVertexArrays",
+    ],
+  },
+
+  {
+    "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_EXT_blend_func_extended"}],
+
+    "functions": [
+      "BindFragDataLocation",
+    ],
+  },
+  {
+    "GL":    [{"min_version": [3, 3], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_blend_func_extended"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_EXT_blend_func_extended"}],
+
+    "functions": [
+      "BindFragDataLocationIndexed",
+    ],
+  },
+
+  {
+    "GL":    [{"ext": "GL_KHR_blend_equation_advanced"},
+              {"ext": "GL_NV_blend_equation_advanced"}],
+    "GLES":  [{"ext": "GL_KHR_blend_equation_advanced"},
+              {"ext": "GL_NV_blend_equation_advanced"}],
+
+    "functions": [
+      "BlendBarrier",
+    ],
+  },
+
+  {
+    "GL":    [{"min_version": [4, 4], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_clear_texture"}],
+    "GLES":  [{"ext": "GL_EXT_clear_texture", "suffix": "EXT"}],
+
+    "functions": [
+      "ClearTexImage", "ClearTexSubImage",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [3, 1], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_draw_instanced"},
+              {/*    else if      */  "ext": "GL_EXT_draw_instanced"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_EXT_draw_instanced"}],
+
+    "functions": [
+      "DrawArraysInstanced", "DrawElementsInstanced",
+    ]
+  },
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+
+    "functions": [
+      "DrawBuffers", "ReadBuffer",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [4, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_draw_indirect"}],
+    "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+
+    "functions": [
+      "DrawArraysIndirect", "DrawElementsIndirect",
+    ]
+  },
+
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+
+    "functions": [
+      "DrawRangeElements",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [3, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_texture_multisample"}],
+    "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+
+    "functions": [
+      "GetMultisamplefv",
+    ]
+  },
+
+  {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+
+    "functions": [
+      "GetTexLevelParameteriv",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [4, 3], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_multi_draw_indirect"}],
+    "GLES":  [{"ext": "GL_EXT_multi_draw_indirect"}],
+
+    "functions": [
+      "MultiDrawArraysIndirect", "MultiDrawElementsIndirect",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [3, 1], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_texture_buffer"},
+              {/*    else if      */  "ext": "GL_EXT_texture_buffer"}],
+
+    "functions": [
+      "TexBuffer",
+    ]
+  },
+  {
+    "GL":    [{"min_version": [4, 3], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_texture_buffer"},
+              {/*    else if      */  "ext": "GL_EXT_texture_buffer"}],
+
+    "functions": [
+      "TexBufferRange",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [4, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_texture_storage"},
+              {/*    else if      */  "ext": "GL_EXT_texture_storage"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_EXT_texture_storage"}],
+
+    "functions": [
+      "TexStorage2D",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [4, 5], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_texture_barrier"},
+              {/*    else if      */  "ext": "GL_NV_texture_barrier"}],
+    "GLES":  [{"ext": "GL_NV_texture_barrier"}],
+
+    "functions": [
+      "TextureBarrier",
+    ]
+  },
+
+  {
+    "GL":    null, // Not supported
+    "GLES":  [{"ext": "GL_EXT_discard_framebuffer"}],
+
+    "functions": [
+      "DiscardFramebuffer",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [3, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_instanced_arrays"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_EXT_instanced_arrays"}],
+
+    "functions": [
+      "VertexAttribDivisor",
+    ]
+  },
+  {
+    "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+
+    "functions": [
+      "VertexAttribIPointer",
+    ]
+  },
+
+  {
+    "GL":    [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_framebuffer_object"},
+              {/*    else if      */  "multiple_ext":
+                  ["GL_EXT_framebuffer_blit", "GL_EXT_framebuffer_multisample"]}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_CHROMIUM_framebuffer_multisample"},
+              {/*    else if      */  "multiple_ext":
+                  ["GL_ANGLE_framebuffer_blit", "GL_ANGLE_framebuffer_multisample"]}],
+
+    "functions": [
+      "BlitFramebuffer", "RenderbufferStorageMultisample",
+    ],
+    "required": true,
+  },
+]
