@@ -878,7 +878,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         if (!ctx->priv().caps()->crossContextTextureSupport()) {
             continue;
         }
-
+        SkDebugf("%s\n", sk_gpu_test::GrContextFactory::ContextTypeName(ctxType));
         // We test three lifetime patterns for a single context:
         // 1) Create image, free image
         // 2) Create image, draw, flush, free image
@@ -905,7 +905,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // Case #2: Create image, draw, flush, free image
         {
             sk_sp<SkImage> refImg(imageMaker(ctx));
-
+            REPORTER_ASSERT(reporter, refImg);
             canvas->drawImage(refImg, 0, 0);
             surface->flush();
 
@@ -915,6 +915,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // Case #3: Create image, draw, free image, flush
         {
             sk_sp<SkImage> refImg(imageMaker(ctx));
+            REPORTER_ASSERT(reporter, refImg);
 
             canvas->drawImage(refImg, 0, 0);
             refImg.reset(nullptr); // force a release of the image
@@ -941,6 +942,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         {
             testContext->makeCurrent();
             sk_sp<SkImage> refImg(imageMaker(ctx));
+            REPORTER_ASSERT(reporter, refImg);
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
@@ -954,6 +956,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         {
             testContext->makeCurrent();
             sk_sp<SkImage> refImg(imageMaker(ctx));
+            REPORTER_ASSERT(reporter, refImg);
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
@@ -973,6 +976,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         {
             testContext->makeCurrent();
             sk_sp<SkImage> refImg(imageMaker(ctx));
+            REPORTER_ASSERT(reporter, refImg);
 
             // Any context should be able to borrow the texture at this point
             sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef(
@@ -1034,8 +1038,22 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
 DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
     SkPixmap pixmap;
-    if (!GetResourceAsBitmap("images/mandrill_128.png", &bitmap) || !bitmap.peekPixels(&pixmap)) {
+    if (!GetResourceAsBitmap("images/mandrill_128.png", &bitmap)) {
         ERRORF(reporter, "missing resource");
+        return;
+    }
+    auto img = SkImage::MakeFromBitmap(bitmap);
+    auto cs = img->refColorSpace();
+    if (!cs) {
+        cs = SkColorSpace::MakeSRGB();
+    }
+    img = img->makeColorTypeAndColorSpace(kRGBA_8888_SkColorType, std::move(cs));
+    if (!img) {
+        ERRORF(reporter, "bad ct conversion");
+        return;
+    }
+    if (!img->peekPixels(&pixmap)) {
+        ERRORF(reporter, "no peek");
         return;
     }
     test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromPixmapRelease",
