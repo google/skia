@@ -1915,28 +1915,6 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
     return result;
 }
 
-bool is_assignment(Token::Kind op) {
-    switch (op) {
-        case Token::EQ:           // fall through
-        case Token::PLUSEQ:       // fall through
-        case Token::MINUSEQ:      // fall through
-        case Token::STAREQ:       // fall through
-        case Token::SLASHEQ:      // fall through
-        case Token::PERCENTEQ:    // fall through
-        case Token::SHLEQ:        // fall through
-        case Token::SHREQ:        // fall through
-        case Token::BITWISEOREQ:  // fall through
-        case Token::BITWISEXOREQ: // fall through
-        case Token::BITWISEANDEQ: // fall through
-        case Token::LOGICALOREQ:  // fall through
-        case Token::LOGICALXOREQ: // fall through
-        case Token::LOGICALANDEQ:
-            return true;
-        default:
-            return false;
-    }
-}
-
 SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, SpvOp op,
                                      OutputStream& out) {
     if (operandType.kind() == Type::kVector_Kind) {
