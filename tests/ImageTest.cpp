@@ -1034,8 +1034,22 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
 DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
     SkPixmap pixmap;
-    if (!GetResourceAsBitmap("images/mandrill_128.png", &bitmap) || !bitmap.peekPixels(&pixmap)) {
+    if (!GetResourceAsBitmap("images/mandrill_128.png", &bitmap)) {
         ERRORF(reporter, "missing resource");
+        return;
+    }
+    auto img = SkImage::MakeFromBitmap(bitmap);
+    auto cs = img->refColorSpace();
+    if (!cs) {
+        cs = SkColorSpace::MakeSRGB();
+    }
+    img = img->makeColorTypeAndColorSpace(kRGBA_8888_SkColorType, std::move(cs));
+    if (!img) {
+        ERRORF(reporter, "bad ct conversion");
+        return;
+    }
+    if (!img->peekPixels(&pixmap)) {
+        ERRORF(reporter, "no peek");
         return;
     }
     test_cross_context_image(reporter, options, "SkImage_MakeCrossContextFromPixmapRelease",
