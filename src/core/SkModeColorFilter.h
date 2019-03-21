@@ -32,8 +32,6 @@ protected:
 
     void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
-    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
-
 private:
     SK_FLATTENABLE_HOOKS(SkModeColorFilter)
 

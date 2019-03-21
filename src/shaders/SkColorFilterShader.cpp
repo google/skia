@@ -7,7 +7,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorFilterShader.h"
-#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkShader.h"
@@ -45,10 +44,6 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     }
     fFilter->appendStages(rec, fShader->isOpaque());
     return true;
-}
-
-sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return xformer->apply(fShader.get())->makeWithColorFilter(xformer->apply(fFilter.get()));
 }
 
 #if SK_SUPPORT_GPU

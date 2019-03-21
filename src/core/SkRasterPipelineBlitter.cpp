@@ -11,9 +11,9 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
+#include "SkPaint.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkShaderBase.h"
@@ -81,8 +81,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc* alloc) {
-    // For legacy/SkColorSpaceXformCanvas to keep working,
-    // we need to sometimes still need to distinguish null dstCS from sRGB.
+    // For legacy to keep working, we need to sometimes still distinguish null dstCS from sRGB.
 #if 0
     SkColorSpace* dstCS = dst.colorSpace() ? dst.colorSpace()
                                            : sk_srgb_singleton();

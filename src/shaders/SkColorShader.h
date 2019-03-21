@@ -8,7 +8,6 @@
 #ifndef SkColorShader_DEFINED
 #define SkColorShader_DEFINED
 
-#include "SkColorSpaceXformer.h"
 #include "SkShaderBase.h"
 
 /** \class SkColorShader
@@ -45,10 +44,6 @@ private:
 
     bool onAppendStages(const SkStageRec&) const override;
 
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return SkShader::MakeColorShader(xformer->apply(fColor));
-    }
-
     SkColor fColor;
 };
 
@@ -68,7 +63,6 @@ private:
 
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;

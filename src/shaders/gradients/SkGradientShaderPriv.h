@@ -17,7 +17,6 @@
 #include "SkTemplates.h"
 
 class SkColorSpace;
-class SkColorSpaceXformer;
 class SkRasterPipeline;
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -90,12 +89,6 @@ protected:
         }
         return ctx;
     }
-
-    struct AutoXformColors {
-        AutoXformColors(const SkGradientShaderBase&, SkColorSpaceXformer*);
-
-        SkAutoSTMalloc<8, SkColor> fColors;
-    };
 
     const SkMatrix fPtsToUnit;
     TileMode       fTileMode;

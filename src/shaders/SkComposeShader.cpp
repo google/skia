@@ -58,11 +58,6 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fLerpT);
 }
 
-sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return MakeCompose(xformer->apply(fDst.get()), xformer->apply(fSrc.get()),
-                       fMode, fLerpT);
-}
-
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (!this->isJustMode()) {

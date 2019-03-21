@@ -88,7 +88,6 @@
 #include <memory>
 #include <utility>
 
-class SkColorSpaceXformer;
 class SkReadBuffer;
 template <typename T> class SkTCopyOnFirstWrite;
 
@@ -841,7 +840,6 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage*, const Context&, SkIPoint*) const override {
         return nullptr;
     }
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override { return nullptr; }
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&,
                                MapDirection, const SkIRect* inputRect) const override {
         return SkIRect::MakeEmpty();

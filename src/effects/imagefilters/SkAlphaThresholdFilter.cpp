@@ -8,7 +8,6 @@
 #include "SkAlphaThresholdFilter.h"
 
 #include "SkBitmap.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -41,8 +40,6 @@ protected:
 
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
-
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> createMaskTexture(GrRecordingContext*,
@@ -276,15 +273,4 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     offset->fY = bounds.top();
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                           dst);
-}
-
-sk_sp<SkImageFilter> SkAlphaThresholdFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
-const {
-    SkASSERT(1 == this->countInputs());
-    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
-    if (input.get() != this->getInput(0)) {
-        return SkAlphaThresholdFilter::Make(fRegion, fInnerThreshold, fOuterThreshold,
-                                            std::move(input), this->getCropRectIfSet());
-    }
-    return this->refMe();
 }

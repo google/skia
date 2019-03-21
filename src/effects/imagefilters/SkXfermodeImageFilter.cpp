@@ -9,7 +9,6 @@
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -39,7 +38,6 @@ public:
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
@@ -220,18 +218,6 @@ SkIRect SkXfermodeImageFilter_Base::onFilterBounds(const SkIRect& src,
             return result;
         }
     }
-}
-
-sk_sp<SkImageFilter> SkXfermodeImageFilter_Base::onMakeColorSpace(SkColorSpaceXformer* xformer)
-const {
-    SkASSERT(2 == this->countInputs());
-    auto background = xformer->apply(this->getInput(0));
-    auto foreground = xformer->apply(this->getInput(1));
-    if (background.get() != this->getInput(0) || foreground.get() != this->getInput(1)) {
-        return SkXfermodeImageFilter::Make(fMode, std::move(background), std::move(foreground),
-                                           this->getCropRectIfSet());
-    }
-    return this->refMe();
 }
 
 void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage* img,

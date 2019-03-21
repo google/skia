@@ -1104,9 +1104,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) return new via(__VA_ARGS__)
-    VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
-    VIA("p3",        ViaCSXform,           wrapped,
-                     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3), false);
     VIA("lite",      ViaLite,              wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);

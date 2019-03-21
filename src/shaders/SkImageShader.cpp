@@ -14,6 +14,7 @@
 #include "SkEmptyShader.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 

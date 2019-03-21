@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
@@ -107,14 +106,12 @@ uint32_t next_id() {
 } // namespace
 
 SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
-                                 const SkMatrix* localMatrix, const SkRect* tile,
-                                 sk_sp<SkColorSpace> colorSpace)
+                                 const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(std::move(picture))
     , fTile(tile ? *tile : fPicture->cullRect())
     , fTmx(tmx)
     , fTmy(tmy)
-    , fColorSpace(std::move(colorSpace))
     , fUniqueID(next_id())
     , fAddedToCache(false) {}
 
@@ -129,8 +126,7 @@ sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, Ti
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShader::MakeEmptyShader();
     }
-    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile,
-                                               nullptr));
+    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
@@ -212,17 +208,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     const SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
                                           SkIntToScalar(tileSize.height()) / fTile.height());
 
-    // |fColorSpace| will only be set when using an SkColorSpaceXformCanvas to do pre-draw xforms.
-    // A non-null |dstColorSpace| indicates that the surface we're drawing to is tagged. In all
-    // cases, picture-backed images behave the same (using a tagged surface for rasterization),
-    // and (as sources) they require a valid color space, so default to sRGB.
 
-    // With SkColorSpaceXformCanvas, the surface should never have a color space attached.
-    SkASSERT(!fColorSpace || !dstColorSpace);
-
-    sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace)
-                                              : fColorSpace ? fColorSpace
-                                                            : SkColorSpace::MakeSRGB();
+    sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace): SkColorSpace::MakeSRGB();
     SkImage::BitDepth bitDepth =
             dstColorType >= kRGBA_F16Norm_SkColorType
             ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
@@ -294,16 +281,6 @@ const {
     return ctx;
 }
 #endif
-
-sk_sp<SkShader> SkPictureShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    sk_sp<SkColorSpace> dstCS = xformer->dst();
-    if (SkColorSpace::Equals(dstCS.get(), fColorSpace.get())) {
-        return sk_ref_sp(const_cast<SkPictureShader*>(this));
-    }
-
-    return sk_sp<SkPictureShader>(new SkPictureShader(fPicture, fTmx, fTmy, &this->getLocalMatrix(),
-                                                      &fTile, std::move(dstCS)));
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

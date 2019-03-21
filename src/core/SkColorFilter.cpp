@@ -10,7 +10,6 @@
 #include "SkColorFilterPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
-#include "SkColorSpaceXformer.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -136,15 +135,6 @@ private:
 
     int privateComposedFilterCount() const override {
         return fComposedFilterCount;
-    }
-
-    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        auto outer = xformer->apply(fOuter.get());
-        auto inner = xformer->apply(fInner.get());
-        if (outer != fOuter || inner != fInner) {
-            return outer->makeComposed(inner);
-        }
-        return this->INHERITED::onMakeColorSpace(xformer);
     }
 
     sk_sp<SkColorFilter> fOuter;

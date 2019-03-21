@@ -19,7 +19,6 @@ class SkArenaAlloc;
 class SkBitmap;
 class SkColorFilter;
 class SkColorSpace;
-class SkColorSpaceXformer;
 class SkImage;
 class SkMixer;
 class SkPath;
