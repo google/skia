@@ -1709,7 +1709,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             int mid = (L + N) / 2;
             float mid_x = mid / (N - 1.0f);
             float mid_y = eval_curve(curve, mid_x);
-            tf.g = log2f_(mid_y) / log2f_(mid_x);;
+            tf.g = log2f_(mid_y) / log2f_(mid_x);
             tf.a = 1;
             tf.b = 0;
             tf.e =    tf.c*tf.d + tf.f
