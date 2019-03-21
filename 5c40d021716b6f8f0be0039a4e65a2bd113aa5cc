@@ -211,6 +211,30 @@
       "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20252587_baa6f255",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-21T14:49:20Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "34807d3a_407a5631",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 54
+      },
+      "revId": "5c40d021716b6f8f0be0039a4e65a2bd113aa5cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
