@@ -48,22 +48,21 @@
 #include "effects/GrYUVtoRGBEffect.h"
 #include "gl/GrGLTexture.h"
 
+static SkColorType proxy_color_type(GrTextureProxy* proxy) {
+    SkColorType colorType;
+    if (!GrPixelConfigToColorType(proxy->config(), &colorType)) {
+        colorType = kUnknown_SkColorType;
+    }
+    return colorType;
+}
+
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(std::move(context), proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
-                    at, colorSpace)
+                    proxy_color_type(proxy.get()), at, colorSpace)
         , fProxy(std::move(proxy)) {}
 
 SkImage_Gpu::~SkImage_Gpu() {}
-
-SkImageInfo SkImage_Gpu::onImageInfo() const {
-    SkColorType colorType;
-    if (!GrPixelConfigToColorType(fProxy->config(), &colorType)) {
-        colorType = kUnknown_SkColorType;
-    }
-
-    return SkImageInfo::Make(fProxy->width(), fProxy->height(), colorType, fAlphaType, fColorSpace);
-}
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* context,
                                                          SkColorType targetCT,
@@ -72,8 +71,8 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         return nullptr;
     }
 
-    auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
-                                               targetCS.get(), fAlphaType);
+    auto xform = GrColorSpaceXformEffect::Make(this->colorSpace(), this->alphaType(),
+                                               targetCS.get(), this->alphaType());
     SkASSERT(xform || targetCT != this->colorType());
 
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(context);
@@ -105,7 +104,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
     }
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
                                    renderTargetContext->asTextureProxyRef(), std::move(targetCS));
 }
 
@@ -469,7 +468,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     if (limitToMaxTextureSize &&
         (codecImage->width() > maxTextureSize || codecImage->height() > maxTextureSize)) {
         SkAutoPixmapStorage pmap;
-        SkImageInfo info = as_IB(codecImage)->onImageInfo();
+        SkImageInfo info = codecImage->imageInfo();
         if (!dstColorSpace) {
             info = info.makeColorSpace(nullptr);
         }
@@ -504,11 +503,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     GrGpu* gpu = context->priv().getGpu();
     sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
-    auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
-                                                    std::move(sema),
-                                                    as_IB(codecImage)->onImageInfo().colorType(),
-                                                    codecImage->alphaType(),
-                                                    codecImage->refColorSpace());
+    auto gen = GrBackendTextureImageGenerator::Make(
+            std::move(texture), proxy->origin(), std::move(sema), codecImage->colorType(),
+            codecImage->alphaType(), codecImage->refColorSpace());
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 

@@ -26,8 +26,6 @@ public:
                 sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
-    SkImageInfo onImageInfo() const override;
-
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }

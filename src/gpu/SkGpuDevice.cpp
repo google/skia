@@ -1187,7 +1187,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
                                                    std::move(proxy),
-                                                   as_IB(image)->onImageInfo().refColorSpace(),
+                                                   image->refColorSpace(),
                                                    &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
         SkBitmap bm;
@@ -1307,9 +1307,8 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     auto iter = skstd::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy),
-                                   image->alphaType(), pinnedUniqueID,
-                                   as_IB(image)->onImageInfo().colorSpace());
+        GrTextureAdjuster adjuster(this->context(), std::move(proxy), image->alphaType(),
+                                   pinnedUniqueID, image->colorSpace());
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
         SkBitmap bm;
@@ -1368,9 +1367,8 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     auto iter = skstd::make_unique<SkLatticeIter>(lattice, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy),
-                                   image->alphaType(), pinnedUniqueID,
-                                   as_IB(image)->onImageInfo().colorSpace());
+        GrTextureAdjuster adjuster(this->context(), std::move(proxy), image->alphaType(),
+                                   pinnedUniqueID, image->colorSpace());
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
         SkBitmap bm;

@@ -584,29 +584,36 @@ public:
             GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
 #endif
 
+    /** Returns a SkImageInfo describing the width, height, color type, alpha type, and color space
+        of the SkImage.
+
+        @return  image info of SkImage.
+    */
+    const SkImageInfo& imageInfo() const { return fInfo; }
+
     /** Returns pixel count in each row.
 
         @return  pixel width in SkImage
     */
-    int width() const { return fWidth; }
+    int width() const { return fInfo.width(); }
 
     /** Returns pixel row count.
 
         @return  pixel height in SkImage
     */
-    int height() const { return fHeight; }
+    int height() const { return fInfo.height(); }
 
     /** Returns SkISize { width(), height() }.
 
         @return  integral size of width() and height()
     */
-    SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
+    SkISize dimensions() const { return SkISize::Make(fInfo.width(), fInfo.height()); }
 
     /** Returns SkIRect { 0, 0, width(), height() }.
 
         @return  integral rectangle from origin to width() and height()
     */
-    SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
+    SkIRect bounds() const { return SkIRect::MakeWH(fInfo.width(), fInfo.height()); }
 
     /** Returns value unique to image. SkImage contents cannot change after SkImage is
         created. Any operation to create a new SkImage will receive generate a new
@@ -1071,11 +1078,10 @@ public:
                                               sk_sp<SkColorSpace> targetColorSpace) const;
 
 private:
-    SkImage(int width, int height, uint32_t uniqueID);
+    SkImage(const SkImageInfo& info, uint32_t uniqueID);
     friend class SkImage_Base;
 
-    const int       fWidth;
-    const int       fHeight;
+    SkImageInfo     fInfo;
     const uint32_t  fUniqueID;
 
     typedef SkRefCnt INHERITED;

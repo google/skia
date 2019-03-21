@@ -199,7 +199,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
         }
 
         return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
-                                   as_IB(image)->onImageInfo().refColorSpace(), props);
+                                   image->refColorSpace(), props);
     } else
 #endif
     {

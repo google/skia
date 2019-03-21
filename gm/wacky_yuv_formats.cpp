@@ -1111,7 +1111,7 @@ protected:
                 y += kTileWidthHeight + kPad;
 
                 SkBitmap readBack;
-                readBack.allocPixels(as_IB(yuv)->onImageInfo());
+                readBack.allocPixels(yuv->imageInfo());
                 yuv->readPixels(readBack.pixmap(), 0, 0);
                 canvas->drawBitmap(readBack, x, y);
 
