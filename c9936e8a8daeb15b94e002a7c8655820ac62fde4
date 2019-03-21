@@ -22,6 +22,30 @@
       "revId": "c9936e8a8daeb15b94e002a7c8655820ac62fde4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2e3cd12_ae0f12cf",
+        "filename": "tools/gpu/YUVUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-21T16:56:24Z",
+      "side": 1,
+      "message": "Oops, thinking like Java too much today apparently, thanks :)",
+      "parentUuid": "614b0f1a_efd4c72e",
+      "range": {
+        "startLine": 78,
+        "startChar": 57,
+        "endLine": 78,
+        "endChar": 91
+      },
+      "revId": "c9936e8a8daeb15b94e002a7c8655820ac62fde4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
