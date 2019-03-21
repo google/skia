@@ -155,10 +155,10 @@ void ByteCodeGenerator::write16(uint16_t i) {
 }
 
 void ByteCodeGenerator::write32(uint32_t i) {
-    this->write8(i >> 24);
-    this->write8(i >> 16);
-    this->write8(i >> 8);
-    this->write8(i);
+    this->write8((i >> 24) & 0xFF);
+    this->write8((i >> 16) & 0xFF);
+    this->write8((i >>  8) & 0xFF);
+    this->write8((i >>  0) & 0xFF);
 }
 
 void ByteCodeGenerator::write(ByteCodeInstruction i) {
