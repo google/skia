@@ -75,8 +75,6 @@ public:
                                                  PromiseImageApiVersion);
 
 private:
-    SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
-
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable sk_sp<GrTextureProxy>    fProxies[4];
@@ -84,15 +82,6 @@ private:
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
-    // If this is non-null then the planar data should be converted from fFromColorSpace to
-    // this->colorSpace(). Otherwise we assume the planar data (post YUV->RGB conversion) is already
-    // in this->colorSpace().
-    const sk_sp<SkColorSpace> fFromColorSpace;
-
-    // Repeated calls to onMakeColorSpace will result in a proliferation of unique IDs and
-    // SkImage_GpuYUVA instances. Cache the result of the last successful onMakeColorSpace call.
-    mutable sk_sp<SkColorSpace>      fOnMakeColorSpaceTarget;
-    mutable sk_sp<SkImage>           fOnMakeColorSpaceResult;
 
     // This is only allocated when the image needs to be flattened rather than
     // using the separate YUVA planes. From thence forth we will only use the

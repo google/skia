@@ -52,31 +52,6 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height
     memcpy(fYUVAIndices, yuvaIndices, 4*sizeof(SkYUVAIndex));
 }
 
-// For onMakeColorSpace()
-SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace> targetCS)
-        : INHERITED(image->fContext, image->width(), image->height(), kNeedNewImageUniqueID,
-                    kAssumedColorType,
-                    // If an alpha channel is present we always switch to kPremul. This is because,
-                    // although the planar data is always un-premul, the final interleaved RGB image
-                    // is/would-be premul.
-                    GetAlphaTypeFromYUVAIndices(image->fYUVAIndices), std::move(targetCS))
-        , fNumProxies(image->fNumProxies)
-        , fYUVColorSpace(image->fYUVColorSpace)
-        , fOrigin(image->fOrigin)
-        // Since null fFromColorSpace means no GrColorSpaceXform, we turn a null
-        // image->refColorSpace() into an explicit SRGB.
-        , fFromColorSpace(image->colorSpace() ? image->refColorSpace() : SkColorSpace::MakeSRGB()) {
-    // The caller should have done this work, just verifying
-    SkDEBUGCODE(int textureCount;)
-        SkASSERT(SkYUVAIndex::AreValidIndices(image->fYUVAIndices, &textureCount));
-    SkASSERT(textureCount == fNumProxies);
-
-    for (int i = 0; i < fNumProxies; ++i) {
-        fProxies[i] = image->fProxies[i];  // we ref in this case, not move
-    }
-    memcpy(fYUVAIndices, image->fYUVAIndices, 4 * sizeof(SkYUVAIndex));
-}
-
 SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 
 bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
@@ -128,14 +103,9 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
         return nullptr;
     }
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform;
-    if (fFromColorSpace) {
-        colorSpaceXform = GrColorSpaceXform::Make(fFromColorSpace.get(), this->alphaType(),
-                                                  this->colorSpace(), this->alphaType());
-    }
     const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
     if (!RenderYUVAToRGBA(fContext.get(), renderTargetContext.get(), rect, fYUVColorSpace,
-                          std::move(colorSpaceXform), fProxies, fYUVAIndices)) {
+                          fProxies, fYUVAIndices)) {
         return nullptr;
     }
 
@@ -168,20 +138,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContex
 
 sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(GrRecordingContext*,
                                                              SkColorType,
-                                                             sk_sp<SkColorSpace> targetCS) const {
-    // We explicitly ignore color type changes, for now.
-
-    // we may need a mutex here but for now we expect usage to be in a single thread
-    if (fOnMakeColorSpaceTarget &&
-        SkColorSpace::Equals(targetCS.get(), fOnMakeColorSpaceTarget.get())) {
-        return fOnMakeColorSpaceResult;
-    }
-    sk_sp<SkImage> result = sk_sp<SkImage>(new SkImage_GpuYUVA(this, targetCS));
-    if (result) {
-        fOnMakeColorSpaceTarget = targetCS;
-        fOnMakeColorSpaceResult = result;
-    }
-    return result;
+                                                             sk_sp<SkColorSpace>) const {
+    return sk_ref_sp(const_cast<SkImage_GpuYUVA*>(this));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

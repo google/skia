@@ -7,7 +7,6 @@
 
 #include "GrYUVProvider.h"
 #include "GrClip.h"
-#include "GrColorSpaceXform.h"
 #include "GrProxyProvider.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
@@ -103,9 +102,7 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
 
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
                                                        const GrBackendFormat& format,
-                                                       const GrSurfaceDesc& desc,
-                                                       SkColorSpace* srcColorSpace,
-                                                       SkColorSpace* dstColorSpace) {
+                                                       const GrSurfaceDesc& desc) {
     SkYUVASizeInfo yuvSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
@@ -168,15 +165,6 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
     auto yuvToRgbProcessor = GrYUVtoRGBEffect::Make(yuvTextureProxies, yuvaIndices, yuvColorSpace,
                                                     GrSamplerState::Filter::kNearest);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
-
-    // If the caller expects the pixels in a different color space than the one from the image,
-    // apply a color conversion to do this.
-    std::unique_ptr<GrFragmentProcessor> colorConversionProcessor =
-            GrColorSpaceXformEffect::Make(srcColorSpace, kOpaque_SkAlphaType,
-                                          dstColorSpace, kOpaque_SkAlphaType);
-    if (colorConversionProcessor) {
-        paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
-    }
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth,
