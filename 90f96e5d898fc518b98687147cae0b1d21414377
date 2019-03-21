@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e966431f_6d435fea",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-21T13:47:24Z",
+      "side": 1,
+      "message": "Please comment on why this is so.",
+      "range": {
+        "startLine": 598,
+        "startChar": 28,
+        "endLine": 598,
+        "endChar": 61
+      },
+      "revId": "90f96e5d898fc518b98687147cae0b1d21414377",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
