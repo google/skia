@@ -20,8 +20,8 @@ class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:
-    SkImage_GpuBase(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkAlphaType,
-                    sk_sp<SkColorSpace>);
+    SkImage_GpuBase(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkColorType,
+                    SkAlphaType, sk_sp<SkColorSpace>);
     ~SkImage_GpuBase() override;
 
     GrContext* context() const final { return fContext.get(); }
@@ -94,9 +94,7 @@ protected:
                                  const sk_sp<GrTextureProxy> proxies[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
-    sk_sp<GrContext>      fContext;
-    const SkAlphaType     fAlphaType;  // alpha type for final image
-    sk_sp<SkColorSpace>   fColorSpace; // color space for final image
+    sk_sp<GrContext> fContext;
 
 private:
     typedef SkImage_Base INHERITED;
