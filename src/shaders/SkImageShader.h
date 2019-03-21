@@ -9,7 +9,6 @@
 #define SkImageShader_DEFINED
 
 #include "SkBitmapProcShader.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImage.h"
 #include "SkShaderBase.h"
 
@@ -43,11 +42,6 @@ private:
     SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
 
     bool onAppendStages(const SkStageRec&) const override;
-
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return xformer->apply(fImage.get())->makeShader(fTileModeX, fTileModeY,
-                                                        &this->getLocalMatrix());
-    }
 
     sk_sp<SkImage>           fImage;
     const SkShader::TileMode fTileModeX;

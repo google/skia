@@ -13,7 +13,6 @@
 #include "SkRefCnt.h"
 #include "../private/SkTArray.h"
 
-class SkColorSpaceXformer;
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -183,8 +182,6 @@ private:
     friend class SkLightingShaderImpl;
 
     SkLights() : fAmbientLightColor(SkColor3f::Make(0.0f, 0.0f, 0.0f)) {}
-
-    sk_sp<SkLights> makeColorSpace(SkColorSpaceXformer* xformer) const;
 
     SkTArray<Light> fLights;
     SkColor3f       fAmbientLightColor;

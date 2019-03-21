@@ -26,7 +26,6 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
