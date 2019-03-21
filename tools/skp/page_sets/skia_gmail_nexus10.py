@@ -3,10 +3,14 @@
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
 
+import os
+
+from page_sets.login_helpers import google_login
 
 from telemetry import story
 from telemetry.page import page as page_module
 from telemetry.page import shared_page_state
+from telemetry.util import wpr_modes
 
 
 class SkiaBuildbotDesktopPage(page_module.Page):
@@ -16,15 +20,20 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        shared_page_state_class=shared_page_state.Shared10InchTabletPageState)
+        shared_page_state_class=shared_page_state.SharedTabletPageState)
     self.archive_data_file = 'data/skia_gmail_nexus10.json'
 
   def RunSmoothness(self, action_runner):
     action_runner.ScrollElement()
 
   def RunNavigateSteps(self, action_runner):
-    action_runner.Navigate(self.url)
+    credentials_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  'data/credentials.json')
+    google_login.BaseLoginGoogle(action_runner, 'google', credentials_path)
     action_runner.Wait(10)
+    action_runner.Navigate(self.url)
+    action_runner.Navigate(self.url)
+    action_runner.Wait(20)
 
 
 class SkiaGmailNexus10PageSet(story.StorySet):
