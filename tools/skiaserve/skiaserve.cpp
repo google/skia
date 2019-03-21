@@ -24,7 +24,7 @@
 
 using namespace Response;
 
-static DEFINE_int32(port, 8888, "The port to listen on.");
+static DEFINE_int(port, 8888, "The port to listen on.");
 static DEFINE_string(address, "127.0.0.1", "The address to bind to.");
 static DEFINE_bool(hosted, false, "Running in hosted mode on debugger.skia.org.");
 

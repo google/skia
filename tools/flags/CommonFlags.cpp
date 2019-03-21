@@ -77,7 +77,7 @@ DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
 DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
 #endif
 
-DEFINE_int32(skpViewportSize, 1000, "Width & height of the viewport used to crop skp rendering.");
+DEFINE_int(skpViewportSize, 1000, "Width & height of the viewport used to crop skp rendering.");
 
 DEFINE_bool(nativeFonts,
             true,
@@ -86,7 +86,7 @@ DEFINE_bool(nativeFonts,
 
 DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
-DEFINE_int32_2(threads,
+DEFINE_int_2(threads,
                j,
                -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
@@ -120,8 +120,8 @@ DEFINE_bool(deltaAA,
             "If true, use delta anti-aliasing in suitable cases (it overrides forceAnalyticAA.");
 DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
 
-DEFINE_int32(backendTiles, 3, "Number of tiles in the experimental threaded backend.");
-DEFINE_int32(backendThreads, 2, "Number of threads in the experimental threaded backend.");
+DEFINE_int(backendTiles, 3, "Number of tiles in the experimental threaded backend.");
+DEFINE_int(backendThreads, 2, "Number of threads in the experimental threaded backend.");
 
 bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
@@ -213,7 +213,7 @@ bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* out
 
 #include "CommonFlagsGpu.h"
 
-DEFINE_int32(gpuThreads,
+DEFINE_int(gpuThreads,
              2,
              "Create this many extra threads to assist with GPU work, "
              "including software path rendering. Defaults to two.");

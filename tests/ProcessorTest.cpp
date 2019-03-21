@@ -233,8 +233,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 #include "CommandLineFlags.h"
 static DEFINE_bool(randomProcessorTest, false,
                    "Use non-deterministic seed for random processor tests?");
-static DEFINE_uint32(processorSeed, 0,
-                     "Use specific seed for processor tests. Overridden by --randomProcessorTest.");
+static DEFINE_int(processorSeed, 0,
+                  "Use specific seed for processor tests. Overridden by --randomProcessorTest.");
 
 #if GR_TEST_UTILS
 

@@ -103,21 +103,21 @@ static SkString to_string(int n) {
     return str;
 }
 
-static DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
+static DEFINE_int(loops, kDefaultLoops, loops_help_txt().c_str());
 
-static DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
-static DEFINE_int32(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
-static DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
+static DEFINE_int(samples, 10, "Number of samples to measure for each bench.");
+static DEFINE_int(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
+static DEFINE_int(overheadLoops, 100000, "Loops to estimate timer overhead.");
 static DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
 static DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
-static DEFINE_int32(gpuFrameLag, 5,
+static DEFINE_int(gpuFrameLag, 5,
                     "If unknown, estimated maximum number of frames GPU allows to lag.");
 
 static DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
-static DEFINE_int32(maxCalibrationAttempts, 3,
+static DEFINE_int(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
-static DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
+static DEFINE_int(maxLoops, 1000000, "Never run a bench more times than this.");
 static DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
 static DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 static DEFINE_string(zoom, "1.0,0",
@@ -127,7 +127,7 @@ static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
 static DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
 static DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
-static DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
+static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 static DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
 static DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
