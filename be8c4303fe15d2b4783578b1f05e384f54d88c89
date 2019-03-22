@@ -16,6 +16,23 @@
       "revId": "be8c4303fe15d2b4783578b1f05e384f54d88c89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74a45e73_f228da09",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2832,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-22T18:25:04Z",
+      "side": 1,
+      "message": "You can actually do the same thing here, too, if you\u0027re interested:\n\nauto maybeScale \u003d GrVertexWriter::If(fUseScale, SkTMax(...));\n\nverts.write(..., maybeScale, ...);\nverts.write(..., maybeScale, ...);\n...",
+      "revId": "be8c4303fe15d2b4783578b1f05e384f54d88c89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
