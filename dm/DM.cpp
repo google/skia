@@ -8,7 +8,6 @@
 #include "ChromeTracingTracer.h"
 #include "CommonFlags.h"
 #include "CommonFlagsConfig.h"
-#include "CommonFlagsGpu.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
 #include "EventTracingPriv.h"
