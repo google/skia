@@ -1336,6 +1336,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             Adds R16F, RG16F, RGBA16F, R32F, RG32F, RGBA32F, R11F_G11F_B10F.
     */
 
+    GrGLStandard standard = ctxInfo.standard();
+    // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
+    sk_ignore_unused_variable(standard);
+    GrGLVersion version = ctxInfo.version();
+
     // Correctness workarounds.
     bool disableTextureRedForMesa = false;
     bool disableSRGBForX86PowerVR = false;
@@ -1344,6 +1349,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool disableSRGBRenderWithMSAAForMacAMD = false;
     bool disableRGB8ForMali400 = false;
     bool disableGrayLumFBOForMesa = false;
+    bool disableBGRATextureStorageForIntelWindowsES = false;
+    bool disablePerFormatTextureStorageForCommandBufferES2 = false;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
@@ -1376,6 +1383,18 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
         // Mali-400 fails ReadPixels tests, mostly with non-0xFF alpha values when read as GL_RGBA8.
         disableRGB8ForMali400 = kMali4xx_GrGLRenderer == ctxInfo.renderer();
+
+#if defined(SK_BUILD_FOR_WIN)
+        // On Intel Windows ES contexts it seems that using texture storage with BGRA causes
+        // problems with cross-context SkImages.
+        disableBGRATextureStorageForIntelWindowsES = kIntel_GrGLDriver == ctxInfo.driver() &&
+                                                   GR_IS_GR_GL_ES(standard);
+#endif
+        // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
+        // not explicitly allowed by the original GL_EXT_texture_storage, particularly those from
+        // other extensions even when later revisions define the interactions.
+        disablePerFormatTextureStorageForCommandBufferES2 =
+                kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
     }
 
     uint32_t nonMSAARenderFlags = ConfigInfo::kRenderable_Flag |
@@ -1384,10 +1403,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (kNone_MSFBOType != fMSFBOType) {
         allRenderFlags |= ConfigInfo::kRenderableWithMSAA_Flag;
     }
-    GrGLStandard standard = ctxInfo.standard();
-    // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
-    sk_ignore_unused_variable(standard);
-    GrGLVersion version = ctxInfo.version();
 
     bool texStorageSupported = false;
     if (GR_IS_GR_GL(standard)) {
@@ -1485,10 +1500,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // uninitialized.
     fConfigTable[kRGB_888X_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
 
-    // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
-    // not explicitly allowed by GL_EXT_texture_storage, particularly those from other extensions.
-    bool isCommandBufferES2 = kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
-
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RG;
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RG8;
     fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
@@ -1498,7 +1509,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (textureRedSupport) {
         fConfigTable[kRG_88_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
         // ES2 Command Buffer does not allow TexStorage with RG8_EXT
-        if (texStorageSupported && !isCommandBufferES2) {
+        if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
             fConfigTable[kRG_88_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
     } else {
@@ -1533,7 +1544,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                             nonMSAARenderFlags;
 
-            if (ctxInfo.hasExtension("GL_EXT_texture_storage")) {
+            // GL_EXT_texture storage has defined interactions with GL_EXT_texture_format_BGRA8888.
+            if (ctxInfo.hasExtension("GL_EXT_texture_storage") &&
+                !disableBGRATextureStorageForIntelWindowsES) {
                 supportsBGRATexStorage = true;
             }
             if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
@@ -1617,7 +1630,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                                                          srgbRenderFlags;
     }
     // ES2 Command Buffer does not allow TexStorage with SRGB8_ALPHA8_EXT
-    if (texStorageSupported && !isCommandBufferES2) {
+    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
@@ -1734,7 +1747,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redInfo.fSwizzle = GrSwizzle::RRRR();
 
     // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
-    if (texStorageSupported && !isCommandBufferES2) {
+    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
         if (!disableR8TexStorageForANGLEGL) {
             alphaInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
@@ -1781,7 +1794,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         // Core profile removes LUMINANCE8 support, but we should have chosen R8 in that case.
         grayLumInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;
     }
-    if (texStorageSupported && !isCommandBufferES2) {
+    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
         if (!disableR8TexStorageForANGLEGL) {
             grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
@@ -1887,7 +1900,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             redHalf.fFlags |= fpRenderFlags;
         }
 
-        if (texStorageSupported && !isCommandBufferES2) {
+        if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
             redHalf.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
     }
@@ -1911,7 +1924,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
-    if (texStorageSupported) {
+    if (texStorageSupported && !disablePerFormatTextureStorageForCommandBufferES2) {
         fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kRGBA_half_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
