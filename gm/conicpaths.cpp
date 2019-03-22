@@ -159,32 +159,6 @@ DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
     canvas->drawCircle(c, radius, paint);
 }
 
-/* ovals should not be blurry */
-DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
-    // Test EllipseOp
-    SkRect r = SkRect::MakeXYWH(-520, -520, 5000, 4000);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(100);
-    canvas->drawOval(r, paint);
-    r.offset(-15, -15);
-    paint.setColor(SK_ColorDKGRAY);
-    paint.setStyle(SkPaint::kFill_Style);
-    canvas->drawOval(r, paint);
-
-    // Test DIEllipseOp
-    canvas->rotate(1.0f);
-    r.offset(55, 55);
-    paint.setColor(SK_ColorGRAY);
-    paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawOval(r, paint);
-    r.offset(-15, -15);
-    paint.setColor(SK_ColorLTGRAY);
-    paint.setStyle(SkPaint::kFill_Style);
-    canvas->drawOval(r, paint);
-}
-
 DEF_SIMPLE_GM(crbug_640176, canvas, 250, 250) {
     SkPath path;
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
