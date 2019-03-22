@@ -14,6 +14,19 @@
   },
   {
     "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
+      "file.text"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "cat_file file.text",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
