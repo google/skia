@@ -84,6 +84,13 @@ var CanvasKit = {
 
 	// Objects and properties on CanvasKit
 
+	GrContext: {
+		// public API (from C++ bindings)
+		getResourceCacheLimitBytes: function() {},
+		getResourceCacheUsageBytes: function() {},
+		setResourceCacheLimitBytes: function() {},
+	},
+
 	RSXFormBuilder: function() {},
 
 	ShapedText: {
@@ -266,6 +273,7 @@ var CanvasKit = {
 		/** @return {CanvasKit.SkImage} */
 		makeImageSnapshot: function() {},
 		makeSurface: function() {},
+		grContext: {},
 
 		// private API
 		_flush: function() {},

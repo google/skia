@@ -61,7 +61,7 @@
           }
         }
         // we are ok with all the defaults
-        var ctx = CanvasKit.GetWebGLContext(canvas);
+        var ctx = this.GetWebGLContext(canvas);
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
@@ -90,6 +90,7 @@
           return CanvasKit.MakeSWCanvasSurface(newCanvas);
         }
         surface._context = ctx;
+        surface.grContext = grcontext;
         return surface;
       };
       // Default to trying WebGL first.

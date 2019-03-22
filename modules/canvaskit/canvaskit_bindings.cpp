@@ -740,7 +740,25 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
 #if SK_SUPPORT_GPU
     class_<GrContext>("GrContext")
-        .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>");
+        .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>")
+        .function("getResourceCacheLimitBytes", optional_override([](GrContext& self)->size_t {
+            int maxResources = 0;// ignored
+            size_t currMax = 0;
+            self.getResourceCacheLimits(&maxResources, &currMax);
+            return currMax;
+        }))
+        .function("getResourceCacheUsageBytes", optional_override([](GrContext& self)->size_t {
+            int usedResources = 0;// ignored
+            size_t currUsage = 0;
+            self.getResourceCacheUsage(&usedResources, &currUsage);
+            return currUsage;
+        }))
+        .function("setResourceCacheLimitBytes", optional_override([](GrContext& self, size_t maxResourceBytes)->void {
+            int maxResources = 0;
+            size_t currMax = 0; // ignored
+            self.getResourceCacheLimits(&maxResources, &currMax);
+            self.setResourceCacheLimits(maxResources, maxResourceBytes);
+        }));
 #endif
 
     class_<SkCanvas>("SkCanvas")
