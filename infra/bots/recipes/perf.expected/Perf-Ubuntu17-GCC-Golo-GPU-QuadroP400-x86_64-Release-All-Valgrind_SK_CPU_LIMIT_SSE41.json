@@ -181,8 +181,7 @@
       "~inc13.png",
       "~inc14.png",
       "~inc0.webp",
-      "~inc1.webp",
-      "--abandonGpuContext"
+      "~inc1.webp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
