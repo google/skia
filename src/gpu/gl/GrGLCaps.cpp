@@ -1336,6 +1336,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             Adds R16F, RG16F, RGBA16F, R32F, RG32F, RGBA32F, R11F_G11F_B10F.
     */
 
+    GrGLStandard standard = ctxInfo.standard();
+
     // Correctness workarounds.
     bool disableTextureRedForMesa = false;
     bool disableSRGBForX86PowerVR = false;
@@ -1344,6 +1346,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool disableSRGBRenderWithMSAAForMacAMD = false;
     bool disableRGB8ForMali400 = false;
     bool disableGrayLumFBOForMesa = false;
+    bool disableBGRATextureStorageForIntelWindowsES = false;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
@@ -1376,6 +1379,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
         // Mali-400 fails ReadPixels tests, mostly with non-0xFF alpha values when read as GL_RGBA8.
         disableRGB8ForMali400 = kMali4xx_GrGLRenderer == ctxInfo.renderer();
+
+#if defined(SK_BUILD_FOR_WIN)
+        // On Intel Windows ES contexts it seems that using texture storage with BGRA causes
+        // problems with cross-context SkImages.
+        disableBGRATextureStorageForIntelWindowsES = kIntel_GrGLDriver == ctxInfo.driver() &&
+                                                   GR_IS_GR_GL_ES(standard);
+#endif
     }
 
     uint32_t nonMSAARenderFlags = ConfigInfo::kRenderable_Flag |
@@ -1384,7 +1394,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (kNone_MSFBOType != fMSFBOType) {
         allRenderFlags |= ConfigInfo::kRenderableWithMSAA_Flag;
     }
-    GrGLStandard standard = ctxInfo.standard();
     // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
@@ -1533,7 +1542,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                             nonMSAARenderFlags;
 
-            if (ctxInfo.hasExtension("GL_EXT_texture_storage")) {
+            // GL_EXT_texture storage has defined interactions with GL_EXT_texture_format_BGRA8888.
+            if (ctxInfo.hasExtension("GL_EXT_texture_storage") &&
+                !disableBGRATextureStorageForIntelWindowsES) {
                 supportsBGRATexStorage = true;
             }
             if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888") &&
