@@ -28,8 +28,6 @@ DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
-DECLARE_bool(analyticAA);
-DECLARE_bool(forceAnalyticAA);
 DECLARE_string(key);
 DECLARE_string(properties);
 
@@ -57,5 +55,10 @@ bool CollectImages(CommandLineFlags::StringArray dir, SkTArray<SkString>* output
  *     --reduceOpListSplitting
  */
 void SetCtxOptionsFromCommonFlags(struct GrContextOptions*);
+
+/**
+ *  Enable, disable, or force analytic anti-aliasing using --analyticAA and --forceAnalyticAA.
+ */
+void SetAnalyticAAFromCommonFlags();
 
 #endif

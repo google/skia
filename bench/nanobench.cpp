@@ -39,7 +39,6 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
-#include "SkScan.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
@@ -1191,11 +1190,8 @@ int main(int argc, char** argv) {
         start_keepalive();
     }
 
-    gSkUseAnalyticAA = FLAGS_analyticAA;
+    SetAnalyticAAFromCommonFlags();
 
-    if (FLAGS_forceAnalyticAA) {
-        gSkForceAnalyticAA = true;
-    }
     if (FLAGS_forceRasterPipeline) {
         gSkForceRasterPipelineBlitter = true;
     }

@@ -11,6 +11,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkOnce.h"
+#include "SkScan.h"
 
 DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 
@@ -77,14 +78,6 @@ DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifyi
 DEFINE_string(properties,
               "",
               "Space-separated key/value pairs to add to JSON identifying this run.");
-
-DEFINE_bool(analyticAA, true, "If false, disable analytic anti-aliasing");
-
-DEFINE_bool(forceAnalyticAA,
-            false,
-            "Force analytic anti-aliasing even if the path is complicated: "
-            "whether it's concave or convex, we consider a path complicated"
-            "if its number of points is comparable to its resolution.");
 
 bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
@@ -254,4 +247,16 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     if (FLAGS_reduceOpListSplitting) {
         ctxOptions->fReduceOpListSplitting = GrContextOptions::Enable::kYes;
     }
+}
+
+static DEFINE_bool(analyticAA, true, "If false, disable analytic anti-aliasing");
+
+static DEFINE_bool(forceAnalyticAA, false,
+            "Force analytic anti-aliasing even if the path is complicated: "
+            "whether it's concave or convex, we consider a path complicated"
+            "if its number of points is comparable to its resolution.");
+
+void SetAnalyticAAFromCommonFlags() {
+    gSkUseAnalyticAA   = FLAGS_analyticAA;
+    gSkForceAnalyticAA = FLAGS_forceAnalyticAA;
 }
