@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce498ba6_1b9ef494",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-22T19:03:30Z",
+      "side": 1,
+      "message": "Not that you need to do this right now, but this would probably be better as get/setControls so that it can be toggled in the viewer instead of cluttering up the command line help description.",
+      "range": {
+        "startLine": 19,
+        "startChar": 7,
+        "endLine": 19,
+        "endChar": 18
+      },
+      "revId": "9e36cb907f8a242f60fe4f0a824c3e93c38113a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
