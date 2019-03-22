@@ -7,7 +7,6 @@
 
 #include "DMSrcSink.h"
 #include "CommonFlags.h"
-#include "CommonFlagsGpu.h"
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
 #include "DebugCanvas.h"
@@ -81,6 +80,8 @@
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");
 static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
+
+DECLARE_int(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
 

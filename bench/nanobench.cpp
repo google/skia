@@ -16,7 +16,6 @@
 #include "CodecBenchPriv.h"
 #include "CommonFlags.h"
 #include "CommonFlagsConfig.h"
-#include "CommonFlagsGpu.h"
 #include "CrashHandler.h"
 #include "EventTracingPriv.h"
 #include "GMBench.h"

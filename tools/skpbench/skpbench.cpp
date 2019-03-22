@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "CommonFlags.h"
-#include "CommonFlagsGpu.h"
+#include "CommonFlagsConfig.h"
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
 #include "GpuTimer.h"
@@ -27,8 +28,6 @@
 #include "SkSurfaceProps.h"
 #include "SkTaskGroup.h"
 #include "ToolUtils.h"
-#include "flags/CommandLineFlags.h"
-#include "flags/CommonFlagsConfig.h"
 
 #ifdef SK_XML
 #include "SkDOM.h"

@@ -47,4 +47,15 @@ DECLARE_string(properties);
  */
 bool CollectImages(CommandLineFlags::StringArray dir, SkTArray<SkString>* output);
 
+/**
+ *  Helper to set GrContextOptions from common GPU flags, including
+ *     --gpuThreads
+ *     --cachePathMasks
+ *     --noGS
+ *     --pr
+ *     --disableDriverCorrectnessWorkarounds
+ *     --reduceOpListSplitting
+ */
+void SetCtxOptionsFromCommonFlags(struct GrContextOptions*);
+
 #endif
