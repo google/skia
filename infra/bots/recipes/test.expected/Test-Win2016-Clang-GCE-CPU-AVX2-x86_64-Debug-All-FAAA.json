@@ -320,8 +320,6 @@
       "image",
       "gen_platf",
       "error",
-      "--deltaAA",
-      "false",
       "--forceAnalyticAA",
       "--nonativeFonts",
       "--verbose"

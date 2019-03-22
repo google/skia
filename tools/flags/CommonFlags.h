@@ -30,8 +30,6 @@ DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
 DECLARE_bool(analyticAA);
 DECLARE_bool(forceAnalyticAA);
-DECLARE_bool(deltaAA);
-DECLARE_bool(forceDeltaAA);
 DECLARE_string(key);
 DECLARE_string(properties);
 

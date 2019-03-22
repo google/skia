@@ -801,11 +801,9 @@ def dm_flags(api, bot):
     args.append('--noRAW_threading')
 
   if 'FSAA' in bot:
-    args.extend(['--analyticAA', 'false', '--deltaAA', 'false'])
+    args.extend(['--analyticAA', 'false'])
   if 'FAAA' in bot:
-    args.extend(['--deltaAA', 'false', '--forceAnalyticAA'])
-  if 'FDAA' in bot:
-    args.extend(['--deltaAA', '--forceDeltaAA'])
+    args.extend(['--forceAnalyticAA'])
 
   if 'NativeFonts' not in bot:
     args.append('--nonativeFonts')
@@ -1072,7 +1070,6 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
-  'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',

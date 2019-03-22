@@ -1685,7 +1685,6 @@ private:
     mutable std::atomic<uint8_t>   fFirstDirection; // really an SkPathPriv::FirstDirection
     uint8_t                        fFillType    : 2;
     uint8_t                        fIsVolatile  : 1;
-    uint8_t                        fIsBadForDAA : 1;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
