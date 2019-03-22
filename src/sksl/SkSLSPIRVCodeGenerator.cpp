@@ -1223,6 +1223,27 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
     }
 }
 
+void SPIRVCodeGenerator::addColumnEntry(SpvId columnType, std::vector<SpvId>* currentColumn,
+                                        std::vector<SpvId>* columnIds,
+                                        int* currentCount, int rows, SpvId entry,
+                                        OutputStream& out) {
+    SkASSERT(*currentCount < rows);
+    ++(*currentCount);
+    currentColumn->push_back(entry);
+    if (*currentCount == rows) {
+        *currentCount = 0;
+        this->writeOpCode(SpvOpCompositeConstruct, 3 + currentColumn->size(), out);
+        this->writeWord(columnType, out);
+        SpvId columnId = this->nextId();
+        this->writeWord(columnId, out);
+        columnIds->push_back(columnId);
+        for (SpvId id : *currentColumn) {
+            this->writeWord(id, out);
+        }
+        currentColumn->clear();
+    }
+}
+
 SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStream& out) {
     SkASSERT(c.fType.kind() == Type::kMatrix_Kind);
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
@@ -1255,45 +1276,31 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
         this->writeInstruction(SpvOpCompositeConstruct, this->getType(c.fType), result, column1,
                                column2, out);
     } else {
+        SpvId columnType = this->getType(c.fType.componentType().toCompound(fContext, rows, 1));
         std::vector<SpvId> columnIds;
         // ids of vectors and scalars we have written to the current column so far
         std::vector<SpvId> currentColumn;
         // the total number of scalars represented by currentColumn's entries
         int currentCount = 0;
         for (size_t i = 0; i < arguments.size(); i++) {
-            if (c.fArguments[i]->fType.kind() == Type::kVector_Kind &&
+            if (currentCount == 0 && c.fArguments[i]->fType.kind() == Type::kVector_Kind &&
                     c.fArguments[i]->fType.columns() == c.fType.rows()) {
                 // this is a complete column by itself
-                SkASSERT(currentCount == 0);
                 columnIds.push_back(arguments[i]);
             } else {
                 if (c.fArguments[i]->fType.columns() == 1) {
-                    currentColumn.push_back(arguments[i]);
+                    this->addColumnEntry(columnType, &currentColumn, &columnIds, &currentCount,
+                                         rows, arguments[i], out);
                 } else {
                     SpvId componentType = this->getType(c.fArguments[i]->fType.componentType());
                     for (int j = 0; j < c.fArguments[i]->fType.columns(); ++j) {
                         SpvId swizzle = this->nextId();
                         this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
                                                arguments[i], j, out);
-                        currentColumn.push_back(swizzle);
+                        this->addColumnEntry(columnType, &currentColumn, &columnIds, &currentCount,
+                                             rows, swizzle, out);
                     }
                 }
-                currentCount += c.fArguments[i]->fType.columns();
-                if (currentCount == rows) {
-                    currentCount = 0;
-                    this->writeOpCode(SpvOpCompositeConstruct, 3 + currentColumn.size(), out);
-                    this->writeWord(this->getType(c.fType.componentType().toCompound(fContext, rows,
-                                                                                     1)),
-                                    out);
-                    SpvId columnId = this->nextId();
-                    this->writeWord(columnId, out);
-                    columnIds.push_back(columnId);
-                    for (SpvId id : currentColumn) {
-                        this->writeWord(id, out);
-                    }
-                    currentColumn.clear();
-                }
-                SkASSERT(currentCount < rows);
             }
         }
         SkASSERT(columnIds.size() == (size_t) columns);

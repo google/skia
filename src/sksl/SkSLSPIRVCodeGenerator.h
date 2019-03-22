@@ -199,6 +199,10 @@ private:
     void writeMatrixCopy(SpvId id, SpvId src, const Type& srcType, const Type& dstType,
                          OutputStream& out);
 
+    void addColumnEntry(SpvId columnType, std::vector<SpvId>* currentColumn,
+                        std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
+                        OutputStream& out);
+
     SpvId writeMatrixConstructor(const Constructor& c, OutputStream& out);
 
     SpvId writeVectorConstructor(const Constructor& c, OutputStream& out);
