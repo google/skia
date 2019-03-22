@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac93477b_cc16b0bf",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2019-03-22T21:45:38Z",
+      "side": 0,
+      "message": "It turns out that the slope can change very dramatically in cubics so let\u0027s just not have this fragile assert.",
+      "revId": "a7181e7c682adff355eb6661499c540f2310186b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
