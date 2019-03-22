@@ -448,6 +448,11 @@ bool SkAnalyticCubicEdge::setCubic(const SkPoint pts[4], bool sortY) {
     fCurveShift = fCEdge.fCurveShift;
     fCubicDShift = fCEdge.fCubicDShift;
 
+    // Just to pass our SkASSERT(fCEdge.fCx == fX) check in updateCubic.
+    // Without this assignment, the updateCubic shall set fX = fCEdge.fCx
+    // using updateLine.
+    fX = fCEdge.fCx;
+
     fSnappedY = fCEdge.fCy;
 
     return this->updateCubic(sortY);
@@ -458,10 +463,12 @@ bool SkAnalyticCubicEdge::updateCubic(bool sortY) {
     int     count = fCurveCount;
     SkFixed oldx = fCEdge.fCx;
     SkFixed oldy = fCEdge.fCy;
-    SkFixed newx, newy;
+    SkFixed newx, newy, newSnappedY;
     const int ddshift = fCurveShift;
     const int dshift = fCubicDShift;
 
+    // We don't snap X in cubics so this should hold due to keepContinuous.
+    SkASSERT(fCEdge.fCx == fX);
     SkASSERT(count < 0);
 
     do {
@@ -485,7 +492,7 @@ bool SkAnalyticCubicEdge::updateCubic(bool sortY) {
             newy = oldy;
         }
 
-        SkFixed newSnappedY = SnapY(newy);
+        newSnappedY = SnapY(newy);
         // we want to SkASSERT(snappedNewY <= fCEdge.fCLastY), but our finite fixedpoint
         // doesn't always achieve that, so we have to explicitly pin it here.
         if (sortY && fCEdge.fCLastY < newSnappedY) {
@@ -498,13 +505,16 @@ bool SkAnalyticCubicEdge::updateCubic(bool sortY) {
                         : SkFDot6Div(SkFixedToFDot6(newx - oldx),
                                      SkFixedToFDot6(newSnappedY - fSnappedY));
 
-        success = this->updateLine(oldx, fSnappedY, newx, newSnappedY, slope);
+        // We need to keep using old fCEdge.fCX and fSnappedY (instead of the changing oldx, oldy)
+        // to keep the continuity, which is required to keep our slope fDX and fDY valid. This is
+        // similar to updateQuadratic where fSnappedX and fSnappedY are used instead of oldx, oldy.
+        success = this->updateLine(fCEdge.fCx, fSnappedY, newx, newSnappedY, slope);
 
         oldx = newx;
         oldy = newy;
-        fSnappedY = newSnappedY;
     } while (count < 0 && !success);
 
+    fSnappedY = newSnappedY;
     fCEdge.fCx  = newx;
     fCEdge.fCy  = newy;
     fCurveCount = SkToS8(count);
