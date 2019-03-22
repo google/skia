@@ -1944,11 +1944,9 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
                          const SkColor colors[], int count, SkBlendMode mode,
                          const SkRect* cull, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(atlas);
     if (count <= 0) {
         return;
     }
-    SkASSERT(atlas);
     SkASSERT(tex);
     this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
 }
