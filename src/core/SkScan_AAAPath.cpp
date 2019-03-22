@@ -545,24 +545,26 @@ static SkAlpha trapezoid_to_alpha(SkFixed l1, SkFixed l2) {
     return SkTo<SkAlpha>(area >> 8);
 }
 
-// The alpha of right-triangle (a, a*b)
+// The alpha of right-triangle (a, a*b).
+//
+// Note that b is a slope which can be very close to 0 or infinity, and thus
+// its precision is very limited by our SkFixed representation.
 static SkAlpha partial_triangle_to_alpha(SkFixed a, SkFixed b) {
     SkASSERT(a <= SK_Fixed1);
-#if 0
-    // TODO(mtklein): skia:8877
-    SkASSERT(b <= SK_Fixed1);
-#endif
+
+    // We allow a little error above SK_Fixed1 for a * b due to precision limit.
+    SkASSERT(SkFixedMul(a, b) <= SK_Fixed1 * 1.5);
 
     // Approximating...
     // SkFixed area = SkFixedMul(a, SkFixedMul(a,b)) / 2;
     SkFixed area = (a >> 11) * (a >> 11) * (b >> 11);
 
-#if 0
-    // TODO(mtklein): skia:8877
-    return SkTo<SkAlpha>(area >> 8);
-#else
+    // In rare cases, our precision limit would generate an area greater than 1,
+    // and thus an alpha greater than 255. The correct way of handling it is
+    // clamping it down to 255. However, clamping's performance cost is probably
+    // too high. We'll simply `& 0xFF` since this erroronous case should be rare
+    // and hard to detect by human eyes.
     return SkTo<SkAlpha>((area >> 8) & 0xFF);
-#endif
 }
 
 static SkAlpha get_partial_alpha(SkAlpha alpha, SkFixed partialHeight) {
@@ -1726,7 +1728,7 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
             } else {
                 if (isLeft) {
                     left     = SkTMax(currE->fX, leftClip);
-                    leftDY   = currE->fDY;
+                    leftDY   = currE->fDY;  // save DY as it can be changed by updateQuadratic/Cubic
                     leftE    = currE;
                     leftEnds = leftE->fLowerY == nextY;
                 }
