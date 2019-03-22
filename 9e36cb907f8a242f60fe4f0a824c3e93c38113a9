@@ -22,6 +22,30 @@
       "revId": "9e36cb907f8a242f60fe4f0a824c3e93c38113a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8196eda_658c3f8b",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-22T19:05:37Z",
+      "side": 1,
+      "message": "Sure, whatever you like is fine with me.",
+      "parentUuid": "ce498ba6_1b9ef494",
+      "range": {
+        "startLine": 19,
+        "startChar": 7,
+        "endLine": 19,
+        "endChar": 18
+      },
+      "revId": "9e36cb907f8a242f60fe4f0a824c3e93c38113a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
