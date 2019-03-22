@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b4bf8cd_1c062ca6",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1893,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-22T18:11:26Z",
+      "side": 1,
+      "message": "You can also write this as one writeQuad call:\n\nverts.writeQuad(...\n                GrVertexWriter::If(fUseScale, scaleFactor),\n                invRadii);",
+      "revId": "be8c4303fe15d2b4783578b1f05e384f54d88c89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
