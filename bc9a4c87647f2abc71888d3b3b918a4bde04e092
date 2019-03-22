@@ -70,6 +70,30 @@
       "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c187323_caca5e71",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-22T18:46:23Z",
+      "side": 1,
+      "message": "Oh, when I had tried it, it complained with:\n  File \"/usr/local/google/home/rmistry/skia/infra/bots/recipe_modules/flavor/api.py\", line 85, in step\n    return self._f.step(name, cmd, **kwargs)\nTypeError: step() got an unexpected keyword argument \u0027skip_binary_push\u0027\n\n\nI\u0027m not exactly sure why. Maybe because default_flavor.step has step(self, name, cmd) ?",
+      "parentUuid": "a72bfa4b_7fac7402",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
