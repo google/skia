@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "771edc46_c7d11094",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-22T20:44:34Z",
+      "side": 1,
+      "message": "A simpler approach to this check would be to only apply the optimization if the rrect was a simple fill, and then we know it is completely contained inside the rrect\u0027s bounds. Given how Android sets up their clips, it may be equivalent to the current check since any stroke would outset beyond a clip that exactly matched the base rrect. I wrote it this way on the assumption that we\u0027d maybe still be able to use the optimization for some stroked rrects.",
+      "revId": "f15a26c58d7f61de9b04a75e8b2e202f7c0f4db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
