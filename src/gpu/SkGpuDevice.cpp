@@ -1521,39 +1521,6 @@ void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
-                            const SkRect texRect[], const SkColor colors[], int count,
-                            SkBlendMode mode, const SkPaint& paint) {
-    ASSERT_SINGLE_OWNER
-    if (paint.isAntiAlias()) {
-        this->INHERITED::drawAtlas(atlas, xform, texRect, colors, count, mode, paint);
-        return;
-    }
-
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawText", fContext.get());
-
-    SkPaint p(paint);
-    p.setShader(atlas->makeShader());
-
-    GrPaint grPaint;
-    if (colors) {
-        if (!SkPaintToGrPaintWithXfermode(this->context(), fRenderTargetContext->colorSpaceInfo(),
-                                          p, this->ctm(), (SkBlendMode)mode, &grPaint)) {
-            return;
-        }
-    } else {
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), p,
-                              this->ctm(), &grPaint)) {
-            return;
-        }
-    }
-
-    fRenderTargetContext->drawAtlas(
-            this->clip(), std::move(grPaint), this->ctm(), count, xform, texRect, colors);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
