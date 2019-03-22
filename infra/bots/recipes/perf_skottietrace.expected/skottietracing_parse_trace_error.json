@@ -344,7 +344,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --nocpu --config gles --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\"; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {

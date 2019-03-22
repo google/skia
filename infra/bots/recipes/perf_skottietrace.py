@@ -49,14 +49,13 @@ def perf_steps(api):
     if not lottie_filename.endswith('.json'):
       continue
 
-    trace_output_path = api.flavor.device_dirs.dm_dir + '/%s.json' % (idx + 1)
+    trace_output_path = api.flavor.device_path_join(
+        api.flavor.device_dirs.dm_dir, '%s.json' % (idx + 1))
     # See go/skottie-tracing for how these flags were selected.
     dm_args = [
       'dm',
       '--resourcePath', api.flavor.device_dirs.resource_dir,
       '--lotties', api.flavor.device_dirs.lotties_dir,
-      '--nocpu',
-      '--config', 'gles',
       '--src', 'lottie',
       '--nonativeFonts',
       '--verbose',
@@ -64,8 +63,15 @@ def perf_steps(api):
       '--trace', trace_output_path,
       '--match', get_trace_match(lottie_filename),
     ]
+    kwargs = {}
+    if 'Android' in api.properties['buildername']:
+      kwargs['skip_binary_push'] = not push_dm
+    if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+      dm_args.extend(['--config', 'gles', '--nocpu'])
+    elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+      dm_args.extend(['--config', '8888', '--nogpu'])
     api.run(api.flavor.step, 'dm', cmd=dm_args, abort_on_failure=False,
-            skip_binary_push=not push_dm)
+            **kwargs)
     # We already pushed the binary once. No need to waste time by pushing
     # the same binary for future runs.
     push_dm = False
@@ -98,13 +104,14 @@ def perf_steps(api):
   # Add tokens from the builder name to the key.
   reg = re.compile('Perf-(?P<os>[A-Za-z0-9_]+)-'
                    '(?P<compiler>[A-Za-z0-9_]+)-'
-                   '(?P<model>[A-Za-z0-9_]+)-GPU-'
+                   '(?P<model>[A-Za-z0-9_]+)-'
+                   '(?P<cpu_or_gpu>[A-Z]+)-'
                    '(?P<cpu_or_gpu_value>[A-Za-z0-9_]+)-'
                    '(?P<arch>[A-Za-z0-9_]+)-'
                    '(?P<configuration>[A-Za-z0-9_]+)-'
                    'All(-(?P<extra_config>[A-Za-z0-9_]+)|)')
   m = reg.match(api.properties['buildername'])
-  keys = ['os', 'compiler', 'model', 'cpu_or_gpu_value', 'arch',
+  keys = ['os', 'compiler', 'model', 'cpu_or_gpu', 'cpu_or_gpu_value', 'arch',
           'configuration', 'extra_config']
   for k in keys:
     perf_json['key'][k] = m.group(k)
@@ -264,9 +271,28 @@ def GenTests(api):
   }
   buildername = ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-'
                   'All-Android_SkottieTracing')
+  cpu_buildername = ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
+                     'SkottieTracing')
   yield (
       api.test(buildername) +
       api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     task_id='abc123',
+                     trace_test_data=trace_output,
+                     dm_json_test_data=dm_json_test_data,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('parse lottie(test)\'!2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie 3!.json trace',
+                    api.json.output(parse_trace_json))
+  )
+  yield (
+      api.test(cpu_buildername) +
+      api.properties(buildername=cpu_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      task_id='abc123',
