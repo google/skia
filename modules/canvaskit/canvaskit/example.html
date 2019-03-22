@@ -1145,6 +1145,7 @@
       console.error('Could not make surface');
       return;
     }
+    const grContext = surface.grContext;
 
     // create a subsurface as a temporary workspace.
     const subSurface = surface.makeSurface({
@@ -1198,6 +1199,9 @@
 
       canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
       surface.requestAnimationFrame(drawFrame);
+      if (grContext) {
+        console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
+      }
     }
     surface.requestAnimationFrame(drawFrame);
 
