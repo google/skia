@@ -64,16 +64,6 @@ std::unique_ptr<GrDrawOp> MakePerEdgeQuad(GrRecordingContext* context,
                                           const SkPoint localQuad[4],
                                           const GrUserStencilSettings* stencil = nullptr);
 
-// Bulk API for drawing quads with a single op
-// TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
-std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
-                                  GrPaint&& paint,
-                                  GrAAType aaType,
-                                  const SkMatrix& viewMatrix,
-                                  const GrRenderTargetContext::QuadSetEntry quads[],
-                                  int quadCount,
-                                  const GrUserStencilSettings* stencil = nullptr);
-
 // Specializations where all edges are treated the same. If the aa type is coverage, then the
 // edges will be anti-aliased, otherwise per-edge AA will be disabled.
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
