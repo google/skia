@@ -359,10 +359,6 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
-    args.extend(['--abandonGpuContext'])
-
   api.run(api.flavor.step, target, cmd=args,
           abort_on_failure=False)
 
@@ -416,7 +412,7 @@ TEST_BUILDERS = [
   ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
    'CommandBuffer'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
-    'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+    'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All',

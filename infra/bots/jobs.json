@@ -277,7 +277,6 @@
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
-  "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41",
   "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41",
   "Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All",
   "Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE",
