@@ -147,8 +147,9 @@ private:
     const volatile char* ensureAtLeast(size_t size, size_t alignment) {
         size_t padded = pad(fBytesRead, alignment);
 
-        // Not enough data
-        if (padded + size > fMemorySize) return nullptr;
+        // Not enough data.
+        if (padded > fMemorySize) return nullptr;
+        if (size > fMemorySize - padded) return nullptr;
 
         auto* result = fMemory + padded;
         fBytesRead = padded + size;
