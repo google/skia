@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "b3bbab43_29cb77d7",
+        "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-22T17:12:01Z",
+      "side": 1,
+      "message": "Planning to delete them after I\u0027m convinced the new versions work",
+      "parentUuid": "c95e9c6d_b287b228",
+      "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7fc674e5_60d9bed7",
         "filename": "tools/gpu/interface/gen_interface.go",
         "patchSetId": 10
