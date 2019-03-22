@@ -240,25 +240,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
             pixmap = &resized;
         }
         // Turn the pixmap into a GrTextureProxy
-        if (buildMips) {
-            SkBitmap bmp;
-            bmp.installPixels(*pixmap);
-            tempTextureProxies[i] = proxyProvider->createProxyFromBitmap(bmp, GrMipMapped::kYes);
-        }
-        if (!tempTextureProxies[i]) {
-            if (SkImageInfoIsValid(pixmap->info())) {
-                ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]",
-                                         pixmap->width(), pixmap->height());
-                // We don't need a release proc on the data in pixmap since we know we are in a
-                // GrContext that has a resource provider. Thus the createTextureProxy call will
-                // immediately upload the data.
-                sk_sp<SkImage> image = SkImage::MakeFromRaster(*pixmap, nullptr, nullptr);
-                tempTextureProxies[i] =
-                        proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
-                                                          SkBudgeted::kYes, SkBackingFit::kExact);
-            }
-        }
-
+        SkBitmap bmp;
+        bmp.installPixels(*pixmap);
+        GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
+        tempTextureProxies[i] = proxyProvider->createProxyFromBitmap(bmp, mipMapped);
         if (!tempTextureProxies[i]) {
             return nullptr;
         }
