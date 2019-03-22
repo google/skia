@@ -1117,10 +1117,6 @@ int main(int argc, char** argv) {
 
     SetCtxOptionsFromCommonFlags(&grContextOpts);
 
-    if (FLAGS_veryVerbose) {
-        FLAGS_verbose = true;
-    }
-
     if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
         FLAGS_gpuFrameLag = 0;

@@ -106,6 +106,8 @@ static DEFINE_string(colorImages, "",
               "List of images and/or directories to decode with color correction. "
               "A directory with no images is treated as a fatal error.");
 
+static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
+
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
