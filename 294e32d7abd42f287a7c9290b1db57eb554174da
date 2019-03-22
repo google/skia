@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69735444_1916e6e0",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-22T19:10:34Z",
+      "side": 1,
+      "message": "Instead of using the name supplied via the REG_FIDDLE macro, I used the filename after stripping off the \".cpp\". That way we are ensured that the names are unique.",
+      "range": {
+        "startLine": 149,
+        "startChar": 44,
+        "endLine": 149,
+        "endChar": 54
+      },
+      "revId": "294e32d7abd42f287a7c9290b1db57eb554174da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
