@@ -107,28 +107,6 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
     builder[4] = imageBounds.fBottom;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvider,
-                                                   const SkBitmap& bitmap) {
-    if (!bitmap.peekPixels(nullptr)) {
-        return nullptr;
-    }
-
-    if (!SkImageInfoIsValid(bitmap.info())) {
-        return nullptr;
-    }
-
-    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
-    // even if it's mutable. In ddl, if the bitmap is mutable then we must make a copy since the
-    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode cpyMode = proxyProvider->renderingDirectly() ? kNever_SkCopyPixelsMode
-                                                                  : kIfMutable_SkCopyPixelsMode;
-    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
-
-    return proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
-                                             SkBudgeted::kYes, SkBackingFit::kExact);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID,

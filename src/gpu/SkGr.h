@@ -191,13 +191,6 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
                                                     SkScalar scaleAdjust[2]);
 
 /**
- * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.
- * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
- * yuv planes.
- */
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBitmap&);
-
-/**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,

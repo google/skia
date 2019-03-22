@@ -93,7 +93,7 @@ protected:
                 *errorMsg = "Failed to read pixels.";
                 return DrawResult::kFail;
             }
-            proxy = proxyProvider->createMipMapProxyFromBitmap(copy);
+            proxy = proxyProvider->createProxyFromBitmap(copy, GrMipMapped::kYes);
         } else {
             proxy = proxyProvider->createTextureProxy(
                 fImage, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, SkBackingFit::kExact);

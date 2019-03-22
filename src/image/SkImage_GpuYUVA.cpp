@@ -243,7 +243,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
         if (buildMips) {
             SkBitmap bmp;
             bmp.installPixels(*pixmap);
-            tempTextureProxies[i] = proxyProvider->createMipMapProxyFromBitmap(bmp);
+            tempTextureProxies[i] = proxyProvider->createProxyFromBitmap(bmp, GrMipMapped::kYes);
         }
         if (!tempTextureProxies[i]) {
             if (SkImageInfoIsValid(pixmap->info())) {
