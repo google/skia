@@ -1821,6 +1821,13 @@ void Viewer::drawImGui() {
                                 if (ImGui::SliderFloat(name, &val[0], val[1], val[2])) {
                                     controls.setScalars(name, 3, val);
                                 }
+                            } else if (type == SkMetaData::kBool_Type) {
+                                bool val;
+                                SkASSERT(count == 1);
+                                controls.findBool(name, &val);
+                                if (ImGui::Checkbox(name, &val)) {
+                                    controls.setBool(name, val);
+                                }
                             }
                         }
                         fSlides[fCurrentSlide]->onSetControls(controls);
