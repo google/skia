@@ -1826,31 +1826,6 @@ public:
     };
 
     /**
-     * This is an experimental API for the SkiaRenderer Chromium project. The signature will
-     * surely evolve if this is not removed. It currently offers no performance advantage over
-     * drawing images independently, though may in the future. The antialiasing flags are intended
-     * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
-     * current implementation only antialiases if all edges are flagged, however.
-     * Results are undefined if an image's src rect is not within the image's bounds.
-     *
-     * Ignores fDstClipCount and fMatrixIndex in the image set entries.
-     * <!deprecated in favor of experimental_DrawEdgeAAImageSet
-     */
-    void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
-                                     SkFilterQuality quality, SkBlendMode mode);
-
-    /**
-     * This is an experimental API for the SkiaRenderer Chromium project. The signature will
-     * surely evolve if this is not removed. The antialiasing flags are intended to allow control
-     * over each edge's AA status, to allow perfect seaming for tile sets.
-     *
-     * When not fully supported, the implementation only antialiases if all edges are flagged.
-     * <!deprecated in favor of experimental_DrawEdgeAAQuad
-     */
-    void experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
-                                       SkBlendMode mode);
-
-    /**
      * This is an experimental API for the SkiaRenderer Chromium project, and its API will surely
      * evolve if it is not removed outright.
      *

@@ -73,8 +73,9 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
                 SkColor color = alignGradients ? SK_ColorBLUE
                                                : (i * kColCount + j) % 2 == 0 ? SK_ColorBLUE
                                                                               : SK_ColorWHITE;
-                canvas->experimental_DrawEdgeAARectV1(
-                        tile, static_cast<SkCanvas::QuadAAFlags>(aa), color, SkBlendMode::kSrcOver);
+                canvas->experimental_DrawEdgeAAQuad(
+                        tile, nullptr, static_cast<SkCanvas::QuadAAFlags>(aa), color,
+                        SkBlendMode::kSrcOver);
             }
 
             if (!alignGradients) {
@@ -111,8 +112,8 @@ static void draw_color_tiles(SkCanvas* canvas, bool multicolor) {
                 aa |= SkCanvas::kRight_QuadAAFlag;
             }
 
-            canvas->experimental_DrawEdgeAARectV1(
-                    tile, static_cast<SkCanvas::QuadAAFlags>(aa), color.toSkColor(),
+            canvas->experimental_DrawEdgeAAQuad(
+                    tile, nullptr, static_cast<SkCanvas::QuadAAFlags>(aa), color.toSkColor(),
                     SkBlendMode::kSrcOver);
         }
     }

@@ -121,6 +121,10 @@ private:
         SkAssertResult(matrices[3].setPolyToPoly(src, dst, 4));
         matrices[3].postTranslate(100.f, d);
         for (auto fm : {kNone_SkFilterQuality, kLow_SkFilterQuality}) {
+            SkPaint paint;
+            paint.setFilterQuality(fm);
+            paint.setBlendMode(SkBlendMode::kSrcOver);
+
             for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
                 // Draw grid of red lines at interior tile boundaries.
                 static constexpr SkScalar kLineOutset = 10.f;
@@ -145,7 +149,8 @@ private:
                 }
                 canvas->save();
                 canvas->concat(matrices[m]);
-                canvas->experimental_DrawImageSetV1(fSet, kM * kN, fm, SkBlendMode::kSrcOver);
+                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &paint,
+                                                        SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
             }
             // A more exotic case with an unusual blend mode, mixed aa flags set, and alpha,
@@ -158,7 +163,10 @@ private:
             entry.fAAFlags = SkCanvas::kLeft_QuadAAFlag | SkCanvas::kTop_QuadAAFlag;
             canvas->save();
             canvas->rotate(3.f);
-            canvas->experimental_DrawImageSetV1(&entry, 1, fm, SkBlendMode::kExclusion);
+
+            paint.setBlendMode(SkBlendMode::kExclusion);
+            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, &paint,
+                                                    SkCanvas::kFast_SrcRectConstraint);
             canvas->restore();
             canvas->translate(2 * d, 0);
         }
@@ -202,6 +210,10 @@ private:
         matrices[4].postRotate(90, kW / 2.f, kH / 2.f);
         matrices[4].postScale(2.f, 0.5f);
 
+        SkPaint paint;
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
+
         static constexpr SkScalar kTranslate = SkTMax(kW, kH) * 2.f + 10.f;
         canvas->translate(5.f, 5.f);
         canvas->save();
@@ -211,8 +223,8 @@ private:
             for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
                 canvas->save();
                 canvas->concat(matrices[m]);
-                canvas->experimental_DrawImageSetV1(fSet, kM * kN, kLow_SkFilterQuality,
-                                                    SkBlendMode::kSrcOver);
+                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &paint,
+                                                        SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
                 canvas->translate(kTranslate, 0);
             }
@@ -234,8 +246,8 @@ private:
             for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
                 canvas->save();
                 canvas->concat(matrices[m]);
-                canvas->experimental_DrawImageSetV1(scaledSet, kM * kN, kLow_SkFilterQuality,
-                                                    SkBlendMode::kSrcOver);
+                canvas->experimental_DrawEdgeAAImageSet(scaledSet, kM * kN, nullptr, nullptr,
+                                                        &paint, SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
                 canvas->translate(kTranslate, 0);
             }
