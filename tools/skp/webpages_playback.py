@@ -207,8 +207,8 @@ class SkPicturePlayback(object):
 
       page_set_basename = os.path.basename(page_set).split('.')[0]
       page_set_json_name = page_set_basename + '.json'
-      wpr_data_file = (
-          page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wprgo')
+      wpr_data_file_glob = (
+          page_set.split(os.path.sep)[-1].split('.')[0] + '_*.wprgo')
       page_set_dir = os.path.dirname(page_set)
 
       if self._IsChromiumPageSet(page_set):
@@ -232,9 +232,11 @@ class SkPicturePlayback(object):
 
             # Copy over the created archive into the local webpages archive
             # directory.
-            shutil.copy(
-              os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
-              self._local_record_webpages_archive_dir)
+            for wpr_data_file in glob.glob(os.path.join(
+                LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file_glob)):
+              shutil.copy(
+                os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
+                self._local_record_webpages_archive_dir)
             shutil.copy(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                            page_set_json_name),
@@ -252,7 +254,7 @@ class SkPicturePlayback(object):
 
       else:
         # Get the webpages archive so that it can be replayed.
-        self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
+        self._DownloadWebpagesArchive(wpr_data_file_glob, page_set_json_name)
 
       run_benchmark_cmd = [
           'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
@@ -422,9 +424,7 @@ class SkPicturePlayback(object):
     gs = self.gs
     if (gs.does_storage_object_exist(wpr_source) and
         gs.does_storage_object_exist(page_set_source)):
-      gs.download_file(wpr_source,
-                       os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
-                                    wpr_data_file))
+      gs.download_file(wpr_source, LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR)
       gs.download_file(page_set_source,
                        os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                                     page_set_json_name))
