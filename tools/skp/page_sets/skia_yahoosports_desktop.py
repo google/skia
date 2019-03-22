@@ -1,4 +1,4 @@
-# Copyright 2015 The Chromium Authors. All rights reserved.
+# Copyright 2019 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
@@ -9,34 +9,32 @@ from telemetry.page import page as page_module
 from telemetry.page import shared_page_state
 
 
-class SkiaBuildbotDesktopPage(page_module.Page):
+class SkiaDesktopPage(page_module.Page):
 
   def __init__(self, url, page_set):
-    super(SkiaBuildbotDesktopPage, self).__init__(
+    super(SkiaDesktopPage, self).__init__(
         url=url,
         name=url,
         page_set=page_set,
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
-    self.archive_data_file = 'data/skia_unicodetable_desktop.json'
+    self.archive_data_file = 'data/skia_yahoosports_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.ScrollPage(distance=100000)
-    action_runner.Wait(20)
+    action_runner.Wait(15)
 
 
-class SkiaUnicodetableDesktopPageSet(story.StorySet):
-
+class SkiaYahoosportsDesktopPageSet(story.StorySet):
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaUnicodetableDesktopPageSet, self).__init__(
-      archive_data_file='data/skia_unicodetable_desktop.json')
+    super(SkiaYahoosportsDesktopPageSet, self).__init__(
+      archive_data_file='data/skia_yahoosports_desktop.json')
 
     urls_list = [
-      # Why: stress tests for fonts (from skia:3574).
-      'http://unicode-table.com/en/',
+      # go/skia-skps-3-2019
+      'http://sports.yahoo.com',
     ]
 
     for url in urls_list:
-      self.AddStory(SkiaBuildbotDesktopPage(url, self))
+      self.AddStory(SkiaDesktopPage(url, self))

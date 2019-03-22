@@ -92,8 +92,8 @@ MAX_SKP_BASE_NAME_LEN = 31
 # Dictionary of device to platform prefixes for SKP files.
 DEVICE_TO_PLATFORM_PREFIX = {
     'desktop': 'desk',
-    'galaxynexus': 'mobi',
-    'nexus10': 'tabl'
+    'mobile': 'mobi',
+    'tablet': 'tabl'
 }
 
 # How many times the record_wpr binary should be retried.
@@ -111,8 +111,6 @@ CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
 
 # Dictionary of supported Chromium page sets to their file prefixes.
 CHROMIUM_PAGE_SETS_TO_PREFIX = {
-    'key_mobile_sites_smooth.py': 'keymobi',
-    'top_25_smooth.py': 'top25desk',
 }
 
 PAGE_SETS_TO_EXCLUSIONS = {
