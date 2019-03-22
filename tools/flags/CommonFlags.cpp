@@ -70,8 +70,6 @@ DEFINE_int_2(threads,
 
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 
-DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
-
 DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
 
 DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");

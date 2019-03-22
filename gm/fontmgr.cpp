@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "CommonFlags.h"
+#include "CommandLineFlags.h"
 #include "SkCanvas.h"
 #include "SkFontMetrics.h"
 #include "SkFontMgr.h"
@@ -15,6 +15,10 @@
 #include "SkTypeface.h"
 #include "ToolUtils.h"
 #include "gm.h"
+
+static DEFINE_bool(label_fontmgr_bounds, false,
+                   "Label each box in fontmgr_bounds with the typeface name "
+                   "and glyph IDs for each extrema.");
 
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30
@@ -273,7 +277,7 @@ public:
         labelFont.setEdging(SkFont::Edging::kAntiAlias);
         labelFont.setTypeface(ToolUtils::create_portable_typeface());
 
-        if (FLAGS_veryVerbose) {
+        if (FLAGS_label_fontmgr_bounds) {
             SkString name;
             font.getTypefaceOrDefault()->getFamilyName(&name);
             canvas->drawString(name, fontBounds.fLeft, fontBounds.fBottom, labelFont, SkPaint());
@@ -287,7 +291,7 @@ public:
             glyphPaint.setStyle(style);
             canvas->drawSimpleText(&str[i], sizeof(str[0]), kGlyphID_SkTextEncoding, x, y, font, glyphPaint);
 
-            if (FLAGS_veryVerbose) {
+            if (FLAGS_label_fontmgr_bounds) {
                 SkString glyphStr;
                 glyphStr.appendS32(str[i]);
                 canvas->drawString(glyphStr, location[i].fX, location[i].fY, labelFont, SkPaint());

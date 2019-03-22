@@ -26,7 +26,6 @@ DECLARE_bool(nativeFonts);
 DECLARE_int(threads);
 DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
-DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
 DECLARE_string(key);
 DECLARE_string(properties);
