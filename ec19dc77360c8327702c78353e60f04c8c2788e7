@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ad2469e7_cb20d853",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 10
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-22T18:48:49Z",
+      "side": 1,
+      "message": "Done.  I prefer the Autogen suffix, especially since we are changing something that was manually curated to something generated",
+      "parentUuid": "441ce7f6_9bd29acf",
+      "range": {
+        "startLine": 424,
+        "startChar": 16,
+        "endLine": 424,
+        "endChar": 48
+      },
+      "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c95e9c6d_b287b228",
         "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
         "patchSetId": 10
@@ -74,6 +98,24 @@
       "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cd395c6_78bca687",
+        "filename": "tools/gpu/interface/gen_interface.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-22T18:48:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fc674e5_60d9bed7",
+      "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
