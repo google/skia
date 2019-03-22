@@ -68,6 +68,8 @@ public:
                          const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
                          const uint16_t indices[], int ptCount,
                          const SkPaint& paint, const SkVertices::Bone bones[], int boneCount) const;
+    void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
+                    SkBlendMode, const SkPaint&);
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).
