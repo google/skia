@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "CommonFlags.h"
+#include "CommandLineFlags.h"
 #include "PathOpsCubicIntersectionTestData.h"
 #include "PathOpsQuadIntersectionTestData.h"
 #include "SkPaint.h"
@@ -160,7 +160,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best < gMaxRecursion[2]) {
-            if (FLAGS_veryVerbose) {
+            if (reporter->verbose()) {
                 SkDebugf("\n%s quad=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[2],
                         p.getStrokeWidth());
                 path.dumpHex();
@@ -175,7 +175,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
        SkDebugf("\n%s max quad=%d\n", __FUNCTION__, best);
     }
 #endif
@@ -200,7 +200,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
         p.getFillPath(path, &fill);
     #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (bestTan < gMaxRecursion[0] || bestCubic < gMaxRecursion[1]) {
-            if (FLAGS_veryVerbose) {
+            if (reporter->verbose()) {
                 SkDebugf("\n%s tan=%d cubic=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[0],
                         gMaxRecursion[1], p.getStrokeWidth());
                 path.dumpHex();
@@ -216,7 +216,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s max tan=%d cubic=%d\n", __FUNCTION__, bestTan, bestCubic);
     }
 #endif
@@ -252,7 +252,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best < gMaxRecursion[2]) {
-            if (FLAGS_veryVerbose) {
+            if (reporter->verbose()) {
                 SkDebugf("\n%s quad=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[2],
                         p.getStrokeWidth());
                 path.dumpHex();
@@ -267,7 +267,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s max quad=%d\n", __FUNCTION__, best);
     }
 #endif
@@ -310,7 +310,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (bestTan < gMaxRecursion[0] || bestCubic < gMaxRecursion[1]) {
-            if (FLAGS_veryVerbose) {
+            if (reporter->verbose()) {
                 SkDebugf("\n%s tan=%d cubic=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[0],
                         gMaxRecursion[1], p.getStrokeWidth());
                 path.dumpHex();
@@ -326,7 +326,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s max tan=%d cubic=%d\n", __FUNCTION__, bestTan, bestCubic);
     }
 #endif
@@ -356,7 +356,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best < gMaxRecursion[2]) {
-            if (FLAGS_veryVerbose) {
+            if (reporter->verbose()) {
                 SkDebugf("\n%s quad=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[2],
                         p.getStrokeWidth());
                 path.dumpHex();
@@ -371,7 +371,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_verbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s max quad=%d\n", __FUNCTION__, best);
     }
 #endif
@@ -395,7 +395,7 @@ DEF_TEST(CubicStrokerRange, reporter) {
         p.getFillPath(path, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best[0] < gMaxRecursion[0] || best[1] < gMaxRecursion[1]) {
-            if (FLAGS_veryVerbose) {
+            if (reporter->verbose()) {
                 SkDebugf("\n%s tan=%d cubic=%d width=%1.9g\n", __FUNCTION__, gMaxRecursion[0],
                         gMaxRecursion[1], p.getStrokeWidth());
                 path.dumpHex();
@@ -411,7 +411,7 @@ DEF_TEST(CubicStrokerRange, reporter) {
         }
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s max tan=%d cubic=%d\n", __FUNCTION__, best[0], best[1]);
     }
 #endif
@@ -430,14 +430,14 @@ DEF_TEST(QuadStrokerOneOff, reporter) {
 path.moveTo(SkBits2Float(0x43c99223), SkBits2Float(0x42b7417e));
 path.quadTo(SkBits2Float(0x4285d839), SkBits2Float(0x43ed6645), SkBits2Float(0x43c941c8), SkBits2Float(0x42b3ace3));
     p.getFillPath(path, &fill);
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s path\n", __FUNCTION__);
         path.dump();
         SkDebugf("fill:\n");
         fill.dump();
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("max quad=%d\n", gMaxRecursion[2]);
     }
 #endif
@@ -455,14 +455,14 @@ DEF_TEST(CubicStrokerOneOff, reporter) {
 path.moveTo(SkBits2Float(0x433f5370), SkBits2Float(0x43d1f4b3));
 path.cubicTo(SkBits2Float(0x4331cb76), SkBits2Float(0x43ea3340), SkBits2Float(0x4388f498), SkBits2Float(0x42f7f08d), SkBits2Float(0x43f1cd32), SkBits2Float(0x42802ec1));
     p.getFillPath(path, &fill);
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("\n%s path\n", __FUNCTION__);
         path.dump();
         SkDebugf("fill:\n");
         fill.dump();
     }
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
-    if (FLAGS_veryVerbose) {
+    if (reporter->verbose()) {
         SkDebugf("max tan=%d cubic=%d\n", gMaxRecursion[0], gMaxRecursion[1]);
     }
 #endif
