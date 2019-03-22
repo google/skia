@@ -46,6 +46,30 @@
       "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a72bfa4b_7fac7402",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-22T18:37:39Z",
+      "side": 1,
+      "message": "I still don\u0027t really understand; it\u0027s a no-op for desktop, and we would want this behavior if we started running on iOS, so why not just include it everywhere?",
+      "parentUuid": "158f7ed2_57e3916e",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
