@@ -13,25 +13,6 @@
 #include "SkOnce.h"
 #include "SkScan.h"
 
-DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
-
-DEFINE_bool(dryRun,
-            false,
-            "just print the tests that would be run, without actually running them.");
-
-DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
-
-DEFINE_string(images,
-              "",
-              "List of images and/or directories to decode. A directory with no images"
-              " is treated as a fatal error.");
-
-DEFINE_bool(simpleCodec,
-            false,
-            "Runs of a subset of the codec tests.  "
-            "For DM, this means no scaling or subsetting, always using the "
-            "canvas color type.  "
-            "For nanobench, this means always N32, Premul or Opaque.");
 
 DEFINE_string2(match,
                m,
