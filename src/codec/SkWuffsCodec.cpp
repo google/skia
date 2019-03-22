@@ -790,8 +790,10 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
         default:
             return SkCodec::kInternalError;
     }
-    imgcfg->pixcfg.set(pixfmt, WUFFS_BASE__PIXEL_SUBSAMPLING__NONE, imgcfg->pixcfg.width(),
-                       imgcfg->pixcfg.height());
+    if (imgcfg) {
+        imgcfg->pixcfg.set(pixfmt, WUFFS_BASE__PIXEL_SUBSAMPLING__NONE, imgcfg->pixcfg.width(),
+                           imgcfg->pixcfg.height());
+    }
 
     return SkCodec::kSuccess;
 }
