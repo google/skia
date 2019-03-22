@@ -550,7 +550,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     if (buildMips) {
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
-        proxy = proxyProvider->createMipMapProxyFromBitmap(bmp);
+        proxy = proxyProvider->createProxyFromBitmap(bmp, GrMipMapped::kYes);
     } else {
         if (SkImageInfoIsValid(pixmap->info())) {
             ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap->width(), pixmap->height());

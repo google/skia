@@ -294,7 +294,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
                              budgeted, GrInternalSurfaceFlags::kNone);
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitmap& bitmap) {
+sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
+                                                             GrMipMapped mipMapped) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
@@ -305,7 +306,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", bitmap.width(), bitmap.height());
+    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%ux%u]",
+                             GrMipMapped::kYes == mipMapped ? "MipMap " : "",
+                             bitmap.width(), bitmap.height());
 
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
     // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
@@ -317,8 +320,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    // This was never going to have mips anyway
-    if (0 == SkMipMap::ComputeLevelCount(baseLevel->width(), baseLevel->height())) {
+    // If mips weren't requested (or this was too small to have any), then take the fast path
+    if (GrMipMapped::kNo == mipMapped ||
+        0 == SkMipMap::ComputeLevelCount(baseLevel->width(), baseLevel->height())) {
         return this->createTextureProxy(baseLevel, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes,
                                         SkBackingFit::kExact);
     }
