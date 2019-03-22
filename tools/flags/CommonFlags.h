@@ -12,11 +12,6 @@
 #include "CommandLineFlags.h"
 #include "SkString.h"
 
-DECLARE_bool(cpu);
-DECLARE_bool(dryRun);
-DECLARE_bool(gpu);
-DECLARE_string(images);
-DECLARE_bool(simpleCodec);
 DECLARE_string(match);
 DECLARE_bool(quiet);
 DECLARE_string(skps);

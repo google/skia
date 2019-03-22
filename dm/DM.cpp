@@ -108,6 +108,19 @@ static DEFINE_string(colorImages, "",
 
 static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
 
+static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
+static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+
+static DEFINE_bool(dryRun, false,
+                   "just print the tests that would be run, without actually running them.");
+
+static DEFINE_string(images, "",
+                     "List of images and/or directories to decode. A directory with no images"
+                     " is treated as a fatal error.");
+
+static DEFINE_bool(simpleCodec, false,
+                   "Runs of a subset of the codec tests, "
+                   "with no scaling or subsetting, always using the canvas color type.");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;

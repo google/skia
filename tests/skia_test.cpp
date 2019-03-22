@@ -31,6 +31,8 @@ static DEFINE_bool2(runFail, f, false, "check for success on tests known to fail
 static DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
 static DEFINE_string2(json, J, "", "write json version of tests.");
 static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
+static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
+static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
 
 #if DEBUG_COIN
 static DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
