@@ -139,6 +139,10 @@ class DefaultFlavor(object):
     self.m.file.ensure_directory(
         'makedirs %s' % self.m.path.basename(path), path)
 
+  def read_file_on_device(self, path, **kwargs):
+    """Reads the specified file."""
+    return self.m.file.read_text('read %s' % path, path)
+
   def install(self):
     """Run device-specific installation steps."""
     pass
