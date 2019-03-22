@@ -322,8 +322,6 @@
       "error",
       "--analyticAA",
       "false",
-      "--deltaAA",
-      "false",
       "--nonativeFonts",
       "--verbose"
     ],

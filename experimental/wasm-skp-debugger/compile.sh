@@ -46,7 +46,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     ${GN_GPU_FLAGS}
   ] \
   is_debug=false \
@@ -114,7 +114,6 @@ ${EMCXX} \
     -Itools \
     -Itools/debugger \
     -DSK_DISABLE_AAA \
-    -DSK_DISABLE_DAA \
     -std=c++17 \
     $WASM_GPU \
     --post-js $BASE_DIR/ready.js \

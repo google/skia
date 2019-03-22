@@ -1018,20 +1018,11 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
     return textBlobBuilder.make();
 }
 
-extern std::atomic<bool> gSkUseDeltaAA;
-extern std::atomic<bool> gSkForceDeltaAA;
-
 static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
     if (!fuzz || !canvas || depth <= 0) {
         return;
     }
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
-    bool useDAA;
-    fuzz->next(&useDAA);
-    if (useDAA) {
-        gSkForceDeltaAA = true;
-        gSkUseDeltaAA = true;
-    }
     unsigned N;
     fuzz->nextRange(&N, 0, 2000);
     for (unsigned i = 0; i < N; ++i) {
