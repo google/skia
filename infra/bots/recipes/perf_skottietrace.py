@@ -84,6 +84,7 @@ def perf_steps(api):
 
     perf_results[lottie_filename] = parse_trace(
         trace_file_content, lottie_filename, api)
+    api.flavor.remove_file_on_device(trace_output_path)
 
   # Construct contents of the output JSON.
   perf_json = {
