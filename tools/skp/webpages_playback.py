@@ -76,6 +76,13 @@ LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data')
 TMP_SKP_DIR = tempfile.mkdtemp()
 
+# Location of the credentials.json file and the string that represents missing
+# passwords.
+CREDENTIALS_FILE_PATH = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data',
+    'credentials.json'
+)
+
 # Name of the SKP benchmark
 SKP_BENCHMARK = 'skpicture_printer'
 
@@ -93,6 +100,9 @@ DEVICE_TO_PLATFORM_PREFIX = {
 RETRY_RECORD_WPR_COUNT = 5
 # How many times the run_benchmark binary should be retried.
 RETRY_RUN_MEASUREMENT_COUNT = 3
+
+# Location of the credentials.json file in Google Storage.
+CREDENTIALS_GS_PATH = 'playback/credentials/credentials.json'
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
 
@@ -190,6 +200,22 @@ class SkPicturePlayback(object):
 
   def Run(self):
     """Run the SkPicturePlayback BuildStep."""
+
+    # Download the credentials file if it was not previously downloaded.
+    if not os.path.isfile(CREDENTIALS_FILE_PATH):
+      # Download the credentials.json file from Google Storage.
+      self.gs.download_file(CREDENTIALS_GS_PATH, CREDENTIALS_FILE_PATH)
+
+    if not os.path.isfile(CREDENTIALS_FILE_PATH):
+      print """\n\nCould not locate credentials file in the storage.
+      Please create a %s file that contains:
+      {
+        "google": {
+          "username": "google_testing_account_username",
+          "password": "google_testing_account_password"
+        }
+      }\n\n""" % CREDENTIALS_FILE_PATH
+      raw_input("Please press a key when you are ready to proceed...")
 
     # Delete any left over data files in the data directory.
     for archive_file in glob.glob(
