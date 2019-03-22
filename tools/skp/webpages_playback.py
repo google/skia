@@ -92,8 +92,8 @@ MAX_SKP_BASE_NAME_LEN = 31
 # Dictionary of device to platform prefixes for SKP files.
 DEVICE_TO_PLATFORM_PREFIX = {
     'desktop': 'desk',
-    'galaxynexus': 'mobi',
-    'nexus10': 'tabl'
+    'mobile': 'mobi',
+    'tablet': 'tabl'
 }
 
 # How many times the record_wpr binary should be retried.
@@ -111,8 +111,6 @@ CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
 
 # Dictionary of supported Chromium page sets to their file prefixes.
 CHROMIUM_PAGE_SETS_TO_PREFIX = {
-    'key_mobile_sites_smooth.py': 'keymobi',
-    'top_25_smooth.py': 'top25desk',
 }
 
 PAGE_SETS_TO_EXCLUSIONS = {
@@ -207,14 +205,24 @@ class SkPicturePlayback(object):
       self.gs.download_file(CREDENTIALS_GS_PATH, CREDENTIALS_FILE_PATH)
 
     if not os.path.isfile(CREDENTIALS_FILE_PATH):
+<<<<<<< HEAD
+      print """\n\nCould not locate credentials file in the storage.
+      Please create a %s file that contains:
+=======
       raise Exception("""Could not locate credentials file in the storage.
       Please create a credentials file in gs://%s that contains:
+>>>>>>> 9b5e803a6c71a494f0d4c02837a9fe692520d26c
       {
         "google": {
           "username": "google_testing_account_username",
           "password": "google_testing_account_password"
         }
+<<<<<<< HEAD
+      }\n\n""" % CREDENTIALS_FILE_PATH
+      raw_input("Please press a key when you are ready to proceed...")
+=======
       }\n\n""" % CREDENTIALS_GS_PATH)
+>>>>>>> 9b5e803a6c71a494f0d4c02837a9fe692520d26c
 
     # Delete any left over data files in the data directory.
     for archive_file in glob.glob(

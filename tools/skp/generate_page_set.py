@@ -13,7 +13,12 @@ PAGE_SET_TEMPLATE = 'page_set_template'
 PAGE_SET_DIR = 'page_sets'
 
 
+<<<<<<< HEAD
+if __name__ == '__main__':
+
+=======
 def main():
+>>>>>>> 9b5e803a6c71a494f0d4c02837a9fe692520d26c
   created_page_sets = []
   while True:
     user_agent = raw_input('user agent? (mobile/desktop/tablet): ')
@@ -44,7 +49,10 @@ def main():
   print '\n\nSummarizing all created page sets:'
   for page_set_path in created_page_sets:
     print '* %s' % page_set_path
+<<<<<<< HEAD
+=======
 
 
 if __name__ == '__main__':
   main()
+>>>>>>> 9b5e803a6c71a494f0d4c02837a9fe692520d26c
