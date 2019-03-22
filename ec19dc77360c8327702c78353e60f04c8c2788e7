@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "441ce7f6_9bd29acf",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 10
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-22T15:40:51Z",
+      "side": 1,
+      "message": "I think we\u0027d be more standard if we called these files GrGLAssembleGLInterface and GrGLAssembleGLESInterface rather than _gl and _gles.\n\nWe at least two other sets of generated files in Ganesh:\n1) .fp-\u003e.h/.cpp\n2) gpu_workaround_list.txt -\u003e GrDriverBugWorkaroundsAutogen.h\n\n1) Doesn\u0027t in any way indicate in the filename/path that they\u0027re generated. 2) uses an Autogen suffix.\n\nI don\u0027t feel strongly about what convention we use, but let\u0027s pick something and stick to it.",
+      "range": {
+        "startLine": 424,
+        "startChar": 16,
+        "endLine": 424,
+        "endChar": 48
+      },
+      "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c95e9c6d_b287b228",
+        "filename": "src/gpu/gl/GrGLAssembleInterface_gl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-22T15:40:51Z",
+      "side": 1,
+      "message": "If this file is not compiled anymore (and the other one) shouldn\u0027t we just delete them?",
+      "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fc674e5_60d9bed7",
+        "filename": "tools/gpu/interface/gen_interface.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-22T15:40:51Z",
+      "side": 1,
+      "message": "Should probably put this under tools/gpu/gl",
+      "revId": "ec19dc77360c8327702c78353e60f04c8c2788e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
