@@ -1995,40 +1995,6 @@ void SkCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     LOOPER_END
 }
 
-void SkCanvas::experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
-                                           SkFilterQuality filterQuality, SkBlendMode mode) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(imageSet);
-    RETURN_ON_FALSE(cnt);
-
-    // DrawImageSetV1 is the same as DrawEdgeAAImageSet by making a paint from its filterQuality and
-    // blend mode, and not providing any clip region. To safely handle that, we make a copy of the
-    // entry set and set fHasClip to false and fMatrixIndex to -1 on each entry. Since this
-    // function will be going away, that performance hit is acceptable.
-    SkTArray<ImageSetEntry> safeImages(cnt);
-    for (int i = 0; i < cnt; ++i) {
-        ImageSetEntry& e = safeImages.push_back();
-        e = imageSet[i];
-        e.fHasClip = false;
-        e.fMatrixIndex = -1;
-    }
-
-    SkPaint paint;
-    paint.setFilterQuality(filterQuality);
-    paint.setBlendMode(mode);
-    this->onDrawEdgeAAImageSet(safeImages.begin(), cnt, nullptr, nullptr, &paint,
-                               kFast_SrcRectConstraint);
-}
-
-void SkCanvas::experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
-                                             SkBlendMode mode) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    // To avoid redundant logic in our culling code and various backends, we always sort rects
-    // before passing them along.
-    // DrawEdgeAARectV1 is the same as DrawEdgeAAQuad when no clip region is specified
-    this->onDrawEdgeAAQuad(r.makeSorted(), nullptr, edgeAA, color, mode);
-}
-
 void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                                            QuadAAFlags aaFlags, SkColor color, SkBlendMode mode) {
     TRACE_EVENT0("skia", TRACE_FUNC);
