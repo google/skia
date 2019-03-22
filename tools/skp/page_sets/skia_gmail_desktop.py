@@ -3,6 +3,9 @@
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
 
+import os
+
+from page_sets.login_helpers import google_login
 
 from telemetry import story
 from telemetry.page import page as page_module
@@ -16,28 +19,31 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        shared_page_state_class=shared_page_state.Shared10InchTabletPageState)
-    self.archive_data_file = 'data/skia_gmail_nexus10.json'
+        shared_page_state_class=shared_page_state.SharedDesktopPageState)
+    self.archive_data_file = 'data/skia_gmail_desktop.json'
 
   def RunSmoothness(self, action_runner):
     action_runner.ScrollElement()
 
   def RunNavigateSteps(self, action_runner):
+    credentials_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  'data/credentials.json')
+    google_login.BaseLoginGoogle(action_runner, 'google', credentials_path)
+    action_runner.Wait(10)
     action_runner.Navigate(self.url)
     action_runner.Wait(10)
 
 
-class SkiaGmailNexus10PageSet(story.StorySet):
-
+class SkiaGmailDesktopPageSet(story.StorySet):
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaGmailNexus10PageSet, self).__init__(
-      archive_data_file='data/skia_gmail_nexus10.json')
+    super(SkiaGmailDesktopPageSet, self).__init__(
+      archive_data_file='data/skia_gmail_desktop.json')
 
     urls_list = [
-      # Why: productivity, top google properties
-      'https://mail.google.com/mail/',
+      # Why: productivity, top google properties, long email .
+      'https://mail.google.com/mail/?shva=1#inbox/13ba91194d0b8a2e',
     ]
 
     for url in urls_list:

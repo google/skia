@@ -16,25 +16,24 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        shared_page_state_class=shared_page_state.SharedDesktopPageState)
-    self.archive_data_file = 'data/skia_pokemonwiki_desktop.json'
+        shared_page_state_class=shared_page_state.SharedTabletPageState)
+    self.archive_data_file = 'data/skia_gamedeksiam_tablet.json'
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
     action_runner.Wait(5)
 
 
-class SkiaPokemonwikiDesktopPageSet(story.StorySet):
-
+class SkiaGamedeksiamTabletPageSet(story.StorySet):
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaPokemonwikiDesktopPageSet, self).__init__(
-      archive_data_file='data/skia_pokemonwiki_desktop.json')
+    super(SkiaGamedeksiamTabletPageSet, self).__init__(
+      archive_data_file='data/skia_gamedeksiam_tablet.json')
 
     urls_list = [
-      # go/skia-skps-3-19
-      'https://pokemondb.net/pokedex/all',
+      # Why: from Tom W's list.
+      'http://game.deksiam.in.th/',
     ]
 
     for url in urls_list:
