@@ -23,7 +23,6 @@
 #include "SkDebugfTracer.h"
 #include "SkDocument.h"
 #include "SkFontMgr.h"
-#include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
 #include "SkICC.h"
@@ -37,7 +36,6 @@
 #include "SkTaskGroup.h"
 #include "SkTypeface_win.h"
 #include "Test.h"
-#include "TestFontMgr.h"
 #include "ToolUtils.h"
 #include "ios_utils.h"
 
@@ -97,8 +95,6 @@ static DEFINE_string(bisect, "",
 static DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 static DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
-
-static DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
 
 static DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
 
@@ -1533,16 +1529,6 @@ int main(int argc, char** argv) {
 #endif
     CommandLineFlags::Parse(argc, argv);
 
-    if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    }
-
-#if defined(SK_BUILD_FOR_WIN)
-    if (FLAGS_gdi) {
-        gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
-    }
-#endif
-
     initializeEventTracingForTools();
 
 #if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
@@ -1551,6 +1537,7 @@ int main(int argc, char** argv) {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
+    ToolUtils::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
 
     if (FLAGS_forceRasterPipeline) {

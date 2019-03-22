@@ -6,12 +6,14 @@
  */
 
 #include "ToolUtils.h"
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkBlendMode.h"
 #include "SkCanvas.h"
 #include "SkColorData.h"
 #include "SkColorPriv.h"
 #include "SkFloatingPoint.h"
+#include "SkFontMgrPriv.h"
 #include "SkFontPriv.h"
 #include "SkImage.h"
 #include "SkMatrix.h"
@@ -24,6 +26,8 @@
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
+#include "SkTypeface_win.h"
+#include "TestFontMgr.h"
 
 #include <cmath>
 #include <cstring>
@@ -436,4 +440,24 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
     }
     return surf;
 }
+
+static DEFINE_bool(nativeFonts, true,
+                   "If true, use native font manager and rendering. "
+                   "If false, fonts will draw as portably as possible.");
+#if defined(SK_BUILD_FOR_WIN)
+    static DEFINE_bool(gdi, false,
+                       "Use GDI instead of DirectWrite for font rendering.");
+#endif
+
+void SetDefaultFontMgr() {
+    if (!FLAGS_nativeFonts) {
+        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    }
+#if defined(SK_BUILD_FOR_WIN)
+    if (FLAGS_gdi) {
+        gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
+    }
+#endif
+}
+
 }  // namespace ToolUtils

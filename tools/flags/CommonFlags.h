@@ -17,7 +17,6 @@ DECLARE_bool(quiet);
 DECLARE_string(skps);
 DECLARE_string(lotties);
 DECLARE_string(svgs);
-DECLARE_bool(nativeFonts);
 DECLARE_int(threads);
 DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
