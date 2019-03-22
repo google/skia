@@ -420,44 +420,27 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             fPaintOverrides.fAntiAlias = true;
             fPaint.setAntiAlias(false);
             gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-            gSkUseDeltaAA = gSkForceDeltaAA = false;
         } else {
             fPaint.setAntiAlias(true);
             switch (fPaintOverrides.fAntiAliasState) {
                 case SkPaintFields::AntiAliasState::Alias:
                     fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Normal;
                     gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::Normal:
                     fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::AnalyticAAEnabled;
                     gSkUseAnalyticAA = true;
                     gSkForceAnalyticAA = false;
-                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
                     fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::AnalyticAAForced;
                     gSkUseAnalyticAA = gSkForceAnalyticAA = true;
-                    gSkUseDeltaAA = gSkForceDeltaAA = false;
                     break;
                 case SkPaintFields::AntiAliasState::AnalyticAAForced:
-                    fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::DeltaAAEnabled;
-                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-                    gSkUseDeltaAA = true;
-                    gSkForceDeltaAA = false;
-                    break;
-                case SkPaintFields::AntiAliasState::DeltaAAEnabled:
-                    fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::DeltaAAForced;
-                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-                    gSkUseDeltaAA = gSkForceDeltaAA = true;
-                    break;
-                case SkPaintFields::AntiAliasState::DeltaAAForced:
                     fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Alias;
                     fPaintOverrides.fAntiAlias = false;
                     gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
                     gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
-                    gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
-                    gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
                     break;
             }
         }
@@ -732,13 +715,7 @@ void Viewer::updateTitle() {
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
 
-    if (gSkUseDeltaAA) {
-        if (gSkForceDeltaAA) {
-            title.append(" <FDAA>");
-        } else {
-            title.append(" <DAA>");
-        }
-    } else if (gSkUseAnalyticAA) {
+    if (gSkUseAnalyticAA) {
         if (gSkForceAnalyticAA) {
             title.append(" <FAAA>");
         } else {
@@ -1647,13 +1624,10 @@ void Viewer::drawImGui() {
                     aliasIdx = SkTo<int>(fPaintOverrides.fAntiAliasState) + 1;
                 }
                 if (ImGui::Combo("Anti-Alias", &aliasIdx,
-                                 "Default\0Alias\0Normal\0AnalyticAAEnabled\0AnalyticAAForced\0"
-                                 "DeltaAAEnabled\0DeltaAAForced\0\0"))
+                                 "Default\0Alias\0Normal\0AnalyticAAEnabled\0AnalyticAAForced\0\0"))
                 {
                     gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
                     gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
-                    gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
-                    gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
                     if (aliasIdx == 0) {
                         fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Alias;
                         fPaintOverrides.fAntiAlias = false;
@@ -1669,20 +1643,9 @@ void Viewer::drawImGui() {
                             case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
                                 gSkUseAnalyticAA = true;
                                 gSkForceAnalyticAA = false;
-                                gSkUseDeltaAA = gSkForceDeltaAA = false;
                                 break;
                             case SkPaintFields::AntiAliasState::AnalyticAAForced:
                                 gSkUseAnalyticAA = gSkForceAnalyticAA = true;
-                                gSkUseDeltaAA = gSkForceDeltaAA = false;
-                                break;
-                            case SkPaintFields::AntiAliasState::DeltaAAEnabled:
-                                gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-                                gSkUseDeltaAA = true;
-                                gSkForceDeltaAA = false;
-                                break;
-                            case SkPaintFields::AntiAliasState::DeltaAAForced:
-                                gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-                                gSkUseDeltaAA = gSkForceDeltaAA = true;
                                 break;
                         }
                     }

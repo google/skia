@@ -9,7 +9,6 @@
 #ifndef SkScan_DEFINED
 #define SkScan_DEFINED
 
-#include "SkCoverageDelta.h"
 #include "SkFixed.h"
 #include "SkRect.h"
 #include <atomic>
@@ -24,8 +23,6 @@ class SkPath;
 */
 typedef SkIRect SkXRect;
 
-extern std::atomic<bool> gSkUseDeltaAA;
-extern std::atomic<bool> gSkForceDeltaAA;
 extern std::atomic<bool> gSkUseAnalyticAA;
 extern std::atomic<bool> gSkForceAnalyticAA;
 
@@ -53,7 +50,7 @@ public:
     static void AntiFillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
     static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*, SkDAARecord*);
+    static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void FrameRect(const SkRect&, const SkPoint& strokeSize,
                           const SkRasterClip&, SkBlitter*);
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
@@ -73,10 +70,6 @@ public:
     // Needed by do_fill_path in SkScanPriv.h
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
-    // We have this instead of a default nullptr parameter because of function pointer match.
-    static void AntiFillPath(const SkPath& path, const SkRasterClip& rc, SkBlitter* blitter) {
-        AntiFillPath(path, rc, blitter, nullptr);
-    }
 private:
     friend class SkAAClip;
     friend class SkRegion;
@@ -86,8 +79,7 @@ private:
     static void FillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRegion*, SkBlitter*);
-    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*,
-                             bool forceRLE = false, SkDAARecord* daaRecord = nullptr);
+    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*, bool forceRLE);
     static void FillTriangle(const SkPoint pts[], const SkRegion*, SkBlitter*);
 
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
@@ -96,8 +88,6 @@ private:
     static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     static void AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& pathIR,
                             const SkIRect& clipBounds, bool forceRLE);
-    static void DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& pathIR,
-                            const SkIRect& clipBounds, bool forceRLE, SkDAARecord* daaRecord);
     static void SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& pathIR,
                             const SkIRect& clipBounds, bool forceRLE);
 };

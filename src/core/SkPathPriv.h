@@ -238,10 +238,6 @@ public:
         return result;
     }
 
-    // For crbug.com/821353 and skbug.com/6886
-    static bool IsBadForDAA(const SkPath& path) { return path.fIsBadForDAA; }
-    static void SetIsBadForDAA(SkPath& path, bool isBadForDAA) { path.fIsBadForDAA = isBadForDAA; }
-
     /**
      *  Sometimes in the drawing pipeline, we have to perform math on path coordinates, even after
      *  the path is in device-coordinates. Tessellation and clipping are two examples. Usually this

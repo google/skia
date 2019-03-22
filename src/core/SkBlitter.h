@@ -10,7 +10,6 @@
 
 #include "SkAutoMalloc.h"
 #include "SkColor.h"
-#include "SkCoverageDelta.h"
 #include "SkImagePriv.h"
 #include "SkRect.h"
 #include "SkRegion.h"
@@ -32,12 +31,6 @@ struct SkMask;
 class SkBlitter {
 public:
     virtual ~SkBlitter();
-
-    // The actual blitter may speedup the process by rewriting this in a more efficient way.
-    // For example, one may avoid some virtual blitAntiH calls by directly calling
-    // SkBlitRow::Color32.
-    virtual void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
-                                    bool isEvenOdd, bool isInverse, bool isConvex);
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
