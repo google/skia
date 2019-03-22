@@ -19,14 +19,22 @@ float2 prevRadii = float2(-1);
 // The last two terms can underflow when float != fp32, so we also provide a workaround.
 uniform float4 ellipse;
 
-bool useScale = !sk_Caps.floatIs32Bits;
-layout(when=useScale) uniform float2 scale;
+bool medPrecision = !sk_Caps.floatIs32Bits;
+layout(when=medPrecision) uniform float2 scale;
 
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
                                                      SkPoint radii, const GrShaderCaps& caps) {
         // Small radii produce bad results on devices without full float.
         if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
+            return nullptr;
+        }
+        // Very narrow ellipses produce bad results on devices without full float
+        if (!caps.floatIs32Bits() && (radii.fX > 255*radii.fY || radii.fY > 255*radii.fX)) {
+            return nullptr;
+        }
+        // Very large ellipses produce bad results on devices without full float
+        if (!caps.floatIs32Bits() && (radii.fX > 16384 || radii.fY > 16384)) {
             return nullptr;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
@@ -39,17 +47,16 @@ layout(when=useScale) uniform float2 scale;
     if (radii != prevRadii || center != prevCenter) {
         float invRXSqd;
         float invRYSqd;
-        // If we're using a scale factor to work around precision issues, choose the larger radius
-        // as the scale factor. The inv radii need to be pre-adjusted by the scale factor.
+        // If we're using a scale factor to work around precision issues, choose the larger
+        // radius as the scale factor. The inv radii need to be pre-adjusted by the scale
+        // factor.
         if (scale.isValid()) {
             if (radii.fX > radii.fY) {
                 invRXSqd = 1.f;
-                invRYSqd = (radii.fX * radii.fX) /
-                           (radii.fY * radii.fY);
+                invRYSqd = (radii.fX * radii.fX) / (radii.fY * radii.fY);
                 pdman.set2f(scale, radii.fX, 1.f / radii.fX);
             } else {
-                invRXSqd = (radii.fY * radii.fY) /
-                           (radii.fX * radii.fX);
+                invRXSqd = (radii.fY * radii.fY) / (radii.fX * radii.fX);
                 invRYSqd = 1.f;
                 pdman.set2f(scale, radii.fY, 1.f / radii.fY);
             }
@@ -67,10 +74,10 @@ void main() {
     // d is the offset to the ellipse center
     float2 d = sk_FragCoord.xy - ellipse.xy;
     // If we're on a device with a "real" mediump then we'll do the distance computation in a space
-    // that is normalized by the larger radius. The scale uniform will be scale, 1/scale. The
-    // inverse squared radii uniform values are already in this normalized space. The center is
-    // not.
-    @if (useScale) {
+    // that is normalized by the larger radius or 128, whichever is smaller. The scale uniform will
+    // be scale, 1/scale. The inverse squared radii uniform values are already in this normalized space.
+    // The center is not.
+    @if (medPrecision) {
         d *= scale.y;
     }
     float2 Z = d * ellipse.zw;
@@ -79,9 +86,13 @@ void main() {
     // grad_dot is the squared length of the gradient of the implicit.
     float grad_dot = 4 * dot(Z, Z);
     // Avoid calling inversesqrt on zero.
-    grad_dot = max(grad_dot, 1e-4);
+    @if (medPrecision) {
+        grad_dot = max(grad_dot, 6.1036e-5);
+    } else {
+        grad_dot = max(grad_dot, 1.1755e-38);
+    }
     float approx_dist = implicit * inversesqrt(grad_dot);
-    @if (useScale) {
+    @if (medPrecision) {
         approx_dist *= scale.x;
     }
 
