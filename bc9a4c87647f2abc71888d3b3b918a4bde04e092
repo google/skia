@@ -94,6 +94,30 @@
       "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad483f90_a128dff6",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-22T18:48:26Z",
+      "side": 1,
+      "message": "Ah, because kwargs was only added to the signature for the android flavor.  We need to add kwargs (or better yet, add skip_binary_push) to the other flavors.",
+      "parentUuid": "6c187323_caca5e71",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
