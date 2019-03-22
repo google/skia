@@ -29,34 +29,33 @@ public:
         auto radii = _outer.radii();
         (void)radii;
         prevRadii = float2(-1.0);
-        medPrecision = !sk_Caps.floatIs32Bits;
+        useScale = !sk_Caps.floatIs32Bits;
         fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                        "ellipse");
-        if (medPrecision) {
+        if (useScale) {
             fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType,
                                                          "scale");
         }
         fragBuilder->codeAppendf(
-                "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool medPrecision = "
-                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (medPrecision) {\n    d *= "
+                "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool useScale = "
+                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (useScale) {\n    d *= "
                 "%s.y;\n}\nfloat2 Z = d * %s.zw;\nfloat implicit = dot(Z, d) - 1.0;\nfloat "
-                "grad_dot = 4.0 * dot(Z, Z);\n@if (medPrecision) {\n    grad_dot = max(grad_dot, "
-                "6.1036000000000003e-05);\n} else {\n    grad_dot = max(grad_dot, "
-                "1.1755e-38);\n}\nfloat approx_dist = implicit * inversesqrt(grad_dot);\n@if "
-                "(medPrecision) {\n    approx_dist *= %s.x;\n}\nhalf alpha;\n@switch ",
-                prevRadii.fX, prevRadii.fY, (medPrecision ? "true" : "false"),
+                "grad_dot = 4.0 * dot(Z, Z);\ngrad_dot = max(grad_dot, 0.0001);\nfloat approx_dist "
+                "= implicit * inversesqrt(grad_dot);\n@if (useScale) {\n    approx_dist *= "
+                "%s.x;\n}\nhalf alpha;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist > "
+                "0.0 ? 0.0 : 1.0;\n        break;\n    case 1:\n        alph",
+                prevRadii.fX, prevRadii.fY, (useScale ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "float2(0)",
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
-                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar)
-                                    : "float2(0)");
+                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "float2(0)",
+                (int)_outer.edgeType());
         fragBuilder->codeAppendf(
-                "(%d) {\n    case 0:\n        alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n        "
-                "break;\n    case 1:\n        alpha = clamp(0.5 - half(approx_dist), 0.0, 1.0);\n  "
-                "      break;\n    case 2:\n        alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n       "
-                " break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), 0.0, 1.0);\n "
-                "       break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
-                (int)_outer.edgeType(), args.fOutputColor, args.fInputColor);
+                "a = clamp(0.5 - half(approx_dist), 0.0, 1.0);\n        break;\n    case 2:\n      "
+                "  alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n        break;\n    case 3:\n        "
+                "alpha = clamp(0.5 + half(approx_dist), 0.0, 1.0);\n        break;\n    default:\n "
+                "       discard;\n}\n%s = %s * alpha;\n",
+                args.fOutputColor, args.fInputColor);
     }
 
 private:
@@ -101,7 +100,7 @@ private:
     }
     SkPoint prevCenter = float2(0);
     SkPoint prevRadii = float2(0);
-    bool medPrecision = false;
+    bool useScale = false;
     UniformHandle fEllipseVar;
     UniformHandle fScaleVar;
 };
