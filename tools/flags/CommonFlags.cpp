@@ -36,11 +36,6 @@ DEFINE_string(skps, "skps", "Directory to read skps from.");
 DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
 #endif
 
-DEFINE_bool(nativeFonts,
-            true,
-            "If true, use native font manager and rendering. "
-            "If false, fonts will draw as portably as possible.");
-
 DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
 DEFINE_int_2(threads,
