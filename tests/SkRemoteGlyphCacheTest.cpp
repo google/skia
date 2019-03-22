@@ -19,6 +19,7 @@
 #include "SkTypeface_remote.h"
 #include "Test.h"
 #include "TestEmptyTypeface.h"
+#include "ToolUtils.h"
 
 #include "text/GrTextContext.h"
 
@@ -175,7 +176,7 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
                     SkScalar x = 0) {
     auto surface = MakeSurface(width, height, context);
     if (matrix) surface->getCanvas()->concat(*matrix);
-    surface->getCanvas()->drawTextBlob(blob.get(), x, 0, paint);
+    surface->getCanvas()->drawTextBlob(blob.get(), x, height/2, paint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);
@@ -550,6 +551,82 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFall
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
+
+#if 0
+// TODO: turn this one when I figure out how to deal with the pixel variance from linear
+//  interpolation from GPU to GPU.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsSDFTWithAllARGBFallback,
+                                   reporter, ctxInfo) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, false);
+
+    SkPaint paint;
+
+    auto serverTf = ToolUtils::planet_typeface();
+    // TODO: when the cq bots can handle this font remove the check.
+    if (serverTf == nullptr) {
+        return;
+    }
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    auto makeBlob = [&reporter](sk_sp<SkTypeface> typeface) {
+        SkFont font;
+        font.setSubpixel(true);
+        font.setSize(96);
+        font.setHinting(kNormal_SkFontHinting);
+        font.setTypeface(typeface);
+
+        REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));
+
+        // Mercury to Uranus.
+        SkGlyphID glyphs[] = {1, 2, 3, 4, 5, 6, 7, 8};
+
+        SkTextBlobBuilder builder;
+        SkRect bounds = SkRect::MakeIWH(100, 100);
+        const auto& runBuffer = builder.allocRunPosH(font, SK_ARRAY_COUNT(glyphs), 100, &bounds);
+        SkASSERT(runBuffer.utf8text == nullptr);
+        SkASSERT(runBuffer.clusters == nullptr);
+
+        std::copy(std::begin(glyphs), std::end(glyphs), runBuffer.glyphs);
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(glyphs); i++) {
+            runBuffer.pos[i] = i * 100;
+        }
+
+        return builder.make();
+    };
+
+    auto serverBlob = makeBlob(serverTf);
+
+    auto props = FindSurfaceProps(ctxInfo.grContext());
+    SkTextBlobCacheDiffCanvas cache_diff_canvas(800, 800, props, &server,
+                                                MakeSettings(ctxInfo.grContext()));
+    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 400, paint);
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+
+    auto clientBlob = makeBlob(clientTf);
+
+    SkBitmap expected = RasterBlob(serverBlob, 800, 800, paint, ctxInfo.grContext());
+    SkBitmap actual = RasterBlob(clientBlob, 800, 800, paint, ctxInfo.grContext());
+
+    // Pixel variance can be high because of the atlas placement, and large scaling in the linear
+    // interpolation.
+    compare_blobs(expected, actual, reporter, 36);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();

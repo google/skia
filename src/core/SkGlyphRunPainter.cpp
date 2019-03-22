@@ -311,10 +311,11 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                                                       fARGBPositions.data(),
                                                       fARGBGlyphsIDs.size(),
                                                       fGlyphPos);
-
-        process->processDeviceFallback(
-                SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(drawableGlyphCount)},
-                strike.get());
+        if (process) {
+            process->processDeviceFallback(
+                    SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(drawableGlyphCount)},
+                    strike.get());
+        }
 
     } else {
         // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
@@ -357,11 +358,13 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
             fGlyphPos[glyphCount++] = {&glyph, pos};
         }
 
-        process->processSourceFallback(
-                SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
-                strike.get(),
-                fallbackTextScale,
-                viewMatrix.hasPerspective());
+        if (process) {
+            process->processSourceFallback(
+                    SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                    strike.get(),
+                    fallbackTextScale,
+                    viewMatrix.hasPerspective());
+        }
     }
 }
 
@@ -455,14 +458,12 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     process->processSourcePaths(
                             SkSpan<const SkGlyphPos>{paths}, strike.get(), cacheToSourceScale);
                 }
+            }
 
-                {
-                    // fGlyphPos will be reused here.
-                    if (!fARGBGlyphsIDs.empty()) {
-                        this->processARGBFallback(maxFallbackDimension * cacheToSourceScale,
-                                                  runPaint, runFont, viewMatrix, process);
-                    }
-                }
+            // fGlyphPos will be reused here.
+            if (!fARGBGlyphsIDs.empty()) {
+                this->processARGBFallback(maxFallbackDimension * cacheToSourceScale,
+                                          runPaint, runFont, viewMatrix, process);
             }
         } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
             ScopedBuffers _ = this->ensureBuffers(glyphRun);
@@ -518,12 +519,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                             strike.get(),
                             strikeToSourceRatio);
                 }
-
-                // fGlyphPos will be reused here.
-                if (!fARGBGlyphsIDs.empty()) {
-                    this->processARGBFallback(maxFallbackDimension * strikeToSourceRatio,
-                                              runPaint, runFont, viewMatrix, process);
-                }
+            }
+            // fGlyphPos will be reused here.
+            if (!fARGBGlyphsIDs.empty()) {
+                this->processARGBFallback(maxFallbackDimension * strikeToSourceRatio,
+                                          runPaint, runFont, viewMatrix, process);
             }
         } else {
 
@@ -563,7 +563,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 }
 
                 if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
-                    if (strike->decideCouldDrawFromPath(glyph)) {
+                    if (glyph.fMaskFormat != SkMask::kARGB32_Format
+                            && strike->decideCouldDrawFromPath(glyph)) {
                         fPaths.push_back({&glyph, deviceGlyphPos});
                     } else {
                         SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
@@ -585,17 +586,14 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 if (!fPaths.empty()) {
                     process->processDevicePaths(SkSpan<const SkGlyphPos>{fPaths});
                 }
-
-                // fGlyphPos will be reused here.
-                if (!fARGBGlyphsIDs.empty()) {
-                    this->processARGBFallback(maxFallbackDimension / viewMatrix.getMaxScale(),
-                                              runPaint, runFont, viewMatrix, process);
-                }
             }
-
-        }
-
-    }
+            // fGlyphPos will be reused here.
+            if (!fARGBGlyphsIDs.empty()) {
+                this->processARGBFallback(maxFallbackDimension / viewMatrix.getMaxScale(),
+                                          runPaint, runFont, viewMatrix, process);
+            }
+        }  // Mask case
+    }  // For all glyph runs
 }
 #endif  // SK_SUPPORT_GPU
 
