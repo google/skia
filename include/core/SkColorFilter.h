@@ -89,6 +89,13 @@ public:
     */
     static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkBlendMode mode);
 
+    /**
+     *  Create a colorfilter that mixes a given color with the input color.
+     *      result = mx(..., c)
+     */
+    static sk_sp<SkColorFilter> MakeMixFilter(SkColor c, sk_sp<SkMixer> mx);
+    static sk_sp<SkColorFilter> MakeMixFilter(const SkColor4f& c, sk_sp<SkMixer> mx);
+
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  this filter, applied to the output of the inner filter.
      *
@@ -128,6 +135,17 @@ public:
      */
     static sk_sp<SkColorFilter> MakeLerp(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
                                          float weight);
+
+    /**
+     *  Returns a new filter that returns the mix of the outputs of
+     *  two other filters. If either is null, then it is treated as an identity filter.
+     *
+     *  result = mx(cf0(...), cf1(...))
+     *
+     *  If both filters are null, or if mx is null, then null is returned.
+     */
+    static sk_sp<SkColorFilter MakeMix(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
+                                       sk_sp<SkMixer> mx);
 
 #if SK_SUPPORT_GPU
     /**
