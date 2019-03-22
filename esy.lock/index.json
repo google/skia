@@ -1,0 +1,33 @@
+{
+  "checksum": "eac8c97f918bdef379766e6fcc71981a",
+  "root": "esy-skia@link-dev:./package.json",
+  "node": {
+    "esy-skia@link-dev:./package.json": {
+      "id": "esy-skia@link-dev:./package.json",
+      "name": "esy-skia",
+      "version": "link-dev:./package.json",
+      "source": {
+        "type": "link-dev",
+        "path": ".",
+        "manifest": "package.json"
+      },
+      "overrides": [],
+      "dependencies": [ "@esy-cross/ninja-build@1.8.2001@d41d8cd9" ],
+      "devDependencies": []
+    },
+    "@esy-cross/ninja-build@1.8.2001@d41d8cd9": {
+      "id": "@esy-cross/ninja-build@1.8.2001@d41d8cd9",
+      "name": "@esy-cross/ninja-build",
+      "version": "1.8.2001",
+      "source": {
+        "type": "install",
+        "source": [
+          "archive:https://registry.npmjs.org/@esy-cross/ninja-build/-/ninja-build-1.8.2001.tgz#sha1:d223b3b9e73e14ef2f241ddc522fa330f94b8602"
+        ]
+      },
+      "overrides": [],
+      "dependencies": [],
+      "devDependencies": []
+    }
+  }
+}
