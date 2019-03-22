@@ -37,6 +37,7 @@ def RunSteps(api):
   if 'Build' not in api.properties['buildername']:
     try:
       api.flavor.copy_file_to_device('file.txt', 'file.txt')
+      api.flavor.read_file_on_device('file.text')
       api.flavor.create_clean_host_dir('results_dir')
       api.flavor.create_clean_device_dir('device_results_dir')
       if 'Lottie' in api.properties['buildername']:
