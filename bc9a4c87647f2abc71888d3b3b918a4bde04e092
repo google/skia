@@ -118,6 +118,30 @@
       "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3462050d_8f9fbd63",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-22T18:56:20Z",
+      "side": 1,
+      "message": "Yea, kwargs was already in the android flavor when I added the check for skip_binary_push. I\u0027ll add kwargs to wherever else it is missing.\nAlso need to make some other fixes to this recipe...",
+      "parentUuid": "ad483f90_a128dff6",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "bc9a4c87647f2abc71888d3b3b918a4bde04e092",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
