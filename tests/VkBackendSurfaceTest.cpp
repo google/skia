@@ -203,4 +203,54 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkReleaseExternalQueueTest, reporter, ctxInfo) {
     }
 }
 
+// Test to make sure we transition from the EXTERNAL queue even when no layout transition is needed.
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
+    if (!gpu->vkCaps().supportsExternalMemory()) {
+        return;
+    }
+
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+            nullptr, 1, 1, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+    sk_sp<SkImage> image;
+    // Make a backend texture with an external queue family and general layout.
+    GrVkImageInfo vkInfo;
+    if (!backendTex.getVkImageInfo(&vkInfo)) {
+        return;
+    }
+    vkInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
+    // Use a read-only layout as these are the ones where we can otherwise skip a transition.
+    vkInfo.fImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    GrBackendTexture vkExtTex(1, 1, vkInfo);
+    REPORTER_ASSERT(reporter, vkExtTex.isValid());
+    image = SkImage::MakeFromTexture(context, vkExtTex, kTopLeft_GrSurfaceOrigin,
+                                     kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, nullptr,
+                                     nullptr);
+
+    if (!image) {
+        return;
+    }
+
+    GrTexture* texture = image->getTexture();
+    REPORTER_ASSERT(reporter, texture);
+    GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
+
+    // Change our backend texture to the internal queue, with the same layout. This should force a
+    // queue transition even though the layouts match.
+    vkTex->setImageLayout(gpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0,
+                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, false, false);
+
+    // Get our image info again and make sure we transitioned queues.
+    GrBackendTexture newBackendTexture = image->getBackendTexture(true);
+    GrVkImageInfo newVkInfo;
+    REPORTER_ASSERT(reporter, newBackendTexture.getVkImageInfo(&newVkInfo));
+    REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == gpu->queueIndex());
+
+    image.reset();
+    gpu->testingOnly_flushGpuAndSync();
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
+}
+
 #endif
