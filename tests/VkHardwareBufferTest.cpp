@@ -1307,5 +1307,105 @@ DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs, reporter, options) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, true);
 }
 
+DEF_GPUTEST(VulkanHardwareBuffer_ValidateQueueTransitions, reporter, options) {
+    std::unique_ptr<BaseTestHelper> vkHelper(new VulkanTestHelper());
+    AHardwareBuffer* buffer = nullptr;
+    if (!vkHelper->init(reporter)) {
+        cleanup_resources(vkHelper.get(), nullptr, buffer);
+        return;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Setup AHardwareBuffer
+    ///////////////////////////////////////////////////////////////////////////
+
+    AHardwareBuffer_Desc hwbDesc;
+    hwbDesc.width = DEV_W;
+    hwbDesc.height = DEV_H;
+    hwbDesc.layers = 1;
+    hwbDesc.usage = AHARDWAREBUFFER_USAGE_CPU_READ_NEVER | AHARDWAREBUFFER_USAGE_CPU_WRITE_NEVER |
+                    AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
+                    AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT;
+    hwbDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+    // The following three are not used in the allocate
+    hwbDesc.stride = 0;
+    hwbDesc.rfu0 = 0;
+    hwbDesc.rfu1 = 0;
+
+    if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
+        ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
+        cleanup_resources(vkHelper.get(), nullptr, buffer);
+        return;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Import the HWB into backend
+    ///////////////////////////////////////////////////////////////////////////
+
+    vkHelper->makeCurrent();
+    sk_sp<SkImage> wrappedImage = vkHelper->importHardwareBufferForRead(reporter, buffer);
+
+    if (!wrappedImage) {
+        cleanup_resources(vkHelper.get(), nullptr, buffer);
+        return;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Confirm that the buffer has the expected initial layout / queue.
+    ///////////////////////////////////////////////////////////////////////////
+
+    GrBackendTexture backendTexture = wrappedImagee->getBackendTexture(true);
+    GrVkImageInfo imageInfo;
+    if (!backendTexture.getVkImageInfo(&imageInfo)) {
+        ERRORF(reporter, "Failed to get image info from backend texture");
+        cleanup_resources(vkHelper.get(), nullptr, buffer);
+        return;
+    }
+    REPORTER_ASSERT(reporter, imageInfo.fImageLayout == VK_IMAGE_LAYOUT_UNDEFINED);
+    REPORTER_ASSERT(reporter, imageInfo.f == VK_IMAGE_LAYOUT_UNDEFINED);
+
+    GrContext* grContext = dstHelper->grContext();
+
+    // Make SkSurface to render wrapped HWB into.
+    SkImageInfo imageInfo =
+            SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+
+    sk_sp<SkSurface> dstSurf = SkSurface::MakeRenderTarget(
+            grContext,
+            : w SkBudgeted::kNo, imageInfo, 0, kTopLeft_GrSurfaceOrigin, nullptr, false);
+    if (!dstSurf.get()) {
+        ERRORF(reporter, "Failed to create destination SkSurface");
+        wrappedImage.reset();
+        cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+        return;
+    }
+
+    if (shareSyncs) {
+        if (!dstHelper->importAndWaitOnSemaphore(reporter, srcHelper->getFdHandle(), dstSurf)) {
+            wrappedImage.reset();
+            cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+            return;
+        }
+    }
+    dstSurf->getCanvas()->drawImage(wrappedImage, 0, 0);
+
+    bool readResult = dstSurf->readPixels(dstBitmapFinal, 0, 0);
+    if (!readResult) {
+        ERRORF(reporter, "Read Pixels failed");
+        wrappedImage.reset();
+        dstSurf.reset();
+        dstHelper->doClientSync();
+        cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, dstBitmapFinal));
+
+    dstSurf.reset();
+    wrappedImage.reset();
+    dstHelper->doClientSync();
+    cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
+}
+
 #endif
 
