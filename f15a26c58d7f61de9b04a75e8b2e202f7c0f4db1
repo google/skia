@@ -16,6 +16,24 @@
       "revId": "f15a26c58d7f61de9b04a75e8b2e202f7c0f4db1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a1f464c_93f371f9",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-23T17:43:49Z",
+      "side": 1,
+      "message": "Won\u0027t this defeat the optimization for filled rrects clipped to rrects? Now we will be checking whether the bounds of the rrect is contained in the rrect, which will only be true for rectangles.",
+      "parentUuid": "771edc46_c7d11094",
+      "revId": "f15a26c58d7f61de9b04a75e8b2e202f7c0f4db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
