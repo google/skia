@@ -100,9 +100,10 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
     }
 
     // If the old and new layout are the same and the layout is a read only layout, there is no need
-    // to put in a barrier.
-    if (newLayout == currentLayout &&
-        !releaseFamilyQueue &&
+    // to put in a barrier unless we also need to switch queues.
+    if (newLayout == currentLayout && !releaseFamilyQueue &&
+        (fInfo.fCurrentQueueFamily == VK_QUEUE_FAMILY_IGNORED ||
+         fInfo.fCurrentQueueFamily == gpu->queueIndex()) &&
         (VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == currentLayout ||
          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == currentLayout)) {
