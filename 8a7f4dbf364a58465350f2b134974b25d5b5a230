@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c04a89a_f475d7a7",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-23T17:49:11Z",
+      "side": 1,
+      "message": "Is this something we could reframe as a SkSL feature rather than builder functionality?",
+      "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
