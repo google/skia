@@ -46,6 +46,7 @@
 #include "ops/GrClearStencilClipOp.h"
 #include "ops/GrDebugMarkerOp.h"
 #include "ops/GrDrawableOp.h"
+#include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
 #include "ops/GrFillRectOp.h"
@@ -1161,6 +1162,28 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             fContext, std::move(paint), std::move(vertices), bones, boneCount, viewMatrix, aaType,
             this->colorSpaceInfo().refColorSpaceXformFromSRGB(), overridePrimType);
+    this->addDrawOp(clip, std::move(op));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrRenderTargetContext::drawAtlas(const GrClip& clip,
+                                      GrPaint&& paint,
+                                      const SkMatrix& viewMatrix,
+                                      int spriteCount,
+                                      const SkRSXform xform[],
+                                      const SkRect texRect[],
+                                      const SkColor colors[]) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawAtlas", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
+    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
+                                                       aaType, spriteCount, xform, texRect, colors);
     this->addDrawOp(clip, std::move(op));
 }
 
