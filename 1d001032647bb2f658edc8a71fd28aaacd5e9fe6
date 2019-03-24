@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d47e8a1e_16d1e533",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:18:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b86b6dc7_2d083942",
+      "range": {
+        "startLine": 742,
+        "startChar": 44,
+        "endLine": 742,
+        "endChar": 49
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62f97247_129809d2",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -114,6 +138,24 @@
     },
     {
       "key": {
+        "uuid": "950e967b_f85ee1df",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:18:55Z",
+      "side": 1,
+      "message": "PTAL.",
+      "parentUuid": "5bd29a69_ba9343dd",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "852d1e35_0df15a8b",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -154,6 +196,30 @@
     },
     {
       "key": {
+        "uuid": "2f0927c5_c343c12d",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:18:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b32ba6a5_54eedd5e",
+      "range": {
+        "startLine": 763,
+        "startChar": 71,
+        "endLine": 763,
+        "endChar": 73
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed859140_85472263",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -165,6 +231,30 @@
       "writtenOn": "2019-03-04T20:33:06Z",
       "side": 1,
       "message": "Looking at this some more, I almost thought this might not be redundant. Although it\u0027s a similar check, it could be checking a different frame. Let\u0027s say we have the following frames:\n\n0: restore bg, fills the canvas\n1: restore bg, smaller than the canvas\n2: \u003cany disposal method\u003e, larger than frame 1\n\nWe\u0027re checking to see whether 2 is independent. It doesn\u0027t hit IND4 condition, because that is checking frame 1. But then we update prevFrame to be 1\u0027s required frame. We still couldn\u0027t hit IND7. 0 won\u0027t be 1\u0027s required frame, unless it is not restore bg, or it doesn\u0027t fill the canvas.",
+      "range": {
+        "startLine": 765,
+        "startChar": 30,
+        "endLine": 766,
+        "endChar": 56
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b7187f_b2b5a164",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:18:55Z",
+      "side": 1,
+      "message": "I\u0027m not sure whether you\u0027re arguing for or against that IND7 is redundant. I agree thant IND7 could be checking a different prevFrame than the one IND4 checks. But I think that your example does not trigger IND7:\n\nFrame #0 is independent, by IND1.\nFrame #1 is independent, by IND4 (its prevFrame is frame #0, which is kRestoreBGColor and independent).\nFrame #2 is independent, by IND4 (its prevFrame is frame #1, which is kRestoreBGColor and independent).\n\nI think that IND7 is impossible to trigger. Proof by contradiction: suppose that frame #K is deemed independent by IND7, on examining a prevFrame #I. Triggering IND7 means that frame #I must be kRestoreBGColor and, in particular, not kRestorePrevious.\n\nTriggering IND7 but not IND4 means that the prevFrame must have changed between checking those two conditions, from frame #J to frame #I, for some ((I \u003c J) \u0026\u0026 (J \u003c K)). The only way prevFrame could change between IND4 and IND7 is by the walk-prevFrame-backwards while loop around IND6. That loop must have only walked over dependent frames (starting with frame #J and walking backwards), otherwise IND6 would trigger.\n\nIn other words, frames #I+1, #I+2, ..., #J inclusive must all be dependent frames, assuming that the \"const int prevRequiredFrame \u003d prevFrame-\u003egetRequiredFrame\" line cannot jump over independent frames: frame #30 cannot have a required frame of #10 if frame #20 is independent. This list is non-empty, as (I \u003c J), so frame #I+1 must be dependent.\n\nBut frame #I+1 being dependent means that it cannot satisfy IND1, IND2, IND3, or IND4. Its prevFrame (at the time of checking IND4) must be frame #I, since frame #I is not kRestorePrevious.\n\nHere is the contradiction: frame #I is the prevFrame when checking frame #I+1 for IND4, and it is also the prevFrame when checking frame #K for IND7. The same frame cannot both fail IND4 for #I+1 and pass IND7 for #K.\n\nWDYT?",
+      "parentUuid": "ed859140_85472263",
       "range": {
         "startLine": 765,
         "startChar": 30,
@@ -194,6 +284,47 @@
         "endLine": 842,
         "endChar": 64
       },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df639623_be32fc4b",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:18:55Z",
+      "side": 1,
+      "message": "OK, I removed it (and the reference to IND7). You might want to look at a previous patch set to make sense of the IND7 discussion in the other comment thread.",
+      "parentUuid": "f1bf7c90_8c56450f",
+      "range": {
+        "startLine": 841,
+        "startChar": 0,
+        "endLine": 842,
+        "endChar": 64
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a5c05ff_1e947ef2",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:18:55Z",
+      "side": 1,
+      "message": "Given that IND7 was deleted, this comment is just confusing. I deleted it, but let me know if I should add it back in some way.",
       "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
