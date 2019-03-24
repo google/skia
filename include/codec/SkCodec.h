@@ -609,7 +609,8 @@ public:
     struct FrameInfo {
         /**
          *  The frame that this frame needs to be blended with, or
-         *  kNoFrame if this frame is independent.
+         *  kNoFrame if this frame is independent (so it can be
+         *  drawn over an uninitialized buffer).
          *
          *  Note that this is the *earliest* frame that can be used
          *  for blending. Any frame from [fRequiredFrame, i) can be
