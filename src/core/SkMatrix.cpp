@@ -1824,3 +1824,17 @@ void SkRSXform::toQuad(SkScalar width, SkScalar height, SkPoint quad[4]) const {
     quad[3].set(m01 * height + m02, m11 * height + m12);
 #endif
 }
+
+void SkRSXform::toTriStrip(SkScalar width, SkScalar height, SkPoint strip[4]) const {
+    const SkScalar m00 = fSCos;
+    const SkScalar m01 = -fSSin;
+    const SkScalar m02 = fTx;
+    const SkScalar m10 = -m01;
+    const SkScalar m11 = m00;
+    const SkScalar m12 = fTy;
+
+    strip[0].set(m02, m12);
+    strip[1].set(m01 * height + m02, m11 * height + m12);
+    strip[2].set(m00 * width + m02, m10 * width + m12);
+    strip[3].set(m00 * width + m01 * height + m02, m10 * width + m11 * height + m12);
+}
