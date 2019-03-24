@@ -314,6 +314,30 @@
     },
     {
       "key": {
+        "uuid": "0ce84d5b_30d0c719",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-03-24T05:36:18Z",
+      "side": 1,
+      "message": "If you prefer, I can put this back, but with a \"SkASSERT(false)\" just above this IND7 line. Then, a month or so from now, we can delete the code.",
+      "parentUuid": "df639623_be32fc4b",
+      "range": {
+        "startLine": 841,
+        "startChar": 0,
+        "endLine": 842,
+        "endChar": 64
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a5c05ff_1e947ef2",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
