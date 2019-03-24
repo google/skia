@@ -31,8 +31,8 @@
     "install": [
       [
         "cp",
-        "-r",
-        "#{self.target_dir}",
+        "-a",
+        "#{self.target_dir}/.",
         "#{self.lib}"
       ],
       [
