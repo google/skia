@@ -262,12 +262,18 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     // If mailbox mode is available, use it, as it is the lowest-latency non-
     // tearing mode. If not, fall back to FIFO which is always available.
     VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
+    bool hasImmediate = false;
     for (uint32_t i = 0; i < presentModeCount; ++i) {
         // use mailbox
         if (VK_PRESENT_MODE_MAILBOX_KHR == presentModes[i]) {
-            mode = presentModes[i];
-            break;
+            mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
+        if (VK_PRESENT_MODE_IMMEDIATE_KHR == presentModes[i]) {
+            hasImmediate = true;
+        }
+    }
+    if (params.fDisableVsync && hasImmediate) {
+        mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
     }
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo;
