@@ -15,6 +15,8 @@
 #include <algorithm>
 #include <vector>
 
+static DEFINE_bool2(verbose, v, false, "log verbose linear gradient description");
+
 const int MAX_COUNT = 400;
 
 void makeMatrix(Fuzz* fuzz, SkMatrix* m) {
