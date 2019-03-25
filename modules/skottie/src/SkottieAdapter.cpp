@@ -428,10 +428,13 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
             fFont.setEdging(SkFont::Edging::kAntiAlias);
         }
 
-        Buffer newRunBuffer(const RunInfo& info, const SkFont& font, int glyphCount,
-                            SkSpan<const char> utf8) override {
+        Buffer newRunBuffer(const RunInfo& info, const SkFont& font, size_t glyphCount,
+                            Range) override {
             fPendingLineAdvance += info.fAdvance;
 
+            if (!SkTFitsIn<int>(glyphCount)) {
+                glyphCount = INT_MAX;
+            }
             auto& run = fPendingLineRuns.emplace_back(font, info, glyphCount);
 
             return {
