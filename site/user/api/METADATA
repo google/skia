@@ -23,7 +23,6 @@
     "SkSurface_Reference",
     "SkTextBlob_Reference",
     "SkTextBlobBuilder_Reference",
-    "usingBookmaker",
     "skcanvas_overview",
     "skcanvas_creation",
     "SkBlendMode_Overview",
