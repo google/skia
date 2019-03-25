@@ -181,7 +181,7 @@ SkPoint SkShaperPrimitive::shape(RunHandler* handler,
             metrics.fLeading,
         };
         const auto buffer = handler->newRunBuffer(info, font, numGlyphs,
-                                                  SkSpan<const char>(utf8text, bytesVisible));
+                                                  RunHandler::Range(utf8Offset, bytesVisible));
 
         memcpy(buffer.glyphs, glyphs.get() + glyphOffset, numGlyphs * sizeof(SkGlyphID));
         SkScalar position = point.fX;
