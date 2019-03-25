@@ -1,0 +1,291 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "842a30bd_9dc6f160",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "If really a tab then set to \"\\t\", otherwise rename to something like SPACER.",
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3becad2a_a334ed56",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "Move to be a comment on FeatureSet",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 53
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af5600f8_8424a9fe",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "Needs comments.",
+      "range": {
+        "startLine": 52,
+        "startChar": 1,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c3125d0_bddf86c1",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "HardCodeFunction ...",
+      "range": {
+        "startLine": 58,
+        "startChar": 3,
+        "endLine": 58,
+        "endChar": 14
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb7b48ad_8a300866",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "These don\u0027t need to be vars, can just be funcs. Can also be lowercase.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 20
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45e2ad4a_5a0d161d",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "no space",
+      "range": {
+        "startLine": 100,
+        "startChar": 3,
+        "endLine": 100,
+        "endChar": 4
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff70884b_a11f1413",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "i",
+      "range": {
+        "startLine": 118,
+        "startChar": 6,
+        "endLine": 118,
+        "endChar": 9
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cae7727_3f54cffb",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "// joined together with \u0026\u0026 or ||.",
+      "range": {
+        "startLine": 198,
+        "startChar": 0,
+        "endLine": 198,
+        "endChar": 32
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "610ef565_7d3a012b",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "ioutil.WriteFile",
+      "range": {
+        "startLine": 244,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 3
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a357f37_11f9a1ee",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "Needs comments.",
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2739c5d_0ac75366",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "Move the fmt.Sprintf into abort, i.e. make abort have the same signature as fmt.Sprintf.",
+      "range": {
+        "startLine": 369,
+        "startChar": 10,
+        "endLine": 369,
+        "endChar": 21
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5141c71a_9e426d52",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "in()",
+      "range": {
+        "startLine": 377,
+        "startChar": 5,
+        "endLine": 377,
+        "endChar": 7
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3ed6b1a_823b3f6e",
+        "filename": "tools/gpu/gl/interface/gen_interface.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-03-25T14:09:52Z",
+      "side": 1,
+      "message": "Move this above main().",
+      "range": {
+        "startLine": 417,
+        "startChar": 5,
+        "endLine": 417,
+        "endChar": 10
+      },
+      "revId": "0bf054108451a609766a9a3c78a180b8aceb9cb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
