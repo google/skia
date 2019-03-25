@@ -1850,6 +1850,34 @@ if (skia_enable_tools) {
         ":skia",
       ]
     }
+    test_lib("hash_and_encode") {
+      public_include_dirs = [ "tools" ]
+      sources = [
+        "tools/HashAndEncode.cpp",
+        "tools/HashAndEncode.h",
+      ]
+      deps = [
+        ":flags",
+        ":skia",
+        "//third_party/libpng",
+      ]
+    }
+    test_app("fm") {
+      sources = [
+        "tools/fm/fm.cpp",
+      ]
+      deps = [
+        ":common_flags_aa",
+        ":common_flags_gpu",
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":hash_and_encode",
+        ":skia",
+        ":tool_utils",
+        ":trace",
+      ]
+    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
@@ -1866,6 +1894,7 @@ if (skia_enable_tools) {
         ":flags",
         ":gm",
         ":gpu_tool_utils",
+        ":hash_and_encode",
         ":skia",
         ":tests",
         ":tool_utils",
@@ -1873,7 +1902,6 @@ if (skia_enable_tools) {
         "modules/skottie",
         "modules/skottie:utils",
         "modules/sksg",
-        "//third_party/libpng",
       ]
 
       # NIMA does not build on Windows clang
