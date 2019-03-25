@@ -94,6 +94,65 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
     return false;
 }
 
+static constexpr int kMaxProducerSize = sizeof(GrBitmapTextureMaker);
+static_assert(kMaxProducerSize >= sizeof(GrImageTextureMaker) &&
+              kMaxProducerSize >= sizeof(GrYUVAImageTextureMaker) &&
+              kMaxProducerSize >= sizeof(GrTextureAdjuster) &&
+              kMaxProducerSize >= sizeof(GrBitmapTextureMaker),
+              "kMaxProducerSize not sufficient for supported GrTextureProducer types");
+
+// Convert an SkImage into a GrTextureProxy if it can be reffed directly (returns the proxy), or
+// converts the SkImage into a GrTextureProducer. If null is returned, the provided
+// memory block will have been in-place initialized to the appropriate GrTextureProducer type.
+// Since that uses placement new, calling code must invoke the producer's destructor.
+// 'producerStorage' must have at least kMaxProducerSize bytes available.
+//
+// If useTextureAdjusterForProxy is true, a GrTextureAdjuster will be used even if it was possible
+// to ref a pinned proxy.
+static sk_sp<GrTextureProxy> resolve_proxy_or_producer(GrContext* context, const SkImage* image,
+                                                       bool useDecal,
+                                                       bool useTextureAdjusterForProxy,
+                                                       void* producerStorage,
+                                                       GrTextureProducer** producer) {
+    auto ib = as_IB(image);
+
+    // Check YUVA's first to avoid flattening the multiplanar images into a single texture proxy
+    if (ib->isYUVA()) {
+        *producer = new (producerStorage) GrYUVAImageTextureMaker(context, image, useDecal);
+        return nullptr;
+    }
+
+    uint32_t pinnedUniqueID;
+    if (sk_sp<GrTextureProxy> proxy = ib->refPinnedTextureProxy(context, &pinnedUniqueID)) {
+        // Found a proxy, so only allocate a GrTextureProducer if it was requested
+        if (useTextureAdjusterForProxy) {
+            *producer = new (producerStorage) GrTextureAdjuster(context, std::move(proxy),
+                                                                image->alphaType(), pinnedUniqueID,
+                                                                ib->colorSpace(), useDecal);
+            return nullptr;
+        } else {
+            // No producer, so return proxy directly
+            *producer = nullptr;
+            return proxy;
+        }
+    }
+
+    if (image->isLazyGenerated()) {
+        *producer = new (producerStorage) GrImageTextureMaker(
+                context, image, SkImage::kAllow_CachingHint, useDecal);
+        return nullptr;
+    }
+
+    SkBitmap bm;
+    if (ib->getROPixels(&bm)) {
+        *producer = new (producerStorage) GrBitmapTextureMaker(context, bm, useDecal);
+        return nullptr;
+    }
+    // Otherwise don't know how to draw it, so return null proxy AND producer
+    *producer = nullptr;
+    return nullptr;
+}
+
 enum class ImageDrawMode {
     // Src and dst have been restricted to the image content. May need to clamp, no need to decal.
     kOptimized,
@@ -236,20 +295,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
                                   const SkPaint& paint, GrTextureProducer* producer,
                                   const SkRect& src, const SkRect& dst, const SkPoint dstClip[4],
                                   const SkMatrix& srcToDst, GrAA aa, GrQuadAAFlags aaFlags,
-                                  SkCanvas::SrcRectConstraint constraint, bool attemptDrawTexture) {
-    if (attemptDrawTexture && can_use_draw_texture(paint)) {
-        // We've done enough checks above to allow us to pass ClampNearest() and not check for
-        // scaling adjustments.
-        auto proxy = producer->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
-        if (!proxy) {
-            return;
-        }
-
-        draw_texture(rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint,
-                     std::move(proxy), producer->alphaType(),  producer->colorSpace());
-        return;
-    }
-
+                                  SkCanvas::SrcRectConstraint constraint) {
     const SkMaskFilter* mf = paint.getMaskFilter();
 
     // The shader expects proper local coords, so we can't replace local coords with texture coords
@@ -371,7 +417,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     }
     // Depending on the nature of image, it can flow through more or less optimal pipelines
     bool useDecal = mode == ImageDrawMode::kDecal;
-    bool attemptDrawTexture = !useDecal; // rtc->drawTexture() only clamps
+    bool useDrawTexture = !useDecal && can_use_draw_texture(paint); // drawTexture() only clamps
 
     // Get final CTM matrix
     SkMatrix ctm = this->ctm();
@@ -379,51 +425,12 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         ctm.preConcat(*preViewMatrix);
     }
 
-    // YUVA images can be stored in multiple images with different plane resolutions, so this
-    // uses an effect to combine them dynamically on the GPU. This is done before requesting a
-    // pinned texture proxy because YUV images force-flatten to RGBA in that scenario.
-    if (as_IB(image)->isYUVA()) {
-        SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-        LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
-
-        GrYUVAImageTextureMaker maker(fContext.get(), image, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              /* attempt draw texture */ false);
-        return;
-    }
-
-    // Pinned texture proxies can be rendered directly as textures, or with relatively simple
-    // adjustments applied to the image content (scaling, mipmaps, color space, etc.)
-    uint32_t pinnedUniqueID;
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
-                                                                          &pinnedUniqueID)) {
-        SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-        LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
-
-        SkAlphaType alphaType = image->alphaType();
-        SkColorSpace* colorSpace = as_IB(image)->colorSpace();
-
-        if (attemptDrawTexture && can_use_draw_texture(paint)) {
-            draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
-                         dstClip, aa, aaFlags, constraint, std::move(proxy), alphaType, colorSpace);
-            return;
-        }
-
-        GrTextureAdjuster adjuster(fContext.get(), std::move(proxy), alphaType, pinnedUniqueID,
-                                   colorSpace, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
-                              constraint, /* attempt draw_texture */ false);
-        return;
-    }
-
     // Next up, try tiling the image
     // TODO (michaelludwig): Implement this with per-edge AA flags to handle seaming properly
     // instead of going through drawBitmapRect (which will be removed from SkDevice in the future)
-    SkBitmap bm;
     if (this->shouldTileImage(image, &src, constraint, paint.getFilterQuality(), ctm, srcToDst)) {
         // only support tiling as bitmap at the moment, so force raster-version
+        SkBitmap bm;
         if (!as_IB(image)->getROPixels(&bm)) {
             return;
         }
@@ -433,25 +440,35 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
     // This is the funnel for all non-tiled bitmap/image draw calls. Log a histogram entry.
     SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-    LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
-
-    // Lazily generated images must get drawn as a texture producer that handles the final
-    // texture creation.
-    if (image->isLazyGenerated()) {
-        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint, useDecal);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              attemptDrawTexture);
+    char producerStorage[kMaxProducerSize];
+    GrTextureProducer* producer;
+    sk_sp<GrTextureProxy> proxy = resolve_proxy_or_producer(fContext.get(), image, useDecal,
+            !useDrawTexture, producerStorage, &producer);
+    if (!proxy && !producer) {
+        // Don't know how to draw
         return;
     }
-    if (as_IB(image)->getROPixels(&bm)) {
-        GrBitmapTextureMaker maker(fContext.get(), bm, useDecal);
+
+    if (useDrawTexture) {
+        if (!proxy) {
+            // We've done enough checks above to allow us to pass ClampNearest() and not check for
+            // scaling adjustments.
+            proxy = producer->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
+        }
+        SkASSERT(proxy);
+        draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src, dst, dstClip, aa,
+                     aaFlags, constraint, std::move(proxy), image->alphaType(),
+                     as_IB(image)->colorSpace());
+    } else {
+        SkASSERT(producer && !proxy);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
-                              paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
-                              attemptDrawTexture);
+                              paint, producer, src, dst, dstClip, srcToDst, aa, aaFlags,
+                              constraint);
     }
 
-    // Otherwise don't know how to draw it
+    if (producer) {
+        producer->~GrTextureProducer();
+    }
 }
 
 void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
@@ -590,9 +607,17 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
     // to tell it to use decals if we had to
     SkASSERT(mode != ImageDrawMode::kDecal);
 
-    draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), viewMatrix,
-                          paint, producer, src, dst, /* clip */ nullptr, srcToDst,
-                          GrAA(paint.isAntiAlias()),
-                          paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
-                          constraint, attemptDrawTexture);
+    if (attemptDrawTexture && can_use_draw_texture(paint)) {
+        auto proxy = producer->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
+        draw_texture(fRenderTargetContext.get(), this->clip(), viewMatrix, paint, src, dst,
+                     nullptr, GrAA(paint.isAntiAlias()),
+                     paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone, constraint,
+                     std::move(proxy), producer->alphaType(), producer->colorSpace());
+    } else {
+        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), viewMatrix,
+                              paint, producer, src, dst, /* clip */ nullptr, srcToDst,
+                              GrAA(paint.isAntiAlias()),
+                              paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+                              constraint);
+    }
 }

@@ -770,8 +770,11 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
                                   const SkMatrix& viewMatrix,
                                   const SkMatrix& srcToDstRect) const {
     ASSERT_SINGLE_OWNER
-    // If image is explicitly texture backed then we shouldn't get here.
-    SkASSERT(!image->isTextureBacked());
+    // If image is explicitly texture backed then there is no need to tile since it already fits
+    // in texture memory
+    if (image->isTextureBacked()) {
+        return false;
+    }
 
     GrSamplerState samplerState;
     bool doBicubic;
