@@ -297,6 +297,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
                                                              GrMipMapped mipMapped) {
     ASSERT_SINGLE_OWNER
+    SkASSERT(GrMipMapped::kNo == mipMapped || this->caps()->mipMapSupport());
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -323,8 +324,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     // If mips weren't requested (or this was too small to have any), then take the fast path
     if (GrMipMapped::kNo == mipMapped ||
         0 == SkMipMap::ComputeLevelCount(baseLevel->width(), baseLevel->height())) {
-        return this->createTextureProxy(baseLevel, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes,
-                                        SkBackingFit::kExact);
+        return this->createTextureProxy(std::move(baseLevel), kNone_GrSurfaceFlags, 1,
+                                        SkBudgeted::kYes, SkBackingFit::kExact);
     }
 
     const GrBackendFormat format =
