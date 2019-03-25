@@ -235,6 +235,7 @@
   "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs",
   "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast",
   "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER",
+  "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SkottieTracing",
   "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Wuffs",
   "Perf-Debian9-Clang-GCE-CPU-AVX512-x86_64-Debug-All",
   "Perf-Debian9-Clang-GCE-CPU-AVX512-x86_64-Release-All",
