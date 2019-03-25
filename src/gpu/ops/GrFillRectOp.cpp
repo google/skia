@@ -162,6 +162,14 @@ public:
                                     GrQuadPerEdgeAA::MinColorType(*color, clampType, caps));
             }
         }
+        // Most SkShaders' FPs multiply their calculated color by the paint color or alpha. We want
+        // to use ColorType::kNone to optimize out that multiply. However, if there are no color
+        // FPs then were really writing a special shader for white rectangles and not saving any
+        // multiples. So in that case use bytes to avoid the extra shader (and possibly work around
+        // an ANGLE issue: crbug.com/942565).
+        if (fColorType == ColorType::kNone && !result.hasColorFragmentProcessor()) {
+            fColorType = ColorType::kByte;
+        }
 
         return result;
     }
