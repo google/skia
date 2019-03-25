@@ -11,7 +11,6 @@
 #include <memory>
 
 #include "SkPoint.h"
-#include "SkSpan.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 
@@ -52,9 +51,19 @@ public:
             uint32_t*  clusters;  // optional
         };
 
+        struct Range {
+            constexpr Range() : fBegin(0), fSize(0) {}
+            constexpr Range(size_t begin, size_t size) : fBegin(begin), fSize(size) {}
+            size_t fBegin;
+            size_t fSize;
+            constexpr size_t begin() const { return fBegin; }
+            constexpr size_t end() const { return begin() + size(); }
+            constexpr size_t size() const { return fSize; }
+        };
+
         // Callback per glyph run.
-        virtual Buffer newRunBuffer(const RunInfo&, const SkFont&, int glyphCount,
-                                    SkSpan<const char> utf8) = 0;
+        virtual Buffer newRunBuffer(const RunInfo&, const SkFont&, size_t glyphCount,
+                                    Range utf8Range) = 0;
 
         // Called after run information is filled out.
         virtual void commitRun() = 0;
@@ -83,7 +92,7 @@ public:
     SkTextBlobBuilderRunHandler(const char* utf8Text) : fUtf8Text(utf8Text) {}
     sk_sp<SkTextBlob> makeBlob();
 
-    SkShaper::RunHandler::Buffer newRunBuffer(const RunInfo&, const SkFont&, int, SkSpan<const char>) override;
+    Buffer newRunBuffer(const RunInfo&, const SkFont&, size_t, Range) override;
     void commitRun() override;
     void commitLine() override {}
 

@@ -6,7 +6,6 @@
  */
 
 #include "SkShaper.h"
-#include "SkSpan.h"
 #include "SkTextBlobPriv.h"
 
 std::unique_ptr<SkShaper> SkShaper::Make() {
@@ -24,16 +23,24 @@ SkShaper::~SkShaper() {}
 
 SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::newRunBuffer(const RunInfo&,
                                                                        const SkFont& font,
-                                                                       int glyphCount,
-                                                                       SkSpan<const char> utf8) {
+                                                                       size_t glyphCount,
+                                                                       Range utf8Range) {
+    if (!SkTFitsIn<int>(glyphCount)) {
+        SkDebugf("Shaping error: too many glyphs");
+        glyphCount = INT_MAX;
+    }
+    if (!SkTFitsIn<int>(utf8Range.size())) {
+        SkDebugf("Shaping error: utf8 too long");
+        utf8Range.fSize = INT_MAX;
+    }
     const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, font, glyphCount,
-                                                                   utf8.size(), SkString());
+                                                                   utf8Range.size(), SkString());
     if (runBuffer.utf8text && fUtf8Text) {
-        memcpy(runBuffer.utf8text, utf8.data(), utf8.size());
+        memcpy(runBuffer.utf8text, fUtf8Text + utf8Range.begin(), utf8Range.size());
     }
     fClusters = runBuffer.clusters;
     fGlyphCount = glyphCount;
-    fClusterOffset = utf8.data() - fUtf8Text;
+    fClusterOffset = utf8Range.begin();
 
     return { runBuffer.glyphs,
              runBuffer.points(),
