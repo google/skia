@@ -15,7 +15,7 @@ python tools/skp/webpages_playback.py --data_store=gs://rmistry --record \
 The above command uses Google Storage bucket 'rmistry' to download needed files.
 
 To replay archived webpages and re-generate SKP files (should be run whenever
-SkPicture.PICTURE_VERSION changes):
+SkPicture.PICTURE_VERSION changes):test
 
 cd skia
 python tools/skp/webpages_playback.py --data_store=gs://rmistry \
@@ -330,6 +330,9 @@ class SkPicturePlayback(object):
         # If we get here then run_benchmark did not succeed and thus did not
         # break out of the loop.
         raise Exception('run_benchmark failed for page_set: %s' % page_set)
+
+      print 'GOING TO SLEEP HERE TO HELP WITH DEBUGGING!!!!!!!!!!!!!'
+      time.sleep(5*60*60)
 
     print '\n\n=======Capturing SKP files took %s seconds=======\n\n' % (
         time.time() - start_time)
