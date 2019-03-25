@@ -84,6 +84,8 @@ public:
         bool requiresDstTexture() const { return fRequiresDstTexture; }
         bool requiresNonOverlappingDraws() const { return fRequiresNonOverlappingDraws; }
         bool isCompatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
+        // Indicates whether all color fragment processors were eliminated in the analysis.
+        bool hasColorFragmentProcessor() const { return fHasColorFragmentProcessor; }
 
         bool inputColorIsIgnored() const { return fInputColorType == kIgnored_InputColorType; }
         bool inputColorIsOverridden() const {
@@ -96,6 +98,7 @@ public:
                 , fCompatibleWithCoverageAsAlpha(true)
                 , fRequiresDstTexture(false)
                 , fRequiresNonOverlappingDraws(false)
+                , fHasColorFragmentProcessor(false)
                 , fIsInitialized(true)
                 , fInputColorType(kOriginal_InputColorType) {}
         enum InputColorType : uint32_t {
@@ -112,6 +115,7 @@ public:
         PackedBool fCompatibleWithCoverageAsAlpha : 1;
         PackedBool fRequiresDstTexture : 1;
         PackedBool fRequiresNonOverlappingDraws : 1;
+        PackedBool fHasColorFragmentProcessor : 1;
         PackedBool fIsInitialized : 1;
         PackedInputColorType fInputColorType : 2;
 
