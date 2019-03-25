@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aef82a75_0429e2bc",
+        "filename": "tools/skp/webpages_playback.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-03-25T18:17:29Z",
+      "side": 1,
+      "message": "Nit: maybe explain where this number came from and why smaller SKPs are definitely invalid and larger SKPs are definitely valid.",
+      "range": {
+        "startLine": 425,
+        "startChar": 4,
+        "endLine": 425,
+        "endChar": 67
+      },
+      "revId": "74f739c911ace6718848ec884372adf6a4576a61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
