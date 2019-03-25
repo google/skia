@@ -464,9 +464,6 @@ void GrGpu::Stats::dump(SkString* out) {
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
-    keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);
-    keys->push_back(SkString("number_of_draws")); values->push_back(fNumDraws);
-    keys->push_back(SkString("number_of_failed_draws")); values->push_back(fNumFailedDraws);
 }
 
 #endif
