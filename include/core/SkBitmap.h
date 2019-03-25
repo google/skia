@@ -555,8 +555,8 @@ public:
     bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false);
 
     /** Sets SkImageInfo to width, height, and the native color type; and allocates
-        pixel memory. If isOpaque is true, sets SkImageInfo to kPremul_SkAlphaType;
-        otherwise, sets to kOpaque_SkAlphaType.
+        pixel memory. If isOpaque is true, sets SkImageInfo to kOpaque_SkAlphaType;
+        otherwise, sets to kPremul_SkAlphaType.
 
         Aborts if width exceeds 29 bits or is negative, or height is negative, or
         allocation fails. Abort steps may be provided by the user at compile time by
