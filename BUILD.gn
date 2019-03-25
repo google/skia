@@ -1845,6 +1845,21 @@ if (skia_enable_tools) {
         ":skia",
       ]
     }
+    test_app("fm") {
+      sources = [
+        "tools/fm/fm.cpp",
+      ]
+      deps = [
+        ":common_flags_aa",
+        ":common_flags_gpu",
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+        ":trace",
+      ]
+    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
