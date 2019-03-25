@@ -1764,7 +1764,10 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                 if (newX < prevX) {  // ripple currE backwards until it is x-sorted
                     // If the crossing edge is a right edge, blit the saved trapezoid.
                     if (leftE->fRiteE == currE && useDeferred) {
-                        SkASSERT(leftE->fY == nextY && currE->fY == nextY);
+                        // We never call goY for the left boundary prevHead. If leftE is not
+                        // prevHead, we should call goY and advance its y to nextY. The prevHead
+                        // may only become the leftE in reverse filling mode.
+                        SkASSERT((leftE == prevHead || leftE->fY == nextY) && currE->fY == nextY);
                         blit_saved_trapezoid(leftE,
                                              nextY,
                                              leftE->fX,
