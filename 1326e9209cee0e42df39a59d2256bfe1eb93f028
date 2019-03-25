@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d37ccc68_6bbd66fc",
+        "filename": "infra/bots/recipes/perf_skottietrace.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-03-25T14:34:10Z",
+      "side": 1,
+      "message": "Forgot to include this in last patchset. This is to cleanup trace files so that they are not carried over to the Upload task, there is no need to upload them.",
+      "revId": "1326e9209cee0e42df39a59d2256bfe1eb93f028",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
