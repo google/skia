@@ -15,15 +15,27 @@
   {
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
-      "file.text"
+      "file.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "cat_file file.text",
+    "name": "cat_file file.txt",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "file.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm file.txt"
   },
   {
     "cmd": [

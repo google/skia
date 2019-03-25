@@ -143,6 +143,10 @@ class DefaultFlavor(object):
     """Reads the specified file."""
     return self.m.file.read_text('read %s' % path, path)
 
+  def remove_file_on_device(self, path):
+    """Removes the specified file."""
+    return self.m.file.remove('remove %s' % path, path)
+
   def install(self):
     """Run device-specific installation steps."""
     pass

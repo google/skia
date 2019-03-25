@@ -50,15 +50,34 @@
       "-t",
       "foo@127.0.0.1",
       "cat",
-      "file.text"
+      "file.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read file.text",
+    "name": "read file.txt",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-f",
+      "file.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm file.txt"
   },
   {
     "cmd": [
