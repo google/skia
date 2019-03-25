@@ -10,6 +10,7 @@ from page_sets.login_helpers import google_login
 from telemetry import story
 from telemetry.page import page as page_module
 from telemetry.page import shared_page_state
+from telemetry.util import wpr_modes
 
 
 class SkiaBuildbotDesktopPage(page_module.Page):
@@ -26,6 +27,8 @@ class SkiaBuildbotDesktopPage(page_module.Page):
     action_runner.ScrollElement()
 
   def RunNavigateSteps(self, action_runner):
+    if self.wpr_mode != wpr_modes.WPR_REPLAY:
+      pass
     credentials_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   'data/credentials.json')
     google_login.BaseLoginGoogle(action_runner, 'google', credentials_path)
