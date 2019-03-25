@@ -130,7 +130,6 @@ struct SkAnalyticCubicEdge : public SkAnalyticEdge {
     bool setCubic(const SkPoint pts[4], bool sortY = true);
     bool updateCubic(bool sortY = true);
     inline void keepContinuous() {
-        SkASSERT(SkAbs32(fX - SkFixedMul(fDX, fY - SnapY(fCEdge.fCy)) - fCEdge.fCx) < SK_Fixed1);
         fCEdge.fCx = fX;
         fSnappedY = fY;
     }
