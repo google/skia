@@ -49,21 +49,25 @@ def perf_steps(api):
     if not lottie_filename.endswith('.json'):
       continue
 
-    trace_output_path = api.flavor.device_dirs.dm_dir + '/%s.json' % (idx + 1)
+    trace_output_path = api.flavor.device_path_join(
+        api.flavor.device_dirs.dm_dir, '%s.json' % (idx + 1))
     # See go/skottie-tracing for how these flags were selected.
     dm_args = [
       'dm',
       '--resourcePath', api.flavor.device_dirs.resource_dir,
       '--lotties', api.flavor.device_dirs.lotties_dir,
-      '--nocpu',
-      '--config', 'gles',
       '--src', 'lottie',
       '--nonativeFonts',
       '--verbose',
       '--traceMatch', 'skottie',  # recipe can OOM without this.
       '--trace', trace_output_path,
-      '--match', get_trace_match(lottie_filename),
+      '--match', get_trace_match(
+          lottie_filename, 'Android' in api.properties['buildername']),
     ]
+    if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+      dm_args.extend(['--config', 'gles', '--nocpu'])
+    elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+      dm_args.extend(['--config', '8888', '--nogpu'])
     api.run(api.flavor.step, 'dm', cmd=dm_args, abort_on_failure=False,
             skip_binary_push=not push_dm)
     # We already pushed the binary once. No need to waste time by pushing
@@ -77,6 +81,7 @@ def perf_steps(api):
 
     perf_results[lottie_filename] = parse_trace(
         trace_file_content, lottie_filename, api)
+    api.flavor.remove_file_on_device(trace_output_path)
 
   # Construct contents of the output JSON.
   perf_json = {
@@ -98,13 +103,14 @@ def perf_steps(api):
   # Add tokens from the builder name to the key.
   reg = re.compile('Perf-(?P<os>[A-Za-z0-9_]+)-'
                    '(?P<compiler>[A-Za-z0-9_]+)-'
-                   '(?P<model>[A-Za-z0-9_]+)-GPU-'
+                   '(?P<model>[A-Za-z0-9_]+)-'
+                   '(?P<cpu_or_gpu>[A-Z]+)-'
                    '(?P<cpu_or_gpu_value>[A-Za-z0-9_]+)-'
                    '(?P<arch>[A-Za-z0-9_]+)-'
                    '(?P<configuration>[A-Za-z0-9_]+)-'
                    'All(-(?P<extra_config>[A-Za-z0-9_]+)|)')
   m = reg.match(api.properties['buildername'])
-  keys = ['os', 'compiler', 'model', 'cpu_or_gpu_value', 'arch',
+  keys = ['os', 'compiler', 'model', 'cpu_or_gpu', 'cpu_or_gpu_value', 'arch',
           'configuration', 'extra_config']
   for k in keys:
     perf_json['key'][k] = m.group(k)
@@ -126,13 +132,13 @@ with open('%s', 'w') as outfile:
   """ % (json_path, perf_json))
 
 
-def get_trace_match(lottie_filename):
+def get_trace_match(lottie_filename, is_android):
   """Returns the DM regex to match the specified lottie file name."""
   trace_match = '^%s$' % lottie_filename
-  if ' ' not in trace_match:
-    # Punctuation characters confuse DM so escape them. Do not need to do this
-    # when there is a space in the match because subprocess.list2cmdline
-    # automatically adds quotes in that case.
+  if is_android and ' ' not in trace_match:
+    # Punctuation characters confuse DM when shelled out over adb, so escape
+    # them. Do not need to do this when there is a space in the match because
+    # subprocess.list2cmdline automatically adds quotes in that case.
     for sp_char in string.punctuation:
       if sp_char == '\\':
         # No need to escape the escape char.
@@ -264,9 +270,28 @@ def GenTests(api):
   }
   buildername = ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-'
                   'All-Android_SkottieTracing')
+  cpu_buildername = ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
+                     'SkottieTracing')
   yield (
       api.test(buildername) +
       api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     task_id='abc123',
+                     trace_test_data=trace_output,
+                     dm_json_test_data=dm_json_test_data,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('parse lottie(test)\'!2.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie1.json trace',
+                    api.json.output(parse_trace_json)) +
+      api.step_data('parse lottie 3!.json trace',
+                    api.json.output(parse_trace_json))
+  )
+  yield (
+      api.test(cpu_buildername) +
+      api.properties(buildername=cpu_buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      task_id='abc123',
