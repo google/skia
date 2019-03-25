@@ -1788,29 +1788,6 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("bookmaker") {
-    sources = [
-      "tools/bookmaker/bmhParser.cpp",
-      "tools/bookmaker/bookmaker.cpp",
-      "tools/bookmaker/cataloger.cpp",
-      "tools/bookmaker/definition.cpp",
-      "tools/bookmaker/fiddleParser.cpp",
-      "tools/bookmaker/hackParser.cpp",
-      "tools/bookmaker/includeParser.cpp",
-      "tools/bookmaker/includeWriter.cpp",
-      "tools/bookmaker/mdOut.cpp",
-      "tools/bookmaker/parserCommon.cpp",
-      "tools/bookmaker/selfCheck.cpp",
-      "tools/bookmaker/spellCheck.cpp",
-      "tools/bookmaker/textParser.cpp",
-    ]
-    deps = [
-      ":flags",
-      ":skia",
-      ":tool_utils",
-    ]
-  }
-
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
       deps = [
