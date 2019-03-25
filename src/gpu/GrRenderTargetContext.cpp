@@ -1196,9 +1196,11 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     // draw is aa. Since our lower level clip code works from op bounds, which are SkRects, it
     // doesn't detect that the clip can be ignored (modulo antialiasing). The following test
     // attempts to mitigate the stencil clip cost but will only help when the entire clip stack
-    // can be ignored. We'd prefer to fix this in the framework by removing the clips calls.
+    // can be ignored. We'd prefer to fix this in the framework by removing the clips calls. This
+    // only works for filled rrects since the stroke width outsets beyond the rrect itself.
     SkRRect devRRect;
-    if (rrect.transform(viewMatrix, &devRRect) && clip->quickContains(devRRect)) {
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style && rrect.transform(viewMatrix, &devRRect) &&
+        clip->quickContains(devRRect)) {
         clip = &noclip;
     }
 #endif
