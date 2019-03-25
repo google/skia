@@ -331,6 +331,9 @@ class SkPicturePlayback(object):
         # break out of the loop.
         raise Exception('run_benchmark failed for page_set: %s' % page_set)
 
+      print 'GOING TO SLEEP HERE TO HELP WITH DEBUGGING!!!!!!!!!!!!!'
+      time.sleep(5*60*60)
+
     print '\n\n=======Capturing SKP files took %s seconds=======\n\n' % (
         time.time() - start_time)
 
