@@ -177,7 +177,9 @@ public:
     /** Purge all resources not used since the passed in time. */
     void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point);
 
-    bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
+    bool overBudget() const {
+        return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount;
+    }
 
     /**
      * Purge unlocked resources from the cache until the the provided byte count has been reached
@@ -193,7 +195,10 @@ public:
 
     /** Returns true if the cache would like a flush to occur in order to make more resources
         purgeable. */
-    bool requestsFlush() const { return this->overBudget() && !fPurgeableQueue.count(); }
+    bool requestsFlush() const {
+//        SkDebugf("requestsFlush overBudget: %d purgeableCount %d\n", this->overBudget(), fPurgeableQueue.count());
+        return this->overBudget() && !fPurgeableQueue.count();
+    }
 
     /** Maintain a ref to this resource until we receive a GrGpuResourceFreedMessage. */
     void insertDelayedResourceUnref(GrGpuResource* resource);
