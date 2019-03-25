@@ -1842,8 +1842,10 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
-    SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstOrigin,
-                                         src->config(), srcSampleCnt, srcOrigin));
+    bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
+    bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
+    SkASSERT(this->vkCaps().canCopyImage(dst->config(), dstSampleCnt, dstOrigin, dstHasYcbcr,
+                                         src->config(), srcSampleCnt, srcOrigin, srcHasYcbcr));
 
 #endif
 
@@ -1902,8 +1904,11 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
+    bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
+    bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
     SkASSERT(this->vkCaps().canCopyAsBlit(dst->config(), dstSampleCnt, dstImage->isLinearTiled(),
-                                          src->config(), srcSampleCnt, srcImage->isLinearTiled()));
+                                          dstHasYcbcr, src->config(), srcSampleCnt,
+                                          srcImage->isLinearTiled(), srcHasYcbcr));
 
 #endif
     dstImage->setImageLayout(this,
@@ -2005,21 +2010,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
 
-    if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin,
-                                        srcConfig, srcSampleCnt, srcOrigin)) {
-        this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
-        return true;
-    }
-
-    if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()),
-                                     srcConfig, SkToBool(src->asTexture()))) {
-        SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
-                                                      dstPoint, canDiscardOutsideDstRect));
-        auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
-        this->didWriteToSurface(dst, dstOrigin, &dstRect);
-        return true;
-    }
-
     GrVkImage* dstImage;
     GrVkImage* srcImage;
     GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -2042,15 +2032,34 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
     }
 
-    if (this->vkCaps().canCopyImage(dstConfig, dstSampleCnt, dstOrigin,
-                                    srcConfig, srcSampleCnt, srcOrigin)) {
+    bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
+    bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
+
+    if (this->vkCaps().canCopyAsResolve(dstConfig, dstSampleCnt, dstOrigin, dstHasYcbcr,
+                                        srcConfig, srcSampleCnt, srcOrigin, srcHasYcbcr)) {
+        this->copySurfaceAsResolve(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
+        return true;
+    }
+
+    if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()), dstHasYcbcr,
+                                     srcConfig, SkToBool(src->asTexture()), srcHasYcbcr)) {
+        SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
+                                                      dstPoint, canDiscardOutsideDstRect));
+        auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
+        this->didWriteToSurface(dst, dstOrigin, &dstRect);
+        return true;
+    }
+
+    if (this->vkCaps().canCopyImage(dstConfig, dstSampleCnt, dstOrigin, dstHasYcbcr,
+                                    srcConfig, srcSampleCnt, srcOrigin, srcHasYcbcr)) {
         this->copySurfaceAsCopyImage(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
                                      srcRect, dstPoint);
         return true;
     }
 
     if (this->vkCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstImage->isLinearTiled(),
-                                     srcConfig, srcSampleCnt, srcImage->isLinearTiled())) {
+                                     dstHasYcbcr, srcConfig, srcSampleCnt,
+                                     srcImage->isLinearTiled(), srcHasYcbcr)) {
         this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, dstImage, srcImage,
                                 srcRect, dstPoint);
         return true;
@@ -2136,11 +2145,14 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         if (rt) {
             srcSampleCount = rt->numColorSamples();
         }
+        bool srcHasYcbcr = image->ycbcrConversionInfo().isValid();
         static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
-        if (!this->vkCaps().canCopyAsBlit(copySurface->config(), 1, kOrigin,
-                                          surface->config(), srcSampleCount, kOrigin) &&
-            !this->vkCaps().canCopyAsDraw(copySurface->config(), false,
-                                          surface->config(), SkToBool(surface->asTexture()))) {
+        if (!this->vkCaps().canCopyAsBlit(copySurface->config(), 1, kOrigin, false,
+                                          surface->config(), srcSampleCount, kOrigin,
+                                          srcHasYcbcr) &&
+            !this->vkCaps().canCopyAsDraw(copySurface->config(), false, false,
+                                          surface->config(), SkToBool(surface->asTexture()),
+                                          srcHasYcbcr)) {
             return false;
         }
         SkIRect srcRect = SkIRect::MakeXYWH(left, top, width, height);
