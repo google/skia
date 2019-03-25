@@ -298,7 +298,6 @@ BASE_SRCS_UNIX = struct(
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
         "src/ports/SkFontMgr_empty_factory.cpp",
-        "src/ports/SkFontMgr_fontconfig.cpp",
         "src/ports/SkFontMgr_fontconfig_factory.cpp",
         "src/ports/SkFontMgr_fuchsia.cpp",
         "src/ports/SkImageGenerator_none.cpp",
@@ -506,7 +505,7 @@ def dm_srcs(os_conditions):
     return skia_glob(DM_SRCS_ALL) + skia_select(
         os_conditions,
         [
-            [],
+            ["tests/FontMgrFontConfigTest.cpp"],
             ["tests/FontMgrAndroidParserTest.cpp"],
             [],
         ],
