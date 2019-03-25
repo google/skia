@@ -76,17 +76,37 @@ static DEFINE_int(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing
 
 static DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
-DECLARE_int(threads)
-
 static DEFINE_string2(file, f, "", "Open a single file for viewing.");
+
+static DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
 
 #if defined(SK_BUILD_FOR_ANDROID)
     static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
     static DEFINE_string(nimas, "/data/local/tmp/nimas", "Directory to read NIMA animations from.");
+    static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
+    static DEFINE_string(lotties, "/data/local/tmp/lotties",
+                         "Directory to read (Bodymovin) jsons from.");
 #else
     static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
     static DEFINE_string(nimas, "nimas", "Directory to read NIMA animations from.");
+    static DEFINE_string(skps, "skps", "Directory to read skps from.");
+    static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
 #endif
+
+static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+
+static DEFINE_int_2(threads, j, -1,
+               "Run threadsafe tests on a threadpool with this many extra threads, "
+               "defaulting to one extra thread per core.");
+
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
