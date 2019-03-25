@@ -21,7 +21,7 @@ class SkiaDesktopPage(page_module.Page):
         name=url,
         page_set=page_set,
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
-    self.archive_data_file = 'data/skia_linkedin_mobile.json'
+    self.archive_data_file = 'data/skia_linkedin_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
     if self.wpr_mode != wpr_modes.WPR_REPLAY:
@@ -39,7 +39,7 @@ class SkiaLinkedinDesktopPageSet(story.StorySet):
 
   def __init__(self):
     super(SkiaLinkedinDesktopPageSet, self).__init__(
-      archive_data_file='data/skia_linkedin_mobile.json')
+      archive_data_file='data/skia_linkedin_desktop.json')
 
     urls_list = [
       # go/skia-skps-3-2019
