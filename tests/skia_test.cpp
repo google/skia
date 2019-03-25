@@ -6,7 +6,7 @@
  */
 
 #include <atomic>
-#include "CommonFlags.h"
+#include "CommandLineFlags.h"
 #include "CrashHandler.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
@@ -30,9 +30,24 @@ static DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 static DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
 static DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
 static DEFINE_string2(json, J, "", "write json version of tests.");
+static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
 static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+
+static DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
+static DEFINE_int_2(threads, j, -1,
+               "Run threadsafe tests on a threadpool with this many extra threads, "
+               "defaulting to one extra thread per core.");
 
 #if DEBUG_COIN
 static DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");

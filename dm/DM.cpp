@@ -75,6 +75,8 @@ static DEFINE_string(blacklist, "",
 
 static DEFINE_string2(readPath, r, "",
                       "If set check for equality with golden results in this directory.");
+DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
+
 
 static DEFINE_string(uninterestingHashesFile, "",
         "File containing a list of uninteresting hashes. If a result hashes to something in "
@@ -117,6 +119,33 @@ static DEFINE_string(images, "",
 static DEFINE_bool(simpleCodec, false,
                    "Runs of a subset of the codec tests, "
                    "with no scaling or subsetting, always using the canvas color type.");
+
+static DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
+static DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
+static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
+
+static DEFINE_string(skps, "skps", "Directory to read skps from.");
+static DEFINE_string(lotties, "lotties", "Directory to read (Bodymovin) jsons from.");
+static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+
+static DEFINE_int_2(threads, j, -1,
+               "Run threadsafe tests on a threadpool with this many extra threads, "
+               "defaulting to one extra thread per core.");
+
+static DEFINE_string(key, "",
+                     "Space-separated key/value pairs to add to JSON identifying this builder.");
+static DEFINE_string(properties, "",
+                     "Space-separated key/value pairs to add to JSON identifying this run.");
+
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -175,6 +204,12 @@ struct Running {
     }
 };
 
+static void dump_json() {
+    if (!FLAGS_writePath.isEmpty()) {
+        JsonWriter::DumpJson(FLAGS_writePath[0], FLAGS_key, FLAGS_properties);
+    }
+}
+
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
 static SkSpinlock        gMutex;
 static int               gPending;
@@ -198,7 +233,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     // We write out dm.json file and print out a progress update every once in a while.
     // Notice this also handles the final dm.json and progress update when pending == 0.
     if (pending % 500 == 0) {
-        JsonWriter::DumpJson();
+        dump_json();
 
         int curr = sk_tools::getCurrResidentSetSizeMB(),
             peak = sk_tools::getMaxResidentSetSizeMB();
@@ -1426,8 +1461,9 @@ struct Task {
         }
 
         const char* dir = FLAGS_writePath[0];
+        SkString resources = GetResourcePath();
         if (0 == strcmp(dir, "@")) {  // Needed for iOS.
-            dir = FLAGS_resourcePath[0];
+            dir = resources.c_str();
         }
         sk_mkdir(dir);
 
@@ -1556,7 +1592,8 @@ int main(int argc, char** argv) {
     GrContextOptions grCtxOptions;
     SetCtxOptionsFromCommonFlags(&grCtxOptions);
 
-    JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
+    dump_json();  // It's handy for the bots to assume this is ~never missing.
+
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
@@ -1624,7 +1661,7 @@ int main(int argc, char** argv) {
     // We'd better have run everything.
     SkASSERT(gPending == 0);
     // Make sure we've flushed all our results to disk.
-    JsonWriter::DumpJson();
+    dump_json();
 
     if (gFailures.count() > 0) {
         info("Failures:\n");

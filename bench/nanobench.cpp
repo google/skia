@@ -151,6 +151,34 @@ static DEFINE_string(images, "",
 static DEFINE_bool(simpleCodec, false,
                    "Runs of a subset of the codec tests, always N32, Premul or Opaque");
 
+static DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
+static DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
+static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
+
+
+static DEFINE_string(skps, "skps", "Directory to read skps from.");
+static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+
+static DEFINE_int_2(threads, j, -1,
+               "Run threadsafe tests on a threadpool with this many extra threads, "
+               "defaulting to one extra thread per core.");
+
+static DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
+
+static DEFINE_string(key, "",
+                     "Space-separated key/value pairs to add to JSON identifying this builder.");
+static DEFINE_string(properties, "",
+                     "Space-separated key/value pairs to add to JSON identifying this run.");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {

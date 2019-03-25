@@ -7,7 +7,6 @@
 
 #include "SKPSlide.h"
 
-#include "CommonFlags.h"
 #include "SkCanvas.h"
 #include "SkOSFile.h"
 #include "SkStream.h"

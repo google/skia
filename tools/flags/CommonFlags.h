@@ -4,25 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#ifndef SK_COMMON_FLAGS_H
-#define SK_COMMON_FLAGS_H
+#pragma once
 
 #include "../private/SkTArray.h"
 #include "CommandLineFlags.h"
 #include "SkString.h"
-
-DECLARE_string(match);
-DECLARE_bool(quiet);
-DECLARE_string(skps);
-DECLARE_string(lotties);
-DECLARE_string(svgs);
-DECLARE_int(threads);
-DECLARE_string(resourcePath);
-DECLARE_bool(verbose);
-DECLARE_string(writePath);
-DECLARE_string(key);
-DECLARE_string(properties);
 
 /**
  *  Helper to assist in collecting image paths from |dir| specified through a command line
@@ -53,5 +39,3 @@ void SetCtxOptionsFromCommonFlags(struct GrContextOptions*);
  *  Enable, disable, or force analytic anti-aliasing using --analyticAA and --forceAnalyticAA.
  */
 void SetAnalyticAAFromCommonFlags();
-
-#endif

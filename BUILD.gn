@@ -1550,10 +1550,10 @@ if (skia_enable_tools) {
       "tools/flags/CommandLineFlags.cpp",
     ]
   }
-  test_lib("common_flags") {
+
+  test_lib("common_flags_config") {
     public_include_dirs = [ "tools/flags" ]
     sources = [
-      "tools/flags/CommonFlags.cpp",
       "tools/flags/CommonFlagsConfig.cpp",
     ]
     deps = [
@@ -1561,6 +1561,36 @@ if (skia_enable_tools) {
     ]
     public_deps = [
       ":gpu_tool_utils",
+    ]
+  }
+  test_lib("common_flags_gpu") {
+    public_include_dirs = [ "tools/flags" ]
+    sources = [
+      "tools/flags/CommonFlagsGpu.cpp",
+    ]
+    deps = [
+      ":flags",
+    ]
+    public_deps = [
+      ":gpu_tool_utils",
+    ]
+  }
+  test_lib("common_flags_images") {
+    public_include_dirs = [ "tools/flags" ]
+    sources = [
+      "tools/flags/CommonFlagsImages.cpp",
+    ]
+    deps = [
+      ":flags",
+    ]
+  }
+  test_lib("common_flags_aa") {
+    public_include_dirs = [ "tools/flags" ]
+    sources = [
+      "tools/flags/CommonFlagsAA.cpp",
+    ]
+    deps = [
+      ":flags",
     ]
   }
 
@@ -1616,10 +1646,8 @@ if (skia_enable_tools) {
     deps = [
       ":experimental_svg_model",
       ":flags",
+      ":gpu_tool_utils",
       "//third_party/libpng",
-    ]
-    public_deps = [
-      ":common_flags",
     ]
   }
 
@@ -1804,6 +1832,7 @@ if (skia_enable_tools) {
       deps = [
         ":experimental_svg_model",
         ":flags",
+        ":gpu_tool_utils",
         ":xml",
         "modules/sksg",
         "modules/skshaper",
@@ -1840,7 +1869,10 @@ if (skia_enable_tools) {
         "dm/DMSrcSink.cpp",
       ]
       deps = [
-        ":common_flags",
+        ":common_flags_aa",
+        ":common_flags_config",
+        ":common_flags_gpu",
+        ":common_flags_images",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -1878,7 +1910,10 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":bench",
-      ":common_flags",
+      ":common_flags_aa",
+      ":common_flags_config",
+      ":common_flags_gpu",
+      ":common_flags_images",
       ":experimental_svg_model",
       ":flags",
       ":gm",
@@ -1904,6 +1939,8 @@ if (skia_enable_tools) {
       "tools/skpbench/skpbench.cpp",
     ]
     deps = [
+      ":common_flags_config",
+      ":common_flags_gpu",
       ":flags",
       ":gpu_tool_utils",
       ":skia",
@@ -2320,6 +2357,7 @@ if (skia_enable_tools) {
 
     include_dirs = [ "experimental" ]
     deps = [
+      ":common_flags_gpu",
       ":experimental_svg_model",
       ":flags",
       ":gm",
