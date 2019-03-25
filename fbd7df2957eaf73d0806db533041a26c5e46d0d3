@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99279cf7_064306da",
+        "filename": "gm/texturedomaineffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-25T17:34:28Z",
+      "side": 1,
+      "message": "delete ?",
+      "range": {
+        "startLine": 53,
+        "startChar": 8,
+        "endLine": 53,
+        "endChar": 41
+      },
+      "revId": "fbd7df2957eaf73d0806db533041a26c5e46d0d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
