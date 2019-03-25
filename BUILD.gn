@@ -1647,7 +1647,6 @@ if (skia_enable_tools) {
       ":experimental_svg_model",
       ":flags",
       ":gpu_tool_utils",
-      "//third_party/libpng",
     ]
   }
 
@@ -2022,7 +2021,6 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         "//third_party/libmicrohttpd",
-        "//third_party/libpng",
       ]
     }
   }
@@ -2071,7 +2069,6 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       "modules/skottie:fuzz",
-      "//third_party/libpng",
     ]
   }
 
@@ -2537,7 +2534,6 @@ if (skia_enable_tools) {
         ":generate_mocs",
         ":generate_resources",
         ":skia",
-        "//third_party/libpng",
       ]
     }
   }
