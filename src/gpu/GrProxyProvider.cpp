@@ -297,6 +297,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrBackendFormat& 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
                                                              GrMipMapped mipMapped) {
     ASSERT_SINGLE_OWNER
+    SkASSERT(GrMipMapped::kNo == mipMapped || this->caps()->mipMapSupport());
 
     if (this->isAbandoned()) {
         return nullptr;
