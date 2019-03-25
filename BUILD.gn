@@ -1594,13 +1594,27 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_lib("trace") {
+    public_include_dirs = [ "tools/trace" ]
+    deps = [
+      ":flags",
+    ]
+    sources = [
+      "tools/trace/ChromeTracingTracer.cpp",
+      "tools/trace/ChromeTracingTracer.h",
+      "tools/trace/EventTracingPriv.cpp",
+      "tools/trace/EventTracingPriv.h",
+      "tools/trace/SkDebugfTracer.cpp",
+      "tools/trace/SkDebugfTracer.h",
+    ]
+  }
+
   test_lib("tool_utils") {
     public_include_dirs = [
       "tools",
       "tools/debugger",
       "tools/fonts",
       "tools/timer",
-      "tools/trace",
     ]
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
@@ -1627,12 +1641,6 @@ if (skia_enable_tools) {
       "tools/random_parse_path.cpp",
       "tools/timer/AnimTimer.h",
       "tools/timer/Timer.cpp",
-      "tools/trace/ChromeTracingTracer.cpp",
-      "tools/trace/ChromeTracingTracer.h",
-      "tools/trace/EventTracingPriv.cpp",
-      "tools/trace/EventTracingPriv.h",
-      "tools/trace/SkDebugfTracer.cpp",
-      "tools/trace/SkDebugfTracer.h",
     ]
     libs = []
     if (is_ios) {
@@ -1856,6 +1864,7 @@ if (skia_enable_tools) {
         ":skia",
         ":tests",
         ":tool_utils",
+        ":trace",
         "modules/skottie",
         "modules/skottie:utils",
         "modules/sksg",
@@ -1896,6 +1905,7 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
+      ":trace",
       "modules/sksg",
     ]
   }
@@ -2340,6 +2350,7 @@ if (skia_enable_tools) {
       ":sk_app",
       ":skia",
       ":tool_utils",
+      ":trace",
       "modules/particles",
       "modules/skottie",
       "modules/skottie:utils",
