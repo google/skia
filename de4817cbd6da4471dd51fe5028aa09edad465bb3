@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "893e0469_13ddc346",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-25T19:02:49Z",
+      "side": 1,
+      "message": "FWIW, this isn\u0027t true for all implementations. In some cases, we\u0027ll only set to the background color if the image is incomplete. This is true for onGetPixels (i.e. non-incremental decodes), too. Maybe this is better said as\n\nFor incomplete decodes, pixels inside that rect may be (at least temporarily) set to that background color. In an incremental decode, later passes may then overwrite that background color.",
+      "range": {
+        "startLine": 751,
+        "startChar": 46,
+        "endLine": 753,
+        "endChar": 72
+      },
+      "revId": "de4817cbd6da4471dd51fe5028aa09edad465bb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

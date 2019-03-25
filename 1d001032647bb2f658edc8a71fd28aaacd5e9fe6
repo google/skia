@@ -156,6 +156,24 @@
     },
     {
       "key": {
+        "uuid": "6f0793b1_9467137c",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-25T19:02:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "950e967b_f85ee1df",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "852d1e35_0df15a8b",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -267,6 +285,30 @@
     },
     {
       "key": {
+        "uuid": "53ed52b8_784feeb1",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-25T19:02:49Z",
+      "side": 1,
+      "message": "\u003e I\u0027m not sure whether you\u0027re arguing for or against that IND7 is redundant.\n\nI\u0027m saying that yes, it is redundant. I was trying to come up with a situation that is not redundant, but it\u0027s not self-consistent.\n\n\u003e I agree thant IND7 could be checking a different prevFrame than the one IND4 checks. But I think that your example does not trigger IND7:\n\u003e \n\u003e Frame #0 is independent, by IND1.\n\u003e Frame #1 is independent, by IND4 (its prevFrame is frame #0, which is kRestoreBGColor and independent).\n\u003e Frame #2 is independent, by IND4 (its prevFrame is frame #1, which is kRestoreBGColor and independent).\n\u003e \n\u003e I think that IND7 is impossible to trigger. Proof by contradiction: suppose that frame #K is deemed independent by IND7, on examining a prevFrame #I. Triggering IND7 means that frame #I must be kRestoreBGColor and, in particular, not kRestorePrevious.\n\u003e \n\u003e Triggering IND7 but not IND4 means that the prevFrame must have changed between checking those two conditions, from frame #J to frame #I, for some ((I \u003c J) \u0026\u0026 (J \u003c K)). The only way prevFrame could change between IND4 and IND7 is by the walk-prevFrame-backwards while loop around IND6. That loop must have only walked over dependent frames (starting with frame #J and walking backwards), otherwise IND6 would trigger.\n\u003e \n\u003e In other words, frames #I+1, #I+2, ..., #J inclusive must all be dependent frames, assuming that the \"const int prevRequiredFrame \u003d prevFrame-\u003egetRequiredFrame\" line cannot jump over independent frames: frame #30 cannot have a required frame of #10 if frame #20 is independent. This list is non-empty, as (I \u003c J), so frame #I+1 must be dependent.\n\u003e \n\u003e But frame #I+1 being dependent means that it cannot satisfy IND1, IND2, IND3, or IND4. Its prevFrame (at the time of checking IND4) must be frame #I, since frame #I is not kRestorePrevious.\n\u003e \n\u003e Here is the contradiction: frame #I is the prevFrame when checking frame #I+1 for IND4, and it is also the prevFrame when checking frame #K for IND7. The same frame cannot both fail IND4 for #I+1 and pass IND7 for #K.\n\u003e \n\u003e WDYT?\n\nWell said.",
+      "parentUuid": "79b7187f_b2b5a164",
+      "range": {
+        "startLine": 765,
+        "startChar": 30,
+        "endLine": 766,
+        "endChar": 56
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1bf7c90_8c56450f",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -338,6 +380,30 @@
     },
     {
       "key": {
+        "uuid": "029c8aeb_51016045",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-25T19:02:49Z",
+      "side": 1,
+      "message": "Looks good as-is in patch set 4.",
+      "parentUuid": "0ce84d5b_30d0c719",
+      "range": {
+        "startLine": 841,
+        "startChar": 0,
+        "endLine": 842,
+        "endChar": 64
+      },
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a5c05ff_1e947ef2",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -352,6 +418,24 @@
       "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69271d47_0e7d1edc",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-25T19:02:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2a5c05ff_1e947ef2",
+      "revId": "1d001032647bb2f658edc8a71fd28aaacd5e9fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
