@@ -163,7 +163,7 @@ class DefaultFlavor(object):
     return self.m.run(self.m.python, title, script=script, args=args,
                infra_step=infra_step)
 
-  def step(self, name, cmd):
+  def step(self, name, cmd, **unused_kwargs):
     app = self.device_dirs.bin_dir.join(cmd[0])
     cmd = [app] + cmd[1:]
     env = self.m.context.env
