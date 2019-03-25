@@ -1525,12 +1525,7 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                             const SkRect texRect[], const SkColor colors[], int count,
                             SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    if (paint.isAntiAlias()) {
-        this->INHERITED::drawAtlas(atlas, xform, texRect, colors, count, mode, paint);
-        return;
-    }
-
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawText", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawAtlas", fContext.get());
 
     SkPaint p(paint);
     p.setShader(atlas->makeShader());
