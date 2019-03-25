@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e426677_202fd28d",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-25T14:19:42Z",
+      "side": 1,
+      "message": "This might be a conservative bounds but it isn\u0027t the same as a stroked rrect unless the corners are all square or circular. An outset ellipse is not an ellipse. I\u0027d just skip the optimization for non-fill cases. The thing we\u0027re trying to optimize here is:\n\nSkRRect rrect \u003d ....\ncanvas-\u003eclip(rrect);\ncanvas-\u003edrawRRect(rrect);\n\nThere isn\u0027t really any simple equivalent case for stroked rrects since we don\u0027t take stroking parameters with clips.",
+      "revId": "1e0a0b9fb74b1f354ba9ef819c5b87a3a5c2b154",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
