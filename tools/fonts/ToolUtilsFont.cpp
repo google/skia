@@ -7,7 +7,6 @@
 
 #include "ToolUtils.h"
 
-#include "CommonFlags.h"
 #include "Resources.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"

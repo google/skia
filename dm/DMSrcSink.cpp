@@ -6,7 +6,6 @@
  */
 
 #include "DMSrcSink.h"
-#include "CommonFlags.h"
 #include "DDLPromiseImageHelper.h"
 #include "DDLTileHelper.h"
 #include "DebugCanvas.h"

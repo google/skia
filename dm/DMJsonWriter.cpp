@@ -7,7 +7,6 @@
 
 #include "DMJsonWriter.h"
 
-#include "CommonFlags.h"
 #include "ProcStats.h"
 #include "SkData.h"
 #include "SkJSON.h"
@@ -36,25 +35,27 @@ void JsonWriter::AddTestFailure(const skiatest::Failure& failure) {
     gFailures.push_back(failure);
 }
 
-void JsonWriter::DumpJson() {
-    if (FLAGS_writePath.isEmpty()) {
+void JsonWriter::DumpJson(const char* dir,
+                          CommandLineFlags::StringArray key,
+                          CommandLineFlags::StringArray properties) {
+    if (0 == strcmp(dir, "")) {
         return;
     }
 
-    SkString path = SkOSPath::Join(FLAGS_writePath[0], "dm.json");
-    sk_mkdir(FLAGS_writePath[0]);
+    SkString path = SkOSPath::Join(dir, "dm.json");
+    sk_mkdir(dir);
     SkFILEWStream stream(path.c_str());
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
 
     writer.beginObject(); // root
 
-    for (int i = 1; i < FLAGS_properties.count(); i += 2) {
-        writer.appendString(FLAGS_properties[i-1], FLAGS_properties[i]);
+    for (int i = 1; i < properties.count(); i += 2) {
+        writer.appendString(properties[i-1], properties[i]);
     }
 
     writer.beginObject("key");
-    for (int i = 1; i < FLAGS_key.count(); i += 2) {
-        writer.appendString(FLAGS_key[i-1], FLAGS_key[i]);
+    for (int i = 1; i < key.count(); i += 2) {
+        writer.appendString(key[i-1], key[i]);
     }
     writer.endObject();
 
