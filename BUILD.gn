@@ -1218,6 +1218,7 @@ if (skia_enable_tools) {
     # TODO: would be cool to not hard-code these here, but how?
     module_public_includes = [
       "modules/sksg/include",
+      "modules/skshaper/include",
       "modules/skottie/include",
     ]
     args =
@@ -1251,6 +1252,7 @@ if (skia_enable_tools) {
         ":skia",
         ":skia.h",
         "modules/skottie",
+        "modules/skshaper",
       ]
     }
   }
@@ -1264,6 +1266,7 @@ if (skia_enable_tools) {
       ":skia",
       ":skia.h",
       "modules/skottie",
+      "modules/skshaper",
     ]
 
     # We add this directory to simulate the client already have
@@ -2313,6 +2316,7 @@ if (skia_enable_tools) {
         ":skia",
         ":skia.h",
         "modules/skottie",
+        "modules/skshaper",
       ]
     }
   }
