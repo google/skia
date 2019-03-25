@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd4e200f_9e8555c5",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-25T14:05:17Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 326,
+        "startChar": 40,
+        "endLine": 326,
+        "endChar": 49
+      },
+      "revId": "de49665beec197d7e17bd7cbabf24adf61a0229e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
