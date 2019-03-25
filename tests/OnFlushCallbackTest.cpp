@@ -354,9 +354,9 @@ public:
 
         // At this point all the GrAtlasedOp's should have lined up to read from 'atlasDest' and
         // there should either be two writes to clear it or no writes.
-        SkASSERT(9 == fAtlasProxy->getPendingReadCnt_TestOnly());
-        SkASSERT(2 == fAtlasProxy->getPendingWriteCnt_TestOnly() ||
-                 0 == fAtlasProxy->getPendingWriteCnt_TestOnly());
+        SkASSERT(9 == fAtlasProxy->getPendingReadCnt_TestOnly1());
+        SkASSERT(2 == fAtlasProxy->getPendingWriteCnt_TestOnly1() ||
+                 0 == fAtlasProxy->getPendingWriteCnt_TestOnly1());
         sk_sp<GrRenderTargetContext> rtc = resourceProvider->makeRenderTargetContext(
                                                                            fAtlasProxy,
                                                                            nullptr, nullptr);

@@ -91,7 +91,7 @@ static void cleanup_backend(GrContext* context, const GrBackendTexture& backendT
 static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                          GrSurfaceProxy* p1, GrSurfaceProxy* p2, bool expectedResult) {
     GrDeinstantiateProxyTracker deinstantiateTracker;
-    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
+    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
 
     alloc.addInterval(p1, 0, 4);
     alloc.addInterval(p2, 1, 2);
@@ -114,7 +114,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
                              GrSurfaceProxy* p1, GrSurfaceProxy* p2,
                              bool expectedResult) {
     GrDeinstantiateProxyTracker deinstantiateTracker;
-    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
+    GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
 
     alloc.addInterval(p1, 0, 2);
     alloc.addInterval(p2, 3, 5);
@@ -342,7 +342,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
 
         GrDeinstantiateProxyTracker deinstantiateTracker;
         {
-            GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker);
+            GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
             alloc.addInterval(p0.get(), 0, 1);
             alloc.addInterval(p1.get(), 0, 1);
             alloc.addInterval(p2.get(), 0, 1);
@@ -358,4 +358,49 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !p2->isInstantiated());
         REPORTER_ASSERT(reporter, p3->isInstantiated());
     }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    const GrCaps* caps = context->priv().caps();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
+
+    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
+
+    int origMaxNum;
+    size_t origMaxBytes;
+    context->getResourceCacheLimits(&origMaxNum, &origMaxBytes);
+
+    // Force the resource allocator to always believe it is over budget
+    context->setResourceCacheLimits(0, 0);
+
+    const ProxyParams params  = { 64, false, kRGBA_8888_SkColorType, SkBackingFit::kExact, 0, kTopLeft_GrSurfaceOrigin };
+
+    {
+        GrSurfaceProxy* p1 = make_deferred(proxyProvider, caps, params);
+        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, params);
+
+        GrDeinstantiateProxyTracker deinstantiateTracker;
+        GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker, 1);
+
+        alloc.addInterval(p1, 0, 4);
+        alloc.addInterval(p2, 1, 2);
+        alloc.markEndOfOpList(0);
+
+        int startIndex, stopIndex;
+        GrResourceAllocator::AssignError error;
+        alloc.assign(&startIndex, &stopIndex, &error);
+        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+
+        REPORTER_ASSERT(reporter, p1->peekSurface());
+        REPORTER_ASSERT(reporter, p2->peekSurface());
+        bool doTheBackingStoresMatch = p1->underlyingUniqueID() == p2->underlyingUniqueID();
+
+        p1->completedRead();
+        p2->completedRead();
+    }
+
+    context->setResourceCacheLimits(origMaxNum, origMaxBytes);
+    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }

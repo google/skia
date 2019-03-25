@@ -7,6 +7,8 @@
 
 #include "gm.h"
 #include "SkRandom.h"
+#include "SkSurface.h"
+#include "GrContext.h"
 
 namespace skiagm {
 
@@ -20,60 +22,38 @@ public:
     }
 
 protected:
+    bool runAsBench() const override { return true; }
 
     SkString onShortName() override {
         return SkString("arcofzorro");
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
+        return SkISize::Make(1024, 1024);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
+        GrContext* context = canvas->getGrContext();
 
-        SkPaint p;
+        SkImageInfo surfaceII = SkImageInfo::Make(1024, 1024, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
+        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, surfaceII, 0, nullptr);
 
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
+        SkImageInfo bmII = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
 
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
+        for (int i = 0; i < 32; ++i) {
+            SkBitmap src;
+            src.allocPixels(bmII);
+            src.eraseColor(SK_ColorGREEN);
 
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
-            canvas->restore();
-
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
-            }
+            surface->writePixels(src, 0, 0);
         }
 
+        context->flush();
     }
 
 private:
+
     typedef GM INHERITED;
 };
 

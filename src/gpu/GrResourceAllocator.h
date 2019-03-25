@@ -20,7 +20,7 @@ class GrDeinstantiateProxyTracker;
 class GrResourceProvider;
 
 // Print out explicit allocation information
-#define GR_ALLOCATION_SPEW 0
+#define GR_ALLOCATION_SPEW 1
 
 // Print out information about interval creation
 #define GR_TRACK_INTERVAL_CREATION 0
@@ -42,8 +42,13 @@ class GrResourceProvider;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrResourceProvider* resourceProvider, GrDeinstantiateProxyTracker* tracker)
-            : fResourceProvider(resourceProvider), fDeinstantiateTracker(tracker) {}
+    GrResourceAllocator(GrResourceProvider* resourceProvider,
+                        GrDeinstantiateProxyTracker* tracker,
+                        int numOpLists)
+            : fResourceProvider(resourceProvider)
+            , fDeinstantiateTracker(tracker)
+            , fNumOpLists(numOpLists) {
+    }
 
     ~GrResourceAllocator();
 
@@ -67,6 +72,9 @@ public:
         kNoError,
         kFailedProxyInstantiation
     };
+
+    bool onOpListBoundary() const;
+    void foo(int* stopIndex);
 
     // Returns true when the opLists from 'startIndex' to 'stopIndex' should be executed;
     // false when nothing remains to be executed.
@@ -223,6 +231,7 @@ private:
                                                // of a flush
     SkTArray<unsigned int>       fEndOfOpListOpIndices;
     int                          fCurOpListIndex = 0;
+    int                          fNumOpLists = -1;
 
     SkDEBUGCODE(bool             fAssigned = false;)
 

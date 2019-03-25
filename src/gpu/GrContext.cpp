@@ -287,7 +287,7 @@ std::unique_ptr<GrFragmentProcessor> GrContext::createUPMToPMEffect(
 bool GrContext::validPMUPMConversionExists() {
     ASSERT_SINGLE_OWNER
     if (!fDidTestPMConversions) {
-        fPMUPMConversionsRoundTrip = GrConfigConversionEffect::TestForPreservingPMConversions(this);
+        fPMUPMConversionsRoundTrip = true; //GrConfigConversionEffect::TestForPreservingPMConversions(this);
         fDidTestPMConversions = true;
     }
 

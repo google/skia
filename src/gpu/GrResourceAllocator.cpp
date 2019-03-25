@@ -309,6 +309,33 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
+bool GrResourceAllocator::onOpListBoundary() const {
+    bool result = !fIntvlList.empty() &&
+                  fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start();
+
+    SkDebugf("onOpListBoundary %d: curOpList %d (boundary %d < curLoc %d)\n",
+                    result,
+                    fCurOpListIndex,
+                    fEndOfOpListOpIndices[fCurOpListIndex],
+                    fIntvlList.empty() ? -1 : fIntvlList.peekHead()->start());
+    return result;
+}
+
+void GrResourceAllocator::foo(int* stopIndex) {
+    *stopIndex = fCurOpListIndex+1;
+
+    // This is interrupting the allocation of resources for this flush. We need to
+    // proactively clear the active interval list of any intervals that aren't
+    // guaranteed to survive the partial flush lest they become zombies (i.e.,
+    // holding a deleted surface proxy).
+    if (const Interval* tmp = fIntvlList.peekHead()) {
+        this->expire(tmp->start());
+    } else {
+        this->expire(std::numeric_limits<unsigned int>::max());
+    }
+}
+
+
 bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
     SkASSERT(outError);
     *outError = AssignError::kNoError;
@@ -321,7 +348,17 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
 
+    SkDebugf("assigning opLists %d through %d out of %d numOpLists\n", *startIndex, *stopIndex, fNumOpLists);
+    SkDebugf("EndOfOpListIndices: ");
+    for (int i = 0; i < fEndOfOpListOpIndices.count(); ++i) {
+        SkDebugf("%d ", fEndOfOpListOpIndices[i]);
+    }
+    SkDebugf("\n");
+
     if (!fResourceProvider->explicitlyAllocateGPUResources()) {
+#if GR_ALLOCATION_SPEW
+    this->dumpIntervals();
+#endif
         fIntvlList.detachAll(); // arena allocator will clean these up for us
         return true;
     }
@@ -352,19 +389,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
             if (fResourceProvider->overBudget()) {
                 // Only force intermediate draws on opList boundaries
-                if (!fIntvlList.empty() &&
-                    fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
-                    *stopIndex = fCurOpListIndex+1;
-
-                    // This is interrupting the allocation of resources for this flush. We need to
-                    // proactively clear the active interval list of any intervals that aren't
-                    // guaranteed to survive the partial flush lest they become zombies (i.e.,
-                    // holding a deleted surface proxy).
-                    if (const Interval* tmp = fIntvlList.peekHead()) {
-                        this->expire(tmp->start());
-                    } else {
-                        this->expire(std::numeric_limits<unsigned int>::max());
-                    }
+                if (this->onOpListBoundary()) {
+                    this->foo(stopIndex);
+                    SkDebugf("new start %d new stop %d\n", *startIndex, *stopIndex);
                     return true;
                 }
             }
@@ -409,19 +436,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
         if (fResourceProvider->overBudget()) {
             // Only force intermediate draws on opList boundaries
-            if (!fIntvlList.empty() &&
-                fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
-                *stopIndex = fCurOpListIndex+1;
-
-                // This is interrupting the allocation of resources for this flush. We need to
-                // proactively clear the active interval list of any intervals that aren't
-                // guaranteed to survive the partial flush lest they become zombies (i.e.,
-                // holding a deleted surface proxy).
-                if (const Interval* tmp = fIntvlList.peekHead()) {
-                    this->expire(tmp->start());
-                } else {
-                    this->expire(std::numeric_limits<unsigned int>::max());
-                }
+            if (this->onOpListBoundary()) {
+                this->foo(stopIndex);
+                SkDebugf("new start %d new stop %d\n", *startIndex, *stopIndex);
                 return true;
             }
         }
@@ -434,20 +451,22 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
 #if GR_ALLOCATION_SPEW
 void GrResourceAllocator::dumpIntervals() {
-
     // Print all the intervals while computing their range
+    SkDebugf("------------------------------------------------------------\n");
     unsigned int min = fNumOps+1;
     unsigned int max = 0;
+    int i = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
-        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
+        SkDebugf("%d: { %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
+                 i++,
                  cur->proxy()->uniqueID().asUInt(),
                  cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
                  cur->start(),
                  cur->end(),
                  cur->proxy()->priv().getProxyRefCnt(),
-                 cur->proxy()->getBackingRefCnt_TestOnly(),
-                 cur->proxy()->getPendingReadCnt_TestOnly(),
-                 cur->proxy()->getPendingWriteCnt_TestOnly());
+                 cur->proxy()->getBackingRefCnt_TestOnly1(),
+                 cur->proxy()->getPendingReadCnt_TestOnly1(),
+                 cur->proxy()->getPendingWriteCnt_TestOnly1());
         min = SkTMin(min, cur->start());
         max = SkTMax(max, cur->end());
     }
