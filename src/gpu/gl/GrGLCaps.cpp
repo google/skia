@@ -1715,6 +1715,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
        (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                            allRenderFlags;
+    } else if (GR_IS_GR_GL_ES(standard) &&
+               ctxInfo.hasExtension("GL_EXT_texture_type_2_10_10_10_REV")) {
+        fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     }
     if (texStorageSupported) {
         fConfigTable[kRGBA_1010102_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
