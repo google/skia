@@ -503,7 +503,9 @@ CanvasKit.onRuntimeInitialized = function() {
       this._cached_canvas = this.getCanvas();
     }
     window.requestAnimationFrame(function() {
-      CanvasKit.setCurrentContext(this._context);
+      if (this._context !== undefined) {
+        CanvasKit.setCurrentContext(this._context);
+      }
 
       callback(this._cached_canvas);
 

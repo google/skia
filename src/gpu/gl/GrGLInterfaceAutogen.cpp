@@ -151,7 +151,10 @@ bool GrGLInterface::validate() const {
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_OES_vertex_array_object")))) {
+          fExtensions.has("GL_OES_vertex_array_object"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0)) ||
+          fExtensions.has("OES_vertex_array_object")))) {
         if (!fFunctions.fBindVertexArray ||
             !fFunctions.fDeleteVertexArrays ||
             !fFunctions.fGenVertexArrays) {

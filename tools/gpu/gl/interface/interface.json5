@@ -14,6 +14,7 @@
   {
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"ext": "<core>"}],
+    "WebGL": [{"ext": "<core>"}],
 
     "functions": [
       "ActiveTexture", "AttachShader", "BindAttribLocation", "BindBuffer",
@@ -53,6 +54,7 @@
   {
     "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "GetStringi",

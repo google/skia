@@ -19,22 +19,34 @@ enum GrGLStandard {
     kNone_GrGLStandard,
     kGL_GrGLStandard,
     kGLES_GrGLStandard,
+    kWebGL_GrGLStandard,
 };
-static const int kGrGLStandardCnt = 3;
+static const int kGrGLStandardCnt = 4;
 
 // The following allow certain interfaces to be turned off at compile time
 // (for example, to lower code size).
 #if SK_ASSUME_GL_ES
     #define GR_IS_GR_GL(standard) false
     #define GR_IS_GR_GL_ES(standard) true
+    #define GR_IS_GR_WEBGL(standard) false
     #define SK_DISABLE_GL_INTERFACE 1
+    #define SK_DISABLE_WEBGL_INTERFACE 1
 #elif SK_ASSUME_GL
     #define GR_IS_GR_GL(standard) true
     #define GR_IS_GR_GL_ES(standard) false
+    #define GR_IS_GR_WEBGL(standard) false
     #define SK_DISABLE_GL_ES_INTERFACE 1
+    #define SK_DISABLE_WEBGL_INTERFACE 1
+#elif SK_ASSUME_WEBGL
+    #define GR_IS_GR_GL(standard) false
+    #define GR_IS_GR_GL_ES(standard) false
+    #define GR_IS_GR_WEBGL(standard) true
+    #define SK_DISABLE_GL_ES_INTERFACE 1
+    #define SK_DISABLE_GL_INTERFACE 1
 #else
     #define GR_IS_GR_GL(standard) (kGL_GrGLStandard == standard)
     #define GR_IS_GR_GL_ES(standard) (kGLES_GrGLStandard == standard)
+    #define GR_IS_GR_WEBGL(standard) (kWebGL_GrGLStandard == standard)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
