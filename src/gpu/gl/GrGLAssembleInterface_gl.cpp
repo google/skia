@@ -117,9 +117,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     GET_PROC(Flush);
     GET_PROC(FrontFace);
     GET_PROC(GenBuffers);
-    GET_PROC(GetBufferParameteriv);
-    GET_PROC(GetError);
-    GET_PROC(GetIntegerv);
+    GET_PROC(GenQueries);
+    GET_PROC(GenTextures);
     if (glVer >= GR_GL_VER(3,2) || extensions.has("GL_ARB_texture_multisample")) {
         GET_PROC(GetMultisamplefv);
     }
@@ -133,17 +132,18 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
         GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
     }
-    GET_PROC(GetQueryiv);
+    GET_PROC(GetBufferParameteriv);
+    GET_PROC(GetError);
+    GET_PROC(GetIntegerv);
     GET_PROC(GetProgramInfoLog);
     GET_PROC(GetProgramiv);
+    GET_PROC(GetQueryiv);
     GET_PROC(GetShaderInfoLog);
+    GET_PROC(GetShaderPrecisionFormat);
     GET_PROC(GetShaderiv);
     GET_PROC(GetString);
     GET_PROC(GetStringi);
-    GET_PROC(GetShaderPrecisionFormat);
     GET_PROC(GetTexLevelParameteriv);
-    GET_PROC(GenQueries);
-    GET_PROC(GenTextures);
     GET_PROC(GetUniformLocation);
     GET_PROC(IsTexture);
     GET_PROC(LineWidth);
@@ -190,20 +190,20 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC_SUFFIX(TextureBarrier, NV);
     }
     GET_PROC(Uniform1f);
-    GET_PROC(Uniform1i);
     GET_PROC(Uniform1fv);
+    GET_PROC(Uniform1i);
     GET_PROC(Uniform1iv);
     GET_PROC(Uniform2f);
-    GET_PROC(Uniform2i);
     GET_PROC(Uniform2fv);
+    GET_PROC(Uniform2i);
     GET_PROC(Uniform2iv);
     GET_PROC(Uniform3f);
-    GET_PROC(Uniform3i);
     GET_PROC(Uniform3fv);
+    GET_PROC(Uniform3i);
     GET_PROC(Uniform3iv);
     GET_PROC(Uniform4f);
-    GET_PROC(Uniform4i);
     GET_PROC(Uniform4fv);
+    GET_PROC(Uniform4i);
     GET_PROC(Uniform4iv);
     GET_PROC(UniformMatrix2fv);
     GET_PROC(UniformMatrix3fv);
@@ -246,35 +246,35 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
     // GL_ARB_framebuffer_object doesn't use ARB suffix.)
     if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
-        GET_PROC(GenerateMipmap);
-        GET_PROC(GenFramebuffers);
-        GET_PROC(GetFramebufferAttachmentParameteriv);
-        GET_PROC(GetRenderbufferParameteriv);
         GET_PROC(BindFramebuffer);
-        GET_PROC(FramebufferTexture2D);
+        GET_PROC(BindRenderbuffer);
+        GET_PROC(BlitFramebuffer);
         GET_PROC(CheckFramebufferStatus);
         GET_PROC(DeleteFramebuffers);
-        GET_PROC(RenderbufferStorage);
-        GET_PROC(GenRenderbuffers);
         GET_PROC(DeleteRenderbuffers);
         GET_PROC(FramebufferRenderbuffer);
-        GET_PROC(BindRenderbuffer);
+        GET_PROC(FramebufferTexture2D);
+        GET_PROC(GenFramebuffers);
+        GET_PROC(GenRenderbuffers);
+        GET_PROC(GenerateMipmap);
+        GET_PROC(GetFramebufferAttachmentParameteriv);
+        GET_PROC(GetRenderbufferParameteriv);
+        GET_PROC(RenderbufferStorage);
         GET_PROC(RenderbufferStorageMultisample);
-        GET_PROC(BlitFramebuffer);
     } else if (extensions.has("GL_EXT_framebuffer_object")) {
-        GET_PROC_SUFFIX(GenerateMipmap, EXT);
-        GET_PROC_SUFFIX(GenFramebuffers, EXT);
-        GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
-        GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
         GET_PROC_SUFFIX(BindFramebuffer, EXT);
-        GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
+        GET_PROC_SUFFIX(BindRenderbuffer, EXT);
         GET_PROC_SUFFIX(CheckFramebufferStatus, EXT);
         GET_PROC_SUFFIX(DeleteFramebuffers, EXT);
-        GET_PROC_SUFFIX(RenderbufferStorage, EXT);
-        GET_PROC_SUFFIX(GenRenderbuffers, EXT);
         GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
         GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
-        GET_PROC_SUFFIX(BindRenderbuffer, EXT);
+        GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
+        GET_PROC_SUFFIX(GenFramebuffers, EXT);
+        GET_PROC_SUFFIX(GenRenderbuffers, EXT);
+        GET_PROC_SUFFIX(GenerateMipmap, EXT);
+        GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
+        GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
+        GET_PROC_SUFFIX(RenderbufferStorage, EXT);
         if (extensions.has("GL_EXT_framebuffer_multisample")) {
             GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
         }
@@ -287,28 +287,29 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     }
 
     if (extensions.has("GL_NV_path_rendering")) {
-        GET_PROC_SUFFIX(MatrixLoadf, EXT);
         GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
-        GET_PROC_SUFFIX(PathCommands, NV);
-        GET_PROC_SUFFIX(PathParameteri, NV);
-        GET_PROC_SUFFIX(PathParameterf, NV);
-        GET_PROC_SUFFIX(GenPaths, NV);
-        GET_PROC_SUFFIX(DeletePaths, NV);
-        GET_PROC_SUFFIX(IsPath, NV);
-        GET_PROC_SUFFIX(PathStencilFunc, NV);
-        GET_PROC_SUFFIX(StencilFillPath, NV);
-        GET_PROC_SUFFIX(StencilStrokePath, NV);
-        GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
-        GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(MatrixLoadf, EXT);
+
         GET_PROC_SUFFIX(CoverFillPath, NV);
-        GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
-        GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
-        GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
-        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
-        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(DeletePaths, NV);
+        GET_PROC_SUFFIX(GenPaths, NV);
+        GET_PROC_SUFFIX(IsPath, NV);
+        GET_PROC_SUFFIX(PathCommands, NV);
+        GET_PROC_SUFFIX(PathParameterf, NV);
+        GET_PROC_SUFFIX(PathParameteri, NV);
+        GET_PROC_SUFFIX(PathStencilFunc, NV);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
+        GET_PROC_SUFFIX(StencilFillPath, NV);
+        GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilStrokePath, NV);
+        GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
     }
 
     if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
@@ -355,11 +356,11 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     }
 
     if (glVer >= GR_GL_VER(3, 2) || extensions.has("GL_ARB_sync")) {
+        GET_PROC(ClientWaitSync);
+        GET_PROC(DeleteSync);
         GET_PROC(FenceSync);
         GET_PROC(IsSync);
-        GET_PROC(ClientWaitSync);
         GET_PROC(WaitSync);
-        GET_PROC(DeleteSync);
     }
 
     if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_internalformat_query")) {

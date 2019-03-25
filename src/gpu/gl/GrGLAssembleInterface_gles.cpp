@@ -334,53 +334,55 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     if (extensions.has("GL_NV_path_rendering")) {
-        GET_PROC_SUFFIX(MatrixLoadf, EXT);
         GET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
-        GET_PROC_SUFFIX(PathCommands, NV);
-        GET_PROC_SUFFIX(PathParameteri, NV);
-        GET_PROC_SUFFIX(PathParameterf, NV);
-        GET_PROC_SUFFIX(GenPaths, NV);
-        GET_PROC_SUFFIX(DeletePaths, NV);
-        GET_PROC_SUFFIX(IsPath, NV);
-        GET_PROC_SUFFIX(PathStencilFunc, NV);
-        GET_PROC_SUFFIX(StencilFillPath, NV);
-        GET_PROC_SUFFIX(StencilStrokePath, NV);
-        GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
-        GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(MatrixLoadf, EXT);
+
         GET_PROC_SUFFIX(CoverFillPath, NV);
-        GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(CoverStrokePath, NV);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, NV);
-        GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
-        GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
-        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
-        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(DeletePaths, NV);
+        GET_PROC_SUFFIX(GenPaths, NV);
+        GET_PROC_SUFFIX(IsPath, NV);
+        GET_PROC_SUFFIX(PathCommands, NV);
+        GET_PROC_SUFFIX(PathParameterf, NV);
+        GET_PROC_SUFFIX(PathParameteri, NV);
+        GET_PROC_SUFFIX(PathStencilFunc, NV);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, NV);
+        GET_PROC_SUFFIX(StencilFillPath, NV);
+        GET_PROC_SUFFIX(StencilFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilStrokePath, NV);
+        GET_PROC_SUFFIX(StencilStrokePathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePath, NV);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, NV);
     }
 
     if (extensions.has("GL_CHROMIUM_path_rendering")) {
-        GET_PROC_SUFFIX(MatrixLoadf, CHROMIUM);
         GET_PROC_SUFFIX(MatrixLoadIdentity, CHROMIUM);
-        GET_PROC_SUFFIX(PathCommands, CHROMIUM);
-        GET_PROC_SUFFIX(PathParameteri, CHROMIUM);
-        GET_PROC_SUFFIX(PathParameterf, CHROMIUM);
-        GET_PROC_SUFFIX(GenPaths, CHROMIUM);
-        GET_PROC_SUFFIX(DeletePaths, CHROMIUM);
-        GET_PROC_SUFFIX(IsPath, CHROMIUM);
-        GET_PROC_SUFFIX(PathStencilFunc, CHROMIUM);
-        GET_PROC_SUFFIX(StencilFillPath, CHROMIUM);
-        GET_PROC_SUFFIX(StencilStrokePath, CHROMIUM);
-        GET_PROC_SUFFIX(StencilFillPathInstanced, CHROMIUM);
-        GET_PROC_SUFFIX(StencilStrokePathInstanced, CHROMIUM);
+        GET_PROC_SUFFIX(MatrixLoadf, CHROMIUM);
+
         GET_PROC_SUFFIX(CoverFillPath, CHROMIUM);
-        GET_PROC_SUFFIX(CoverStrokePath, CHROMIUM);
         GET_PROC_SUFFIX(CoverFillPathInstanced, CHROMIUM);
+        GET_PROC_SUFFIX(CoverStrokePath, CHROMIUM);
         GET_PROC_SUFFIX(CoverStrokePathInstanced, CHROMIUM);
-        GET_PROC_SUFFIX(StencilThenCoverFillPath, CHROMIUM);
-        GET_PROC_SUFFIX(StencilThenCoverStrokePath, CHROMIUM);
-        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, CHROMIUM);
-        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, CHROMIUM);
+        GET_PROC_SUFFIX(DeletePaths, CHROMIUM);
+        GET_PROC_SUFFIX(GenPaths, CHROMIUM);
+        GET_PROC_SUFFIX(IsPath, CHROMIUM);
+        GET_PROC_SUFFIX(PathCommands, CHROMIUM);
+        GET_PROC_SUFFIX(PathParameterf, CHROMIUM);
+        GET_PROC_SUFFIX(PathParameteri, CHROMIUM);
+        GET_PROC_SUFFIX(PathStencilFunc, CHROMIUM);
         GET_PROC_SUFFIX(ProgramPathFragmentInputGen, CHROMIUM);
+        GET_PROC_SUFFIX(StencilFillPath, CHROMIUM);
+        GET_PROC_SUFFIX(StencilFillPathInstanced, CHROMIUM);
+        GET_PROC_SUFFIX(StencilStrokePath, CHROMIUM);
+        GET_PROC_SUFFIX(StencilStrokePathInstanced, CHROMIUM);
+        GET_PROC_SUFFIX(StencilThenCoverFillPath, CHROMIUM);
+        GET_PROC_SUFFIX(StencilThenCoverFillPathInstanced, CHROMIUM);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePath, CHROMIUM);
+        GET_PROC_SUFFIX(StencilThenCoverStrokePathInstanced, CHROMIUM);
         // GL_CHROMIUM_path_rendering additions:
         GET_PROC_SUFFIX(BindFragmentInputLocation, CHROMIUM);
     }
@@ -424,17 +426,17 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     if (version >= GR_GL_VER(3, 0)) {
+        GET_PROC(ClientWaitSync);
+        GET_PROC(DeleteSync);
         GET_PROC(FenceSync);
         GET_PROC(IsSync);
-        GET_PROC(ClientWaitSync);
         GET_PROC(WaitSync);
-        GET_PROC(DeleteSync);
     } else if (extensions.has("GL_APPLE_sync")) {
+        GET_PROC_SUFFIX(ClientWaitSync, APPLE);
+        GET_PROC_SUFFIX(DeleteSync, APPLE);
         GET_PROC_SUFFIX(FenceSync, APPLE);
         GET_PROC_SUFFIX(IsSync, APPLE);
-        GET_PROC_SUFFIX(ClientWaitSync, APPLE);
         GET_PROC_SUFFIX(WaitSync, APPLE);
-        GET_PROC_SUFFIX(DeleteSync, APPLE);
     }
 
     if (version >= GR_GL_VER(3,0)) {
