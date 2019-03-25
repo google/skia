@@ -86,7 +86,7 @@ protected:
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxy;
-        if (fFilter == GrSamplerState::Filter::kMipMap) {
+        if (fFilter == GrSamplerState::Filter::kMipMap && context->priv().caps()->mipMapSupport()) {
             SkBitmap copy;
             SkImageInfo info = fImage->imageInfo().makeColorType(kN32_SkColorType);
             if (!copy.tryAllocPixels(info) || !fImage->readPixels(copy.pixmap(), 0, 0)) {
