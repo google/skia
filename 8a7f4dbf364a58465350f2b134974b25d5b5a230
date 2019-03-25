@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "a9a7dd05_d878d51d",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-25T23:33:38Z",
+      "side": 1,
+      "message": "So uniforms would work, my only question is whether it would be slower than hard-coded sample locations. It would probably be fine, but is probably worth benchmarking before we commit to it.\n\nAlthough, even if we use uniforms, we still have to remember to add the sample count to the key. So I\u0027m not sure how much it helps- either way we have to know what SkSL will do behind the scenes and then account for it in the shader key. Also, per the spec, the actual number of samples in effect doesn\u0027t have to match the number of samples we requested when we created the surface. So either way we also have to query info from the driver and pass it along to SkSL.\n\nRE: helper- that would work fine. Although, since the sample mask is a builder feature I\u0027m not too concerned about this sample mask/gradient helper also being on that class. Do we want to talk about removing sample mask from the builder as well? I suppose we could pass that name around and combine it between stages like we do coverage.",
+      "parentUuid": "b0a1bafd_a86244a2",
+      "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0776e697_60c4668e",
         "filename": "src/gpu/ops/GrFillRRectOp.cpp",
         "patchSetId": 4
