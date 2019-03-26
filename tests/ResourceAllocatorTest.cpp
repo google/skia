@@ -70,7 +70,7 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
         return nullptr;
     }
 
-    auto tmp = proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin, kBorrow_GrWrapOwnership,
+    auto tmp = proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin1, kBorrow_GrWrapOwnership,
                                                  GrWrapCacheable::kNo, kRead_GrIOType);
     if (!tmp) {
         return nullptr;
@@ -337,7 +337,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
         resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(explicitlyAllocating);
         ProxyParams texParams;
         texParams.fFit = SkBackingFit::kExact;
-        texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
+        texParams.fOrigin1 = kTopLeft_GrSurfaceOrigin;
         texParams.fColorType = kRGBA_8888_SkColorType;
         texParams.fIsRT = false;
         texParams.fSampleCnt = 1;
