@@ -527,7 +527,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #endif
 
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
-        fMustClearUploadedBufferData = true;
+        fMustInitializeResources = true;
     }
 
     if (GR_IS_GR_GL(standard)) {

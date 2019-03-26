@@ -393,7 +393,7 @@ void GrBufferAllocPool::resetCpuData(size_t newSize) {
     if (fCpuStagingBuffer && newSize <= fCpuStagingBuffer->size()) {
         return;
     }
-    bool mustInitialize = fGpu->caps()->mustClearUploadedBufferData();
+    bool mustInitialize = fGpu->caps()->mustInitializeResources();
     fCpuStagingBuffer = fCpuBufferCache ? fCpuBufferCache->makeBuffer(newSize, mustInitialize)
                                         : GrCpuBuffer::Make(newSize);
 }
@@ -424,7 +424,7 @@ sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
     auto resourceProvider = fGpu->getContext()->priv().resourceProvider();
 
     if (fGpu->caps()->preferClientSideDynamicBuffers()) {
-        bool mustInitialize = fGpu->caps()->mustClearUploadedBufferData();
+        bool mustInitialize = fGpu->caps()->mustInitializeResources();
         return fCpuBufferCache ? fCpuBufferCache->makeBuffer(size, mustInitialize)
                                : GrCpuBuffer::Make(size);
     }

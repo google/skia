@@ -228,8 +228,8 @@ public:
     }
 
     /** True in environments that will issue errors if memory uploaded to buffers
-        is not initialized (even if not read by draw calls). */
-    bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
+        and/or textures is not initialized (even if not read by draw calls). */
+    bool mustInitializeResources() const { return fMustInitializeResources; }
 
     /** Returns true if the given backend supports importing AHardwareBuffers via the
      * GrAHardwarebufferImageGenerator. This will only ever be supported on Android devices with API
@@ -342,7 +342,7 @@ protected:
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
-    bool fMustClearUploadedBufferData                : 1;
+    bool fMustInitializeResources                    : 1;
     bool fSupportsAHardwareBufferImages              : 1;
     bool fHalfFloatVertexAttributeSupport            : 1;
     bool fClampToBorderSupport                       : 1;
