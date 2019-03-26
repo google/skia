@@ -121,6 +121,11 @@ PAGE_SETS_TO_EXCLUSIONS = {
 }
 
 
+class InvalidSKPException(Exception):
+  """Raised when the created SKP is invalid."""
+  pass
+
+
 def remove_prefix(s, prefix):
   if s.startswith(prefix):
     return s[len(prefix):]
@@ -309,8 +314,16 @@ class SkPicturePlayback(object):
           time.sleep(10)
           continue
 
-        # Rename generated SKP files into more descriptive names.
-        self._RenameSkpFiles(page_set)
+        try:
+          # Rename generated SKP files into more descriptive names.
+          self._RenameSkpFiles(page_set)
+        except InvalidSKPException:
+          # There was a failure continue with the loop.
+          traceback.print_exc()
+          print '\n\n=======Retrying %s=======\n\n' % page_set
+          time.sleep(10)
+          continue
+
         # Break out of the retry loop since there were no errors.
         break
       else:
@@ -408,6 +421,10 @@ class SkPicturePlayback(object):
 
     Look into the subdirectory of TMP_SKP_DIR and find the most interesting
     .skp in there to be this page_set's representative .skp.
+
+    Throws InvalidSKPException if the chosen .skp is less than 1KB. This
+    typically happens when there is a 404 or a redirect loop. Anything greater
+    than 1KB seems to have captured at least some useful information.
     """
     subdirs = glob.glob(os.path.join(TMP_SKP_DIR, '*'))
     for site in subdirs:
@@ -428,6 +445,11 @@ class SkPicturePlayback(object):
       shutil.move(largest_skp, dest)
       self._skp_files.append(filename)
       shutil.rmtree(site)
+      skp_size = os.path.getsize(dest)
+      if skp_size < 1024:
+        raise InvalidSKPException(
+            'Size of %s is only %d. Something is wrong.' % (dest, skp_size))
+
 
   def _CreateLocalStorageDirs(self):
     """Creates required local storage directories for this script."""
