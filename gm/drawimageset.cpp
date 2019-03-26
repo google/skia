@@ -121,9 +121,9 @@ private:
         SkAssertResult(matrices[3].setPolyToPoly(src, dst, 4));
         matrices[3].postTranslate(100.f, d);
         for (auto fm : {kNone_SkFilterQuality, kLow_SkFilterQuality}) {
-            SkPaint paint;
-            paint.setFilterQuality(fm);
-            paint.setBlendMode(SkBlendMode::kSrcOver);
+            SkPaint setPaint;
+            setPaint.setFilterQuality(fm);
+            setPaint.setBlendMode(SkBlendMode::kSrcOver);
 
             for (size_t m = 0; m < SK_ARRAY_COUNT(matrices); ++m) {
                 // Draw grid of red lines at interior tile boundaries.
@@ -149,7 +149,7 @@ private:
                 }
                 canvas->save();
                 canvas->concat(matrices[m]);
-                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &paint,
+                canvas->experimental_DrawEdgeAAImageSet(fSet, kM * kN, nullptr, nullptr, &setPaint,
                                                         SkCanvas::kFast_SrcRectConstraint);
                 canvas->restore();
             }
@@ -164,8 +164,8 @@ private:
             canvas->save();
             canvas->rotate(3.f);
 
-            paint.setBlendMode(SkBlendMode::kExclusion);
-            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, &paint,
+            setPaint.setBlendMode(SkBlendMode::kExclusion);
+            canvas->experimental_DrawEdgeAAImageSet(&entry, 1, nullptr, nullptr, &setPaint,
                                                     SkCanvas::kFast_SrcRectConstraint);
             canvas->restore();
             canvas->translate(2 * d, 0);
