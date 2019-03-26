@@ -518,6 +518,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
 
     // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
     bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
+    bool dontFlush = SkToBool(pixelOpsFlags & kDontFlush_PixelOpsFlag);
 
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
@@ -527,15 +528,24 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             !dst->colorSpaceInfo().colorSpace() &&
             (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
             SkToBool(dst->asRenderTargetContext()) &&
-            (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
-             dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
-            !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
+            (dstProxy->config() == kRGBA_8888_GrPixelConfig || dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
+            !dontFlush &&
             fContext->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
+#if 0
+    SkDebugf("fastPath %d - %d %d %d %d %d %d\n",
+             canvas2DFastPath,
+             premul,
+             SkToBool(dst->colorSpaceInfo().colorSpace()),
+             srcColorType,
+             SkToBool(dst->asRenderTargetContext()),
+             dstProxy->config(),
+             dontFlush);
+#endif
+
     const GrCaps* caps = this->caps();
-    if (!caps->surfaceSupportsWritePixels(dstSurface) ||
-        canvas2DFastPath) {
+    if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
         // We don't expect callers that are skipping flushes to require an intermediate draw.
         SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
         if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
@@ -576,10 +586,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         // the intermediate surface which gets corrected by a swizzle effect when drawing to the
         // dst.
         auto tmpColorType = canvas2DFastPath ? GrColorType::kRGBA_8888 : srcColorType;
+//        SkDebugf("<sub-writeSurfacePixels\n");
         if (!this->writeSurfacePixels(tempCtx.get(), 0, 0, width, height, tmpColorType,
                                       srcColorSpace, buffer, rowBytes, flags)) {
             return false;
         }
+//        SkDebugf("sub-writeSurfacePixels>\n");
         if (canvas2DFastPath) {
             GrPaint paint;
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

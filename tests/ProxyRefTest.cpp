@@ -18,6 +18,7 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 
+#if 0
 int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
     if (fTarget) {
         return fTarget->fRefCnt;
@@ -41,6 +42,7 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
 
     return fPendingWrites;
 }
+#endif
 
 static const int kWidthHeight = 128;
 
@@ -51,14 +53,14 @@ static void check_refs(skiatest::Reporter* reporter,
                        int32_t expectedNumReads,
                        int32_t expectedNumWrites) {
     REPORTER_ASSERT(reporter, proxy->priv().getProxyRefCnt() == expectedProxyRefs);
-    REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
-    REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
-    REPORTER_ASSERT(reporter, proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
+    REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly1() == expectedBackingRefs);
+    REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly1() == expectedNumReads);
+    REPORTER_ASSERT(reporter, proxy->getPendingWriteCnt_TestOnly1() == expectedNumWrites);
 
     SkASSERT(proxy->priv().getProxyRefCnt() == expectedProxyRefs);
-    SkASSERT(proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
-    SkASSERT(proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
-    SkASSERT(proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
+    SkASSERT(proxy->getBackingRefCnt_TestOnly1() == expectedBackingRefs);
+    SkASSERT(proxy->getPendingReadCnt_TestOnly1() == expectedNumReads);
+    SkASSERT(proxy->getPendingWriteCnt_TestOnly1() == expectedNumWrites);
 }
 
 static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps) {
