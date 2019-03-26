@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "df783a40_9373ce51",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2033,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-26T18:44:51Z",
+      "side": 1,
+      "message": "For glTexStorage we use fSizedInternalFormat, which is set to GL_BGRA8.",
+      "parentUuid": "f4e02dcd_184f462e",
+      "range": {
+        "startLine": 2029,
+        "startChar": 8,
+        "endLine": 2033,
+        "endChar": 9
+      },
+      "revId": "cc99cac49e38b173ae9decf0da8b0055fd560275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fdb5fcc_2cb3e475",
         "filename": "tests/GrUploadPixelsTests.cpp",
         "patchSetId": 1
@@ -117,6 +141,30 @@
       "revId": "cc99cac49e38b173ae9decf0da8b0055fd560275",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05518bfe_0dae8ae2",
+        "filename": "tests/GrUploadPixelsTests.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-03-26T18:44:51Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "a90ff879_86c610c0",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 24
+      },
+      "revId": "cc99cac49e38b173ae9decf0da8b0055fd560275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
