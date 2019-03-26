@@ -285,7 +285,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(resourceProvider, flushState.deinstantiateProxyTracker());
+        GrResourceAllocator alloc(resourceProvider, flushState.deinstantiateProxyTracker()
+                                  SkDEBUGCODE(, fDAG.numOpLists()));
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
                 fDAG.opList(i)->gatherProxyIntervals(&alloc);
