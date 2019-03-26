@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9662dd9_68d20b22",
+        "filename": "gm/drawimageset.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-26T20:45:37Z",
+      "side": 1,
+      "message": "I\u0027m a little surprised none of our build configurations gave us a warning here.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 30
+      },
+      "revId": "bc07b3fc3d65a99d60bd505e8b12e196d376091f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
