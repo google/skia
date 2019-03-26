@@ -486,6 +486,9 @@ def dm_flags(api, bot):
   # serialization.
   bad_serialize_gms.append('analytic_antialias_convex')
 
+  # This GM uses an in-memory SVG typeface.
+  bad_serialize_gms.append('scaledemoji_rendering')
+
   for test in bad_serialize_gms:
     blacklist(['serialize-8888', 'gm', '_', test])
 

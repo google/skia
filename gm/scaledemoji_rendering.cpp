@@ -5,15 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "ToolUtils.h"
-#include "gm.h"
-
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkFontMetrics.h"
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
+#include "TestSVGTypeface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 class ScaledEmojiRenderingGM : public GM {
@@ -27,7 +27,7 @@ protected:
         typefaces[0] = MakeResourceAsTypeface("fonts/colr.ttf");
         typefaces[1] = MakeResourceAsTypeface("fonts/sbix.ttf");
         typefaces[2] = MakeResourceAsTypeface("fonts/cbdt.ttf");
-        typefaces[3] = ToolUtils::create_portable_typeface("Emoji", SkFontStyle());
+        typefaces[3] = TestSVGTypeface::Default();
     }
 
     SkString onShortName() override {
