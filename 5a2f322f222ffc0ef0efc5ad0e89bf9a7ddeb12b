@@ -45,6 +45,30 @@
       "revId": "5a2f322f222ffc0ef0efc5ad0e89bf9a7ddeb12b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e1b2891_734a7aa6",
+        "filename": "tools/fm/fm.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-26T20:50:41Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ve got to admit I\u0027m only hazy on the --abandon flags, lifetimes of the GrContextFactory, context, surfaces, and images all are.  As written I do snap off the SkImage before the late abandons... would they fail then in the next image-\u003easLegacyBitmap() readback?  That\u0027s where I see failures when I accidentally make the lifetime of the GrContextFactory too short.",
+      "parentUuid": "06d0a5fc_1acfa46b",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 394,
+        "endChar": 9
+      },
+      "revId": "5a2f322f222ffc0ef0efc5ad0e89bf9a7ddeb12b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
