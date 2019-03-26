@@ -16,6 +16,24 @@
       "revId": "b9f8d6b0e66ecfaa11be65eb125e3bdfb7d0ffd7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87f3191b_3da147fd",
+        "filename": "include/gpu/GrSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2019-03-26T20:48:18Z",
+      "side": 1,
+      "message": "That\u0027s fair.  I was only looking to expose something that could calculate texture sizes, so I moved and renamed it, kept it static, and made the sample count hardcode to 1, as it does in GrTexture::onGpuMemorySize.\n\nPTAL",
+      "parentUuid": "f9ba2ac5_6a65e9fc",
+      "revId": "b9f8d6b0e66ecfaa11be65eb125e3bdfb7d0ffd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
