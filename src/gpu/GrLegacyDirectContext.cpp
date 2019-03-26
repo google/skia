@@ -79,7 +79,7 @@ protected:
             return false;
         }
 
-        bool sortOpLists = kDefaultSortOpLists;
+        bool sortOpLists = this->explicitlyAllocateGPUResources();
         if (GrContextOptions::Enable::kNo == this->options().fSortRenderTargets) {
             sortOpLists = false;
         } else if (GrContextOptions::Enable::kYes == this->options().fSortRenderTargets) {
