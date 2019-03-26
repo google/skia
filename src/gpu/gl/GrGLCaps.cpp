@@ -1523,7 +1523,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
 
    // TexStorage requires using a sized internal format and BGRA8 is only supported if we have the
-   // GL_APPLE_texture_format_BGRA8888 extension or if we have GL_EXT_texutre_storage and
+   // GL_APPLE_texture_format_BGRA8888 extension or if we have GL_EXT_texture_storage and
    // GL_EXT_texture_format_BGRA8888.
     bool supportsBGRATexStorage = false;
 
@@ -1563,8 +1563,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             // already too tricky. Instead, we opt not to support BGRA on ES2 with this extension.
             // This also side-steps some ambiguous interactions with the texture storage extension.
             if (version >= GR_GL_VER(3,0)) {
-                // The APPLE extension doesn't make this renderable.
-                fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+                // The APPLE extension doesn't explicitly make this renderable, but
+                // internally it appears to use RGBA8, which we'll patch up below.
+                fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                                allRenderFlags;
                 supportsBGRATexStorage = true;
             }
         }
@@ -2037,7 +2039,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     //     ES 3.0: the extension explicitly states GL_BGRA8 is not a valid internal format for
     //             glTexImage (just for glTexStorage).
     if (useSizedTexFormats && this->bgraIsInternalFormat()) {
-        fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
+        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_RGBA;
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatRenderbuffer =
+                GR_GL_RGBA8;
+        } else {
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fInternalFormatTexImage = GR_GL_BGRA;
+        }
     }
 
     // If we don't have texture swizzle support then the shader generator must insert the
