@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "e3ef98d1_e0487680",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-26T12:17:31Z",
+      "side": 1,
+      "message": "My problem with relying on the builders is that when we get around to moving GPs to .gp files, there won\u0027t be a builder to call to access sample mask functionality. So I\u0027d like us to not put up extra barriers to moving to that model eventually. Like .fp files, .gp files should be able to generate CPP code that initializes their keys.\n\nThinking about it a bit more, I\u0027m not 100% convinced sample locations need to be a SkSL feature (though if we wind up using them pervasively it might make sense for code sharing). I think my real objection is just increased reliance on the builders for generating strings.\n\nBut really on all of this I\u0027m more than happy to defer to Ethan. If he thinks this is fine then I have no objection.",
+      "parentUuid": "a9a7dd05_d878d51d",
+      "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0776e697_60c4668e",
         "filename": "src/gpu/ops/GrFillRRectOp.cpp",
         "patchSetId": 4
