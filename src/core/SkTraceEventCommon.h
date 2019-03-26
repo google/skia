@@ -153,7 +153,66 @@ private:
 #define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)             \
   do { *ret = false; } while (0)
 
-#else // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+#elif defined(OS_FUCHSIA)  // !SK_BUILD_FOR
+
+#include <trace/event.h>
+
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
+
+// Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
+// associated arguments. If the category is not enabled, then this does nothing.
+#define TRACE_EVENT0(category_group, name) TRACE_DURATION(category_group, name)
+
+#define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
+    TRACE_DURATION(category_group, name, arg1_name, arg1_val)
+
+#define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
+    TRACE_DURATION(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val)
+
+// Records a single event called "name" immediately, with 0, 1 or 2 associated arguments. If the
+// category is not enabled, then this does nothing.
+#define TRACE_EVENT_INSTANT0(category_group, name, scope) TRACE_INSTANT(category_group, name, scope)
+
+#define TRACE_EVENT_INSTANT1(category_group, name, scope, arg1_name, arg1_val) \
+    TRACE_INSTANT(category_group, name, scope, arg1_name, arg1_val)
+
+#define TRACE_EVENT_INSTANT2(category_group, name, scope, arg1_name, arg1_val, arg2_name, \
+                             arg2_val)                                                    \
+    TRACE_INSTANT(category_group, name, scope, arg1_name, arg1_val, arg2_name, arg2_val)
+
+// Not currently implemented for Fuchsia.  This is only used in Skia to track resource cache stats,
+// which Fuchsia already has a trace counter for in Flutter Runner's |VulkanSurfacePool|.
+#define TRACE_COUNTER1(category_group, name, value) TRACE_EMPTY
+#define TRACE_COUNTER2(category_group, name, value1_name, value1_val, value2_name, value2_val) \
+    TRACE_EMPTY
+
+#define TRACE_EVENT_ASYNC_BEGIN0(category, name, id) TRACE_ASYNC_BEGIN(category, name, id)
+
+#define TRACE_EVENT_ASYNC_BEGIN1(category, name, id, arg1_name, arg1_val) \
+    TRACE_ASYNC_BEGIN(category, name, id, arg1_name, arg1_val)
+
+#define TRACE_EVENT_ASYNC_BEGIN2(category, name, id, arg1_name, arg1_val, arg2_name, arg2_val) \
+    TRACE_ASYNC_BEGIN(category, name, id, arg1_name, arg1_val, arg2_name, arg2_val)
+
+#define TRACE_EVENT_ASYNC_END0(category, name, id) TRACE_ASYNC_END(category, name, id)
+
+#define TRACE_EVENT_ASYNC_END1(category, name, id, arg1_name, arg1_val) \
+    TRACE_ASYNC_END(category, name, id, arg1_name, arg1_val)
+
+#define TRACE_EVENT_ASYNC_END2(category, name, id, arg1_name, arg1_val, arg2_name, arg2_val) \
+    TRACE_ASYNC_END(category, name, id, arg1_name, arg1_val, arg2_name, arg2_val)
+
+// Fuchsia tracing has no object tracking.
+#define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) TRACE_EMPTY
+#define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(category_group, name, id, snapshot) TRACE_EMPTY
+#define TRACE_EVENT_OBJECT_DELETED_WITH_ID(category_group, name, id) TRACE_EMPTY
+
+#define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret) \
+    do {                                                        \
+        *ret = false;                                           \
+    } while (0)
+
+#else  // !SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
 
@@ -279,10 +338,17 @@ private:
 #define TRACE_VALUE_TYPE_COPY_STRING (static_cast<unsigned char>(7))
 #define TRACE_VALUE_TYPE_CONVERTABLE (static_cast<unsigned char>(8))
 
+#if defined(OS_FUCHSIA)
+// Instant scope values are defined by <trace/event.h> on Fuchsia.
+#define TRACE_EVENT_SCOPE_GLOBAL (TRACE_SCOPE_THREAD)
+#define TRACE_EVENT_SCOPE_PROCESS (TRACE_SCOPE_PROCESS)
+#define TRACE_EVENT_SCOPE_THREAD (TRACE_SCOPE_THREAD)
+#else  // !defined(OS_FUCHSIA)
 // Enum reflecting the scope of an INSTANT event. Must fit within TRACE_EVENT_FLAG_SCOPE_MASK.
 #define TRACE_EVENT_SCOPE_GLOBAL (static_cast<unsigned char>(0 << 3))
 #define TRACE_EVENT_SCOPE_PROCESS (static_cast<unsigned char>(1 << 3))
 #define TRACE_EVENT_SCOPE_THREAD (static_cast<unsigned char>(2 << 3))
+#endif  // !defined(OS_FUCHSIA)
 
 #define TRACE_EVENT_SCOPE_NAME_GLOBAL ('g')
 #define TRACE_EVENT_SCOPE_NAME_PROCESS ('p')
