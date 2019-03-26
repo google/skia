@@ -28,6 +28,9 @@ bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 bool IsNullGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return type == GrContextFactory::kNullGL_ContextType;
 }
+bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return type == GrContextFactory::kMock_ContextType;
+}
 
 void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
                             Reporter* reporter, const GrContextOptions& options) {
