@@ -23,11 +23,8 @@
 #include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
-#include "SkShaper.h"
-#include "SkTextBlob.h"
-#include "SkTextUtils.h"
 #include "SkTo.h"
-#include "SkUTF.h"
+#include "SkottieShaper.h"
 #include "SkottieValue.h"
 
 #include <cmath>
@@ -412,155 +409,12 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
 
 TextAdapter::~TextAdapter() = default;
 
-sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
-    // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
-    // per-line position adjustments (for external line breaking, horizontal alignment, etc).
-    class BlobMaker final : public SkShaper::RunHandler {
-    public:
-        explicit BlobMaker(const TextValue& txt)
-            : fText(txt)
-            , fAlignFactor(AlignFactor(txt.fAlign))
-            , fFont(fText.fTypeface, fText.fTextSize)
-            , fShaper(SkShaper::Make())
-            , fCurrentOffset({txt.fBox.x(), txt.fBox.y()}) {
-            fFont.setHinting(kNo_SkFontHinting);
-            fFont.setSubpixel(true);
-            fFont.setEdging(SkFont::Edging::kAntiAlias);
-        }
-
-        Buffer newRunBuffer(const RunInfo& info, const SkFont& font, size_t glyphCount,
-                            Range) override {
-            fPendingLineAdvance += info.fAdvance;
-
-            if (!SkTFitsIn<int>(glyphCount)) {
-                glyphCount = INT_MAX;
-            }
-            auto& run = fPendingLineRuns.emplace_back(font, info, glyphCount);
-
-            return {
-                run.fGlyphs   .data(),
-                run.fPositions.data(),
-                nullptr,
-            };
-        }
-
-        void commitRun() override { }
-
-        void commitLine() override {
-            SkScalar line_spacing = 0;
-
-            for (const auto& run : fPendingLineRuns) {
-                const auto runSize = run.size();
-                const auto& blobBuffer = fBuilder.allocRunPos(run.fFont, SkToInt(runSize));
-
-                sk_careful_memcpy(blobBuffer.glyphs,
-                                  run.fGlyphs.data(),
-                                  runSize * sizeof(SkGlyphID));
-
-                // Horizontal alignment.
-                const auto h_adjust = fAlignFactor * (fPendingLineAdvance.x() - fText.fBox.width());
-
-                // When in point mode, the given position represents the baseline
-                //   => we adjust for SkShaper which treats it as (baseline - ascent).
-                const auto v_adjust = fText.fBox.isEmpty() ? run.fInfo.fAscent : 0;
-
-                for (size_t i = 0; i < runSize; ++i) {
-                    blobBuffer.points()[i] = run.fPositions[SkToInt(i)]
-                                           + SkVector::Make(h_adjust, v_adjust);
-                }
-
-                line_spacing = SkTMax(line_spacing,
-                                      run.fInfo.fDescent - run.fInfo.fAscent + run.fInfo.fLeading);
-            }
-
-            fPendingLineRuns.reset();
-            fPendingLineAdvance  = { 0, 0 };
-        }
-
-        sk_sp<SkTextBlob> makeBlob() {
-            return fBuilder.make();
-        }
-
-        void shapeLine(const char* start, const char* end) {
-            if (!fShaper) {
-                return;
-            }
-
-            // When no text box is present, text is laid out on a single infinite line
-            // (modulo explicit line breaks).
-            const auto shape_width = fText.fBox.isEmpty() ? SK_ScalarMax
-                                                          : fText.fBox.width();
-
-            fCurrentOffset = fShaper->shape(this, fFont, start, SkToSizeT(end - start),
-                                            true, fCurrentOffset, shape_width);
-        }
-
-    private:
-        static float AlignFactor(SkTextUtils::Align align) {
-            switch (align) {
-            case SkTextUtils::kLeft_Align:   return  0.0f;
-            case SkTextUtils::kCenter_Align: return -0.5f;
-            case SkTextUtils::kRight_Align:  return -1.0f;
-            }
-            return 0.0f; // go home, msvc...
-        }
-
-        struct Run {
-            SkFont                          fFont;
-            SkShaper::RunHandler::RunInfo   fInfo;
-            SkSTArray<128, SkGlyphID, true> fGlyphs;
-            SkSTArray<128, SkPoint  , true> fPositions;
-
-            Run(const SkFont& font, const SkShaper::RunHandler::RunInfo& info, int count)
-                : fFont(font)
-                , fInfo(info)
-                , fGlyphs   (count)
-                , fPositions(count) {
-                fGlyphs   .push_back_n(count);
-                fPositions.push_back_n(count);
-            }
-
-            size_t size() const {
-                SkASSERT(fGlyphs.size() == fPositions.size());
-                return fGlyphs.size();
-            }
-        };
-
-        const TextValue&          fText;
-        const float               fAlignFactor;
-
-        SkFont                    fFont;
-        SkTextBlobBuilder         fBuilder;
-        std::unique_ptr<SkShaper> fShaper;
-
-        SkPoint                   fCurrentOffset;
-        SkSTArray<2, Run, false>  fPendingLineRuns;
-        SkVector                  fPendingLineAdvance = { 0, 0 };
-    };
-
-    const auto& is_line_break = [](SkUnichar uch) {
-        // TODO: other explicit breaks?
-        return uch == '\r';
-    };
-
-    const char* ptr        = fText.fText.c_str();
-    const char* line_start = ptr;
-    const char* end        = ptr + fText.fText.size();
-
-    BlobMaker blobMaker(fText);
-    while (ptr < end) {
-        if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
-            blobMaker.shapeLine(line_start, ptr - 1);
-            line_start = ptr;
-        }
-    }
-    blobMaker.shapeLine(line_start, ptr);
-
-    return blobMaker.makeBlob();
-}
-
 void TextAdapter::apply() {
-    fTextNode->setBlob(this->makeBlob());
+    const Shaper::TextDesc text_desc = { fText.fTypeface, fText.fTextSize, fText.fAlign };
+    const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox);
+
+    fTextNode->setBlob(shape_result.fBlob);
+    fTextNode->setPosition(shape_result.fPos);
 
     fFillColor->setColor(fText.fFillColor);
     fStrokeColor->setColor(fText.fStrokeColor);
