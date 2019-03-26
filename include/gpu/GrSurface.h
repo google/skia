@@ -78,6 +78,8 @@ public:
     static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
     static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
                               GrMipMapped, bool useNextPow2 = false);
+    static size_t ComputeSize(SkColorType type, int width, int height, int colorSamplesPerPixel,
+                              GrMipMapped, bool useNextPow2 = false);
 
     /**
      * The pixel values of this surface cannot be modified (e.g. doesn't support write pixels or

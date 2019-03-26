@@ -58,6 +58,12 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     return size;
 }
 
+size_t GrSurface::ComputeSize(SkColorType type, int width, int height, int colorSamplesPerPixel,
+                              GrMipMapped mipMapped, bool useNextPow2) {
+    return ComputeSize(SkColorType2GrPixelConfig(type), width, height, colorSamplesPerPixel,
+                       mipMapped, useNextPow2);
+}
+
 size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int width,
                               int height,
