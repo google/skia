@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "ed52cae1_b162c9f9",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-26T17:25:57Z",
+      "side": 1,
+      "message": "Got it.\n\nThe only issue with simply exposing the sample mask variable (as opposed to the builder approach where you can only mask it) is later stages can add coverage that was masked off in a previous stage. It\u0027s also confusing because you *can\u0027t* add coverage that the rasterizer has already masked off for the primitive triangles.\n\nI think in SkSL, since the stages are all separate, we could just define a sk_SampleMask variable that, if used, gets AND-ed with sample masks from previous stages.\n\nIs this the same way coverage is handled? Could we just define both these variables, sk_Coverage and sk_SampleMask,and then if-and-only-if a stage writes to one then we combine it with previous stages using * or \u0026?",
+      "parentUuid": "e3ef98d1_e0487680",
+      "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0776e697_60c4668e",
         "filename": "src/gpu/ops/GrFillRRectOp.cpp",
         "patchSetId": 4
@@ -114,6 +132,30 @@
     },
     {
       "key": {
+        "uuid": "7dd9cc6a_11a23cde",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-26T17:25:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0776e697_60c4668e",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 36
+      },
+      "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eeaf7e4e_949d48c2",
         "filename": "src/gpu/ops/GrFillRRectOp.cpp",
         "patchSetId": 4
@@ -128,6 +170,24 @@
       "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6778358a_0f03cd0b",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-26T17:25:57Z",
+      "side": 1,
+      "message": "Good point. I had it in my head that this trick was OK due to things like this:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/src/core/SkMatrix.cpp?type\u003dcs\u0026g\u003d0\u0026l\u003d24\n\nHowever, now that I actually think about it, m[2][2]\u003d\u003d0 only means that your view angle is parallel to the SkCanvas. This is indeed a valid perspective transform.\n\nFixed.",
+      "parentUuid": "eeaf7e4e_949d48c2",
+      "revId": "8a7f4dbf364a58465350f2b134974b25d5b5a230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
