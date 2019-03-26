@@ -10,10 +10,6 @@
 #include "TestTypeface.h"
 #include "ToolUtils.h"
 
-#ifdef SK_XML
-#include "TestSVGTypeface.h"
-#endif
-
 #include <vector>
 
 namespace {
@@ -95,15 +91,6 @@ public:
                 }
             }
         }
-#ifdef SK_XML
-        fFamilies.emplace_back(sk_make_sp<FontStyleSet>("Emoji"));
-        fFamilies.back()->fTypefaces.emplace_back(
-                TestSVGTypeface::Default(), SkFontStyle::Normal(), "Normal");
-
-        fFamilies.emplace_back(sk_make_sp<FontStyleSet>("Planet"));
-        fFamilies.back()->fTypefaces.emplace_back(
-                TestSVGTypeface::Planets(), SkFontStyle::Normal(), "Normal");
-#endif
     }
 
     int onCountFamilies() const override { return fFamilies.size(); }
@@ -128,14 +115,6 @@ public:
             if (strstr(familyName, "erif")) {
                 return this->createStyleSet(2);
             }
-#ifdef SK_XML
-            if (strstr(familyName, "oji")) {
-                return this->createStyleSet(6);
-            }
-            if (strstr(familyName, "Planet")) {
-                return this->createStyleSet(7);
-            }
-#endif
         }
         return nullptr;
     }
