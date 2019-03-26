@@ -34,9 +34,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContexts, reporter, ctxInfo) 
     REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
 
-// This is an example of a GPU test that tests a property that uses the null GPU context.  It should
-// be used if the test tests some behavior that is mocked with the null context.
-DEF_GPUTEST_FOR_NULLGL_CONTEXT(TestGpuNullContext, reporter, ctxInfo) {
+// This is an example of a GPU test that tests a property that uses the mock context.  It should
+// be used if the test tests some behavior that is mocked with the mock context.
+DEF_GPUTEST_FOR_MOCK_CONTEXT(TestMockContext, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, reporter);
     REPORTER_ASSERT(reporter, ctxInfo.grContext());
 }
