@@ -975,16 +975,13 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(blendInfo.fWriteColor);
 }
 
-// The NullGL context does not work correctly if the GL interface/validation
-// logic is disabled.
-#if !SK_DISABLE_GL_INTERFACE
 DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrContextOptions opts = options;
     opts.fSuppressDualSourceBlending = true;
     sk_gpu_test::GrContextFactory mockFactory(opts);
-    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType);
+    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kMock_ContextType);
     if (!ctx) {
-        SK_ABORT("Failed to create null context without ARB_blend_func_extended.");
+        SK_ABORT("Failed to create mock context without ARB_blend_func_extended.");
         return;
     }
 
@@ -992,7 +989,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     const GrCaps& caps = *ctx->priv().caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
-        SK_ABORT("Null context failed to honor request for no ARB_blend_func_extended.");
+        SK_ABORT("Mock context failed to honor request for no ARB_blend_func_extended.");
         return;
     }
 
@@ -1032,4 +1029,3 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     }
     gpu->deleteTestingOnlyBackendTexture(backendTex);
 }
-#endif
