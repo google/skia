@@ -21,7 +21,7 @@ class SkiaMobilePage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.Wait(15)
+    action_runner.Wait(45)
 
 
 class SkiaDeviantartMobilePageSet(story.StorySet):
@@ -33,7 +33,7 @@ class SkiaDeviantartMobilePageSet(story.StorySet):
 
     urls_list = [
       # go/skia-skps-3-2019
-      'http://www.deviantart.com/',
+      'https://www.deviantart.com/whats-hot/',
     ]
 
     for url in urls_list:
