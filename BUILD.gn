@@ -1833,6 +1833,9 @@ if (skia_enable_tools) {
       ]
     }
     test_app("dm") {
+      if (is_ios) {
+        bundle_ios_data = true
+      }
       sources = [
         "dm/DM.cpp",
         "dm/DMGpuTestProcs.cpp",

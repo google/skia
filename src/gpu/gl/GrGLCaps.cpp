@@ -681,6 +681,7 @@ bool is_float_fp32(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli, GrG
         GrGLint range[2];
         GrGLint bits;
         GR_GL_GetShaderPrecisionFormat(gli, shader, precision, range, &bits);
+        SkDebugf("Ranges: %d %d, Bits: %d\n", range[0], range[1], bits);
         if (range[0] < 127 || range[1] < 127 || bits < 23) {
             return false;
         }
