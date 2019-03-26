@@ -25,6 +25,7 @@ skia_skottie_sources = [
   "$_src/SkottiePrecompLayer.cpp",
   "$_src/SkottieProperty.cpp",
   "$_src/SkottieShapeLayer.cpp",
+  "$_src/SkottieShaper.cpp",
   "$_src/SkottieTextLayer.cpp",
   "$_src/SkottieValue.cpp",
   "$_src/SkottieValue.h",
