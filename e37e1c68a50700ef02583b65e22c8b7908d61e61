@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "63869d1e_beef421f",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-26T13:54:55Z",
+      "side": 1,
+      "message": "Removed this for now.",
+      "parentUuid": "b7a7f9d8_8ec23361",
+      "range": {
+        "startLine": 438,
+        "startChar": 0,
+        "endLine": 453,
+        "endChar": 9
+      },
+      "revId": "e37e1c68a50700ef02583b65e22c8b7908d61e61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cbf8729b_dbfb4d57",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "e37e1c68a50700ef02583b65e22c8b7908d61e61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ea1cfa0_7529f809",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-26T13:54:55Z",
+      "side": 1,
+      "message": "Will address in a follow-on CL",
+      "parentUuid": "cbf8729b_dbfb4d57",
+      "range": {
+        "startLine": 464,
+        "startChar": 13,
+        "endLine": 464,
+        "endChar": 19
+      },
+      "revId": "e37e1c68a50700ef02583b65e22c8b7908d61e61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
