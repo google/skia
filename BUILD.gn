@@ -683,8 +683,10 @@ optional("gpu") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      public_deps +=
-          [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
+      public_deps += [
+        "//third_party/vulkan_loader_and_validation_layers:vulkan",
+        "//zircon/public/lib/trace",
+      ]
     }
   }
 
@@ -1092,6 +1094,9 @@ component("skia") {
 
   if (is_fuchsia) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
+    public_deps += [
+      "//zircon/public/lib/trace",
+    ]
   }
 }
 
