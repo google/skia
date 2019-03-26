@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d232224_9d89fef5",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-26T13:51:54Z",
+      "side": 1,
+      "message": "and/or textures is ?",
+      "range": {
+        "startLine": 231,
+        "startChar": 8,
+        "endLine": 231,
+        "endChar": 10
+      },
+      "revId": "0d37445a7f8e0e7c17a68486e03bfacbe0fd0d58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
