@@ -21,7 +21,7 @@ class SkiaBuildbotDesktopPage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.Wait(5)
+    action_runner.Wait(30)
 
 class SkiaDiggTabletPageSet(story.StorySet):
   """ Pages designed to represent the median, not highly optimized web """
