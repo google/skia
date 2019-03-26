@@ -68,6 +68,7 @@ struct GrMockOptions {
     int fMaxVertexSamplers = 0;
     int fMaxFragmentSamplers = 8;
     bool fShaderDerivativeSupport = true;
+    bool fDualSourceBlendingSupport = false;
 
     // GrMockGpu options.
     bool fFailTextureAllocations = false;

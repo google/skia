@@ -31,6 +31,7 @@ public:
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
         fShaderCaps->fMaxFragmentSamplers = options.fMaxFragmentSamplers;
         fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
+        fShaderCaps->fDualSourceBlendingSupport = options.fDualSourceBlendingSupport;
 
         this->applyOptionsOverrides(contextOptions);
     }
