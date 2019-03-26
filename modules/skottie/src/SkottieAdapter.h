@@ -308,7 +308,6 @@ public:
 
 private:
     void apply();
-    sk_sp<SkTextBlob> makeBlob() const;
 
     sk_sp<sksg::Group>     fRoot;
     sk_sp<sksg::TextBlob>  fTextNode;
