@@ -353,6 +353,16 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
 
+#if GR_ALLOCATION_SPEW
+    SkDebugf("assigning opLists %d through %d out of %d numOpLists\n",
+             *startIndex, *stopIndex, fNumOpLists);
+    SkDebugf("EndOfOpListIndices: ");
+    for (int i = 0; i < fEndOfOpListOpIndices.count(); ++i) {
+        SkDebugf("%d ", fEndOfOpListOpIndices[i]);
+    }
+    SkDebugf("\n");
+#endif
+
     if (!fResourceProvider->explicitlyAllocateGPUResources()) {
         fIntvlList.detachAll(); // arena allocator will clean these up for us
         return true;
@@ -445,9 +455,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
 #if GR_ALLOCATION_SPEW
 void GrResourceAllocator::dumpIntervals() {
-
     // Print all the intervals while computing their range
-    unsigned int min = fNumOps+1;
+    SkDebugf("------------------------------------------------------------\n");
+    unsigned int min = std::numeric_limits<unsigned int>::max();
     unsigned int max = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
         SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
