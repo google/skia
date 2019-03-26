@@ -283,6 +283,9 @@ public:
 
     void storeVkPipelineCacheData();
 
+    static size_t ComputeTextureSize(SkColorType type, int width, int height, GrMipMapped,
+                                     bool useNextPow2 = false);
+
 protected:
     GrContext(GrBackendApi, const GrContextOptions&, int32_t contextID = SK_InvalidGenID);
 
