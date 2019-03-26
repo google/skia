@@ -490,3 +490,4 @@ void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
     this->onValidateSurface(surface);
 }
 #endif
+
