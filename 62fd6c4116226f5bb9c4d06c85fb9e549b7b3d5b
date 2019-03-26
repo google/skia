@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c6b941c_c3418b2d",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1703,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-26T15:29:37Z",
+      "side": 0,
+      "message": "May want to check w/ Kevin that this doesn\u0027t break anything over in infra.",
+      "revId": "62fd6c4116226f5bb9c4d06c85fb9e549b7b3d5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
