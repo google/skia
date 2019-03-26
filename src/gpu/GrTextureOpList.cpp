@@ -181,21 +181,22 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
 }
 
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
-    unsigned int cur = alloc->numOps();
 
     // Add the interval for all the writes to this opList's target
     if (fRecordedOps.count()) {
+        unsigned int cur = alloc->curOp1();
+
         alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get());
-        alloc->incOps();
+        alloc->addInterval(fTarget.get(), alloc->curOp1(), alloc->curOp1());
+        alloc->incOps1();
     }
 
     auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p SkDEBUGCODE(, p == fTarget.get()));
+        alloc->addInterval(p, alloc->curOp1(), alloc->curOp1() SkDEBUGCODE(, p == fTarget.get()));
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
@@ -203,9 +204,9 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
             op->visitProxies(gather, GrOp::VisitorType::kAllocatorGather);
         }
 
-        // Even though the op may have been moved we still need to increment the op count to
+        // Even though the op may have been (re)moved we still need to increment the op count to
         // keep all the math consistent.
-        alloc->incOps();
+        alloc->incOps1();
     }
 }
 

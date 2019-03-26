@@ -43,10 +43,10 @@ void GrResourceAllocator::markEndOfOpList(int opListIndex) {
 
     SkASSERT(fEndOfOpListOpIndices.count() == opListIndex);
     if (!fEndOfOpListOpIndices.empty()) {
-        SkASSERT(fEndOfOpListOpIndices.back() < this->curOp());
+        SkASSERT(fEndOfOpListOpIndices.back() < this->curOp1());
     }
 
-    fEndOfOpListOpIndices.push_back(this->curOp()); // This is the first op index of the next opList
+    fEndOfOpListOpIndices.push_back(this->curOp1()); // This is the first op index of the next opList
     SkASSERT(fEndOfOpListOpIndices.count() <= fNumOpLists);
 }
 
@@ -353,7 +353,19 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
 
+#if 0
+    SkDebugf("assigning opLists %d through %d out of %d numOpLists\n", *startIndex, *stopIndex, fNumOpLists);
+    SkDebugf("EndOfOpListIndices: ");
+    for (int i = 0; i < fEndOfOpListOpIndices.count(); ++i) {
+        SkDebugf("%d ", fEndOfOpListOpIndices[i]);
+    }
+    SkDebugf("\n");
+#endif
+
     if (!fResourceProvider->explicitlyAllocateGPUResources()) {
+#if GR_ALLOCATION_SPEW
+    this->dumpIntervals();
+#endif
         fIntvlList.detachAll(); // arena allocator will clean these up for us
         return true;
     }
@@ -445,12 +457,14 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
 #if GR_ALLOCATION_SPEW
 void GrResourceAllocator::dumpIntervals() {
-
     // Print all the intervals while computing their range
-    unsigned int min = fNumOps+1;
+    SkDebugf("------------------------------------------------------------\n");
+    unsigned int min = std::numeric_limits<unsigned int>::max();
     unsigned int max = 0;
+    int i = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
-        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
+        SkDebugf("%d: { %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
+                 i++,
                  cur->proxy()->uniqueID().asUInt(),
                  cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
                  cur->start(),

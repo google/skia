@@ -95,9 +95,9 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
 
     alloc.addInterval(p1, 0, 4);
-    alloc.incOps();
+    alloc.incOps1();
     alloc.addInterval(p2, 1, 2);
-    alloc.incOps();
+    alloc.incOps1();
     alloc.markEndOfOpList(0);
 
     int startIndex, stopIndex;
@@ -119,12 +119,12 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     GrDeinstantiateProxyTracker deinstantiateTracker;
     GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
 
-    alloc.incOps();
-    alloc.incOps();
-    alloc.incOps();
-    alloc.incOps();
-    alloc.incOps();
-    alloc.incOps();
+    alloc.incOps1();
+    alloc.incOps1();
+    alloc.incOps1();
+    alloc.incOps1();
+    alloc.incOps1();
+    alloc.incOps1();
 
     alloc.addInterval(p1, 0, 2);
     alloc.addInterval(p2, 3, 5);
@@ -360,7 +360,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
             alloc.addInterval(p1.get(), 0, 1);
             alloc.addInterval(p2.get(), 0, 1);
             alloc.addInterval(p3.get(), 0, 1);
-            alloc.incOps();
+            alloc.incOps1();
             alloc.markEndOfOpList(0);
             int startIndex, stopIndex;
             GrResourceAllocator::AssignError error;
@@ -406,15 +406,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
         GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 2));
 
         alloc.addInterval(p1, 0, 0);
-        alloc.incOps();
+        alloc.incOps1();
         alloc.addInterval(p2, 1, 1);
-        alloc.incOps();
+        alloc.incOps1();
         alloc.markEndOfOpList(0);
 
         alloc.addInterval(p3, 2, 2);
-        alloc.incOps();
+        alloc.incOps1();
         alloc.addInterval(p4, 3, 3);
-        alloc.incOps();
+        alloc.incOps1();
         alloc.markEndOfOpList(1);
 
         int startIndex, stopIndex;

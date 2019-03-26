@@ -527,8 +527,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             !dst->colorSpaceInfo().colorSpace() &&
             (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
             SkToBool(dst->asRenderTargetContext()) &&
-            (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
-             dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
+            (dstProxy->config() == kRGBA_8888_GrPixelConfig || dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
             !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
             fContext->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
