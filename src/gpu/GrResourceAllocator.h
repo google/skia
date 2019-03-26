@@ -42,8 +42,13 @@ class GrResourceProvider;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrResourceProvider* resourceProvider, GrDeinstantiateProxyTracker* tracker)
-            : fResourceProvider(resourceProvider), fDeinstantiateTracker(tracker) {}
+    GrResourceAllocator(GrResourceProvider* resourceProvider,
+                        GrDeinstantiateProxyTracker* tracker,
+                        int numOpLists)
+            : fResourceProvider(resourceProvider)
+            , fDeinstantiateTracker(tracker)
+            , fNumOpLists(numOpLists) {
+    }
 
     ~GrResourceAllocator();
 
@@ -218,11 +223,12 @@ private:
 
     IntervalList                 fIntvlList;         // All the intervals sorted by increasing start
     IntervalList                 fActiveIntvls;      // List of live intervals during assignment
-                                               // (sorted by increasing end)
+                                                     // (sorted by increasing end)
     unsigned int                 fNumOps = 1;        // op # 0 is reserved for uploads at the start
-                                               // of a flush
+                                                     // of a flush
     SkTArray<unsigned int>       fEndOfOpListOpIndices;
     int                          fCurOpListIndex = 0;
+    const int                    fNumOpLists = -1;
 
     SkDEBUGCODE(bool             fAssigned = false;)
 
