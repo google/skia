@@ -47,6 +47,7 @@ void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     }
 
     fEndOfOpListOpIndices.push_back(this->curOp()); // This is the first op index of the next opList
+    SkASSERT(fEndOfOpListOpIndices.count() <= fNumOpLists);
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
@@ -318,6 +319,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         return false;          // nothing to render
     }
 
+    SkASSERT(fCurOpListIndex < fNumOpLists);
+    SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
+
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
 
@@ -334,6 +338,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     while (Interval* cur = fIntvlList.popHead()) {
         if (fEndOfOpListOpIndices[fCurOpListIndex] < cur->start()) {
             fCurOpListIndex++;
+            SkASSERT(fCurOpListIndex < fNumOpLists);
         }
 
         this->expire(cur->start());
@@ -361,6 +366,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
                     // guaranteed to survive the partial flush lest they become zombies (i.e.,
                     // holding a deleted surface proxy).
                     if (const Interval* tmp = fIntvlList.peekHead()) {
+                        SkASSERT(fEndOfOpListOpIndices[fCurOpListIndex] == tmp->start());
+                        fCurOpListIndex++;
+                        SkASSERT(fCurOpListIndex < fNumOpLists);
                         this->expire(tmp->start());
                     } else {
                         this->expire(std::numeric_limits<unsigned int>::max());
@@ -418,6 +426,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
                 // guaranteed to survive the partial flush lest they become zombies (i.e.,
                 // holding a deleted surface proxy).
                 if (const Interval* tmp = fIntvlList.peekHead()) {
+                    SkASSERT(fEndOfOpListOpIndices[fCurOpListIndex] == tmp->start());
+                    fCurOpListIndex++;
+                    SkASSERT(fCurOpListIndex < fNumOpLists);
                     this->expire(tmp->start());
                 } else {
                     this->expire(std::numeric_limits<unsigned int>::max());
