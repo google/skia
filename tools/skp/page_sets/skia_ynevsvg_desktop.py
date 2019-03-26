@@ -34,7 +34,8 @@ class SkiaYnevsvgDesktopPageSet(story.StorySet):
 
     urls_list = [
       # Why: from skbug.com/4713
-      'http://www.googledrive.com/host/0B5nDjttF0gt9QjRKdEZ5MEVYc2c',
+      ('https://storage.googleapis.com/skia-infra-testdata/images-for-skps/'
+       'ynev.svg'),
     ]
 
     for url in urls_list:
