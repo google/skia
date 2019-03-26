@@ -138,7 +138,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
                            f->sampleOffsets(), coord.fsIn());
         f->codeAppendf(    "if (all(lessThanEqual(abs(samplecoord), float2(1)))) {");
         f->maskOffMultisampleCoverage(
-                "~(1 << i)", GrGLSLFragmentShaderBuilder::Scope::kInsideLoopOrBranch);
+                "~(1 << i)", GrGLSLFPFragmentBuilder::ScopeFlags::kInsideLoop);
         f->codeAppendf(    "}");
         f->codeAppendf("}");
     }
