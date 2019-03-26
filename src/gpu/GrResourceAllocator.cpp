@@ -47,7 +47,6 @@ void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     }
 
     fEndOfOpListOpIndices.push_back(this->curOp()); // This is the first op index of the next opList
-    SkASSERT(fEndOfOpListOpIndices.count() <= fNumOpLists);
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
@@ -310,34 +309,6 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::onOpListBoundary() const {
-    if (fIntvlList.empty()) {
-        SkASSERT(fCurOpListIndex+1 == fNumOpLists);
-        // Although technically on an opList boundary there is no need to force an
-        // intermediate flush here
-        return false;
-    }
-
-    const Interval* tmp = fIntvlList.peekHead();
-    return fEndOfOpListOpIndices[fCurOpListIndex] <= tmp->start();
-}
-
-void GrResourceAllocator::forceIntermediateFlush(int* stopIndex) {
-    *stopIndex = fCurOpListIndex+1;
-
-    // This is interrupting the allocation of resources for this flush. We need to
-    // proactively clear the active interval list of any intervals that aren't
-    // guaranteed to survive the partial flush lest they become zombies (i.e.,
-    // holding a deleted surface proxy).
-    const Interval* tmp = fIntvlList.peekHead();
-    SkASSERT(fEndOfOpListOpIndices[fCurOpListIndex] <= tmp->start());
-
-    fCurOpListIndex++;
-    SkASSERT(fCurOpListIndex < fNumOpLists);
-
-    this->expire(tmp->start());
-}
-
 bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
     SkASSERT(outError);
     *outError = AssignError::kNoError;
@@ -346,9 +317,6 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     if (fIntvlList.empty()) {
         return false;          // nothing to render
     }
-
-    SkASSERT(fCurOpListIndex < fNumOpLists);
-    SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
 
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
@@ -364,9 +332,8 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     this->dumpIntervals();
 #endif
     while (Interval* cur = fIntvlList.popHead()) {
-        if (fEndOfOpListOpIndices[fCurOpListIndex] <= cur->start()) {
+        if (fEndOfOpListOpIndices[fCurOpListIndex] < cur->start()) {
             fCurOpListIndex++;
-            SkASSERT(fCurOpListIndex < fNumOpLists);
         }
 
         this->expire(cur->start());
@@ -385,8 +352,19 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
             if (fResourceProvider->overBudget()) {
                 // Only force intermediate draws on opList boundaries
-                if (this->onOpListBoundary()) {
-                    this->forceIntermediateFlush(stopIndex);
+                if (!fIntvlList.empty() &&
+                    fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
+                    *stopIndex = fCurOpListIndex+1;
+
+                    // This is interrupting the allocation of resources for this flush. We need to
+                    // proactively clear the active interval list of any intervals that aren't
+                    // guaranteed to survive the partial flush lest they become zombies (i.e.,
+                    // holding a deleted surface proxy).
+                    if (const Interval* tmp = fIntvlList.peekHead()) {
+                        this->expire(tmp->start());
+                    } else {
+                        this->expire(std::numeric_limits<unsigned int>::max());
+                    }
                     return true;
                 }
             }
@@ -431,8 +409,19 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
         if (fResourceProvider->overBudget()) {
             // Only force intermediate draws on opList boundaries
-            if (this->onOpListBoundary()) {
-                this->forceIntermediateFlush(stopIndex);
+            if (!fIntvlList.empty() &&
+                fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
+                *stopIndex = fCurOpListIndex+1;
+
+                // This is interrupting the allocation of resources for this flush. We need to
+                // proactively clear the active interval list of any intervals that aren't
+                // guaranteed to survive the partial flush lest they become zombies (i.e.,
+                // holding a deleted surface proxy).
+                if (const Interval* tmp = fIntvlList.peekHead()) {
+                    this->expire(tmp->start());
+                } else {
+                    this->expire(std::numeric_limits<unsigned int>::max());
+                }
                 return true;
             }
         }

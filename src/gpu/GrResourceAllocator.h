@@ -42,13 +42,8 @@ class GrResourceProvider;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrResourceProvider* resourceProvider,
-                        GrDeinstantiateProxyTracker* tracker
-                        SkDEBUGCODE(, int numOpLists))
-            : fResourceProvider(resourceProvider)
-            , fDeinstantiateTracker(tracker)
-            SkDEBUGCODE(, fNumOpLists(numOpLists)) {
-    }
+    GrResourceAllocator(GrResourceProvider* resourceProvider, GrDeinstantiateProxyTracker* tracker)
+            : fResourceProvider(resourceProvider), fDeinstantiateTracker(tracker) {}
 
     ~GrResourceAllocator();
 
@@ -92,9 +87,6 @@ private:
 
     // Remove dead intervals from the active list
     void expire(unsigned int curIndex);
-
-    bool onOpListBoundary() const;
-    void forceIntermediateFlush(int* stopIndex);
 
     // These two methods wrap the interactions with the free pool
     void recycleSurface(sk_sp<GrSurface> surface);
@@ -226,11 +218,11 @@ private:
 
     IntervalList                 fIntvlList;         // All the intervals sorted by increasing start
     IntervalList                 fActiveIntvls;      // List of live intervals during assignment
-                                                     // (sorted by increasing end)
-    unsigned int                 fNumOps = 0;
+                                               // (sorted by increasing end)
+    unsigned int                 fNumOps = 1;        // op # 0 is reserved for uploads at the start
+                                               // of a flush
     SkTArray<unsigned int>       fEndOfOpListOpIndices;
     int                          fCurOpListIndex = 0;
-    SkDEBUGCODE(const int        fNumOpLists = -1;)
 
     SkDEBUGCODE(bool             fAssigned = false;)
 
