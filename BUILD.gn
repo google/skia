@@ -1657,6 +1657,8 @@ if (skia_enable_tools) {
     deps = [
       ":experimental_svg_model",
       ":flags",
+    ]
+    public_deps = [
       ":gpu_tool_utils",
     ]
   }
