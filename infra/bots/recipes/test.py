@@ -1069,6 +1069,7 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
+  'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC',
@@ -1102,7 +1103,7 @@ def GenTests(api):
       api.step_data('get swarming task id',
           stdout=api.raw_io.output('123456'))
     )
-    if 'Win' in builder:
+    if 'Win' in builder and not 'LenovoYogaC630' in builder:
       test += api.platform('win', 64)
 
     if 'Chromecast' in builder:
@@ -1110,9 +1111,9 @@ def GenTests(api):
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
 
-    if 'ChromeOS' in builder:
+    if 'ChromeOS' in builder or 'LenovoYogaC630' in builder:
       test += api.step_data(
-          'read chromeos ip',
+          'read ssh_machine.json',
           stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
 
     yield test
