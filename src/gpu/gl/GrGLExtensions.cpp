@@ -78,14 +78,21 @@ bool GrGLExtensions::init(GrGLStandard standard,
         return false;
     }
 
-    // glGetStringi and indexed extensions were added in version 3.0 of desktop GL and ES.
     const GrGLubyte* verString = getString(GR_GL_VERSION);
     GrGLVersion version = GrGLGetVersionFromString((const char*) verString);
     if (GR_GL_INVALID_VER == version) {
         return false;
     }
 
-    bool indexed = version >= GR_GL_VER(3, 0);
+    bool indexed = false;
+    if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
+        // glGetStringi and indexed extensions were added in version 3.0 of desktop GL and ES.
+        indexed = version >= GR_GL_VER(3, 0);
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        // WebGL (1.0 or 2.0) doesn't natively support glGetStringi, but enscripten adds it in
+        // https://github.com/emscripten-core/emscripten/issues/3472
+        indexed = version >= GR_GL_VER(2, 0);
+    }
 
     if (indexed) {
         if (!getStringi || !getIntegerv) {
