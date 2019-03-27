@@ -278,10 +278,14 @@ def codec_srcs(limited):
         ]
     return native.glob(["src/codec/*.cpp", "third_party/etc1/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
 
-# Platform-dependent SRCS for google3-default platform.
-BASE_SRCS_UNIX = struct(
+GL_SRCS_UNIX = struct(
     include = [
         "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+    ],
+    exclude = [],
+)
+PORTS_SRCS_UNIX = struct(
+    include = [
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
     ],
@@ -305,10 +309,14 @@ BASE_SRCS_UNIX = struct(
     ],
 )
 
-# Platform-dependent SRCS for google3-default Android.
-BASE_SRCS_ANDROID = struct(
+GL_SRCS_ANDROID = struct(
     include = [
         "src/gpu/gl/android/*.cpp",
+    ],
+    exclude = [],
+)
+PORTS_SRCS_ANDROID = struct(
+    include = [
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
     ],
@@ -333,10 +341,14 @@ BASE_SRCS_ANDROID = struct(
     ],
 )
 
-# Platform-dependent SRCS for google3-default iOS.
-BASE_SRCS_IOS = struct(
+GL_SRCS_IOS = struct(
     include = [
         "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
+    ],
+    exclude = [],
+)
+PORTS_SRCS_IOS = struct(
+    include = [
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
         "src/utils/mac/*.cpp",
@@ -365,19 +377,28 @@ BASE_SRCS_IOS = struct(
     ],
 )
 
-################################################################################
-## skia_srcs()
-################################################################################
-def skia_srcs(os_conditions):
-    """Sources to be compiled into the skia library."""
-    return skia_glob(BASE_SRCS_ALL) + skia_select(
-        os_conditions,
+def base_srcs():
+    return skia_glob(BASE_SRCS_ALL)
+
+def ports_srcs(os_conditions):
+     return skia_select( os_conditions,
         [
-            skia_glob(BASE_SRCS_UNIX),
-            skia_glob(BASE_SRCS_ANDROID),
-            skia_glob(BASE_SRCS_IOS),
-        ],
-    )
+            skia_glob(PORTS_SRCS_UNIX),
+            skia_glob(PORTS_SRCS_ANDROID),
+            skia_glob(PORTS_SRCS_IOS),
+        ])
+
+def gl_srcs(os_conditions):
+   return skia_select(os_conditions,
+        [
+            skia_glob(GL_SRCS_UNIX),
+            skia_glob(GL_SRCS_ANDROID),
+            skia_glob(GL_SRCS_IOS),
+        ])
+
+def skia_srcs(os_conditions):
+    return base_srcs() + ports_srcs(os_conditions) + gl_srcs(os_conditions)
+
 
 ################################################################################
 ## INCLUDES
