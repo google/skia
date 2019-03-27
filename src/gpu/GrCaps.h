@@ -73,8 +73,6 @@ public:
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
-    bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
-
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
 
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
@@ -359,9 +357,6 @@ protected:
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
-
-    // On some platforms it's better to make more triangles than to use the sample mask (MSAA only).
-    bool fPreferTrianglesOverSampleMask              : 1;
 
     // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
