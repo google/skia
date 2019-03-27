@@ -16,7 +16,7 @@ static sk_sp<SkColorSpace> rec2020() {
 HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimensions()) {
     skcms_AlphaFormat srcAlpha;
     switch (bitmap.alphaType()) {
-        case kUnknown_SkAlphaType: SkASSERT(false); return;
+        case kUnknown_SkAlphaType: return;
 
         case kOpaque_SkAlphaType:
         case kUnpremul_SkAlphaType: srcAlpha = skcms_AlphaFormat_Unpremul;        break;
@@ -25,7 +25,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
 
     skcms_PixelFormat srcFmt;
     switch (bitmap.colorType()) {
-        case kUnknown_SkColorType: SkASSERT(false); return;
+        case kUnknown_SkColorType: return;
 
         case kAlpha_8_SkColorType:      srcFmt = skcms_PixelFormat_A_8;          break;
         case kRGB_565_SkColorType:      srcFmt = skcms_PixelFormat_BGR_565;      break;
