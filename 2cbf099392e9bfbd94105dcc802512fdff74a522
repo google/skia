@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec7c4a06_27b70b64",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-27T13:45:06Z",
+      "side": 1,
+      "message": "why do you need it here if you add it as a deps later?",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19a1a5fc_3c5f877a",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-27T13:45:06Z",
+      "side": 1,
+      "message": "defines +\u003d [\n      \"SK_BUILD_FOR_FUCHSIA\",\n    ]",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d5d0cd0_e312192e",
+        "filename": "gn/fuchsia_defines.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-27T13:45:06Z",
+      "side": 1,
+      "message": "move to build.gn.  This file is for us to add configuration options that are expected/allowed to change over time. If it is intended to be permanent it should be in the build.gn.",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40c6bff5_8858cb2c",
+        "filename": "src/core/SkTraceEvent.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-27T13:45:06Z",
+      "side": 1,
+      "message": "why did you need to override this?",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94d02639_5a6cb64d",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-27T13:45:06Z",
+      "side": 1,
+      "message": "move this comment to the else.  It should be extended to reflect that the else is logically !android \u0026\u0026 !fuchsia.",
+      "range": {
+        "startLine": 156,
+        "startChar": 27,
+        "endLine": 156,
+        "endChar": 61
+      },
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
