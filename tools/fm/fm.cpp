@@ -17,6 +17,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "ToolUtils.h"
 #include "gm.h"
 #include <chrono>
@@ -154,6 +155,13 @@ static sk_sp<SkImage> draw_with_cpu(std::function<void(SkCanvas*)> draw,
         return surface->makeImageSnapshot();
     }
     return nullptr;
+}
+
+static sk_sp<SkData> draw_as_skp(std::function<void(SkCanvas*)> draw,
+                                 SkImageInfo info) {
+    SkPictureRecorder recorder;
+    draw(recorder.beginRecording(info.width(), info.height()));
+    return recorder.finishRecordingAsPicture()->serialize();
 }
 
 static sk_sp<SkImage> draw_with_gpu(std::function<void(SkCanvas*)> draw,
@@ -297,6 +305,25 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    enum NonGpuBackends {
+        kCPU_Backend = -1,
+        kSKP_Backend = -2,
+    };
+    const FlagOption<int> kBackends[] = {
+        { "cpu"            , kCPU_Backend },
+        { "skp"            , kSKP_Backend },
+        { "gl"             , GrContextFactory::kGL_ContextType },
+        { "gles"           , GrContextFactory::kGLES_ContextType },
+        { "angle_d3d9_es2" , GrContextFactory::kANGLE_D3D9_ES2_ContextType },
+        { "angle_d3d11_es2", GrContextFactory::kANGLE_D3D11_ES2_ContextType },
+        { "angle_d3d11_es3", GrContextFactory::kANGLE_D3D11_ES3_ContextType },
+        { "angle_gl_es2"   , GrContextFactory::kANGLE_GL_ES2_ContextType },
+        { "angle_gl_es3"   , GrContextFactory::kANGLE_GL_ES3_ContextType },
+        { "commandbuffer"  , GrContextFactory::kCommandBuffer_ContextType },
+        { "vk"             , GrContextFactory::kVulkan_ContextType },
+        { "mtl"            , GrContextFactory::kMetal_ContextType },
+        { "mock"           , GrContextFactory::kMock_ContextType },
+    };
     const FlagOption<SkColorType> kColorTypes[] = {
         { "a8",           kAlpha_8_SkColorType },
         { "g8",            kGray_8_SkColorType },
@@ -330,35 +357,18 @@ int main(int argc, char** argv) {
         { "linear" , SkNamedTransferFn::kLinear },
     };
 
-    enum NonGpuBackends {
-        kCPU_Backend = -1,
-    };
-    const FlagOption<int> kBackends[] = {
-        { "cpu"            , kCPU_Backend },
-        { "gl"             , GrContextFactory::kGL_ContextType },
-        { "gles"           , GrContextFactory::kGLES_ContextType },
-        { "angle_d3d9_es2" , GrContextFactory::kANGLE_D3D9_ES2_ContextType },
-        { "angle_d3d11_es2", GrContextFactory::kANGLE_D3D11_ES2_ContextType },
-        { "angle_d3d11_es3", GrContextFactory::kANGLE_D3D11_ES3_ContextType },
-        { "angle_gl_es2"   , GrContextFactory::kANGLE_GL_ES2_ContextType },
-        { "angle_gl_es3"   , GrContextFactory::kANGLE_GL_ES3_ContextType },
-        { "commandbuffer"  , GrContextFactory::kCommandBuffer_ContextType },
-        { "vk"             , GrContextFactory::kVulkan_ContextType },
-        { "mtl"            , GrContextFactory::kMetal_ContextType },
-        { "mock"           , GrContextFactory::kMock_ContextType },
-    };
 
+    int                      backend;
     SkColorType              ct;
     SkAlphaType              at;
     skcms_Matrix3x3          gamut;
     skcms_TransferFunction   tf;
-    int                      backend;
 
-    if (!parse_flag(FLAGS_ct     , "ct"     , kColorTypes       , &ct)      ||
+    if (!parse_flag(FLAGS_backend, "backend", kBackends         , &backend) ||
+        !parse_flag(FLAGS_ct     , "ct"     , kColorTypes       , &ct)      ||
         !parse_flag(FLAGS_at     , "at"     , kAlphaTypes       , &at)      ||
         !parse_flag(FLAGS_gamut  , "gamut"  , kGamuts           , &gamut)   ||
-        !parse_flag(FLAGS_tf     , "tf"     , kTransferFunctions, &tf)      ||
-        !parse_flag(FLAGS_backend, "backend", kBackends         , &backend)) {
+        !parse_flag(FLAGS_tf     , "tf"     , kTransferFunctions, &tf)) {
         return 1;
     }
 
@@ -378,9 +388,15 @@ int main(int argc, char** argv) {
         GrContextFactory factory(options);  // N.B. factory must outlive image
 
         sk_sp<SkImage> image;
+        sk_sp<SkData>  blob;
+        const char*    ext = ".png";
         switch (backend) {
             case kCPU_Backend:
                 image = draw_with_cpu(source.draw, info);
+                break;
+            case kSKP_Backend:
+                blob = draw_as_skp(source.draw, info);
+                ext  = ".skp";
                 break;
             default:
                 image = draw_with_gpu(source.draw, info,
@@ -388,13 +404,13 @@ int main(int argc, char** argv) {
                 break;
         }
 
-        if (!image) {
-            fprintf(stderr, "FM backend returned a null image.\n");
+        if (!image && !blob) {
+            fprintf(stderr, "FM backend returned a no image or data blob.\n");
             exit_with_failure();
         }
 
         SkBitmap bitmap;
-        if (!image->asLegacyBitmap(&bitmap)) {
+        if (image && !image->asLegacyBitmap(&bitmap)) {
             fprintf(stderr, "SkImage::asLegacyBitmap() failed.\n");
             exit_with_failure();
         }
@@ -403,7 +419,11 @@ int main(int argc, char** argv) {
         SkString md5;
         {
             SkMD5 hash;
-            hashAndEncode.write(&hash);
+            if (image) {
+                hashAndEncode.write(&hash);
+            } else {
+                hash.write(blob->data(), blob->size());
+            }
 
             SkMD5::Digest digest;
             hash.finish(digest);
@@ -414,13 +434,18 @@ int main(int argc, char** argv) {
 
         if (!FLAGS_writePath.isEmpty()) {
             sk_mkdir(FLAGS_writePath[0]);
-            SkString path = SkStringPrintf("%s/%s.png", FLAGS_writePath[0], source.name.c_str());
+            SkString path = SkStringPrintf("%s/%s%s", FLAGS_writePath[0], source.name.c_str(), ext);
 
-            if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(), FLAGS_key, FLAGS_parameters)) {
-                fprintf(stderr, "Could not write a .png to %s.\n", path.c_str());
-                exit_with_failure();
+            if (image) {
+                if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
+                                              FLAGS_key, FLAGS_parameters)) {
+                    fprintf(stderr, "Could not write to %s.\n", path.c_str());
+                    exit_with_failure();
+                }
+            } else {
+                SkFILEWStream file(path.c_str());
+                file.write(blob->data(), blob->size());
             }
-
         }
 
         if (FLAGS_verbose) {
