@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0525690_bdbb6f24",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-27T19:45:05Z",
+      "side": 1,
+      "message": "Lately we\u0027re trying to avoid non-exhaustive tests on particular color types like this, because they tend to become obsolete as we add new color formats.  Is this really SkColorTypeIsAlwaysOpaque(dstInfo.colorType())?  Are we overlooking Gray8, 888x, and 101010x?",
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f7ebe80_9b482aac",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-27T19:45:05Z",
+      "side": 1,
+      "message": "This may be overkill?  I\u0027d expect you\u0027d never notice if this were just\n\n   SkPaint paint;",
+      "range": {
+        "startLine": 456,
+        "startChar": 8,
+        "endLine": 456,
+        "endChar": 31
+      },
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "993e9af2_15185978",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-27T19:45:05Z",
+      "side": 1,
+      "message": "I think we can probably also SkASSERT() here?  I wouldn\u0027t expect this to fail.",
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96002727_2f11de3d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-27T19:45:05Z",
+      "side": 1,
+      "message": "Have you tried using canvas-\u003edrawBitmapRect()?  It kind of wraps up this scaling logic in a slightly friendlier way.\n\nSpeaking of scaling, have you played around with different SkPaint::setFilterQuality() levels?  Is this always used to scale downward, or upward too?",
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
