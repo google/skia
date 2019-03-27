@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4da94b12_13eac785",
+        "filename": "experimental/wasm-skp-debugger/cpu.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-27T20:33:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35445526_c9c34306",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 8
+      },
+      "revId": "440ec4e0e9f9c966a50eea4d42cadf4a0a22719b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "decb4911_70dc1561",
         "filename": "experimental/wasm-skp-debugger/gpu.js",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "440ec4e0e9f9c966a50eea4d42cadf4a0a22719b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64fa9e4f_8970a526",
+        "filename": "experimental/wasm-skp-debugger/gpu.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-03-27T20:33:55Z",
+      "side": 1,
+      "message": "If SKPs could include partially transparent pixels, that would be drawn to this canvas, that would then be drawn on top of the",
+      "parentUuid": "decb4911_70dc1561",
+      "range": {
+        "startLine": 12,
+        "startChar": 34,
+        "endLine": 12,
+        "endChar": 62
+      },
+      "revId": "440ec4e0e9f9c966a50eea4d42cadf4a0a22719b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
