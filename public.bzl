@@ -381,24 +381,27 @@ def base_srcs():
     return skia_glob(BASE_SRCS_ALL)
 
 def ports_srcs(os_conditions):
-     return skia_select( os_conditions,
+    return skia_select(
+        os_conditions,
         [
             skia_glob(PORTS_SRCS_UNIX),
             skia_glob(PORTS_SRCS_ANDROID),
             skia_glob(PORTS_SRCS_IOS),
-        ])
+        ],
+    )
 
 def gl_srcs(os_conditions):
-   return skia_select(os_conditions,
+    return skia_select(
+        os_conditions,
         [
             skia_glob(GL_SRCS_UNIX),
             skia_glob(GL_SRCS_ANDROID),
             skia_glob(GL_SRCS_IOS),
-        ])
+        ],
+    )
 
 def skia_srcs(os_conditions):
     return base_srcs() + ports_srcs(os_conditions) + gl_srcs(os_conditions)
-
 
 ################################################################################
 ## INCLUDES
