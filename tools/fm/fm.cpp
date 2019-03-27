@@ -16,6 +16,7 @@
 #include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPDFDocument.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "ToolUtils.h"
@@ -48,6 +49,10 @@ static DEFINE_bool(releaseAndAbandonGpuContext, false,
 
 static DEFINE_bool(decodeToDst, false,
                    "Decode images to destination format rather than suggested natural format.");
+
+static DEFINE_double(rasterDPI, SK_ScalarDefaultRasterDPI,
+                     "DPI for rasterized content in vector backends like --backend pdf.");
+static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
@@ -162,6 +167,25 @@ static sk_sp<SkData> draw_as_skp(std::function<void(SkCanvas*)> draw,
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(info.width(), info.height()));
     return recorder.finishRecordingAsPicture()->serialize();
+}
+
+static sk_sp<SkData> draw_as_pdf(std::function<void(SkCanvas*)> draw,
+                                 SkImageInfo info,
+                                 SkString name) {
+    SkPDF::Metadata metadata;
+    metadata.fTitle     = name;
+    metadata.fCreator   = "Skia/FM";
+    metadata.fRasterDPI = FLAGS_rasterDPI;
+    metadata.fPDFA      = FLAGS_PDFA;
+
+    SkDynamicMemoryWStream stream;
+    if (sk_sp<SkDocument> doc = SkPDF::MakeDocument(&stream, metadata)) {
+        draw(doc->beginPage(info.width(), info.height()));
+        doc->endPage();
+        doc->close();
+        return stream.detachAsData();
+    }
+    return nullptr;
 }
 
 static sk_sp<SkImage> draw_with_gpu(std::function<void(SkCanvas*)> draw,
@@ -308,10 +332,12 @@ int main(int argc, char** argv) {
     enum NonGpuBackends {
         kCPU_Backend = -1,
         kSKP_Backend = -2,
+        kPDF_Backend = -3,
     };
     const FlagOption<int> kBackends[] = {
         { "cpu"            , kCPU_Backend },
         { "skp"            , kSKP_Backend },
+        { "pdf"            , kPDF_Backend },
         { "gl"             , GrContextFactory::kGL_ContextType },
         { "gles"           , GrContextFactory::kGLES_ContextType },
         { "angle_d3d9_es2" , GrContextFactory::kANGLE_D3D9_ES2_ContextType },
@@ -397,6 +423,10 @@ int main(int argc, char** argv) {
             case kSKP_Backend:
                 blob = draw_as_skp(source.draw, info);
                 ext  = ".skp";
+                break;
+            case kPDF_Backend:
+                blob = draw_as_pdf(source.draw, info, source.name);
+                ext  = ".pdf";
                 break;
             default:
                 image = draw_with_gpu(source.draw, info,
