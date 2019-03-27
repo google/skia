@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d028f6a_062f166d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-27T20:23:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0525690_bdbb6f24",
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f7ebe80_9b482aac",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 7
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "9674c368_c0c50929",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-27T20:23:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f7ebe80_9b482aac",
+      "range": {
+        "startLine": 456,
+        "startChar": 8,
+        "endLine": 456,
+        "endChar": 31
+      },
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "993e9af2_15185978",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 7
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "db4b68bd_61f22ac1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-27T20:23:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "993e9af2_15185978",
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "96002727_2f11de3d",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 7
@@ -70,6 +130,24 @@
       "writtenOn": "2019-03-27T19:45:05Z",
       "side": 1,
       "message": "Have you tried using canvas-\u003edrawBitmapRect()?  It kind of wraps up this scaling logic in a slightly friendlier way.\n\nSpeaking of scaling, have you played around with different SkPaint::setFilterQuality() levels?  Is this always used to scale downward, or upward too?",
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ae70e6_1da91d58",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-03-27T20:23:20Z",
+      "side": 1,
+      "message": "\u003e Have you tried using canvas-\u003edrawBitmapRect()?  It kind of wraps up this scaling logic in a slightly friendlier way.\n\nHmm, it\u0027s not obvious to me how drawBitmapRect would be friendlier in this case. This scale is pretty straight-forward, but I don\u0027t actually want to draw all of this-\u003edimensions(). If I were to pass dirty_rect (converted to an SkRect) as src to drawBitmapRect I\u0027d need to scale it by this matrix to find the dst SkRect, or am I missing something?\n\n\u003e Speaking of scaling, have you played around with different SkPaint::setFilterQuality() levels?  Is this always used to scale downward, or upward too?\n\nIt\u0027s only used to scale downward currently. I\u0027ve tried a few filter qualities primarily when drawing incomplete interlaced images. They look fuzzy, as we\u0027ve blended the lines that have been decoded with transparent lines between them.",
+      "parentUuid": "96002727_2f11de3d",
       "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
