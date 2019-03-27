@@ -563,6 +563,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
             continue;
         }
 
+        if (ParseDefault<bool>((*shape)["hd"], false)) {
+            // Ignore hidden shapes.
+            continue;
+        }
+
         recs.push_back({ *shape, *info });
 
         switch (info->fShapeType) {
