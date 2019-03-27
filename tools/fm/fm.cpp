@@ -19,6 +19,7 @@
 #include "SkPDFDocument.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkSVGDOM.h"
 #include "ToolUtils.h"
 #include "gm.h"
 #include <chrono>
@@ -152,6 +153,17 @@ static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
         [](GrContextOptions*) {},
     };
 }
+
+static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
+    return {
+        name,
+        svg->containerSize().isEmpty() ? SkISize{1000,1000}
+                                       : svg->containerSize().toCeil(),
+        [svg](SkCanvas* canvas) { svg->render(canvas); },
+        [](GrContextOptions*) {},
+    };
+}
+
 
 static sk_sp<SkImage> draw_with_cpu(std::function<void(SkCanvas*)> draw,
                                     SkImageInfo info) {
@@ -322,6 +334,10 @@ int main(int argc, char** argv) {
             }
             if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
                 sources.push_back(codec_source(name, codec));
+            }
+            SkMemoryStream stream{blob};
+            if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
+                sources.push_back(svg_source(name, svg));
             }
         }
     }

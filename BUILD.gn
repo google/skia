@@ -1869,6 +1869,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_aa",
         ":common_flags_gpu",
+        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
