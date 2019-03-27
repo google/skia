@@ -67,8 +67,14 @@
         // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
         sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
 
+        auto clearFlag = kNone_GrSurfaceFlags;
+
+        if (proxyProvider->caps()->shouldInitializeTextures()) {
+            clearFlag = kPerformInitialClear_GrSurfaceFlag;
+        }
+
         sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(std::move(image),
-                                                                            kNone_GrSurfaceFlags,
+                                                                            clearFlag,
                                                                             1,
                                                                             SkBudgeted::kYes,
                                                                             SkBackingFit::kExact);

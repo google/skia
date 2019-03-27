@@ -132,7 +132,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
     desc.fFlags = descFlags;
-    if (fNeedsClear) {
+    if (fNeedsClear || resourceProvider->caps()->shouldInitializeTextures()) {
         desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
     }
     desc.fWidth = fWidth;

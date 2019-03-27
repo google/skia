@@ -218,7 +218,12 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
         proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
-        proxy = proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
+        auto clearFlag = kNone_GrSurfaceFlags;
+
+        if (proxyProvider->caps()->shouldInitializeTextures()) {
+            clearFlag = kPerformInitialClear_GrSurfaceFlag;
+        }
+        proxy = proxyProvider->createTextureProxy(srcImage, clearFlag, 1,
                                                   SkBudgeted::kYes, fit);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());

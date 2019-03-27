@@ -147,9 +147,14 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
         if (!image) {
             return false;
         }
+        auto clearFlag = kNone_GrSurfaceFlags;
+
+        if (proxyProvider->caps()->shouldInitializeTextures()) {
+            clearFlag = kPerformInitialClear_GrSurfaceFlag;
+        }
 
         filteredMask = proxyProvider->createTextureProxy(std::move(image),
-                                                         kNone_GrSurfaceFlags,
+                                                         clearFlag,
                                                          1, SkBudgeted::kYes,
                                                          SkBackingFit::kApprox);
         if (!filteredMask) {
