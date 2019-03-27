@@ -28,5 +28,12 @@ SK_API sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGe
  */
 SK_API sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc get);
 
+/**
+ * Generic function for creating a GrGLInterface for a WebGL (similar to OpenGL ES) context. It
+ * calls get() to get each function address. ctx is a generic ptr passed to and interpreted by
+ * get().
+ */
+SK_API sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get);
+
 /** Deprecated version of GrGLMakeAssembledInterface() that returns a bare pointer. */
 SK_API const GrGLInterface* GrGLAssembleInterface(void *ctx, GrGLGetProc get);
