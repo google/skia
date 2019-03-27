@@ -22,6 +22,30 @@
       "revId": "bc07b3fc3d65a99d60bd505e8b12e196d376091f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b27842_66649625",
+        "filename": "gm/drawimageset.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-27T14:06:15Z",
+      "side": 1,
+      "message": "There\u0027s a class of shadow warnings but it\u0027s unclear if it would actually capture this scenario. They focus on local variables shadowing fields, or a lambda parameter shadowing a local. Seems like a deeper-scoped local variable shadowing another local is actually something inherited from C. I can\u0027t find a suitable warning that doesn\u0027t break other more reasonable scenarios in our code base.",
+      "parentUuid": "a9662dd9_68d20b22",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 131,
+        "endChar": 30
+      },
+      "revId": "bc07b3fc3d65a99d60bd505e8b12e196d376091f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
