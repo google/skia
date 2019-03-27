@@ -1417,7 +1417,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (fDriverBugWorkarounds.disable_texture_storage) {
         texStorageSupported = false;
     }
-
+#ifdef SK_BUILD_FOR_ANDROID
+    // crbug.com/945506. Telemetry reported a memory usage regression for Android Go Chrome/WebView
+    // when using glTexStorage2D.
+    if (ctxInfo.driver() == kChromium_GrGLDriver) {
+        texStorageSupported = false;
+    }
+#endif
     bool textureRedSupport = false;
 
     if (!disableTextureRedForMesa) {
