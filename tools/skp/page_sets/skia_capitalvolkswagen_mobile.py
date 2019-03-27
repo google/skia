@@ -21,7 +21,7 @@ class SkiaMobilePage(page_module.Page):
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url)
-    action_runner.Wait(15)
+    action_runner.Wait(30)
 
 
 class SkiaCapitalvolkswagenMobilePageSet(story.StorySet):
