@@ -266,7 +266,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     for (uint32_t i = 0; i < presentModeCount; ++i) {
         // use mailbox
         if (VK_PRESENT_MODE_MAILBOX_KHR == presentModes[i]) {
-            mode = VK_PRESENT_MODE_MAILBOX_KHR;
+             mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
         if (VK_PRESENT_MODE_IMMEDIATE_KHR == presentModes[i]) {
             hasImmediate = true;
