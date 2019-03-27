@@ -33,6 +33,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPreferClientSideDynamicBuffers = false;
     fPreferFullscreenClears = false;
     fMustClearUploadedBufferData = false;
+    fShouldInitializeTextures = false;
     fSupportsAHardwareBufferImages = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
