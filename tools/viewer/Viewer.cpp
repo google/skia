@@ -318,6 +318,13 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->fZoomWindowFixed = !this->fZoomWindowFixed;
         fWindow->inval();
     });
+    fCommands.addCommand('v', "VSync", "Toggle vsync on/off", [this]() {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        params.fDisableVsync = !params.fDisableVsync;
+        fWindow->setRequestedDisplayParams(params);
+        this->updateTitle();
+        fWindow->inval();
+    });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
         fStatsLayer.setActive(!fStatsLayer.getActive());
         fWindow->inval();
@@ -402,13 +409,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                     break;
             }
         }
-        fWindow->setRequestedDisplayParams(params);
-        this->updateTitle();
-        fWindow->inval();
-    });
-    fCommands.addCommand('v', "VSync", "Toggle vsync on/off", [this]() {
-        DisplayParams params = fWindow->getRequestedDisplayParams();
-        params.fDisableVsync = !params.fDisableVsync;
         fWindow->setRequestedDisplayParams(params);
         this->updateTitle();
         fWindow->inval();

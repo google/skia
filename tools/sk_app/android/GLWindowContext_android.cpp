@@ -117,6 +117,8 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_SAMPLES, &fSampleCount);
     fSampleCount = SkTMax(fSampleCount, 1);
 
+    eglSwapInterval(fDisplay, fDisplayParams.fDisableVsync ? 0 : 1);
+
     return GrGLMakeNativeInterface();
 }
 
