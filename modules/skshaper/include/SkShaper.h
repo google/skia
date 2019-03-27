@@ -34,6 +34,36 @@ public:
     SkShaper();
     virtual ~SkShaper();
 
+    class RunIterator {
+    public:
+        virtual ~RunIterator() = default;
+        /** Set state to that of current run and move iterator to end of that run. */
+        virtual void consume() = 0;
+        /** Offset to one past the last (utf8) element in the current run. */
+        virtual size_t endOfCurrentRun() const = 0;
+        /** Return true if consume should no longer be called. */
+        virtual bool atEnd() const = 0;
+    };
+    class BiDiRunIterator : public RunIterator {
+    public:
+        /** The unicode bidi embedding level (even ltr, odd rtl) */
+        virtual uint8_t currentLevel() const = 0;
+    };
+    class ScriptRunIterator : public RunIterator {
+    public:
+        /** Should be iso15924 codes. */
+        virtual SkFourByteTag currentScript() const = 0;
+    };
+    class LanguageRunIterator : public RunIterator {
+    public:
+        /** Should be BCP-47, c locale names may also work. */
+        virtual const char* currentLanguage() const = 0;
+    };
+    class FontRunIterator : public RunIterator {
+    public:
+        virtual const SkFont& currentFont() const = 0;
+    };
+
     class RunHandler {
     public:
         virtual ~RunHandler() = default;
@@ -73,11 +103,19 @@ public:
 
     virtual SkPoint shape(RunHandler* handler,
                           const SkFont& srcFont,
-                          const char* utf8text,
-                          size_t textBytes,
+                          const char* utf8, size_t utf8Bytes,
                           bool leftToRight,
                           SkPoint point,
                           SkScalar width) const = 0;
+
+    virtual SkPoint shape(const char* utf8, size_t utf8Bytes,
+                          FontRunIterator&,
+                          BiDiRunIterator&,
+                          ScriptRunIterator&,
+                          LanguageRunIterator&,
+                          SkPoint point,
+                          SkScalar width,
+                          RunHandler*) const = 0;
 
 private:
     SkShaper(const SkShaper&) = delete;

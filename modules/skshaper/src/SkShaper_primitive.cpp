@@ -19,11 +19,19 @@ public:
 private:
     SkPoint shape(RunHandler* handler,
                   const SkFont& srcFont,
-                  const char* utf8text,
-                  size_t textBytes,
+                  const char* utf8, size_t utf8Bytes,
                   bool leftToRight,
                   SkPoint point,
                   SkScalar width) const override;
+
+    SkPoint shape(const char* utf8, size_t utf8Bytes,
+                  FontRunIterator&,
+                  BiDiRunIterator&,
+                  ScriptRunIterator&,
+                  LanguageRunIterator&,
+                  SkPoint point,
+                  SkScalar width,
+                  RunHandler*) const override;
 };
 
 std::unique_ptr<SkShaper> SkShaper::MakePrimitive() {
@@ -103,41 +111,24 @@ static size_t linebreak(const char text[], const char stop[],
             }
             break;
         }
-
-        if ('\n' == uni) {
-            size_t ret = text - start;
-            size_t lineBreakSize = 1;
-            if (text < stop) {
-                uni = SkUTF::NextUTF8(&text, stop);
-                if ('\r' == uni) {
-                    ret = text - start;
-                    ++lineBreakSize;
-                }
-            }
-            if (trailing) {
-                *trailing = lineBreakSize;
-            }
-            return ret;
-        }
-
-        if ('\r' == uni) {
-            size_t ret = text - start;
-            size_t lineBreakSize = 1;
-            if (text < stop) {
-                uni = SkUTF::NextUTF8(&text, stop);
-                if ('\n' == uni) {
-                    ret = text - start;
-                    ++lineBreakSize;
-                }
-            }
-            if (trailing) {
-                *trailing = lineBreakSize;
-            }
-            return ret;
-        }
     }
 
     return text - start;
+}
+
+SkPoint SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
+                                 FontRunIterator& font,
+                                 BiDiRunIterator& bidi,
+                                 ScriptRunIterator&,
+                                 LanguageRunIterator& ,
+                                 SkPoint point,
+                                 SkScalar width,
+                                 RunHandler* handler) const
+{
+    font.consume();
+    bidi.consume();
+    return this->shape(handler, font.currentFont(), utf8, utf8Bytes,
+                       (bidi.currentLevel() % 2) == 0, point, width);
 }
 
 SkPoint SkShaperPrimitive::shape(RunHandler* handler,
