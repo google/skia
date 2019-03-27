@@ -16,12 +16,6 @@ sk_sp<SkShader> SkShader::MakeMixer(sk_sp<SkShader> s0, sk_sp<SkShader> s1, sk_s
     if (!mixer) {
         return nullptr;
     }
-    if (!s0) {
-        return s1;
-    }
-    if (!s1) {
-        return s0;
-    }
     return sk_sp<SkShader>(new SkShader_Mixer(std::move(s0), std::move(s1), std::move(mixer)));
 }
 
@@ -41,18 +35,28 @@ void SkShader_Mixer::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fMixer.get());
 }
 
+static bool append_shader_or_paint(const SkStageRec& rec, SkShader* shader) {
+    if (shader) {
+        if (!as_SB(shader)->appendStages(rec)) {
+            return false;
+        }
+    } else {
+        rec.fPipeline->append_constant_color(rec.fAlloc, rec.fPaint.getColor4f().premul().vec());
+    }
+    return true;
+}
+
 bool SkShader_Mixer::onAppendStages(const SkStageRec& rec) const {
     struct Storage {
         float   fRGBA[4 * SkRasterPipeline_kMaxStride];
     };
     auto storage = rec.fAlloc->make<Storage>();
 
-    if (!as_SB(fShader0)->appendStages(rec)) {
+    if (!append_shader_or_paint(rec, fShader0.get())) {
         return false;
     }
     rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRGBA);
-
-    if (!as_SB(fShader1)->appendStages(rec)) {
+    if (!append_shader_or_paint(rec, fShader1.get())) {
         return false;
     }
     // r,g,b,a are good, as output by fShader1
