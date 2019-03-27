@@ -35,13 +35,6 @@ SK_API sk_sp<const GrGLInterface> GrGLMakeNativeInterface();
 SK_API const GrGLInterface* GrGLCreateNativeInterface();
 
 /**
- * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
- * CPU overhead. TODO: We would like to move this to tools/gpu/gl/null but currently
- * Chromium is using it in its unit tests.
- */
-const SK_API GrGLInterface* GrGLCreateNullInterface(bool enableNVPR = false);
-
-/**
  * GrContext uses the following interface to make all calls into OpenGL. When a
  * GrContext is created it is given a GrGLInterface. The interface's function
  * pointers must be valid for the OpenGL context associated with the GrContext.
