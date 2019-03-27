@@ -765,6 +765,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
+    // FIXME: The sample mask round rect op draws nothing on several Adreno and Radeon bots.
+    // Temporarily disable while we investigate.
+    // http://skbug.com/8921
+    if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {
+        shaderCaps->fSampleVariablesSupport = false;
+    }
+
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
                                                                   shaderCaps->fGLSLGeneration,
                                                                   fIsCoreProfile);
