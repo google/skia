@@ -16,6 +16,24 @@
       "revId": "62fd6c4116226f5bb9c4d06c85fb9e549b7b3d5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b97964e3_33225d9e",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1703,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-27T13:23:10Z",
+      "side": 0,
+      "message": "Yes, thanks for the heads up",
+      "parentUuid": "9c6b941c_c3418b2d",
+      "revId": "62fd6c4116226f5bb9c4d06c85fb9e549b7b3d5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
