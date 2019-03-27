@@ -91,7 +91,8 @@ const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
     return "_sampleOffsets";
 }
 
-void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(const char* mask, Scope scope) {
+void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
+        const char* mask, ScopeFlags scopeFlags) {
     const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
     if (!shaderCaps.sampleVariablesSupport()) {
         SkDEBUGFAIL("Attempted to mask sample coverage without support.");
@@ -101,16 +102,58 @@ void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(const char* mask, S
         this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
     }
 
-    if (!fHasInitializedSampleMask && Scope::kTopLevel == scope) {
-        this->codeAppendf("gl_SampleMask[0] = (%s);", mask);
-        fHasInitializedSampleMask = true;
-        return;
+    if (!fHasModifiedSampleMask) {
+        fHasModifiedSampleMask = true;
+        if (ScopeFlags::kTopLevel != scopeFlags) {
+            this->codePrependf("gl_SampleMask[0] = ~0;");
+        }
+        if (!(ScopeFlags::kInsideLoop & scopeFlags)) {
+            this->codeAppendf("gl_SampleMask[0] = (%s);", mask);
+            return;
+        }
     }
-    if (!fHasInitializedSampleMask) {
-        this->codePrependf("gl_SampleMask[0] = ~0;");
-        fHasInitializedSampleMask = true;
-    }
+
     this->codeAppendf("gl_SampleMask[0] &= (%s);", mask);
+}
+
+void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
+        const char* fn, const char* grad, ScopeFlags scopeFlags) {
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
+    SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
+
+    int sampleCnt = fProgramBuilder->effectiveSampleCnt();
+    SkASSERT(sampleCnt > 1);
+
+    this->codeAppendf("{");
+
+    if (!grad) {
+        SkASSERT(fProgramBuilder->shaderCaps()->shaderDerivativeSupport());
+        // In order to use HW derivatives, our neighbors within the same primitive must also be
+        // executing the same code. A per-pixel branch makes this pre-condition impossible to
+        // fulfill.
+        SkASSERT(!(ScopeFlags::kInsidePerPixelBranch & scopeFlags));
+        this->codeAppendf("float2 grad = float2(dFdx(fn), dFdy(fn));");
+        this->codeAppendf("float fnwidth = fwidth(fn);");
+        grad = "grad";
+    } else {
+        this->codeAppendf("float fnwidth = abs(%s.x) + abs(%s.y);", grad, grad);
+    }
+
+    this->codeAppendf("int mask = 0;");
+    this->codeAppendf("if (%s*2 < fnwidth) {", fn);  // Are ANY samples inside the implicit fn?
+    this->codeAppendf(    "if (%s*-2 >= fnwidth) {", fn);  // Are ALL samples inside the implicit?
+    this->codeAppendf(        "mask = ~0;");
+    this->codeAppendf(    "} else for (int i = 0; i < %i; ++i) {", sampleCnt);
+    this->codeAppendf(        "float fnsample = dot(%s, _sampleOffsets[i]) + %s;", grad, fn);
+    this->codeAppendf(        "if (fnsample < 0) {");
+    this->codeAppendf(            "mask |= (1 << i);");
+    this->codeAppendf(        "}");
+    this->codeAppendf(    "}");
+    this->codeAppendf("}");
+    this->maskOffMultisampleCoverage("mask", scopeFlags);
+
+    this->codeAppendf("}");
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
@@ -217,10 +260,10 @@ void GrGLSLFragmentShaderBuilder::onFinalize() {
                      == fUsedProcessorFeaturesAllStages_DebugOnly);
 
     if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
-        this->definitions().append("const float2 _sampleOffsets[] = float2[](");
         const GrPipeline& pipeline = fProgramBuilder->pipeline();
         const SkTArray<SkPoint>& sampleLocations =
                 fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations(pipeline);
+        this->definitions().append("const float2 _sampleOffsets[] = float2[](");
         for (int i = 0; i < sampleLocations.count(); ++i) {
             SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);
             if (kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
