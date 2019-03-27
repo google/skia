@@ -1572,8 +1572,16 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return return_null_texture();
     }
 
-    bool performClear = (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-                        !GrPixelConfigIsCompressed(desc.fConfig);
+    // In a WASM build on Firefox, we see warnings like
+    // WebGL warning: texSubImage2D: This operation requires zeroing texture data. This is slow.
+    // WebGL warning: texSubImage2D: Texture has not been initialized prior to a partial upload,
+    //                forcing the browser to clear it. This may be slow.
+    // Setting the initial clear seems to make those warnings go away and offers a substantial
+    // boost in performance in Firefox. Chrome sees a more modest increase.
+
+    bool performClear = GR_IS_GR_WEBGL(this->glStandard()) ||
+                            ((desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
+                             !GrPixelConfigIsCompressed(desc.fConfig));
 
     GrMipLevel zeroLevel;
     std::unique_ptr<uint8_t[]> zeros;
@@ -4375,6 +4383,27 @@ void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendName("extensions");
     glInterface()->fExtensions.dumpJSON(writer);
 
+    writer->beginObject("caps");
+    glCaps().onDumpJSON(writer);
     writer->endObject();
+
+    writer->endObject();
+}
+void GrGLGpu::dump() const {
+    SkDynamicMemoryWStream stream;
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+
+    writer.beginObject();
+    this->onDumpJSON(&writer);
+    writer.flush();
+    writer.endObject();
+
+    // Null terminate the JSON data in the memory stream
+    stream.write8(0);
+
+    // Allocate a string big enough to hold all the data, then copy out of the stream
+    SkString result(stream.bytesWritten());
+    stream.copyToAndReset(result.writable_str());
+    SkDebugf("GrGLGpu: %s\n", result.c_str());
 }
 #endif

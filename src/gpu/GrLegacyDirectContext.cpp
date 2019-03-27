@@ -145,6 +145,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     if (!context->init(context->fGpu->refCaps(), nullptr)) {
         return nullptr;
     }
+    context->fGpu->dump();
     return context;
 }
 

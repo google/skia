@@ -420,6 +420,7 @@ private:
 
 #ifdef SK_ENABLE_DUMP_GPU
     void onDumpJSON(SkJSONWriter*) const override;
+    void dump() const override;
 #endif
 
     bool createCopyProgram(GrTexture* srcTexture);

@@ -461,6 +461,11 @@ public:
 
     virtual void storeVkPipelineCacheData() {}
 
+#ifdef SK_ENABLE_DUMP_GPU
+    virtual void onDumpJSON(SkJSONWriter*) const {}
+    virtual void dump() const {}
+#endif
+
 protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
@@ -533,10 +538,6 @@ private:
 
     virtual void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
                                SkSurface::FlushFlags flags, bool insertedSemaphores) = 0;
-
-#ifdef SK_ENABLE_DUMP_GPU
-    virtual void onDumpJSON(SkJSONWriter*) const {}
-#endif
 
     void resetContext() {
         this->onResetContext(fResetBits);

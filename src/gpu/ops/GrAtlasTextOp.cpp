@@ -293,6 +293,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
     if (!proxies) {
         SkDebugf("Could not allocate backing texture for atlas\n");
+        SkDebugf("format %d\n", maskFormat);
+        SkASSERT(false);
         return;
     }
     SkASSERT(proxies[0]);

@@ -243,7 +243,7 @@
 
     let paint = new CanvasKit.SkPaint();
     paint.setAntiAlias(true);
-    paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+    paint.setColor(CanvasKit.Color(0, 200, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
     paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
@@ -1200,7 +1200,7 @@
       canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
       surface.requestAnimationFrame(drawFrame);
       if (grContext) {
-        console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
+        //console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
       }
     }
     surface.requestAnimationFrame(drawFrame);

@@ -69,6 +69,7 @@ public:
     void reset() { fStrings.reset(); }
 
     void dumpJSON(SkJSONWriter*) const;
+    void dump() const;
 
 private:
     bool fInitialized = false;
