@@ -526,6 +526,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fPreferVRAMUseOverFlushes = !isANGLE;
 #endif
 
+    if (kARM_GrGLVendor == ctxInfo.vendor()) {
+        // ARM seems to do better with larger quantities of fine triangles, as opposed to using the
+        // sample mask. (At least in our current round rect op.)
+        fPreferTrianglesOverSampleMask = true;
+    }
+
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
         fMustClearUploadedBufferData = true;
     }
@@ -757,6 +763,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
             shaderCaps->fSampleVariablesSupport = true;
             shaderCaps->fSampleVariablesExtensionString = "GL_OES_sample_variables";
         }
+    }
+
+    // FIXME: The sample mask round rect op draws nothing on several Adreno and Radeon bots.
+    // Temporarily disable while we investigate.
+    // http://skbug.com/8921
+    if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {
+        shaderCaps->fSampleVariablesSupport = false;
     }
 
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
