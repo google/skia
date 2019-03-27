@@ -1,0 +1,52 @@
+{
+  "name": "esy-skia",
+  "version": "0.1.0",
+  "description": "Mirror of skia repo, buildable with esy",
+  "directories": {
+    "doc": "docs",
+    "example": "example",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manuhornung/esy-skia.git"
+  },
+  "bugs": {
+    "url": "https://github.com/manuhornung/esy-skia/issues"
+  },
+  "homepage": "https://skia.org",
+  "esy": {
+    "build": [
+      [
+        "bin/gn",
+        "gen",
+        "#{self.target_dir}"
+      ],
+      [
+        "ninja.exe",
+        "-C",
+        "#{self.target_dir}"
+      ]
+    ],
+    "install": [
+      [
+        "cp",
+        "-a",
+        "#{self.target_dir}/.",
+        "#{self.lib}"
+      ],
+      [
+        "esy/create-pkg-config.sh"
+      ]
+    ]
+  },
+  "exportedEnv": {
+    "PKG_CONFIG_PATH": {
+      "val": "#{self.lib : $PKG_CONFIG_PATH}",
+      "scope": "global"
+    }
+  },
+  "dependencies": {
+    "@esy-cross/ninja-build": "^1.8.2001"
+  }
+}
