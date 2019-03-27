@@ -142,7 +142,6 @@
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -193,7 +192,6 @@
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -244,7 +242,6 @@
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },

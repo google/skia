@@ -788,7 +788,6 @@
     },
     "name": "dm",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
@@ -826,7 +825,6 @@
     "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -883,7 +881,6 @@
     "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 2)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -940,7 +937,6 @@
     "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },

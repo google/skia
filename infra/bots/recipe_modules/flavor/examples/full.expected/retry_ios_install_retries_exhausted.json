@@ -113,7 +113,6 @@
     "infra_step": true,
     "name": "install_dm",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -143,7 +142,6 @@
     "infra_step": true,
     "name": "install_dm (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },

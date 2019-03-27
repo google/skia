@@ -590,7 +590,6 @@
     "infra_step": true,
     "name": "get uninteresting hashes",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
       "@@@STEP_LOG_LINE@python.inline@import math@@@",

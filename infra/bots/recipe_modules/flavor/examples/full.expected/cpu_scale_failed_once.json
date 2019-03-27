@@ -669,7 +669,6 @@
     "name": "Scale CPU 0 to 0.600000",
     "timeout": 30,
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",

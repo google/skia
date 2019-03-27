@@ -446,7 +446,6 @@
     },
     "name": "parse lottie 3!.json trace",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",

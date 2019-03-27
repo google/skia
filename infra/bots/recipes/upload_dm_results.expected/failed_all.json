@@ -28,7 +28,6 @@
     ],
     "name": "upload .png images",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -42,7 +41,6 @@
     ],
     "name": "upload .png images (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -56,7 +54,6 @@
     ],
     "name": "upload .png images (attempt 3)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -70,7 +67,6 @@
     ],
     "name": "upload .png images (attempt 4)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -84,7 +80,6 @@
     ],
     "name": "upload .png images (attempt 5)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
