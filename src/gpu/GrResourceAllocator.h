@@ -54,19 +54,11 @@ public:
 
     unsigned int curOp() const { return fNumOps; }
     void incOps() { fNumOps++; }
-    unsigned int numOps() const { return fNumOps; }
 
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
     void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
                      SkDEBUGCODE(, bool isDirectDstRead = false));
-
-    // Add an interval that spans just the current op. Usually this is for texture uses.
-    // If an existing interval already exists it will be expanded to include the new operation.
-    void addInterval(GrSurfaceProxy* proxy
-                     SkDEBUGCODE(, bool isDirectDstRead = false)) {
-        this->addInterval(proxy, fNumOps, fNumOps SkDEBUGCODE(, isDirectDstRead));
-    }
 
     enum class AssignError {
         kNoError,
