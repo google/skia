@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35445526_c9c34306",
+        "filename": "experimental/wasm-skp-debugger/cpu.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-27T13:56:44Z",
+      "side": 1,
+      "message": "You should still use var when declaring variables",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 8
+      },
+      "revId": "440ec4e0e9f9c966a50eea4d42cadf4a0a22719b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "decb4911_70dc1561",
+        "filename": "experimental/wasm-skp-debugger/gpu.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-27T13:56:44Z",
+      "side": 1,
+      "message": "AFAIK, webgl supports premul, but the 2d canvas context does not",
+      "range": {
+        "startLine": 12,
+        "startChar": 34,
+        "endLine": 12,
+        "endChar": 62
+      },
+      "revId": "440ec4e0e9f9c966a50eea4d42cadf4a0a22719b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
