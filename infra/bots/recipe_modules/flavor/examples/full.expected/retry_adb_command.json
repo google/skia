@@ -142,7 +142,6 @@
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },

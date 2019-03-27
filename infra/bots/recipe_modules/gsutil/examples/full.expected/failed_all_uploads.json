@@ -10,7 +10,6 @@
     ],
     "name": "upload test file",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -25,7 +24,6 @@
     ],
     "name": "upload test file (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -40,7 +38,6 @@
     ],
     "name": "upload test file (attempt 3)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -55,7 +52,6 @@
     ],
     "name": "upload test file (attempt 4)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -70,7 +66,6 @@
     ],
     "name": "upload test file (attempt 5)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
