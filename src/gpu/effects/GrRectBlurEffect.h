@@ -12,6 +12,7 @@
 #define GrRectBlurEffect_DEFINED
 #include "SkTypes.h"
 
+#include "GrCaps.h"
 #include "GrProxyProvider.h"
 #include "GrShaderCaps.h"
 #include "SkBlurMask.h"
@@ -48,8 +49,14 @@ public:
                 return nullptr;
             }
 
+            auto clearFlag = kNone_GrSurfaceFlags;
+
+            if (proxyProvider->caps()->shouldInitializeTextures()) {
+                clearFlag = kPerformInitialClear_GrSurfaceFlag;
+            }
+
             blurProfile =
-                    proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+                    proxyProvider->createTextureProxy(std::move(image), clearFlag, 1,
                                                       SkBudgeted::kYes, SkBackingFit::kExact);
             if (!blurProfile) {
                 return nullptr;

@@ -6,6 +6,7 @@
  */
 
 #include "GrYUVProvider.h"
+#include "GrCaps.h"
 #include "GrClip.h"
 #include "GrColorSpaceXform.h"
 #include "GrProxyProvider.h"
@@ -148,7 +149,12 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
                                                           dataStoragePtr);
 
         auto proxyProvider = ctx->priv().proxyProvider();
-        yuvTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, kNone_GrSurfaceFlags,
+        auto clearFlag = kNone_GrSurfaceFlags;
+
+        if (ctx->priv().caps()->shouldInitializeTextures()) {
+            clearFlag = kPerformInitialClear_GrSurfaceFlag;
+        }
+        yuvTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, clearFlag,
                                                                  1, SkBudgeted::kYes, fit);
 
         SkASSERT(yuvTextureProxies[i]->width() == yuvSizeInfo.fSizes[i].fWidth);
