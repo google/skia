@@ -100,7 +100,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     SkRect windowRect = SkRect::MakeWH(SkIntToScalar(originalCanvas->getBaseLayerSize().width()),
                                        SkIntToScalar(originalCanvas->getBaseLayerSize().height()));
 
-    originalCanvas->clear(SK_ColorWHITE);
+    originalCanvas->clear(SK_ColorTRANSPARENT);
     originalCanvas->resetMatrix();
     if (!windowRect.isEmpty()) {
         originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
