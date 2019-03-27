@@ -443,6 +443,8 @@ DM_SRCS_ALL = struct(
         "tools/DDLPromiseImageHelper.h",
         "tools/DDLTileHelper.cpp",
         "tools/DDLTileHelper.h",
+        "tools/HashAndEncode.cpp",
+        "tools/HashAndEncode.h",
         "tools/ProcStats.cpp",
         "tools/ProcStats.h",
         "tools/Registry.h",
