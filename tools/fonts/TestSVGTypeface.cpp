@@ -61,25 +61,54 @@ TestSVGTypeface::TestSVGTypeface(const char*                              name,
         , fGlyphCount(data.size()) {
     for (size_t i = 0; i < data.size(); ++i) {
         const SkSVGTestTypefaceGlyphData& datum  = data[i];
-        std::unique_ptr<SkStreamAsset>    stream = GetResourceAsStream(datum.fSvgResourcePath);
         fCMap.set(datum.fUnicode, i);
-        fGlyphs[i].fAdvance = datum.fAdvance;
-        fGlyphs[i].fOrigin  = datum.fOrigin;
+        fGlyphs[i].fAdvance      = datum.fAdvance;
+        fGlyphs[i].fOrigin       = datum.fOrigin;
+        fGlyphs[i].fResourcePath = datum.fSvgResourcePath;
+    }
+}
+
+template <typename Fn>
+void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
+    SkAutoExclusive lock(fSvgMutex);
+
+    if (!fParsedSvg) {
+        fParsedSvg = true;
+
+        std::unique_ptr<SkStreamAsset> stream = GetResourceAsStream(fResourcePath);
         if (!stream) {
-            continue;
+            return;
         }
+
         sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream.get());
         if (!svg) {
-            continue;
+            return;
         }
 
-        const SkSize& sz = svg->containerSize();
-        if (sz.isEmpty()) {
-            continue;
+        if (svg->containerSize().isEmpty()) {
+            return;
         }
 
-        fGlyphs[i].fSvg = std::move(svg);
+        fSvg = std::move(svg);
     }
+
+    if (fSvg) {
+        fn(*fSvg);
+    }
+}
+
+SkSize TestSVGTypeface::Glyph::size() const {
+    SkSize size = SkSize::MakeEmpty();
+    this->withSVG([&](const SkSVGDOM& svg){
+        size = svg.containerSize();
+    });
+    return size;
+}
+
+void TestSVGTypeface::Glyph::render(SkCanvas* canvas) const {
+    this->withSVG([&](const SkSVGDOM& svg){
+        svg.render(canvas);
+    });
 }
 
 TestSVGTypeface::~TestSVGTypeface() {}
@@ -193,13 +222,10 @@ protected:
         this->generateAdvance(glyph);
 
         TestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
-        if (!glyphData.fSvg) {
-            return;
-        }
 
-        SkSize containerSize = glyphData.fSvg->containerSize();
-        SkRect newBounds     = SkRect::MakeXYWH(glyphData.fOrigin.fX,
-                                            -glyphData.fOrigin.fY,
+        SkSize containerSize = glyphData.size();
+        SkRect newBounds = SkRect::MakeXYWH(glyphData.fOrigin.fX,
+                                           -glyphData.fOrigin.fY,
                                             containerSize.fWidth,
                                             containerSize.fHeight);
         fMatrix.mapRect(&newBounds);
@@ -220,7 +246,6 @@ protected:
         glyphID           = glyphID < this->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
 
         SkBitmap bm;
-        // TODO: this should be SkImageInfo::MakeS32 when that passes all the tests.
         bm.installPixels(SkImageInfo::MakeN32(glyph.fWidth, glyph.fHeight, kPremul_SkAlphaType),
                          glyph.fImage,
                          glyph.rowBytes());
@@ -237,10 +262,7 @@ protected:
         canvas.concat(fMatrix);
         canvas.translate(glyphData.fOrigin.fX, -glyphData.fOrigin.fY);
 
-        if (glyphData.fSvg) {
-            SkAutoExclusive lock(glyphData.fSvgMutex);
-            glyphData.fSvg->render(&canvas);
-        }
+        glyphData.render(&canvas);
     }
 
     bool generatePath(SkGlyphID glyph, SkPath* path) override {
@@ -911,8 +933,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
     for (int i = 0; i < fGlyphCount; ++i) {
         const TestSVGTypeface::Glyph& glyphData = this->fGlyphs[i];
 
-        SkSize containerSize =
-                glyphData.fSvg ? glyphData.fSvg->containerSize() : SkSize::MakeEmpty();
+        SkSize containerSize = glyphData.size();
         SkRect  bounds  = SkRect::MakeXYWH(glyphData.fOrigin.fX,
                                          -glyphData.fOrigin.fY,
                                          containerSize.fWidth,
@@ -1359,16 +1380,13 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     for (int i = 0; i < fGlyphCount; ++i) {
         const TestSVGTypeface::Glyph& glyphData = this->fGlyphs[i];
 
-        SkSize containerSize =
-                glyphData.fSvg ? glyphData.fSvg->containerSize() : SkSize::MakeEmpty();
+        SkSize containerSize = glyphData.size();
         SkRect       bounds = SkRect::MakeXYWH(glyphData.fOrigin.fX,
                                          -glyphData.fOrigin.fY,
                                          containerSize.fWidth,
                                          containerSize.fHeight);
         SkCOLRCanvas canvas(bounds, *this, i, &glyfInfos.emplace_back(), &colors, &glyfOut);
-        if (glyphData.fSvg) {
-            glyphData.fSvg->render(&canvas);
-        }
+        glyphData.render(&canvas);
         canvas.finishGlyph();
     }
     glyfOut.writeText("  </glyf>\n");
