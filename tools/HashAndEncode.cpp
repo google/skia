@@ -137,8 +137,7 @@ bool HashAndEncode::writePngTo(const char* path,
 
     // Fastest encoding and decoding, at slight file size cost is no filtering, compression 1.
     png_set_filter(png, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
-    // TODO(mtklein): set back to 1 after all the bots have cycled through new images / hashes?
-    png_set_compression_level(png, 9);
+    png_set_compression_level(png, 1);
 
     static const sk_sp<SkData> profile = SkWriteICCProfile(k2020_TF, SkNamedGamut::kRec2020);
     png_set_iCCP(png, info,
