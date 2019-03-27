@@ -410,10 +410,6 @@ static HGLRC create_gl_context(HDC dc, const SkWGLExtensions& extensions,
 
     wglMakeCurrent(prevDC, prevGLRC);
 
-    // This might help make the context non-vsynced.
-    if (extensions.hasExtension(dc, "WGL_EXT_swap_control")) {
-        extensions.swapInterval(-1);
-    }
     return glrc;
 }
 
