@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74ae8237_a087fbfe",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-27T20:14:59Z",
+      "side": 1,
+      "message": "Definitely not. Client side arrays don\u0027t exist in WebGL. If Emscripten emulates them for ES compatibility we wouldn\u0027t want to use them.",
+      "range": {
+        "startLine": 410,
+        "startChar": 5,
+        "endLine": 410,
+        "endChar": 39
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "837be878_1432c31f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-27T20:14:59Z",
+      "side": 1,
+      "message": "Wow really surprised there isn\u0027t an extension for this for WebGL 1 but I don\u0027t see anything.",
+      "range": {
+        "startLine": 516,
+        "startChar": 8,
+        "endLine": 516,
+        "endChar": 60
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ba39f7d_10e4fbf9",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-27T20:14:59Z",
+      "side": 1,
+      "message": "Isn\u0027t this what validate() is for?",
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaadf47f_2f334540",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2257,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-27T20:14:59Z",
+      "side": 1,
+      "message": "I think this really is default initialized and not uninitialized.",
+      "range": {
+        "startLine": 2257,
+        "startChar": 15,
+        "endLine": 2257,
+        "endChar": 33
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
