@@ -25,9 +25,10 @@ RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/relea
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
-  EXTRA_CFLAGS="\"-DSK_DEBUG\""
+  EXTRA_CFLAGS="\"-DSK_DEBUG\", \"-DSK_ENABLE_DUMP_GPU\","
   RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
-                --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
+                --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG -DSK_ENABLE_DUMP_GPU \
+                --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
@@ -40,8 +41,8 @@ fi
 
 mkdir -p $BUILD_DIR
 
-GN_GPU="skia_enable_gpu=true skia_gl_standard = \"gles\""
-GN_GPU_FLAGS="\"-DIS_WEBGL=1\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
+GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
+GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
 if [[ $@ == *cpu* ]]; then
@@ -254,6 +255,6 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
-    -s USE_WEBGL2=1 \
+    -s USE_WEBGL2=0 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

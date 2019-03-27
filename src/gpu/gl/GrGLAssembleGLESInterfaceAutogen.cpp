@@ -448,7 +448,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(ProgramParameteri);
     }
 
-    if (glVer >= GR_GL_VER(3,0)) {
+    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(BindSampler);
         GET_PROC(DeleteSamplers);
         GET_PROC(GenSamplers);

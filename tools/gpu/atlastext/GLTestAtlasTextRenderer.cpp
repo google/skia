@@ -89,6 +89,10 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
                 return;
             }
             break;
+        case kWebGL_GrGLStandard:
+            // TODO(kjlubick) Since this is supported on ES 3, it might
+            // work on WebGL 2.0?
+            return;
         case kGL_GrGLStandard: {
             if (version < GR_GL_VER(4, 3)) {
                 return;

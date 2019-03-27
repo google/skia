@@ -236,6 +236,7 @@ void GrGLClearErr(const GrGLInterface* gl);
 // the caller wants to do its own glGetError() call and examine the error value.
 #define GR_GL_CALL_NOERRCHECK(IFACE, X)                         \
     do {                                                        \
+        /*SkDebugf(#IFACE "->fFunctions.f" #X "\n");*/          \
         (IFACE)->fFunctions.f##X;                               \
         GR_GL_LOG_CALLS_IMPL(X);                                \
     } while (false)
@@ -250,6 +251,7 @@ void GrGLClearErr(const GrGLInterface* gl);
 // same as GR_GL_CALL_RET but always skips the error check.
 #define GR_GL_CALL_RET_NOERRCHECK(IFACE, RET, X)                \
     do {                                                        \
+        /*SkDebugf(#IFACE "->fFunctions.f" #X "\n"); */         \
         (RET) = (IFACE)->fFunctions.f##X;                       \
         GR_GL_LOG_CALLS_IMPL(X);                                \
     } while (false)
