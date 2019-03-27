@@ -79,6 +79,33 @@ public:
                           SkPoint point,
                           SkScalar width) const = 0;
 
+    class RunIterator {
+    public:
+        virtual ~RunIterator() {}
+        /** Set state to that of current run and move iterator to end of that run. */
+        virtual void consume() = 0;
+        /** Offset to one past the last (utf8) element in the current run. */
+        virtual size_t endOfCurrentRun() const = 0;
+        /** Return true if consume should no longer be called. */
+        virtual bool atEnd() const = 0;
+    };
+    class BiDiRunIterator : public RunIterator {
+    public:
+        virtual uint8_t currentLevel() const;
+    };
+    class ScriptRunIterator : public RunIterator {
+    public:
+        virtual SkFourByteTag currentScript() const;
+    };
+    class LanguageRunIterator : public RunIterator {
+    public:
+        virtual const char* currentLanguage() const;
+    };
+    class FontRunIterator : public RunIterator {
+    public:
+        virtual const SkFont& currentFont() const;
+    };
+
 private:
     SkShaper(const SkShaper&) = delete;
     SkShaper& operator=(const SkShaper&) = delete;
