@@ -27,6 +27,7 @@
 
 #include <memory>
 
+class SkCanvas;
 class SkDescriptor;
 class SkFontDescriptor;
 class SkFontStyle;
@@ -128,11 +129,25 @@ private:
     struct Glyph {
         Glyph();
         ~Glyph();
-        sk_sp<SkSVGDOM> fSvg;
-        SkMutex         fSvgMutex;
-        SkPoint         fOrigin;
-        SkScalar        fAdvance;
+        SkPoint     fOrigin;
+        SkScalar    fAdvance;
+        const char* fResourcePath;
+
+        SkSize size() const;
+        void render(SkCanvas*) const;
+
+    private:
+        // Lazily parses the SVG from fResourcePath, and manages mutex locking.
+        template <typename Fn> void withSVG(Fn&&) const;
+
+        // The mutex guards lazy parsing of the SVG, but also predates that.
+        // Must be SkSVGDOM::render() is not thread safe?
+        // If not, an SkOnce is enough here.
+        mutable SkMutex         fSvgMutex;
+        mutable bool            fParsedSvg = false;
+        mutable sk_sp<SkSVGDOM> fSvg;
     };
+
     SkString                         fName;
     int                              fUpem;
     const SkFontMetrics              fFontMetrics;
