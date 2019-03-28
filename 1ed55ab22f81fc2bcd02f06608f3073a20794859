@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4c45bcdd_e1881fca",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-28T17:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "129a6c71_321da86a",
+      "range": {
+        "startLine": 178,
+        "startChar": 4,
+        "endLine": 178,
+        "endChar": 16
+      },
+      "revId": "1ed55ab22f81fc2bcd02f06608f3073a20794859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0da78047_5bc05740",
         "filename": "modules/skottie/src/SkottieShaper.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "1ed55ab22f81fc2bcd02f06608f3073a20794859",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e85ad324_ac0c5861",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-28T17:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0da78047_5bc05740",
+      "range": {
+        "startLine": 183,
+        "startChar": 8,
+        "endLine": 183,
+        "endChar": 28
+      },
+      "revId": "1ed55ab22f81fc2bcd02f06608f3073a20794859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
