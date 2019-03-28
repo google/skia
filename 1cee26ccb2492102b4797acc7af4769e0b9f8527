@@ -22,6 +22,30 @@
       "revId": "1cee26ccb2492102b4797acc7af4769e0b9f8527",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f129fc9_c3261a1d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-03-28T15:33:44Z",
+      "side": 1,
+      "message": "renamed to internal_private_getBaseWrappedCanvas as suggested.",
+      "parentUuid": "afac5cde_2732429f",
+      "range": {
+        "startLine": 2357,
+        "startChar": 39,
+        "endLine": 2357,
+        "endChar": 55
+      },
+      "revId": "1cee26ccb2492102b4797acc7af4769e0b9f8527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
