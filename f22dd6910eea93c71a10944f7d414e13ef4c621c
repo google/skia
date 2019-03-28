@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe65caae_1931237f",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2672,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-28T19:23:26Z",
+      "side": 1,
+      "message": "nit: looks like SkPaintFilterCanvas::proxy() is const, so you could const-ify this too\n\n  virtual const SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const ...",
+      "revId": "f22dd6910eea93c71a10944f7d414e13ef4c621c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
