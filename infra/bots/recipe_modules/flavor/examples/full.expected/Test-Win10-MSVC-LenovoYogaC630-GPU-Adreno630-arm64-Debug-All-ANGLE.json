@@ -1,0 +1,533 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nSSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')\nwith open(SSH_MACHINE_FILE, 'r') as f:\n  print f.read()\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read ssh_machine.json",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(SSH_MACHINE_FILE, 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print f.read()@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "scp",
+      "file.txt",
+      "foo@127.0.0.1:file.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp file.txt foo@127.0.0.1:file.txt"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "type \"file.txt\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read file.txt",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if exist \"file.txt\" del \"file.txt\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm file.txt"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "results_dir"
+    ],
+    "infra_step": true,
+    "name": "rmtree results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "results_dir"
+    ],
+    "infra_step": true,
+    "name": "makedirs results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "robocopy /mir \"C:\\Users\\osman\\botdata\\empty\" \"device_results_dir\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clean device_results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if not exist \"C:\\Users\\osman\\botdata\\resources\" md \"C:\\Users\\osman\\botdata\\resources\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir C:\\Users\\osman\\botdata\\resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if exist \"C:\\Users\\osman\\botdata\\empty\" rd \"C:\\Users\\osman\\botdata\\empty\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rmdir C:\\Users\\osman\\botdata\\empty"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if not exist \"C:\\Users\\osman\\botdata\\empty\" md \"C:\\Users\\osman\\botdata\\empty\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir C:\\Users\\osman\\botdata\\empty"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "robocopy /mir \"C:\\Users\\osman\\botdata\\empty\" \"C:\\Users\\osman\\botdata\\bin\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clean C:\\Users\\osman\\botdata\\bin"
+  },
+  {
+    "cmd": [
+      "scp",
+      "-r",
+      "[START_DIR]/skia/resources",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\resources"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/skia/resources foo@127.0.0.1:C:\\Users\\osman\\botdata\\resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get skp VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SKP_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "type \"C:\\Users\\osman\\botdata\\SKP_VERSION\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read C:\\Users\\osman\\botdata\\SKP_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if exist \"C:\\Users\\osman\\botdata\\SKP_VERSION\" del \"C:\\Users\\osman\\botdata\\SKP_VERSION\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm C:\\Users\\osman\\botdata\\SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "robocopy /mir \"C:\\Users\\osman\\botdata\\empty\" \"C:\\Users\\osman\\botdata\\skps\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clean C:\\Users\\osman\\botdata\\skps"
+  },
+  {
+    "cmd": [
+      "scp",
+      "-r",
+      "[START_DIR]/skp",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\skps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/skp foo@127.0.0.1:C:\\Users\\osman\\botdata\\skps"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/tmp/SKP_VERSION",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\SKP_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/SKP_VERSION foo@127.0.0.1:C:\\Users\\osman\\botdata\\SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get skimage VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "type \"C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if exist \"C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION\" del \"C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "robocopy /mir \"C:\\Users\\osman\\botdata\\empty\" \"C:\\Users\\osman\\botdata\\images\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clean C:\\Users\\osman\\botdata\\images"
+  },
+  {
+    "cmd": [
+      "scp",
+      "-r",
+      "[START_DIR]/skimage",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\images"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/skimage foo@127.0.0.1:C:\\Users\\osman\\botdata\\images"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/tmp/SK_IMAGE_VERSION",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/SK_IMAGE_VERSION foo@127.0.0.1:C:\\Users\\osman\\botdata\\SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get svg VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SVG_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "type \"C:\\Users\\osman\\botdata\\SVG_VERSION\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read C:\\Users\\osman\\botdata\\SVG_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "if exist \"C:\\Users\\osman\\botdata\\SVG_VERSION\" del \"C:\\Users\\osman\\botdata\\SVG_VERSION\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm C:\\Users\\osman\\botdata\\SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "robocopy /mir \"C:\\Users\\osman\\botdata\\empty\" \"C:\\Users\\osman\\botdata\\svgs\""
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clean C:\\Users\\osman\\botdata\\svgs"
+  },
+  {
+    "cmd": [
+      "scp",
+      "-r",
+      "[START_DIR]/svg",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\svgs"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/svg foo@127.0.0.1:C:\\Users\\osman\\botdata\\svgs"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/tmp/SVG_VERSION",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\SVG_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:C:\\Users\\osman\\botdata\\SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/dm",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\bin\\dm"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/build/dm foo@127.0.0.1:C:\\Users\\osman\\botdata\\bin\\dm"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
+      "foo@127.0.0.1",
+      "C:\\Users\\osman\\botdata\\bin\\dm --some-flag"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm"
+  },
+  {
+    "cmd": [
+      "scp",
+      "-r",
+      "foo@127.0.0.1:C:\\Users\\osman\\botdata\\dm_out",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp -r foo@127.0.0.1:C:\\Users\\osman\\botdata\\dm_out [START_DIR]/[SWARM_OUT_DIR]"
+  },
+  {
+    "jsonResult": null,
+    "name": "$result"
+  }
+]
