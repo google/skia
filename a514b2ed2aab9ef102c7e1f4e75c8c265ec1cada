@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dafa9fb0_316ed270",
+        "filename": "include/core/SkTLazy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-28T16:20:46Z",
+      "side": 1,
+      "message": "Think it makes things any more or less clear to delegate this one?\n\n   SkTLazy(const SkTLazy\u0026 that) : SkTLazy(that.fPtr) {}",
+      "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
