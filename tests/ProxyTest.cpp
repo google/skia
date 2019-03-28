@@ -148,7 +148,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                                 sk_sp<GrTextureProxy> proxy =
                                         proxyProvider->createProxy(format, desc, origin, fit,
-                                                                   budgeted);
+                                                                   budgeted, GrInternalSurfaceFlags::kNoPendingIO);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
