@@ -4,16 +4,17 @@
 #define SkPDFGlyphUse_DEFINED
 
 #include "SkBitSet.h"
+#include "SkFontSubsetter.h"
 #include "SkTypes.h"
 
-class SkPDFGlyphUse {
+class SkPDFGlyphUse : public SkGlyphSet {
 public:
     SkPDFGlyphUse() : fBitSet(0) {}
     SkPDFGlyphUse(SkGlyphID firstNonZero, SkGlyphID lastGlyph)
         : fBitSet((int)lastGlyph - firstNonZero + 2)
         , fFirstNonZero(firstNonZero)
         , fLastGlyph(lastGlyph) { SkASSERT(firstNonZero >= 1); }
-    ~SkPDFGlyphUse() = default;
+    ~SkPDFGlyphUse() override = default;
     SkPDFGlyphUse(SkPDFGlyphUse&&) = default;
     SkPDFGlyphUse& operator=(SkPDFGlyphUse&&) = default;
 
@@ -29,6 +30,11 @@ public:
         }
         uint16_t offset = fFirstNonZero - 1;
         fBitSet.getSetValues([&f, offset](unsigned v) { f(v == 0 ? v : v + offset); });
+    }
+
+    void getSetValues(void* context, void (*callback)(void*, SkGlyphID)) const override {
+        SkASSERT(callback);
+        this->getSetValues([context, callback](unsigned v) { callback(context, SkToU16(v)); });
     }
 
 private:
