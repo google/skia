@@ -171,6 +171,10 @@ def checkout_engine(engine_path, repo_root, recipes_cfg_path):
     except subprocess.CalledProcessError:
       _git_check_call(['reset', '-q', '--hard', revision], cwd=engine_path)
 
+    # If the engine has refactored/moved modules we need to clean all .pyc files
+    # or things will get squirrely.
+    _git_check_call(['clean', '-qxf'], cwd=engine_path)
+
   return engine_path
 
 
