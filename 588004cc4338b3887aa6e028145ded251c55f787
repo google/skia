@@ -22,6 +22,30 @@
       "revId": "588004cc4338b3887aa6e028145ded251c55f787",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f0a70e7_b3a8bb7c",
+        "filename": "tests/SRGBReadWritePixelsTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-28T15:18:28Z",
+      "side": 1,
+      "message": "I think this comment is still true. The write doesn\u0027t do any conversion, but the subsequent read-back might.",
+      "parentUuid": "bd33e6da_3c4e8992",
+      "range": {
+        "startLine": 289,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 20
+      },
+      "revId": "588004cc4338b3887aa6e028145ded251c55f787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
