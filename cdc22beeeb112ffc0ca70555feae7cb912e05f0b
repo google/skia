@@ -46,6 +46,30 @@
       "revId": "cdc22beeeb112ffc0ca70555feae7cb912e05f0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9c500ff_d475c184",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-03-28T18:11:00Z",
+      "side": 1,
+      "message": "Added internal_private_asPaintFilterCanvas. Did not need getTarget, but used existing \"proxy()\" method and made SkAndroidFrameworkUtils a friend class.\nImplemented SkAndroidFrameworkUtils::getBaseWrappedCanvas as non-recursive function, which is available only for Android.",
+      "parentUuid": "73a9b76a_a441617b",
+      "range": {
+        "startLine": 2357,
+        "startChar": 22,
+        "endLine": 2357,
+        "endChar": 59
+      },
+      "revId": "cdc22beeeb112ffc0ca70555feae7cb912e05f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
