@@ -295,9 +295,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         // Reading untagged back as untagged should do no conversion.
         test_write_read(Encoding::kUntagged, writeEncoding, Encoding::kUntagged, error,
                         check_no_conversion, context, reporter);
-        // Reading untagged back as linear does no conversion.
+        // Reading untagged back as linear does convert (context is source, so treated as sRGB),
+        // dst is tagged.
         test_write_read(Encoding::kUntagged, writeEncoding, Encoding::kLinear, error,
-                        check_no_conversion, context, reporter);
+                        check_srgb_to_linear_conversion, context, reporter);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
