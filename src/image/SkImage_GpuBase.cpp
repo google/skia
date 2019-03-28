@@ -453,11 +453,11 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
         }
 
-        sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) {
+        GrSurfaceProxy::LazyInstantiationReturn operator()(GrResourceProvider* resourceProvider) {
             // Our proxy is getting instantiated for the second+ time. We are only allowed to call
             // Fulfill once. So return our cached result.
             if (fTexture) {
-                return sk_ref_sp(fTexture);
+                return {sk_ref_sp(fTexture), GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             }
             SkASSERT(fDoneCallback);
             PromiseImageTextureContext textureContext = fDoneCallback->context();
@@ -466,13 +466,13 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // the return from fulfill was invalid or we fail for some other reason.
             auto releaseCallback = sk_make_sp<GrRefCntedCallback>(fReleaseProc, textureContext);
             if (!promiseTexture) {
-                return sk_sp<GrTexture>();
+                return {};
             }
 
             auto backendTexture = promiseTexture->backendTexture();
             backendTexture.fConfig = fConfig;
             if (!backendTexture.isValid()) {
-                return sk_sp<GrTexture>();
+                return {};
             }
 
             sk_sp<GrTexture> tex;
@@ -494,7 +494,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                              kRead_GrIOType))) {
                     tex->resourcePriv().setUniqueKey(key);
                 } else {
-                    return sk_sp<GrTexture>();
+                    return {};
                 }
             }
             auto releaseIdleState = fVersion == PromiseImageApiVersion::kLegacy
@@ -511,7 +511,9 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             GrContext* context = fTexture->getContext();
             context->priv().getResourceCache()->insertDelayedResourceUnref(fTexture);
             fTextureContextID = context->priv().contextID();
-            return std::move(tex);
+            // We use the unique key in a way that is unrelated to the SkImage-based key thatthe
+            // proxy may receive, hence kUnsynced.
+            return {std::move(tex), GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
         }
 
     private:
