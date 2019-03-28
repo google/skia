@@ -8,6 +8,7 @@
 #include "SkAndroidFrameworkUtils.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkPaintFilterCanvas.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -66,6 +67,16 @@ sk_sp<SkSurface> SkAndroidFrameworkUtils::getSurfaceFromCanvas(SkCanvas* canvas)
 
 int SkAndroidFrameworkUtils::SaveBehind(SkCanvas* canvas, const SkRect* subset) {
     return canvas->only_axis_aligned_saveBehind(subset);
+}
+
+SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
+    auto pfc = canvas->internal_private_asPaintFilterCanvas();
+    auto result = canvas;
+    while (pfc) {
+        result = pfc->proxy();
+        pfc = result->internal_private_asPaintFilterCanvas();
+    }
+    return result;
 }
 #endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
 
