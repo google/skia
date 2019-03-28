@@ -12,6 +12,8 @@
 #include "SkNWayCanvas.h"
 #include "SkTLazy.h"
 
+class SkAndroidFrameworkUtils;
+
 /** \class SkPaintFilterCanvas
 
     A utility proxy base class for implementing draw/paint filters.
@@ -119,6 +121,12 @@ private:
     class AutoPaintFilter;
 
     SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
+
+    SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const override {
+        return const_cast<SkPaintFilterCanvas*>(this);
+    }
+
+    friend class SkAndroidFrameworkUtils;
 };
 
 #endif
