@@ -81,9 +81,10 @@ class SkpDebugPlayer {
     const SkIRect& getBounds() { return fBounds; }
 
     void setOverdrawVis(bool on) { fDebugCanvas->setOverdrawViz(on); }
-    void setGpuOpBounds(bool on) { fDebugCanvas->setDrawGpuOpBounds(on); }
+    void setGpuOpBounds(bool on) {
+      fDebugCanvas->setDrawGpuOpBounds(on);
+    }
     void setClipVizColor(JSColor color) {
-      SkDebugf("Setting clip vis color to %d\n", color);
       fDebugCanvas->setClipVizColor(SkColor(color));
     }
     int getSize() const { return fDebugCanvas->getSize(); }
@@ -100,12 +101,30 @@ class SkpDebugPlayer {
       // this will be prepended to any links that are created in the json command list.
       UrlDataManager udm(SkString("/"));
       writer.beginObject(); // root
-
-      // Some vals currently hardcoded until gpu is supported
-      writer.appendString("mode", "cpu");
-      writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
-      writer.appendS32("colorMode", SkColorType::kRGBA_8888_SkColorType);
       fDebugCanvas->toJSON(writer, udm, getSize(), surface->getCanvas());
+      writer.endObject(); // root
+      writer.flush();
+      auto skdata = stream.detachAsData();
+      // Convert skdata to string_view, which accepts a length
+      std::string_view data_view(reinterpret_cast<const char*>(skdata->data()), skdata->size());
+      // and string_view to string, which emscripten understands.
+      return std::string(data_view);
+    }
+
+    // Gets the clip and matrix of the last command drawn
+    std::string lastCommandInfo() {
+      SkMatrix vm = fDebugCanvas->getCurrentMatrix();
+      SkIRect clip = fDebugCanvas->getCurrentClip();
+
+      SkDynamicMemoryWStream stream;
+      SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+      UrlDataManager udm(SkString("/"));
+      writer.beginObject(); // root
+
+      writer.appendName("ViewMatrix");
+      DrawCommand::MakeJsonMatrix(writer, vm);
+      writer.appendName("ClipRect");
+      DrawCommand::MakeJsonIRect(writer, clip);
 
       writer.endObject(); // root
       writer.flush();
@@ -117,7 +136,6 @@ class SkpDebugPlayer {
     }
 
   private:
-    // admission of ignorance - don't know when to use unique pointer or sk_sp
       std::unique_ptr<DebugCanvas> fDebugCanvas;
       sk_sp<SkPicture>             fPicture;
       SkIRect                      fBounds;
@@ -198,7 +216,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("getSize",              &SkpDebugPlayer::getSize)
     .function("deleteCommand",        &SkpDebugPlayer::deleteCommand)
     .function("setCommandVisibility", &SkpDebugPlayer::setCommandVisibility)
-    .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers());
+    .function("setGpuOpBounds",       &SkpDebugPlayer::setGpuOpBounds)
+    .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers())
+    .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo);
 
   // Structs used as arguments or returns to the functions above
   value_object<SkIRect>("SkIRect")
@@ -211,7 +231,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
   enum_<SkColorType>("ColorType")
     .value("RGBA_8888", SkColorType::kRGBA_8888_SkColorType);
   enum_<SkAlphaType>("AlphaType")
-    .value("Unpremul", SkAlphaType::kUnpremul_SkAlphaType);
+      .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)
+      .value("Premul",   SkAlphaType::kPremul_SkAlphaType)
+      .value("Unpremul", SkAlphaType::kUnpremul_SkAlphaType);
   value_object<SimpleImageInfo>("SkImageInfo")
     .field("width",     &SimpleImageInfo::width)
     .field("height",    &SimpleImageInfo::height)
@@ -223,6 +245,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
                                                            size_t rowBytes)->sk_sp<SkSurface> {
     uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
     SkImageInfo imageInfo = toSkImageInfo(ii);
+    SkDebugf("Made raster direct surface.\n");
     return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
   }), allow_raw_pointers());
   class_<SkSurface>("SkSurface")
