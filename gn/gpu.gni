@@ -424,6 +424,7 @@ skia_gpu_sources = [
   "$_src/gpu/gl/GrGLAssembleGLInterfaceAutogen.cpp",
   "$_src/gpu/gl/GrGLAssembleHelpers.cpp",
   "$_src/gpu/gl/GrGLAssembleInterface.cpp",
+  "$_src/gpu/gl/GrGLAssembleWebGLInterfaceAutogen.cpp",
   "$_src/gpu/gl/GrGLBuffer.cpp",
   "$_src/gpu/gl/GrGLBuffer.h",
   "$_src/gpu/gl/GrGLCaps.cpp",
