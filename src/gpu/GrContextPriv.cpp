@@ -330,11 +330,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         return false;
     }
 
-    // We ignore the alpha type here - we're just checking to see if any color space conversion is
-    // needed (and if we can use the canvas 2D fast path, which handles premul/unpremul).
-    SkColorSpaceXformSteps steps{ src->colorSpaceInfo().colorSpace(), kUnpremul_SkAlphaType,
-                                  dstColorSpace,                      kUnpremul_SkAlphaType };
-    bool needColorConversion = (steps.flags.mask() != 0);
+    bool needColorConversion =
+        SkColorSpaceXformSteps::Required(src->colorSpaceInfo().colorSpace(), dstColorSpace);
 
     // This is the getImageData equivalent to the canvas2D putImageData fast path. We probably don't
     // care so much about getImageData performance. However, in order to ensure putImageData/
@@ -519,11 +516,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
     bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
 
-    // We ignore the alpha type here - we're just checking to see if any color space conversion is
-    // needed (and if we can use the canvas 2D fast path, which handles premul/unpremul).
-    SkColorSpaceXformSteps steps{ srcColorSpace,                      kUnpremul_SkAlphaType,
-                                  dst->colorSpaceInfo().colorSpace(), kUnpremul_SkAlphaType };
-    bool needColorConversion = (steps.flags.mask() != 0);
+    bool needColorConversion =
+        SkColorSpaceXformSteps::Required(srcColorSpace, dst->colorSpaceInfo().colorSpace());
 
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
