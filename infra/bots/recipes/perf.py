@@ -69,6 +69,9 @@ def nanobench_flags(api, bot):
           'enarrow',
       ]
 
+      if 'Nexus7' in bot:
+        args.append('--purgeBetweenBenches')  # Debugging skia:8929
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
