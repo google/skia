@@ -304,11 +304,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
-    SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
-    if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
-        return false;
-    }
-
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
         return false;
@@ -514,7 +509,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     }
 
     // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
-    bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
+    bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
 
     bool needColorConversion =
             SkColorSpaceXformSteps::Required(srcColorSpace, dst->colorSpaceInfo().colorSpace());
@@ -523,25 +518,17 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
     bool canvas2DFastPath =
             !fContext->priv().caps()->avoidWritePixelsFastPath() &&
-            premul &&
+            unpremul &&
             !needColorConversion &&
             (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
             SkToBool(dst->asRenderTargetContext()) &&
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
              dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
-            !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
             fContext->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
     const GrCaps* caps = this->caps();
-    if (!caps->surfaceSupportsWritePixels(dstSurface) ||
-        canvas2DFastPath) {
-        // We don't expect callers that are skipping flushes to require an intermediate draw.
-        SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
-        if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
-            return false;
-        }
-
+    if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
         GrSurfaceDesc desc;
         desc.fWidth = width;
         desc.fHeight = height;
@@ -601,9 +588,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         }
     }
 
-    bool convert = premul || needColorConversion;
+    bool convert = unpremul || needColorConversion;
 
-    if (!valid_pixel_conversion(srcColorType, dstProxy->config(), premul)) {
+    if (!valid_pixel_conversion(srcColorType, dstProxy->config(), unpremul)) {
         return false;
     }
 
@@ -620,7 +607,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         }
         auto srcAlphaType = SkColorTypeIsAlwaysOpaque(srcSkColorType)
                 ? kOpaque_SkAlphaType
-                : (premul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
+                : (unpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
         SkPixmap src(SkImageInfo::Make(width, height, srcSkColorType, srcAlphaType,
                                        sk_ref_sp(srcColorSpace)),
                      buffer, rowBytes);
@@ -660,7 +647,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         top = dstSurface->height() - top - height;
     }
 
-    if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && dstSurface->surfacePriv().hasPendingIO()) {
+    if (dstSurface->surfacePriv().hasPendingIO()) {
         this->flush(nullptr);  // MDB TODO: tighten this
     }
 
