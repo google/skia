@@ -9,6 +9,7 @@
 
 #include "SkShaper.h"
 #include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkUTF.h"
 
 namespace skottie {
@@ -172,8 +173,28 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
 }
 
 SkRect Shaper::Result::computeBounds() const {
-    return fBlob ? fBlob->bounds().makeOffset(fPos.x(), fPos.y())
-                 : SkRect::MakeEmpty();
+    auto bounds = SkRect::MakeEmpty();
+
+    if (!fBlob) {
+        return bounds;
+    }
+
+    SkAutoSTArray<16, SkRect> glyphBounds;
+
+    SkTextBlobRunIterator it(fBlob.get());
+
+    for (SkTextBlobRunIterator it(fBlob.get()); !it.done(); it.next()) {
+        glyphBounds.reset(SkToInt(it.glyphCount()));
+        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+
+        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
+                                                  it.pos()[i * 2 + 1]));
+        }
+    }
+
+    return bounds;
 }
 
 } // namespace skottie
