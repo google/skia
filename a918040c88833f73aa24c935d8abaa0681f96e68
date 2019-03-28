@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "253f7207_3c7768e7",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-28T15:24:05Z",
+      "side": 1,
+      "message": "Yeah, those are the same restrictions as unextended ES2.",
+      "parentUuid": "bf0b4ecb_689463c7",
+      "range": {
+        "startLine": 516,
+        "startChar": 8,
+        "endLine": 516,
+        "endChar": 60
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ba39f7d_10e4fbf9",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 9
@@ -125,6 +149,24 @@
       "side": 1,
       "message": "Yes - but before I had added GetShaderPrecisionFormat to assemble/validate I was getting a crash here, although it took a little why to deduce where given the not-so-great stacktraces from WebGL.  I figured adding an assert here would have caught that more easily.\n\nCan remove it if you think it to be superfluous.",
       "parentUuid": "4ba39f7d_10e4fbf9",
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6163739b_493733d5",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-28T15:24:05Z",
+      "side": 1,
+      "message": "I think we should remove. If we can justify this assert then we could probably justify similar asserts before we called any GL function.",
+      "parentUuid": "9a9dc9de_8cd9acc3",
       "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
