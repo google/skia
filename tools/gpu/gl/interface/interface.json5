@@ -566,14 +566,8 @@
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_EXT_occlusion_query_boolean"}],
 
-    "functions": [
-      "GenQueries", "DeleteQueries", "BeginQuery", "EndQuery",
-      "GetQueryObjectuiv", "GetQueryiv",
-    ],
-
-    // Original comment says "Not yet added to chrome's bindings."
-    // https://bugs.chromium.org/p/skia/issues/detail?id=8912
-    "optional": [
+    // We only use these in our test tools
+    "test_functions": [
       "GenQueries", "DeleteQueries", "BeginQuery", "EndQuery",
       "GetQueryObjectuiv", "GetQueryiv",
     ]
