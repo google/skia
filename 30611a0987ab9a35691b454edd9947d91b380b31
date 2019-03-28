@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a40129b_20a0a692",
+        "filename": "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-28T16:24:18Z",
+      "side": 1,
+      "message": "Eh, this is a weird backdoor thing for using Ganesh to manage a text atlas for your own GL text rendering code. Probably not something worth exposing to WebGL clients. Also this is just a test harness for said weird API.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 33
+      },
+      "revId": "30611a0987ab9a35691b454edd9947d91b380b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
