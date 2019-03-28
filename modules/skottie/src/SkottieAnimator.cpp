@@ -63,12 +63,41 @@ protected:
     virtual int parseValue(const skjson::Value&, const AnimationBuilder* abuilder) = 0;
 
     void parseKeyFrames(const skjson::ArrayValue& jframes, const AnimationBuilder* abuilder) {
+        // Logically, a keyframe is defined as a (t0, t1, v0, v1) tuple: a given value
+        // is interpolated in the [v0..v1] interval over the [t0..t1] time span.
+        //
+        // There are three interestingly-different keyframe formats handled here.
+        //
+        // 1) Legacy keyframe format
+        //
+        //      - normal keyframes specify t0 ("t"), v0 ("s") and v1 ("e")
+        //      - last frame only specifies a t0
+        //      - t1[frame] == t0[frame + 1]
+        //      - the last entry (where we cannot determine t1) is ignored
+        //
+        // 2) Regular (new) keyframe format
+        //
+        //      - all keyframes specify t0 ("t") and v0 ("s")
+        //      - t1[frame] == t0[frame + 1]
+        //      - v1[frame] == v0[frame + 1]
+        //      - the last entry (where we cannot determine t1/v1) is ignored
+        //
+        // 3) Text value keyframe format
+        //
+        //      - similar to case #2, all keyframes specify t0 & v0
+        //      - unlike case #2, all keyframes are assumed to be constant (v1 == v0),
+        //        and the last frame is not discarded (its t1 is assumed -> inf)
+        //
+
         for (const skjson::ObjectValue* jframe : jframes) {
             if (!jframe) continue;
 
             float t0;
             if (!Parse<float>((*jframe)["t"], &t0))
                 continue;
+
+            const auto v0_idx = this->parseValue((*jframe)["s"], abuilder),
+                       v1_idx = this->parseValue((*jframe)["e"], abuilder);
 
             if (!fRecs.empty()) {
                 if (fRecs.back().t1 >= t0) {
@@ -77,20 +106,25 @@ protected:
                                   t0, fRecs.back().t1);
                     continue;
                 }
-                // Back-fill t1 in prev interval.  Note: we do this even if we end up discarding
-                // the current interval (to support "t"-only final frames).
-                fRecs.back().t1 = t0;
+
+                // Back-fill t1 and v1 (if needed).
+                auto& prev = fRecs.back();
+                prev.t1 = t0;
+
+                // Previous keyframe did not specify an end value (case #2, #3).
+                if (prev.vidx1 < 0) {
+                    // If this frame has no v0, we're in case #3 (constant text value),
+                    // otherwise case #2 (v0 for current frame is the same as prev frame v1).
+                    prev.vidx1 = v0_idx < 0 ? prev.vidx0 : v0_idx;
+                }
             }
 
-            // Required start value.
-            const auto v0_idx = this->parseValue((*jframe)["s"], abuilder);
+            // Start value 's' is required.
             if (v0_idx < 0)
                 continue;
 
-            // Optional end value.
-            const auto v1_idx = this->parseValue((*jframe)["e"], abuilder);
-            if (v1_idx < 0) {
-                // Constant keyframe.
+            if ((v1_idx < 0) && ParseDefault((*jframe)["h"], false)) {
+                // Constant keyframe ("h": true).
                 fRecs.push_back({t0, t0, v0_idx, v0_idx, -1 });
                 continue;
             }
@@ -111,9 +145,20 @@ protected:
             fRecs.push_back({t0, t0, v0_idx, v1_idx, cm_idx });
         }
 
-        // If we couldn't determine a valid t1 for the last frame, discard it.
-        if (!fRecs.empty() && !fRecs.back().isValid()) {
-            fRecs.pop_back();
+        if (!fRecs.empty()) {
+            auto& last = fRecs.back();
+
+            // If the last entry has only a v0, we're in case #3 - make it a constant frame.
+            if (last.vidx0 >= 0 && last.vidx1 < 0) {
+                last.vidx1 = last.vidx0;
+                last.t1 = last.t0;
+            }
+
+            // If we couldn't determine a valid t1 for the last frame, discard it
+            // (most likely the last frame entry for all 3 cases).
+            if (!last.isValid()) {
+                fRecs.pop_back();
+            }
         }
 
         fRecs.shrink_to_fit();
