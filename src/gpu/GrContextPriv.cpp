@@ -330,6 +330,9 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         return false;
     }
 
+    bool needColorConversion =
+            SkColorSpaceXformSteps::Required(src->colorSpaceInfo().colorSpace(), dstColorSpace);
+
     // This is the getImageData equivalent to the canvas2D putImageData fast path. We probably don't
     // care so much about getImageData performance. However, in order to ensure putImageData/
     // getImageData in "legacy" mode are round-trippable we use the GPU to do the complementary
@@ -337,7 +340,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     // fContext->vaildaPMUPMConversionExists()).
     bool canvas2DFastPath =
             unpremul &&
-            !src->colorSpaceInfo().colorSpace() &&
+            !needColorConversion &&
             (GrColorType::kRGBA_8888 == dstColorType || GrColorType::kBGRA_8888 == dstColorType) &&
             SkToBool(srcProxy->asTextureProxy()) &&
             (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
@@ -411,7 +414,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                                        dstColorSpace, buffer, rowBytes, flags);
     }
 
-    bool convert = unpremul;
+    bool convert = unpremul || needColorConversion;
 
     bool flip = srcProxy->origin() == kBottomLeft_GrSurfaceOrigin;
     if (flip) {
@@ -421,12 +424,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     GrColorType allowedColorType = fContext->priv().caps()->supportedReadPixelsColorType(
             srcProxy->config(), dstColorType);
     convert = convert || (dstColorType != allowedColorType);
-
-    if (!src->colorSpaceInfo().colorSpace()) {
-        // "Legacy" mode - no color space conversions.
-        dstColorSpace = nullptr;
-    }
-    convert = convert || !SkColorSpace::Equals(dstColorSpace, src->colorSpaceInfo().colorSpace());
 
     SkAutoPixmapStorage tempPixmap;
     SkPixmap finalPixmap;
@@ -519,12 +516,15 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     // TODO: Make GrSurfaceContext know its alpha type and pass src buffer's alpha type.
     bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
 
+    bool needColorConversion =
+            SkColorSpaceXformSteps::Required(srcColorSpace, dst->colorSpaceInfo().colorSpace());
+
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
     bool canvas2DFastPath =
             !fContext->priv().caps()->avoidWritePixelsFastPath() &&
             premul &&
-            !dst->colorSpaceInfo().colorSpace() &&
+            !needColorConversion &&
             (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
             SkToBool(dst->asRenderTargetContext()) &&
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
@@ -601,7 +601,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         }
     }
 
-    bool convert = premul;
+    bool convert = premul || needColorConversion;
 
     if (!valid_pixel_conversion(srcColorType, dstProxy->config(), premul)) {
         return false;
@@ -610,12 +610,6 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     GrColorType allowedColorType = fContext->priv().caps()->supportedWritePixelsColorType(
             dstProxy->config(), srcColorType);
     convert = convert || (srcColorType != allowedColorType);
-
-    if (!dst->colorSpaceInfo().colorSpace()) {
-        // "Legacy" mode - no color space conversions.
-        srcColorSpace = nullptr;
-    }
-    convert = convert || !SkColorSpace::Equals(srcColorSpace, dst->colorSpaceInfo().colorSpace());
 
     std::unique_ptr<char[]> tempBuffer;
     if (convert) {
