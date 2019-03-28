@@ -142,7 +142,9 @@ bool GrGLInterface::validate() const {
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(3,0)))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0))))) {
+          (glVer >= GR_GL_VER(3,0)))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fGetStringi) {
             RETURN_FALSE_INTERFACE;
         }
@@ -151,7 +153,11 @@ bool GrGLInterface::validate() const {
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_OES_vertex_array_object")))) {
+          fExtensions.has("GL_OES_vertex_array_object"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0)) ||
+          fExtensions.has("GL_OES_vertex_array_object") ||
+          fExtensions.has("OES_vertex_array_object")))) {
         if (!fFunctions.fBindVertexArray ||
             !fFunctions.fDeleteVertexArrays ||
             !fFunctions.fGenVertexArrays) {
@@ -203,7 +209,9 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_EXT_draw_instanced"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_EXT_draw_instanced")))) {
+          fExtensions.has("GL_EXT_draw_instanced"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fDrawArraysInstanced ||
             !fFunctions.fDrawElementsInstanced) {
             RETURN_FALSE_INTERFACE;
@@ -212,7 +220,9 @@ bool GrGLInterface::validate() const {
 
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0))))) {
+          (glVer >= GR_GL_VER(3,0)))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fDrawBuffers ||
             !fFunctions.fReadBuffer) {
             RETURN_FALSE_INTERFACE;
@@ -232,7 +242,9 @@ bool GrGLInterface::validate() const {
 
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0))))) {
+          (glVer >= GR_GL_VER(3,0)))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fDrawRangeElements) {
             RETURN_FALSE_INTERFACE;
         }
@@ -295,7 +307,9 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_EXT_texture_storage"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_EXT_texture_storage")))) {
+          fExtensions.has("GL_EXT_texture_storage"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fTexStorage2D) {
             RETURN_FALSE_INTERFACE;
         }
@@ -333,7 +347,9 @@ bool GrGLInterface::validate() const {
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(3,0)))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0))))) {
+          (glVer >= GR_GL_VER(3,0)))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fVertexAttribIPointer) {
             RETURN_FALSE_INTERFACE;
         }
@@ -343,7 +359,8 @@ bool GrGLInterface::validate() const {
           (glVer >= GR_GL_VER(3,0)) ||
           fExtensions.has("GL_ARB_framebuffer_object") ||
           fExtensions.has("GL_EXT_framebuffer_object"))) ||
-       GR_IS_GR_GL_ES(fStandard)) {
+       GR_IS_GR_GL_ES(fStandard) ||
+       GR_IS_GR_WEBGL(fStandard)) {
         if (!fFunctions.fBindFramebuffer ||
             !fFunctions.fBindRenderbuffer ||
             !fFunctions.fCheckFramebufferStatus ||
@@ -381,7 +398,9 @@ bool GrGLInterface::validate() const {
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
           fExtensions.has("GL_CHROMIUM_framebuffer_multisample") ||
-          fExtensions.has("GL_ANGLE_framebuffer_multisample")))) {
+          fExtensions.has("GL_ANGLE_framebuffer_multisample"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fRenderbufferStorageMultisample) {
             RETURN_FALSE_INTERFACE;
         }
@@ -578,7 +597,9 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_ARB_sync"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_APPLE_sync")))) {
+          fExtensions.has("GL_APPLE_sync"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fClientWaitSync ||
             !fFunctions.fDeleteSync ||
             !fFunctions.fFenceSync ||
@@ -613,7 +634,9 @@ bool GrGLInterface::validate() const {
           (glVer >= GR_GL_VER(3,2)) ||
           fExtensions.has("GL_ARB_sampler_objects"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0))))) {
+          (glVer >= GR_GL_VER(3,0)))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fBindSampler ||
             !fFunctions.fDeleteSamplers ||
             !fFunctions.fGenSamplers ||
@@ -679,7 +702,9 @@ bool GrGLInterface::validate() const {
           (glVer >= GR_GL_VER(4,3)) ||
           fExtensions.has("GL_ARB_invalidate_subdata"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0))))) {
+          (glVer >= GR_GL_VER(3,0)))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fInvalidateFramebuffer ||
             !fFunctions.fInvalidateSubFramebuffer) {
             RETURN_FALSE_INTERFACE;
@@ -689,7 +714,8 @@ bool GrGLInterface::validate() const {
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(4,3)) ||
           fExtensions.has("GL_ARB_ES2_compatibility"))) ||
-       GR_IS_GR_GL_ES(fStandard)) {
+       GR_IS_GR_GL_ES(fStandard) ||
+       GR_IS_GR_WEBGL(fStandard)) {
         if (!fFunctions.fGetShaderPrecisionFormat) {
             RETURN_FALSE_INTERFACE;
         }
