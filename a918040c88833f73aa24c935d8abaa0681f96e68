@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5eff60ea_40c39b97",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-28T14:28:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "74ae8237_a087fbfe",
+      "range": {
+        "startLine": 410,
+        "startChar": 5,
+        "endLine": 410,
+        "endChar": 39
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "837be878_1432c31f",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-27T20:14:59Z",
       "side": 1,
       "message": "Wow really surprised there isn\u0027t an extension for this for WebGL 1 but I don\u0027t see anything.",
+      "range": {
+        "startLine": 516,
+        "startChar": 8,
+        "endLine": 516,
+        "endChar": 60
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf0b4ecb_689463c7",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-28T14:28:19Z",
+      "side": 1,
+      "message": "There might be limited support for NPOT handling - https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences",
+      "parentUuid": "837be878_1432c31f",
       "range": {
         "startLine": 516,
         "startChar": 8,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "9a9dc9de_8cd9acc3",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-28T14:28:19Z",
+      "side": 1,
+      "message": "Yes - but before I had added GetShaderPrecisionFormat to assemble/validate I was getting a crash here, although it took a little why to deduce where given the not-so-great stacktraces from WebGL.  I figured adding an assert here would have caught that more easily.\n\nCan remove it if you think it to be superfluous.",
+      "parentUuid": "4ba39f7d_10e4fbf9",
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aaadf47f_2f334540",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 9
@@ -85,6 +151,30 @@
       "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f84f3154_83a488dc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2257,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-28T14:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aaadf47f_2f334540",
+      "range": {
+        "startLine": 2257,
+        "startChar": 15,
+        "endLine": 2257,
+        "endChar": 33
+      },
+      "revId": "a918040c88833f73aa24c935d8abaa0681f96e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
