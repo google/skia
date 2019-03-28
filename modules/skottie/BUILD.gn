@@ -68,8 +68,8 @@ if (defined(is_skia_standalone)) {
 
         deps = [
           ":skottie",
-          "../..:gpu_tool_utils",
           "../..:skia",
+          "../..:tool_utils",
         ]
       }
     }
