@@ -10,6 +10,7 @@
  **************************************************************************************************/
 #include "GrCircleBlurFragmentProcessor.h"
 
+#include "GrCaps.h"
 #include "GrProxyProvider.h"
 
 // Computes an unnormalized half kernel (right side). Returns the summation of all the half
@@ -225,7 +226,13 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
         bm.setImmutable();
         sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
 
-        blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags, 1,
+        auto clearFlag = kNone_GrSurfaceFlags;
+
+        if (proxyProvider->caps()->shouldInitializeTextures()) {
+            clearFlag = kPerformInitialClear_GrSurfaceFlag;
+        }
+
+        blurProfile = proxyProvider->createTextureProxy(std::move(image), clearFlag, 1,
                                                         SkBudgeted::kYes, SkBackingFit::kExact);
         if (!blurProfile) {
             return nullptr;

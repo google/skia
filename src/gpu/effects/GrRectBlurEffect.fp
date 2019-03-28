@@ -6,6 +6,7 @@
  */
 
 @header {
+    #include "GrCaps.h"
     #include "GrProxyProvider.h"
     #include "GrShaderCaps.h"
     #include "SkBlurMask.h"
@@ -69,7 +70,13 @@ uniform half profileSize;
                 return nullptr;
             }
 
-            blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
+            auto clearFlag = kNone_GrSurfaceFlags;
+
+            if (proxyProvider->caps()->shouldInitializeTextures()) {
+                clearFlag = kPerformInitialClear_GrSurfaceFlag;
+            }
+
+            blurProfile = proxyProvider->createTextureProxy(std::move(image), clearFlag,
                                                             1, SkBudgeted::kYes,
                                                             SkBackingFit::kExact);
             if (!blurProfile) {
