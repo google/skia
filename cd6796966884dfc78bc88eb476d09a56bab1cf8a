@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b28b9c4_68e2f4de",
+        "filename": "src/gpu/GrContextPriv.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-28T14:17:37Z",
+      "side": 1,
+      "message": "This check is largely more lenient than the previous check, but is stricter in specific situations: If the source color space was null, we would always take the fast path. The new code uses steps, which maps null *sources* to sRGB, so we will only take the fast path if the destination is also null or sRGB. I think this is fine, because canvas is always using tagged surfaces, so we\u0027re not going to hit the more-strict path? We will still take the fast path when reading into a buffer that is either untagged or tagged with the same CS as the surface.",
+      "revId": "cd6796966884dfc78bc88eb476d09a56bab1cf8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c96a0cec_d2b05032",
+        "filename": "src/gpu/GrContextPriv.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-03-28T14:17:37Z",
+      "side": 1,
+      "message": "This check (for writeSurfacePixels) is strictly more lenient than the old check. When steps encounters a null destination CS, it pretends that it\u0027s the same as the source, so no conversion will happen. Additionally, any time both spaces are equal (including a null source and an sRGB dest), no conversion will happen.",
+      "revId": "cd6796966884dfc78bc88eb476d09a56bab1cf8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
