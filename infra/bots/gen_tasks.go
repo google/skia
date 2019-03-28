@@ -258,7 +258,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		serviceAccount = alternateServiceAccount(serviceAccount)
 	}
 	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_KITCHEN...)
-	if strings.Contains(name, "Win") {
+	if strings.Contains(name, "Win") && !strings.Contains(name, "LenovoYogaC630") {
 		cipd = append(cipd, CIPD_PKGS_CPYTHON...)
 	}
 	properties := map[string]string{
@@ -563,6 +563,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return dockerGceDimensions()
 			} else if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
+					// At some point this might use the device ID, but for now it's like Chromebooks.
+					"Adreno630":     "Adreno630",
 					"GT610":         "10de:104a-23.21.13.9101",
 					"GTX660":        "10de:11c0-25.21.14.1634",
 					"GTX960":        "10de:1401-25.21.14.1634",
