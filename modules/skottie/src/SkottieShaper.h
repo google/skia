@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkottieShaper_DEFINED
+#define SkottieShaper_DEFINED
+
 #include "SkPoint.h"
 #include "SkTextUtils.h"
 
@@ -46,3 +49,5 @@ private:
 };
 
 } // namespace skottie
+
+#endif // SkottieShaper_DEFINED
