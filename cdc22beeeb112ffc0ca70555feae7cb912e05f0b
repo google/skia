@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34d8c402_bc0bef7c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-03-28T15:42:27Z",
+      "side": 1,
+      "message": "This still feels too generic to me... PaintFilterCanvas is just one of the indirect canvases we have - what does this mean for e.g. SkNWayCanvas?\n\nAnother (somewhat cleaner) approach would be to add a\n\n  virtual SkPaintFilterCanvas* internal_private_asPaintFilterCanvas()\n\non SkCanvas, to support down-casting to SkPaintFilterCanvas.  Then add a non-virtual getTarget() or such on SkPaintFilterCanvas?",
+      "range": {
+        "startLine": 2357,
+        "startChar": 22,
+        "endLine": 2357,
+        "endChar": 59
+      },
+      "revId": "cdc22beeeb112ffc0ca70555feae7cb912e05f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
