@@ -21,8 +21,8 @@ template <typename T> class SkTLazy {
 public:
     SkTLazy() = default;
     explicit SkTLazy(const T* src) : fPtr(src ? new (&fStorage) T(*src) : nullptr) {}
-    SkTLazy(const SkTLazy& that) { *this = that; }
-    SkTLazy(SkTLazy&& that) { *this = std::move(that); }
+    SkTLazy(const SkTLazy& that) : fPtr(that.fPtr ? new (&fStorage) T(*that.fPtr) : nullptr) {}
+    SkTLazy(SkTLazy&& that) : fPtr(that.fPtr ? new (&fStorage) T(std::move(*that.fPtr)) : nullptr){}
 
     ~SkTLazy() { this->reset(); }
 
