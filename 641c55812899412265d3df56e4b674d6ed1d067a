@@ -57,6 +57,30 @@
       "revId": "641c55812899412265d3df56e4b674d6ed1d067a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8123df05_4d423d6e",
+        "filename": "src/android/SkAndroidFrameworkUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-03-28T20:40:53Z",
+      "side": 1,
+      "message": "It may be possible to not use AlphaFilterCanvas, but I\u0027m not sure. Instead we could try to add an alpha parameter to SkiaDisplayList::draw -\u003e DisplayListData::draw -\u003e DisplayListData::map -\u003e Op::draw (there are 10+ classes derived from Op). This may not work for some reason or may cause performance issues.",
+      "parentUuid": "fd530e89_e7e00c11",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 5
+      },
+      "revId": "641c55812899412265d3df56e4b674d6ed1d067a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
