@@ -20,7 +20,6 @@
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkPDFResourceDict.h"
-#include "SkPDFSubsetFont.h"
 #include "SkPDFUtils.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
@@ -30,6 +29,19 @@
 #include "SkTo.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
+
+#include <vector>
+
+static sk_sp<SkData> subset_font(sk_sp<SkData> fontData,
+                                 const SkPDFGlyphUse& glyphUsage,
+                                 SkFontSubsetter subsetter,
+                                 const char* fontName,
+                                 int ttcIndex) {
+    if (!subsetter) {
+        return nullptr;
+    }
+    return subsetter(std::move(fontData), glyphUsage, fontName, ttcIndex);
+}
 
 SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     SkFont font;
@@ -237,7 +249,10 @@ SkPDFFont::SkPDFFont(sk_sp<SkTypeface> typeface,
     : fTypeface(std::move(typeface))
     , fGlyphUsage(firstGlyphID, lastGlyphID)
     , fIndirectReference(indirectReference)
-    , fFontType(fontType) {}
+    , fFontType(fontType)
+{
+    fGlyphUsage.set(0);
+}
 
 static void add_common_font_descriptor_entries(SkPDFDict* descriptor,
                                                const SkAdvancedTypefaceMetrics& metrics,
@@ -311,7 +326,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                 if (!SkToBool(metrics.fFlags &
                               SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag)) {
                     SkASSERT(font.firstGlyphID() == 1);
-                    sk_sp<SkData> subsetFontData = SkPDFSubsetFont(
+                    sk_sp<SkData> subsetFontData = subset_font(
                             stream_to_data(std::move(fontAsset)), font.glyphUsage(),
                             doc->metadata().fSubsetter,
                             metrics.fFontName.c_str(), ttcIndex);
