@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "129a6c71_321da86a",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-28T17:13:10Z",
+      "side": 1,
+      "message": "Might be easier to read (less indenting) if this were\n\nif (!fBlob) {\n    return;\n}\n\nand the rest of this not indented?",
+      "range": {
+        "startLine": 178,
+        "startChar": 4,
+        "endLine": 178,
+        "endChar": 16
+      },
+      "revId": "1ed55ab22f81fc2bcd02f06608f3073a20794859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0da78047_5bc05740",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-28T17:13:10Z",
+      "side": 1,
+      "message": "It looks like\n\nfor (SkTextBlobRunIterator it(fBlob.get()); !it.done(); it.next();) {\n\nfits on one line and might make this easier to read.",
+      "range": {
+        "startLine": 183,
+        "startChar": 8,
+        "endLine": 183,
+        "endChar": 28
+      },
+      "revId": "1ed55ab22f81fc2bcd02f06608f3073a20794859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
