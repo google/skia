@@ -8,12 +8,14 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_pdf_sources = [
+  "$_include/docs/SkFontSubsetter.h",
   "$_include/docs/SkPDFDocument.h",
   "$_src/pdf/SkBitmapKey.h",
   "$_src/pdf/SkClusterator.cpp",
   "$_src/pdf/SkClusterator.h",
   "$_src/pdf/SkDeflate.cpp",
   "$_src/pdf/SkDeflate.h",
+  "$_src/pdf/SkHarfbuzzFontSubset.cpp",
   "$_src/pdf/SkJpegInfo.cpp",
   "$_src/pdf/SkJpegInfo.h",
   "$_src/pdf/SkKeyedImage.cpp",
@@ -44,12 +46,11 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFResourceDict.h",
   "$_src/pdf/SkPDFShader.cpp",
   "$_src/pdf/SkPDFShader.h",
-  "$_src/pdf/SkPDFSubsetFont.cpp",
-  "$_src/pdf/SkPDFSubsetFont.h",
   "$_src/pdf/SkPDFTag.cpp",
   "$_src/pdf/SkPDFTag.h",
   "$_src/pdf/SkPDFTypes.cpp",
   "$_src/pdf/SkPDFTypes.h",
   "$_src/pdf/SkPDFUtils.cpp",
   "$_src/pdf/SkPDFUtils.h",
+  "$_src/pdf/SkSfntlyFontSubset.cpp",
 ]
