@@ -34,6 +34,24 @@
       "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7d88d41_90b0756e",
+        "filename": "include/core/SkTLazy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-28T17:08:09Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s a good point... the one that takes a pointer _is_ weird.  Maybe we should remove it?",
+      "parentUuid": "abc87c4f_4fa338da",
+      "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
