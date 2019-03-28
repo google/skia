@@ -111,7 +111,7 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 SkShaderBase::Context::~Context() {}
 
 bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace) const {
-    return sk_can_use_legacy_blits(shaderColorSpace, fDstColorSpace);
+    return !SkColorSpaceXformSteps::Required(shaderColorSpace, fDstColorSpace);
 }
 
 const SkMatrix& SkShader::getLocalMatrix() const {
