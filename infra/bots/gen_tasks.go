@@ -953,6 +953,7 @@ func updateGoDEPS(b *specs.TasksCfgBuilder, name string) string {
 func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_LARGE), nil, OUTPUT_NONE)
 	task.Caches = append(task.Caches, CACHES_WORKDIR...)
+	usesGo(b, task)
 	b.MustAddTask(name, task)
 	return name
 }
