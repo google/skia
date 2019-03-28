@@ -474,6 +474,7 @@ protected:
     // proxies we will copy the properties off of the GrSurface. For lazy proxies we force the
     // call sites to provide the required information ahead of time. At instantiation time
     // we verify that the assumed properties match the actual properties.
+public:
     GrInternalSurfaceFlags fSurfaceFlags;
 
 private:

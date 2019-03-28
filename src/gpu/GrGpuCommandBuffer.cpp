@@ -55,7 +55,9 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
     }
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            if (!fixedDynamicState->fPrimitiveProcessorTextures[i]->instantiate(resourceProvider)) {
+            if (resourceProvider->explicitlyAllocateGPUResources()) {
+                SkASSERT(fixedDynamicState->fPrimitiveProcessorTextures[i]->isInstantiated());
+            } else if (!fixedDynamicState->fPrimitiveProcessorTextures[i]->instantiate(resourceProvider)) {
                 return false;
             }
         }
@@ -64,7 +66,9 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         int n = primProc.numTextureSamplers() * meshCount;
         const auto* textures = dynamicStateArrays->fPrimitiveProcessorTextures;
         for (int i = 0; i < n; ++i) {
-            if (!textures[i]->instantiate(resourceProvider)) {
+            if (resourceProvider->explicitlyAllocateGPUResources()) {
+                SkASSERT(textures[i]->isInstantiated());
+            } else if (!textures[i]->instantiate(resourceProvider)) {
                 return false;
             }
         }
