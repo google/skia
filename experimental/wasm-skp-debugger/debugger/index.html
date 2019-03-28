@@ -42,7 +42,7 @@ DebuggerInit({
       canvas.width = bounds.fRight - bounds.fLeft;
       canvas.height = bounds.fBottom - bounds.fTop;
       //Assume GPU selected initially
-      surface = Debugger.MakeWebGLCanvasSurface('debugger_view', canvas.width, canvas.height);
+      surface = Debugger.MakeWebGLCanvasSurface(canvas);
 
       document.getElementById('command-count').innerHTML = player.getSize();
       player.setClipVizColor(0);
@@ -112,7 +112,7 @@ DebuggerInit({
     .addEventListener('change', function(e) {
       if (e.target.checked) {
         replaceCanvas();
-        surface = Debugger.MakeWebGLCanvasSurface('debugger_view', canvas.width, canvas.height);
+        surface = Debugger.MakeWebGLCanvasSurface(document.getElementById('debugger_view'));
       }
     });
 
@@ -120,7 +120,7 @@ DebuggerInit({
     .addEventListener('change', function(e) {
       if (e.target.checked) {
         replaceCanvas();
-        surface = Debugger.MakeSWCanvasSurface('debugger_view');
+        surface = Debugger.MakeSWCanvasSurface(document.getElementById('debugger_view'));
       }
     });
 

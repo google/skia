@@ -10,7 +10,8 @@
         stencil: 0,
         antialias: 1,
         premultipliedAlpha: 1,
-        preserveDrawingBuffer: 0,
+        // for the zoom to be able to access the pixels. Incurs performance penalty
+        preserveDrawingBuffer: 1,
         preferLowPowerToHighPerformance: 0,
         failIfMajorPerformanceCaveat: 0,
         majorVersion: 1,
@@ -30,7 +31,7 @@
       }
       // GL is an enscripten provided helper
       // See https://github.com/emscripten-core/emscripten/blob/incoming/src/library_webgl.js
-      let context = GL.createContext(canvas, contextAttributes);
+      var context = GL.createContext(canvas, contextAttributes);
       if (!context) {
         console.log('Could not get a WebGL context from the canvas element.');
       }
@@ -42,30 +43,13 @@
       return makeWebGLContext(canvas, attrs);
     };
 
-    // arg can be of types:
-    //  - String - in which case it is interpreted as an id of a
-    //          canvas element.
-    //  - HTMLCanvasElement - in which the provided canvas element will
-    //          be used directly.
-    // Width and height can be provided to override those on the canvas
-    // element, or specify a height for when a context is provided.
-    DebuggerView.MakeWebGLCanvasSurface = function(arg, width, height) {
-      var canvas = arg;
-      if (canvas.tagName !== 'CANVAS') {
-        canvas = document.getElementById(arg);
-        if (!canvas) {
-          throw 'Canvas with id ' + arg + ' was not found';
-        }
-      }
+    // canvas - a canvas element to use for this surface.
+    DebuggerView.MakeWebGLCanvasSurface = function(canvas) {
       // we are ok with all the defaults
       var ctx = DebuggerView.GetWebGLContext(canvas);
 
       if (!ctx || ctx < 0) {
         throw 'failed to create webgl context: err ' + ctx;
-      }
-
-      if (!canvas && (!width || !height)) {
-        throw 'height and width must be provided with context';
       }
 
       var grcontext = this.MakeGrContext(ctx);
@@ -77,9 +61,7 @@
 
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var surface = this.MakeOnScreenGLSurface(grcontext,
-                                               width  || canvas.width,
-                                               height || canvas.height);
+      var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height);
       if (!surface) {
         // Don't fall back silently in the debugger, the user explicitly controls which backend he
         // wants via the UI. Calling function may catch this and show the user an error.
