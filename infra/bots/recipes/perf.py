@@ -69,6 +69,9 @@ def nanobench_flags(api, bot):
           'enarrow',
       ]
 
+    if 'Nexus7' in bot:
+      args.append('--purgeBetweenBenches')  # Debugging skia:8929
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -394,6 +397,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Debug-All-Android',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),

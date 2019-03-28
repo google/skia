@@ -179,6 +179,9 @@ static DEFINE_string(key, "",
 static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
 
+static DEFINE_bool(purgeBetweenBenches, false,
+                   "Call SkGraphics::PurgeAllCaches() between each benchmark?");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
@@ -1260,6 +1263,10 @@ int main(int argc, char** argv) {
                 if (FLAGS_dryRun) {
                     continue;
                 }
+            }
+
+            if (FLAGS_purgeBetweenBenches) {
+                SkGraphics::PurgeAllCaches();
             }
 
             TRACE_EVENT2("skia", "Benchmark", "name", TRACE_STR_COPY(bench->getUniqueName()),
