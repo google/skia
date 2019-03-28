@@ -16,6 +16,24 @@
       "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abc87c4f_4fa338da",
+        "filename": "include/core/SkTLazy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-28T16:55:24Z",
+      "side": 1,
+      "message": "I thought about it, but the one that takes a pointer is a bit weird. It\u0027s the one thing std::optional doesn\u0027t do. I know these functionally do the same thing, but logically they seem a bit different. Anyhow, seems pretty clear what it\u0027s doing.",
+      "parentUuid": "dafa9fb0_316ed270",
+      "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
