@@ -52,6 +52,24 @@
       "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ab9639d_d2c676d8",
+        "filename": "include/core/SkTLazy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-28T17:19:23Z",
+      "side": 1,
+      "message": "I think to be consistent with std::optional we\u0027d need to replace it with something like\n\ntemplate \u003ctypename U \u003d T\u003e SkTLazy(U\u0026\u0026 u) : fPtr(new (\u0026fStorage) T(std::forward\u003cU\u003e(u)) {}\n\nand update the (many) call sites to work with that.",
+      "parentUuid": "a7d88d41_90b0756e",
+      "revId": "a514b2ed2aab9ef102c7e1f4e75c8c265ec1cada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
