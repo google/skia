@@ -20,7 +20,6 @@
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkPDFResourceDict.h"
-#include "SkPDFSubsetFont.h"
 #include "SkPDFUtils.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
@@ -30,6 +29,24 @@
 #include "SkTo.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
+
+#include <vector>
+
+static sk_sp<SkData> subset_font(sk_sp<SkData> fontData,
+                                 const SkPDFGlyphUse& glyphUsage,
+                                 SkFontSubsetter subsetter,
+                                 const char* fontName,
+                                 int ttcIndex) {
+    if (!subsetter) {
+        return nullptr;
+    }
+    std::vector<SkGlyphID> set;
+    if (!glyphUsage.has(0)) {
+        set.push_back(0);  // Always include glyph 0.
+    }
+    glyphUsage.getSetValues([&glyphs](unsigned gid) { set.push_back(SkToUInt16(gid)); });
+    return subsetter(std::move(fontData), set.data(), SkToInt(set.size()), fontName, ttcIndex);
+}
 
 SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     SkFont font;
@@ -311,7 +328,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                 if (!SkToBool(metrics.fFlags &
                               SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag)) {
                     SkASSERT(font.firstGlyphID() == 1);
-                    sk_sp<SkData> subsetFontData = SkPDFSubsetFont(
+                    sk_sp<SkData> subsetFontData = subset_font(
                             stream_to_data(std::move(fontAsset)), font.glyphUsage(),
                             doc->metadata().fSubsetter,
                             metrics.fFontName.c_str(), ttcIndex);
