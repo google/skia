@@ -202,12 +202,6 @@ public:
     * These flags can be used with the read/write pixels functions below.
     */
     enum PixelOpsFlags {
-        /** The GrContext will not be flushed before the surface read or write. This means that
-            the read or write may occur before previous draws have executed. */
-        kDontFlush_PixelOpsFlag = 0x1,
-        /** Any surface writes should be flushed to the backend 3D API after the surface operation
-            is complete */
-        kFlushWrites_PixelOp = 0x2,
         /** The src for write or dst read is unpremultiplied. This is only respected if both the
             config src and dst configs are an RGBA/BGRA 8888 format. */
         kUnpremul_PixelOpsFlag  = 0x4,
