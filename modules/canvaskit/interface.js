@@ -381,6 +381,47 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
+                                       /*optional*/ blendMode, colors) {
+    if (!atlas || !paint || !srcRects || !dstXforms) {
+      SkDebug('Doing nothing since missing a required input');
+      return;
+    }
+    if (srcRects.length !== dstXforms.length || (colors && colors.length !== dstXforms.length)) {
+      throw 'Length mismatch of input arrays';
+    }
+    if (!blendMode) {
+      blendMode = CanvasKit.BlendMode.SrcOver;
+    }
+
+    var srcRectPtr;
+    if (srcRects.build) {
+      srcRectPtr = srcRects.build();
+    } else {
+      // TODO copy array
+    }
+
+    var dstXformPtr;
+    if (dstXforms.build) {
+      dstXformPtr = dstXforms.build();
+    } else {
+      // TODO copy array
+    }
+
+    var colorPtr = 0; // enscriptem doesn't like undefined for nullptr
+    if (colors) {
+      colorPtr = copy1dArray(colors, CanvasKit.HEAPF32)
+    }
+
+    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, dstXforms.length,
+                    blendMode, paint);
+
+    if (colorPtr) {
+      CanvasKit._free(colorPtr);
+    }
+
+  }
+
   // str can be either a text string or a ShapedText object
   CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
     if (typeof str === 'string') {

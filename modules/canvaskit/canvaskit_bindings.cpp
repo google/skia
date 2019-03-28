@@ -774,6 +774,27 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.concat(toSkMatrix(m));
         }))
         .function("drawArc", &SkCanvas::drawArc)
+        .function("_drawAtlas", optional_override([](SkCanvas& self,
+                const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr, uintptr_t /* SkRect* */ rptr,
+                uintptr_t /* JSColor* */ cptr, int count, SkBlendMode mode, const SkPaint* paint)->void {
+            // See comment above for uintptr_t explanation
+            const SkRSXform* dstXforms = reinterpret_cast<const SkRSXform*>(xptr);
+            const SkRect* srcRects = reinterpret_cast<const SkRect*>(rptr);
+            const JSColor* jcolors = nullptr;
+            if (cptr) {
+                jcolors = reinterpret_cast<const JSColor*>(cptr);
+            }
+            // TODO(kjlubick): expose cullRect
+            // srcRects[0].dump();
+            // srcRects[1].dump();
+
+            const SkColor* scolors = reinterpret_cast<const SkColor*>(jcolors);
+            SkDebugf("%u = r,g,b,a %d, %d, %d, %d\n", scolors[0],
+                SkColorGetR(scolors[0]), SkColorGetG(scolors[0]), SkColorGetB(scolors[0]), SkColorGetA(scolors[0]));
+            self.drawAtlas(atlas, dstXforms, srcRects, scolors,
+                           count, mode, nullptr, paint);
+
+        }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
