@@ -5,6 +5,7 @@
 
 #include "SkDocument.h"
 
+#include "SkFontSubsetter.h"
 #include "SkScalar.h"
 #include "SkString.h"
 #include "SkTime.h"
@@ -160,13 +161,15 @@ struct Metadata {
     */
     SkExecutor* fExecutor = nullptr;
 
-    /** Preferred Subsetter. Only respected if both are compiled in.
-        Experimental.
-    */
-    enum Subsetter {
-        kHarfbuzz_Subsetter,
-        kSfntly_Subsetter,
-    } fSubsetter = kHarfbuzz_Subsetter;
+    /** Font Subsetter.
+     */
+    #if defined(SK_PDF_USE_SFNTLY)
+    SkFontSubsetter fSubsetter = &SkSfntlyFontSubset;
+    #elif defined(SK_PDF_USE_HARFBUZZ_SUBSET)
+    SkFontSubsetter fSubsetter = &SkHarfbuzzFontSubset;
+    #else
+    SkFontSubsetter fSubsetter = nullptr;
+    #endif
 };
 
 /** Associate a node ID with subsequent drawing commands in an
