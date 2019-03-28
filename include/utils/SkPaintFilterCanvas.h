@@ -50,6 +50,9 @@ public:
     GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext() override {
         return proxy()->internal_private_accessTopLayerRenderTargetContext();
     }
+    SkCanvas* internal_private_getBaseWrappedCanvas() override {
+        return proxy()->internal_private_getBaseWrappedCanvas();
+    }
 
 protected:
     /**
