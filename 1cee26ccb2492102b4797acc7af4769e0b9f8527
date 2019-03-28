@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afac5cde_2732429f",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-28T15:00:21Z",
+      "side": 1,
+      "message": "I think I can of like getBaseWrappedCanvas slightly better. getWrappedCanvas seems to suggest just getting the next canvas this one wraps.",
+      "range": {
+        "startLine": 2357,
+        "startChar": 39,
+        "endLine": 2357,
+        "endChar": 55
+      },
+      "revId": "1cee26ccb2492102b4797acc7af4769e0b9f8527",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
