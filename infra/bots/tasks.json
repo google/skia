@@ -20838,6 +20838,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
         }
       ],
       "cipd_packages": [
@@ -20855,6 +20859,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
+        },
+        {
+          "name": "skia/bots/go",
+          "path": "go",
+          "version": "version:6"
         }
       ],
       "command": [
@@ -20900,7 +20909,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateGoDeps"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",

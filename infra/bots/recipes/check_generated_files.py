@@ -7,6 +7,7 @@
 
 DEPS = [
   'build',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -39,6 +40,10 @@ def RunSteps(api):
         'git diff #1',
         cmd=['git', 'diff', '--no-ext-diff'],
         stdout=api.m.raw_io.output()).stdout
+
+    with api.context(env=api.infra.go_env):
+      api.step('generate gl interfaces',
+               cmd=['make', '-C', 'tools/gpu/gl/interface', 'generate'])
 
     # Touch all .fp files so that the generated files are rebuilt.
     api.run(
