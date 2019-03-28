@@ -63,6 +63,18 @@
 
 // Utility functions
 
+static bool draws_nothing(const SkPaint& p) {
+    SkBlendMode m = p.getBlendMode();
+    return 0 == p.getAlphaf() && (m == SkBlendMode::kSrcOver ||
+                                  m == SkBlendMode::kDst     ||
+                                  m == SkBlendMode::kDstOver ||
+                                  m == SkBlendMode::kDstOut  ||
+                                  m == SkBlendMode::kSrcATop ||
+                                  m == SkBlendMode::kXor     ||
+                                  m == SkBlendMode::kScreen  ||
+                                  m >  SkBlendMode::kLastCoeffMode );
+}
+
 static SkPath to_path(const SkRect& r) {
     SkPath p;
     p.addRect(r);
@@ -533,6 +545,9 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
 }
 
 void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
+    if (this->hasEmptyClip() || draws_nothing(srcPaint)) {
+        return;
+    }
     SkMatrix inverse;
     if (!this->ctm().invert(&inverse)) {
         return;
@@ -540,9 +555,6 @@ void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
     SkRect bbox = this->cs().bounds(this->bounds());
     inverse.mapRect(&bbox);
     bbox.roundOut(&bbox);
-    if (this->hasEmptyClip()) {
-        return;
-    }
     SkPaint newPaint = srcPaint;
     newPaint.setStyle(SkPaint::kFill_Style);
     this->drawRect(bbox, newPaint);
@@ -552,7 +564,7 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
                              size_t count,
                              const SkPoint* points,
                              const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(srcPaint)) {
         return;
     }
     SkPaint passedPaint = srcPaint;
@@ -669,7 +681,7 @@ static std::unique_ptr<SkPDFDict> create_link_named_dest(const SkData* nameData,
 
 void SkPDFDevice::drawRect(const SkRect& rect,
                            const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(srcPaint)) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -693,7 +705,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
 
 void SkPDFDevice::drawRRect(const SkRRect& rrect,
                             const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(srcPaint)) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -706,7 +718,7 @@ void SkPDFDevice::drawRRect(const SkRRect& rrect,
 
 void SkPDFDevice::drawOval(const SkRect& oval,
                            const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(srcPaint)) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -886,6 +898,9 @@ void SkPDFDevice::drawBitmapRect(const SkBitmap& bm,
 }
 
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {
+    if (this->hasEmptyClip() || draws_nothing(paint)) {
+        return;
+    }
     SkASSERT(!bm.drawsNothing());
     auto r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
     this->internalDrawImageRect(SkKeyedImage(bm), nullptr, r, paint, SkMatrix::I());
@@ -1264,7 +1279,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
         fNamedDestinations.emplace_back(NamedDestination{d.nameData, p});
     }
 
-    if (pdfDevice->isContentEmpty()) {
+    if (this->hasEmptyClip() || draws_nothing(paint) || pdfDevice->isContentEmpty()) {
         return;
     }
 
@@ -1340,7 +1355,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
         return false;
     }
 
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(paint)) {
         return false;
     }
 
@@ -1782,7 +1797,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                                         const SkRect& dst,
                                         const SkPaint& srcPaint,
                                         const SkMatrix& ctm) {
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(srcPaint)) {
         return;
     }
     if (!imageSubset) {
@@ -2017,7 +2032,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
 void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
                               SkImage* clipImage, const SkMatrix& clipMatrix) {
-    if (this->hasEmptyClip()) {
+    if (this->hasEmptyClip() || draws_nothing(paint)) {
         return;
     }
     SkASSERT(!srcImg->isTextureBacked());
