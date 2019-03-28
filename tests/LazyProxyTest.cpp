@@ -84,14 +84,12 @@ public:
             const GrBackendFormat format =
                     ctx->priv().caps()->getBackendFormatFromColorType(kRGB_565_SkColorType);
             fProxy = GrProxyProvider::MakeFullyLazyProxy(
-                    [this, nullTexture](GrResourceProvider* rp) {
-                        if (!rp) {
-                            return sk_sp<GrTexture>();
-                        }
+                    [this, nullTexture](
+                            GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationReturn {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
                         fTest->fHasOpTexture = true;
                         if (nullTexture) {
-                            return sk_sp<GrTexture>();
+                            return {};
                         } else {
                             GrSurfaceDesc desc;
                             desc.fWidth = 1234;
@@ -99,7 +97,8 @@ public:
                             desc.fConfig = kRGB_565_GrPixelConfig;
                             sk_sp<GrTexture> texture = rp->createTexture(desc, SkBudgeted::kYes);
                             REPORTER_ASSERT(fTest->fReporter, texture);
-                            return texture;
+                            return {std::move(texture),
+                                    GrSurfaceProxy::LazyInstantiationKeyMode::kSynced};
                         }
                     },
                     format, GrProxyProvider::Renderable::kNo, kTopLeft_GrSurfaceOrigin,
@@ -134,19 +133,15 @@ public:
                 ctx->priv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
                                                                     GrSRGBEncoded::kNo);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
-                                [this](GrResourceProvider* rp) {
-                                    if (!rp) {
-                                        return sk_sp<GrTexture>();
-                                    }
-                                    REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
-                                    fTest->fHasClipTexture = true;
-                                    fAtlas->instantiate(rp);
-                                    return sk_ref_sp(fAtlas->peekTexture());
-                                },
-                                format,
-                                GrProxyProvider::Renderable::kYes,
-                                kBottomLeft_GrSurfaceOrigin,
-                                kAlpha_half_GrPixelConfig, *proxyProvider->caps());
+                    [this](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationReturn {
+                        REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
+                        fTest->fHasClipTexture = true;
+                        fAtlas->instantiate(rp);
+                        return {sk_ref_sp(fAtlas->peekTexture()),
+                                GrSurfaceProxy::LazyInstantiationKeyMode::kSynced};
+                    },
+                    format, GrProxyProvider::Renderable::kYes, kBottomLeft_GrSurfaceOrigin,
+                    kAlpha_half_GrPixelConfig, *proxyProvider->caps());
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
                           GrSamplerState::WrapMode::kClamp);
             this->setTextureSamplerCnt(1);
@@ -248,6 +243,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
+    using LazyInstantiationReturn = GrSurfaceProxy::LazyInstantiationReturn;
     for (bool doInstantiate : {true, false}) {
         for (auto lazyType : {LazyInstantiationType::kSingleUse,
                               LazyInstantiationType::kMultipleUse,
@@ -268,7 +264,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                 }
                 TestCallback& operator=(const TestCallback& that) = delete;
 
-                sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) const {
+                LazyInstantiationReturn operator()(GrResourceProvider* resourceProvider) const {
                     *fValue = 1;
                     return {};
                 }
@@ -337,15 +333,17 @@ private:
                 ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         fLazyProxy = proxyProvider->createLazyProxy(
-                [testExecuteValue, shouldFailInstantiation, desc](GrResourceProvider* rp) {
+                [testExecuteValue, shouldFailInstantiation,
+                 desc](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationReturn {
                     if (shouldFailInstantiation) {
                         *testExecuteValue = 1;
-                        return sk_sp<GrTexture>();
+                        return {};
                     }
-                    return rp->createTexture(desc, SkBudgeted::kNo);
+                    return {rp->createTexture(desc, SkBudgeted::kNo),
+                            GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                SkBackingFit::kExact, SkBudgeted::kNo);
+                format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
+                SkBudgeted::kNo);
 
         SkASSERT(fLazyProxy.get());
 
@@ -479,16 +477,17 @@ DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
                 nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
 
         sk_sp<GrTextureProxy> lazyProxy = proxyProvider->createLazyProxy(
-                [instantiatePtr, releasePtr, backendTex](GrResourceProvider* rp) {
+                [instantiatePtr, releasePtr,
+                 backendTex](GrResourceProvider* rp) -> GrSurfaceProxy::LazyInstantiationReturn {
                     sk_sp<GrTexture> texture =
                             rp->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
                                                    GrWrapCacheable::kNo, kRead_GrIOType);
                     if (!texture) {
-                        return sk_sp<GrTexture>();
+                        return {};
                     }
                     (*instantiatePtr)++;
                     texture->setRelease(DeinstantiateReleaseProc, releasePtr);
-                    return texture;
+                    return {std::move(texture), GrSurfaceProxy::LazyInstantiationKeyMode::kSynced};
                 },
                 format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                 GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);

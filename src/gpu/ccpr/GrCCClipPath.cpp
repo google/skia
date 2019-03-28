@@ -20,10 +20,8 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                                                                         GrSRGBEncoded::kNo);
 
     fAtlasLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
-            [this](GrResourceProvider* resourceProvider) {
-                if (!resourceProvider) {
-                    return sk_sp<GrTexture>();
-                }
+            [this](GrResourceProvider* resourceProvider)
+                    -> GrSurfaceProxy::LazyInstantiationReturn {
                 SkASSERT(fHasAtlas);
                 SkASSERT(!fHasAtlasTransform);
 
@@ -31,7 +29,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                 if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
                     fAtlasScale = fAtlasTranslate = {0, 0};
                     SkDEBUGCODE(fHasAtlasTransform = true);
-                    return sk_sp<GrTexture>();
+                    return {};
                 }
 
                 SkASSERT(kTopLeft_GrSurfaceOrigin == textureProxy->origin());
@@ -41,7 +39,8 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                                     fDevToAtlasOffset.fY * fAtlasScale.y());
                 SkDEBUGCODE(fHasAtlasTransform = true);
 
-                return sk_ref_sp(textureProxy->peekTexture());
+                return {sk_ref_sp(textureProxy->peekTexture()),
+                        GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
             format, GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin,
             kAlpha_half_GrPixelConfig, caps);
