@@ -710,13 +710,14 @@ class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(SkUniqueCFRef<CTFontRef> fontRef, SkUniqueCFRef<CFTypeRef> resourceRef,
                    const SkFontStyle& fs, bool isFixedPitch,
-                   bool isLocalStream)
+                   std::unique_ptr<SkStreamAsset> providedData)
         : SkTypeface(fs, isFixedPitch)
         , fFontRef(std::move(fontRef))
         , fOriginatingCFTypeRef(std::move(resourceRef))
         , fHasColorGlyphs(
                 SkToBool(CTFontGetSymbolicTraits(fFontRef.get()) & kCTFontColorGlyphsTrait))
-        , fIsLocalStream(isLocalStream)
+        , fIsLocalStream(providedData)
+        , fStream(std::move(providedData))
     {
         SkASSERT(fFontRef);
     }
@@ -749,6 +750,8 @@ protected:
 
 private:
     bool fIsLocalStream;
+    mutable SkOnce fInitStream;
+    mutable std::unique_ptr<SkStreamAsset> fStream;
 
     typedef SkTypeface INHERITED;
 };
@@ -763,10 +766,10 @@ static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
 /** Creates a typeface, searching the cache if isLocalStream is false. */
 static sk_sp<SkTypeface> create_from_CTFontRef(SkUniqueCFRef<CTFontRef> font,
                                                SkUniqueCFRef<CFTypeRef> resource,
-                                               bool isLocalStream) {
+                                               std::unique_ptr<SkStreamAsset> providedData) {
     SkASSERT(font);
 
-    if (!isLocalStream) {
+    if (!providedData) {
         sk_sp<SkTypeface> face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef,
                                                                    (void*)font.get());
         if (face) {
@@ -775,13 +778,13 @@ static sk_sp<SkTypeface> create_from_CTFontRef(SkUniqueCFRef<CTFontRef> font,
     }
 
     SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(font.get()));
-    SkFontStyle style = fontstyle_from_descriptor(desc.get(), isLocalStream);
+    SkFontStyle style = fontstyle_from_descriptor(desc.get(), bool(providedData));
     CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font.get());
     bool isFixedPitch = SkToBool(traits & kCTFontMonoSpaceTrait);
 
     sk_sp<SkTypeface> face(new SkTypeface_Mac(std::move(font), std::move(resource),
-                                              style, isFixedPitch, isLocalStream));
-    if (!isLocalStream) {
+                                              style, isFixedPitch, std::move(providedData)));
+    if (!providedData) {
         SkTypefaceCache::Add(face);
     }
     return face;
@@ -794,7 +797,7 @@ static sk_sp<SkTypeface> create_from_desc(CTFontDescriptorRef desc) {
         return nullptr;
     }
 
-    return create_from_CTFontRef(std::move(ctFont), nullptr, false);
+    return create_from_CTFontRef(std::move(ctFont), nullptr, nullptr);
 }
 
 static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[],
@@ -873,7 +876,7 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef font, CFTypeRef resource) {
     }
     return create_from_CTFontRef(SkUniqueCFRef<CTFontRef>(font),
                                  SkUniqueCFRef<CFTypeRef>(resource),
-                                 false).release();
+                                 nullptr).release();
 }
 
 static const char* map_css_names(const char* name) {
@@ -1557,6 +1560,7 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 // Returns nullptr on failure
 // Call must still manage its ownership of provider
 static sk_sp<SkTypeface> create_from_dataProvider(SkUniqueCFRef<CGDataProviderRef> provider,
+                                                  std::unique_ptr<SkStreamAsset> providedData,
                                                   int ttcIndex) {
     if (ttcIndex != 0) {
         return nullptr;
@@ -1569,7 +1573,7 @@ static sk_sp<SkTypeface> create_from_dataProvider(SkUniqueCFRef<CGDataProviderRe
     if (!ct) {
         return nullptr;
     }
-    return create_from_CTFontRef(std::move(ct), nullptr, true);
+    return create_from_CTFontRef(std::move(ct), nullptr, std::move(providedData));
 }
 
 // Web fonts added to the CTFont registry do not return their character set.
@@ -1785,6 +1789,13 @@ static SK_SFNT_ULONG get_font_type_tag(CTFontRef ctFont) {
 }
 
 std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
+    *ttcIndex = 0;
+
+    fInitStream([this]{
+    if (fStream) {
+        return;
+    }
+
     SK_SFNT_ULONG fontType = get_font_type_tag(fFontRef.get());
 
     // get table tags
@@ -1841,8 +1852,8 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
     }
 
     // reserve memory for stream, and zero it (tables must be zero padded)
-    std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(totalSize));
-    char* dataStart = (char*)stream->getMemoryBase();
+    fStream.reset(new SkMemoryStream(totalSize));
+    char* dataStart = (char*)fStream->getMemoryBase();
     sk_bzero(dataStart, totalSize);
     char* dataPtr = dataStart;
 
@@ -1880,9 +1891,8 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
         dataPtr += (tableSize + 3) & ~3;
         ++entry;
     }
-
-    *ttcIndex = 0;
-    return stream;
+    });
+    return fStream->duplicate();
 }
 
 struct NonDefaultAxesContext {
@@ -2614,7 +2624,7 @@ protected:
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
         SkUniqueCFRef<CTFontRef> fallbackFont(
                 CTFontCreateForString(familyFont.get(), string.get(), range));
-        return create_from_CTFontRef(std::move(fallbackFont), nullptr, false).release();
+        return create_from_CTFontRef(std::move(fallbackFont), nullptr, nullptr).release();
     }
 
     SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
@@ -2623,20 +2633,21 @@ protected:
     }
 
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
-        SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromData(std::move(data)));
+        SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
         if (!pr) {
             return nullptr;
         }
-        return create_from_dataProvider(std::move(pr), ttcIndex);
+        return create_from_dataProvider(std::move(pr), SkMemoryStream::Make(std::move(data)),
+                                        ttcIndex);
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                             int ttcIndex) const override {
-        SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromStream(std::move(stream)));
+        SkUniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream->duplicate()));
         if (!pr) {
             return nullptr;
         }
-        return create_from_dataProvider(std::move(pr), ttcIndex);
+        return create_from_dataProvider(std::move(pr), std::move(stream), ttcIndex);
     }
 
     /** Creates a dictionary suitable for setting the axes on a CGFont. */
@@ -2732,7 +2743,7 @@ protected:
         if (args.getCollectionIndex() != 0) {
             return nullptr;
         }
-        SkUniqueCFRef<CGDataProviderRef> provider(SkCreateDataProviderFromStream(std::move(s)));
+        SkUniqueCFRef<CGDataProviderRef> provider(SkCreateDataProviderFromStream(s->duplicate()));
         if (!provider) {
             return nullptr;
         }
@@ -2757,7 +2768,7 @@ protected:
         if (!ct) {
             return nullptr;
         }
-        return create_from_CTFontRef(std::move(ct), std::move(cg), true);
+        return create_from_CTFontRef(std::move(ct), std::move(cg), std::move(s));
     }
 
     /** Creates a dictionary suitable for setting the axes on a CGFont. */
@@ -2819,7 +2830,7 @@ protected:
             return nullptr;
         }
         SkUniqueCFRef<CGDataProviderRef> provider(
-                SkCreateDataProviderFromStream(fontData->detachStream()));
+                SkCreateDataProviderFromStream(fontData->getStream()->duplicate()));
         if (!provider) {
             return nullptr;
         }
@@ -2844,7 +2855,7 @@ protected:
         if (!ct) {
             return nullptr;
         }
-        return create_from_CTFontRef(std::move(ct), std::move(cg), true);
+        return create_from_CTFontRef(std::move(ct), std::move(cg), fontData->detachStream());
     }
 
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
@@ -2852,7 +2863,7 @@ protected:
         if (!pr) {
             return nullptr;
         }
-        return create_from_dataProvider(std::move(pr), ttcIndex);
+        return create_from_dataProvider(std::move(pr), SkFILEStream::Make(path), ttcIndex);
     }
 
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {
