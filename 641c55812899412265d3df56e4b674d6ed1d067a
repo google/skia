@@ -16,6 +16,24 @@
       "revId": "641c55812899412265d3df56e4b674d6ed1d067a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d20f492f_2ab469d1",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 2496,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2019-03-28T19:07:36Z",
+      "side": 1,
+      "message": "I made it private. It was protected, because it felt weird to override a private function in SkPaintFilterCanvas. Apparently this is allowed, so I made it private.",
+      "parentUuid": "e036ead5_b4a8355f",
+      "revId": "641c55812899412265d3df56e4b674d6ed1d067a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
