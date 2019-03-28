@@ -444,12 +444,14 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
 
     GET_PROC(GetQueryObjectiv);
 
+#if GR_TEST_UTILS
     GET_PROC(BeginQuery);
     GET_PROC(DeleteQueries);
     GET_PROC(EndQuery);
     GET_PROC(GenQueries);
     GET_PROC(GetQueryObjectuiv);
     GET_PROC(GetQueryiv);
+#endif
 
     if (glVer >= GR_GL_VER(3,3)) {
         GET_PROC(GetQueryObjecti64v);

@@ -194,7 +194,7 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_ARB_clear_texture"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_EXT_clear_texture")))) {
-        // all functions were marked optional
+        // all functions were marked optional or test_only
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
@@ -633,7 +633,17 @@ bool GrGLInterface::validate() const {
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
           fExtensions.has("GL_EXT_occlusion_query_boolean")))) {
-        // all functions were marked optional
+#if GR_TEST_UTILS
+        if (!fFunctions.fBeginQuery ||
+            !fFunctions.fDeleteQueries ||
+            !fFunctions.fEndQuery ||
+            !fFunctions.fGenQueries ||
+            !fFunctions.fGetQueryObjectuiv ||
+            !fFunctions.fGetQueryiv) {
+            RETURN_FALSE_INTERFACE;
+        }
+#endif
+        // all functions were marked optional or test_only
     }
 
     if ((GR_IS_GR_GL(fStandard) && (

@@ -49,6 +49,9 @@ type FeatureSet struct {
 	HardCodeFunctions []HardCodeFunction `json:"hardcode_functions"`
 	OptionalFunctions []string           `json:"optional"` // not checked in validate
 
+	// only assembled/validated when testing
+	TestOnlyFunctions []string `json:"test_functions"`
+
 	Required bool `json:"required"`
 	EGLProc  bool `json:"egl_proc"`
 }
@@ -123,6 +126,7 @@ func fillAssembleTemplate(template string, features []FeatureSet, getReqs Requir
 		if len(reqs) == 0 {
 			continue
 		}
+		isEGL := feature.EGLProc
 		// blocks holds all the if blocks generated - it will be joined with else
 		// after and appended to content
 		blocks := []string{}
@@ -146,28 +150,17 @@ func fillAssembleTemplate(template string, features []FeatureSet, getReqs Requir
 			// sort for determinism
 			sort.Strings(feature.Functions)
 			for _, function := range feature.Functions {
-				if ifExpr != "" {
-					// extra tab for being in an if statement
-					block += SPACER
-				}
-				suffix := deriveSuffix(req.Extension)
-				// Some ARB extensions don't have ARB suffixes because they were written
-				// for backwards compatibility simultaneous to adding them as required
-				// in a new GL version.
-				if suffix == "ARB" {
-					suffix = ""
-				}
-				if req.SuffixOverride != nil {
-					suffix = *req.SuffixOverride
-				}
-				if feature.EGLProc {
-					block = addLine(block, fmt.Sprintf("GET_EGL_PROC_SUFFIX(%s, %s);", function, suffix))
-				} else if req.Extension == CORE_FEATURE || suffix == "" {
-					block = addLine(block, fmt.Sprintf("GET_PROC(%s);", function))
-				} else if req.Extension != "" {
-					block = addLine(block, fmt.Sprintf("GET_PROC_SUFFIX(%s, %s);", function, suffix))
-				}
+				block = assembleFunction(block, ifExpr, function, isEGL, req)
 			}
+			sort.Strings(feature.TestOnlyFunctions)
+			if len(feature.TestOnlyFunctions) > 0 {
+				block += "#if GR_TEST_UTILS\n"
+				for _, function := range feature.TestOnlyFunctions {
+					block = assembleFunction(block, ifExpr, function, isEGL, req)
+				}
+				block += "#endif\n"
+			}
+
 			// a hard code function does not use the C++ macro
 			for _, hcf := range feature.HardCodeFunctions {
 				if ifExpr != "" {
@@ -200,6 +193,34 @@ func fillAssembleTemplate(template string, features []FeatureSet, getReqs Requir
 	}
 
 	return strings.Replace(template, "[[content]]", content, 1)
+}
+
+// assembleFunction is a little helper that will add a function to the interface
+// using an appropriate macro (e.g. if the function is added)
+// with an extension.
+func assembleFunction(block, ifExpr, function string, isEGL bool, req Requirement) string {
+	if ifExpr != "" {
+		// extra tab for being in an if statement
+		block += SPACER
+	}
+	suffix := deriveSuffix(req.Extension)
+	// Some ARB extensions don't have ARB suffixes because they were written
+	// for backwards compatibility simultaneous to adding them as required
+	// in a new GL version.
+	if suffix == "ARB" {
+		suffix = ""
+	}
+	if req.SuffixOverride != nil {
+		suffix = *req.SuffixOverride
+	}
+	if isEGL {
+		block = addLine(block, fmt.Sprintf("GET_EGL_PROC_SUFFIX(%s, %s);", function, suffix))
+	} else if req.Extension == CORE_FEATURE || suffix == "" {
+		block = addLine(block, fmt.Sprintf("GET_PROC(%s);", function))
+	} else if req.Extension != "" {
+		block = addLine(block, fmt.Sprintf("GET_PROC_SUFFIX(%s, %s);", function, suffix))
+	}
+	return block
 }
 
 // requirementIfExpression returns a string that is an if expression
@@ -343,16 +364,36 @@ func functionCheck(feature FeatureSet, indentLevel int) string {
 		} else {
 			checks = append(checks, "!fFunctions.f"+function)
 		}
-
+	}
+	testOnly := []string{}
+	for _, function := range feature.TestOnlyFunctions {
+		if in(function, feature.OptionalFunctions) {
+			continue
+		}
+		if feature.EGLProc {
+			testOnly = append(testOnly, "!fFunctions.fEGL"+function)
+		} else {
+			testOnly = append(testOnly, "!fFunctions.f"+function)
+		}
 	}
 	for _, hcf := range feature.HardCodeFunctions {
 		checks = append(checks, "!fFunctions."+hcf.PtrName)
 	}
-	if len(checks) == 0 {
-		return strings.Repeat(SPACER, indentLevel) + "// all functions were marked optional\n"
+	preCheck := ""
+	if len(testOnly) != 0 {
+		preCheck = fmt.Sprintf(`#if GR_TEST_UTILS
+%sif (%s) {
+%s%sRETURN_FALSE_INTERFACE;
+%s}
+#endif
+`, indent, strings.Join(testOnly, " ||\n"+indent+"    "), indent, SPACER, indent)
 	}
 
-	return fmt.Sprintf(`%sif (%s) {
+	if len(checks) == 0 {
+		return preCheck + strings.Repeat(SPACER, indentLevel) + "// all functions were marked optional or test_only\n"
+	}
+
+	return preCheck + fmt.Sprintf(`%sif (%s) {
 %s%sRETURN_FALSE_INTERFACE;
 %s}
 `, indent, strings.Join(checks, " ||\n"+indent+"    "), indent, SPACER, indent)
@@ -373,6 +414,12 @@ func validateFeatures(features []FeatureSet) {
 	seen := map[string]bool{}
 	for _, feature := range features {
 		for _, fn := range feature.Functions {
+			if seen[fn] {
+				abort("ERROR: Duplicate function %s\n", fn)
+			}
+			seen[fn] = true
+		}
+		for _, fn := range feature.TestOnlyFunctions {
 			if seen[fn] {
 				abort("ERROR: Duplicate function %s\n", fn)
 			}
