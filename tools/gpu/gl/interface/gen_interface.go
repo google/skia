@@ -47,7 +47,8 @@ type FeatureSet struct {
 
 	Functions         []string           `json:"functions"`
 	HardCodeFunctions []HardCodeFunction `json:"hardcode_functions"`
-	OptionalFunctions []string           `json:"optional"` // not checked in validate
+	OptionalFunctions []string           `json:"optional"`  // not checked in validate
+	TestOnlyFunctions []string           `json:"test_only"` // only validated when testing
 
 	Required bool `json:"required"`
 	EGLProc  bool `json:"egl_proc"`
@@ -333,9 +334,14 @@ func functionCheck(feature FeatureSet, indentLevel int) string {
 	sort.Strings(feature.Functions)
 	indent := strings.Repeat(SPACER, indentLevel)
 
+	testOnly := []string{}
 	checks := []string{}
 	for _, function := range feature.Functions {
 		if in(function, feature.OptionalFunctions) {
+			continue
+		}
+		if in(function, feature.TestOnlyFunctions) {
+			testOnly = append(testOnly, "!fFunctions.f"+function)
 			continue
 		}
 		if feature.EGLProc {
@@ -343,16 +349,25 @@ func functionCheck(feature FeatureSet, indentLevel int) string {
 		} else {
 			checks = append(checks, "!fFunctions.f"+function)
 		}
-
 	}
 	for _, hcf := range feature.HardCodeFunctions {
 		checks = append(checks, "!fFunctions."+hcf.PtrName)
 	}
-	if len(checks) == 0 {
-		return strings.Repeat(SPACER, indentLevel) + "// all functions were marked optional\n"
+	preCheck := ""
+	if len(testOnly) != 0 {
+		preCheck = fmt.Sprintf(`#if GR_TEST_UTILS
+%sif (%s) {
+%s%sRETURN_FALSE_INTERFACE;
+%s}
+#endif
+`, indent, strings.Join(testOnly, " ||\n"+indent+"    "), indent, SPACER, indent)
 	}
 
-	return fmt.Sprintf(`%sif (%s) {
+	if len(checks) == 0 {
+		return preCheck + strings.Repeat(SPACER, indentLevel) + "// all functions were marked optional or test_only\n"
+	}
+
+	return preCheck + fmt.Sprintf(`%sif (%s) {
 %s%sRETURN_FALSE_INTERFACE;
 %s}
 `, indent, strings.Join(checks, " ||\n"+indent+"    "), indent, SPACER, indent)
