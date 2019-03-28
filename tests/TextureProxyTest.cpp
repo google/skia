@@ -321,7 +321,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
         backingTex = nullptr;
         cache->purgeAllUnlocked();
     }
-
     invalidation_test(context, reporter);
     invalidation_and_instantiation_test(context, reporter);
 }
