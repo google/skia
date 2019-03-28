@@ -14,6 +14,42 @@
 #include "SkLumaColorFilter.h"
 #include "SkTableColorFilter.h"
 
+// A tint filter maps colors to a given range (gradient), based on the input luminance:
+//
+//   c' = lerp(lo, hi, luma(c))
+//
+// TODO: move to public headers/API?
+//
+static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
+    const auto r_lo = SkColorGetR(lo),
+    g_lo = SkColorGetG(lo),
+    b_lo = SkColorGetB(lo),
+    a_lo = SkColorGetA(lo),
+    r_hi = SkColorGetR(hi),
+    g_hi = SkColorGetG(hi),
+    b_hi = SkColorGetB(hi),
+    a_hi = SkColorGetA(hi);
+
+    // We map component-wise:
+    //
+    //   r' = lo.r + (hi.r - lo.r) * luma
+    //   g' = lo.g + (hi.g - lo.g) * luma
+    //   b' = lo.b + (hi.b - lo.b) * luma
+    //   a' = lo.a + (hi.a - lo.a) * luma
+    //
+    // The input luminance is stored in the alpha channel
+    // (and RGB are cleared -- see SkLumaColorFilter). Thus:
+    const SkScalar tint_matrix[] = {
+        0, 0, 0, (r_hi - r_lo) / 255.0f, SkIntToScalar(r_lo),
+        0, 0, 0, (g_hi - g_lo) / 255.0f, SkIntToScalar(g_lo),
+        0, 0, 0, (b_hi - b_lo) / 255.0f, SkIntToScalar(b_lo),
+        0, 0, 0, (a_hi - a_lo) / 255.0f, SkIntToScalar(a_lo),
+    };
+
+    return SkColorFilter::MakeMatrixFilterRowMajor255(tint_matrix)
+    ->makeComposed(SkLumaColorFilter::Make());
+}
+
 namespace {
 
 class MixerCFGM final : public skiagm::GM {
@@ -67,42 +103,6 @@ private:
             }
         }
         canvas->translate(0, fTileSize.height() * 1.1f);
-    }
-
-    // A tint filter maps colors to a given range (gradient), based on the input luminance:
-    //
-    //   c' = lerp(lo, hi, luma(c))
-    //
-    // TODO: move to public headers/API?
-    //
-    static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
-        const auto r_lo = SkColorGetR(lo),
-                   g_lo = SkColorGetG(lo),
-                   b_lo = SkColorGetB(lo),
-                   a_lo = SkColorGetA(lo),
-                   r_hi = SkColorGetR(hi),
-                   g_hi = SkColorGetG(hi),
-                   b_hi = SkColorGetB(hi),
-                   a_hi = SkColorGetA(hi);
-
-        // We map component-wise:
-        //
-        //   r' = lo.r + (hi.r - lo.r) * luma
-        //   g' = lo.g + (hi.g - lo.g) * luma
-        //   b' = lo.b + (hi.b - lo.b) * luma
-        //   a' = lo.a + (hi.a - lo.a) * luma
-        //
-        // The input luminance is stored in the alpha channel
-        // (and RGB are cleared -- see SkLumaColorFilter). Thus:
-        const SkScalar tint_matrix[] = {
-            0, 0, 0, (r_hi - r_lo) / 255.0f, SkIntToScalar(r_lo),
-            0, 0, 0, (g_hi - g_lo) / 255.0f, SkIntToScalar(g_lo),
-            0, 0, 0, (b_hi - b_lo) / 255.0f, SkIntToScalar(b_lo),
-            0, 0, 0, (a_hi - a_lo) / 255.0f, SkIntToScalar(a_lo),
-        };
-
-        return SkColorFilter::MakeMatrixFilterRowMajor255(tint_matrix)
-                 ->makeComposed(SkLumaColorFilter::Make());
     }
 
     using INHERITED = skiagm::GM;
@@ -195,3 +195,35 @@ private:
     using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShaderMixerGM; )
+
+static void draw_rect(SkCanvas* c, const SkRect& r, const SkPaint& p, SkScalar x, SkScalar y) {
+    c->save();
+    c->translate(x, y);
+    c->drawRect(r, p);
+    c->restore();
+}
+
+DEF_SIMPLE_GM(mixercolorfilter, canvas, 768, 512) {
+    auto cf0 = MakeTintColorFilter(0xff300000, 0xffa00000);  // red tint
+    auto cf1 = MakeTintColorFilter(0xff003000, 0xff00a000);  // green tint
+
+    SkRect r = { 0, 0, 256, 256 };
+
+    SkPaint p;
+    p.setShader(make_resource_shader("images/mandrill_256.png", 256));
+
+    draw_rect(canvas, r, p,   0,   0);
+    p.setColorFilter(cf0);
+    draw_rect(canvas, r, p, 256,   0);
+    p.setColorFilter(cf1);
+    draw_rect(canvas, r, p, 512,   0);
+
+    auto mx = SkMixer::MakeLerp(0.5f);
+
+    p.setColorFilter(SkColorFilter::MakeMixer(cf0, cf1, mx));
+    draw_rect(canvas, r, p,   0, 256);
+    p.setColorFilter(SkColorFilter::MakeMixer(cf0, nullptr, mx));
+    draw_rect(canvas, r, p, 256, 256);
+    p.setColorFilter(SkColorFilter::MakeMixer(nullptr, cf1, mx));
+    draw_rect(canvas, r, p, 512, 256);
+}

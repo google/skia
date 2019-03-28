@@ -18,6 +18,7 @@ class GrFragmentProcessor;
 class GrRecordingContext;
 class SkBitmap;
 class SkColorSpace;
+class SkMixer;
 struct SkStageRec;
 class SkString;
 
@@ -128,6 +129,15 @@ public:
      */
     static sk_sp<SkColorFilter> MakeLerp(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
                                          float weight);
+
+    /**
+     *  Returns a new filter that mixes the output of two other filters. If either filter is null,
+     *  then it is treated like an identity filter.
+     *
+     *  result = mx(cf0(color), cf1(color))
+     */
+    static sk_sp<SkColorFilter> MakeMixer(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1,
+                                          sk_sp<SkMixer> mx);
 
 #if SK_SUPPORT_GPU
     /**

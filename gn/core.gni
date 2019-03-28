@@ -151,6 +151,7 @@ skia_core_sources = [
   "$_src/core/SkClipStackDevice.h",
   "$_src/core/SkColor.cpp",
   "$_src/core/SkColorFilter.cpp",
+  "$_src/core/SkColorFilter_Mixer.cpp",
   "$_src/core/SkColorMatrixFilterRowMajor255.cpp",
   "$_src/core/SkColorMatrixFilterRowMajor255.h",
   "$_src/core/SkColorSpace.cpp",
