@@ -22,6 +22,30 @@
       "revId": "cdc22beeeb112ffc0ca70555feae7cb912e05f0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73a9b76a_a441617b",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-03-28T15:44:15Z",
+      "side": 1,
+      "message": "Can we make this function private and only expose it through SkAndroidFrameworkUtils?  It then makes it clear who is allowed to call this.",
+      "parentUuid": "34d8c402_bc0bef7c",
+      "range": {
+        "startLine": 2357,
+        "startChar": 22,
+        "endLine": 2357,
+        "endChar": 59
+      },
+      "revId": "cdc22beeeb112ffc0ca70555feae7cb912e05f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
