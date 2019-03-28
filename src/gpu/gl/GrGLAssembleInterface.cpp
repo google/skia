@@ -31,6 +31,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get
         return GrGLMakeAssembledGLESInterface(ctx, get);
     } else if (GR_IS_GR_GL(standard)) {
         return GrGLMakeAssembledGLInterface(ctx, get);
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        return GrGLMakeAssembledWebGLInterface(ctx, get);
     }
     return nullptr;
 }
