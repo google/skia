@@ -151,6 +151,29 @@
       "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bba0f953_7dc591f4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-03-28T12:11:19Z",
+      "side": 1,
+      "message": "+1 to using drawBitmapRect, if for no other reason than we don\u0027t have to call setMatrix()",
+      "range": {
+        "startLine": 468,
+        "startChar": 16,
+        "endLine": 468,
+        "endChar": 25
+      },
+      "revId": "c6c90644e66ed81ea570c0a3c0d94fed4a81e9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
