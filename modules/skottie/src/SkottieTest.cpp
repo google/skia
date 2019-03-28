@@ -230,10 +230,10 @@ DEF_TEST(Skottie_Shaper, reporter) {
         SkScalar text_size,
                  tolerance;
     } kTestSizes[] = {
-        {  5, 1.0f },
-        { 10, 1.0f },
-        { 15, 1.2f },
-        { 25, 2.2f },
+        {  5, 2.0f },
+        { 10, 2.0f },
+        { 15, 2.4f },
+        { 25, 4.4f },
     };
 
     static constexpr struct {
