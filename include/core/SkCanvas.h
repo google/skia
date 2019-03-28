@@ -31,6 +31,7 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
+class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
 class SkPixmap;
@@ -2490,6 +2491,9 @@ protected:
                         const SkImageFilter* imageFilter = nullptr);
 
     SkBaseDevice* getTopDevice() const;
+
+    // don't call
+    virtual SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() { return nullptr; }
 
 private:
     /** After calling saveLayer(), there can be any number of devices that make
