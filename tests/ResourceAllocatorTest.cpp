@@ -312,15 +312,15 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     desc.fSampleCnt = p.fSampleCnt;
 
     SkBackingFit fit = p.fFit;
-    auto callback = [fit, desc](GrResourceProvider* resourceProvider) -> sk_sp<GrSurface> {
-        if (!resourceProvider) {
-            return nullptr;
-        }
+    auto callback = [fit, desc](GrResourceProvider* resourceProvider) {
+        sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
-            return resourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNone);
+            texture = resourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNone);
         } else {
-            return resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            texture = resourceProvider->createTexture(desc, SkBudgeted::kNo);
         }
+        return GrSurfaceProxy::LazyInstantiationReturn{
+                std::move(texture), GrSurfaceProxy::LazyInstantiationKeyMode::kSynced};
     };
     const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
