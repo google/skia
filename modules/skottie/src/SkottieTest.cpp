@@ -8,10 +8,14 @@
 #include "SkMatrix.h"
 #include "Skottie.h"
 #include "SkottieProperty.h"
+#include "SkottieShaper.h"
 #include "SkStream.h"
+#include "SkTextBlob.h"
+#include "SkTypeface.h"
 
 #include "Test.h"
 
+#include <cmath>
 #include <tuple>
 #include <vector>
 
@@ -216,4 +220,57 @@ DEF_TEST(Skottie_Annotations, reporter) {
     REPORTER_ASSERT(reporter, std::get<0>(observer->fMarkers[1]) == "marker_2");
     REPORTER_ASSERT(reporter, std::get<1>(observer->fMarkers[1]) == 0.75f);
     REPORTER_ASSERT(reporter, std::get<2>(observer->fMarkers[1]) == 0.75f);
+}
+
+DEF_TEST(Skottie_Shaper, reporter) {
+    auto typeface = SkTypeface::MakeDefault();
+    REPORTER_ASSERT(reporter, typeface);
+
+    static constexpr struct {
+        SkScalar text_size,
+                 tolerance;
+    } kTestSizes[] = {
+        {  5, 1.0f },
+        { 10, 1.0f },
+        { 15, 1.2f },
+        { 25, 2.2f },
+    };
+
+    static constexpr struct {
+        SkTextUtils::Align align;
+        SkScalar           l_selector,
+                           r_selector;
+    } kTestAligns[] = {
+        { SkTextUtils::  kLeft_Align, 0.0f, 1.0f },
+        { SkTextUtils::kCenter_Align, 0.5f, 0.5f },
+        { SkTextUtils:: kRight_Align, 1.0f, 0.0f },
+    };
+
+    const SkString text("Foo, bar.\rBaz.");
+    const SkPoint  text_point = SkPoint::Make(100, 100);
+
+    for (const auto& tsize : kTestSizes) {
+        for (const auto& talign : kTestAligns) {
+            const skottie::Shaper::TextDesc desc = {
+                typeface,
+                tsize.text_size,
+                talign.align,
+            };
+
+            const auto shape_result = skottie::Shaper::Shape(text, desc, text_point);
+            REPORTER_ASSERT(reporter, shape_result.fBlob);
+
+            const auto shape_bounds = shape_result.computeBounds();
+            REPORTER_ASSERT(reporter, !shape_bounds.isEmpty());
+
+            const auto expected_l = text_point.x() - shape_bounds.width() * talign.l_selector;
+            REPORTER_ASSERT(reporter,
+                            std::fabs(shape_bounds.left() - expected_l) < tsize.tolerance);
+
+            const auto expected_r = text_point.x() + shape_bounds.width() * talign.r_selector;
+            REPORTER_ASSERT(reporter,
+                            std::fabs(shape_bounds.right() - expected_r) < tsize.tolerance);
+
+        }
+    }
 }
