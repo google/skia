@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f1be33f_0b4e01d7",
+        "filename": "experimental/wasm-skp-debugger/gpu.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-28T12:47:42Z",
+      "side": 1,
+      "message": "var here too - basically all the \"let\"s you removed",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 7
+      },
+      "revId": "b69fa1373e724c4ee22deedb74f11ccad83cedb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
