@@ -10,7 +10,15 @@
 #include "SkRasterPipeline.h"
 #include "../../third_party/skcms/skcms.h"
 
-// TODO: explain
+// TODO(mtklein): explain the logic of this file
+
+bool SkColorSpaceXformSteps::Required(SkColorSpace* src, SkColorSpace* dst) {
+    // Any SkAlphaType will work fine here as long as we use the same one.
+    SkAlphaType at = kPremul_SkAlphaType;
+    return 0 != SkColorSpaceXformSteps(src, at,
+                                       dst, at).flags.mask();
+    // TODO(mtklein): quicker impl. that doesn't construct an SkColorSpaceXformSteps?
+}
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst, SkAlphaType dstAT) {
@@ -175,12 +183,3 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p, bool src_is_normalized) 
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
 
-//////////////
-
-bool sk_can_use_legacy_blits(SkColorSpace* src, SkColorSpace* dst) {
-    // When considering legacy blits, we only supported premul, so set those here
-    SkAlphaType srcAT = kPremul_SkAlphaType;
-    SkAlphaType dstAT = kPremul_SkAlphaType;
-
-    return SkColorSpaceXformSteps(src, srcAT, dst, dstAT).flags.mask() == 0;
-}

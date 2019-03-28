@@ -57,7 +57,7 @@ class SkSpriteBlitter_Memcpy final : public SkSpriteBlitter {
 public:
     static bool Supports(const SkPixmap& dst, const SkPixmap& src, const SkPaint& paint) {
         // the caller has already inspected the colorspace on src and dst
-        SkASSERT(sk_can_use_legacy_blits(src.colorSpace(), dst.colorSpace()));
+        SkASSERT(!SkColorSpaceXformSteps::Required(src.colorSpace(), dst.colorSpace()));
 
         if (dst.colorType() != src.colorType()) {
             return false;
@@ -184,7 +184,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     SkSpriteBlitter* blitter = nullptr;
 
-    if (sk_can_use_legacy_blits(source.colorSpace(), dst.colorSpace())) {
+    if (!SkColorSpaceXformSteps::Required(source.colorSpace(), dst.colorSpace())) {
         if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
             blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
         }
