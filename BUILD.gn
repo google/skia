@@ -145,6 +145,8 @@ config("skia_public") {
     defines += [ "SK_ASSUME_GL_ES=1" ]
   } else if (skia_gl_standard == "gl") {
     defines += [ "SK_ASSUME_GL=1" ]
+  } else if (skia_gl_standard == "webgl") {
+    defines += [ "SK_ASSUME_WEBGL=1" ]
   }
 }
 

@@ -32,7 +32,7 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             *generation = k110_GrGLSLGeneration;
         }
         return true;
-    } else if (GR_IS_GR_GL_ES(gl->fStandard)) {
+    } else if (GR_IS_GR_GL_ES(gl->fStandard) || GR_IS_GR_WEBGL(gl->fStandard)) {
         SkASSERT(ver >= GR_GL_VER(1,00));
         if (ver >= GR_GLSL_VER(3,20)) {
             *generation = k320es_GrGLSLGeneration;

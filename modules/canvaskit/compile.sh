@@ -40,8 +40,8 @@ fi
 
 mkdir -p $BUILD_DIR
 
-GN_GPU="skia_enable_gpu=true skia_gl_standard = \"gles\""
-GN_GPU_FLAGS="\"-DIS_WEBGL=1\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
+GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
+GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
 if [[ $@ == *cpu* ]]; then
@@ -254,6 +254,6 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
-    -s USE_WEBGL2=1 \
+    -s USE_WEBGL2=0 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

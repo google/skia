@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    the cache limits; tweaking these may lead to better performance in some cases.
    `getResourceCacheLimitBytes`, `setResourceCacheLimitBytes`, `getResourceCacheUsageBytes`
 
+### Changed
+ - Better `GrGLCaps` support for WebGL - this shouldn't have any impacts on APIs or
+   correctness, except by perhaps fixing a few bugs in various surface types.
+
 ## [0.5.1] - 2019-03-21
 
 ### Added

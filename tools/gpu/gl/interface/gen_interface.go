@@ -31,6 +31,7 @@ const (
 	SPACER              = "    "
 	GLES_FILE_NAME      = "GrGLAssembleGLESInterfaceAutogen.cpp"
 	GL_FILE_NAME        = "GrGLAssembleGLInterfaceAutogen.cpp"
+	WEBGL_FILE_NAME     = "GrGLAssembleWebGLInterfaceAutogen.cpp"
 	INTERFACE_FILE_NAME = "GrGLInterfaceAutogen.cpp"
 )
 
@@ -105,9 +106,8 @@ func generateAssembleInterface(features []FeatureSet) {
 	writeToFile(*outDir, GL_FILE_NAME, gl)
 	gles := fillAssembleTemplate(ASSEMBLE_INTERFACE_GL_ES, features, glesRequirements)
 	writeToFile(*outDir, GLES_FILE_NAME, gles)
-	// uncomment this when ready to implement WebGL
-	// webgl := fillAssembleTemplate(ASSEMBLE_INTERFACE_WEB_GL, features, webglRequirements)
-	// writeToFile(*outDir, "GrGLAssembleInterface_webgl_gen.cpp", webgl)
+	webgl := fillAssembleTemplate(ASSEMBLE_INTERFACE_WEBGL, features, webglRequirements)
+	writeToFile(*outDir, WEBGL_FILE_NAME, webgl)
 }
 
 // fillAssembleTemplate returns a generated file given a template (for a single standard)
@@ -248,7 +248,7 @@ func requirementIfExpression(req Requirement, isLocal bool) string {
 			return fmt.Sprintf("(glVer >= GR_GL_VER(%d,%d) && %s.has(%q))", mv[0], mv[1], extVar, req.Extension)
 		}
 	}
-	abort("ERROR: requirement must have ext\n")
+	abort("ERROR: requirement must have ext")
 	return "ERROR"
 }
 
@@ -294,10 +294,10 @@ func generateValidateInterface(features []FeatureSet) {
 		}, {
 			StandardCheck: "GR_IS_GR_GL_ES(fStandard)",
 			GetReqs:       glesRequirements,
-		}, /*{ Disable until ready to add WebGL support
-			StandardCheck: "GR_IS_GR_WEB_GL(fStandard)",
-			GetReqs: webglRequirements
-		},*/
+		}, {
+			StandardCheck: "GR_IS_GR_WEBGL(fStandard)",
+			GetReqs:       webglRequirements,
+		},
 	}
 	content := ""
 	// For each feature, we are going to generate a series of
@@ -405,9 +405,7 @@ func allReqsAreCore(feature FeatureSet) bool {
 	if feature.GLReqs == nil || feature.GLESReqs == nil {
 		return false
 	}
-	return feature.GLReqs[0] == CORE_REQUIREMENT && feature.GLESReqs[0] == CORE_REQUIREMENT
-	// uncomment below when adding WebGL support
-	// && feature.WebGLReqs[0] == CORE_REQUIREMENT
+	return feature.GLReqs[0] == CORE_REQUIREMENT && feature.GLESReqs[0] == CORE_REQUIREMENT && feature.WebGLReqs[0] == CORE_REQUIREMENT
 }
 
 func validateFeatures(features []FeatureSet) {
@@ -415,7 +413,7 @@ func validateFeatures(features []FeatureSet) {
 	for _, feature := range features {
 		for _, fn := range feature.Functions {
 			if seen[fn] {
-				abort("ERROR: Duplicate function %s\n", fn)
+				abort("ERROR: Duplicate function %s", fn)
 			}
 			seen[fn] = true
 		}

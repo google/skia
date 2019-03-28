@@ -14,6 +14,7 @@
   {
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"ext": "<core>"}],
+    "WebGL": [{"ext": "<core>"}],
 
     "functions": [
       "ActiveTexture", "AttachShader", "BindAttribLocation", "BindBuffer",
@@ -53,6 +54,7 @@
   {
     "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "GetStringi",
@@ -64,6 +66,7 @@
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_OES_vertex_array_object"}],
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_vertex_array_object"},
               {/*    else if      */  "ext": "OES_vertex_array_object"}],
 
     // WebGL uses createVertexArray instead of genVertexArrays, but Emscripten
@@ -76,6 +79,7 @@
   {
     "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "GL_EXT_blend_func_extended"}],
+    "WebGL": null,
 
     "functions": [
       "BindFragDataLocation",
@@ -85,6 +89,7 @@
     "GL":    [{"min_version": [3, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_blend_func_extended"}],
     "GLES":  [{"min_version": [3, 0], "ext": "GL_EXT_blend_func_extended"}],
+    "WebGL": null,
 
     "functions": [
       "BindFragDataLocationIndexed",
@@ -96,6 +101,7 @@
               {"ext": "GL_NV_blend_equation_advanced"}],
     "GLES":  [{"ext": "GL_KHR_blend_equation_advanced"},
               {"ext": "GL_NV_blend_equation_advanced"}],
+    "WebGL": null,
 
     "functions": [
       "BlendBarrier",
@@ -106,6 +112,7 @@
     "GL":    [{"min_version": [4, 4], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_clear_texture"}],
     "GLES":  [{"ext": "GL_EXT_clear_texture", "suffix": "EXT"}],
+    "WebGL": null,
 
     "functions": [
       "ClearTexImage", "ClearTexSubImage",
@@ -122,6 +129,7 @@
               {/*    else if      */  "ext": "GL_EXT_draw_instanced"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_EXT_draw_instanced"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "DrawArraysInstanced", "DrawElementsInstanced",
@@ -130,6 +138,7 @@
   { // ES 3.0 has glDrawBuffers but not glDrawBuffer
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "DrawBuffers", "ReadBuffer",
@@ -140,6 +149,7 @@
     "GL":    [{"min_version": [4, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_draw_indirect"}],
     "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+    "WebGL": null,
 
     "functions": [
       "DrawArraysIndirect", "DrawElementsIndirect",
@@ -149,6 +159,7 @@
   { // glDrawRangeElements was added to ES in 3.0.
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "DrawRangeElements",
@@ -159,6 +170,7 @@
     "GL":    [{"min_version": [3, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_texture_multisample"}],
     "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+    "WebGL": null,
 
     "functions": [
       "GetMultisamplefv",
@@ -169,6 +181,7 @@
   {
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+    "WebGL": null,
 
     "functions": [
       "GetTexLevelParameteriv",
@@ -179,6 +192,7 @@
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_multi_draw_indirect"}],
     "GLES":  [{"ext": "GL_EXT_multi_draw_indirect"}],
+    "WebGL": null,
 
     "functions": [
       "MultiDrawArraysIndirect", "MultiDrawElementsIndirect",
@@ -190,6 +204,7 @@
     "GLES":  [{"min_version": [3, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_OES_texture_buffer"},
               {/*    else if      */  "ext": "GL_EXT_texture_buffer"}],
+    "WebGL": null,
 
     "functions": [
       "TexBuffer",
@@ -200,6 +215,7 @@
     "GLES":  [{"min_version": [3, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_OES_texture_buffer"},
               {/*    else if      */  "ext": "GL_EXT_texture_buffer"}],
+    "WebGL": null,
 
     "functions": [
       "TexBufferRange",
@@ -214,6 +230,7 @@
               {/*    else if      */  "ext": "GL_EXT_texture_storage"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_EXT_texture_storage"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "TexStorage2D",
@@ -226,6 +243,7 @@
               {/*    else if      */  "ext": "GL_ARB_texture_barrier"},
               {/*    else if      */  "ext": "GL_NV_texture_barrier"}],
     "GLES":  [{"ext": "GL_NV_texture_barrier"}],
+    "WebGL": null,
 
     "functions": [
       "TextureBarrier",
@@ -235,6 +253,7 @@
   {
     "GL":    null, // Not supported
     "GLES":  [{"ext": "GL_EXT_discard_framebuffer"}],
+    "WebGL": null,
 
     "functions": [
       "DiscardFramebuffer",
@@ -246,6 +265,7 @@
               {/*    else if      */  "ext": "GL_ARB_instanced_arrays"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_EXT_instanced_arrays"}],
+    "WebGL": null,
 
     "functions": [
       "VertexAttribDivisor",
@@ -254,6 +274,7 @@
   {
     "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "VertexAttribIPointer",
@@ -266,6 +287,7 @@
               {/*    else if      */  "ext": "GL_ARB_framebuffer_object"},
               {/*    else if      */  "ext": "GL_EXT_framebuffer_object"}],
     "GLES":  [{"ext": "<core>"}], // These are all in ES 2.0 and above
+    "WebGL": [{"ext": "<core>"}],
 
     "functions": [
       "BindFramebuffer", "BindRenderbuffer", "CheckFramebufferStatus",
@@ -282,6 +304,7 @@
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_CHROMIUM_framebuffer_multisample"},
               {/*    else if      */  "ext": "GL_ANGLE_framebuffer_blit"}],
+    // WebGL 2.0 might have support for blitFramebuffer and related functions.
 
     "functions": [
       "BlitFramebuffer",
@@ -294,6 +317,7 @@
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_CHROMIUM_framebuffer_multisample"},
               {/*    else if      */  "ext": "GL_ANGLE_framebuffer_multisample"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "RenderbufferStorageMultisample",
@@ -303,6 +327,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_CHROMIUM_map_sub"}],
+    "WebGL": null,
 
     "functions": [
       "MapBufferSubData", "MapTexSubImage2D", "UnmapBufferSubData",
@@ -314,6 +339,7 @@
     "GL":    null,
     "GLES":  [{"ext": "GL_EXT_multisampled_render_to_texture"},
               {"ext": "GL_IMG_multisampled_render_to_texture"}],
+    "WebGL": null,
 
     "functions": [
       "FramebufferTexture2DMultisample",
@@ -322,6 +348,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_EXT_multisampled_render_to_texture"}],
+    "WebGL": null,
 
     "hardcode_functions" : [
       {
@@ -334,6 +361,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_IMG_multisampled_render_to_texture"}],
+    "WebGL": null,
 
     "hardcode_functions" : [
       {
@@ -346,6 +374,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_APPLE_framebuffer_multisample"}],
+    "WebGL": null,
 
     "functions" : ["ResolveMultisampleFramebuffer"],
     "hardcode_functions" : [
@@ -370,6 +399,7 @@
   {
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"ext": "GL_OES_mapbuffer"}],
+    "WebGL": null,
 
     "functions": [
       "MapBuffer",
@@ -379,6 +409,7 @@
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_OES_mapbuffer"}],
+    "WebGL": null, // explicitly removed https://www.khronos.org/registry/webgl/specs/2.0/#5.14
 
     "functions": [
       "UnmapBuffer",
@@ -389,6 +420,7 @@
               {/*    else if      */  "ext": "GL_ARB_map_buffer_range"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_EXT_map_buffer_range"}],
+    "WebGL": null, // explicitly removed https://www.khronos.org/registry/webgl/specs/2.0/#5.14
 
     "functions": [
       // These functions are added to the 3.0 version of both GLES and GL.
@@ -399,6 +431,7 @@
   {
     "GL":    [{"ext": "GL_EXT_debug_marker"}],
     "GLES":  [{"ext": "GL_EXT_debug_marker"}],
+    "WebGL": null,
 
     "functions": [
       "InsertEventMarker", "PushGroupMarker", "PopGroupMarker"
@@ -409,6 +442,7 @@
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_program_interface_query"}],
     "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+    "WebGL": null,
 
     "functions": [
       "GetProgramResourceLocation",
@@ -421,6 +455,7 @@
 
     "GLES":  [{"ext": "GL_CHROMIUM_path_rendering"},
               {"ext": "GL_NV_path_rendering", "suffix": "EXT"}],
+    "WebGL": null,
 
     "functions": [
       "MatrixLoadIdentity", "MatrixLoadf"
@@ -430,6 +465,7 @@
     "GL":    [{"ext": "GL_NV_path_rendering"}],
     "GLES":  [{"ext": "GL_CHROMIUM_path_rendering"},
               {"ext": "GL_NV_path_rendering"}],
+    "WebGL": null,
 
     "functions": [
       "CoverFillPath", "CoverFillPathInstanced", "CoverStrokePath",
@@ -453,6 +489,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_CHROMIUM_path_rendering"}],
+    "WebGL": null,
 
     "functions": [
       "BindFragmentInputLocation",
@@ -462,6 +499,7 @@
     "GL":    [{"ext": "GL_NV_framebuffer_mixed_samples"}],
     "GLES":  [{"ext": "GL_CHROMIUM_framebuffer_mixed_samples"},
               {"ext": "GL_NV_framebuffer_mixed_samples"}],
+    "WebGL": null,
 
     "functions": [
       "CoverageModulation",
@@ -472,6 +510,7 @@
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_KHR_debug", "suffix": ""}],
     "GLES":  [{"ext": "GL_KHR_debug"}],
+    "WebGL": null,
 
     // In OpenGL (but not ES), KHR_debug defines these methods to have no suffix.
     "functions": [
@@ -483,6 +522,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_CHROMIUM_bind_uniform_location"}],
+    "WebGL": null,
 
     "functions": [
       "BindUniformLocation",
@@ -492,6 +532,7 @@
   {
     "GL":    [{"ext": "GL_EXT_window_rectangles"}],
     "GLES":  [{"ext": "GL_EXT_window_rectangles"}],
+    "WebGL": null,
 
     "functions": [
       "WindowRectangles",
@@ -503,6 +544,7 @@
               {"ext": "EGL_KHR_image_base"}],
     "GLES":  [{"ext": "EGL_KHR_image"},
               {"ext": "EGL_KHR_image_base"}],
+    "WebGL": null,
 
     "functions": [
       "CreateImage", "DestroyImage",
@@ -515,6 +557,7 @@
               {/*    else if      */  "ext": "GL_ARB_sync"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_APPLE_sync"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "ClientWaitSync", "DeleteSync", "FenceSync",
@@ -527,6 +570,7 @@
     "GL":    [{"min_version": [4, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_internalformat_query"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": null,
 
     "functions": [
       "GetInternalformativ"
@@ -536,6 +580,7 @@
   {
     "GL":    [{"min_version": [4, 1], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": null, // explicitly not supported in WebGL 2.0
 
     "functions": [
       "GetProgramBinary", "ProgramBinary", "ProgramParameteri",
@@ -546,6 +591,7 @@
     "GL":    [{"min_version": [3, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_sampler_objects"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL":  [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "BindSampler", "DeleteSamplers", "GenSamplers",
@@ -556,6 +602,7 @@
   {
     "GL":    [{"ext": "<core>"}],
     "GLES":  null, // not in ES
+    "WebGL": null,
 
     "functions": [
       "GetQueryObjectiv",
@@ -565,6 +612,7 @@
     "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_EXT_occlusion_query_boolean"}],
+    "WebGL": null,
 
     // We only use these in our test tools
     "test_functions": [
@@ -577,6 +625,7 @@
               {/*    else if      */  "ext": "GL_ARB_timer_query"},
               {/*    else if      */  "ext": "GL_EXT_timer_query"}],
     "GLES":  null,
+    "WebGL": null,
 
     "functions": [
       "GetQueryObjecti64v", "GetQueryObjectui64v",
@@ -586,6 +635,7 @@
     "GL":    [{"min_version": [3, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_timer_query"}],
     "GLES":  null,
+    "WebGL": null,
 
     "functions": [
       "QueryCounter",
@@ -596,6 +646,7 @@
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_invalidate_subdata"}],
     "GLES":  null,
+    "WebGL": null,
 
     "functions": [
       "InvalidateBufferData", "InvalidateBufferSubData", "InvalidateTexImage",
@@ -606,6 +657,7 @@
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_invalidate_subdata"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [
       "InvalidateFramebuffer", "InvalidateSubFramebuffer",
@@ -616,6 +668,7 @@
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_ES2_compatibility"}],
     "GLES":  [{"ext": "<core>"}],
+    "WebGL": [{"ext": "<core>"}],
 
     "functions": [
       "GetShaderPrecisionFormat",
