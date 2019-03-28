@@ -304,11 +304,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
-    SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
-    if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
-        return false;
-    }
-
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
         return false;
@@ -529,19 +524,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             SkToBool(dst->asRenderTargetContext()) &&
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
              dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
-            !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
             fContext->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
     const GrCaps* caps = this->caps();
-    if (!caps->surfaceSupportsWritePixels(dstSurface) ||
-        canvas2DFastPath) {
-        // We don't expect callers that are skipping flushes to require an intermediate draw.
-        SkASSERT(!(pixelOpsFlags & kDontFlush_PixelOpsFlag));
-        if (pixelOpsFlags & kDontFlush_PixelOpsFlag) {
-            return false;
-        }
-
+    if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
         GrSurfaceDesc desc;
         desc.fWidth = width;
         desc.fHeight = height;
@@ -660,7 +647,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         top = dstSurface->height() - top - height;
     }
 
-    if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && dstSurface->surfacePriv().hasPendingIO()) {
+    if (dstSurface->surfacePriv().hasPendingIO()) {
         this->flush(nullptr);  // MDB TODO: tighten this
     }
 
