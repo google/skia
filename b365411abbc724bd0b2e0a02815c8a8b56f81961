@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d574fd06_f0e3570b",
+        "filename": "src/gpu/GrContextPriv.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-28T14:35:00Z",
+      "side": 1,
+      "message": "Think we should centralize this as say,\n\n  bool SkColorSpaceXformteps::NeedsColorSpaceTransform(SkColorSpace* src, SkColorSpace* dst);\n\n?  Mike\u0027s recently added sk_can_use_legacy_blits(), which I think is the same gist (logic inverted, of course).\n\nThat\u0027d keep steps in charge, while possibly letting us implement it in a more streamlined way if we want to.",
+      "revId": "b365411abbc724bd0b2e0a02815c8a8b56f81961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
