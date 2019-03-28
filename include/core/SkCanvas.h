@@ -2354,6 +2354,7 @@ public:
 
     // don't call
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    virtual SkCanvas* internal_private_getWrappedCanvas() { return this; }
     SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
     // TEMP helpers until we switch virtual over to const& for src-rect
