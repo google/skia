@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1941a27_d3e287e9",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2750,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-03-29T18:51:59Z",
+      "side": 1,
+      "message": "We know that under the hood CoreGraphics just reads the data out of this provider (storing its tables in the internal table cache) and then more or less immediately unrefs it. So it doesn\u0027t seem worth the extra complexity or layer of indirection to pass the provided stream to the cgprovider and then create a skstream around the cgprovider.",
+      "range": {
+        "startLine": 2750,
+        "startChar": 36,
+        "endLine": 2750,
+        "endChar": 64
+      },
+      "revId": "77f778ac65290bafdebff03d63358e7f84136f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
