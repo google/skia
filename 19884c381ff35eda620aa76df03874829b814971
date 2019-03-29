@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7bb5d5b2_f0d2d058",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-29T18:25:53Z",
+      "side": 1,
+      "message": "Because the CCPR sample may increase the size of the debug bloat in order to visualize GPU geometry.",
+      "parentUuid": "8cf7fb1a_f942cb37",
+      "revId": "19884c381ff35eda620aa76df03874829b814971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf6558a3_c14c74ac",
         "filename": "src/gpu/ccpr/GrGSCoverageProcessor.cpp",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "af9f0e56_d737be63",
+        "filename": "src/gpu/ccpr/GrGSCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-29T18:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf6558a3_c14c74ac",
+      "revId": "19884c381ff35eda620aa76df03874829b814971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "69de34ea_510c178e",
         "filename": "src/gpu/ccpr/GrGSCoverageProcessor.h",
         "patchSetId": 5
@@ -50,6 +86,24 @@
       "revId": "19884c381ff35eda620aa76df03874829b814971",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06f3e349_21604011",
+        "filename": "src/gpu/ccpr/GrGSCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-03-29T18:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69de34ea_510c178e",
+      "revId": "19884c381ff35eda620aa76df03874829b814971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
