@@ -80,7 +80,7 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
         return proxy->priv().doLazyInstantiation(resourceProvider);
     }
 
-    return proxy->instantiate(resourceProvider);
+    return proxy->instantiate1(resourceProvider);
 }
 
 sk_sp<GrGpuBuffer> GrOnFlushResourceProvider::makeBuffer(GrGpuBufferType intendedType, size_t size,

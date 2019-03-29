@@ -49,7 +49,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
 
     GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
     bool preinstantiated = rtProxy->isInstantiated();
-    REPORTER_ASSERT(reporter, rtProxy->instantiate(provider));
+    REPORTER_ASSERT(reporter, rtProxy->instantiate1(provider));
     GrRenderTarget* rt = rtProxy->peekRenderTarget();
 
     REPORTER_ASSERT(reporter, rtProxy->uniqueID() == idBefore);
@@ -72,7 +72,8 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, rt->fsaaType() == rtProxy->fsaaType());
     REPORTER_ASSERT(reporter, rt->numColorSamples() == rtProxy->numColorSamples());
     REPORTER_ASSERT(reporter, rt->numStencilSamples() == rtProxy->numStencilSamples());
-    REPORTER_ASSERT(reporter, rt->surfacePriv().flags() == rtProxy->testingOnly_getFlags());
+    REPORTER_ASSERT(reporter, rt->surfacePriv().flags() ==
+                              (rtProxy->testingOnly_getFlags() & ~GrInternalSurfaceFlags::kNoPendingIO));
 }
 
 static void check_texture(skiatest::Reporter* reporter,
@@ -82,7 +83,7 @@ static void check_texture(skiatest::Reporter* reporter,
     GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
 
     bool preinstantiated = texProxy->isInstantiated();
-    REPORTER_ASSERT(reporter, texProxy->instantiate(provider));
+    REPORTER_ASSERT(reporter, texProxy->instantiate1(provider));
     GrTexture* tex = texProxy->peekTexture();
 
     REPORTER_ASSERT(reporter, texProxy->uniqueID() == idBefore);
@@ -148,7 +149,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                                 sk_sp<GrTextureProxy> proxy =
                                         proxyProvider->createProxy(format, desc, origin, fit,
-                                                                   budgeted);
+                                                                   budgeted,
+                                                                   GrInternalSurfaceFlags::kNoPendingIO);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
@@ -183,7 +185,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                                 sk_sp<GrTextureProxy> proxy(
                                         proxyProvider->createProxy(format, desc, origin, fit,
-                                                                   budgeted));
+                                                                   budgeted,
+                                                                   GrInternalSurfaceFlags::kNoPendingIO));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     // This forces the proxy to compute and cache its

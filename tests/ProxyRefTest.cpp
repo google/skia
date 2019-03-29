@@ -104,7 +104,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
 
-                proxy->instantiate(resourceProvider);
+                proxy->instantiate1(resourceProvider);
 
                 // In the deferred case, this checks that the refs transfered to the GrSurface
                 check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
@@ -124,7 +124,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
 
-                proxy->instantiate(resourceProvider);
+                proxy->instantiate1(resourceProvider);
 
                 // In the deferred case, this checks that the refs transfered to the GrSurface
                 check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
@@ -144,7 +144,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
 
-                proxy->instantiate(resourceProvider);
+                proxy->instantiate1(resourceProvider);
 
                 // In the deferred case, this checks that the refs transferred to the GrSurface
                 check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
@@ -165,7 +165,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 check_refs(reporter, proxy.get(), 3, backingRefs, kExpectedReads, kExpectedWrites);
 
-                proxy->instantiate(resourceProvider);
+                proxy->instantiate1(resourceProvider);
 
                 // In the deferred case, this checks that the refs transferred to the GrSurface
                 check_refs(reporter, proxy.get(), 3, 3, kExpectedReads, kExpectedWrites);
@@ -189,7 +189,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 check_refs(reporter, proxy.get(), 2, backingRefs, 0, kExpectedWrites);
 
-                proxy->instantiate(resourceProvider);
+                proxy->instantiate1(resourceProvider);
 
                 // In the deferred case, this checks that the refs transfered to the GrSurface
                 check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);

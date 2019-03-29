@@ -158,7 +158,7 @@ static void basic_test(GrContext* context,
     int expectedCacheCount = startCacheCount + (proxy->isInstantiated() ? 0 : 1);
 
     // Once instantiated, the backing resource should have the same key
-    SkAssertResult(proxy->instantiate(resourceProvider));
+    SkAssertResult(proxy->instantiate1(resourceProvider));
     const GrUniqueKey texKey = proxy->peekSurface()->getUniqueKey();
     REPORTER_ASSERT(reporter, texKey.isValid());
     REPORTER_ASSERT(reporter, key == texKey);
@@ -286,7 +286,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
 
     // Instantiate the proxy. This will trigger the message to be processed, so the resulting
     // texture should *not* have the unique key on it!
-    SkAssertResult(proxy->instantiate(resourceProvider));
+    SkAssertResult(proxy->instantiate1(resourceProvider));
 
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     REPORTER_ASSERT(reporter, !proxy->peekTexture()->getUniqueKey().isValid());
