@@ -46,6 +46,30 @@
       "revId": "2c2ad23aa1040d2a31f158b4619a00bdc440aaa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea3025f2_62b4e649",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-29T19:36:46Z",
+      "side": 1,
+      "message": "In this case the return type is sk_sp\u003cBase\u003e and we have sk_sp\u003cDerived\u003e. On older compilers you wouldn\u0027t automatically get move behavior. Newer clang will move but likes to warn you about the older compilers.",
+      "parentUuid": "91e858ed_52315d96",
+      "range": {
+        "startLine": 39,
+        "startChar": 11,
+        "endLine": 39,
+        "endChar": 17
+      },
+      "revId": "2c2ad23aa1040d2a31f158b4619a00bdc440aaa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
