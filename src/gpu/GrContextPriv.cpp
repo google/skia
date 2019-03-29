@@ -305,7 +305,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
     // MDB TODO: delay this instantiation until later in the method
-    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider(), true)) {
         return false;
     }
 
@@ -495,7 +495,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         return false;
     }
 
-    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider(), true)) {
         return false;
     }
 

@@ -487,10 +487,13 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     if (proxy->priv().hasPendingIO() || numSemaphores ||
         SkToBool(flags & SkSurface::kSyncCpu_FlushFlag)) {
         result = this->flush(proxy, access, flags, numSemaphores, backendSemaphores);
-    }
-
-    if (!proxy->instantiate(resourceProvider)) {
-        return result;
+        if (!proxy->isInstantiated()) {
+            return result;
+        }
+    } else {
+        if (!proxy->instantiate(resourceProvider)) {
+            return result;
+        }
     }
 
     GrSurface* surface = proxy->peekSurface();
