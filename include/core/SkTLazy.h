@@ -8,9 +8,9 @@
 #ifndef SkTLazy_DEFINED
 #define SkTLazy_DEFINED
 
-#include "../private/SkTemplates.h"
 #include "SkTypes.h"
 #include <new>
+#include <type_traits>
 #include <utility>
 
 /**
