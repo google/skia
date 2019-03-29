@@ -54,8 +54,14 @@ GrOpList::~GrOpList() {
     }
 }
 
+// TODO: this can go away when explicit allocation has stuck
 bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
-    return SkToBool(fTarget.get()->instantiate(resourceProvider));
+    if (resourceProvider->explicitlyAllocateGPUResources()) {
+        SkASSERT(fTarget.get()->isInstantiated());
+        return true;
+    } else {
+        return SkToBool(fTarget.get()->instantiate(resourceProvider));
+    }
 }
 
 void GrOpList::endFlush() {
