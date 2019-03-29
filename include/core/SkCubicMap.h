@@ -16,7 +16,7 @@
  *
  *  pt[0] is implicitly { 0, 0 }
  *  pt[3] is implicitly { 1, 1 }
- *  pts[1,2] are inside the unit square
+ *  pts[1,2].X are inside the unit [0..1]
  */
 class SK_API SkCubicMap {
 public:
