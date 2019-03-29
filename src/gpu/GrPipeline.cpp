@@ -39,7 +39,9 @@ GrPipeline::GrPipeline(const InitArgs& args,
     fXferProcessor = processors.refXferProcessor();
 
     if (args.fDstProxy.proxy()) {
-        if (!args.fDstProxy.proxy()->instantiate(args.fResourceProvider)) {
+        if (args.fResourceProvider->explicitlyAllocateGPUResources()) {
+            SkASSERT(args.fDstProxy.proxy()->isInstantiated());
+        } else if (!args.fDstProxy.proxy()->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
 

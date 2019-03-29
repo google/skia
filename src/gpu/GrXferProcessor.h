@@ -95,10 +95,6 @@ public:
             }
         }
 
-        bool instantiate(GrResourceProvider* resourceProvider) {
-            return SkToBool(fProxy->instantiate(resourceProvider));
-        }
-
     private:
         sk_sp<GrTextureProxy> fProxy;
         SkIPoint              fOffset;
