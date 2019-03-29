@@ -93,6 +93,15 @@ protected:
                                                          SK_Scalar1 * 100),
                                         40 * SK_Scalar1, 20 * SK_Scalar1,
                                         SkPath::kCW_Direction);
+        // skbug.com/8928
+        fPaths.push_back().moveTo(16.875, 192.594);
+        fPaths.back().cubicTo(45.625, 192.594, 74.375, 192.594, 103.125, 192.594);
+        fPaths.back().cubicTo(88.75, 167.708, 74.375, 142.823, 60, 117.938);
+        fPaths.back().cubicTo(45.625, 142.823, 31.25, 167.708, 16.875, 192.594);
+        fPaths.back().close();
+        SkMatrix m;
+        m.setAll(0.1, 0, -1, 0, 0.115207, -2.64977, 0, 0, 1);
+        fPaths.back().transform(m);
 
         // large number of points
         enum {
