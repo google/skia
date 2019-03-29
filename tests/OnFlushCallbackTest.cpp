@@ -304,11 +304,8 @@ public:
         const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
-                [](GrResourceProvider* resourceProvider) {
-                    if (!resourceProvider) {
-                        return sk_sp<GrTexture>();
-                    }
-
+                [](GrResourceProvider* resourceProvider)
+                        -> GrSurfaceProxy::LazyInstantiationResult {
                     GrSurfaceDesc desc;
                     desc.fFlags = kRenderTarget_GrSurfaceFlag;
                     // TODO: until partial flushes in MDB lands we're stuck having
@@ -317,8 +314,9 @@ public:
                     desc.fHeight = kAtlasTileSize;
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-                    return resourceProvider->createTexture(desc, SkBudgeted::kYes,
-                                                           GrResourceProvider::Flags::kNoPendingIO);
+                    auto texture = resourceProvider->createTexture(
+                            desc, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
+                    return std::move(texture);
                 },
                 format,
                 GrProxyProvider::Renderable::kYes,
