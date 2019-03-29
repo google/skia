@@ -12,7 +12,10 @@ CanvasKit.Color = function(r, g, b, a) {
   if (a === undefined) {
       a = 1;
   }
-  return (clamp(a*255) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0);
+  // The >>> 0 converts the signed int to an unsigned int. Skia's
+  // SkColor object is an unsigned int.
+  // https://stackoverflow.com/a/14891172
+  return ((clamp(a*255) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0)) >>> 0;
 }
 
 // returns [r, g, b, a] from a color
@@ -35,7 +38,8 @@ CanvasKit.multiplyByAlpha = function(color, alpha) {
   a *= alpha;
   // mask off the old alpha
   color &= 0xFFFFFF;
-  return clamp(a) << 24 | color;
+  // back to unsigned int to match SkColor.
+  return (clamp(a) << 24 | color) >>> 0;
 }
 
 function radiansToDegrees(rad) {
@@ -162,19 +166,31 @@ function loadCmdsTypedArray(arr) {
   return [ptr, len];
 }
 
-// Helper for building an array of RSXForms (which are just structs
-// of 4 floats)
-CanvasKit.RSXFormBuilder = function() {
-  this._pts = [];
-  this._ptr = null;
-}
-
 /**
- *  A compressed form of a rotation+scale matrix.
+ * Helper for building an array of RSXForms (which are just structs
+ * of 4 floats)
+
+ *  An RSXForm is a compressed form of a rotation+scale matrix.
  *
  *  [ scos    -ssin    tx ]
  *  [ ssin     scos    ty ]
  *  [    0        0     1 ]
+ */
+CanvasKit.RSXFormBuilder = function() {
+  this._pts = [];
+  this._ptr = null;
+
+  Object.defineProperty(this, 'length', {
+    enumerable: true,
+    get: function() {
+      return this._pts.length / 4;
+    },
+  });
+}
+
+/**
+ * push the RSXform onto the end of the array - if build() has already
+ * been called, the call will return without modifying anything.
  */
 CanvasKit.RSXFormBuilder.prototype.push = function(scos, ssin, tx, ty) {
   if (this._ptr) {
@@ -184,6 +200,37 @@ CanvasKit.RSXFormBuilder.prototype.push = function(scos, ssin, tx, ty) {
   this._pts.push(scos, ssin, tx, ty);
 }
 
+/**
+ * Set the RSXform at a given index - if build() has already
+ * been called, the WASM memory will be written immediately.
+ */
+CanvasKit.RSXFormBuilder.prototype.set = function(idx, scos, ssin, tx, ty) {
+  if (idx < 0 || idx >= this._pts.length/4) {
+    SkDebug('Cannot set index ' + idx + ', it is out of range', this._pts.length/4);
+    return;
+  }
+  idx *= 4;
+  var BYTES_PER_ELEMENT = 4;
+  if (this._ptr) {
+    // convert this._ptr from uint8_t* to SkScalar* by dividing by 4
+    var floatPtr = (this._ptr / BYTES_PER_ELEMENT) + idx;
+    CanvasKit.HEAPF32[floatPtr] = scos;
+    CanvasKit.HEAPF32[floatPtr + 1] = ssin;
+    CanvasKit.HEAPF32[floatPtr + 2] = tx;
+    CanvasKit.HEAPF32[floatPtr + 3] = ty;
+    return;
+  }
+  this._pts[idx] = scos;
+  this._pts[idx + 1] = ssin;
+  this._pts[idx + 2] = tx;
+  this._pts[idx + 3] = ty;
+}
+
+/**
+ * Copies the RSXform data to the WASM memory and returns a pointer
+ * to that allocated memory. Once build has been called, this
+ * RSXForm array cannot be made bigger.
+ */
 CanvasKit.RSXFormBuilder.prototype.build = function() {
   if (this._ptr) {
     return this._ptr;
@@ -192,9 +239,22 @@ CanvasKit.RSXFormBuilder.prototype.build = function() {
   return this._ptr;
 }
 
+/**
+ * Frees the wasm memory associated with this array. Of note,
+ * the points are not removed, so push/set/build can all
+ * be called to make a newly allocated (possibly bigger)
+ * RSXForm array.
+ */
 CanvasKit.RSXFormBuilder.prototype.delete = function() {
   if (this._ptr) {
     CanvasKit._free(this._ptr);
     this._ptr = null;
   }
 }
+
+/**
+ * Helper for building an array of RSXForms (which are just structs
+ * of 4 floats).  This is exactly the same thing as RSXFormBuilder
+ * since it is the same amount of data going across the wire.
+ */
+CanvasKit.SkRectBuilder = CanvasKit.RSXFormBuilder;
