@@ -57,7 +57,7 @@ protected:
 
         return rec.cmidx < 0
             ? lt
-            : SkTPin(fCubicMaps[rec.cmidx].computeYFromX(lt), 0.0f, 1.0f);
+            : fCubicMaps[rec.cmidx].computeYFromX(lt);
     }
 
     virtual int parseValue(const skjson::Value&, const AnimationBuilder* abuilder) = 0;
