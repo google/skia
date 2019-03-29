@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "31825ba3_351c55ab",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 8675
+      },
+      "writtenOn": "2019-03-29T10:34:35Z",
+      "side": 1,
+      "message": "It looks like the defines and deps below don\u0027t make it into GPU sources (e.g. GrVkPipelineState.cpp).  When I had the define in fuchsia_defines.gni last patch set, not having this here would cause build failures due to \u003ctrace/event.h\u003e being missing (meaning the zircon tracing dependency wasn\u0027t making it in).  Then after moving the define to below, the that define wasn\u0027t making it in here.  If there\u0027s a better way to do this, then please let me know.  I moved the define and dep here into its own section (it seemed a bit messy to have it hanging out in the Vulkan area).",
+      "parentUuid": "ec7c4a06_27b70b64",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19a1a5fc_3c5f877a",
         "filename": "BUILD.gn",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bab2691_335d002d",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 8675
+      },
+      "writtenOn": "2019-03-29T10:34:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19a1a5fc_3c5f877a",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "289ef84f_e0195337",
+        "filename": "gn/fuchsia_defines.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 8675
+      },
+      "writtenOn": "2019-03-29T10:34:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d5d0cd0_e312192e",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40c6bff5_8858cb2c",
         "filename": "src/core/SkTraceEvent.h",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2019-03-27T13:45:06Z",
       "side": 1,
       "message": "why did you need to override this?",
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25722a2b_e8d47bd5",
+        "filename": "src/core/SkTraceEvent.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8675
+      },
+      "writtenOn": "2019-03-29T10:34:35Z",
+      "side": 1,
+      "message": "The |skia::tracing_internals::TraceStringWithCopy| doesn\u0027t play nicely with Fuchsia\u0027s |trace::internal::ArgumentValueMaker| (https://fuchsia.googlesource.com/fuchsia/+/fce8c450bde7d4c9816809833520d33950477f14/zircon/system/ulib/trace/include/trace/internal/event_args.h#106).  We have to hand it the |TA_STRING| result that it actually has an overload for.  I added a comment to clarify this.",
+      "parentUuid": "40c6bff5_8858cb2c",
       "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -90,6 +162,30 @@
       "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7830aece_05e9636b",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8675
+      },
+      "writtenOn": "2019-03-29T10:34:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94d02639_5a6cb64d",
+      "range": {
+        "startLine": 156,
+        "startChar": 27,
+        "endLine": 156,
+        "endChar": 61
+      },
+      "revId": "2cbf099392e9bfbd94105dcc802512fdff74a522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
