@@ -26,9 +26,14 @@
 
 // By default, const char* argument values are assumed to have long-lived scope
 // and will not be copied. Use this macro to force a const char* to be copied.
-#define TRACE_STR_COPY(str) \
-    skia::tracing_internals::TraceStringWithCopy(str)
-
+#if defined(SK_BUILD_FOR_FUCHSIA)
+    // For copied strings, Fuchsia trace macros expect to have Fuchsia types
+    // supplied to them, rather than our types.
+    #define TRACE_STR_COPY(str) TA_STRING(str)
+#else
+    #define TRACE_STR_COPY(str) \
+        skia::tracing_internals::TraceStringWithCopy(str)
+#endif
 
 #define INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE() \
     *INTERNAL_TRACE_EVENT_UID(category_group_enabled) & \

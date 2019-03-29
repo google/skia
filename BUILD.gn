@@ -709,6 +709,11 @@ optional("gpu") {
   if (is_debug) {
     public_defines += [ "SK_ENABLE_DUMP_GPU" ]
   }
+
+  if (is_fuchsia) {
+    public_defines += [ "SK_BUILD_FOR_FUCHSIA" ]
+    public_deps += [ "//zircon/public/lib/trace" ]
+  }
 }
 
 optional("gif") {
@@ -1091,7 +1096,9 @@ component("skia") {
   }
 
   if (is_fuchsia) {
+    defines += [ "SK_BUILD_FOR_FUCHSIA" ]
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
+    public_deps += [ "//zircon/public/lib/trace" ]
   }
 }
 
