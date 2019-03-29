@@ -62,11 +62,10 @@ VkAccessFlags GrVkImage::LayoutToSrcAccessMask(const VkImageLayout layout) {
         flags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {
         flags = VK_ACCESS_TRANSFER_WRITE_BIT;
-    } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout) {
-        flags = VK_ACCESS_TRANSFER_READ_BIT;
-    } else if (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
-        flags = VK_ACCESS_SHADER_READ_BIT;
-    } else if (VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout) {
+    } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout ||
+               VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout) {
+        // There are no writes that need to be made available
         flags = 0;
     }
     return flags;
