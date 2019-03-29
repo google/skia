@@ -1595,7 +1595,7 @@ GrSemaphoresSubmitted SkGpuDevice::flushAndSignalSemaphores(SkSurface::BackendSu
     ASSERT_SINGLE_OWNER
 
     return fRenderTargetContext->prepareForExternalIO(access, flags, numSemaphores,
-                                                      signalSemaphores);
+                                                      signalSemaphores, true);
 }
 
 bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
