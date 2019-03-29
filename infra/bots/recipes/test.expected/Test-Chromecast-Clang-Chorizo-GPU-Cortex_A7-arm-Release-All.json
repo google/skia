@@ -97,6 +97,38 @@
   },
   {
     "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-r",
+      "/cache/skia/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /cache/skia/resources"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/cache/skia/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /cache/skia/resources (2)"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (1.5 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",

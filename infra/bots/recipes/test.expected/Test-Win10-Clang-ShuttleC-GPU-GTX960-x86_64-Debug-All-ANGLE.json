@@ -21,6 +21,34 @@
       "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]\\skia\\resources"
+    ],
+    "infra_step": true,
+    "name": "rmtree resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]\\skia\\resources"
+    ],
+    "infra_step": true,
+    "name": "makedirs resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
@@ -259,8 +287,8 @@
       "--config",
       "angle_d3d11_es2",
       "angle_d3d9_es2",
-      "angle_gl_es2",
       "angle_d3d11_es3",
+      "angle_gl_es2",
       "angle_d3d11_es2_msaa8",
       "angle_d3d11_es3_msaa8",
       "angle_gl_es3",

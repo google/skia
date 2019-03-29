@@ -59,6 +59,34 @@
   },
   {
     "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "resources"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm resources"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
+      "resources"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir resources"
+  },
+  {
+    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[START_DIR]/skia/resources",
       "resources"

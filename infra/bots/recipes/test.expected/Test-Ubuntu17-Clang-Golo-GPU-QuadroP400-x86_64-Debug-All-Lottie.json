@@ -21,6 +21,34 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/skia/resources"
+    ],
+    "infra_step": true,
+    "name": "rmtree resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/skia/resources"
+    ],
+    "infra_step": true,
+    "name": "makedirs resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "[START_DIR]/skia/infra/bots/assets/lottie-samples/VERSION",
       "/path/to/tmp/"
