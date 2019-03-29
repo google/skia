@@ -55,7 +55,7 @@ def gen_tasks_test(train):
   if output:
     if ('cannot find package "go.skia.org/infra' in output or
         'gen_tasks.go:' in output):
-      return ('Failed to run gen_tests.go:\n\n%s\nMaybe you need to run:\n\n'
+      return ('Failed to run gen_tasks.go:\n\n%s\nMaybe you need to run:\n\n'
               '$ go get -u go.skia.org/infra/...' % output)
   return output
 

@@ -40,11 +40,6 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
-	DEFAULT_OS_MAC       = "Mac-10.13.6"
-	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
-
 	DEFAULT_PROJECT = "skia"
 
 	// Small is a 2-core machine.
@@ -85,6 +80,8 @@ var (
 
 	// General configuration information.
 	CONFIG struct {
+		// Branch is the current git branch. Empty indicates master.
+		Branch        string   `json:"branch"`
 		GsBucketGm    string   `json:"gs_bucket_gm"`
 		GoldHashesURL string   `json:"gold_hashes_url"`
 		GsBucketNano  string   `json:"gs_bucket_nano"`
@@ -337,6 +334,18 @@ func internalHardwareLabel(parts map[string]string) *int {
 	return nil
 }
 
+func onBranch() bool {
+	return CONFIG.Branch != "" && CONFIG.Branch != "master"
+}
+
+func defaultOsLinuxGCE() string {
+	if onBranch() {
+		return "Debian"
+	} else {
+		return "Debian-9.8"
+	}
+}
+
 // linuxGceDimensions are the Swarming dimensions for Linux GCE instances.
 func linuxGceDimensions(machineType string) []string {
 	return []string{
@@ -345,7 +354,7 @@ func linuxGceDimensions(machineType string) []string {
 		"gpu:none",
 		// Currently all Linux GCE tasks run on 16-CPU machines.
 		fmt.Sprintf("machine_type:%s", machineType),
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+		fmt.Sprintf("os:%s", defaultOsLinuxGCE()),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
 }
@@ -438,39 +447,55 @@ func swarmDimensions(parts map[string]string) []string {
 
 // defaultSwarmDimensions generates default swarming bot dimensions for the given task.
 func defaultSwarmDimensions(parts map[string]string) []string {
+	defaultDebian := "Debian-9.4"
+	defaultMac := "Mac-10.13.6"
+	defaultWin := "Windows-2016Server-14393"
+	if onBranch() {
+		defaultDebian = "Debian"
+		defaultMac = "Mac"
+		defaultWin = "Windows-2016Server"
+	}
 	d := map[string]string{
 		"pool": CONFIG.Pool,
 	}
 	if os, ok := parts["os"]; ok {
-		d["os"], ok = map[string]string{
-			"Android":    "Android",
-			"Chromecast": "Android",
-			"ChromeOS":   "ChromeOS",
-			"Debian9":    DEFAULT_OS_DEBIAN,
-			"Mac":        DEFAULT_OS_MAC,
-			"Mac10.13":   DEFAULT_OS_MAC,
-			"Mac10.14":   "Mac-10.14.3",
-			"Ubuntu18":   "Ubuntu-18.04",
-			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-17763.379",
-			"Win2016":    DEFAULT_OS_WIN,
-			"Win7":       "Windows-7-SP1",
-			"Win8":       "Windows-8.1-SP0",
-			"iOS":        "iOS-11.4.1",
+		// First value is master, second value (if present) is branch.
+		osdims, ok := map[string][]string{
+			"Android":    {"Android"},
+			"Chromecast": {"Android"},
+			"ChromeOS":   {"ChromeOS"},
+			"Debian9":    {defaultDebian},
+			"Mac":        {defaultMac},
+			"Mac10.13":   {"Mac-10.13.6", "Mac-10.13"},
+			"Mac10.14":   {"Mac-10.14.3", "Mac-10.14"},
+			"Ubuntu18":   {"Ubuntu-18.04", "Ubuntu"},
+			"Win":        {defaultWin},
+			"Win10":      {"Windows-10-17763.379", "Windows-10"},
+			"Win2016":    {defaultWin},
+			"Win7":       {"Windows-7-SP1"},
+			"Win8":       {"Windows-8.1-SP0"},
+			"iOS":        {"iOS-11.4.1", "iOS"},
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if os == "Win10" && parts["model"] == "Golo" {
-			// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
-			d["os"] = "Windows-10-16299.309"
+		if onBranch() && len(osdims) == 2 {
+			d["os"] = osdims[1]
+		} else {
+			d["os"] = osdims[0]
 		}
-		if d["os"] == DEFAULT_OS_WIN {
-			// Upgrades result in a new image but not a new OS version.
-			d["image"] = "windows-server-2016-dc-v20190108"
+		if !onBranch() {
+			if os == "Win10" && parts["model"] == "Golo" {
+				// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
+				d["os"] = "Windows-10-16299.309"
+			}
+			if d["os"] == defaultWin {
+				// Upgrades result in a new image but not a new OS version.
+				d["image"] = "windows-server-2016-dc-v20190108"
+			}
 		}
 	} else {
-		d["os"] = DEFAULT_OS_DEBIAN
+		d["os"] = defaultDebian
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
@@ -496,7 +521,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
 			}
 			d["device_type"] = deviceInfo[0]
-			d["device_os"] = deviceInfo[1]
+			if !onBranch() {
+				d["device_os"] = deviceInfo[1]
+			}
 		} else if strings.Contains(parts["os"], "iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
@@ -509,18 +536,18 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["device"] = device
 		} else if strings.Contains(parts["extra_config"], "SwiftShader") {
-			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_DEBIAN || parts["cpu_or_gpu_value"] != "SwiftShader" {
+			if parts["model"] != "GCE" || d["os"] != defaultDebian || parts["cpu_or_gpu_value"] != "SwiftShader" {
 				glog.Fatalf("Please update defaultSwarmDimensions for SwiftShader %s %s %s.", parts["os"], parts["model"], parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = "x86-64-Haswell_GCE"
-			d["os"] = DEFAULT_OS_LINUX_GCE
+			d["os"] = defaultOsLinuxGCE()
 			d["machine_type"] = MACHINE_TYPE_SMALL
 		} else if strings.Contains(parts["extra_config"], "SKQP") && parts["cpu_or_gpu_value"] == "Emulator" {
-			if parts["model"] != "NUC7i5BNK" || d["os"] != DEFAULT_OS_DEBIAN {
+			if parts["model"] != "NUC7i5BNK" || d["os"] != defaultDebian {
 				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", parts["os"], parts["model"])
 			}
 			d["cpu"] = "x86-64-i5-7260U"
-			d["os"] = DEFAULT_OS_DEBIAN
+			d["os"] = defaultDebian
 			// KVM means Kernel-based Virtual Machine, that is, can this vm virtualize commands
 			// For us, this means, can we run an x86 android emulator on it.
 			// kjlubick tried running this on GCE, but it was a bit too slow on the large install.
@@ -550,8 +577,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in %q model mapping.", parts["model"], parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = cpu
-			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
-				d["os"] = DEFAULT_OS_LINUX_GCE
+			if parts["model"] == "GCE" && d["os"] == defaultDebian {
+				d["os"] = defaultOsLinuxGCE()
 			}
 			if parts["model"] == "GCE" && d["cpu"] == "x86-64-Haswell_GCE" {
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
@@ -577,7 +604,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				if !ok {
 					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
 				}
-				d["gpu"] = gpu
+				if onBranch() {
+					d["gpu"] = gpu[:9]
+				} else {
+					d["gpu"] = gpu
+				}
 			} else if strings.Contains(parts["os"], "Ubuntu") || strings.Contains(parts["os"], "Debian") {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
@@ -594,7 +625,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					// Ubuntu18 has a newer GPU driver.
 					gpu = "10de:1cb3-415.27"
 				}
-				d["gpu"] = gpu
+				if onBranch() {
+					d["gpu"] = gpu[:9]
+				} else {
+					d["gpu"] = gpu
+				}
 			} else if strings.Contains(parts["os"], "Mac") {
 				gpu, ok := map[string]string{
 					"IntelHD6000":   "8086:1626",
@@ -605,7 +640,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				if !ok {
 					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
 				}
-				d["gpu"] = gpu
+				if onBranch() {
+					d["gpu"] = gpu[:9]
+				} else {
+					d["gpu"] = gpu
+				}
 				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
 				if parts["cpu_or_gpu_value"] == "IntelIris5100" {
 					// Run all tasks on Golo machines for now.
@@ -631,7 +670,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_DEBIAN {
+		if d["os"] == defaultDebian {
 			if strings.Contains(parts["extra_config"], "PathKit") || strings.Contains(parts["extra_config"], "CanvasKit") || strings.Contains(parts["extra_config"], "CMake") {
 				return dockerGceDimensions()
 			}
@@ -641,12 +680,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			// Use many-core machines for Build tasks.
 			return linuxGceDimensions(MACHINE_TYPE_LARGE)
-		} else if d["os"] == DEFAULT_OS_WIN {
+		} else if d["os"] == defaultWin {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
 			// Use many-core machines for Build tasks.
 			d["machine_type"] = MACHINE_TYPE_LARGE
-		} else if d["os"] == DEFAULT_OS_MAC {
+		} else if d["os"] == defaultMac {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
 		}
@@ -926,7 +965,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	dims := []string{
 		"pool:SkiaCT",
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+		fmt.Sprintf("os:%s", defaultOsLinuxGCE()),
 	}
 	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, dims, nil, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
