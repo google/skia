@@ -897,10 +897,23 @@ public:
 
                 // Solid color before any texturing gets modulated in
                 if (gp.fColor.isInitialized()) {
-                    // The color cannot be flat if the varying coverage has been modulated into it
-                    args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
-                            gp.fCoverageMode == CoverageMode::kWithColor ?
-                            Interpolation::kInterpolated : Interpolation::kCanBeFlat);
+                    if (gp.fNeedsPerspective && gp.fCoverageMode == CoverageMode::kWithColor) {
+                        // Multiply the color by the vertex's w so that its interpolation will be
+                        // linear in screen space. Since the base color was flat, this really only
+                        // impacts the interpolation of the coverage baked into the color.
+                        GrGLSLVarying color(gp.fColor.gpuType());
+                        args.fVaryingHandler->addVarying("color", &color);
+                        args.fVertBuilder->codeAppendf("%s = %s * half(%s.z);",
+                                                       color.vsOut(), gp.fColor.name(),
+                                                       gp.fPosition.name());
+                        args.fFragBuilder->codeAppendf("%s = %s * half(sk_FragCoord.w);",
+                                                       args.fOutputColor, color.fsIn());
+                    } else {
+                        // The color cannot be flat if the varying coverage has been modulated into it
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
+                                gp.fCoverageMode == CoverageMode::kWithColor ?
+                                Interpolation::kInterpolated : Interpolation::kCanBeFlat);
+                    }
                 } else {
                     // Output color must be initialized to something
                     args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
@@ -946,15 +959,20 @@ public:
                     GrGLSLVarying coverage(kFloat_GrSLType);
                     args.fVaryingHandler->addVarying("coverage", &coverage);
                     if (gp.fNeedsPerspective) {
-                        args.fVertBuilder->codeAppendf("%s = %s.w;",
-                                                       coverage.vsOut(), gp.fPosition.name());
+                        // Multiply by "W" in the vertex shader, then by 1/w (sk_FragCoord.w) in
+                        // the fragment shader to get screen-space linear coverage.
+                        args.fVertBuilder->codeAppendf("%s = %s.w * %s.z;",
+                                                       coverage.vsOut(), gp.fPosition.name(),
+                                                       gp.fPosition.name());
+                        args.fFragBuilder->codeAppendf("%s = half4(half(%s * sk_FragCoord.w));",
+                                                       args.fOutputCoverage, coverage.fsIn());
                     } else {
                         args.fVertBuilder->codeAppendf("%s = %s.z;",
                                                        coverage.vsOut(), gp.fPosition.name());
+                        args.fFragBuilder->codeAppendf("%s = half4(half(%s));",
+                                                       args.fOutputCoverage, coverage.fsIn());
                     }
 
-                    args.fFragBuilder->codeAppendf("%s = half4(half(%s));",
-                                                   args.fOutputCoverage, coverage.fsIn());
                 } else {
                     // Set coverage to 1, since it's either non-AA or the coverage was already
                     // folded into the output color
