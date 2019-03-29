@@ -139,7 +139,7 @@ protected:
         for (int i = 0; i < N; ++i) {
             fRects[i] = SkRect::MakeXYWH(rand.nextF() * (imageW - 8),
                                          rand.nextF() * (imageH - 8), 8, 8);
-            fColors[i] = rand.nextU();
+            fColors[i] = rand.nextU() | 0xFF000000;
             fXforms[i] = SkRSXform::Make(1, 0, rand.nextF() * W, rand.nextF() * H);
         }
     }
@@ -155,7 +155,7 @@ protected:
             atlas = fAtlas.get();
         }
         for (int i = 0; i < loops; i++) {
-            canvas->drawAtlas(atlas, fXforms, fRects, colors, N, SkBlendMode::kSrcOver,
+            canvas->drawAtlas(atlas, fXforms, fRects, colors, N, SkBlendMode::kModulate,
                               cullRect, paintPtr);
         }
     }

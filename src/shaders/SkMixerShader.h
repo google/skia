@@ -18,8 +18,6 @@ public:
         , fShader1(std::move(s1))
         , fMixer(std::move(mixer))
     {
-        SkASSERT(fShader0);
-        SkASSERT(fShader1);
         SkASSERT(fMixer);
     }
 
@@ -35,8 +33,8 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkShader_Mixer)
 
-    sk_sp<SkShader> fShader0;
-    sk_sp<SkShader> fShader1;
+    sk_sp<SkShader> fShader0;   // optional
+    sk_sp<SkShader> fShader1;   // optional
     sk_sp<SkMixer>  fMixer;
 
     typedef SkShaderBase INHERITED;
