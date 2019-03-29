@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8194ba9_cb1eb87b",
+        "filename": "tests/VkBackendSurfaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-03-29T18:48:19Z",
+      "side": 1,
+      "message": "There is a bug here that is causing validations layers to fail and report errors. The first time this VkImage is being used it is in our current graphics queue. That implicitly sets the initial queue family to be our current graphics queue. Then we try to release from external and the layers correctly complain that we are doing a release before ever acquiring ownership from external.",
+      "range": {
+        "startLine": 242,
+        "startChar": 1,
+        "endLine": 243,
+        "endChar": 75
+      },
+      "revId": "3f219cb76cd4912ed4a7e8721f4224d8642a929a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
