@@ -617,7 +617,8 @@ enum class CoverageMode {
 
 static CoverageMode get_mode_for_spec(const GrQuadPerEdgeAA::VertexSpec& spec) {
     if (spec.usesCoverageAA()) {
-        if (spec.compatibleWithCoverageAsAlpha() && spec.hasVertexColors()) {
+        if (spec.compatibleWithCoverageAsAlpha() && spec.hasVertexColors() &&
+            spec.deviceQuadType() != GrQuadType::kPerspective) {
             return CoverageMode::kWithColor;
         } else {
             return CoverageMode::kWithPosition;
@@ -897,6 +898,7 @@ public:
 
                 // Solid color before any texturing gets modulated in
                 if (gp.fColor.isInitialized()) {
+                    SkASSERT(gp.fCoverageMode != CoverageMode::kWithColor || !gp.fNeedsPerspective);
                     // The color cannot be flat if the varying coverage has been modulated into it
                     args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
                             gp.fCoverageMode == CoverageMode::kWithColor ?
@@ -946,15 +948,20 @@ public:
                     GrGLSLVarying coverage(kFloat_GrSLType);
                     args.fVaryingHandler->addVarying("coverage", &coverage);
                     if (gp.fNeedsPerspective) {
-                        args.fVertBuilder->codeAppendf("%s = %s.w;",
-                                                       coverage.vsOut(), gp.fPosition.name());
+                        // Multiply by "W" in the vertex shader, then by 1/w (sk_FragCoord.w) in
+                        // the fragment shader to get screen-space linear coverage.
+                        args.fVertBuilder->codeAppendf("%s = %s.w * %s.z;",
+                                                       coverage.vsOut(), gp.fPosition.name(),
+                                                       gp.fPosition.name());
+                        args.fFragBuilder->codeAppendf("%s = half4(half(%s * sk_FragCoord.w));",
+                                                       args.fOutputCoverage, coverage.fsIn());
                     } else {
                         args.fVertBuilder->codeAppendf("%s = %s.z;",
                                                        coverage.vsOut(), gp.fPosition.name());
+                        args.fFragBuilder->codeAppendf("%s = half4(half(%s));",
+                                                       args.fOutputCoverage, coverage.fsIn());
                     }
 
-                    args.fFragBuilder->codeAppendf("%s = half4(half(%s));",
-                                                   args.fOutputCoverage, coverage.fsIn());
                 } else {
                     // Set coverage to 1, since it's either non-AA or the coverage was already
                     // folded into the output color
