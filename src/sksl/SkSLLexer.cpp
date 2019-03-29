@@ -11,6 +11,7 @@
 
 namespace SkSL {
 
+static const uint8_t INVALID_CHAR = 18;
 static int8_t mappings[127] = {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  1,  3,  3,  3,  3,  3,  3,  3,  3,
         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  1,  4,  3,  5,  6,  7,  8,  3,  9,  10, 11, 12,
@@ -1012,11 +1013,11 @@ Token Lexer::next() {
     }
     int16_t state = 1;
     while (fOffset < fLength) {
-        if ((uint8_t)fText[fOffset] >= 127) {
-            ++fOffset;
-            break;
+        uint8_t c = (uint8_t)fText[fOffset];
+        if (c <= 8 || c >= 127) {
+            c = INVALID_CHAR;
         }
-        int16_t newState = transitions[mappings[(int)fText[fOffset]]][state];
+        int16_t newState = transitions[mappings[c]][state];
         if (!newState) {
             break;
         }
@@ -1027,4 +1028,4 @@ Token Lexer::next() {
     return Token(kind, startOffset, fOffset - startOffset);
 }
 
-}  // namespace SkSL
+}  // namespace
