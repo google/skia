@@ -432,8 +432,11 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
                                                         fProxy->asTextureProxy()->getUniqueKey());
     }
 
+    bool assignKey = true;
     if (!surface) {
-        surface = fProxy->fLazyInstantiateCallback(resourceProvider);
+        auto result = fProxy->fLazyInstantiateCallback(resourceProvider);
+        surface = std::move(result.fSurface);
+        assignKey = result.fKeyMode == GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
     }
     if (GrSurfaceProxy::LazyInstantiationType::kSingleUse == fProxy->fLazyInstantiationType) {
         fProxy->fLazyInstantiateCallback = nullptr;
@@ -462,14 +465,19 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     }
 
     if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
-        const GrUniqueKey& key = texProxy->getUniqueKey();
-        if (key.isValid()) {
-            if (!surface->asTexture()->getUniqueKey().isValid()) {
-                // If 'surface' is newly created, attach the unique key
-                resourceProvider->assignUniqueKeyToResource(key, surface.get());
+        texProxy->setTargetKeySync(assignKey);
+        if (assignKey) {
+            const GrUniqueKey& key = texProxy->getUniqueKey();
+            if (key.isValid()) {
+                if (!surface->asTexture()->getUniqueKey().isValid()) {
+                    // If 'surface' is newly created, attach the unique key
+                    resourceProvider->assignUniqueKeyToResource(key, surface.get());
+                } else {
+                    // otherwise we had better have reattached to a cached version
+                    SkASSERT(surface->asTexture()->getUniqueKey() == key);
+                }
             } else {
-                // otherwise we had better have reattached to a cached version
-                SkASSERT(surface->asTexture()->getUniqueKey() == key);
+                SkASSERT(!surface->getUniqueKey().isValid());
             }
         }
     }
