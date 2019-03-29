@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkMixerPriv_DEFINED
-#define SkMixerPriv_DEFINED
+#ifndef SkMixerBase_DEFINED
+#define SkMixerBase_DEFINED
 
 #include "SkMixer.h"
 #include "SkColorData.h"
 
 class GrColorSpaceInfo;
+struct GrFPArgs;
 class GrFragmentProcessor;
 class GrRecordingContext;
 struct SkStageRec;
@@ -31,8 +32,9 @@ public:
      *
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const = 0;
+    virtual std::unique_ptr<GrFragmentProcessor>
+    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
+                        const sk_sp<SkShader> shader2) const = 0;
 #endif
 
     static void RegisterFlattenables();
