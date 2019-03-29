@@ -6,6 +6,7 @@
  */
 
 #include "GrOvalOpFactory.h"
+#include "GrCaps.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
@@ -506,15 +507,21 @@ sk_sp<GrGeometryProcessor> ButtCapDashedCircleGeometryProcessor::TestCreate(GrPr
 
 class EllipseGeometryProcessor : public GrGeometryProcessor {
 public:
-    EllipseGeometryProcessor(bool stroke, bool wideColor, const SkMatrix& localMatrix)
+    EllipseGeometryProcessor(bool stroke, bool wideColor, bool useScale,
+                             const SkMatrix& localMatrix)
     : INHERITED(kEllipseGeometryProcessor_ClassID)
-    , fLocalMatrix(localMatrix) {
+    , fLocalMatrix(localMatrix)
+    , fStroke(stroke)
+    , fUseScale(useScale) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInColor = MakeColorAttribute("inColor", wideColor);
-        fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-        fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+        if (useScale) {
+            fInEllipseOffset = {"inEllipseOffset", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        } else {
+            fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        }
+        fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         this->setVertexAttributes(&fInPosition, 4);
-        fStroke = stroke;
     }
 
     ~EllipseGeometryProcessor() override {}
@@ -543,12 +550,13 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(egp);
 
-            GrGLSLVarying ellipseOffsets(kHalf2_GrSLType);
+            GrSLType offsetType = egp.fUseScale ? kFloat3_GrSLType : kFloat2_GrSLType;
+            GrGLSLVarying ellipseOffsets(offsetType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                      egp.fInEllipseOffset.name());
 
-            GrGLSLVarying ellipseRadii(kHalf4_GrSLType);
+            GrGLSLVarying ellipseRadii(kFloat4_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii.name());
 
@@ -573,31 +581,63 @@ private:
             // the distance by the gradient, non-uniformly scaled by the inverse of the
             // ellipse size.
 
+            // On medium precision devices, we scale the denominator of the distance equation
+            // before taking the inverse square root to minimize the chance that we're dividing
+            // by zero, then we scale the result back.
+
             // for outer curve
-            fragBuilder->codeAppendf("half2 offset = %s;", ellipseOffsets.fsIn());
+            fragBuilder->codeAppendf("float2 offset = %s.xy;", ellipseOffsets.fsIn());
             if (egp.fStroke) {
                 fragBuilder->codeAppendf("offset *= %s.xy;", ellipseRadii.fsIn());
             }
-            fragBuilder->codeAppend("half test = dot(offset, offset) - 1.0;");
-            fragBuilder->codeAppendf("half2 grad = 2.0*offset*%s.xy;", ellipseRadii.fsIn());
-            fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("float test = dot(offset, offset) - 1.0;");
+            if (egp.fUseScale) {
+                fragBuilder->codeAppendf("float2 grad = 2.0*offset*(%s.z*%s.xy);",
+                                         ellipseOffsets.fsIn(), ellipseRadii.fsIn());
+            } else {
+                fragBuilder->codeAppendf("float2 grad = 2.0*offset*%s.xy;", ellipseRadii.fsIn());
+            }
+            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
-            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("half invlen = half(inversesqrt(grad_dot));");
-            fragBuilder->codeAppend("half edgeAlpha = saturate(0.5-test*invlen);");
+            if (args.fShaderCaps->floatIs32Bits()) {
+                fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.1755e-38);");
+            } else {
+                fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
+            }
+            if (egp.fUseScale) {
+                fragBuilder->codeAppendf("float invlen = %s.z*inversesqrt(grad_dot);",
+                                         ellipseOffsets.fsIn());
+            } else {
+                fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            }
+            fragBuilder->codeAppend("float edgeAlpha = saturate(0.5-test*invlen);");
 
             // for inner curve
             if (egp.fStroke) {
-                fragBuilder->codeAppendf("offset = %s*%s.zw;", ellipseOffsets.fsIn(),
+                fragBuilder->codeAppendf("offset = %s.xy*%s.zw;", ellipseOffsets.fsIn(),
                                          ellipseRadii.fsIn());
                 fragBuilder->codeAppend("test = dot(offset, offset) - 1.0;");
-                fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
-                fragBuilder->codeAppend("invlen = half(inversesqrt(dot(grad, grad)));");
+                if (egp.fUseScale) {
+                    fragBuilder->codeAppendf("grad = 2.0*offset*(%s.z*%s.zw);",
+                                             ellipseOffsets.fsIn(), ellipseRadii.fsIn());
+                } else {
+                    fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
+                }
+                fragBuilder->codeAppend("grad_dot = dot(grad, grad);");
+                if (!args.fShaderCaps->floatIs32Bits()) {
+                    fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
+                }
+                if (egp.fUseScale) {
+                    fragBuilder->codeAppendf("invlen = %s.z*inversesqrt(grad_dot);",
+                                             ellipseOffsets.fsIn());
+                } else {
+                    fragBuilder->codeAppend("invlen = inversesqrt(grad_dot);");
+                }
                 fragBuilder->codeAppend("edgeAlpha *= saturate(0.5+test*invlen);");
             }
 
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(half(edgeAlpha));", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -626,6 +666,7 @@ private:
 
     SkMatrix fLocalMatrix;
     bool fStroke;
+    bool fUseScale;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -638,7 +679,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 sk_sp<GrGeometryProcessor> EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(
             new EllipseGeometryProcessor(d->fRandom->nextBool(), d->fRandom->nextBool(),
-                                         GrTest::TestMatrix(d->fRandom)));
+                                         d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
 }
 #endif
 
@@ -657,14 +698,22 @@ enum class DIEllipseStyle { kStroke = 0, kHairline, kFill };
 
 class DIEllipseGeometryProcessor : public GrGeometryProcessor {
 public:
-    DIEllipseGeometryProcessor(bool wideColor, const SkMatrix& viewMatrix, DIEllipseStyle style)
+    DIEllipseGeometryProcessor(bool wideColor, bool useScale, const SkMatrix& viewMatrix,
+                               DIEllipseStyle style)
             : INHERITED(kDIEllipseGeometryProcessor_ClassID)
-            , fViewMatrix(viewMatrix) {
-        fStyle = style;
+            , fViewMatrix(viewMatrix)
+            , fUseScale(useScale)
+            , fStyle(style) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInColor = MakeColorAttribute("inColor", wideColor);
-        fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-        fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+        if (useScale) {
+            fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat3_GrVertexAttribType,
+                                  kFloat3_GrSLType};
+        } else {
+            fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType,
+                                  kFloat2_GrSLType};
+        }
+        fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         this->setVertexAttributes(&fInPosition, 4);
     }
 
@@ -694,11 +743,12 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(diegp);
 
-            GrGLSLVarying offsets0(kHalf2_GrSLType);
+            GrSLType offsetType = (diegp.fUseScale) ? kFloat3_GrSLType : kFloat2_GrSLType;
+            GrGLSLVarying offsets0(offsetType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.fInEllipseOffsets0.name());
 
-            GrGLSLVarying offsets1(kHalf2_GrSLType);
+            GrGLSLVarying offsets1(kFloat2_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1.name());
 
@@ -721,42 +771,62 @@ private:
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
-            fragBuilder->codeAppendf("half2 scaledOffset = %s.xy;", offsets0.fsIn());
-            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("half2 duvdx = half2(dFdx(%s));", offsets0.fsIn());
-            fragBuilder->codeAppendf("half2 duvdy = half2(dFdy(%s));", offsets0.fsIn());
+            fragBuilder->codeAppendf("float2 scaledOffset = %s.xy;", offsets0.fsIn());
+            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("float2 duvdx = dFdx(%s.xy);", offsets0.fsIn());
+            fragBuilder->codeAppendf("float2 duvdy = dFdy(%s.xy);", offsets0.fsIn());
             fragBuilder->codeAppendf(
-                    "half2 grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                    "                  2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                    "float2 grad = float2(%s.x*duvdx.x + %s.y*duvdx.y,"
+                    "                     %s.x*duvdy.x + %s.y*duvdy.y);",
                     offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
+            if (diegp.fUseScale) {
+                fragBuilder->codeAppendf("grad *= %s.z;", offsets0.fsIn());
+            }
 
-            fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("float grad_dot = 4.0*dot(grad, grad);");
             // avoid calling inversesqrt on zero.
-            fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("half invlen = half(inversesqrt(grad_dot));");
+            if (args.fShaderCaps->floatIs32Bits()) {
+                fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.1755e-38);");
+            } else {
+                fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
+            }
+            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            if (diegp.fUseScale) {
+                fragBuilder->codeAppendf("invlen *= %s.z;", offsets0.fsIn());
+            }
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
-                fragBuilder->codeAppend("half edgeAlpha = saturate(1.0-test*invlen);");
+                fragBuilder->codeAppend("float edgeAlpha = saturate(1.0-test*invlen);");
                 fragBuilder->codeAppend("edgeAlpha *= saturate(1.0+test*invlen);");
             } else {
-                fragBuilder->codeAppend("half edgeAlpha = saturate(0.5-test*invlen);");
+                fragBuilder->codeAppend("float edgeAlpha = saturate(0.5-test*invlen);");
             }
 
             // for inner curve
             if (DIEllipseStyle::kStroke == diegp.fStyle) {
                 fragBuilder->codeAppendf("scaledOffset = %s.xy;", offsets1.fsIn());
                 fragBuilder->codeAppend("test = dot(scaledOffset, scaledOffset) - 1.0;");
-                fragBuilder->codeAppendf("duvdx = half2(dFdx(%s));", offsets1.fsIn());
-                fragBuilder->codeAppendf("duvdy = half2(dFdy(%s));", offsets1.fsIn());
+                fragBuilder->codeAppendf("duvdx = float2(dFdx(%s));", offsets1.fsIn());
+                fragBuilder->codeAppendf("duvdy = float2(dFdy(%s));", offsets1.fsIn());
                 fragBuilder->codeAppendf(
-                        "grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                        "             2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                        "grad = float2(%s.x*duvdx.x + %s.y*duvdx.y,"
+                        "              %s.x*duvdy.x + %s.y*duvdy.y);",
                         offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn());
-                fragBuilder->codeAppend("invlen = half(inversesqrt(dot(grad, grad)));");
+                if (diegp.fUseScale) {
+                    fragBuilder->codeAppendf("grad *= %s.z;", offsets0.fsIn());
+                }
+                fragBuilder->codeAppend("grad_dot = 4.0*dot(grad, grad);");
+                if (!args.fShaderCaps->floatIs32Bits()) {
+                    fragBuilder->codeAppend("grad_dot = max(grad_dot, 6.1036e-5);");
+                }
+                fragBuilder->codeAppend("invlen = inversesqrt(grad_dot);");
+                if (diegp.fUseScale) {
+                    fragBuilder->codeAppendf("invlen *= %s.z;", offsets0.fsIn());
+                }
                 fragBuilder->codeAppend("edgeAlpha *= saturate(0.5+test*invlen);");
             }
 
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(half(edgeAlpha));", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -795,6 +865,7 @@ private:
     Attribute fInEllipseOffsets1;
 
     SkMatrix fViewMatrix;
+    bool fUseScale;
     DIEllipseStyle fStyle;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
@@ -807,7 +878,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(new DIEllipseGeometryProcessor(
-            d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom),
+            d->fRandom->nextBool(), d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom),
             (DIEllipseStyle)(d->fRandom->nextRangeU(0, 2))));
 }
 #endif
@@ -1709,6 +1780,17 @@ public:
             params.fXRadius += scaledStroke.fX;
             params.fYRadius += scaledStroke.fY;
         }
+
+        // For large ovals with low precision floats, we fall back to the path renderer.
+        // To compute the AA at the edge we divide by the gradient, which is clamped to a
+        // minimum value to avoid divides by zero. With large ovals and low precision this
+        // leads to blurring at the edge of the oval.
+        const SkScalar kMaxOvalRadius = 16384;
+        if (!context->priv().caps()->shaderCaps()->floatIs32Bits() &&
+            (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius)) {
+            return nullptr;
+        }
+
         return Helper::FactoryHelper<EllipseOp>(context, std::move(paint), viewMatrix,
                                                 params, stroke);
     }
@@ -1716,7 +1798,9 @@ public:
     EllipseOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
               const SkMatrix& viewMatrix, const DeviceSpaceParams& params,
               const SkStrokeRec& stroke)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fUseScale(false) {
         SkStrokeRec::Style style = stroke.getStyle();
         bool isStrokeOnly =
                 SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style;
@@ -1764,6 +1848,8 @@ public:
 
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+        fUseScale = !caps.shaderCaps()->floatIs32Bits() &&
+                    !caps.shaderCaps()->hasLowFragmentPrecision();
         SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.finalizeProcessors(
                 caps, clip, fsaaType, GrProcessorAnalysisCoverage::kSingleChannel, color);
@@ -1779,7 +1865,7 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor,
+        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor, fUseScale,
                                                                    localMatrix));
         QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
         GrVertexWriter verts{helper.vertices()};
@@ -1813,6 +1899,7 @@ private:
             verts.writeQuad(GrVertexWriter::TriStripFromRect(ellipse.fDevBounds),
                             color,
                             origin_centered_tri_strip(xMaxOffset, yMaxOffset),
+                            GrVertexWriter::If(fUseScale, SkTMax(xRadius, yRadius)),
                             invRadii);
         }
         helper.recordDraw(target, std::move(gp));
@@ -1856,6 +1943,7 @@ private:
     Helper fHelper;
     bool fStroked;
     bool fWideColor;
+    bool fUseScale;
     SkSTArray<1, Ellipse, true> fEllipses;
 
     typedef GrMeshDrawOp INHERITED;
@@ -1933,6 +2021,17 @@ public:
             params.fXRadius += strokeWidth;
             params.fYRadius += strokeWidth;
         }
+
+        // For large ovals with low precision floats, we fall back to the path renderer.
+        // To compute the AA at the edge we divide by the gradient, which is clamped to a
+        // minimum value to avoid divides by zero. With large ovals and low precision this
+        // leads to blurring at the edge of the oval.
+        const SkScalar kMaxOvalRadius = 16384;
+        if (!context->priv().caps()->shaderCaps()->floatIs32Bits() &&
+            (params.fXRadius >= kMaxOvalRadius || params.fYRadius >= kMaxOvalRadius)) {
+            return nullptr;
+        }
+
         if (DIEllipseStyle::kStroke == params.fStyle &&
             (params.fInnerXRadius <= 0 || params.fInnerYRadius <= 0)) {
             params.fStyle = DIEllipseStyle::kFill;
@@ -1942,7 +2041,9 @@ public:
 
     DIEllipseOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                 const DeviceSpaceParams& params, const SkMatrix& viewMatrix)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fUseScale(false) {
         // This expands the outer rect so that after CTM we end up with a half-pixel border
         SkScalar a = viewMatrix[SkMatrix::kMScaleX];
         SkScalar b = viewMatrix[SkMatrix::kMSkewX];
@@ -1989,6 +2090,8 @@ public:
 
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+        fUseScale = !caps.shaderCaps()->floatIs32Bits() &&
+                    !caps.shaderCaps()->hasLowFragmentPrecision();
         SkPMColor4f* color = &fEllipses.front().fColor;
         return fHelper.finalizeProcessors(
                 caps, clip, fsaaType, GrProcessorAnalysisCoverage::kSingleChannel, color);
@@ -2000,7 +2103,8 @@ private:
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(
-                new DIEllipseGeometryProcessor(fWideColor, this->viewMatrix(), this->style()));
+                new DIEllipseGeometryProcessor(fWideColor, fUseScale, this->viewMatrix(),
+                                               this->style()));
 
         QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
         GrVertexWriter verts{helper.vertices()};
@@ -2030,6 +2134,7 @@ private:
             verts.writeQuad(GrVertexWriter::TriStripFromRect(ellipse.fBounds),
                             color,
                             origin_centered_tri_strip(1.0f + offsetDx, 1.0f + offsetDy),
+                            GrVertexWriter::If(fUseScale, SkTMax(xRadius, yRadius)),
                             origin_centered_tri_strip(innerRatioX + offsetDx,
                                                       innerRatioY + offsetDy));
         }
@@ -2078,6 +2183,7 @@ private:
 
     Helper fHelper;
     bool fWideColor;
+    bool fUseScale;
     SkSTArray<1, Ellipse, true> fEllipses;
 
     typedef GrMeshDrawOp INHERITED;
@@ -2593,7 +2699,9 @@ public:
     EllipticalRRectOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color,
                       const SkMatrix& viewMatrix, const SkRect& devRect, float devXRadius,
                       float devYRadius, SkVector devStrokeHalfWidths, bool strokeOnly)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fUseScale(false) {
         SkScalar innerXRadius = 0.0f;
         SkScalar innerYRadius = 0.0f;
         SkRect bounds = devRect;
@@ -2647,6 +2755,7 @@ public:
 
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+        fUseScale = !caps.shaderCaps()->floatIs32Bits();
         SkPMColor4f* color = &fRRects.front().fColor;
         return fHelper.finalizeProcessors(
                 caps, clip, fsaaType, GrProcessorAnalysisCoverage::kSingleChannel, color);
@@ -2662,7 +2771,7 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor,
+        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor, fUseScale,
                                                                    localMatrix));
 
         // drop out the middle quad if we're stroked
@@ -2715,25 +2824,30 @@ private:
                                                                // shader, so can't be exactly 0
                                          SK_ScalarNearlyZero, yMaxOffset};
 
+            auto maybeScale = GrVertexWriter::If(fUseScale, SkTMax(rrect.fXRadius, rrect.fYRadius));
             for (int i = 0; i < 4; ++i) {
                 verts.write(bounds.fLeft, yCoords[i],
                             color,
                             xMaxOffset, yOuterOffsets[i],
+                            maybeScale,
                             reciprocalRadii);
 
                 verts.write(bounds.fLeft + xOuterRadius, yCoords[i],
                             color,
                             SK_ScalarNearlyZero, yOuterOffsets[i],
+                            maybeScale,
                             reciprocalRadii);
 
                 verts.write(bounds.fRight - xOuterRadius, yCoords[i],
                             color,
                             SK_ScalarNearlyZero, yOuterOffsets[i],
+                            maybeScale,
                             reciprocalRadii);
 
                 verts.write(bounds.fRight, yCoords[i],
                             color,
                             xMaxOffset, yOuterOffsets[i],
+                            maybeScale,
                             reciprocalRadii);
             }
         }
@@ -2778,6 +2892,7 @@ private:
     Helper fHelper;
     bool fStroked;
     bool fWideColor;
+    bool fUseScale;
     SkSTArray<1, RRect, true> fRRects;
 
     typedef GrMeshDrawOp INHERITED;
