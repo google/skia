@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cf7fb1a_f942cb37",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-29T11:53:35Z",
+      "side": 1,
+      "message": "Even in debug, why are we adding this to the key?",
+      "revId": "19884c381ff35eda620aa76df03874829b814971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf6558a3_c14c74ac",
+        "filename": "src/gpu/ccpr/GrGSCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-29T11:53:35Z",
+      "side": 1,
+      "message": "override ?",
+      "revId": "19884c381ff35eda620aa76df03874829b814971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69de34ea_510c178e",
+        "filename": "src/gpu/ccpr/GrGSCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-03-29T11:53:35Z",
+      "side": 1,
+      "message": "// The GS version makes two passes ... \n// The first ...\n\n?",
+      "revId": "19884c381ff35eda620aa76df03874829b814971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
