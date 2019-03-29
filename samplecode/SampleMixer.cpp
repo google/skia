@@ -117,7 +117,7 @@ class ShaderMixerView : public Sample {
     sk_sp<SkShader>     fSH0;
     sk_sp<SkShader>     fSH1;
     sk_sp<SkSurface>    fSurface;
-    SkBlendMode         fMode = SkBlendMode::kClear;
+    SkColor             fColor = SK_ColorBLUE;
 
     enum { SIZE = 256 };
 
@@ -143,6 +143,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         if (!fSurface) {
             fSurface = canvas->makeSurface(SkImageInfo::MakeN32Premul(SIZE, SIZE));
+            fSurface->getCanvas()->clear(SK_ColorBLUE);
         }
 
         SkPaint paint;
@@ -169,7 +170,7 @@ protected:
     }
 
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
-        fMode = (fMode == SkBlendMode::kSrcOver) ? SkBlendMode::kClear : SkBlendMode::kSrcOver;
+        fColor = (fColor == SK_ColorRED) ? SK_ColorBLUE : SK_ColorRED;
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
     }
@@ -177,8 +178,7 @@ protected:
     bool onClick(Click* click) override {
         SkPaint p;
         p.setAntiAlias(true);
-        p.setColor(SK_ColorRED);
-        p.setBlendMode(fMode);
+        p.setColor(fColor);
         p.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 12));
         SkScalar x = click->fCurr.fX - fRect.fLeft;
         SkScalar y = click->fCurr.fY - fRect.fTop;
