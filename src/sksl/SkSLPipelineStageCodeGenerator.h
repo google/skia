@@ -44,8 +44,6 @@ private:
 
     void writeIfStatement(const IfStatement& s) override;
 
-    void writeReturnStatement(const ReturnStatement& r) override;
-
     void writeSwitchStatement(const SwitchStatement& s) override;
 
     void writeFunction(const FunctionDefinition& f) override;
@@ -60,7 +58,6 @@ private:
     String fExtraEmitCodeCode;
     std::set<int> fWrittenTransformedCoords;
     std::vector<Compiler::FormatArg>* fFormatArgs;
-    const FunctionDeclaration* fCurrentFunction;
 
     typedef GLSLCodeGenerator INHERITED;
 };
