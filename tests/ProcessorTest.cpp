@@ -286,7 +286,9 @@ void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcess
 }
 
 /** Initializes the two test texture proxies that are available to the FP test factories. */
-bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
+bool init_test_textures(GrResourceProvider* resourceProvider,
+                        GrProxyProvider* proxyProvider,
+                        SkRandom* random,
                         sk_sp<GrTextureProxy> proxies[2]) {
     static const int kTestTextureSize = 256;
 
@@ -305,7 +307,12 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
         SkPixmap pixmap(ii, rgbaData.get(), ii.minRowBytes());
         sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
         proxies[0] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
-                                                       SkBudgeted::kYes, SkBackingFit::kExact);
+                                                       SkBudgeted::kYes, SkBackingFit::kExact,
+                                                       GrInternalSurfaceFlags::kNoPendingIO);
+
+        if (resourceProvider->explicitlyAllocateGPUResources()) {
+            proxies[0]->instantiate(resourceProvider);
+        }
     }
 
     {
@@ -322,7 +329,12 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
         SkPixmap pixmap(ii, alphaData.get(), ii.minRowBytes());
         sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
         proxies[1] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
-                                                       SkBudgeted::kYes, SkBackingFit::kExact);
+                                                       SkBudgeted::kYes, SkBackingFit::kExact,
+                                                       GrInternalSurfaceFlags::kNoPendingIO);
+
+        if (resourceProvider->explicitlyAllocateGPUResources()) {
+            proxies[1]->instantiate(resourceProvider);
+        }
     }
 
     return proxies[0] && proxies[1];
@@ -433,6 +445,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     auto resourceProvider = context->priv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
 
+    // This test side-steps the GrResourceAllocator thus violates some assumptions and
+    // asserts
+    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(false);
+
     uint32_t seed = FLAGS_processorSeed;
     if (FLAGS_randomProcessorTest) {
         std::random_device rd;
@@ -452,7 +468,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             nullptr);
 
     sk_sp<GrTextureProxy> proxies[2];
-    if (!init_test_textures(proxyProvider, &random, proxies)) {
+    if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
@@ -672,6 +688,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             }
         }
     }
+
+    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 // Tests that fragment processors returned by GrFragmentProcessor::clone() are equivalent to their
@@ -680,6 +698,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     auto resourceProvider = context->priv().resourceProvider();
+
+    // This test side-steps the GrResourceAllocator thus violates some assumptions and
+    // asserts
+    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(false);
 
     SkRandom random;
 
@@ -693,7 +715,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             nullptr);
 
     sk_sp<GrTextureProxy> proxies[2];
-    if (!init_test_textures(proxyProvider, &random, proxies)) {
+    if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
@@ -751,6 +773,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             }
         }
     }
+
+    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 #endif  // GR_TEST_UTILS

@@ -431,8 +431,14 @@ public:
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
     // 'instantiate' should only ever be called at flush time.
+    // TODO: this can go away once explicit allocation has stuck
     bool instantiate(GrResourceProvider* resourceProvider) const {
-        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+        if (resourceProvider->explicitlyAllocateGPUResources()) {
+            SkASSERT(fProxyRef.get()->isInstantiated());
+            return true;
+        } else {
+            return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+        }
     }
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
