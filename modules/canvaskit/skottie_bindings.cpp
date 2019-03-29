@@ -131,7 +131,7 @@ public:
         return props;
     }
 
-    bool setColor(const std::string& key, JSColor c) {
+    bool setColor(const std::string& key, SkColor c) {
         return fPropMgr->setColor(key, static_cast<SkColor>(c));
     }
 

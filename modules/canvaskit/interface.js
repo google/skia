@@ -381,6 +381,47 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
+                                       /*optional*/ blendMode, colors) {
+    if (!atlas || !paint || !srcRects || !dstXforms) {
+      SkDebug('Doing nothing since missing a required input');
+      return;
+    }
+    if (srcRects.length !== dstXforms.length || (colors && colors.length !== dstXforms.length)) {
+      throw 'Length mismatch of input arrays';
+    }
+    if (!blendMode) {
+      blendMode = CanvasKit.BlendMode.SrcOver;
+    }
+
+    var srcRectPtr;
+    if (srcRects.build) {
+      srcRectPtr = srcRects.build();
+    } else {
+      // TODO copy array
+    }
+
+    var dstXformPtr;
+    if (dstXforms.build) {
+      dstXformPtr = dstXforms.build();
+    } else {
+      // TODO copy array
+    }
+
+    var colorPtr = 0; // enscriptem doesn't like undefined for nullptr
+    if (colors) {
+      colorPtr = copy1dArray(colors, CanvasKit.HEAPU32)
+    }
+
+    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, dstXforms.length,
+                    blendMode, paint);
+
+    if (colorPtr) {
+      CanvasKit._free(colorPtr);
+    }
+
+  }
+
   // str can be either a text string or a ShapedText object
   CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
     if (typeof str === 'string') {
@@ -712,7 +753,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
 }
 
 CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -734,7 +775,7 @@ CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, loc
 }
 
 CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -757,7 +798,7 @@ CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode,
 
 CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, endRadius,
                                                        colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -784,10 +825,7 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     boneIndices, boneWeights, indices, isVolatile) {
   var positionPtr = copy2dArray(positions,          CanvasKit.HEAPF32);
   var texPtr =      copy2dArray(textureCoordinates, CanvasKit.HEAPF32);
-  // Since we write the colors to memory as signed integers (JSColor), we can
-  // read them out on the other side as unsigned ints (SkColor) just fine
-  // - it's effectively casting.
-  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAP32);
+  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAPU32);
 
   var boneIdxPtr =  copy2dArray(boneIndices,        CanvasKit.HEAP32);
   var boneWtPtr  =  copy2dArray(boneWeights,        CanvasKit.HEAPF32);
