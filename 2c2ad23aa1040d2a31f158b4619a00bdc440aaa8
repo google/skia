@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb2b5eea_6e2d718e",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-29T19:04:21Z",
+      "side": 1,
+      "message": "return std::move(result);\n\nto shut up the warnings",
+      "range": {
+        "startLine": 39,
+        "startChar": 11,
+        "endLine": 39,
+        "endChar": 17
+      },
+      "revId": "2c2ad23aa1040d2a31f158b4619a00bdc440aaa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
