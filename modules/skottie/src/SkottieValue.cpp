@@ -30,7 +30,6 @@ bool ValueTraits<ScalarValue>::CanLerp(const ScalarValue&, const ScalarValue&) {
 template <>
 void ValueTraits<ScalarValue>::Lerp(const ScalarValue& v0, const ScalarValue& v1, float t,
                                     ScalarValue* result) {
-    SkASSERT(t >= 0 && t <= 1);
     *result = v0 + (v1 - v0) * t;
 }
 
@@ -183,7 +182,6 @@ static SkPoint lerp_point(const SkPoint& v0, const SkPoint& v1, const Sk2f& t) {
 template <>
 void ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, float t,
                                    ShapeValue* result) {
-    SkASSERT(t >= 0 && t <= 1);
     SkASSERT(v0.fVertices.size() == v1.fVertices.size());
     SkASSERT(v0.fClosed == v1.fClosed);
 
