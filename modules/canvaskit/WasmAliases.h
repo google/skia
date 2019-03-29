@@ -15,7 +15,6 @@ using namespace emscripten;
 
 // Self-documenting types
 using JSArray = emscripten::val;
-using JSColor = int32_t;
 using JSObject = emscripten::val;
 using JSString = emscripten::val;
 using SkPathOrNull = emscripten::val;

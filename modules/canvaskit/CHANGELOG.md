@@ -10,10 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkSurface.grContext` now exposed. `GrContext` has new methods for monitoring/setting
    the cache limits; tweaking these may lead to better performance in some cases.
    `getResourceCacheLimitBytes`, `setResourceCacheLimitBytes`, `getResourceCacheUsageBytes`
+ - `SkCanvas.drawAtlas` for efficiently drawing multiple sprites from a sprite sheet with
+   a set of transforms, color blends, etc.
+ - `SkColorBuilder`, `RSXFormBuilder`, `SkRectBuilder` which increase performance by
+   reducing the amount of malloc/free calls per frame, given that the array size is fixed.
 
 ### Changed
  - Better `GrGLCaps` support for WebGL - this shouldn't have any impacts on APIs or
    correctness, except by perhaps fixing a few bugs in various surface types.
+ - Use unsigned ints for SkColor on the JS side - this shouldn't have any impacts
+   unless clients have pre-computed colors, in which case, they will need to re-compute them.
 
 ## [0.5.1] - 2019-03-21
 

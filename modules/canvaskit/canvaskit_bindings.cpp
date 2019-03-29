@@ -764,17 +764,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
-        .function("clear", optional_override([](SkCanvas& self, JSColor color)->void {
-            // JS side gives us a signed int instead of an unsigned int for color
-            // Add a optional_override to change it out.
-            self.clear(SkColor(color));
-        }))
+        .function("clear", &SkCanvas::clear)
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
         .function("clipRect", select_overload<void (const SkRect&, SkClipOp, bool)>(&SkCanvas::clipRect))
         .function("concat", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
             self.concat(toSkMatrix(m));
         }))
         .function("drawArc", &SkCanvas::drawArc)
+        .function("_drawAtlas", optional_override([](SkCanvas& self,
+                const sk_sp<SkImage>& atlas, uintptr_t /* SkRSXform* */ xptr,
+                uintptr_t /* SkRect* */ rptr, uintptr_t /* SkColor* */ cptr, int count,
+                SkBlendMode mode, const SkPaint* paint)->void {
+            // See comment above for uintptr_t explanation
+            const SkRSXform* dstXforms = reinterpret_cast<const SkRSXform*>(xptr);
+            const SkRect* srcRects = reinterpret_cast<const SkRect*>(rptr);
+            const SkColor* colors = nullptr;
+            if (cptr) {
+                colors = reinterpret_cast<const SkColor*>(cptr);
+            }
+            self.drawAtlas(atlas, dstXforms, srcRects, colors, count, mode, nullptr, paint);
+        }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
@@ -792,10 +801,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
                                                      const SkPoint3& zPlaneParams,
                                                      const SkPoint3& lightPos, SkScalar lightRadius,
-                                                     JSColor ambientColor, JSColor spotColor,
+                                                     SkColor ambientColor, SkColor spotColor,
                                                      uint32_t flags) {
             SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
-                                      SkColor(ambientColor), SkColor(spotColor), flags);
+                                      ambientColor, spotColor, flags);
         }))
         .function("_drawShapedText", &drawShapedText)
         .function("_drawSimpleText", optional_override([](SkCanvas& self, uintptr_t /* char* */ sptr,
@@ -932,11 +941,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return p;
         }))
         .function("getBlendMode", &SkPaint::getBlendMode)
-        .function("getColor", optional_override([](SkPaint& self)->JSColor {
-            // JS side gives us a signed int instead of an unsigned int for color
-            // Add a optional_override to change it out.
-            return JSColor(self.getColor());
-        }))
+        .function("getColor", &SkPaint::getColor)
         .function("getFilterQuality", &SkPaint::getFilterQuality)
         .function("getStrokeCap", &SkPaint::getStrokeCap)
         .function("getStrokeJoin", &SkPaint::getStrokeJoin)
@@ -944,11 +949,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setBlendMode", &SkPaint::setBlendMode)
-        .function("setColor", optional_override([](SkPaint& self, JSColor color)->void {
-            // JS side gives us a signed int instead of an unsigned int for color
-            // Add a optional_override to change it out.
-            self.setColor(SkColor(color));
-        }))
+        .function("setColor", &SkPaint::setColor)
         .function("setFilterQuality", &SkPaint::setFilterQuality)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)
@@ -1285,13 +1286,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .element(&SimpleMatrix::pers1)
         .element(&SimpleMatrix::pers2);
 
-    constant("TRANSPARENT", (JSColor) SK_ColorTRANSPARENT);
-    constant("RED",         (JSColor) SK_ColorRED);
-    constant("BLUE",        (JSColor) SK_ColorBLUE);
-    constant("YELLOW",      (JSColor) SK_ColorYELLOW);
-    constant("CYAN",        (JSColor) SK_ColorCYAN);
-    constant("BLACK",       (JSColor) SK_ColorBLACK);
-    constant("WHITE",       (JSColor) SK_ColorWHITE);
+    constant("TRANSPARENT", SK_ColorTRANSPARENT);
+    constant("RED",         SK_ColorRED);
+    constant("BLUE",        SK_ColorBLUE);
+    constant("YELLOW",      SK_ColorYELLOW);
+    constant("CYAN",        SK_ColorCYAN);
+    constant("BLACK",       SK_ColorBLACK);
+    constant("WHITE",       SK_ColorWHITE);
     // TODO(?)
 
     constant("MOVE_VERB",  MOVE);
