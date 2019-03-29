@@ -43,7 +43,7 @@ static void exercise_cubicmap(SkPoint p1, SkPoint p2, skiatest::Reporter* report
     for (SkScalar x = dx; x < 1; x += dx) {
         SkScalar y = cmap.computeYFromX(x);
         // are we valid and (mostly) monotonic?
-        if (y < 0 || y > 1 || !nearly_le(prev_y, y)) {
+        if (!nearly_le(prev_y, y)) {
             cmap.computeYFromX(x);
             REPORTER_ASSERT(reporter, false);
         }
