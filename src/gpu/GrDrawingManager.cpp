@@ -464,7 +464,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 
 GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
         GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access, SkSurface::FlushFlags flags,
-        int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
+        int numSemaphores, GrBackendSemaphore backendSemaphores[], bool doIt) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
@@ -485,12 +485,15 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
 
     GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
     if (proxy->priv().hasPendingIO() || numSemaphores ||
-        SkToBool(flags & SkSurface::kSyncCpu_FlushFlag)) {
+        SkToBool(flags & SkSurface::kSyncCpu_FlushFlag) || doIt) {
         result = this->flush(proxy, access, flags, numSemaphores, backendSemaphores);
-    }
-
-    if (!proxy->instantiate(resourceProvider)) {
-        return result;
+        if (!proxy->isInstantiated()) {
+            return result;
+        }
+    } else {
+        if (!proxy->instantiate(resourceProvider)) {
+            return result;
+        }
     }
 
     GrSurface* surface = proxy->peekSurface();

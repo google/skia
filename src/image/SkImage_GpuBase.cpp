@@ -239,7 +239,8 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     if (!proxy->isInstantiated()) {
         auto resourceProvider = direct->priv().resourceProvider();
 
-        if (!proxy->instantiate(resourceProvider)) {
+        // Not really!!!!
+        if (!proxy->instantiate(resourceProvider, true)) {
             return GrBackendTexture(); // invalid
         }
     }
@@ -247,7 +248,7 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     GrTexture* texture = proxy->peekTexture();
     if (texture) {
         if (flushPendingGrContextIO) {
-            direct->priv().prepareSurfaceForExternalIO(proxy.get());
+            direct->priv().prepareSurfaceForExternalIO(proxy.get(), true);
         }
         if (origin) {
             *origin = proxy->origin();
@@ -272,7 +273,8 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
     sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef(direct);
     SkASSERT(proxyRef && !proxyRef->isInstantiated());
 
-    if (!proxyRef->instantiate(direct->priv().resourceProvider())) {
+    // Not Really !!!!!
+    if (!proxyRef->instantiate(direct->priv().resourceProvider(), true)) {
         return nullptr;
     }
 

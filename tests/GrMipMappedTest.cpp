@@ -156,7 +156,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             if (GrSurfaceProxy::LazyState::kNot != genProxy->lazyInstantiationState()) {
                 genProxy->priv().doLazyInstantiation(context->priv().resourceProvider());
             } else if (!genProxy->isInstantiated()) {
-                genProxy->instantiate(context->priv().resourceProvider());
+                genProxy->instantiate(context->priv().resourceProvider(), true); // not really
             }
 
             REPORTER_ASSERT(reporter, genProxy->isInstantiated());
@@ -258,7 +258,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             GrTextureProxy* texProxy = device->accessRenderTargetContext()->asTextureProxy();
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
-            texProxy->instantiate(resourceProvider);
+            texProxy->instantiate(resourceProvider, true); // Not really!!
             GrTexture* texture = texProxy->peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 
@@ -270,7 +270,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             texProxy = as_IB(image)->peekProxy();
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
-            texProxy->instantiate(resourceProvider);
+            texProxy->instantiate(resourceProvider, true); // Not really!!
             texture = texProxy->peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 

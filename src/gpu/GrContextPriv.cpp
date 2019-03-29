@@ -218,13 +218,13 @@ void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
     }
 }
 
-void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
+void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy, bool doIt) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
     fContext->drawingManager()->prepareSurfaceForExternalIO(proxy,
-            SkSurface::BackendSurfaceAccess::kNoAccess, SkSurface::kNone_FlushFlags, 0, nullptr);
+            SkSurface::BackendSurfaceAccess::kNoAccess, SkSurface::kNone_FlushFlags, 0, nullptr, doIt);
 }
 
 static bool valid_premul_color_type(GrColorType ct) {
@@ -305,7 +305,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
     // MDB TODO: delay this instantiation until later in the method
-    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider(), true)) {
         return false;
     }
 
@@ -495,7 +495,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         return false;
     }
 
-    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider(), true)) {
         return false;
     }
 
