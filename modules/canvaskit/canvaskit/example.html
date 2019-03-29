@@ -39,6 +39,7 @@
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
+<canvas id=atlas width=300 height=300></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
@@ -55,6 +56,7 @@
   var notoserifData = null;
 
   var bonesImageData = null;
+  var mandrillData = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).ready().then((CK) => {
@@ -82,6 +84,8 @@
     TextOnPathAPI1(CanvasKit);
 
     SurfaceAPI1(CanvasKit);
+
+    AtlasAPI1(CanvasKit, mandrillData);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
@@ -104,6 +108,12 @@
       TextShapingAPI1(CanvasKit, notoserifData);
       TextShapingAPI2(CanvasKit, notoserifData);
     });
+  });
+
+  // Mandrill test image
+  fetch('./test.png').then((response) => response.arrayBuffer()).then((buffer) => {
+    mandrillData = buffer;
+    AtlasAPI1(CanvasKit, mandrillData);
   });
 
   function DrawingExample(CanvasKit, robotoData) {
@@ -175,7 +185,7 @@
   }
 
   function PathExample(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('paths');
+    const surface = CanvasKit.MakeSWCanvasSurface('paths');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -948,7 +958,7 @@
   }
 
   function GradiantAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('gradient1');
+    const surface = CanvasKit.MakeSWCanvasSurface('gradient1');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -982,7 +992,7 @@
     if (!notoserifData || !CanvasKit) {
       return;
     }
-    const surface = CanvasKit.MakeCanvasSurface('shape1');
+    const surface = CanvasKit.MakeSWCanvasSurface('shape1');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1050,7 +1060,7 @@
     if (!notoserifData || !CanvasKit) {
       return;
     }
-    const surface = CanvasKit.MakeCanvasSurface('shape2');
+    const surface = CanvasKit.MakeSWCanvasSurface('shape2');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1105,7 +1115,7 @@
   }
 
   function TextOnPathAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('textonpath');
+    const surface = CanvasKit.MakeSWCanvasSurface('textonpath');
     if (!surface) {
       console.error('Could not make surface');
       return;
@@ -1113,11 +1123,12 @@
     const canvas = surface.getCanvas();
     const paint = new CanvasKit.SkPaint();
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    paint.setAntiAlias(true);
 
     const font = new CanvasKit.SkFont(null, 24);
     const fontPaint = new CanvasKit.SkPaint();
     fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
-
+    fontPaint.setAntiAlias(true);
 
     const arc = new CanvasKit.SkPath();
     arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
@@ -1199,9 +1210,54 @@
 
       canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
       surface.requestAnimationFrame(drawFrame);
-      if (grContext) {
-        console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
-      }
+      // if (grContext) {
+      //   console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
+      // }
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function AtlasAPI1(CanvasKit, imgData) {
+    if (!CanvasKit || !imgData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('atlas');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const img = CanvasKit.MakeImageFromEncoded(imgData);
+
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+    const srcs = new CanvasKit.SkRectBuilder();
+    srcs.push(0, 0, 250, 250 ); // LTRB
+    srcs.push(250, 0, 500, 250 );
+
+    const dsts = new CanvasKit.RSXFormBuilder();
+    dsts.push(.5, 0, 0, 0); // scos, ssin, tx, ty
+    dsts.push(0, .8, 200, 100);
+
+    const colors = new CanvasKit.SkColorBuilder();
+    colors.push(CanvasKit.Color(85, 170, 10, 0.5)); // light green
+    colors.push(CanvasKit.Color(51, 51, 191, 0.5)); // light blue
+
+    let i = 0;
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      i++;
+      let scale = 0.5 + Math.sin(i/40)/4;
+
+      // update the coordinates of existing sprites - note that this
+      // does not require a full re-copy of the full array; they are
+      // updated in-place.
+      dsts.set(0, 0.5, 0, (2*i)%200, (5*Math.round(i/200)) % 200);
+      dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
+
+      canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
+      surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
 
