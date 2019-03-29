@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCCoverageProcessor.h"
+#include "GrGSCoverageProcessor.h"
 
 #include "GrMesh.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
@@ -16,9 +16,9 @@ using OutputType = GrGLSLGeometryBuilder::OutputType;
 /**
  * This class and its subclasses implement the coverage processor with geometry shaders.
  */
-class GrCCCoverageProcessor::GSImpl : public GrGLSLGeometryProcessor {
+class GrGSCoverageProcessor::Impl : public GrGLSLGeometryProcessor {
 protected:
-    GSImpl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
+    Impl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
     virtual bool hasCoverage() const { return false; }
 
@@ -28,11 +28,11 @@ protected:
     }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
-        const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
+        const GrGSCoverageProcessor& proc = args.fGP.cast<GrGSCoverageProcessor>();
 
         // The vertex shader simply forwards transposed x or y values to the geometry shader.
         SkASSERT(1 == proc.numVertexAttributes());
-        gpArgs->fPositionVar = proc.fVertexAttribute.asShaderVar();
+        gpArgs->fPositionVar = proc.fInputXOrYValues.asShaderVar();
 
         // Geometry shader.
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -45,9 +45,9 @@ protected:
         fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
     }
 
-    void emitGeometryShader(const GrCCCoverageProcessor& proc,
-                            GrGLSLVaryingHandler* varyingHandler, GrGLSLGeometryBuilder* g,
-                            const char* rtAdjust) const {
+    void emitGeometryShader(
+            const GrGSCoverageProcessor& proc, GrGLSLVaryingHandler* varyingHandler,
+            GrGLSLGeometryBuilder* g, const char* rtAdjust) const {
         int numInputPoints = proc.numInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
@@ -59,9 +59,9 @@ protected:
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
         Shader::CalcWind(proc, g, "pts", wind.c_str());
-        if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
+        if (PrimitiveType::kWeightedTriangles == proc.primitiveType()) {
             SkASSERT(3 == numInputPoints);
-            SkASSERT(kFloat4_GrVertexAttribType == proc.fVertexAttribute.cpuType());
+            SkASSERT(kFloat4_GrVertexAttribType == proc.fInputXOrYValues.cpuType());
             g->codeAppendf("%s *= half(sk_in[0].sk_Position.w);", wind.c_str());
         }
 
@@ -74,7 +74,7 @@ protected:
             coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
         }
         const char* cornerCoverage = nullptr;
-        if (GSSubpass::kCorners == proc.fGSSubpass) {
+        if (Subpass::kCorners == proc.fSubpass) {
             cornerCoverage = emitArgs.emplace_back("corner_coverage", kHalf2_GrSLType).c_str();
         }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
@@ -103,10 +103,8 @@ protected:
         this->onEmitGeometryShader(proc, g, wind, emitVertexFn.c_str());
     }
 
-    virtual void onEmitGeometryShader(const GrCCCoverageProcessor&, GrGLSLGeometryBuilder*,
+    virtual void onEmitGeometryShader(const GrGSCoverageProcessor&, GrGLSLGeometryBuilder*,
                                       const GrShaderVar& wind, const char* emitVertexFn) const = 0;
-
-    virtual ~GSImpl() {}
 
     const std::unique_ptr<Shader> fShader;
 
@@ -121,15 +119,15 @@ protected:
  * coverage ramp from -1 to 0. These edge coverage values convert jagged conservative raster edges
  * into smooth, antialiased ones.
  *
- * The final corners get touched up in a later step by GSTriangleCornerImpl.
+ * The final corners get touched up in a later step by TriangleCornerImpl.
  */
-class GrCCCoverageProcessor::GSTriangleHullImpl : public GrCCCoverageProcessor::GSImpl {
+class GrGSCoverageProcessor::TriangleHullImpl : public GrGSCoverageProcessor::Impl {
 public:
-    GSTriangleHullImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
+    TriangleHullImpl(std::unique_ptr<Shader> shader) : Impl(std::move(shader)) {}
 
     bool hasCoverage() const override { return true; }
 
-    void onEmitGeometryShader(const GrCCCoverageProcessor&, GrGLSLGeometryBuilder* g,
+    void onEmitGeometryShader(const GrGSCoverageProcessor&, GrGLSLGeometryBuilder* g,
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         fShader->emitSetupCode(g, "pts", wind.c_str());
 
@@ -219,11 +217,11 @@ public:
 /**
  * Generates a conservative raster around a convex quadrilateral that encloses a cubic or quadratic.
  */
-class GrCCCoverageProcessor::GSCurveHullImpl : public GrCCCoverageProcessor::GSImpl {
+class GrGSCoverageProcessor::CurveHullImpl : public GrGSCoverageProcessor::Impl {
 public:
-    GSCurveHullImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
+    CurveHullImpl(std::unique_ptr<Shader> shader) : Impl(std::move(shader)) {}
 
-    void onEmitGeometryShader(const GrCCCoverageProcessor&, GrGLSLGeometryBuilder* g,
+    void onEmitGeometryShader(const GrGSCoverageProcessor&, GrGLSLGeometryBuilder* g,
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         const char* hullPts = "pts";
         fShader->emitSetupCode(g, "pts", wind.c_str(), &hullPts);
@@ -286,13 +284,13 @@ public:
  * Generates conservative rasters around corners (aka pixel-size boxes) and calculates
  * coverage and attenuation ramps to fix up the coverage values written by the hulls.
  */
-class GrCCCoverageProcessor::GSCornerImpl : public GrCCCoverageProcessor::GSImpl {
+class GrGSCoverageProcessor::CornerImpl : public GrGSCoverageProcessor::Impl {
 public:
-    GSCornerImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
+    CornerImpl(std::unique_ptr<Shader> shader) : Impl(std::move(shader)) {}
 
     bool hasCoverage() const override { return true; }
 
-    void onEmitGeometryShader(const GrCCCoverageProcessor& proc, GrGLSLGeometryBuilder* g,
+    void onEmitGeometryShader(const GrGSCoverageProcessor& proc, GrGLSLGeometryBuilder* g,
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         fShader->emitSetupCode(g, "pts", wind.c_str());
 
@@ -375,45 +373,58 @@ public:
     }
 };
 
-void GrCCCoverageProcessor::initGS() {
-    SkASSERT(Impl::kGeometryShader == fImpl);
+void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider*) {
+    fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
+
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
-        fVertexAttribute =
+        fInputXOrYValues =
                 {"x_or_y_values", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         GR_STATIC_ASSERT(sizeof(QuadPointInstance) ==
                          2 * GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
         GR_STATIC_ASSERT(offsetof(QuadPointInstance, fY) ==
                          GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
     } else {
-        fVertexAttribute =
+        fInputXOrYValues =
                 {"x_or_y_values", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
         GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
                          2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         GR_STATIC_ASSERT(offsetof(TriPointInstance, fY) ==
                          GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
     }
-    this->setVertexAttributes(&fVertexAttribute, 1);
-    this->setWillUseGeoShader();
+
+    this->setVertexAttributes(&fInputXOrYValues, 1);
 }
 
-void GrCCCoverageProcessor::appendGSMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                         int baseInstance, SkTArray<GrMesh>* out) const {
-    // GSImpl doesn't actually make instanced draw calls. Instead, we feed transposed x,y point
-    // values to the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex
-    // invocation receives either the shape's x or y values as inputs, which it forwards to the
-    // geometry shader.
-    SkASSERT(Impl::kGeometryShader == fImpl);
+void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
+                                       int baseInstance, SkTArray<GrMesh>* out) const {
+    // We don't actually make instanced draw calls. Instead, we feed transposed x,y point values to
+    // the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex invocation
+    // receives either the shape's x or y values as inputs, which it forwards to the geometry
+    // shader.
     GrMesh& mesh = out->emplace_back(GrPrimitiveType::kLines);
     mesh.setNonIndexedNonInstanced(instanceCount * 2);
     mesh.setVertexData(std::move(instanceBuffer), baseInstance * 2);
 }
 
-GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {
-    if (GSSubpass::kHulls == fGSSubpass) {
-        return this->isTriangles()
-                   ? (GSImpl*) new GSTriangleHullImpl(std::move(shadr))
-                   : (GSImpl*) new GSCurveHullImpl(std::move(shadr));
+void GrGSCoverageProcessor::draw(
+        GrOpFlushState* flushState, const GrPipeline& pipeline, const SkIRect scissorRects[],
+        const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
+    // The geometry shader impl draws primitives in two subpasses: The first pass fills the interior
+    // and does edge AA. The second pass does touch up on corner pixels.
+    for (int i = 0; i < 2; ++i) {
+        fSubpass = (Subpass) i;
+        this->GrCCCoverageProcessor::draw(
+                flushState, pipeline, scissorRects, meshes, meshCount, drawBounds);
     }
-    SkASSERT(GSSubpass::kCorners == fGSSubpass);
-    return new GSCornerImpl(std::move(shadr));
+}
+
+GrGLSLPrimitiveProcessor* GrGSCoverageProcessor::onCreateGLSLInstance(
+        std::unique_ptr<Shader> shader) const {
+    if (Subpass::kHulls == fSubpass) {
+        return this->isTriangles()
+                   ? (Impl*) new TriangleHullImpl(std::move(shader))
+                   : (Impl*) new CurveHullImpl(std::move(shader));
+    }
+    SkASSERT(Subpass::kCorners == fSubpass);
+    return new CornerImpl(std::move(shader));
 }

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCCoverageProcessor.h"
+#include "GrVSCoverageProcessor.h"
 
 #include "GrMesh.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 // This class implements the coverage processor with vertex shaders.
-class GrCCCoverageProcessor::VSImpl : public GrGLSLGeometryProcessor {
+class GrVSCoverageProcessor::Impl : public GrGLSLGeometryProcessor {
 public:
-    VSImpl(std::unique_ptr<Shader> shader, int numSides)
+    Impl(std::unique_ptr<Shader> shader, int numSides)
             : fShader(std::move(shader)), fNumSides(numSides) {}
 
 private:
@@ -248,28 +248,27 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gCurveIndexBufferKey);
 // previous coverage values with ones that ramp to zero in the bloat vertices that fall outside the
 // triangle.
 //
-// Curves are drawn in two separate passes. Here we just draw a conservative raster around the input
-// points. The Shader takes care of everything else for now. The final curve corners get touched up
-// in a later step by VSCornerImpl.
-void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
+// Curve shaders handle the opposite edge and corners on their own. For curves we just generate a
+// conservative raster here and the shader does the rest.
+void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+    const GrVSCoverageProcessor& proc = args.fGP.cast<GrVSCoverageProcessor>();
     GrGLSLVertexBuilder* v = args.fVertBuilder;
     int numInputPoints = proc.numInputPoints();
 
     int inputWidth = (4 == numInputPoints || proc.hasInputWeight()) ? 4 : 3;
     const char* swizzle = (4 == inputWidth) ? "xyzw" : "xyz";
     v->codeAppendf("float%ix2 pts = transpose(float2x%i(%s.%s, %s.%s));", inputWidth, inputWidth,
-                   proc.fInstanceAttributes[kInstanceAttribIdx_X].name(), swizzle,
-                   proc.fInstanceAttributes[kInstanceAttribIdx_Y].name(), swizzle);
+                   proc.fInputXAndYValues[kInstanceAttribIdx_X].name(), swizzle,
+                   proc.fInputXAndYValues[kInstanceAttribIdx_Y].name(), swizzle);
 
     v->codeAppend ("half wind;");
     Shader::CalcWind(proc, v, "pts", "wind");
     if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
         SkASSERT(3 == numInputPoints);
         SkASSERT(kFloat4_GrVertexAttribType ==
-                 proc.fInstanceAttributes[kInstanceAttribIdx_X].cpuType());
+                 proc.fInputXAndYValues[kInstanceAttribIdx_X].cpuType());
         v->codeAppendf("wind *= half(%s.w);",
-                       proc.fInstanceAttributes[kInstanceAttribIdx_X].name());
+                       proc.fInputXAndYValues[kInstanceAttribIdx_X].name());
     }
 
     float bloat = kAABloatRadius;
@@ -285,12 +284,12 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
 
     // Reverse all indices if the wind is counter-clockwise: [0, 1, 2] -> [2, 1, 0].
     v->codeAppendf("int clockwise_indices = wind > 0 ? %s : 0x%x - %s;",
-                   proc.fVertexAttribute.name(),
+                   proc.fPerVertexData.name(),
                    ((fNumSides - 1) << kVertexData_LeftNeighborIdShift) |
                    ((fNumSides - 1) << kVertexData_RightNeighborIdShift) |
                    (((1 << kVertexData_RightNeighborIdShift) - 1) ^ 3) |
                    (fNumSides - 1),
-                   proc.fVertexAttribute.name());
+                   proc.fPerVertexData.name());
 
     // Here we generate conservative raster geometry for the input polygon. It is the convex
     // hull of N pixel-size boxes, one centered on each the input points. Each corner has three
@@ -323,7 +322,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     v->codeAppend ("rightdir = (float2(0) != rightdir) ? normalize(rightdir) : float2(1, 0);");
 
     v->codeAppendf("if (0 != (%s & %i)) {",  // Are we a corner?
-                   proc.fVertexAttribute.name(), kVertexData_IsCornerBit);
+                   proc.fPerVertexData.name(), kVertexData_IsCornerBit);
 
                        // In corner boxes, all 4 coverage values will not map linearly.
                        // Therefore it is important to align the box so its diagonal shared
@@ -342,7 +341,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     // continue rotating 90 degrees clockwise until we reach the desired raster vertex for this
     // invocation. Corners with less than 3 corresponding raster vertices will result in
     // redundant vertices and degenerate triangles.
-    v->codeAppendf("int bloatidx = (%s >> %i) & 3;", proc.fVertexAttribute.name(),
+    v->codeAppendf("int bloatidx = (%s >> %i) & 3;", proc.fPerVertexData.name(),
                    kVertexData_BloatIdxShift);
     v->codeAppend ("switch (bloatidx) {");
     v->codeAppend (    "case 3:");
@@ -377,12 +376,12 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
         v->codeAppend ("}");
 
         v->codeAppendf("if (0 != (%s & %i)) {",  // Are we an edge?
-                       proc.fVertexAttribute.name(), kVertexData_IsEdgeBit);
+                       proc.fPerVertexData.name(), kVertexData_IsEdgeBit);
         v->codeAppend (    "coverage = left_coverage;");
         v->codeAppend ("}");
 
         v->codeAppendf("if (0 != (%s & %i)) {",  // Invert coverage?
-                       proc.fVertexAttribute.name(),
+                       proc.fPerVertexData.name(),
                        kVertexData_InvertNegativeCoverageBit);
         v->codeAppend (    "coverage = -1 - coverage;");
         v->codeAppend ("}");
@@ -392,7 +391,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     v->codeAppend ("half2 corner_coverage = half2(0);");
 
     v->codeAppendf("if (0 != (%s & %i)) {",  // Are we a corner?
-                   proc.fVertexAttribute.name(), kVertexData_IsCornerBit);
+                   proc.fPerVertexData.name(), kVertexData_IsCornerBit);
                        // We use coverage=-1 to erase what the hull geometry wrote.
                        //
                        // In the context of curves, this effectively means "wind = -wind" and
@@ -432,7 +431,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
     v->codeAppend ("coverage *= wind;");
     v->codeAppend ("corner_coverage.x *= wind;");
-    fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &v->code(),
+    fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kVertToFrag, &AccessCodeString(v),
                           gpArgs->fPositionVar.c_str(), "coverage", "corner_coverage");
 
     varyingHandler->emitAttributes(proc);
@@ -442,31 +441,28 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
 }
 
-void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
-    SkASSERT(Impl::kVertexShader == fImpl);
+void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
     const GrCaps& caps = *rp->caps();
 
+    fPrimitiveType = primitiveType;
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
         case PrimitiveType::kWeightedTriangles: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gTriangleVertexBufferKey);
-            fVSVertexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex,
-                                                         sizeof(kTriangleVertices),
-                                                         kTriangleVertices,
-                                                         gTriangleVertexBufferKey);
+            fVertexBuffer = rp->findOrMakeStaticBuffer(
+                    GrGpuBufferType::kVertex, sizeof(kTriangleVertices), kTriangleVertices,
+                    gTriangleVertexBufferKey);
             GR_DEFINE_STATIC_UNIQUE_KEY(gTriangleIndexBufferKey);
             if (caps.usePrimitiveRestart()) {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
-                                                            sizeof(kTriangleIndicesAsStrips),
-                                                            kTriangleIndicesAsStrips,
-                                                            gTriangleIndexBufferKey);
-                fVSNumIndicesPerInstance = SK_ARRAY_COUNT(kTriangleIndicesAsStrips);
+                fIndexBuffer = rp->findOrMakeStaticBuffer(
+                        GrGpuBufferType::kIndex, sizeof(kTriangleIndicesAsStrips),
+                        kTriangleIndicesAsStrips, gTriangleIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kTriangleIndicesAsStrips);
             } else {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
-                                                            sizeof(kTriangleIndicesAsTris),
-                                                            kTriangleIndicesAsTris,
-                                                            gTriangleIndexBufferKey);
-                fVSNumIndicesPerInstance = SK_ARRAY_COUNT(kTriangleIndicesAsTris);
+                fIndexBuffer = rp->findOrMakeStaticBuffer(
+                        GrGpuBufferType::kIndex, sizeof(kTriangleIndicesAsTris),
+                        kTriangleIndicesAsTris, gTriangleIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kTriangleIndicesAsTris);
             }
             break;
         }
@@ -475,22 +471,20 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         case PrimitiveType::kCubics:
         case PrimitiveType::kConics: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gCurveVertexBufferKey);
-            fVSVertexBuffer =
-                    rp->findOrMakeStaticBuffer(GrGpuBufferType::kVertex, sizeof(kCurveVertices),
-                                               kCurveVertices, gCurveVertexBufferKey);
+            fVertexBuffer = rp->findOrMakeStaticBuffer(
+                    GrGpuBufferType::kVertex, sizeof(kCurveVertices), kCurveVertices,
+                    gCurveVertexBufferKey);
             GR_DEFINE_STATIC_UNIQUE_KEY(gCurveIndexBufferKey);
             if (caps.usePrimitiveRestart()) {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
-                                                            sizeof(kCurveIndicesAsStrips),
-                                                            kCurveIndicesAsStrips,
-                                                            gCurveIndexBufferKey);
-                fVSNumIndicesPerInstance = SK_ARRAY_COUNT(kCurveIndicesAsStrips);
+                fIndexBuffer = rp->findOrMakeStaticBuffer(
+                        GrGpuBufferType::kIndex, sizeof(kCurveIndicesAsStrips),
+                        kCurveIndicesAsStrips, gCurveIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kCurveIndicesAsStrips);
             } else {
-                fVSIndexBuffer = rp->findOrMakeStaticBuffer(GrGpuBufferType::kIndex,
-                                                            sizeof(kCurveIndicesAsTris),
-                                                            kCurveIndicesAsTris,
-                                                            gCurveIndexBufferKey);
-                fVSNumIndicesPerInstance = SK_ARRAY_COUNT(kCurveIndicesAsTris);
+                fIndexBuffer = rp->findOrMakeStaticBuffer(
+                        GrGpuBufferType::kIndex, sizeof(kCurveIndicesAsTris), kCurveIndicesAsTris,
+                        gCurveIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kCurveIndicesAsTris);
             }
             break;
         }
@@ -515,39 +509,39 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         xyAttribType = kFloat3_GrVertexAttribType;
         xySLType = kFloat3_GrSLType;
     }
-    fInstanceAttributes[kInstanceAttribIdx_X] = {"X", xyAttribType, xySLType};
-    fInstanceAttributes[kInstanceAttribIdx_Y] = {"Y", xyAttribType, xySLType};
-    this->setInstanceAttributes(fInstanceAttributes, 2);
-    fVertexAttribute = {"vertexdata", kInt_GrVertexAttribType, kInt_GrSLType};
-    this->setVertexAttributes(&fVertexAttribute, 1);
+    fInputXAndYValues[kInstanceAttribIdx_X] = {"X", xyAttribType, xySLType};
+    fInputXAndYValues[kInstanceAttribIdx_Y] = {"Y", xyAttribType, xySLType};
+    this->setInstanceAttributes(fInputXAndYValues, 2);
+    fPerVertexData = {"vertexdata", kInt_GrVertexAttribType, kInt_GrSLType};
+    this->setVertexAttributes(&fPerVertexData, 1);
 
     if (caps.usePrimitiveRestart()) {
-        fVSTriangleType = GrPrimitiveType::kTriangleStrip;
+        fTriangleType = GrPrimitiveType::kTriangleStrip;
     } else {
-        fVSTriangleType = GrPrimitiveType::kTriangles;
+        fTriangleType = GrPrimitiveType::kTriangles;
     }
 }
 
-void GrCCCoverageProcessor::appendVSMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                         int baseInstance, SkTArray<GrMesh>* out) const {
-    SkASSERT(Impl::kVertexShader == fImpl);
-    GrMesh& mesh = out->emplace_back(fVSTriangleType);
-    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fVSTriangleType);
-    mesh.setIndexedInstanced(fVSIndexBuffer, fVSNumIndicesPerInstance, std::move(instanceBuffer),
+void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
+                                       int baseInstance, SkTArray<GrMesh>* out) const {
+    GrMesh& mesh = out->emplace_back(fTriangleType);
+    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
+    mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),
                              instanceCount, baseInstance, primitiveRestart);
-    mesh.setVertexData(fVSVertexBuffer, 0);
+    mesh.setVertexData(fVertexBuffer, 0);
 }
 
-GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createVSImpl(std::unique_ptr<Shader> shadr) const {
+GrGLSLPrimitiveProcessor* GrVSCoverageProcessor::onCreateGLSLInstance(
+        std::unique_ptr<Shader> shader) const {
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
         case PrimitiveType::kWeightedTriangles:
-            return new VSImpl(std::move(shadr), 3);
+            return new Impl(std::move(shader), 3);
         case PrimitiveType::kQuadratics:
         case PrimitiveType::kCubics:
         case PrimitiveType::kConics:
-            return new VSImpl(std::move(shadr), 4);
+            return new Impl(std::move(shader), 4);
     }
-    SK_ABORT("Invalid RenderPass");
+    SK_ABORT("Invalid PrimitiveType");
     return nullptr;
 }

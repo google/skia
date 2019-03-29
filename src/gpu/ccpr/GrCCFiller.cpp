@@ -459,53 +459,57 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     return true;
 }
 
-void GrCCFiller::drawFills(GrOpFlushState* flushState, BatchID batchID,
-                           const SkIRect& drawBounds) const {
+void GrCCFiller::drawFills(GrOpFlushState* flushState, GrCCCoverageProcessor* proc,
+                           BatchID batchID, const SkIRect& drawBounds) const {
     using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
 
     SkASSERT(fInstanceBuffer);
 
+    GrResourceProvider* rp = flushState->resourceProvider();
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;
 
     GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus);
 
     if (batchTotalCounts.fTriangles) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kTriangles,
-                             &PrimitiveTallies::fTriangles, drawBounds);
+        proc->reset(PrimitiveType::kTriangles, rp);
+        this->drawPrimitives(
+                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fTriangles, drawBounds);
     }
 
     if (batchTotalCounts.fWeightedTriangles) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kWeightedTriangles,
-                             &PrimitiveTallies::fWeightedTriangles, drawBounds);
+        proc->reset(PrimitiveType::kWeightedTriangles, rp);
+        this->drawPrimitives(
+                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fWeightedTriangles,
+                drawBounds);
     }
 
     if (batchTotalCounts.fQuadratics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kQuadratics,
-                             &PrimitiveTallies::fQuadratics, drawBounds);
+        proc->reset(PrimitiveType::kQuadratics, rp);
+        this->drawPrimitives(
+                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fQuadratics, drawBounds);
     }
 
     if (batchTotalCounts.fCubics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kCubics,
-                             &PrimitiveTallies::fCubics, drawBounds);
+        proc->reset(PrimitiveType::kCubics, rp);
+        this->drawPrimitives(
+                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fCubics, drawBounds);
     }
 
     if (batchTotalCounts.fConics) {
-        this->drawPrimitives(flushState, pipeline, batchID, PrimitiveType::kConics,
-                             &PrimitiveTallies::fConics, drawBounds);
+        proc->reset(PrimitiveType::kConics, rp);
+        this->drawPrimitives(
+                flushState, *proc, pipeline, batchID, &PrimitiveTallies::fConics, drawBounds);
     }
 }
 
-void GrCCFiller::drawPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                BatchID batchID, GrCCCoverageProcessor::PrimitiveType primitiveType,
-                                int PrimitiveTallies::*instanceType,
-                                const SkIRect& drawBounds) const {
+void GrCCFiller::drawPrimitives(
+        GrOpFlushState* flushState, const GrCCCoverageProcessor& proc, const GrPipeline& pipeline,
+        BatchID batchID, int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const {
     SkASSERT(pipeline.isScissorEnabled());
 
     // Don't call reset(), as that also resets the reserve count.
     fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
     fScissorRectScratchBuffer.pop_back_n(fScissorRectScratchBuffer.count());
-
-    GrCCCoverageProcessor proc(flushState->resourceProvider(), primitiveType);
 
     SkASSERT(batchID > 0);
     SkASSERT(batchID < fBatches.count());
