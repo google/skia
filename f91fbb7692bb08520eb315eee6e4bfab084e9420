@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a5e9778_4dd1ec2e",
+        "filename": "src/core/SkMixer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-29T18:02:27Z",
+      "side": 1,
+      "message": "Why not just make this GrSkSLFP and skip the casts?",
+      "range": {
+        "startLine": 30,
+        "startChar": 20,
+        "endLine": 30,
+        "endChar": 39
+      },
+      "revId": "f91fbb7692bb08520eb315eee6e4bfab084e9420",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ed8dd66_7efbaaec",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-03-29T18:02:27Z",
+      "side": 1,
+      "message": "move up t prev line?",
+      "range": {
+        "startLine": 160,
+        "startChar": 12,
+        "endLine": 160,
+        "endChar": 60
+      },
+      "revId": "f91fbb7692bb08520eb315eee6e4bfab084e9420",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
