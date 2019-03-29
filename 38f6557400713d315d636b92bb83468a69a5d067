@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82febd_336189cb",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-03-29T21:18:01Z",
+      "side": 1,
+      "message": "I decided to just use multiplies instead of mins to consolidate the 4 border distances to a single coverage distance. When not at the corner of the border, all but one component will be equal to 1, so it works out to being the minimum. At the corner, we\u0027ll get a coverage value that is less than the manhattan distance but probably isn\u0027t objectionable.",
+      "revId": "38f6557400713d315d636b92bb83468a69a5d067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
