@@ -136,18 +136,15 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     desc.fConfig = fConfig;
     GrMipMapped mipMapped = fBackendTexture.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    // Must make copies of member variables to capture in the lambda since this image generator may
-    // be deleted before we actuallly execute the lambda.
-    sk_sp<GrSemaphore> semaphore = fSemaphore;
-    GrBackendTexture backendTexture = fBackendTexture;
-    RefHelper* refHelper = fRefHelper;
-
-    GrBackendFormat format = backendTexture.getBackendFormat();
+    GrBackendFormat format = fBackendTexture.getBackendFormat();
     SkASSERT(format.isValid());
 
+    // Must make copies of member variables to capture in the lambda since this image generator may
+    // be deleted before we actually execute the lambda.
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [refHelper, releaseProcHelper, semaphore,
-             backendTexture](GrResourceProvider* resourceProvider) {
+            [refHelper = fRefHelper, releaseProcHelper, semaphore = fSemaphore,
+             backendTexture = fBackendTexture](GrResourceProvider* resourceProvider)
+                    -> GrSurfaceProxy::LazyInstantiationResult {
                 if (semaphore) {
                     resourceProvider->priv().gpu()->waitSemaphore(semaphore);
                 }
@@ -172,14 +169,13 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                             backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
                             kRead_GrIOType);
                     if (!tex) {
-                        return sk_sp<GrTexture>();
+                        return {};
                     }
                     refHelper->fBorrowedTexture = tex.get();
 
                     tex->setRelease(releaseProcHelper);
                 }
-
-                return tex;
+                return std::move(tex);
             },
             format, desc, fSurfaceOrigin, mipMapped, GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kNo);
