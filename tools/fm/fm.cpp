@@ -329,15 +329,17 @@ int main(int argc, char** argv) {
         if (sk_sp<SkData> blob = SkData::MakeFromFileName(source.c_str())) {
             const SkString name = SkOSPath::Basename(source.c_str());
 
-            if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
-                sources.push_back(picture_source(name, pic));
-            }
-            if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
+            if (name.endsWith(".skp")) {
+                if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
+                    sources.push_back(picture_source(name, pic));
+                }
+            } else if (name.endsWith(".svg")) {
+                SkMemoryStream stream{blob};
+                if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
+                    sources.push_back(svg_source(name, svg));
+                }
+            } else if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
                 sources.push_back(codec_source(name, codec));
-            }
-            SkMemoryStream stream{blob};
-            if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
-                sources.push_back(svg_source(name, svg));
             }
         }
     }
