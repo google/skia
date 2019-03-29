@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab903949_06298b68",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-29T19:02:32Z",
+      "side": 1,
+      "message": "This seems like a sharp edge. Perhaps...\n, fStream{std::move(providedData)}\n, fIsLocalStream{fStream}",
+      "range": {
+        "startLine": 719,
+        "startChar": 20,
+        "endLine": 721,
+        "endChar": 5
+      },
+      "revId": "6290feb2bf3f3e6466634f32b5c041dad8d78e94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fff07a6_6010e72f",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-03-29T19:02:32Z",
+      "side": 1,
+      "message": "You have moved providedData in the line aboce. I think this will cause problems.",
+      "range": {
+        "startLine": 787,
+        "startChar": 9,
+        "endLine": 787,
+        "endChar": 21
+      },
+      "revId": "6290feb2bf3f3e6466634f32b5c041dad8d78e94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
