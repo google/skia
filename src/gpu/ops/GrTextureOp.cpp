@@ -439,7 +439,7 @@ private:
                 auto* proxy = op.fProxies[p].fProxy;
                 if (target->resourceProvider()->explicitlyAllocateGPUResources()) {
                     SkASSERT(proxy->isInstantiated());
-                } else if (!proxy->instantiate(target->resourceProvider())) {
+                } else if (!proxy->instantiate1(target->resourceProvider())) {
                     return;
                 }
                 SkASSERT(proxy->config() == config);

@@ -175,7 +175,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
             SkBudgeted::kNo, GrInternalSurfaceFlags::kNoPendingIO);
     SkASSERT(proxy);
-    proxy->instantiate(context->priv().resourceProvider());
+    proxy->instantiate1(context->priv().resourceProvider());
     int result[result_width()];
     int validResult[result_width()];
 

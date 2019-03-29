@@ -140,7 +140,7 @@ public:
                                     }
                                     REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
                                     fTest->fHasClipTexture = true;
-                                    fAtlas->instantiate(rp);
+                                    fAtlas->instantiate1(rp);
                                     return sk_ref_sp(fAtlas->peekTexture());
                                 },
                                 format,

@@ -311,7 +311,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                                                        GrInternalSurfaceFlags::kNoPendingIO);
 
         if (resourceProvider->explicitlyAllocateGPUResources()) {
-            proxies[0]->instantiate(resourceProvider);
+            proxies[0]->instantiate1(resourceProvider);
         }
     }
 
@@ -333,7 +333,7 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                                                        GrInternalSurfaceFlags::kNoPendingIO);
 
         if (resourceProvider->explicitlyAllocateGPUResources()) {
-            proxies[1]->instantiate(resourceProvider);
+            proxies[1]->instantiate1(resourceProvider);
         }
     }
 

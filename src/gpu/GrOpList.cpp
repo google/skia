@@ -41,7 +41,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider, sk_sp<GrOpMemoryPool> o
         // are pre-emptively instantiating proxies themselves) we need to instantiate
         // here so that the GrSurfaces are created in an order that preserves the GrSurface
         // re-use assumptions.
-        fTarget.get()->instantiate(resourceProvider);
+        fTarget.get()->instantiate1(resourceProvider);
     }
 
     fTarget.markPendingIO();
@@ -60,7 +60,7 @@ bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
         SkASSERT(fTarget.get()->isInstantiated());
         return true;
     } else {
-        return SkToBool(fTarget.get()->instantiate(resourceProvider));
+        return SkToBool(fTarget.get()->instantiate1(resourceProvider));
     }
 }
 
@@ -79,7 +79,7 @@ void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) 
         if (resourceProvider->explicitlyAllocateGPUResources()) {
             SkASSERT(fDeferredProxies[i]->isInstantiated());
         } else {
-            fDeferredProxies[i]->instantiate(resourceProvider);
+            fDeferredProxies[i]->instantiate1(resourceProvider);
         }
     }
 }

@@ -555,7 +555,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
 bool GrDrawOpAtlas::activateNewPage(GrResourceProvider* resourceProvider) {
     SkASSERT(fNumActivePages < this->maxPages());
 
-    if (!fProxies[fNumActivePages]->instantiate(resourceProvider)) {
+    if (!fProxies[fNumActivePages]->instantiate1(resourceProvider)) {
         return false;
     }
 

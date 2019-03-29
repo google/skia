@@ -76,7 +76,7 @@ public:
                                                       SkSurface::BackendSurfaceAccess access,
                                                       SkSurface::FlushFlags flags,
                                                       int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[]);
+                                                      GrBackendSemaphore backendSemaphores[], bool doIt);
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 

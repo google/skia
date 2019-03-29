@@ -437,7 +437,7 @@ public:
             SkASSERT(fProxyRef.get()->isInstantiated());
             return true;
         } else {
-            return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+            return SkToBool(fProxyRef.get()->instantiate1(resourceProvider));
         }
     }
 

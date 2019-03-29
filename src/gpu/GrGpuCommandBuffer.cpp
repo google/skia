@@ -58,7 +58,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
             if (resourceProvider->explicitlyAllocateGPUResources()) {
                 SkASSERT(processorProxies[i]->isInstantiated());
-            } else if (!processorProxies[i]->instantiate(resourceProvider)) {
+            } else if (!processorProxies[i]->instantiate1(resourceProvider)) {
                 return false;
             }
         }
@@ -69,7 +69,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         for (int i = 0; i < n; ++i) {
             if (resourceProvider->explicitlyAllocateGPUResources()) {
                 SkASSERT(textures[i]->isInstantiated());
-            } else if (!textures[i]->instantiate(resourceProvider)) {
+            } else if (!textures[i]->instantiate1(resourceProvider)) {
                 return false;
             }
         }

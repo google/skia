@@ -28,7 +28,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                 SkASSERT(!fHasAtlasTransform);
 
                 GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
-                if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
+                if (!textureProxy || !textureProxy->instantiate1(resourceProvider)) {
                     fAtlasScale = fAtlasTranslate = {0, 0};
                     SkDEBUGCODE(fHasAtlasTransform = true);
                     return sk_sp<GrTexture>();

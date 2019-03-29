@@ -41,7 +41,7 @@ GrPipeline::GrPipeline(const InitArgs& args,
     if (args.fDstProxy.proxy()) {
         if (args.fResourceProvider->explicitlyAllocateGPUResources()) {
             SkASSERT(args.fDstProxy.proxy()->isInstantiated());
-        } else if (!args.fDstProxy.proxy()->instantiate(args.fResourceProvider)) {
+        } else if (!args.fDstProxy.proxy()->instantiate1(args.fResourceProvider)) {
             this->markAsBad();
         }
 

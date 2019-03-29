@@ -89,7 +89,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrRecordingContext* context,
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     if (state->resourceProvider()->explicitlyAllocateGPUResources()) {
         SkASSERT(fSrc.get()->isInstantiated());
-    } else if (!fSrc.get()->instantiate(state->resourceProvider())) {
+    } else if (!fSrc.get()->instantiate1(state->resourceProvider())) {
         return;
     }
 
