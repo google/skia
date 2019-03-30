@@ -2967,7 +2967,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kMesa_GrGLDriver == ctxInfo.driver() &&
         (kIntelSandyBridge_GrGLRenderer == ctxInfo.renderer() ||
          kIntelBayTrail_GrGLRenderer == ctxInfo.renderer())) {
-        fBlacklistCoverageCounting = true;
+        fDriverBlacklistCCPR = true;
     }
 
 #ifdef SK_BUILD_FOR_ANDROID

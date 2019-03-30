@@ -20,6 +20,8 @@ static DEFINE_bool(cachePathMasks, true,
 
 static DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
 
+static DEFINE_bool(cc, false, "Allow coverage counting shortcuts to render paths?");
+
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
               "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
@@ -59,11 +61,12 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
 
 static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
     if (FLAGS_pr.isEmpty()) {
-        return GpuPathRenderers::kDefault;
+        return GpuPathRenderers::kAll;
     }
+
     GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
-        ? GpuPathRenderers::kDefault
-        : GpuPathRenderers::kNone;
+            ? GpuPathRenderers::kAll
+            : GpuPathRenderers::kNone;
 
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
         const char* name = FLAGS_pr[i];
@@ -82,6 +85,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
         : nullptr;
 
     ctxOptions->fExecutor                            = gGpuExecutor.get();
+    ctxOptions->fDisableCoverageCountingPaths        = !FLAGS_cc;
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fSuppressGeometryShaders             = FLAGS_noGS;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
