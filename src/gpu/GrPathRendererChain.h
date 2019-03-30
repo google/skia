@@ -28,7 +28,7 @@ class GrPathRendererChain : public SkNoncopyable {
 public:
     struct Options {
         bool fAllowPathMaskCaching = false;
-        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
+        GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
     };
     GrPathRendererChain(GrRecordingContext* context, const Options&);
 
