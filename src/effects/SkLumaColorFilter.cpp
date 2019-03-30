@@ -18,10 +18,11 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
-void SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkLumaColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     rec.fPipeline->append(SkRasterPipeline::luminance_to_alpha);
     rec.fPipeline->append(SkRasterPipeline::clamp_0);
     rec.fPipeline->append(SkRasterPipeline::clamp_1);
+    return true;
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
