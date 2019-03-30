@@ -61,10 +61,6 @@ static const char* SKSL_PIPELINE_STAGE_INCLUDE =
 #include "sksl_pipeline.inc"
 ;
 
-static const char* SKSL_MIXER_INCLUDE =
-#include "sksl_mixer.inc"
-;
-
 namespace SkSL {
 
 Compiler::Compiler(Flags flags)
@@ -1270,13 +1266,6 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             fIRGenerator->start(&settings, nullptr);
             fIRGenerator->convertProgram(kind, SKSL_PIPELINE_STAGE_INCLUDE,
                                          strlen(SKSL_PIPELINE_STAGE_INCLUDE), *fTypes, &elements);
-            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-            break;
-        case Program::kMixer_Kind:
-            inherited = nullptr;
-            fIRGenerator->start(&settings, nullptr);
-            fIRGenerator->convertProgram(kind, SKSL_MIXER_INCLUDE, strlen(SKSL_MIXER_INCLUDE),
-                                         *fTypes, &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
     }
