@@ -44,8 +44,8 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
 }
 #endif
 
-void SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
-    this->onAppendStages(rec, shaderIsOpaque);
+bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+    return this->onAppendStages(rec, shaderIsOpaque);
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
@@ -93,13 +93,13 @@ public:
         return fOuter->getFlags() & fInner->getFlags();
     }
 
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
         if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
             innerIsOpaque = false;
         }
-        fInner->appendStages(rec, shaderIsOpaque);
-        fOuter->appendStages(rec, innerIsOpaque);
+        return fInner->appendStages(rec, shaderIsOpaque) &&
+               fOuter->appendStages(rec, innerIsOpaque);
     }
 
 #if SK_SUPPORT_GPU
@@ -210,7 +210,7 @@ public:
     }
 #endif
 
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
             rec.fPipeline->append(SkRasterPipeline::unpremul);
         }
@@ -222,6 +222,7 @@ public:
         if (!shaderIsOpaque) {
             rec.fPipeline->append(SkRasterPipeline::premul);
         }
+        return true;
     }
 
 protected:
@@ -278,7 +279,7 @@ public:
         return f0 & f1;
     }
 
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         // want cf0 * (1 - w) + cf1 * w == lerp(w)
         // which means
         //      dr,dg,db,da <-- cf0
@@ -304,6 +305,7 @@ public:
         }
         float* storage = rec.fAlloc->make<float>(fWeight);
         p->append(SkRasterPipeline::lerp_1_float, storage);
+        return true;
     }
 
 #if SK_SUPPORT_GPU
@@ -394,7 +396,7 @@ public:
     }
 #endif
 
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (fCpuFunction) {
             struct CpuFuncCtx : public SkRasterPipeline_CallbackCtx {
                 SkRuntimeColorFilterFn cpuFn;
@@ -440,6 +442,7 @@ public:
             };
             rec.fPipeline->append(SkRasterPipeline::callback, ctx);
         }
+        return true;
     }
 
 protected:
