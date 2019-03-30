@@ -129,6 +129,7 @@ public:
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
     sk_sp<SkMixer> readMixer() { return this->readFlattenable<SkMixerBase>(); }
+    sk_sp<SkEffect> readEffect() { return this->readFlattenable<SkEffect>(); }
 
     // Reads SkAlign4(bytes), but will only copy bytes into the buffer.
     bool readPad32(void* buffer, size_t bytes);
@@ -315,6 +316,7 @@ public:
     sk_sp<SkPathEffect>  readPathEffect()  { return nullptr; }
     sk_sp<SkShader>      readShader()      { return nullptr; }
     sk_sp<SkMixer>       readMixer()       { return nullptr; }
+    sk_sp<SkEffect>      readEffect()      { return nullptr; }
 
     bool readPad32       (void*,      size_t) { return false; }
     bool readByteArray   (void*,      size_t) { return false; }
