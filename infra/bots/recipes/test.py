@@ -253,7 +253,7 @@ def dm_flags(api, bot):
     # Test coverage counting path renderer.
     if 'CCPR' in bot:
       configs = [c for c in configs if c == 'gl' or c == 'gles']
-      args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
+      args.extend(['--pr', 'ccpr', '--cc', 'true', '--cachePathMasks', 'false'])
 
     # DDL is a GPU-only feature
     if 'DDL1' in bot:
