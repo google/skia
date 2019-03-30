@@ -34,9 +34,7 @@ DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
 
     float b = 0.75;
     sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-    static SkRuntimeColorFilterFactory fact = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC),
-                                                                          runtimeCpuFunc);
-    auto cf1 = fact.make(data);
+    auto cf1 = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC), runtimeCpuFunc).make(data);
     SkPaint p;
     p.setColorFilter(cf1);
     canvas->drawImage(img, 256, 0, &p);
@@ -59,9 +57,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
 
     float b = 0.75;
     sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-    static SkRuntimeColorFilterFactory fact = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC),
-                                                                          nullptr);
-    auto cf1 = fact.make(data);
+    auto cf1 = SkRuntimeColorFilterFactory(SkString(SKSL_TEST_SRC), nullptr).make(data);
     SkPaint p;
     p.setColorFilter(cf1);
     canvas->drawImage(img, 256, 0, &p);

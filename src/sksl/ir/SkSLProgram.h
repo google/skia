@@ -213,8 +213,7 @@ struct Program {
         kVertex_Kind,
         kGeometry_Kind,
         kFragmentProcessor_Kind,
-        kPipelineStage_Kind,
-        kMixer_Kind
+        kPipelineStage_Kind
     };
 
     Program(Kind kind,
