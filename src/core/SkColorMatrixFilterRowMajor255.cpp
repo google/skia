@@ -66,7 +66,7 @@ bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
     return true;
 }
 
-void SkColorMatrixFilterRowMajor255::onAppendStages(const SkStageRec& rec,
+bool SkColorMatrixFilterRowMajor255::onAppendStages(const SkStageRec& rec,
                                                     bool shaderIsOpaque) const {
     const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
 
@@ -76,6 +76,7 @@ void SkColorMatrixFilterRowMajor255::onAppendStages(const SkStageRec& rec,
     if (           true) { p->append(SkRasterPipeline::clamp_0); }
     if (           true) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    return true;
 }
 
 #if SK_SUPPORT_GPU

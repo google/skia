@@ -49,7 +49,7 @@ private:
     SK_FLATTENABLE_HOOKS(SkLumaColorFilter)
 
     SkLumaColorFilter();
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     typedef SkColorFilter INHERITED;
 };

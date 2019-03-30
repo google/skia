@@ -40,7 +40,7 @@ public:
             GrRecordingContext*, const GrColorSpaceInfo&) const override;
  #endif
 
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -55,7 +55,7 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
-void SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
@@ -125,6 +125,7 @@ void SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsO
     if (!shaderIsOpaque) {
         p->append(SkRasterPipeline::premul);
     }
+    return true;
 }
 
 void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {

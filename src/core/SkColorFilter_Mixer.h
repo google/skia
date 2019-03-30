@@ -33,7 +33,7 @@ public:
 protected:
     SkColorFilter_Mixer(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    void onAppendStages(const SkStageRec&, bool shaderIsOpaque) const override;
+    bool onAppendStages(const SkStageRec&, bool shaderIsOpaque) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkColorFilter_Mixer)
