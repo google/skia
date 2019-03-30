@@ -39,6 +39,7 @@ public:
         kSkUnused_Type2,
         kSkNormalSource_Type,
         kSkMixer_Type,
+        kSkEffect_Type,
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
