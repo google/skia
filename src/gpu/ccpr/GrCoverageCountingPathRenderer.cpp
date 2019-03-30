@@ -20,14 +20,17 @@ using PathInstance = GrCCPathProcessor::Instance;
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
-    return caps.instanceAttribSupport() && shaderCaps.integerSupport() &&
-           shaderCaps.floatIs32Bits() && GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
-           caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
-           caps.isConfigRenderable(kAlpha_half_GrPixelConfig) &&
-           caps.isConfigTexturable(kAlpha_8_GrPixelConfig) &&
-           caps.isConfigRenderable(kAlpha_8_GrPixelConfig) &&
-           caps.halfFloatVertexAttributeSupport() &&
-           !caps.blacklistCoverageCounting();
+    if (caps.driverBlacklistCCPR() || !caps.allowCoverageCounting() ||
+        !shaderCaps.integerSupport() || !caps.instanceAttribSupport() ||
+        !shaderCaps.floatIs32Bits() || GrCaps::kNone_MapFlags == caps.mapBufferFlags() ||
+        !caps.isConfigTexturable(kAlpha_half_GrPixelConfig) ||
+        !caps.isConfigRenderable(kAlpha_half_GrPixelConfig) ||
+        !caps.isConfigTexturable(kAlpha_8_GrPixelConfig) ||
+        !caps.isConfigRenderable(kAlpha_8_GrPixelConfig) ||
+        !caps.halfFloatVertexAttributeSupport()) {
+        return false;
+    }
+    return true;
 }
 
 sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
