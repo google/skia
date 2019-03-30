@@ -60,6 +60,8 @@ __argparse.add_argument('--pr',
   help="comma- or space-separated list of GPU path renderers, including: "
        "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
        "[~]aalinearizing [~]small [~]tess]")
+__argparse.add_argument('--cc',
+  action='store_true', help="allow coverage counting shortcuts to render paths")
 __argparse.add_argument('--nocache',
   action='store_true', help="disable caching of path mask textures")
 __argparse.add_argument('-c', '--config',
@@ -131,6 +133,8 @@ class SKPBench:
     ARGV.extend(['--fps', 'true'])
   if FLAGS.pr:
     ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
+  if FLAGS.cc:
+    ARGV.extend(['--cc', 'true'])
   if FLAGS.nocache:
     ARGV.extend(['--cachePathMasks', 'false'])
   if FLAGS.gpuThreads != -1:
