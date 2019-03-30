@@ -41,7 +41,7 @@ void main(inout half4 color) {
 )";
 #endif
 
-void SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is_opaque) const {
+bool SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is_opaque) const {
     struct Ctx : public SkRasterPipeline_CallbackCtx {
         const SkPMColor* colors;
     };
@@ -60,6 +60,7 @@ void SkOverdrawColorFilter::onAppendStages(const SkStageRec& rec, bool shader_is
         }
     };
     rec.fPipeline->append(SkRasterPipeline::callback, ctx);
+    return true;
 }
 
 void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {

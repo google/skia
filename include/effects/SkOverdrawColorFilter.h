@@ -44,7 +44,7 @@ private:
         memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
     }
 
-    void onAppendStages(const SkStageRec&, bool) const override;
+    bool onAppendStages(const SkStageRec&, bool) const override;
 
     SkPMColor fColors[kNumColors];
 

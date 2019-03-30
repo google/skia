@@ -36,7 +36,7 @@ void SkColorFilter_Mixer::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fMixer.get());
 }
 
-void SkColorFilter_Mixer::onAppendStages(const SkStageRec& rec,
+bool SkColorFilter_Mixer::onAppendStages(const SkStageRec& rec,
                                          bool shaderIsOpaque) const {
     struct Storage {
         float   fOrig[4 * SkRasterPipeline_kMaxStride];
@@ -71,7 +71,7 @@ void SkColorFilter_Mixer::onAppendStages(const SkStageRec& rec,
 
     // 1st color in dr,dg,db,da
     // 2nd color in  r, g, b, a
-    (void) as_MB(fMixer)->appendStages(rec);
+    return as_MB(fMixer)->appendStages(rec);
 }
 
 #if SK_SUPPORT_GPU

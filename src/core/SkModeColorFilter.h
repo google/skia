@@ -30,7 +30,7 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkModeColorFilter)

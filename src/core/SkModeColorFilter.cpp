@@ -61,13 +61,14 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkColorFilter::MakeModeFilter(color, mode);
 }
 
-void SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
+bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     rec.fPipeline->append(SkRasterPipeline::move_src_dst);
     SkColor4f color = SkColor4f::FromColor(fColor);
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                            rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
     rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

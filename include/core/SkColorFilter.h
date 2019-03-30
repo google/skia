@@ -64,7 +64,7 @@ public:
      */
     virtual bool asComponentTable(SkBitmap* table) const;
 
-    void appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -196,7 +196,7 @@ private:
      */
     virtual int privateComposedFilterCount() const { return 1; }
 
-    virtual void onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
+    virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
     friend class SkComposeColorFilter;
 
