@@ -10,6 +10,7 @@
 
 #include "SkBlendMode.h"
 #include "SkColor.h"
+#include "SkEffect.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
@@ -37,7 +38,7 @@ class GrFragmentProcessor;
  *  w/o having to modify the original shader... only the paint's alpha needs
  *  to be modified.
  */
-class SK_API SkShader : public SkFlattenable {
+class SK_API SkShader : public SkEffect {
 public:
     enum TileMode {
         /**

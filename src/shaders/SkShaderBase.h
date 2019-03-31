@@ -151,7 +151,7 @@ public:
     bool asLuminanceColor(SkColor*) const;
 
     // If this returns false, then we draw nothing (do not fall back to shader context)
-    bool appendStages(const SkStageRec&) const;
+//    bool appendStages(const SkStageRec&) const;
 
     bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
                                                    const SkMatrix* outerLocalMatrix,
@@ -205,7 +205,7 @@ protected:
     }
 
     // Default impl creates shadercontext and calls that (not very efficient)
-    virtual bool onAppendStages(const SkStageRec&) const;
+    bool onAppendStages(const SkStageRec&) const override;
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.
