@@ -74,8 +74,7 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         readBmp2.eraseColor(0);
 
         surf->readPixels(readBmp1, 0, 0);
-        ToolUtils::write_pixels(
-                surf, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType, kUnpremul_SkAlphaType);
+        surf->writePixels(readBmp1, 0, 0);
         surf->readPixels(readBmp2, 0, 0);
 
         bool success = true;
