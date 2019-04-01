@@ -495,13 +495,14 @@ struct ShapedTextOpts {
 std::unique_ptr<SkShaper> shaper;
 
 static sk_sp<SkTextBlob> do_shaping(const ShapedTextOpts& opts, SkPoint* pt) {
-    SkTextBlobBuilderRunHandler builder(opts.text.c_str());
+    SkTextBlobBuilderRunHandler builder(opts.text.c_str(), {0, 0});
     if (!shaper) {
         shaper = SkShaper::Make();
     }
-    *pt = shaper->shape(&builder, opts.font, opts.text.c_str(),
-                        opts.text.length(), opts.leftToRight,
-                        {0, 0}, opts.width);
+    shaper->shape(opts.text.c_str(), opts.text.length(),
+                  opts.font, opts.leftToRight,
+                  opts.width, &builder);
+    *pt = builder.endPoint();
     return builder.makeBlob();
 }
 

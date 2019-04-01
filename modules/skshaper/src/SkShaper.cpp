@@ -7,6 +7,7 @@
 
 #include "SkShaper.h"
 #include "SkTextBlobPriv.h"
+#include "SkFontMetrics.h"
 
 std::unique_ptr<SkShaper> SkShaper::Make() {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
@@ -21,38 +22,54 @@ std::unique_ptr<SkShaper> SkShaper::Make() {
 SkShaper::SkShaper() {}
 SkShaper::~SkShaper() {}
 
-SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::newRunBuffer(const RunInfo&,
-                                                                       const SkFont& font,
-                                                                       size_t glyphCount,
-                                                                       Range utf8Range) {
-    if (!SkTFitsIn<int>(glyphCount)) {
-        SkDebugf("Shaping error: too many glyphs");
-        glyphCount = INT_MAX;
-    }
-    if (!SkTFitsIn<int>(utf8Range.size())) {
-        SkDebugf("Shaping error: utf8 too long");
-        utf8Range.fSize = INT_MAX;
-    }
-    const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, font, glyphCount,
-                                                                   utf8Range.size(), SkString());
+void SkTextBlobBuilderRunHandler::beginLine() {
+    fCurrentPosition = fOffset;
+    fMaxRunAscent = 0;
+    fMaxRunDescent = 0;
+    fMaxRunLeading = 0;
+}
+void SkTextBlobBuilderRunHandler::runInfo(const RunInfo& info) {
+    SkFontMetrics metrics;
+    info.fFont.getMetrics(&metrics);
+    fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
+    fMaxRunDescent = SkTMax(fMaxRunDescent, metrics.fDescent);
+    fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
+}
+
+void SkTextBlobBuilderRunHandler::commitRunInfo() {
+    fCurrentPosition.fY -= fMaxRunAscent;
+}
+
+SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::runBuffer(const RunInfo& info) {
+    int glyphCount = SkTFitsIn<int>(info.glyphCount) ? info.glyphCount : INT_MAX;
+    int utf8RangeSize = SkTFitsIn<int>(info.utf8Range.size()) ? info.utf8Range.size() : INT_MAX;
+
+    const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, info.fFont, glyphCount,
+                                                                   utf8RangeSize, SkString());
     if (runBuffer.utf8text && fUtf8Text) {
-        memcpy(runBuffer.utf8text, fUtf8Text + utf8Range.begin(), utf8Range.size());
+        memcpy(runBuffer.utf8text, fUtf8Text + info.utf8Range.begin(), utf8RangeSize);
     }
     fClusters = runBuffer.clusters;
     fGlyphCount = glyphCount;
-    fClusterOffset = utf8Range.begin();
+    fClusterOffset = info.utf8Range.begin();
 
     return { runBuffer.glyphs,
              runBuffer.points(),
-             runBuffer.clusters };
+             nullptr,
+             runBuffer.clusters,
+             fCurrentPosition };
 }
 
-void SkTextBlobBuilderRunHandler::commitRun() {
+void SkTextBlobBuilderRunHandler::commitRunBuffer(const RunInfo& info) {
     SkASSERT(0 <= fClusterOffset);
     for (int i = 0; i < fGlyphCount; ++i) {
         SkASSERT(fClusters[i] >= (unsigned)fClusterOffset);
         fClusters[i] -= fClusterOffset;
     }
+    fCurrentPosition += info.fAdvance;
+}
+void SkTextBlobBuilderRunHandler::commitLine() {
+    fOffset += { 0, fMaxRunDescent + fMaxRunLeading - fMaxRunAscent };
 }
 
 sk_sp<SkTextBlob> SkTextBlobBuilderRunHandler::makeBlob() {

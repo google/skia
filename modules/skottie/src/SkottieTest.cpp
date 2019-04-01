@@ -267,11 +267,15 @@ DEF_TEST(Skottie_Shaper, reporter) {
 
             const auto expected_l = text_point.x() - shape_bounds.width() * talign.l_selector;
             REPORTER_ASSERT(reporter,
-                            std::fabs(shape_bounds.left() - expected_l) < tsize.tolerance);
+                            std::fabs(shape_bounds.left() - expected_l) < tsize.tolerance,
+                            "%f %f %f %f %d", shape_bounds.left(), expected_l, tsize.tolerance,
+                                              tsize.text_size, talign.align);
 
             const auto expected_r = text_point.x() + shape_bounds.width() * talign.r_selector;
             REPORTER_ASSERT(reporter,
-                            std::fabs(shape_bounds.right() - expected_r) < tsize.tolerance);
+                            std::fabs(shape_bounds.right() - expected_r) < tsize.tolerance,
+                            "%f %f %f %f %d", shape_bounds.right(), expected_r, tsize.tolerance,
+                                              tsize.text_size, talign.align);
 
         }
     }

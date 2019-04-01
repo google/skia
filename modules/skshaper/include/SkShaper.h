@@ -68,19 +68,6 @@ public:
     public:
         virtual ~RunHandler() = default;
 
-        struct RunInfo {
-            SkVector fAdvance;
-            SkScalar fAscent,
-                     fDescent,
-                     fLeading;
-        };
-
-        struct Buffer {
-            SkGlyphID* glyphs;    // required
-            SkPoint*   positions; // required
-            uint32_t*  clusters;  // optional
-        };
-
         struct Range {
             constexpr Range() : fBegin(0), fSize(0) {}
             constexpr Range(size_t begin, size_t size) : fBegin(begin), fSize(size) {}
@@ -91,31 +78,54 @@ public:
             constexpr size_t size() const { return fSize; }
         };
 
-        // Callback per glyph run.
-        virtual Buffer newRunBuffer(const RunInfo&, const SkFont&, size_t glyphCount,
-                                    Range utf8Range) = 0;
+        struct RunInfo {
+            const SkFont& fFont;
+            uint8_t fBidiLevel;
+            SkVector fAdvance;
+            size_t glyphCount;
+            Range utf8Range;
+        };
 
-        // Called after run information is filled out.
-        virtual void commitRun() = 0;
-        // Callback per line.
+        struct Buffer {
+            SkGlyphID* glyphs;  // required
+            SkPoint* positions; // required
+            SkPoint* offsets;   // optional
+            uint32_t* clusters; // optional
+            SkPoint point;
+        };
+
+        /** Called when beginning a line. */
+        virtual void beginLine() = 0;
+
+        /** Called once for each run in a line. Can compute baselines and offsets. */
+        virtual void runInfo(const RunInfo&) = 0;
+
+        /** Called after all runInfo calls for a line. */
+        virtual void commitRunInfo() = 0;
+
+        /** Called for each run in a line after commitRunInfo. The buffer will be filled out. */
+        virtual Buffer runBuffer(const RunInfo&) = 0;
+
+        /** Called after each runBuffer is filled out. */
+        virtual void commitRunBuffer(const RunInfo&) = 0;
+
+        /** Called when ending a line. */
         virtual void commitLine() = 0;
     };
 
-    virtual SkPoint shape(RunHandler* handler,
-                          const SkFont& srcFont,
-                          const char* utf8, size_t utf8Bytes,
-                          bool leftToRight,
-                          SkPoint point,
-                          SkScalar width) const = 0;
+    virtual void shape(const char* utf8, size_t utf8Bytes,
+                       const SkFont& srcFont,
+                       bool leftToRight,
+                       SkScalar width,
+                       RunHandler*) const = 0;
 
-    virtual SkPoint shape(const char* utf8, size_t utf8Bytes,
-                          FontRunIterator&,
-                          BiDiRunIterator&,
-                          ScriptRunIterator&,
-                          LanguageRunIterator&,
-                          SkPoint point,
-                          SkScalar width,
-                          RunHandler*) const = 0;
+    virtual void shape(const char* utf8, size_t utf8Bytes,
+                       FontRunIterator&,
+                       BiDiRunIterator&,
+                       ScriptRunIterator&,
+                       LanguageRunIterator&,
+                       SkScalar width,
+                       RunHandler*) const = 0;
 
 private:
     SkShaper(const SkShaper&) = delete;
@@ -127,12 +137,18 @@ private:
  */
 class SkTextBlobBuilderRunHandler final : public SkShaper::RunHandler {
 public:
-    SkTextBlobBuilderRunHandler(const char* utf8Text) : fUtf8Text(utf8Text) {}
+    SkTextBlobBuilderRunHandler(const char* utf8Text, SkPoint offset)
+        : fUtf8Text(utf8Text)
+        , fOffset(offset) {}
     sk_sp<SkTextBlob> makeBlob();
+    SkPoint endPoint() { return fOffset; }
 
-    Buffer newRunBuffer(const RunInfo&, const SkFont&, size_t, Range) override;
-    void commitRun() override;
-    void commitLine() override {}
+    void beginLine() override;
+    void runInfo(const RunInfo&) override;
+    void commitRunInfo() override;
+    Buffer runBuffer(const RunInfo&) override;
+    void commitRunBuffer(const RunInfo&) override;
+    void commitLine() override;
 
 private:
     SkTextBlobBuilder fBuilder;
@@ -140,6 +156,11 @@ private:
     uint32_t* fClusters;
     int fClusterOffset;
     int fGlyphCount;
+    SkScalar fMaxRunAscent;
+    SkScalar fMaxRunDescent;
+    SkScalar fMaxRunLeading;
+    SkPoint fCurrentPosition;
+    SkPoint fOffset;
 };
 
 #endif  // SkShaper_DEFINED

@@ -667,44 +667,37 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 }
 
 static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& runInfo,
-                   const ShapedRun& run, size_t startGlyphIndex, size_t endGlyphIndex,
-                   SkPoint* p) {
+                   const ShapedRun& run, size_t startGlyphIndex, size_t endGlyphIndex) {
     SkASSERT(startGlyphIndex <= endGlyphIndex);
     const size_t glyphLen = endGlyphIndex - startGlyphIndex;
 
-    const auto buffer = handler->newRunBuffer(runInfo, run.fFont, glyphLen, run.fUtf8Range);
+    const auto buffer = handler->runBuffer(runInfo);
     SkASSERT(buffer.glyphs);
     SkASSERT(buffer.positions);
 
+    SkVector advance = {0,0};
     for (size_t i = 0; i < glyphLen; i++) {
         // Glyphs are in logical order, but output ltr since PDF readers seem to expect that.
         const ShapedGlyph& glyph = run.fGlyphs[is_LTR(run.fLevel) ? startGlyphIndex + i
                                                                   : endGlyphIndex - 1 - i];
         buffer.glyphs[i] = glyph.fID;
-        buffer.positions[i] = SkPoint::Make(p->fX + glyph.fOffset.fX, p->fY - glyph.fOffset.fY);
+        if (buffer.offsets) {
+            buffer.positions[i] = advance + buffer.point;
+            buffer.offsets[i] = glyph.fOffset; //TODO: invert glyph.fOffset.fY?
+        } else {
+            buffer.positions[i] = advance + buffer.point + glyph.fOffset; //TODO: invert glyph.fOffset.fY?
+        }
         if (buffer.clusters) {
             buffer.clusters[i] = glyph.fCluster;
         }
-        p->fX += glyph.fAdvance.fX;
-        p->fY += glyph.fAdvance.fY;
+        advance += glyph.fAdvance;
     }
-    handler->commitRun();
+    handler->commitRunBuffer(runInfo);
 }
 
-static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
-                 SkPoint point, SkPoint& currentPoint)
-{
+static void emit(const ShapedLine& line, SkShaper::RunHandler* handler) {
     // Reorder the runs and glyphs per line and write them out.
-    SkScalar maxAscent = 0;
-    SkScalar maxDescent = 0;
-    SkScalar maxLeading = 0;
-    for (const ShapedRun& run : line.runs) {
-        SkFontMetrics metrics;
-        run.fFont.getMetrics(&metrics);
-        maxAscent = SkTMin(maxAscent, metrics.fAscent);
-        maxDescent = SkTMax(maxDescent, metrics.fDescent);
-        maxLeading = SkTMax(maxLeading, metrics.fLeading);
-    }
+    handler->beginLine();
 
     int numRuns = line.runs.size();
     SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
@@ -714,23 +707,33 @@ static void emit(const ShapedLine& line, SkShaper::RunHandler* handler,
     SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
     ubidi_reorderVisual(runLevels, numRuns, logicalFromVisual);
 
-    currentPoint.fY -= maxAscent;
-
     for (int i = 0; i < numRuns; ++i) {
         int logicalIndex = logicalFromVisual[i];
 
         const auto& run = line.runs[logicalIndex];
         const SkShaper::RunHandler::RunInfo info = {
+            run.fFont,
+            run.fLevel,
             run.fAdvance,
-            maxAscent,
-            maxDescent,
-            maxLeading,
+            run.fNumGlyphs,
+            run.fUtf8Range
         };
-        append(handler, info, run, 0, run.fNumGlyphs, &currentPoint);
+        handler->runInfo(info);
     }
+    handler->commitRunInfo();
+    for (int i = 0; i < numRuns; ++i) {
+        int logicalIndex = logicalFromVisual[i];
 
-    currentPoint.fY += maxDescent + maxLeading;
-    currentPoint.fX = point.fX;
+        const auto& run = line.runs[logicalIndex];
+        const SkShaper::RunHandler::RunInfo info = {
+            run.fFont,
+            run.fLevel,
+            run.fAdvance,
+            run.fNumGlyphs,
+            run.fUtf8Range
+        };
+        append(handler, info, run, 0, run.fNumGlyphs);
+    }
 
     handler->commitLine();
 }
@@ -793,52 +796,45 @@ private:
     ICUBrk fLineBreakIterator;
     ICUBrk fGraphemeBreakIterator;
 
-    SkPoint shape(SkShaper::RunHandler* handler,
-                  const SkFont& srcFont,
-                  const char* utf8, size_t utf8Bytes,
-                  bool leftToRight,
-                  SkPoint point,
-                  SkScalar width) const override;
+    void shape(const char* utf8, size_t utf8Bytes,
+               const SkFont&,
+               bool leftToRight,
+               SkScalar width,
+               RunHandler*) const override;
 
-    SkPoint shape(const char* utf8Text, size_t textBytes,
-                  FontRunIterator&,
-                  BiDiRunIterator&,
-                  ScriptRunIterator&,
-                  LanguageRunIterator&,
-                  SkPoint point,
-                  SkScalar width,
-                  RunHandler*) const override;
+    void shape(const char* utf8Text, size_t textBytes,
+               FontRunIterator&,
+               BiDiRunIterator&,
+               ScriptRunIterator&,
+               LanguageRunIterator&,
+               SkScalar width,
+               RunHandler*) const override;
 
-    SkPoint shapeCorrect(RunHandler* handler,
-                         char const * const utf8,
-                         size_t utf8Bytes,
-                         SkPoint point,
-                         SkScalar width,
-                         RunIteratorQueue& runSegmenter,
-                         const BiDiRunIterator& bidi,
-                         const LanguageRunIterator& language,
-                         const ScriptRunIterator& script,
-                         const FontRunIterator& font) const;
+    void shapeCorrect(char const * const utf8, size_t utf8Bytes,
+                      const BiDiRunIterator&,
+                      const LanguageRunIterator&,
+                      const ScriptRunIterator&,
+                      const FontRunIterator&,
+                      RunIteratorQueue& runSegmenter,
+                      SkScalar width,
+                      RunHandler*) const;
 
-    SkPoint shapeOk(SkShaper::RunHandler* handler,
-                    const char* utf8,
-                    size_t utf8Bytes,
-                    SkPoint point,
-                    SkScalar width,
-                    RunIteratorQueue& runSegmenter,
-                    const BiDiRunIterator& bidi,
-                    const LanguageRunIterator& language,
-                    const ScriptRunIterator& script,
-                    const FontRunIterator& font) const;
+    void shapeOk(const char* utf8, size_t utf8Bytes,
+                 const BiDiRunIterator&,
+                 const LanguageRunIterator&,
+                 const ScriptRunIterator&,
+                 const FontRunIterator&,
+                 RunIteratorQueue& runSegmenter,
+                 SkScalar width,
+                 RunHandler*) const;
 
-    ShapedRun shape(const char* utf8,
-                    size_t utf8Bytes,
+    ShapedRun shape(const char* utf8, size_t utf8Bytes,
                     const char* utf8Start,
                     const char* utf8End,
-                    const BiDiRunIterator& bidi,
-                    const LanguageRunIterator& language,
-                    const ScriptRunIterator& script,
-                    const FontRunIterator& font) const;
+                    const BiDiRunIterator&,
+                    const LanguageRunIterator&,
+                    const ScriptRunIterator&,
+                    const FontRunIterator&) const;
 };
 
 std::unique_ptr<SkShaper> SkShaper::MakeHarfBuzz() {
@@ -877,13 +873,11 @@ bool SkShaperHarfBuzz::good() const {
            fGraphemeBreakIterator;
 }
 
-SkPoint SkShaperHarfBuzz::shape(SkShaper::RunHandler* handler,
-                                const SkFont& srcFont,
-                                const char* utf8,
-                                size_t utf8Bytes,
-                                bool leftToRight,
-                                SkPoint point,
-                                SkScalar width) const
+void SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
+                             const SkFont& srcFont,
+                             bool leftToRight,
+                             SkScalar width,
+                             RunHandler* handler) const
 {
     SkASSERT(handler);
     sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
@@ -892,40 +886,39 @@ SkPoint SkShaperHarfBuzz::shape(SkShaper::RunHandler* handler,
     SkTLazy<IcuBiDiRunIterator> maybeBidi(IcuBiDiRunIterator::Make(utf8, utf8Bytes, defaultLevel));
     BiDiRunIterator* bidi = maybeBidi.getMaybeNull();
     if (!bidi) {
-        return point;
+        return;
     }
 
     SkTLazy<StdLanguageRunIterator> maybeLanguage(StdLanguageRunIterator::Make(utf8, utf8Bytes));
     LanguageRunIterator* language = maybeLanguage.getMaybeNull();
     if (!language) {
-        return point;
+        return;
     }
 
     hb_unicode_funcs_t* hbUnicode = hb_buffer_get_unicode_funcs(fBuffer.get());
     SkTLazy<HbScriptRunIterator> maybeScript(HbScriptRunIterator::Make(utf8, utf8Bytes, hbUnicode));
     ScriptRunIterator* script = maybeScript.getMaybeNull();
     if (!script) {
-        return point;
+        return;
     }
 
     SkTLazy<FontMgrRunIterator> maybeFont(FontMgrRunIterator::Make(utf8, utf8Bytes,
                                                                    srcFont, std::move(fontMgr)));
     FontRunIterator* font = maybeFont.getMaybeNull();
     if (!font) {
-        return point;
+        return;
     }
 
-    return this->shape(utf8, utf8Bytes, *font, *bidi, *script, *language, point, width, handler);
+    this->shape(utf8, utf8Bytes, *font, *bidi, *script, *language, width, handler);
 }
 
-SkPoint SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
-                                FontRunIterator& font,
-                                BiDiRunIterator& bidi,
-                                ScriptRunIterator& script,
-                                LanguageRunIterator& language,
-                                SkPoint point,
-                                SkScalar width,
-                                RunHandler* handler) const
+void SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
+                             FontRunIterator& font,
+                             BiDiRunIterator& bidi,
+                             ScriptRunIterator& script,
+                             LanguageRunIterator& language,
+                             SkScalar width,
+                             RunHandler* handler) const
 {
     RunIteratorQueue runSegmenter;
     runSegmenter.insert(&font);
@@ -934,27 +927,22 @@ SkPoint SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
     runSegmenter.insert(&language);
 
     if (true) {
-        return shapeCorrect(handler, utf8, utf8Bytes, point, width,
-                            runSegmenter, bidi, language, script, font);
+        shapeCorrect(utf8, utf8Bytes, bidi, language, script, font, runSegmenter, width, handler);
     } else {
-        return shapeOk(handler, utf8, utf8Bytes, point, width,
-                       runSegmenter, bidi, language, script, font);
+        shapeOk(utf8, utf8Bytes, bidi, language, script, font, runSegmenter, width, handler);
     }
 }
 
-SkPoint SkShaperHarfBuzz::shapeCorrect(RunHandler* handler,
-                                       char const * const utf8,
-                                       size_t utf8Bytes,
-                                       SkPoint point,
-                                       SkScalar width,
-                                       RunIteratorQueue& runSegmenter,
-                                       const BiDiRunIterator& bidi,
-                                       const LanguageRunIterator& language,
-                                       const ScriptRunIterator& script,
-                                       const FontRunIterator& font) const
+void SkShaperHarfBuzz::shapeCorrect(char const * const utf8, size_t utf8Bytes,
+                                    const BiDiRunIterator& bidi,
+                                    const LanguageRunIterator& language,
+                                    const ScriptRunIterator& script,
+                                    const FontRunIterator& font,
+                                    RunIteratorQueue& runSegmenter,
+                                    SkScalar width,
+                                    RunHandler* handler) const
 {
     ShapedLine line;
-    SkPoint currentPoint = point;
 
     const char* utf8Start = nullptr;
     const char* utf8End = utf8;
@@ -1013,12 +1001,12 @@ SkPoint SkShaperHarfBuzz::shapeCorrect(RunHandler* handler,
                 std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> autoClose(&utf8UText);
                 if (U_FAILURE(status)) {
                     SkDebugf("Could not create utf8UText: %s", u_errorName(status));
-                    return point;
+                    return;
                 }
                 ubrk_setUText(&breakIterator, &utf8UText, &status);
                 if (U_FAILURE(status)) {
                     SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
-                    return point;
+                    return;
                 }
             }
 
@@ -1066,7 +1054,7 @@ SkPoint SkShaperHarfBuzz::shapeCorrect(RunHandler* handler,
 
             // If nothing fit (best score is negative) and the line is not empty
             if (width < line.fAdvance.fX + best.fAdvance.fX && !line.runs.empty()) {
-                emit(line, handler, point, currentPoint);
+                emit(line, handler);
                 line.runs.reset();
                 line.fAdvance = {0, 0};
             } else {
@@ -1086,27 +1074,24 @@ SkPoint SkShaperHarfBuzz::shapeCorrect(RunHandler* handler,
 
                 // If item broken, emit line (prevent remainder from accidentally fitting)
                 if (utf8Start != utf8End) {
-                    emit(line, handler, point, currentPoint);
+                    emit(line, handler);
                     line.runs.reset();
                     line.fAdvance = {0, 0};
                 }
             }
         }
     }
-    emit(line, handler, point, currentPoint);
-    return currentPoint;
+    emit(line, handler);
 }
 
-SkPoint SkShaperHarfBuzz::shapeOk(RunHandler* handler,
-                                   char const * const utf8,
-                                   size_t utf8Bytes,
-                                   SkPoint point,
-                                   SkScalar width,
-                                   RunIteratorQueue& runSegmenter,
-                                   const BiDiRunIterator& bidi,
-                                   const LanguageRunIterator& language,
-                                   const ScriptRunIterator& script,
-                                   const FontRunIterator& font) const
+void SkShaperHarfBuzz::shapeOk(char const * const utf8, size_t utf8Bytes,
+                               const BiDiRunIterator& bidi,
+                               const LanguageRunIterator& language,
+                               const ScriptRunIterator& script,
+                               const FontRunIterator& font,
+                               RunIteratorQueue& runSegmenter,
+                               SkScalar width,
+                               RunHandler* handler) const
 {
     SkTArray<ShapedRun> runs;
 {
@@ -1119,18 +1104,18 @@ SkPoint SkShaperHarfBuzz::shapeOk(RunHandler* handler,
         std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> autoClose(&utf8UText);
         if (U_FAILURE(status)) {
             SkDebugf("Could not create utf8UText: %s", u_errorName(status));
-            return point;
+            return;
         }
 
         ubrk_setUText(&lineBreakIterator, &utf8UText, &status);
         if (U_FAILURE(status)) {
             SkDebugf("Could not setText on line break iterator: %s", u_errorName(status));
-            return point;
+            return;
         }
         ubrk_setUText(&graphemeBreakIterator, &utf8UText, &status);
         if (U_FAILURE(status)) {
             SkDebugf("Could not setText on grapheme break iterator: %s", u_errorName(status));
-            return point;
+            return;
         }
     }
 
@@ -1245,13 +1230,9 @@ SkPoint SkShaperHarfBuzz::shapeOk(RunHandler* handler,
 }
 
 // Reorder the runs and glyphs per line and write them out.
-    SkPoint currentPoint = point;
 {
     ShapedRunGlyphIterator previousBreak(runs);
     ShapedRunGlyphIterator glyphIterator(runs);
-    SkScalar maxAscent = 0;
-    SkScalar maxDescent = 0;
-    SkScalar maxLeading = 0;
     int previousRunIndex = -1;
     while (glyphIterator.current()) {
         int runIndex = glyphIterator.fRunIndex;
@@ -1261,9 +1242,6 @@ SkPoint SkShaperHarfBuzz::shapeOk(RunHandler* handler,
         if (previousRunIndex != runIndex) {
             SkFontMetrics metrics;
             runs[runIndex].fFont.getMetrics(&metrics);
-            maxAscent = SkTMin(maxAscent, metrics.fAscent);
-            maxDescent = SkTMax(maxDescent, metrics.fDescent);
-            maxLeading = SkTMax(maxLeading, metrics.fLeading);
             previousRunIndex = runIndex;
         }
 
@@ -1271,8 +1249,6 @@ SkPoint SkShaperHarfBuzz::shapeOk(RunHandler* handler,
         if (!(nextGlyph == nullptr || nextGlyph->fMustLineBreakBefore)) {
             continue;
         }
-
-        currentPoint.fY -= maxAscent;
 
         int numRuns = runIndex - previousBreak.fRunIndex + 1;
         SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
@@ -1285,39 +1261,47 @@ SkPoint SkShaperHarfBuzz::shapeOk(RunHandler* handler,
         // step through the runs in reverse visual order and the glyphs in reverse logical order
         // until a visible glyph is found and force them to the end of the visual line.
 
+        handler->beginLine();
         for (int i = 0; i < numRuns; ++i) {
             int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
+            const auto& run = runs[logicalIndex];
+            const RunHandler::RunInfo info = {
+                run.fFont,
+                run.fLevel,
+                run.fAdvance,
+                run.fNumGlyphs,
+                run.fUtf8Range
+            };
+            handler->runInfo(info);
+        }
+        handler->commitRunInfo();
+        for (int i = 0; i < numRuns; ++i) {
+            int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
+            const auto& run = runs[logicalIndex];
+            const RunHandler::RunInfo info = {
+                run.fFont,
+                run.fLevel,
+                run.fAdvance,
+                run.fNumGlyphs,
+                run.fUtf8Range
+            };
 
             size_t startGlyphIndex = (logicalIndex == previousBreak.fRunIndex)
                                    ? previousBreak.fGlyphIndex
                                    : 0;
             size_t endGlyphIndex = (logicalIndex == runIndex)
                                  ? glyphIndex + 1
-                                 : runs[logicalIndex].fNumGlyphs;
+                                 : run.fNumGlyphs;
 
-            const auto& run = runs[logicalIndex];
-            const RunHandler::RunInfo info = {
-                run.fAdvance,
-                maxAscent,
-                maxDescent,
-                maxLeading,
-            };
-            append(handler, info, run, startGlyphIndex, endGlyphIndex, &currentPoint);
+            append(handler, info, run, startGlyphIndex, endGlyphIndex);
         }
 
         handler->commitLine();
 
-        currentPoint.fY += maxDescent + maxLeading;
-        currentPoint.fX = point.fX;
-        maxAscent = 0;
-        maxDescent = 0;
-        maxLeading = 0;
         previousRunIndex = -1;
         previousBreak = glyphIterator;
     }
 }
-
-    return currentPoint;
 }
 
 
