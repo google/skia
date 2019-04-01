@@ -17,21 +17,19 @@ class SkShaperPrimitive : public SkShaper {
 public:
     SkShaperPrimitive() {}
 private:
-    SkPoint shape(RunHandler* handler,
-                  const SkFont& srcFont,
-                  const char* utf8, size_t utf8Bytes,
-                  bool leftToRight,
-                  SkPoint point,
-                  SkScalar width) const override;
+    void shape(const char* utf8, size_t utf8Bytes,
+               const SkFont& srcFont,
+               bool leftToRight,
+               SkScalar width,
+               RunHandler*) const override;
 
-    SkPoint shape(const char* utf8, size_t utf8Bytes,
-                  FontRunIterator&,
-                  BiDiRunIterator&,
-                  ScriptRunIterator&,
-                  LanguageRunIterator&,
-                  SkPoint point,
-                  SkScalar width,
-                  RunHandler*) const override;
+    void shape(const char* utf8, size_t utf8Bytes,
+               FontRunIterator&,
+               BiDiRunIterator&,
+               ScriptRunIterator&,
+               LanguageRunIterator&,
+               SkScalar width,
+               RunHandler*) const override;
 };
 
 std::unique_ptr<SkShaper> SkShaper::MakePrimitive() {
@@ -116,87 +114,81 @@ static size_t linebreak(const char text[], const char stop[],
     return text - start;
 }
 
-SkPoint SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
-                                 FontRunIterator& font,
-                                 BiDiRunIterator& bidi,
-                                 ScriptRunIterator&,
-                                 LanguageRunIterator& ,
-                                 SkPoint point,
-                                 SkScalar width,
-                                 RunHandler* handler) const
+void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
+                              FontRunIterator& font,
+                              BiDiRunIterator& bidi,
+                              ScriptRunIterator&,
+                              LanguageRunIterator& ,
+                              SkScalar width,
+                              RunHandler* handler) const
 {
     font.consume();
     bidi.consume();
-    return this->shape(handler, font.currentFont(), utf8, utf8Bytes,
-                       (bidi.currentLevel() % 2) == 0, point, width);
+    return this->shape(utf8, utf8Bytes, font.currentFont(), (bidi.currentLevel() % 2) == 0,
+                       width, handler);
 }
 
-SkPoint SkShaperPrimitive::shape(RunHandler* handler,
-                                 const SkFont& font,
-                                 const char* utf8text,
-                                 size_t textBytes,
-                                 bool leftToRight,
-                                 SkPoint point,
-                                 SkScalar width) const {
+void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
+                              const SkFont& font,
+                              bool leftToRight,
+                              SkScalar width,
+                              RunHandler* handler) const {
     sk_ignore_unused_variable(leftToRight);
 
-    int glyphCount = font.countText(utf8text, textBytes, SkTextEncoding::kUTF8);
+    int glyphCount = font.countText(utf8, utf8Bytes, SkTextEncoding::kUTF8);
     if (glyphCount <= 0) {
-        return point;
+        return;
     }
 
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[glyphCount]);
-    font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
+    font.textToGlyphs(utf8, utf8Bytes, SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
 
     std::unique_ptr<SkScalar[]> advances(new SkScalar[glyphCount]);
     font.getWidthsBounds(glyphs.get(), glyphCount, advances.get(), nullptr, nullptr);
 
-    SkFontMetrics metrics;
-    font.getMetrics(&metrics);
-
     size_t glyphOffset = 0;
     size_t utf8Offset = 0;
-    while (0 < textBytes) {
-        point.fY -= metrics.fAscent;
-
+    while (0 < utf8Bytes) {
         size_t bytesCollapsed;
-        size_t bytesConsumed = linebreak(utf8text, utf8text + textBytes, font, width,
+        size_t bytesConsumed = linebreak(utf8, utf8 + utf8Bytes, font, width,
                                          advances.get() + glyphOffset, &bytesCollapsed);
         size_t bytesVisible = bytesConsumed - bytesCollapsed;
 
-        int numGlyphs = SkUTF::CountUTF8(utf8text, bytesVisible);
+        size_t numGlyphs = SkUTF::CountUTF8(utf8, bytesVisible);
         const RunHandler::RunInfo info = {
-            { font.measureText(utf8text, bytesVisible, SkTextEncoding::kUTF8), 0 },
-            metrics.fAscent,
-            metrics.fDescent,
-            metrics.fLeading,
+            font,
+            0,
+            { font.measureText(utf8, bytesVisible, SkTextEncoding::kUTF8), 0 },
+            numGlyphs,
+            RunHandler::Range(utf8Offset, bytesVisible)
         };
-        const auto buffer = handler->newRunBuffer(info, font, numGlyphs,
-                                                  RunHandler::Range(utf8Offset, bytesVisible));
+        handler->beginLine();
+        handler->runInfo(info);
+        handler->commitRunInfo();
+        const auto buffer = handler->runBuffer(info);
 
         memcpy(buffer.glyphs, glyphs.get() + glyphOffset, numGlyphs * sizeof(SkGlyphID));
-        SkScalar position = point.fX;
-        for (int i = 0; i < numGlyphs; ++i) {
-            buffer.positions[i] = { position, point.fY };
-            position += advances[i + glyphOffset];
+        SkPoint position = buffer.point;
+        for (size_t i = 0; i < numGlyphs; ++i) {
+            buffer.positions[i] = position;
+            position.fX += advances[i + glyphOffset];
         }
         if (buffer.clusters) {
-            const char* txtPtr = utf8text;
-            for (int i = 0; i < numGlyphs; ++i) {
+            const char* txtPtr = utf8;
+            for (size_t i = 0; i < numGlyphs; ++i) {
                 // Each character maps to exactly one glyph.
-                buffer.clusters[i] = SkToU32(txtPtr - utf8text + utf8Offset);
-                SkUTF::NextUTF8(&txtPtr, utf8text + textBytes);
+                buffer.clusters[i] = SkToU32(txtPtr - utf8 + utf8Offset);
+                SkUTF::NextUTF8(&txtPtr, utf8 + utf8Bytes);
             }
         }
-        handler->commitRun();
+        handler->commitRunBuffer(info);
         handler->commitLine();
 
-        glyphOffset += SkUTF::CountUTF8(utf8text, bytesConsumed);
+        glyphOffset += SkUTF::CountUTF8(utf8, bytesConsumed);
         utf8Offset += bytesConsumed;
-        utf8text += bytesConsumed;
-        textBytes -= bytesConsumed;
-        point.fY += metrics.fDescent + metrics.fLeading;
+        utf8 += bytesConsumed;
+        utf8Bytes -= bytesConsumed;
     }
 
-    return point;
+    return;
 }
