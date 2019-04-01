@@ -22,6 +22,30 @@
       "revId": "66a2e240f4dc2caf9f931520e33bb7d6a8f71701",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "185ff11e_dd46d738",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 9523
+      },
+      "writtenOn": "2019-04-01T19:51:24Z",
+      "side": 1,
+      "message": "Good question. I don’t think so.\n\nThe class comment in GrTextureDomain.h mentions the issue I’m seeing, and it implies that it\u0027s the responsibility of the caller to deal with insetting:\n\"Bilinear filtering can cause texels outside the domain to affect the read value unless the caller considers this when calculating the domain.\"\n\nWhen we’re \"decimating\" the blur source / scratch texture, we’re always dividing it in half, so I think bilinear filtering is sometimes causing the opaque edge pixel and the transparent scratch texture pixel to get smeared together into one translucent pixel. I believe the 0.5 inset is an attempt to avoid sampling that “smeared” pixel, but due to FP error on this GPU, we need a slight nudge. I’m thinking if we were scaling down more than exactly half, there might be more than one \"smeared\" pixel, and the the texture domain would have to be inset more than ~0.5. Thus, I think this insetting operation is pretty specific to blur’s usage of GrTextureDomain and the way blur scales the source image down.\n\nBesides SkGpuBlurUtil, it also looks like the texture domain effect is used in SkXfermodeImageFilter, SkArithmeticImageFilter, and a bunch of other filters, and there’s no half-pixel insetting occurring in those (from a cursory look)— probably because there isn\u0027t any scaling / bilinear filtering involved.",
+      "parentUuid": "d217cff3_f1f4efd0",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 90
+      },
+      "revId": "66a2e240f4dc2caf9f931520e33bb7d6a8f71701",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
