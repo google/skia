@@ -24,7 +24,7 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    bool instantiate(GrResourceProvider*) override;
+    bool instantiate(GrResourceProvider*, bool dontForceNoPendingIO = false) override;
 
     GrFSAAType fsaaType() const {
         if (fSampleCnt <= 1) {
