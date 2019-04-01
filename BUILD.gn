@@ -90,6 +90,7 @@ declare_args() {
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
+    skia_ios_build_symbols = false
   }
 }
 
@@ -1303,6 +1304,9 @@ if (skia_enable_tools) {
     if (is_ios) {
       app_name = target_name
       gen_path = target_gen_dir
+      if (skia_ios_build_symbols) {
+        cflags = [ "-gdwarf-2" ]
+      }
 
       action("${app_name}_generate_info_plist") {
         script = "//gn/gen_plist_ios.py"
@@ -1324,8 +1328,30 @@ if (skia_enable_tools) {
         ]
       }
 
+      if (skia_ios_build_symbols) {
+        action("${app_name}_generate_ios_symbols") {
+          script = "//gn/gen_symbols_ios.py"
+          outputs = [
+            "$gen_path/${app_name}.dSYM",
+          ]
+          args = [ rebase_path("$gen_path/$app_name", root_build_dir) ]
+        }
+
+        bundle_data("${app_name}_bundle_symbols") {
+          public_deps = [
+            ":${app_name}_generate_ios_symbols",
+          ]
+          sources = [
+            "$gen_path/${app_name}.dSYM",
+          ]
+          outputs = [
+            "{{bundle_root_dir}}/${app_name}.dSYM",
+          ]
+        }
+      }
+
       bundle_ios_data =
-          defined(invoker.bundle_ios_data) && invoker.bundle_ios_data
+          !defined(invoker.bundle_ios_data) || invoker.bundle_ios_data
 
       if (bundle_ios_data) {
         has_skps =
@@ -1388,7 +1414,6 @@ if (skia_enable_tools) {
         bundle_root_dir = "${root_build_dir}/${target_name}.app"
         bundle_resources_dir = bundle_root_dir
         bundle_executable_dir = bundle_root_dir
-        bundle_plugins_dir = bundle_root_dir + "/Plugins"
 
         deps = [
           ":${app_name}_bundle_executable",
@@ -1399,6 +1424,9 @@ if (skia_enable_tools) {
           if (has_skps) {
             deps += [ ":${app_name}_bundle_skps" ]
           }
+        }
+        if (skia_ios_build_symbols) {
+          deps += [ ":${app_name}_bundle_symbols" ]
         }
 
         # should only code sign when running on a device, not the simulator
@@ -2355,9 +2383,6 @@ if (skia_enable_tools) {
   }
   test_app("viewer") {
     is_shared_library = is_android
-    if (is_ios) {
-      bundle_ios_data = true
-    }
     sources = [
       "tools/viewer/BisectSlide.cpp",
       "tools/viewer/GMSlide.cpp",
