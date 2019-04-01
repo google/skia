@@ -31,10 +31,6 @@ public:
     SkShader* getShaderB() { return fShaderB.get(); }
 #endif
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool asACompose(ComposeRec* rec) const override;
-#endif
-
 protected:
     SkComposeShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
