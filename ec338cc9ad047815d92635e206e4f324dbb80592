@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1ab5b3f_fd6c2426",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-01T16:57:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4d783d4_a9ab21e6",
+      "revId": "ec338cc9ad047815d92635e206e4f324dbb80592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bfc05bd_69c64af4",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-01T16:57:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7382bcfa_5800e86d",
+      "revId": "ec338cc9ad047815d92635e206e4f324dbb80592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
