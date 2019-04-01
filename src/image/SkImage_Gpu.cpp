@@ -492,12 +492,12 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
         return codecImage;
     }
 
-    if (!proxy->instantiate(context->priv().resourceProvider())) {
+    // Flush any writes or uploads
+    // TODO: why not just require no-pending IO here?
+    context->priv().prepareSurfaceForExternalIO(proxy.get());
+    if (!proxy->isInstantiated()) {
         return codecImage;
     }
-
-    // Flush any writes or uploads
-    context->priv().prepareSurfaceForExternalIO(proxy.get());
 
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
@@ -558,6 +558,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
     // Flush any writes or uploads
+    // TODO: why not just require no-pending IO here?
     context->priv().prepareSurfaceForExternalIO(proxy.get());
     GrGpu* gpu = context->priv().getGpu();
 
