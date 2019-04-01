@@ -159,15 +159,6 @@ public:
 protected:
     SkColorFilter() {}
 
-    /**
-     *  If this subclass can optimally createa composition with the inner filter, return it as
-     *  a new filter (which the caller must unref() when it is done). If no such optimization
-     *  is known, return NULL.
-     *
-     *  e.g. result(color) == this_filter(inner(color))
-     */
-    virtual sk_sp<SkColorFilter> onMakeComposed(sk_sp<SkColorFilter>) const { return nullptr; }
-
 private:
     /*
      *  Returns 1 if this is a single filter (not a composition of other filters), otherwise it
