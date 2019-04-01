@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3852f5e7_41034f8b",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-01T18:12:52Z",
+      "side": 1,
+      "message": "Logically, should the new condition be grouped with the chromebook condition? eg:\n\nif (\u0027Chromebook\u0027 in buildername or \u0027LenovoYogaC630\u0027 in buildername) and not \u0027Build\u0027 in buildername\n\nSeems like that matches the behavioral changes elsewhere?",
+      "revId": "b6959cde7ae0bc7317d079cb6b1258c172279838",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2304ba52_b77fbfa2",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-01T18:12:52Z",
+      "side": 1,
+      "message": "Probably need to just move this line down into the !Lenovo block below.",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 34
+      },
+      "revId": "b6959cde7ae0bc7317d079cb6b1258c172279838",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
