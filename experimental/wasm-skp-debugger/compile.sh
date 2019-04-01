@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright 2019 Google LLC
 #
 # Use of this source code is governed by a BSD-style license that can be
@@ -35,7 +36,15 @@ GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
 
+# Turn off exiting while we check for ninja (which may not be on PATH)
+set +e
 NINJA=`which ninja`
+if [[ -z $NINJA ]]; then
+  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
+  NINJA=$BUILD_DIR/depot_tools/ninja
+fi
+# Re-enable error checking
+set -e
 
 ./bin/fetch-gn
 
@@ -87,7 +96,7 @@ ${NINJA} -C ${BUILD_DIR} libskia.a libdebugcanvas.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
-echo "Generating final wasm"
+echo "Generating final debugger wasm and javascript"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
