@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a581a232_e98f8cdd",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-01T18:57:06Z",
+      "side": 1,
+      "message": "setVertexAttributes needs the maximum number of attributes (5). It automatically iterates over the attribute pointers, starting at \u0026fPosition in this case, and excludes any that are not initialized.",
+      "parentUuid": "9c2d6e34_b0274eb3",
+      "range": {
+        "startLine": 1084,
+        "startChar": 46,
+        "endLine": 1084,
+        "endChar": 47
+      },
+      "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9464924_82a078ef",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 4
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "0a6690fd_d8745b4c",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-01T18:57:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9464924_82a078ef",
+      "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94ff3552_2fa69f7e",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 4
@@ -56,6 +98,24 @@
       "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "832ec625_37846e7a",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-01T18:57:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94ff3552_2fa69f7e",
+      "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
