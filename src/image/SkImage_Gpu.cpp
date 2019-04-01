@@ -492,12 +492,11 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
         return codecImage;
     }
 
-    if (!proxy->instantiate(context->priv().resourceProvider())) {
-        return codecImage;
-    }
-
     // Flush any writes or uploads
     context->priv().prepareSurfaceForExternalIO(proxy.get());
+    if (!proxy->isInstantiated()) {
+        return codecImage;
+    }
 
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
