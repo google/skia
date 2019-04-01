@@ -46,6 +46,30 @@
       "revId": "1530fd0d67ba003a20d278b18f4cecae8168cfd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9305ddf_f6f09b38",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T13:51:05Z",
+      "side": 1,
+      "message": "Okay - I didn\u0027t fully understand what was going on here and have removed the TODOs. These two entry points are on the producer thread and need the prepareSurfaceForExternalIOs to make sure all work is completed on the producer thread before the image is shipped off.",
+      "parentUuid": "17557c41_783c96d3",
+      "range": {
+        "startLine": 496,
+        "startChar": 4,
+        "endLine": 496,
+        "endChar": 53
+      },
+      "revId": "1530fd0d67ba003a20d278b18f4cecae8168cfd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
