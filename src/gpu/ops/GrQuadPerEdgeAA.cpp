@@ -556,11 +556,23 @@ static Sk4f compute_degenerate_quad(GrQuadAAFlags aaFlags, const Sk4f& mask, con
 // should be duplicated as input in 'inner' and 'outer', and the resulting quad frame will be
 // stored in-place on return. Returns per-vertex coverage for the inner vertices.
 static Sk4f compute_nested_quad_vertices(GrQuadAAFlags aaFlags, bool rectilinear,
-                                         Vertices* inner, Vertices* outer) {
+                                         Vertices* inner, Vertices* outer, SkRect* domain) {
     SkASSERT(inner->fUVRCount == 0 || inner->fUVRCount == 2 || inner->fUVRCount == 3);
     SkASSERT(outer->fUVRCount == inner->fUVRCount);
 
     QuadMetadata metadata = get_metadata(*inner, aaFlags);
+
+    // Calculate domain first before updating vertices. It's only used when not rectilinear.
+    if (!rectilinear) {
+        SkASSERT(domain);
+        // The domain is the bounding box of the quad, outset by 0.5. Don't worry about edge masks
+        // since the FP only applies the domain on the exterior triangles, which are degenerate for
+        // non-AA edges.
+        domain->fLeft = outer->fX.min() - 0.5f;
+        domain->fRight = outer->fX.max() + 0.5f;
+        domain->fTop = outer->fY.min() - 0.5f;
+        domain->fBottom = outer->fY.max() + 0.5f;
+    }
 
     // When outsetting, we want the new edge to be .5px away from the old line, which means the
     // corners may need to be adjusted by more than .5px if the matrix had sheer. This adjustment
@@ -586,7 +598,7 @@ static Sk4f compute_nested_quad_vertices(GrQuadAAFlags aaFlags, bool rectilinear
 // division of the device coordinates, the original local coordinate value is at the original
 // un-outset device position.
 static Sk4f compute_nested_persp_quad_vertices(const GrQuadAAFlags aaFlags, Vertices* inner,
-                                               Vertices* outer) {
+                                               Vertices* outer, SkRect* domain) {
     SkASSERT(inner->fUVRCount == 0 || inner->fUVRCount == 2 || inner->fUVRCount == 3);
     SkASSERT(outer->fUVRCount == inner->fUVRCount);
 
@@ -600,7 +612,8 @@ static Sk4f compute_nested_persp_quad_vertices(const GrQuadAAFlags aaFlags, Vert
     Vertices inner2D = { x2d, y2d, /*w*/ 1.f, 0.f, 0.f, 0.f, 0 }; // No uvr outsetting in 2D
     Vertices outer2D = inner2D;
 
-    Sk4f coverage = compute_nested_quad_vertices(aaFlags, /* rect */ false, &inner2D, &outer2D);
+    Sk4f coverage = compute_nested_quad_vertices(
+            aaFlags, /* rect */ false, &inner2D, &outer2D, domain);
 
     // Now map from the 2D inset/outset back to 3D and update the local coordinates as well
     outset_projected_vertices(inner2D.fX, inner2D.fY, aaFlags, inner);
@@ -618,7 +631,10 @@ enum class CoverageMode {
 static CoverageMode get_mode_for_spec(const GrQuadPerEdgeAA::VertexSpec& spec) {
     if (spec.usesCoverageAA()) {
         if (spec.compatibleWithCoverageAsAlpha() && spec.hasVertexColors() &&
-            spec.deviceQuadType() != GrQuadType::kPerspective) {
+            !spec.requiresGeometryDomain()) {
+            // Using a geometric domain acts as a second source of coverage and folding the original
+            // coverage into color makes it impossible to apply the color's alpha to the geometric
+            // domain's coverage when the original shape is clipped.
             return CoverageMode::kWithColor;
         } else {
             return CoverageMode::kWithPosition;
@@ -629,10 +645,10 @@ static CoverageMode get_mode_for_spec(const GrQuadPerEdgeAA::VertexSpec& spec) {
 }
 
 // Writes four vertices in triangle strip order, including the additional data for local
-// coordinates, domain, color, and coverage as needed to satisfy the vertex spec.
+// coordinates, geometry + texture domains, color, and coverage as needed to satisfy the vertex spec
 static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                       CoverageMode mode, Sk4f coverage, SkPMColor4f color4f, const SkRect& domain,
-                       const Vertices& quad) {
+                       CoverageMode mode, Sk4f coverage, SkPMColor4f color4f,
+                       const SkRect& geomDomain, const SkRect& texDomain, const Vertices& quad) {
     static constexpr auto If = GrVertexWriter::If<float>;
 
     for (int i = 0; i < 4; ++i) {
@@ -655,9 +671,14 @@ static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& sp
                       If(spec.localQuadType() == GrQuadType::kPerspective, quad.fR[i]));
         }
 
-        // save the domain
+        // save the geometry domain
+        if (spec.requiresGeometryDomain()) {
+            vb->write(geomDomain);
+        }
+
+        // save the texture domain
         if (spec.hasDomain()) {
-            vb->write(domain);
+            vb->write(texDomain);
         }
     }
 }
@@ -728,18 +749,20 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
         // duplicate the original quad for the inner space
         Vertices inner = outer;
 
+        SkRect geomDomain;
         Sk4f maxCoverage = 1.f;
         if (spec.deviceQuadType() == GrQuadType::kPerspective) {
             // For perspective, send quads with all edges non-AA through the tessellation to ensure
             // their corners are processed the same as adjacent quads. This approach relies on
             // solving edge equations to reconstruct corners, which can create seams if an inner
             // fully non-AA quad is not similarly processed.
-            maxCoverage = compute_nested_persp_quad_vertices(aaFlags, &inner, &outer);
+            maxCoverage = compute_nested_persp_quad_vertices(aaFlags, &inner, &outer, &geomDomain);
         } else if (aaFlags != GrQuadAAFlags::kNone) {
             // In 2D, the simpler corner math does not cause issues with seaming against non-AA
             // inner quads.
             maxCoverage = compute_nested_quad_vertices(
-                    aaFlags, spec.deviceQuadType() <= GrQuadType::kRectilinear, &inner, &outer);
+                    aaFlags, spec.deviceQuadType() <= GrQuadType::kRectilinear, &inner, &outer,
+                    &geomDomain);
         }
         // NOTE: could provide an even more optimized tessellation function for axis-aligned
         // rects since the positions can be outset by constants without doing vector math,
@@ -747,12 +770,12 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
         // applied a mirror, etc. The current 2D case is already adequately fast.
 
         // Write two quads for inner and outer, inner will use the
-        write_quad(&vb, spec, mode, maxCoverage, color4f, domain, inner);
-        write_quad(&vb, spec, mode, 0.f, color4f, domain, outer);
+        write_quad(&vb, spec, mode, maxCoverage, color4f, geomDomain, domain, inner);
+        write_quad(&vb, spec, mode, 0.f, color4f, geomDomain, domain, outer);
     } else {
         // No outsetting needed, just write a single quad with full coverage
-        SkASSERT(mode == CoverageMode::kNone);
-        write_quad(&vb, spec, mode, 1.f, color4f, domain, outer);
+        SkASSERT(mode == CoverageMode::kNone && !spec.requiresGeometryDomain());
+        write_quad(&vb, spec, mode, 1.f, color4f, SkRect::MakeEmpty(), domain, outer);
     }
 
     return vb.fPtr;
@@ -822,8 +845,8 @@ public:
     const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        // domain, texturing, device-dimensions are single bit flags
-        uint32_t x = fDomain.isInitialized() ? 0 : 1;
+        // texturing, device-dimensions are single bit flags
+        uint32_t x = fTexDomain.isInitialized() ? 0 : 1;
         x |= fSampler.isInitialized() ? 0 : 2;
         x |= fNeedsPerspective ? 0 : 4;
         // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
@@ -834,9 +857,12 @@ public:
         if (fColor.isInitialized()) {
             x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 32 : 64;
         }
-        // and coverage mode, 00 for none, 01 for withposition, 10 for withcolor
+        // and coverage mode, 00 for none, 01 for withposition, 10 for withcolor, 11 for
+        // position+geomdomain
+        SkASSERT(!fGeomDomain.isInitialized() || fCoverageMode == CoverageMode::kWithPosition);
         if (fCoverageMode != CoverageMode::kNone) {
-            x |= CoverageMode::kWithPosition == fCoverageMode ? 128 : 256;
+            x |= fGeomDomain.isInitialized() ?
+                    384 : (CoverageMode::kWithPosition == fCoverageMode ? 128 : 256);
         }
 
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
@@ -927,9 +953,9 @@ public:
                     }
 
                     // Clamp the now 2D localCoordName variable by the domain if it is provided
-                    if (gp.fDomain.isInitialized()) {
+                    if (gp.fTexDomain.isInitialized()) {
                         args.fFragBuilder->codeAppend("float4 domain;");
-                        args.fVaryingHandler->addPassThroughAttribute(gp.fDomain, "domain",
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fTexDomain, "domain",
                                                                       Interpolation::kCanBeFlat);
                         args.fFragBuilder->codeAppend(
                                 "texCoord = clamp(texCoord, domain.xy, domain.zw);");
@@ -953,18 +979,37 @@ public:
                         args.fVertBuilder->codeAppendf("%s = %s.w * %s.z;",
                                                        coverage.vsOut(), gp.fPosition.name(),
                                                        gp.fPosition.name());
-                        args.fFragBuilder->codeAppendf("%s = half4(half(%s * sk_FragCoord.w));",
-                                                       args.fOutputCoverage, coverage.fsIn());
+                        args.fFragBuilder->codeAppendf("float coverage = %s * sk_FragCoord.w;",
+                                                        coverage.fsIn());
                     } else {
                         args.fVertBuilder->codeAppendf("%s = %s.z;",
                                                        coverage.vsOut(), gp.fPosition.name());
-                        args.fFragBuilder->codeAppendf("%s = half4(half(%s));",
-                                                       args.fOutputCoverage, coverage.fsIn());
+                        args.fFragBuilder->codeAppendf("float coverage = %s;", coverage.fsIn());
                     }
 
+                    if (gp.fGeomDomain.isInitialized()) {
+                        // Calculate distance from sk_FragCoord to the 4 edges of the domain
+                        // and clamp them to (0, 1). Use the minimum of these and the original
+                        // coverage. This only has to be done in the exterior triangles, the
+                        // interior of the quad geometry can never be clipped by the domain box.
+                        args.fFragBuilder->codeAppend("float4 geoDomain;");
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fGeomDomain, "geoDomain",
+                                        Interpolation::kCanBeFlat);
+                        args.fFragBuilder->codeAppend(
+                                "if (coverage < 0.5) {"
+                                "   float4 dists4 = clamp(float4(1, 1, -1, -1) * "
+                                        "(sk_FragCoord.xyxy - geoDomain), 0, 1);"
+                                "   float2 dists2 = dists4.xy * dists4.zw;"
+                                "   coverage = min(coverage, dists2.x * dists2.y);"
+                                "}");
+                    }
+
+                    args.fFragBuilder->codeAppendf("%s = half4(half(coverage));",
+                                                   args.fOutputCoverage);
                 } else {
                     // Set coverage to 1, since it's either non-AA or the coverage was already
                     // folded into the output color
+                    SkASSERT(!gp.fGeomDomain.isInitialized());
                     args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
                 }
             }
@@ -1013,6 +1058,12 @@ private:
             }
         }
 
+        // Need a geometry domain when the quads are AA and not rectilinear, since their AA
+        // outsetting can go beyond a half pixel.
+        if (spec.requiresGeometryDomain()) {
+            fGeomDomain = {"geomDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        }
+
         int localDim = spec.localDimensionality();
         if (localDim == 3) {
             fLocalCoord = {"localCoord", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
@@ -1027,10 +1078,10 @@ private:
         }
 
         if (spec.hasDomain()) {
-            fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+            fTexDomain = {"texDomain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         }
 
-        this->setVertexAttributes(&fPosition, 4);
+        this->setVertexAttributes(&fPosition, 5);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
@@ -1038,7 +1089,8 @@ private:
     Attribute fPosition; // May contain coverage as last channel
     Attribute fColor; // May have coverage modulated in if the FPs support it
     Attribute fLocalCoord;
-    Attribute fDomain;
+    Attribute fGeomDomain; // Screen-space bounding box on geometry+aa outset
+    Attribute fTexDomain; // Texture-space bounding box on local coords
 
     // The positions attribute may have coverage built into it, so float3 is an ambiguous type
     // and may mean 2d with coverage, or 3d with no coverage
