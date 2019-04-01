@@ -1882,12 +1882,11 @@ static int lsk_newTextBlob(lua_State* L) {
 #else
     SkFont font;
 #endif
-    SkTextBlobBuilderRunHandler builder(text);
-    SkPoint end = shaper->shape(&builder, font, text, strlen(text), true,
-                                { bounds.left(), bounds.top() }, bounds.width());
+    SkTextBlobBuilderRunHandler builder(text, { bounds.left(), bounds.top() });
+    shaper->shape(text, strlen(text), font, true, bounds.width(), &builder);
 
     push_ref<SkTextBlob>(L, builder.makeBlob());
-    SkLua(L).pushScalar(end.fY);
+    SkLua(L).pushScalar(builder.endPoint().fY);
     return 2;
 }
 
