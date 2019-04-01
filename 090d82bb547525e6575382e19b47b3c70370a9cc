@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1dc1823_32768f54",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-01T15:33:47Z",
+      "side": 1,
+      "message": "Other than not having to rewrite all the existing SkShaders as SkEffects, is this going to eventually allow us to replace sk_sp\u003cSkShader\u003e fShader on SkPaint with sk_sp\u003cSkEffect\u003e without having to update all the clients?",
+      "range": {
+        "startLine": 41,
+        "startChar": 31,
+        "endLine": 41,
+        "endChar": 40
+      },
+      "revId": "090d82bb547525e6575382e19b47b3c70370a9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
