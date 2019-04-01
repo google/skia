@@ -84,9 +84,6 @@ public:
 
     ~SkTable_ColorFilter() override { delete fBitmap; }
 
-    bool asComponentTable(SkBitmap* table) const override;
-    sk_sp<SkColorFilter> onMakeComposed(sk_sp<SkColorFilter> inner) const override;
-
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             GrRecordingContext*, const GrColorSpaceInfo&) const override;
@@ -130,6 +127,8 @@ protected:
 
 private:
     SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
+
+    void getTableAsBitmap(SkBitmap* table) const;
 
     mutable const SkBitmap* fBitmap; // lazily allocated
 
@@ -207,7 +206,7 @@ sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkTableColorFilter::MakeARGB(a, r, g, b);
 }
 
-bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
+void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
     if (table) {
         if (nullptr == fBitmap) {
             SkBitmap* bmp = new SkBitmap;
@@ -230,56 +229,6 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
         }
         *table = *fBitmap;
     }
-    return true;
-}
-
-// Combines the two lookup tables so that making a lookup using res[] has
-// the same effect as making a lookup through inner[] then outer[].
-static void combine_tables(uint8_t res[256], const uint8_t outer[256], const uint8_t inner[256]) {
-    for (int i = 0; i < 256; i++) {
-        res[i] = outer[inner[i]];
-    }
-}
-
-sk_sp<SkColorFilter> SkTable_ColorFilter::onMakeComposed(sk_sp<SkColorFilter> innerFilter) const {
-    SkBitmap innerBM;
-    if (!innerFilter->asComponentTable(&innerBM)) {
-        return nullptr;
-    }
-
-    if (nullptr == innerBM.getPixels()) {
-        return nullptr;
-    }
-
-    const uint8_t* table = fStorage;
-    const uint8_t* tableA = gIdentityTable;
-    const uint8_t* tableR = gIdentityTable;
-    const uint8_t* tableG = gIdentityTable;
-    const uint8_t* tableB = gIdentityTable;
-    if (fFlags & kA_Flag) {
-        tableA = table; table += 256;
-    }
-    if (fFlags & kR_Flag) {
-        tableR = table; table += 256;
-    }
-    if (fFlags & kG_Flag) {
-        tableG = table; table += 256;
-    }
-    if (fFlags & kB_Flag) {
-        tableB = table;
-    }
-
-    uint8_t concatA[256];
-    uint8_t concatR[256];
-    uint8_t concatG[256];
-    uint8_t concatB[256];
-
-    combine_tables(concatA, tableA, innerBM.getAddr8(0, 0));
-    combine_tables(concatR, tableR, innerBM.getAddr8(0, 1));
-    combine_tables(concatG, tableG, innerBM.getAddr8(0, 2));
-    combine_tables(concatB, tableB, innerBM.getAddr8(0, 3));
-
-    return SkTableColorFilter::MakeARGB(concatA, concatR, concatG, concatB);
 }
 
 #if SK_SUPPORT_GPU
@@ -459,7 +408,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
 std::unique_ptr<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(
         GrRecordingContext* context, const GrColorSpaceInfo&) const {
     SkBitmap bitmap;
-    this->asComponentTable(&bitmap);
+    this->getTableAsBitmap(&bitmap);
 
     return ColorTableEffect::Make(context, bitmap);
 }

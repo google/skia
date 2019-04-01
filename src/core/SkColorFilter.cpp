@@ -33,10 +33,6 @@ bool SkColorFilter::asColorMatrix(SkScalar matrix[20]) const {
     return false;
 }
 
-bool SkColorFilter::asComponentTable(SkBitmap*) const {
-    return false;
-}
-
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
         GrRecordingContext*, const GrColorSpaceInfo&) const {
