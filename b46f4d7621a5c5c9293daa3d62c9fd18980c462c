@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94ff3552_2fa69f7e",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T18:12:50Z",
+      "side": 1,
+      "message": "// A given quad requires a geometry domain when ...\n// The geometry domain serves to clip off pixels that ...\n\n?",
+      "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
