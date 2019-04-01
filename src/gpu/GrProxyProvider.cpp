@@ -255,8 +255,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                 if (surfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
                     resourceProviderFlags |= GrResourceProvider::Flags::kNoPendingIO;
                 }
-                return resourceProvider->createTexture(desc, budgeted, fit, mipLevel,
-                                                       resourceProviderFlags);
+                return LazyInstantiationResult(resourceProvider->createTexture(
+                        desc, budgeted, fit, mipLevel, resourceProviderFlags));
             },
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, surfaceFlags, fit, budgeted);
 
@@ -374,8 +374,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
                     SkASSERT(texels[i].fPixels);
                 }
 
-                return resourceProvider->createTexture(desc, SkBudgeted::kYes, texels.get(),
-                                                       mipLevelCount);
+                return LazyInstantiationResult(resourceProvider->createTexture(
+                        desc, SkBudgeted::kYes, texels.get(), mipLevelCount));
             },
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kYes, SkBackingFit::kExact,
             SkBudgeted::kYes);
@@ -446,7 +446,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrS
             GrMipLevel texels;
             texels.fPixels = data->data();
             texels.fRowBytes = GrBytesPerPixel(desc.fConfig)*desc.fWidth;
-            return resourceProvider->createTexture(desc, SkBudgeted::kYes, &texels, 1);
+            return LazyInstantiationResult(
+                    resourceProvider->createTexture(desc, SkBudgeted::kYes, &texels, 1));
         },
         format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
         SkBudgeted::kYes);

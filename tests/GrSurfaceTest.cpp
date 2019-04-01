@@ -445,7 +445,11 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
                 auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
                 auto singleUseLazyCB = [&texture](GrResourceProvider* rp) {
-                    return std::move(texture);
+                    auto mode = GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
+                    if (texture->getUniqueKey().isValid()) {
+                        mode = GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced;
+                    }
+                    return GrSurfaceProxy::LazyInstantiationResult{std::move(texture), mode};
                 };
                 GrSurfaceDesc desc;
                 desc.fWidth = w;
@@ -490,7 +494,12 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
 
                 // Make a proxy that should deinstantiate even if we keep a ref on it.
                 auto deinstantiateLazyCB = [&make, &context](GrResourceProvider* rp) {
-                    return make(context, 3);
+                    auto texture = make(context, 3);
+                    auto mode = GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
+                    if (texture->getUniqueKey().isValid()) {
+                        mode = GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced;
+                    }
+                    return GrSurfaceProxy::LazyInstantiationResult{std::move(texture), mode};
                 };
                 proxy = context->priv().proxyProvider()->createLazyProxy(
                         deinstantiateLazyCB, backendFormat, desc,

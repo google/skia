@@ -12,7 +12,7 @@
 #include "GrBackendSurface.h"
 #include "GrGpuResource.h"
 #include "GrSurface.h"
-
+#include "GrTexture.h"
 #include "SkRect.h"
 
 class GrCaps;
@@ -205,6 +205,45 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    /**
+     * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
+     * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls
+     * the key relationship between proxies and their targets.
+     */
+    enum class LazyInstantiationKeyMode {
+        /**
+         * Don't key the GrSurface with the proxy's key. The lazy instantiation callback is free to
+         * return a GrSurface that already has a unique key unrelated to the proxy's key.
+         */
+        kUnsynced,
+        /**
+         * Keep the GrSurface's unique key in sync with the proxy's unique key. The GrSurface
+         * returned from the lazy instantiation callback must not have a unique key or have the same
+         * same unique key as the proxy. If the proxy is later assigned a key it is in turn assigned
+         * to the GrSurface.
+         */
+        kSynced
+    };
+
+    struct LazyInstantiationResult {
+        LazyInstantiationResult() = default;
+        LazyInstantiationResult(const LazyInstantiationResult&) = default;
+        LazyInstantiationResult(LazyInstantiationResult&& that) = default;
+        LazyInstantiationResult(sk_sp<GrSurface> surf,
+                                LazyInstantiationKeyMode mode = LazyInstantiationKeyMode::kSynced)
+                : fSurface(std::move(surf)), fKeyMode(mode) {}
+        LazyInstantiationResult(sk_sp<GrTexture> tex)
+                : LazyInstantiationResult(sk_sp<GrSurface>(std::move(tex))) {}
+
+        LazyInstantiationResult& operator=(const LazyInstantiationResult&) = default;
+        LazyInstantiationResult& operator=(LazyInstantiationResult&&) = default;
+
+        sk_sp<GrSurface> fSurface;
+        LazyInstantiationKeyMode fKeyMode = LazyInstantiationKeyMode::kSynced;
+    };
+
+    using LazyInstantiateCallback = std::function<LazyInstantiationResult(GrResourceProvider*)>;
+
     enum class LazyInstantiationType {
         kSingleUse,      // Instantiation callback is allowed to be called only once.
         kMultipleUse,    // Instantiation callback can be called multiple times.
@@ -430,8 +469,6 @@ protected:
                              budgeted, surfaceFlags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
-
-    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType,
