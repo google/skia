@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d704b3b3_12d6e02c",
+        "filename": "src/gpu/ccpr/GrCCClipPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-01T16:31:08Z",
+      "side": 1,
+      "message": "My basic rule was, if I\u0027d have to repeat the type name at two returns then instead declare it as the return type using -\u003e, otherwise use an explicit constructor at the single return.",
+      "parentUuid": "8f51de93_0c5b7915",
+      "revId": "4c403e8f11a2032eb883b0e439ac165a2b52a5b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "328f8f6a_0a13283d",
         "filename": "src/image/SkImage_GpuBase.cpp",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "4c403e8f11a2032eb883b0e439ac165a2b52a5b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9b148ff_8e7efbb8",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-01T16:31:08Z",
+      "side": 1,
+      "message": "Done. Made a local static constexpr var with the key sync mode at the top of the function and moved the comment from the second return up there.",
+      "parentUuid": "328f8f6a_0a13283d",
+      "revId": "4c403e8f11a2032eb883b0e439ac165a2b52a5b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
