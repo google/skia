@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e7c97c8_bdd60c93",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T20:28:26Z",
+      "side": 1,
+      "message": "I\u0027m happy to even go as far as just always doing both bundlings unconditionally, fwiw.",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a23e952_983068ea",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T20:28:26Z",
+      "side": 1,
+      "message": "Sure you need the pylint bit?  I don\u0027t think you\u0027re unpacking a tuple here as long as you\u0027re writing `sys.argv[1]` and not just `sys.argv`.",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "268a9dea_47235fd4",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T20:28:26Z",
+      "side": 1,
+      "message": "I don\u0027t suppose there\u0027s something we can pass while linking that makes this happen automatically, and that we can make part of :debug_sybmols in gn/BUILD.gn?",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
