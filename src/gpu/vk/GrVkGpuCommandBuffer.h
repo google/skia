@@ -180,6 +180,7 @@ private:
     };
 
     struct CommandBufferInfo {
+        using SampledTexture = GrPendingIOResource<GrVkTexture, kRead_GrIOType>;
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
         VkClearValue                           fColorClearValue;
@@ -190,10 +191,10 @@ private:
         // command buffer.
         SkTArray<InlineUploadInfo>             fPreDrawUploads;
         SkTArray<CopyInfo>                     fPreCopies;
-        // Array of images that will be sampled and thus need to be transfered to sampled layout
+        // Array of images that will be sampled and thus need to be transferred to sampled layout
         // before submitting the secondary command buffers. This must happen after we do any predraw
         // uploads or copies.
-        SkTArray<sk_sp<GrVkTexture>>           fSampledTextures;
+        SkTArray<SampledTexture>               fSampledTextures;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
             return fCommandBuffers.back();

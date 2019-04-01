@@ -724,7 +724,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
                 fGpu->regenerateMipMapLevels(vkTexture);
             }
         }
-        cbInfo.fSampledTextures.push_back(sk_ref_sp(vkTexture));
+        cbInfo.fSampledTextures.push_back(vkTexture);
     };
 
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
