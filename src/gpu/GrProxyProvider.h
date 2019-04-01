@@ -136,7 +136,9 @@ public:
     sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                    const GrVkDrawableInfo&);
 
-    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
+    using LazyInstantiationKeyMode = GrSurfaceProxy::LazyInstantiationKeyMode;
+    using LazyInstantiationResult = GrSurfaceProxy::LazyInstantiationResult;
+    using LazyInstantiateCallback = GrSurfaceProxy::LazyInstantiateCallback;
 
     enum class Renderable : bool {
         kNo = false,
