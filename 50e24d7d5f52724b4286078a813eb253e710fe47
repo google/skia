@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8083e61_dedfa46e",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T21:57:31Z",
+      "side": 1,
+      "message": "OK Chris, this was a while ago, and may just be an oversight... why don\u0027t we return errorMsg here when the drawResult is kFail?\n\nIf you try to run `dm -m atlastext --config 8888`, it\u0027s returning a failure (\"No renderer and/or target.\") but we\u0027re ignoring it.  :/",
+      "revId": "50e24d7d5f52724b4286078a813eb253e710fe47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
