@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcac76dd_81ff836f",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T17:28:43Z",
+      "side": 1,
+      "message": "Should we skip this lookup if the borrowedTextureKey is invalid ?",
+      "revId": "256a175e43e25cbf110e7fc85948a5e50a3039ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
