@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d217cff3_f1f4efd0",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-01T19:25:48Z",
+      "side": 1,
+      "message": "Do you think we should do this in GrTextureDomainEffect::Make so that all use cases of GrTextureDomainEffect are covered?",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 90
+      },
+      "revId": "66a2e240f4dc2caf9f931520e33bb7d6a8f71701",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
