@@ -58,21 +58,6 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fLerpT);
 }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-bool SkComposeShader::asACompose(ComposeRec* rec) const {
-    if (!this->isJustMode()) {
-        return false;
-    }
-
-    if (rec) {
-        rec->fShaderA   = fDst.get();
-        rec->fShaderB   = fSrc.get();
-        rec->fBlendMode = fMode;
-    }
-    return true;
-}
-#endif
-
 bool SkComposeShader::onAppendStages(const SkStageRec& rec) const {
     struct Storage {
         float   fRGBA[4 * SkRasterPipeline_kMaxStride];

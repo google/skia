@@ -148,16 +148,6 @@ public:
     // DEPRECATED. skbug.com/8941
     virtual GradientType asAGradient(GradientInfo* info) const;
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    struct ComposeRec {
-        const SkShader*     fShaderA;
-        const SkShader*     fShaderB;
-        SkBlendMode         fBlendMode;
-    };
-    // DEPRECATED. skbug.com/8941
-    virtual bool asACompose(ComposeRec*) const { return false; }
-#endif
-
     //////////////////////////////////////////////////////////////////////////
     //  Methods to create combinations or variants of shaders
 
