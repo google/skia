@@ -1744,7 +1744,7 @@ GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
     return this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get(),
                                                                access, flags,
                                                                numSemaphores,
-                                                               backendSemaphores);
+                                                               backendSemaphores, true);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
