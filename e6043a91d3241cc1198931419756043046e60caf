@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "772ea54b_6596a5e4",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-01T21:02:54Z",
+      "side": 1,
+      "message": "this always returns true at this point",
+      "range": {
+        "startLine": 209,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 4
+      },
+      "revId": "e6043a91d3241cc1198931419756043046e60caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
