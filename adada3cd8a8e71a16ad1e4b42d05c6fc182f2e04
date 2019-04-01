@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "df2fcbc0_022bb38a",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T21:36:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4471145d_02abe782",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a2a31b07_d22f2ee2",
         "filename": "tools/fm/fm_bot.go",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2019-04-01T21:02:27Z",
       "side": 1,
       "message": "If the called program doesn\u0027t return then the whole program will hang.\n\nYou can use https://golang.org/pkg/os/exec/#CommandContext along with https://godoc.org/golang.org/x/sync/errgroup to set a time limit on how long each exec has to run.",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b656753_3815e6fe",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T21:36:33Z",
+      "side": 1,
+      "message": "I think it\u0027s okay that we never return if the called program never returns?  All we\u0027re really here to do anyway is call that program.",
+      "parentUuid": "a2a31b07_d22f2ee2",
       "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "73894e62_12dc4534",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T21:36:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "93afc635_7351c6f5",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c08a6d4_2d737bd2",
         "filename": "tools/fm/fm_bot.go",
         "patchSetId": 9
@@ -64,6 +118,24 @@
       "writtenOn": "2019-04-01T21:02:27Z",
       "side": 1,
       "message": "Use WaitGroup\n\n  https://golang.org/pkg/sync/#WaitGroup\n\nor errgroup\n\n  https://godoc.org/golang.org/x/sync/errgroup",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78c961f5_e26d9b1a",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T21:36:33Z",
+      "side": 1,
+      "message": "I started with a sync.WaitGroup, but I\u0027m not just waiting for everything to finish... I also want to know how many of the tasks failed (for now just how many, but conceivably more information about each task later, like an error or their stdout+stderr).  I figure closing the main-\u003eworker queue and reading back each result handles all the synchronization I need without a WaitGroup for now?\n\nI think I don\u0027t don\u0027t quite want to use x/sync/errgroup.  It looks like they\u0027ll cancel the whole group if any one thing fails, but I want the opposite, to continue running as much as possible.  I\u0027m even thinking that in the future I\u0027ll want to redistribute the jobs we tried to run from the failing processes and repeat until each run either succeeds or has isolated the failures down to individual runs.",
+      "parentUuid": "3c08a6d4_2d737bd2",
       "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
