@@ -396,7 +396,6 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                                                        rect.height(), SkToBool(tightBmp)));
                 uint32_t idBefore = surface->generationID();
 
-                // ToolUtils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
                 surface->writePixels(bmp, rect.fLeft, rect.fTop);
 
                 uint32_t idAfter = surface->generationID();
