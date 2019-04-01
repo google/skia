@@ -145,6 +145,7 @@ public:
         uint32_t    fGradientFlags; //!< see SkGradientShader::Flags
     };
 
+    // DEPRECATED. skbug.com/8941
     virtual GradientType asAGradient(GradientInfo* info) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -153,6 +154,7 @@ public:
         const SkShader*     fShaderB;
         SkBlendMode         fBlendMode;
     };
+    // DEPRECATED. skbug.com/8941
     virtual bool asACompose(ComposeRec*) const { return false; }
 #endif
 
@@ -264,7 +266,7 @@ public:
     static sk_sp<SkShader> MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
                                              const SkMatrix* localMatrix, const SkRect* tile);
 
-    /**
+    /** DEPRECATED. skbug.com/8941
      *  If this shader can be represented by another shader + a localMatrix, return that shader and
      *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
      */

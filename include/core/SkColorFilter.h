@@ -32,21 +32,21 @@ class SkString;
  */
 class SK_API SkColorFilter : public SkFlattenable {
 public:
-    /**
+    /** DEPRECATED. skbug.com/8941
      *  If the filter can be represented by a source color plus Mode, this
      *  returns true, and sets (if not NULL) the color and mode appropriately.
      *  If not, this returns false and ignores the parameters.
      */
     virtual bool asColorMode(SkColor* color, SkBlendMode* bmode) const;
 
-    /**
+    /** DEPRECATED. skbug.com/8941
      *  If the filter can be represented by a 5x4 matrix, this
      *  returns true, and sets the matrix appropriately.
      *  If not, this returns false and ignores the parameter.
      */
     virtual bool asColorMatrix(SkScalar matrix[20]) const;
 
-    /**
+    /** DEPRECATED. skbug.com/8941
      *  If the filter can be represented by per-component table, return true,
      *  and if table is not null, copy the bitmap containing the table into it.
      *
