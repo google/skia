@@ -8,8 +8,8 @@
 #include "SkottieProperty.h"
 
 #include "SkottieAdapter.h"
-#include "SkSGColor.h"
 #include "SkSGOpacityEffect.h"
+#include "SkSGPaint.h"
 
 namespace skottie {
 

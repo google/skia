@@ -5,14 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkSGPaintNode_DEFINED
-#define SkSGPaintNode_DEFINED
+#ifndef SkSGPaint_DEFINED
+#define SkSGPaint_DEFINED
 
 #include "SkSGNode.h"
 
+#include "SkColor.h"
 #include "SkPaint.h"
 
 namespace sksg {
+
+class Shader;
 
 /**
  * Base class for nodes which provide a 'paint' (as opposed to geometry) for
@@ -38,8 +41,6 @@ protected:
 
     virtual void onApplyToPaint(SkPaint*) const = 0;
 
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
-
 private:
     SkScalar       fOpacity     = 1,
                    fStrokeWidth = 1,
@@ -53,6 +54,48 @@ private:
     typedef Node INHERITED;
 };
 
+/**
+ * Concrete Paint node, wrapping an SkColor.
+ */
+class Color : public PaintNode {
+public:
+    static sk_sp<Color> Make(SkColor c);
+
+    SG_ATTRIBUTE(Color, SkColor, fColor)
+
+protected:
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+    void onApplyToPaint(SkPaint*) const override;
+
+private:
+    explicit Color(SkColor);
+
+    SkColor fColor;
+};
+
+/**
+ * Shader-based paint.
+ */
+class ShaderPaint final : public PaintNode {
+public:
+    ~ShaderPaint() override;
+
+    static sk_sp<ShaderPaint> Make(sk_sp<Shader>);
+
+protected:
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+    void onApplyToPaint(SkPaint*) const override;
+
+private:
+    explicit ShaderPaint(sk_sp<Shader>);
+
+    const sk_sp<Shader> fShader;
+
+    using INHERITED = PaintNode;
+};
+
 } // namespace sksg
 
-#endif // SkSGGeometryNode_DEFINED
+#endif // SkSGPaint_DEFINED

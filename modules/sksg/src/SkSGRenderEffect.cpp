@@ -9,9 +9,48 @@
 
 #include "SkDropShadowImageFilter.h"
 #include "SkMakeUnique.h"
-#include "SkSGColor.h"
+#include "SkShader.h"
 
 namespace sksg {
+
+sk_sp<RenderNode> ShaderEffect::Make(sk_sp<RenderNode> child, sk_sp<Shader> shader) {
+    return (child && shader) ? sk_sp<RenderNode>(new ShaderEffect(std::move(child),
+                                                                  std::move(shader)))
+                  : child;
+}
+
+ShaderEffect::ShaderEffect(sk_sp<RenderNode> child, sk_sp<Shader> shader)
+    : INHERITED(std::move(child))
+    , fShader(std::move(shader)) {
+    this->observeInval(fShader);
+}
+
+ShaderEffect::~ShaderEffect() {
+    this->unobserveInval(fShader);
+}
+
+SkRect ShaderEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    fShader->revalidate(ic, ctm);
+
+    return this->INHERITED::onRevalidate(ic, ctm);
+}
+
+void ShaderEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    const auto local_ctx = ScopedRenderContext(canvas, ctx).modulateShader(fShader->getShader());
+
+    this->INHERITED::onRender(canvas, local_ctx);
+}
+
+Shader::Shader() : INHERITED(kBubbleDamage_Trait) {}
+
+Shader::~Shader() = default;
+
+SkRect Shader::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasInval());
+
+    fShader = this->onRevalidateShader();
+    return SkRect::MakeEmpty();
+}
 
 sk_sp<RenderNode> ImageFilterEffect::Make(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter) {
     return filter ? sk_sp<RenderNode>(new ImageFilterEffect(std::move(child), std::move(filter)))

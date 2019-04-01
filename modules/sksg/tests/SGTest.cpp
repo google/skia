@@ -11,10 +11,10 @@
 
 #include "SkRect.h"
 #include "SkRectPriv.h"
-#include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
 #include "SkSGInvalidationController.h"
+#include "SkSGPaint.h"
 #include "SkSGRect.h"
 #include "SkSGRenderEffect.h"
 #include "SkSGTransform.h"

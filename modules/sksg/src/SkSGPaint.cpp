@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkSGPaintNode.h"
+#include "SkSGPaint.h"
+
+#include "SkSGRenderEffect.h"
 
 namespace sksg {
 
@@ -33,10 +35,44 @@ SkPaint PaintNode::makePaint() const {
     return paint;
 }
 
-SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
+sk_sp<Color> Color::Make(SkColor c) {
+    return sk_sp<Color>(new Color(c));
+}
+
+Color::Color(SkColor c) : fColor(c) {}
+
+SkRect Color::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     return SkRect::MakeEmpty();
+}
+
+void Color::onApplyToPaint(SkPaint* paint) const {
+    paint->setColor(fColor);
+}
+
+sk_sp<ShaderPaint> ShaderPaint::Make(sk_sp<Shader> sh) {
+    return sh ? sk_sp<ShaderPaint>(new ShaderPaint(std::move(sh)))
+              : nullptr;
+}
+
+ShaderPaint::ShaderPaint(sk_sp<Shader> sh)
+    : fShader(std::move(sh)) {
+    this->observeInval(fShader);
+}
+
+ShaderPaint::~ShaderPaint() {
+    this->unobserveInval(fShader);
+}
+
+SkRect ShaderPaint::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    SkASSERT(this->hasInval());
+
+    return fShader->revalidate(ic, ctm);
+}
+
+void ShaderPaint::onApplyToPaint(SkPaint* paint) const {
+    paint->setShader(fShader->getShader());
 }
 
 } // namespace sksg

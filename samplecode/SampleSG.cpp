@@ -12,8 +12,8 @@
 #include "SkPath.h"
 
 #include "SkSGDraw.h"
-#include "SkSGColor.h"
 #include "SkSGGroup.h"
+#include "SkSGPaint.h"
 #include "SkSGRect.h"
 #include "SkSGScene.h"
 

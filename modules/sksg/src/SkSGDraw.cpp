@@ -10,7 +10,7 @@
 #include "SkPath.h"
 #include "SkSGGeometryNode.h"
 #include "SkSGInvalidationController.h"
-#include "SkSGPaintNode.h"
+#include "SkSGPaint.h"
 #include "SkTLazy.h"
 
 namespace sksg {

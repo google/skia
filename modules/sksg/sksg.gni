@@ -8,7 +8,6 @@ _src = get_path_info("src", "abspath")
 
 skia_sksg_sources = [
   "$_src/SkSGClipEffect.cpp",
-  "$_src/SkSGColor.cpp",
   "$_src/SkSGColorFilter.cpp",
   "$_src/SkSGDraw.cpp",
   "$_src/SkSGEffectNode.cpp",
@@ -22,7 +21,7 @@ skia_sksg_sources = [
   "$_src/SkSGMerge.cpp",
   "$_src/SkSGNode.cpp",
   "$_src/SkSGOpacityEffect.cpp",
-  "$_src/SkSGPaintNode.cpp",
+  "$_src/SkSGPaint.cpp",
   "$_src/SkSGPath.cpp",
   "$_src/SkSGPlane.cpp",
   "$_src/SkSGRect.cpp",
