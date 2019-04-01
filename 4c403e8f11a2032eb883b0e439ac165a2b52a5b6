@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f51de93_0c5b7915",
+        "filename": "src/gpu/ccpr/GrCCClipPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T16:21:05Z",
+      "side": 1,
+      "message": "GrSurfaceProxy::LazyInstantiationResult(--) here ?",
+      "revId": "4c403e8f11a2032eb883b0e439ac165a2b52a5b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "328f8f6a_0a13283d",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T16:21:05Z",
+      "side": 1,
+      "message": "// Comment about why this is unsynced here too ?",
+      "revId": "4c403e8f11a2032eb883b0e439ac165a2b52a5b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
