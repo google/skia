@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "e082c62d_2b36fb42",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T20:37:09Z",
+      "side": 1,
+      "message": "Yep.  I have this feeling it\u0027s just always going to be more useful to have both than we\u0027re going to be bothered by push time?",
+      "parentUuid": "1adc5090_544619a4",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a23e952_983068ea",
         "filename": "gn/gen_symbols_ios.py",
         "patchSetId": 5
