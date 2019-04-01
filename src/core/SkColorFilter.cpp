@@ -155,12 +155,6 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
         return sk_ref_sp(this);
     }
 
-    // Give the subclass a shot at a more optimal composition...
-    auto composition = this->onMakeComposed(inner);
-    if (composition) {
-        return composition;
-    }
-
     int count = inner->privateComposedFilterCount() + this->privateComposedFilterCount();
     if (count > SK_MAX_COMPOSE_COLORFILTER_COUNT) {
         return nullptr;
