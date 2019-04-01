@@ -21,7 +21,8 @@ static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPath::Dir
     }
 
     for (int i = 0; i < n; ++i) {
-        sin = SkScalarSinCos(SkDegreesToRadians(angle), &cos);
+        sin = SkScalarSin(SkDegreesToRadians(angle));
+        cos = SkScalarCos(SkDegreesToRadians(angle));
         pts[i].fX = -sin * w;
         pts[i].fY = cos * h;
         angle += angleStep;

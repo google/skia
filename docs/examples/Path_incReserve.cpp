@@ -7,7 +7,8 @@ void draw(SkCanvas* canvas) {
     auto addPoly = [](int sides, SkScalar size, SkPath* path) -> void {
         path->moveTo(size, 0);
         for (int i = 1; i < sides; i++) {
-            SkScalar c, s = SkScalarSinCos(SK_ScalarPI * 2 * i / sides, &c);
+            SkScalar s = SkScalarSin(SK_ScalarPI * 2 * i / sides),
+                     c = SkScalarCos(SK_ScalarPI * 2 * i / sides);
             path->lineTo(c * size, s * size);
         }
         path->close();

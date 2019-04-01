@@ -475,14 +475,16 @@ void SkMatrix::setSinCos(SkScalar sinV, SkScalar cosV) {
 }
 
 void SkMatrix::setRotate(SkScalar degrees, SkScalar px, SkScalar py) {
-    SkScalar sinV, cosV;
-    sinV = SkScalarSinCos(SkDegreesToRadians(degrees), &cosV);
+    SkScalar rad  = SkDegreesToRadians(degrees),
+             sinV = SkScalarSinSnapToZero(rad),
+             cosV = SkScalarCosSnapToZero(rad);
     this->setSinCos(sinV, cosV, px, py);
 }
 
 void SkMatrix::setRotate(SkScalar degrees) {
-    SkScalar sinV, cosV;
-    sinV = SkScalarSinCos(SkDegreesToRadians(degrees), &cosV);
+    SkScalar rad  = SkDegreesToRadians(degrees),
+             sinV = SkScalarSinSnapToZero(rad),
+             cosV = SkScalarCosSnapToZero(rad);
     this->setSinCos(sinV, cosV);
 }
 

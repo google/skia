@@ -3309,7 +3309,9 @@ static void check_for_circle(skiatest::Reporter* reporter,
                              bool expectedCircle,
                              SkPathPriv::FirstDirection expectedDir) {
     SkRect rect = SkRect::MakeEmpty();
-    REPORTER_ASSERT(reporter, path.isOval(&rect) == expectedCircle);
+    if (path.isOval(&rect) != expectedCircle) {
+        REPORTER_ASSERT(reporter, path.isOval(&rect) == expectedCircle);
+    }
     SkPath::Direction isOvalDir;
     unsigned isOvalStart;
     if (SkPathPriv::IsOval(path, &rect, &isOvalDir, &isOvalStart)) {

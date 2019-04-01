@@ -146,7 +146,8 @@ protected:
         for (int i = 0; i < GrConvexPolyEffect::kMaxEdges; ++i) {
             SkScalar angle = 2 * SK_ScalarPI * i / GrConvexPolyEffect::kMaxEdges;
             SkPoint point;
-            point.fY = SkScalarSinCos(angle, &point.fX);
+            point.fY = SkScalarSin(angle);
+            point.fX = SkScalarCos(angle);
             point.scale(kRadius);
             point = center + point;
             if (0 == i) {

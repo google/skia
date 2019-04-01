@@ -201,10 +201,12 @@ DEF_TEST(PolyUtils, reporter) {
         SkScalar rad = 0;
         const SkScalar drad = SK_ScalarPI / n;
         for (int i = 0; i < n; i++) {
-            SkScalar cosV, sinV = SkScalarSinCos(rad, &cosV);
+            SkScalar sinV = SkScalarSin(rad);
+            SkScalar cosV = SkScalarCos(rad);
             *poly.push() = SkPoint::Make(c + cosV * r1, c + sinV * r1);
             rad += drad;
-            sinV = SkScalarSinCos(rad, &cosV);
+            sinV = SkScalarSin(rad);
+            cosV = SkScalarCos(rad);
             *poly.push() = SkPoint::Make(c + cosV * r2, c + sinV * r2);
             rad += drad;
         }

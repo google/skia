@@ -127,8 +127,8 @@ static void test_trace_counters() {
         // Recording multiple counters with separate COUNTER1 macros will make separate graphs.
         for (int i = 0; i < 180; ++i) {
             SkScalar rad = SkDegreesToRadians(SkIntToScalar(i));
-            SkScalar cos;
-            SkScalar sin = SkScalarSinCos(rad, &cos);
+            SkScalar sin = SkScalarSin(rad);
+            SkScalar cos = SkScalarCos(rad);
             TRACE_COUNTER1("skia", "sin", sin * 1000.0f + 1000.0f);
             TRACE_COUNTER1("skia", "cos", cos * 1000.0f + 1000.0f);
             do_work(10);
@@ -142,8 +142,8 @@ static void test_trace_counters() {
         // as a stacked bar graph. The combined graph needs a name, as does each data series.
         for (int i = 0; i < 180; ++i) {
             SkScalar rad = SkDegreesToRadians(SkIntToScalar(i));
-            SkScalar cos;
-            SkScalar sin = SkScalarSinCos(rad, &cos);
+            SkScalar sin = SkScalarSin(rad);
+            SkScalar cos = SkScalarCos(rad);
             TRACE_COUNTER2("skia", "trig",
                            "sin", sin * 1000.0f + 1000.0f,
                            "cos", cos * 1000.0f + 1000.0f);

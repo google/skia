@@ -118,7 +118,8 @@ static SkScalar make_star(SkPath* path, int n) {
     path->moveTo(c, c - r);
     for (int i = 1; i < n; i++) {
         rad += drad;
-        SkScalar cosV, sinV = SkScalarSinCos(rad, &cosV);
+        SkScalar sinV = SkScalarSin(rad),
+                 cosV = SkScalarCos(rad);
         path->lineTo(c + cosV * r, c + sinV * r);
     }
     path->close();

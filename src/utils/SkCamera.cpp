@@ -105,27 +105,27 @@ void SkMatrix3D::setTranslate(SkScalar x, SkScalar y, SkScalar z) {
 }
 
 void SkMatrix3D::setRotateX(SkScalar degX) {
-    SkScalar    s, c;
-
-    s = SkScalarSinCos(SkDegreesToRadians(degX), &c);
+    SkScalar r = SkDegreesToRadians(degX),
+             s = SkScalarSin(r),
+             c = SkScalarCos(r);
     this->setRow(0, SK_Scalar1, 0, 0);
     this->setRow(1, 0, c, -s);
     this->setRow(2, 0, s, c);
 }
 
 void SkMatrix3D::setRotateY(SkScalar degY) {
-    SkScalar    s, c;
-
-    s = SkScalarSinCos(SkDegreesToRadians(degY), &c);
+    SkScalar r = SkDegreesToRadians(degY),
+             s = SkScalarSin(r),
+             c = SkScalarCos(r);
     this->setRow(0, c, 0, -s);
     this->setRow(1, 0, SK_Scalar1, 0);
     this->setRow(2, s, 0, c);
 }
 
 void SkMatrix3D::setRotateZ(SkScalar degZ) {
-    SkScalar    s, c;
-
-    s = SkScalarSinCos(SkDegreesToRadians(degZ), &c);
+    SkScalar r = SkDegreesToRadians(degZ),
+             s = SkScalarSin(r),
+             c = SkScalarCos(r);
     this->setRow(0, c, -s, 0);
     this->setRow(1, s, c, 0);
     this->setRow(2, 0, 0, SK_Scalar1);
