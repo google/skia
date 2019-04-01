@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8af2548a_c5176612",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-01T18:07:53Z",
+      "side": 1,
+      "message": "\u003d default",
+      "range": {
+        "startLine": 39,
+        "startChar": 32,
+        "endLine": 39,
+        "endChar": 33
+      },
+      "revId": "2d021f2613e45c366360e1716c867ab60185bada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb4092f5_57a694d2",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-01T18:07:53Z",
+      "side": 1,
+      "message": "Ok. This one is probably final, and more below.",
+      "range": {
+        "startLine": 327,
+        "startChar": 22,
+        "endLine": 327,
+        "endChar": 26
+      },
+      "revId": "2d021f2613e45c366360e1716c867ab60185bada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
