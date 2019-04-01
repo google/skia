@@ -13,9 +13,9 @@
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
-#include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
+#include "SkSGPaint.h"
 #include "SkSGText.h"
 #include "SkTypes.h"
 

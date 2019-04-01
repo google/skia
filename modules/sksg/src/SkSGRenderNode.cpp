@@ -30,10 +30,14 @@ bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
     const auto initial_alpha = paint->getAlpha(),
                        alpha = SkToU8(sk_float_round2int(initial_alpha * fOpacity));
 
-    if (alpha != initial_alpha || fColorFilter || fBlendMode != paint->getBlendMode()) {
+    if (alpha != initial_alpha || fColorFilter || fShader || fBlendMode != paint->getBlendMode()) {
         paint->setAlpha(alpha);
         paint->setColorFilter(SkColorFilter::MakeComposeFilter(fColorFilter,
                                                                paint->refColorFilter()));
+        if (fShader) {
+            // Topmost shader takes precedence.
+            paint->setShader(fShader);
+        }
         paint->setBlendMode(fBlendMode);
         return true;
     }
@@ -63,6 +67,16 @@ RenderNode::ScopedRenderContext&&
 RenderNode::ScopedRenderContext::modulateColorFilter(sk_sp<SkColorFilter> cf) {
     fCtx.fColorFilter = SkColorFilter::MakeComposeFilter(std::move(fCtx.fColorFilter),
                                                          std::move(cf));
+    return std::move(*this);
+}
+
+RenderNode::ScopedRenderContext&&
+RenderNode::ScopedRenderContext::modulateShader(sk_sp<SkShader> sh) {
+    // Topmost shader takes precedence.
+    if (!fCtx.fShader) {
+        fCtx.fShader = std::move(sh);
+    }
+
     return std::move(*this);
 }
 

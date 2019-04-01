@@ -11,9 +11,9 @@
 #include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
-#include "SkSGColor.h"
-#include "SkSGRenderEffect.h"
 #include "SkSGColorFilter.h"
+#include "SkSGPaint.h"
+#include "SkSGRenderEffect.h"
 
 namespace skottie {
 namespace internal {

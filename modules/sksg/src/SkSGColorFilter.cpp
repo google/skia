@@ -9,7 +9,7 @@
 
 #include "SkColorData.h"
 #include "SkColorFilter.h"
-#include "SkSGColor.h"
+#include "SkSGPaint.h"
 #include "SkTableColorFilter.h"
 
 #include <cmath>

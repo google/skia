@@ -7,13 +7,12 @@
 
 #include "AnimTimer.h"
 #include "Sample.h"
-#include "SkColor.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 
-#include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
+#include "SkSGPaint.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGScene.h"

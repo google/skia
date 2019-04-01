@@ -8,7 +8,7 @@
 #ifndef SkSGGradient_DEFINED
 #define SkSGGradient_DEFINED
 
-#include "SkSGPaintNode.h"
+#include "SkSGRenderEffect.h"
 
 #include "SkColor.h"
 #include "SkPoint.h"
@@ -22,7 +22,7 @@ namespace sksg {
 /**
  * Gradient base class.
  */
-class Gradient : public PaintNode {
+class Gradient : public Shader {
 public:
     struct ColorStop {
         SkScalar fPosition;
@@ -37,7 +37,7 @@ public:
     SG_ATTRIBUTE(TileMode  , SkShader::TileMode    , fTileMode  )
 
 protected:
-    void onApplyToPaint(SkPaint*) const final;
+    sk_sp<SkShader> onRevalidateShader() final;
 
     virtual sk_sp<SkShader> onMakeShader(const std::vector<SkColor>& colors,
                                          const std::vector<SkScalar>& positions) const = 0;
@@ -49,7 +49,7 @@ private:
     std::vector<ColorStop> fColorStops;
     SkShader::TileMode     fTileMode = SkShader::kClamp_TileMode;
 
-    using INHERITED = PaintNode;
+    using INHERITED = Shader;
 };
 
 class LinearGradient final : public Gradient {
