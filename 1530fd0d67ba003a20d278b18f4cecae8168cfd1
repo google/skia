@@ -22,6 +22,30 @@
       "revId": "1530fd0d67ba003a20d278b18f4cecae8168cfd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17557c41_783c96d3",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-01T13:18:36Z",
+      "side": 1,
+      "message": "Ditto, but I think the change here (re: CrossContext) is fine.",
+      "parentUuid": "c7dea97e_0b9f6df9",
+      "range": {
+        "startLine": 496,
+        "startChar": 4,
+        "endLine": 496,
+        "endChar": 53
+      },
+      "revId": "1530fd0d67ba003a20d278b18f4cecae8168cfd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
