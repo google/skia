@@ -20,7 +20,7 @@ template <typename T, GrIOType IO_TYPE>
 class GrPendingIOResource : SkNoncopyable {
 public:
     GrPendingIOResource() = default;
-    explicit GrPendingIOResource(T* resource) { this->reset(resource); }
+    GrPendingIOResource(T* resource) { this->reset(resource); }
     GrPendingIOResource(sk_sp<T> resource) { *this = std::move(resource); }
     GrPendingIOResource(const GrPendingIOResource& that) : GrPendingIOResource(that.get()) {}
     ~GrPendingIOResource() { this->release(); }
@@ -54,6 +54,8 @@ public:
     bool operator==(const GrPendingIOResource& other) const { return fResource == other.fResource; }
 
     T* get() const { return fResource; }
+    T* operator*() const { return *fResource; }
+    T* operator->() const { return fResource; }
 
 private:
     void release() {
