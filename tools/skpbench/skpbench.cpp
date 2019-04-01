@@ -537,7 +537,7 @@ static sk_sp<SkPicture> create_skp_from_svg(SkStream* stream, const char* filena
 }
 
 bool mkdir_p(const SkString& dirname) {
-    if (dirname.isEmpty()) {
+    if (dirname.isEmpty() || dirname == SkString("/")) {
         return true;
     }
     return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
