@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1adc5090_544619a4",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-01T20:34:21Z",
+      "side": 1,
+      "message": "When you say both do you mean both the data and the symbols?",
+      "parentUuid": "7e7c97c8_bdd60c93",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a23e952_983068ea",
         "filename": "gn/gen_symbols_ios.py",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2019-04-01T20:28:26Z",
       "side": 1,
       "message": "Sure you need the pylint bit?  I don\u0027t think you\u0027re unpacking a tuple here as long as you\u0027re writing `sys.argv[1]` and not just `sys.argv`.",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dcd6a05_0c55a07c",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-01T20:34:21Z",
+      "side": 1,
+      "message": "Probably not -- it originally read sys.argv[1:].",
+      "parentUuid": "5a23e952_983068ea",
       "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
