@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4471145d_02abe782",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-04-01T21:02:27Z",
+      "side": 1,
+      "message": "Check return value of scanner.Err()",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2a31b07_d22f2ee2",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-04-01T21:02:27Z",
+      "side": 1,
+      "message": "If the called program doesn\u0027t return then the whole program will hang.\n\nYou can use https://golang.org/pkg/os/exec/#CommandContext along with https://godoc.org/golang.org/x/sync/errgroup to set a time limit on how long each exec has to run.",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93afc635_7351c6f5",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-04-01T21:02:27Z",
+      "side": 1,
+      "message": "Check scanner.Err()",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c08a6d4_2d737bd2",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-04-01T21:02:27Z",
+      "side": 1,
+      "message": "Use WaitGroup\n\n  https://golang.org/pkg/sync/#WaitGroup\n\nor errgroup\n\n  https://godoc.org/golang.org/x/sync/errgroup",
+      "revId": "adada3cd8a8e71a16ad1e4b42d05c6fc182f2e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
