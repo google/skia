@@ -54,6 +54,8 @@ public:
     bool operator==(const GrPendingIOResource& other) const { return fResource == other.fResource; }
 
     T* get() const { return fResource; }
+    T* operator*() const { return *fResource; }
+    T* operator->() const { return fResource; }
 
 private:
     void release() {
