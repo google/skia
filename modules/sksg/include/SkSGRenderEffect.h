@@ -56,7 +56,9 @@ class ShaderEffect final : public EffectNode {
 public:
     ~ShaderEffect() override;
 
-    static sk_sp<RenderNode> Make(sk_sp<RenderNode> child, sk_sp<Shader> shader);
+    static sk_sp<ShaderEffect> Make(sk_sp<RenderNode> child, sk_sp<Shader> shader = 0);
+
+    void setShader(sk_sp<Shader>);
 
 protected:
     void onRender(SkCanvas*, const RenderContext*) const override;
@@ -66,7 +68,7 @@ protected:
 private:
     ShaderEffect(sk_sp<RenderNode> child, sk_sp<Shader> shader);
 
-    const sk_sp<Shader> fShader;
+    sk_sp<Shader> fShader;
 
     using INHERITED = EffectNode;
 };

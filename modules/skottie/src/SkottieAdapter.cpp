@@ -286,6 +286,44 @@ void RadialGradientAdapter::onApply() {
     grad->setEndRadius(SkPoint::Distance(this->startPoint(), this->endPoint()));
 }
 
+GradientRampEffectAdapter::GradientRampEffectAdapter(sk_sp<sksg::RenderNode> child)
+    : fRoot(sksg::ShaderEffect::Make(std::move(child))) {}
+
+GradientRampEffectAdapter::~GradientRampEffectAdapter() = default;
+
+void GradientRampEffectAdapter::apply() {
+    auto update_gradient = [this] (InstanceType new_type) {
+        if (new_type != fInstanceType) {
+            fGradient = new_type == InstanceType::kLinear
+                    ? sk_sp<sksg::Gradient>(sksg::LinearGradient::Make())
+                    : sk_sp<sksg::Gradient>(sksg::RadialGradient::Make());
+
+            fRoot->setShader(fGradient);
+            fInstanceType = new_type;
+        }
+
+        fGradient->setColorStops({ {0, fStartColor}, {1, fEndColor} });
+    };
+
+    const auto instance_type = (SkScalarRoundToInt(fShape) == 1) ? InstanceType::kLinear
+                                                                 : InstanceType::kRadial;
+
+    update_gradient(instance_type);
+
+    if (instance_type == InstanceType::kLinear) {
+        auto* lg = static_cast<sksg::LinearGradient*>(fGradient.get());
+        lg->setStartPoint(fStartPoint);
+        lg->setEndPoint(fEndPoint);
+    } else {
+        SkASSERT(instance_type == InstanceType::kRadial);
+
+        auto* rg = static_cast<sksg::RadialGradient*>(fGradient.get());
+        rg->setStartCenter(fStartPoint);
+        rg->setEndCenter(fStartPoint);
+        rg->setEndRadius(SkPoint::Distance(fStartPoint, fEndPoint));
+    }
+}
+
 TrimEffectAdapter::TrimEffectAdapter(sk_sp<sksg::TrimEffect> trimEffect)
     : fTrimEffect(std::move(trimEffect)) {
     SkASSERT(fTrimEffect);
