@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2363f377_99adf11c",
+        "filename": "tests/PremulAlphaRoundTripTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-01T20:22:57Z",
+      "side": 0,
+      "message": "Yeah, this was silly.",
+      "revId": "acc10fa32b1654496fb8473239ec3906e589d17d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
