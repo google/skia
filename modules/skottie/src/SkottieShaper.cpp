@@ -7,6 +7,7 @@
 
 #include "SkottieShaper.h"
 
+#include "SkFontMetrics.h"
 #include "SkShaper.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobPriv.h"
@@ -25,54 +26,64 @@ public:
         , fAlignFactor(AlignFactor(fDesc.fAlign))
         , fFont(fDesc.fTypeface, fDesc.fTextSize)
         , fShaper(SkShaper::Make())
-        , fCurrentOffset({fBox.x(), fBox.y()}) {
+        , fOffset({fBox.x(), fBox.y()}) {
         fFont.setHinting(kNo_SkFontHinting);
         fFont.setSubpixel(true);
         fFont.setEdging(SkFont::Edging::kAntiAlias);
     }
 
-    Buffer newRunBuffer(const RunInfo& info, const SkFont& font, size_t glyphCount,
-                        Range) override {
-        fPendingLineAdvance += info.fAdvance;
-
-        if (!SkTFitsIn<int>(glyphCount)) {
-            glyphCount = INT_MAX;
-        }
-        auto& run = fPendingLineRuns.emplace_back(font, info, glyphCount);
-
-        return {
-            run.fGlyphs   .data(),
-            run.fPositions.data(),
-            nullptr,
-        };
+    void beginLine() override {
+        fCurrentPosition = fOffset;
+        fPendingLineAdvance  = { 0, 0 };
+        fMaxRunAscent = 0;
+        fMaxRunDescent = 0;
+        fMaxRunLeading = 0;
     }
 
-    void commitRun() override { }
+    void runInfo(const RunInfo& info) override {
+        fPendingLineAdvance += info.fAdvance;
+        SkFontMetrics metrics;
+        info.fFont.getMetrics(&metrics);
+        fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
+        fMaxRunDescent = SkTMax(fMaxRunDescent, metrics.fDescent);
+        fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
+    }
 
-    void commitLine() override {
-        for (const auto& run : fPendingLineRuns) {
-            const auto runSize = run.size();
-            const auto& blobBuffer = fBuilder.allocRunPos(run.fFont, SkToInt(runSize));
+    void commitRunInfo() override {
+        fCurrentPosition.fY -= fMaxRunAscent;
+    }
 
-            sk_careful_memcpy(blobBuffer.glyphs,
-                              run.fGlyphs.data(),
-                              runSize * sizeof(SkGlyphID));
+    Buffer runBuffer(const RunInfo& info) override {
+        int glyphCount = SkTFitsIn<int>(info.glyphCount) ? info.glyphCount : INT_MAX;
 
-            // Horizontal alignment.
-            const auto h_adjust = fAlignFactor * (fPendingLineAdvance.x() - fBox.width());
+        SkFontMetrics metrics;
+        info.fFont.getMetrics(&metrics);
+
+        const auto& blobBuffer = fBuilder.allocRunPos(info.fFont, glyphCount);
+
+        SkVector alignmentOffset {
+            fAlignFactor * (fPendingLineAdvance.x() - fBox.width()),
 
             // When in point mode, the given position represents the baseline
             //   => we adjust for SkShaper which treats it as (baseline - ascent).
-            const auto v_adjust = fBox.isEmpty() ? run.fInfo.fAscent : 0;
+            fBox.isEmpty() ? metrics.fAscent : 0
+        };
 
-            for (size_t i = 0; i < runSize; ++i) {
-                 blobBuffer.points()[i] = run.fPositions[SkToInt(i)]
-                                        + SkVector::Make(h_adjust, v_adjust);
-            }
-        }
+        return {
+            blobBuffer.glyphs,
+            blobBuffer.points(),
+            nullptr,
+            nullptr,
+            fCurrentPosition + alignmentOffset
+        };
+    }
 
-        fPendingLineRuns.reset();
-        fPendingLineAdvance  = { 0, 0 };
+    void commitRunBuffer(const RunInfo& info) override {
+        fCurrentPosition += info.fAdvance;
+    }
+
+    void commitLine() override {
+        fOffset += { 0, fMaxRunDescent + fMaxRunLeading - fMaxRunAscent };
     }
 
     sk_sp<SkTextBlob> makeBlob() {
@@ -89,8 +100,7 @@ public:
         const auto shape_width = fBox.isEmpty() ? SK_ScalarMax
                                                 : fBox.width();
 
-        fCurrentOffset = fShaper->shape(this, fFont, start, SkToSizeT(end - start),
-                                        true, fCurrentOffset, shape_width);
+        fShaper->shape(start, SkToSizeT(end - start), fFont, true, shape_width, this);
     }
 
 private:
@@ -132,9 +142,12 @@ private:
     SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
 
-    SkPoint                   fCurrentOffset;
-    SkSTArray<2, Run, false>  fPendingLineRuns;
-    SkVector                  fPendingLineAdvance = { 0, 0 };
+    SkScalar fMaxRunAscent;
+    SkScalar fMaxRunDescent;
+    SkScalar fMaxRunLeading;
+    SkPoint fCurrentPosition{0,0};
+    SkPoint fOffset;
+    SkVector fPendingLineAdvance{ 0, 0 };
 };
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, const SkRect& box) {
