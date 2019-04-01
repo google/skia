@@ -492,12 +492,12 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
         return codecImage;
     }
 
-    if (!proxy->instantiate(context->priv().resourceProvider())) {
+    // Flush any writes or uploads
+    // TODO: why not just require no-pending IO here?
+    context->priv().prepareSurfaceForExternalIO(proxy.get(), true);
+    if (!proxy->isInstantiated()) {
         return codecImage;
     }
-
-    // Flush any writes or uploads
-    context->priv().prepareSurfaceForExternalIO(proxy.get());
 
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
@@ -558,7 +558,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
     // Flush any writes or uploads
-    context->priv().prepareSurfaceForExternalIO(proxy.get());
+    // TODO: why not just require no-pending IO here?
+    context->priv().prepareSurfaceForExternalIO(proxy.get(), false);
     GrGpu* gpu = context->priv().getGpu();
 
     sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
@@ -691,7 +692,8 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
     }
 
     // Flush any pending IO on the texture.
-    ctx->priv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy());
+    // TODO: why not just require no-pending IO here?
+    ctx->priv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy(), false);
     SkASSERT(!texture->surfacePriv().hasPendingIO());
 
     // We must make a copy of the image if the image is not unique, if the GrTexture owned by the
@@ -710,7 +712,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
         }
 
         // Flush to ensure that the copy is completed before we return the texture.
-        ctx->priv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy());
+        ctx->priv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy(), true);
         SkASSERT(!texture->surfacePriv().hasPendingIO());
     }
 
