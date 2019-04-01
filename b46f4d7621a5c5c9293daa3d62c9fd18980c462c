@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "9c2d6e34_b0274eb3",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T18:31:04Z",
+      "side": 1,
+      "message": "So, we\u0027re always uploading all 5 attributes ?",
+      "range": {
+        "startLine": 1084,
+        "startChar": 46,
+        "endLine": 1084,
+        "endChar": 47
+      },
+      "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9464924_82a078ef",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-01T18:31:04Z",
+      "side": 1,
+      "message": "(outset half a pixel) ?",
+      "revId": "b46f4d7621a5c5c9293daa3d62c9fd18980c462c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "94ff3552_2fa69f7e",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 4
