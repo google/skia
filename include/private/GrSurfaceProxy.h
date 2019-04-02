@@ -152,11 +152,11 @@ protected:
     }
 
     // Privileged method that allows going from ref count = 0 to ref count = 1.
-    void addInitialRef() const {
+    void addInitialRef(GrResourceCache* cache) const {
         this->validate();
         ++fRefCnt;
         if (fTarget) {
-            fTarget->proxyAccess().ref();
+            fTarget->proxyAccess().ref(cache);
         }
     }
 
@@ -165,11 +165,22 @@ protected:
     // refs & unrefs to the new GrSurface
     void transferRefs() {
         SkASSERT(fTarget);
+        // Make sure we're going to take some ownership of our target.
+        SkASSERT(fRefCnt > 0 || fPendingReads > 0 || fPendingWrites > 0);
 
-        SkASSERT(fTarget->fRefCnt > 0);
-        fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
+        // Transfer pending read/writes first so that if we decrement the target's ref cnt we don't
+        // cause a purge of the target.
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
+        SkASSERT(fTarget->fRefCnt > 0);
+        SkASSERT(fRefCnt >= 0);
+        // Don't xfer the proxy's creation ref. If we're going to subtract a ref do it via unref()
+        // so that proper cache notifications occur.
+        if (!fRefCnt) {
+            fTarget->unref();
+        } else {
+            fTarget->fRefCnt += (fRefCnt - 1);
+        }
     }
 
     int32_t internalGetProxyRefCnt() const {
@@ -585,7 +596,7 @@ private:
 
 class GrSurfaceProxy::FirstRefAccess {
 private:
-    void ref() { fProxy->addInitialRef(); }
+    void ref(GrResourceCache* cache) { fProxy->addInitialRef(cache); }
 
     FirstRefAccess(GrSurfaceProxy* proxy) : fProxy(proxy) {}
 

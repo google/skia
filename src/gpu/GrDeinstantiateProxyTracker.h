@@ -11,9 +11,11 @@
 #include "GrSurfaceProxy.h"
 #include "SkTArray.h"
 
+class GrResourceCache;
+
 class GrDeinstantiateProxyTracker {
 public:
-    GrDeinstantiateProxyTracker() {}
+    GrDeinstantiateProxyTracker(GrResourceCache* cache) : fCache(cache) {}
 
     // Adds a proxy which will be deinstantiated at the end of flush. The same proxy may not be
     // added multiple times.
@@ -23,6 +25,7 @@ public:
     void deinstantiateAllProxies();
 
 private:
+    GrResourceCache* fCache;
     SkTArray<sk_sp<GrSurfaceProxy>> fProxies;
 };
 
