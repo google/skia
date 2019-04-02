@@ -39,6 +39,7 @@ public:
         kANGLE_GL_ES2_ContextType,   //! ANGLE on OpenGL OpenGL ES 2 context.
         kANGLE_GL_ES3_ContextType,   //! ANGLE on OpenGL OpenGL ES 3 context.
         kCommandBuffer_ContextType,  //! Chromium command buffer OpenGL ES context.
+        kNullGL_ContextType,         //! Non-rendering OpenGL mock context.
         kVulkan_ContextType,         //! Vulkan
         kMetal_ContextType,          //! Metal
         kMock_ContextType,           //! Mock context that does not draw.
@@ -61,6 +62,7 @@ public:
 
     static bool IsRenderingContext(ContextType type) {
         switch (type) {
+            case kNullGL_ContextType:
             case kMock_ContextType:
                 return false;
             default:
@@ -99,6 +101,8 @@ public:
                 return "ANGLE GL ES3";
             case kCommandBuffer_ContextType:
                 return "Command Buffer";
+            case kNullGL_ContextType:
+                return "Null GL";
             case kVulkan_ContextType:
                 return "Vulkan";
             case kMetal_ContextType:

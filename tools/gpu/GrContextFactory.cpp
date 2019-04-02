@@ -20,6 +20,7 @@
 #ifdef SK_METAL
 #include "mtl/MtlTestContext.h"
 #endif
+#include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "mock/MockTestContext.h"
 #include "GrCaps.h"
@@ -187,6 +188,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     glCtx = CommandBufferGLTestContext::Create(glShareContext);
                     break;
 #endif
+                case kNullGL_ContextType:
+                    glCtx = CreateNullGLTestContext(
+                            ContextOverrides::kRequireNVPRSupport & overrides, glShareContext);
+                    break;
                 default:
                     return ContextInfo();
             }
