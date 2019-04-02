@@ -62,11 +62,22 @@ protected:
             return nullptr;
         }
 
-        if (!(kGL_GrGLStandard == glCtx->standard() && glCtx->version() >= GR_GL_VER(3, 1)) &&
-            !(glCtx->hasExtension("GL_ARB_texture_rectangle") ||
-              glCtx->hasExtension("GL_ANGLE_texture_rectangle"))) {
+        bool is_GL31 = glCtx->standard() == kGL_GrGLStandard
+                    && glCtx->version() >= GR_GL_VER(3, 1);
+
+    #if 0 // TODO(bsalomon): use GL_ANGLE_texture_rectangle?
+        if (!is_GL31
+                && !glCtx->hasExtension("GL_ARB_texture_rectangle")
+                && !glCtx->hasExtension("GL_ANGLE_texture_rectangle")) {
             return nullptr;
         }
+    #else
+        if (!is_GL31
+                && !glCtx->hasExtension("GL_ARB_texture_rectangle")) {
+            return nullptr;
+        }
+    #endif
+
         return glCtx;
     }
 
