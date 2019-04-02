@@ -188,7 +188,7 @@ bool GrMtlCopyManager::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrig
         {sx1 - sx0, sy1 - sy0, sx0, sy0}, // texCoordXform
     };
 
-    MTLRenderPassDescriptor* renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
+    MTLRenderPassDescriptor* renderPassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
     renderPassDesc.colorAttachments[0].texture = dstTex;
     renderPassDesc.colorAttachments[0].slice = 0;
     renderPassDesc.colorAttachments[0].level = 0;

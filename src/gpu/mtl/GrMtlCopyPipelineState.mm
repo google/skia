@@ -16,7 +16,7 @@ GrMtlCopyPipelineState* GrMtlCopyPipelineState::CreateCopyPipelineState(
         MTLVertexDescriptor* vertexDescriptor) {
 
     // Create pipeline state for copy as draw
-    MTLRenderPipelineDescriptor* pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    MTLRenderPipelineDescriptor* pipelineDescriptor = [MTLRenderPipelineDescriptor new];
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = vertexDescriptor;
