@@ -59,7 +59,6 @@ static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
-static DEFINE_bool2  (verbose, v, false, "Print progress to stdout.");
 
 static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
 static DEFINE_string(parameters, "", "Metadata passed through to .png encoder and .json output.");
@@ -478,9 +477,7 @@ int main(int argc, char** argv) {
 
     for (auto source : sources) {
         const auto start = std::chrono::steady_clock::now();
-        if (FLAGS_verbose) {
-            fprintf(stdout, "%50s", source.name.c_str());
-        }
+        fprintf(stdout, "%50s", source.name.c_str());
 
         const SkImageInfo info = unsized_info.makeWH(source.size.width(),
                                                      source.size.height());
@@ -511,9 +508,7 @@ int main(int argc, char** argv) {
         }
 
         if (!image && !blob) {
-            if (FLAGS_verbose) {
-                fprintf(stdout, "\tskipped\n");
-            }
+            fprintf(stdout, "\tskipped\n");
             continue;
         }
 
@@ -556,12 +551,10 @@ int main(int argc, char** argv) {
             }
         }
 
-        if (FLAGS_verbose) {
-            const auto elapsed = std::chrono::steady_clock::now() - start;
-            fprintf(stdout, "\t%s\t%7dms\n",
-                    md5.c_str(),
-                    (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
-        }
+        const auto elapsed = std::chrono::steady_clock::now() - start;
+        fprintf(stdout, "\t%s\t%7dms\n",
+                md5.c_str(),
+                (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
     }
 
     return 0;
