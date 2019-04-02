@@ -16,13 +16,14 @@
 //////////////////////////////////////////////////////////////////////////////
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
-                               GrTokenTracker* tokenTracker,
+                               GrResourceCache* cache, GrTokenTracker* tokenTracker,
                                sk_sp<GrBufferAllocPool::CpuBufferCache> cpuBufferCache)
         : fVertexPool(gpu, cpuBufferCache)
         , fIndexPool(gpu, std::move(cpuBufferCache))
         , fGpu(gpu)
         , fResourceProvider(resourceProvider)
-        , fTokenTracker(tokenTracker) {}
+        , fTokenTracker(tokenTracker)
+        , fDeinstantiateProxyTracker(cache) {}
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();

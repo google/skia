@@ -104,6 +104,8 @@ bool GrGpuResource::hasRefOrPendingIO() const {
     return this->internalHasRef() || this->internalHasPendingIO();
 }
 
+bool GrGpuResource::hasRef() const { return this->internalHasRef(); }
+
 SkString GrGpuResource::getResourceName() const {
     // Dump resource as "skia/gpu_resources/resource_#".
     SkString resourceName("skia/gpu_resources/resource_");
@@ -228,4 +230,11 @@ uint32_t GrGpuResource::CreateUniqueID() {
         id = nextID++;
     } while (id == SK_InvalidUniqueID);
     return id;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void GrGpuResource::ProxyAccess::ref(GrResourceCache* cache) {
+    SkASSERT(cache == fResource->getContext()->priv().getResourceCache());
+    cache->resourceAccess().refResource(fResource);
 }
