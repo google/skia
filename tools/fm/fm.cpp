@@ -20,6 +20,7 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkSVGDOM.h"
+#include "SkTHash.h"
 #include "Skottie.h"
 #include "SkottieUtils.h"
 #include "ToolUtils.h"
@@ -364,18 +365,27 @@ int main(int argc, char** argv) {
     GrContextOptions baseOptions;
     SetCtxOptionsFromCommonFlags(&baseOptions);
 
-
-    SkTArray<Source> sources;
+    SkTHashMap<SkString, skiagm::GMFactory> gm_factories;
     for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
-        std::shared_ptr<skiagm::GM> gm{factory(nullptr)};
-
+        std::unique_ptr<skiagm::GM> gm{factory(nullptr)};
         if (FLAGS_sources.isEmpty()) {
             fprintf(stdout, "%s\n", gm->getName());
-        } else if (FLAGS_sources.contains(gm->getName())) {
-            sources.push_back(gm_source(gm));
+        } else {
+            gm_factories.set(SkString{gm->getName()}, factory);
         }
     }
+    if (FLAGS_sources.isEmpty()) {
+        return 0;
+    }
+
+    SkTArray<Source> sources;
     for (const SkString& source : FLAGS_sources) {
+        if (skiagm::GMFactory* factory = gm_factories.find(source)) {
+            std::shared_ptr<skiagm::GM> gm{(*factory)(nullptr)};
+            sources.push_back(gm_source(gm));
+            continue;
+        }
+
         if (sk_sp<SkData> blob = SkData::MakeFromFileName(source.c_str())) {
             const SkString dir  = SkOSPath::Dirname (source.c_str()),
                            name = SkOSPath::Basename(source.c_str());
@@ -383,25 +393,29 @@ int main(int argc, char** argv) {
             if (name.endsWith(".skp")) {
                 if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
                     sources.push_back(picture_source(name, pic));
+                    continue;
                 }
             } else if (name.endsWith(".svg")) {
                 SkMemoryStream stream{blob};
                 if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
                     sources.push_back(svg_source(name, svg));
+                    continue;
                 }
             } else if (name.endsWith(".json")) {
                 if (sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
                         .setResourceProvider(skottie_utils::FileResourceProvider::Make(dir))
                         .makeFromFile(source.c_str())) {
                     sources.push_back(skottie_source(name, animation));
+                    continue;
                 }
             } else if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
                 sources.push_back(codec_source(name, codec));
+                continue;
             }
         }
-    }
-    if (sources.empty()) {
-        return 0;
+
+        fprintf(stderr, "Don't understand --source %s... bailing out.\n", source.c_str());
+        return 1;
     }
 
     enum NonGpuBackends {
