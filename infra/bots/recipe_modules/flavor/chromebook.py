@@ -33,7 +33,7 @@ class ChromebookFlavor(default.DefaultFlavor):
   @property
   def user_ip(self):
     if not self._user_ip:
-      ssh_info = self.m.run(self.m.python.inline, 'read chromeos ip',
+      ssh_info = self.m.run(self.m.python.inline, 'read ssh_machine.json',
                             program="""
       import os
       SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')
