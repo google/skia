@@ -9,6 +9,7 @@
 #define SkottieValue_DEFINED
 
 #include "SkColor.h"
+#include "SkottieShaper.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkScalar.h"
@@ -75,7 +76,8 @@ struct TextValue {
     SkString           fText;
     float              fTextSize    = 0,
                        fStrokeWidth = 0;
-    SkTextUtils::Align fAlign       = SkTextUtils::kLeft_Align;
+    SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
+    Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
     SkRect             fBox         = SkRect::MakeEmpty();
     SkColor            fFillColor   = SK_ColorTRANSPARENT,
                        fStrokeColor = SK_ColorTRANSPARENT;
@@ -87,7 +89,8 @@ struct TextValue {
             && fText == other.fText
             && fTextSize == other.fTextSize
             && fStrokeWidth == other.fStrokeWidth
-            && fAlign == other.fAlign
+            && fHAlign == other.fHAlign
+            && fVAlign == other.fVAlign
             && fBox == other.fBox
             && fFillColor == other.fFillColor
             && fStrokeColor == other.fStrokeColor

@@ -16,6 +16,31 @@
 namespace skottie {
 namespace {
 
+SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
+    auto bounds = SkRect::MakeEmpty();
+
+    if (!blob) {
+        return bounds;
+    }
+
+    SkAutoSTArray<16, SkRect> glyphBounds;
+
+    SkTextBlobRunIterator it(blob.get());
+
+    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        glyphBounds.reset(SkToInt(it.glyphCount()));
+        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+
+        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
+                                                  it.pos()[i * 2 + 1]));
+        }
+    }
+
+    return bounds;
+}
+
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
 class BlobMaker final : public SkShaper::RunHandler {
@@ -23,10 +48,9 @@ public:
     BlobMaker(const Shaper::TextDesc& desc, const SkRect& box)
         : fDesc(desc)
         , fBox(box)
-        , fAlignFactor(AlignFactor(fDesc.fAlign))
+        , fHAlignFactor(HAlignFactor(fDesc.fHAlign))
         , fFont(fDesc.fTypeface, fDesc.fTextSize)
-        , fShaper(SkShaper::Make())
-        , fOffset({fBox.x(), fBox.y()}) {
+        , fShaper(SkShaper::Make()) {
         fFont.setHinting(kNo_SkFontHinting);
         fFont.setSubpixel(true);
         fFont.setEdging(SkFont::Edging::kAntiAlias);
@@ -61,13 +85,7 @@ public:
 
         const auto& blobBuffer = fBuilder.allocRunPos(info.fFont, glyphCount);
 
-        SkVector alignmentOffset {
-            fAlignFactor * (fPendingLineAdvance.x() - fBox.width()),
-
-            // When in point mode, the given position represents the baseline
-            //   => we adjust for SkShaper which treats it as (baseline - ascent).
-            fBox.isEmpty() ? metrics.fAscent : 0
-        };
+        SkVector alignmentOffset { fHAlignFactor * (fPendingLineAdvance.x() - fBox.width()), 0 };
 
         return {
             blobBuffer.glyphs,
@@ -84,10 +102,35 @@ public:
 
     void commitLine() override {
         fOffset += { 0, fMaxRunDescent + fMaxRunLeading - fMaxRunAscent };
+
+        // Grab the first line ascent for vertical alignment.
+        if (SkScalarIsNaN(fFirstLineAscent)) {
+            fFirstLineAscent = fMaxRunAscent;
+        }
     }
 
-    sk_sp<SkTextBlob> makeBlob() {
-        return fBuilder.make();
+    Shaper::Result makeBlob() {
+        auto blob = fBuilder.make();
+
+        SkPoint pos {fBox.x(), fBox.y()};
+
+        switch (fDesc.fVAlign) {
+        case Shaper::VAlign::kTop:
+            // Nothing to do (SkShaper default behavior).
+            break;
+        case Shaper::VAlign::kTopBaseline:
+            pos.offset(0, fFirstLineAscent);
+            break;
+        case Shaper::VAlign::kCenter: {
+            const auto bounds = ComputeBlobBounds(blob).makeOffset(pos.x(), pos.y());
+            pos.offset(0, fBox.centerY() - bounds.centerY());
+        } break;
+        }
+
+        return {
+            std::move(blob),
+            pos
+        };
     }
 
     void shapeLine(const char* start, const char* end) {
@@ -104,7 +147,7 @@ public:
     }
 
 private:
-    static float AlignFactor(SkTextUtils::Align align) {
+    static float HAlignFactor(SkTextUtils::Align align) {
         switch (align) {
         case SkTextUtils::kLeft_Align:   return  0.0f;
         case SkTextUtils::kCenter_Align: return -0.5f;
@@ -136,17 +179,18 @@ private:
 
     const Shaper::TextDesc&   fDesc;
     const SkRect&             fBox;
-    const float               fAlignFactor;
+    const float               fHAlignFactor;
 
     SkFont                    fFont;
     SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
 
+    SkScalar fFirstLineAscent = SK_ScalarNaN;
     SkScalar fMaxRunAscent;
     SkScalar fMaxRunDescent;
     SkScalar fMaxRunLeading;
-    SkPoint fCurrentPosition{0,0};
-    SkPoint fOffset;
+    SkPoint  fCurrentPosition{ 0, 0 };
+    SkPoint  fOffset{ 0, 0 };
     SkVector fPendingLineAdvance{ 0, 0 };
 };
 
@@ -169,10 +213,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc, cons
     }
     blobMaker.shapeLine(line_start, ptr);
 
-    return {
-        blobMaker.makeBlob(),
-        { 0, 0 }               // the box offset is currently/temporarily baked into the blob.
-    };
+    return blobMaker.makeBlob();
 }
 
 } // namespace
@@ -186,28 +227,7 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
 }
 
 SkRect Shaper::Result::computeBounds() const {
-    auto bounds = SkRect::MakeEmpty();
-
-    if (!fBlob) {
-        return bounds;
-    }
-
-    SkAutoSTArray<16, SkRect> glyphBounds;
-
-    SkTextBlobRunIterator it(fBlob.get());
-
-    for (SkTextBlobRunIterator it(fBlob.get()); !it.done(); it.next()) {
-        glyphBounds.reset(SkToInt(it.glyphCount()));
-        it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
-
-        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
-        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
-            bounds.join(glyphBounds[i].makeOffset(it.pos()[i * 2    ],
-                                                  it.pos()[i * 2 + 1]));
-        }
-    }
-
-    return bounds;
+    return ComputeBlobBounds(fBlob).makeOffset(fPos.x(), fPos.y());
 }
 
 } // namespace skottie
