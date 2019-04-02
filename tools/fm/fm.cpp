@@ -94,7 +94,7 @@ static void exit_with_failure() {
 struct Source {
     SkString                               name;
     SkISize                                size;
-    std::function<void(SkCanvas*)>         draw;
+    std::function<bool(SkCanvas*)>         draw;  // true -> ok, false -> skip; failures should exit_with_failure()
     std::function<void(GrContextOptions*)> tweak;
 };
 
@@ -104,11 +104,14 @@ static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
         gm->getISize(),
         [gm](SkCanvas* canvas) {
             SkString err;
-            if (skiagm::DrawResult::kFail == gm->draw(canvas, &err)) {
-                fprintf(stderr, "Drawing GM %s failed: %s\n",
-                        gm->getName(), err.c_str());
-                exit_with_failure();
+            switch (gm->draw(canvas, &err)) {
+                case skiagm::DrawResult::kOk:   return true;
+                case skiagm::DrawResult::kSkip: break;
+                case skiagm::DrawResult::kFail:
+                    fprintf(stderr, "Drawing GM %s failed: %s\n", gm->getName(), err.c_str());
+                    exit_with_failure();
             }
+            return false;
         },
         [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
     };
@@ -120,6 +123,7 @@ static Source picture_source(SkString name, sk_sp<SkPicture> pic) {
         pic->cullRect().roundOut().size(),
         [pic](SkCanvas* canvas) {
             canvas->drawPicture(pic);
+            return true;
         },
         [](GrContextOptions*) {},
     };
@@ -144,11 +148,12 @@ static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
                 case SkCodec::kErrorInInput:
                 case SkCodec::kIncompleteInput:
                     canvas->drawBitmap(bm, 0,0);
-                    break;
+                    return true;
                 default:
                     fprintf(stderr, "SkCodec::getPixels failed: %d.", result);
                     exit_with_failure();
             }
+            return false;
         },
         [](GrContextOptions*) {},
     };
@@ -159,29 +164,35 @@ static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
         name,
         svg->containerSize().isEmpty() ? SkISize{1000,1000}
                                        : svg->containerSize().toCeil(),
-        [svg](SkCanvas* canvas) { svg->render(canvas); },
+        [svg](SkCanvas* canvas) {
+            svg->render(canvas);
+            return true;
+        },
         [](GrContextOptions*) {},
     };
 }
 
 
-static sk_sp<SkImage> draw_with_cpu(std::function<void(SkCanvas*)> draw,
+static sk_sp<SkImage> draw_with_cpu(std::function<bool(SkCanvas*)> draw,
                                     SkImageInfo info) {
     if (sk_sp<SkSurface> surface = SkSurface::MakeRaster(info)) {
-        draw(surface->getCanvas());
-        return surface->makeImageSnapshot();
+        if (draw(surface->getCanvas())) {
+            return surface->makeImageSnapshot();
+        }
     }
     return nullptr;
 }
 
-static sk_sp<SkData> draw_as_skp(std::function<void(SkCanvas*)> draw,
+static sk_sp<SkData> draw_as_skp(std::function<bool(SkCanvas*)> draw,
                                  SkImageInfo info) {
     SkPictureRecorder recorder;
-    draw(recorder.beginRecording(info.width(), info.height()));
-    return recorder.finishRecordingAsPicture()->serialize();
+    if (draw(recorder.beginRecording(info.width(), info.height()))) {
+        return recorder.finishRecordingAsPicture()->serialize();
+    }
+    return nullptr;
 }
 
-static sk_sp<SkData> draw_as_pdf(std::function<void(SkCanvas*)> draw,
+static sk_sp<SkData> draw_as_pdf(std::function<bool(SkCanvas*)> draw,
                                  SkImageInfo info,
                                  SkString name) {
     SkPDF::Metadata metadata;
@@ -192,15 +203,16 @@ static sk_sp<SkData> draw_as_pdf(std::function<void(SkCanvas*)> draw,
 
     SkDynamicMemoryWStream stream;
     if (sk_sp<SkDocument> doc = SkPDF::MakeDocument(&stream, metadata)) {
-        draw(doc->beginPage(info.width(), info.height()));
-        doc->endPage();
-        doc->close();
-        return stream.detachAsData();
+        if (draw(doc->beginPage(info.width(), info.height()))) {
+            doc->endPage();
+            doc->close();
+            return stream.detachAsData();
+        }
     }
     return nullptr;
 }
 
-static sk_sp<SkImage> draw_with_gpu(std::function<void(SkCanvas*)> draw,
+static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
                                     SkImageInfo info,
                                     GrContextFactory::ContextType api,
                                     GrContextFactory* factory) {
@@ -279,8 +291,10 @@ static sk_sp<SkImage> draw_with_gpu(std::function<void(SkCanvas*)> draw,
         factory->abandonContexts();
     }
 
-    draw(surface->getCanvas());
-    sk_sp<SkImage> image = surface->makeImageSnapshot();
+    sk_sp<SkImage> image;
+    if (draw(surface->getCanvas())) {
+        image = surface->makeImageSnapshot();
+    }
 
     if (FLAGS_abandonGpuContext) {
         factory->abandonContexts();
@@ -453,8 +467,10 @@ int main(int argc, char** argv) {
         }
 
         if (!image && !blob) {
-            fprintf(stderr, "FM backend returned a no image or data blob.\n");
-            exit_with_failure();
+            if (FLAGS_verbose) {
+                fprintf(stdout, "\tskipped\n");
+            }
+            continue;
         }
 
         SkBitmap bitmap;
