@@ -131,6 +131,8 @@ public:
 
     void releaseResources(GrVkGpu* gpu);
 
+    bool hasWork() const { return fHasWork; }
+
 protected:
         GrVkCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool,
                           const GrVkRenderPass* rp = nullptr)
@@ -148,6 +150,8 @@ protected:
         bool isWrapped() const {
             return fCmdPool == nullptr;
         }
+
+        void addedWork() const { fHasWork = true; }
 
         SkTDArray<const GrVkResource*>          fTrackedResources;
         SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
@@ -198,6 +202,8 @@ private:
 #ifdef SK_DEBUG
     mutable bool fResourcesReleased = false;
 #endif
+
+    mutable bool fHasWork = false;
 };
 
 class GrVkSecondaryCommandBuffer;

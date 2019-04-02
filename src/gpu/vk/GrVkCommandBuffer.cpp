@@ -179,6 +179,8 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
     if (resource) {
         this->addResource(resource);
     }
+
+    this->addedWork();
 }
 
 void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
@@ -238,6 +240,7 @@ void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
                                                        attachments,
                                                        numRects,
                                                        clearRects));
+    this->addedWork();
 }
 
 void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
@@ -309,6 +312,7 @@ void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,
                                                   firstIndex,
                                                   vertexOffset,
                                                   firstInstance));
+    this->addedWork();
 }
 
 void GrVkCommandBuffer::draw(const GrVkGpu* gpu,
@@ -323,6 +327,7 @@ void GrVkCommandBuffer::draw(const GrVkGpu* gpu,
                                            instanceCount,
                                            firstVertex,
                                            firstInstance));
+    this->addedWork();
 }
 
 void GrVkCommandBuffer::setViewport(const GrVkGpu* gpu,
@@ -449,6 +454,7 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
     target.addResources(*this);
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
@@ -456,6 +462,7 @@ void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
     SkASSERT(fActiveRenderPass);
     GR_VK_CALL(gpu->vkInterface(), CmdEndRenderPass(fCmdBuffer));
     fActiveRenderPass = nullptr;
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
@@ -475,6 +482,7 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
     // When executing a secondary command buffer all state (besides render pass state) becomes
     // invalidated and must be reset. This includes bound buffers, pipelines, dynamic state, etc.
     this->invalidateState();
+    this->addedWork();
 }
 
 static void submit_to_queue(const GrVkInterface* interface,
@@ -638,6 +646,7 @@ void GrVkPrimaryCommandBuffer::copyImage(const GrVkGpu* gpu,
                                                 dstLayout,
                                                 copyRegionCount,
                                                 copyRegions));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
@@ -662,6 +671,7 @@ void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
                                                 blitRegionCount,
                                                 blitRegions,
                                                 filter));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
@@ -699,6 +709,7 @@ void GrVkPrimaryCommandBuffer::copyImageToBuffer(const GrVkGpu* gpu,
                                                         dstBuffer->buffer(),
                                                         copyRegionCount,
                                                         copyRegions));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
@@ -717,6 +728,7 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
                                                         dstLayout,
                                                         copyRegionCount,
                                                         copyRegions));
+    this->addedWork();
 }
 
 
@@ -744,6 +756,7 @@ void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
                                                  dstBuffer->buffer(),
                                                  regionCount,
                                                  regions));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
@@ -763,6 +776,7 @@ void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
                                                    dstOffset,
                                                    dataSize,
                                                    (const uint32_t*) data));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::clearColorImage(const GrVkGpu* gpu,
@@ -779,6 +793,7 @@ void GrVkPrimaryCommandBuffer::clearColorImage(const GrVkGpu* gpu,
                                                       color,
                                                       subRangeCount,
                                                       subRanges));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::clearDepthStencilImage(const GrVkGpu* gpu,
@@ -795,6 +810,7 @@ void GrVkPrimaryCommandBuffer::clearDepthStencilImage(const GrVkGpu* gpu,
                                                              color,
                                                              subRangeCount,
                                                              subRanges));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
@@ -815,6 +831,7 @@ void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
                                                    dstImage.currentLayout(),
                                                    regionCount,
                                                    regions));
+    this->addedWork();
 }
 
 void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
