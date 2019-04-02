@@ -10,10 +10,10 @@ head = '''# Copyright 2019 Google LLC.
 '''
 def gni(path, name, files):
     with open(path, 'w') as o:
-        o.write('%s\n%s = get_path_info([\n' % (head, name))
+        o.write('%s\n%s = [\n' % (head, name))
         for x in sorted(files):
             o.write('  "%s",\n' % x)
-        o.write('], "abspath")\n')
+        o.write(']\n')
 if __name__ == '__main__':
     os.chdir(os.path.dirname(__file__))
     gni('examples.gni', 'examples_sources', glob.glob('../docs/examples/*.cpp'))
