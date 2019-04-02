@@ -106,7 +106,8 @@ sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* center,
     Returns a shader that generates a conical gradient given two circles, or
     returns NULL if the inputs are invalid. The gradient interprets the
     two circles according to the following HTML spec.
-    http://dev.w3.org/html5/2dcontext/#dom-context-2d-createradialgradient
+    https://web.archive.org/web/20120531094457/http://dev.w3.org/html5/2dcontext/#dom-context-2d-createradialgradient
+
 
     Returns a shader that generates a sweep gradient given a center.
 
