@@ -1111,8 +1111,13 @@ static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar 
 //
 static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
                                    SkVector* startV, SkVector* stopV, SkRotationDirection* dir) {
-    startV->fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &startV->fX);
-    stopV->fY = SkScalarSinCos(SkDegreesToRadians(startAngle + sweepAngle), &stopV->fX);
+    SkScalar startRad = SkDegreesToRadians(startAngle),
+             stopRad  = SkDegreesToRadians(startAngle + sweepAngle);
+
+    startV->fY = SkScalarSinSnapToZero(startRad);
+    startV->fX = SkScalarCosSnapToZero(startRad);
+    stopV->fY = SkScalarSinSnapToZero(stopRad);
+    stopV->fX = SkScalarCosSnapToZero(stopRad);
 
     /*  If the sweep angle is nearly (but less than) 360, then due to precision
      loss in radians-conversion and/or sin/cos, we may end up with coincident
@@ -1125,13 +1130,13 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
     if (*startV == *stopV) {
         SkScalar sw = SkScalarAbs(sweepAngle);
         if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
-            SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
             // make a guess at a tiny angle (in radians) to tweak by
             SkScalar deltaRad = SkScalarCopySign(SK_Scalar1/512, sweepAngle);
             // not sure how much will be enough, so we use a loop
             do {
                 stopRad -= deltaRad;
-                stopV->fY = SkScalarSinCos(stopRad, &stopV->fX);
+                stopV->fY = SkScalarSinSnapToZero(stopRad);
+                stopV->fX = SkScalarCosSnapToZero(stopRad);
             } while (*startV == *stopV);
         }
     }
@@ -1369,13 +1374,11 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
         SkScalar endAngle = SkDegreesToRadians(startAngle + sweepAngle);
         SkScalar radiusX = oval.width() / 2;
         SkScalar radiusY = oval.height() / 2;
-        // We cannot use SkScalarSinCos function in the next line because
-        // SkScalarSinCos has a threshold *SkScalarNearlyZero*. When sin(startAngle)
-        // is 0 and sweepAngle is very small and radius is huge, the expected
-        // behavior here is to draw a line. But calling SkScalarSinCos will
-        // make sin(endAngle) to be 0 which will then draw a dot.
-        singlePt.set(oval.centerX() + radiusX * sk_float_cos(endAngle),
-            oval.centerY() + radiusY * sk_float_sin(endAngle));
+        // We do not use SkScalar[Sin|Cos]SnapToZero here. When sin(startAngle) is 0 and sweepAngle
+        // is very small and radius is huge, the expected behavior here is to draw a line. But
+        // calling SkScalarSinSnapToZero will make sin(endAngle) be 0 which will then draw a dot.
+        singlePt.set(oval.centerX() + radiusX * SkScalarCos(endAngle),
+                     oval.centerY() + radiusY * SkScalarSin(endAngle));
         addPt(singlePt);
         return *this;
     }
@@ -1490,8 +1493,9 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
         scalar_is_integer(x) && scalar_is_integer(y);
 
     for (int i = 0; i < segments; ++i) {
-        SkScalar endTheta = startTheta + thetaWidth;
-        SkScalar cosEndTheta, sinEndTheta = SkScalarSinCos(endTheta, &cosEndTheta);
+        SkScalar endTheta    = startTheta + thetaWidth,
+                 sinEndTheta = SkScalarSinSnapToZero(endTheta),
+                 cosEndTheta = SkScalarCosSnapToZero(endTheta);
 
         unitPts[1].set(cosEndTheta, sinEndTheta);
         unitPts[1] += centerPoint;

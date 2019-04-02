@@ -68,22 +68,6 @@ int32_t SkSqrtBits(int32_t x, int count) {
     return root;
 }
 
-float SkScalarSinCos(float radians, float* cosValue) {
-    float sinValue = sk_float_sin(radians);
-
-    if (cosValue) {
-        *cosValue = sk_float_cos(radians);
-        if (SkScalarNearlyZero(*cosValue)) {
-            *cosValue = 0;
-        }
-    }
-
-    if (SkScalarNearlyZero(sinValue)) {
-        sinValue = 0;
-    }
-    return sinValue;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkSafeMath::Add(size_t x, size_t y) {

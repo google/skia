@@ -141,7 +141,8 @@ void SkParticleEffect::update(double now) {
     for (int i = 0; i < fCount; ++i) {
         fParticles[i].fPose.fPosition += fParticles[i].fVelocity.fLinear * deltaTime;
 
-        SkScalar c, s = SkScalarSinCos(fParticles[i].fVelocity.fAngular * deltaTime, &c);
+        SkScalar s = SkScalarSin(fParticles[i].fVelocity.fAngular * deltaTime),
+                 c = SkScalarCos(fParticles[i].fVelocity.fAngular * deltaTime);
         SkVector oldHeading = fParticles[i].fPose.fHeading;
         fParticles[i].fPose.fHeading = { oldHeading.fX * c - oldHeading.fY * s,
                                          oldHeading.fX * s + oldHeading.fY * c };

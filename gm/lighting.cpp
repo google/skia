@@ -60,8 +60,8 @@ protected:
             canvas->restore();
           }
         }
-        SkScalar cosAzimuth;
-        SkScalar sinAzimuth = SkScalarSinCos(SkDegreesToRadians(fAzimuth), &cosAzimuth);
+        SkScalar sinAzimuth = SkScalarSin(SkDegreesToRadians(fAzimuth)),
+                 cosAzimuth = SkScalarCos(SkDegreesToRadians(fAzimuth));
 
         SkPoint3 spotTarget = SkPoint3::Make(SkIntToScalar(40), SkIntToScalar(40), 0);
         SkPoint3 spotLocation = SkPoint3::Make(spotTarget.fX + 70.7214f * cosAzimuth,

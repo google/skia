@@ -158,8 +158,9 @@ private:
         v[0].set(0, 0);
         t[0].set(0, 0);
         for (int i = 0; i < n; i++) {
-            SkScalar cos;
-            SkScalar sin = SkScalarSinCos(SK_ScalarPI * 2 * i / n, &cos);
+            SkScalar r   = SK_ScalarPI * 2 * i / n,
+                     sin = SkScalarSin(r),
+                     cos = SkScalarCos(r);
             v[i+1].set(cos, sin);
             t[i+1].set(i*tx/n, ty);
         }
@@ -186,8 +187,9 @@ private:
         SkPoint* t = rec->fTexs;
 
         for (int i = 0; i < n; i++) {
-            SkScalar cos;
-            SkScalar sin = SkScalarSinCos(SK_ScalarPI * 2 * i / n, &cos);
+            SkScalar r   = SK_ScalarPI * 2 * i / n,
+                     sin = SkScalarSin(r),
+                     cos = SkScalarCos(r);
             v[i*2 + 0].set(cos/2, sin/2);
             v[i*2 + 1].set(cos, sin);
 

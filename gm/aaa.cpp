@@ -100,9 +100,7 @@ DEF_SIMPLE_GM(analytic_antialias_general, canvas, W, H) {
         path.moveTo(C + R, C);
         for (int i = 1; i < 8; ++i) {
             SkScalar a = 2.6927937f * i;
-            SkScalar cosine;
-            SkScalar sine = SkScalarSinCos(a, &cosine);
-            path.lineTo(C + R * cosine, C + R * sine);
+            path.lineTo(C + R * SkScalarCos(a), C + R * SkScalarSin(a));
         }
         canvas->drawPath(path, p);
         canvas->restore();

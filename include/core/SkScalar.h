@@ -118,8 +118,6 @@ static inline SkScalar SkScalarPin(SkScalar x, SkScalar min, SkScalar max) {
     return SkTPin(x, min, max);
 }
 
-SkScalar SkScalarSinCos(SkScalar radians, SkScalar* cosValue);
-
 static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkScalarInvert(x)           sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(SK_Scalar1, (x))
@@ -163,6 +161,16 @@ static inline bool SkScalarNearlyEqual(SkScalar x, SkScalar y,
                                        SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance >= 0);
     return SkScalarAbs(x-y) <= tolerance;
+}
+
+static inline float SkScalarSinSnapToZero(SkScalar radians) {
+    float v = SkScalarSin(radians);
+    return SkScalarNearlyZero(v) ? 0.0f : v;
+}
+
+static inline float SkScalarCosSnapToZero(SkScalar radians) {
+    float v = SkScalarCos(radians);
+    return SkScalarNearlyZero(v) ? 0.0f : v;
 }
 
 /** Linearly interpolate between A and B, based on t.

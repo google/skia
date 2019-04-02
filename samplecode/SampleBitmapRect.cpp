@@ -43,9 +43,7 @@ static void make_bitmap(SkBitmap* bitmap) {
 
 static SkPoint unit_vec(int degrees) {
     SkScalar rad = SkDegreesToRadians(SkIntToScalar(degrees));
-    SkScalar s, c;
-    s = SkScalarSinCos(rad, &c);
-    return SkPoint::Make(c, s);
+    return SkPoint::Make(SkScalarCos(rad), SkScalarSin(rad));
 }
 
 static void bounce(SkScalar* value, SkScalar* delta, SkScalar min, SkScalar max) {
