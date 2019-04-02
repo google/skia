@@ -30,8 +30,8 @@ func defaultProcessLimit() int {
 }
 
 var script = flag.String("script", "", "A file with jobs to run, one per line.")
-var random = flag.Bool("random", false, "Assign sources into job batches randomly?")
-var verbose = flag.Bool("verbose", false, "Log sucessful job timing and output?")
+var random = flag.Bool("random", true, "Assign sources into job batches randomly?")
+var quiet = flag.Bool("quiet", false, "Print only failures?")
 var exact = flag.Bool("exact", false, "Match GM names only exactly.")
 var processLimit = flag.Int("processLimit", defaultProcessLimit(),
 	"Maximum number of concurrent processes, 0 -> NumCPU.")
@@ -39,7 +39,7 @@ var processLimit = flag.Int("processLimit", defaultProcessLimit(),
 func init() {
 	flag.StringVar(script, "s", *script, "Alias for --script.")
 	flag.BoolVar(random, "r", *random, "Alias for --random.")
-	flag.BoolVar(verbose, "v", *verbose, "Alias for --verbose.")
+	flag.BoolVar(quiet, "q", *quiet, "Alias for --quiet.")
 	flag.BoolVar(exact, "e", *exact, "Alias for --exact.")
 	flag.IntVar(processLimit, "j", *processLimit, "Alias for --processLimit.")
 }
@@ -64,7 +64,7 @@ func callFM(fm string, sources []string, flags []string) bool {
 	start := time.Now()
 
 	args := flags[:]
-	args = append(args, "-v", "-s")
+	args = append(args, "-s")
 	args = append(args, sources...)
 
 	cmd := exec.Command(fm, args...)
@@ -73,7 +73,7 @@ func callFM(fm string, sources []string, flags []string) bool {
 	if err != nil {
 		log.Printf("\n%v #failed (%v):\n%s\n", strings.Join(cmd.Args, " "), err, output)
 		return false
-	} else if *verbose {
+	} else if !*quiet {
 		log.Printf("\n%v #done in %v:\n%s", strings.Join(cmd.Args, " "), time.Since(start), output)
 	}
 	return true
