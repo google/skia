@@ -1,8 +1,4 @@
-# Copyright 2019 Google LLC.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-examples_sources = get_path_info([
+[
   "../docs/examples/Alpha_Constants_a.cpp",
   "../docs/examples/Alpha_Constants_b.cpp",
   "../docs/examples/Alpha_Type_Opaque.cpp",
@@ -1085,5 +1081,5 @@ examples_sources = get_path_info([
   "../docs/examples/Text_Size.cpp",
   "../docs/examples/Text_Skew_X.cpp",
   "../docs/examples/Typeface_Methods.cpp",
-  "../docs/examples/Xor.cpp",
-], "abspath")
+  "../docs/examples/Xor.cpp"
+]

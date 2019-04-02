@@ -2338,14 +2338,21 @@ if (skia_enable_tools) {
     }
   }
 
-  import("gn/examples.gni")
   if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
+    action("all_examples.cpp") {
+      script = "gn/list_of_sources_to_concated_c.py"
+      args = [
+        rebase_path("gn/examples.json", root_build_dir),
+        rebase_path("$target_gen_dir/all_examples.cpp", root_build_dir),
+      ]
+      outputs = [ "$target_gen_dir/all_examples.cpp" ]
+    }
     test_app("fiddle_examples") {
       sources = [
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
+        "$target_gen_dir/all_examples.cpp",
       ]
-      sources += examples_sources
       include_dirs = [ "tools" ]
       if (is_win) {
         cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
@@ -2353,6 +2360,7 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skia.h",
+        ":all_examples.cpp",
         "modules/skottie",
         "modules/skshaper",
       ]
