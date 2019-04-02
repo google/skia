@@ -22,6 +22,30 @@
       "revId": "2e780e3ac15c66ec75d4e1fcadd2598943e67959",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7d14e8c_c584d271",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-02T16:13:00Z",
+      "side": 1,
+      "message": "Because this needs the glyphID to re-lookup the glyph with the new fallback strike, and this will allow us to drop the lock earlier.",
+      "parentUuid": "965b510e_c275496a",
+      "range": {
+        "startLine": 441,
+        "startChar": 32,
+        "endLine": 441,
+        "endChar": 68
+      },
+      "revId": "2e780e3ac15c66ec75d4e1fcadd2598943e67959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
