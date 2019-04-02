@@ -119,6 +119,12 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
+        GrGpu* gpu = context->priv().getGpu();
+        if (!gpu || !gpu->glContextForTesting()) {
+            *errorMsg = "this GM requires a GL context";
+            return DrawResult::kSkip;
+        }
+
         constexpr int kWidth = 50;
         constexpr int kHeight = 50;
         constexpr SkScalar kPad = 5.f;
