@@ -319,8 +319,8 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                                                                 : mode;
 
             SkRect domain = SkRect::Make(*contentRect);
-            domain.inset((i < scaleFactorX) ? SK_ScalarHalf + SK_ScalarNearlyZero : 0.0f,
-                         (i < scaleFactorY) ? SK_ScalarHalf + SK_ScalarNearlyZero : 0.0f);
+            domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
+                         (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
             auto fp = GrTextureDomainEffect::Make(std::move(src),
                                                   SkMatrix::I(),
                                                   domain,
