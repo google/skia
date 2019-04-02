@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f53f68c_a1085df1",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-02T05:22:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "406c6754_877773a5",
+      "range": {
+        "startLine": 97,
+        "startChar": 24,
+        "endLine": 97,
+        "endChar": 32
+      },
+      "revId": "397d10be57e4a7c6d9a39bd7fce2ad5aae32220c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
