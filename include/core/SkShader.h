@@ -14,6 +14,7 @@
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
+#include "SkTileMode.h"
 
 class SkArenaAlloc;
 class SkBitmap;
@@ -221,12 +222,19 @@ public:
      *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+    static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                             const SkMatrix* localMatrix = nullptr);
+    // DEPRECATED. Use SkTileMode
+    static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                            const SkMatrix* localMatrix = nullptr) {
+        return MakeBitmapShader(src, static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
+                                localMatrix);
+    }
 
     // NOTE: You can create an SkImage Shader with SkImage::newShader().
 
-    /** Call this to create a new shader that will draw with the specified picture.
+    /** DEPRECATED: call picture->makeShader(...)
+     *  Call this to create a new shader that will draw with the specified picture.
      *
      *  @param src  The picture to use inside the shader (if not NULL, its ref count
      *              is incremented). The SkPicture must not be changed after

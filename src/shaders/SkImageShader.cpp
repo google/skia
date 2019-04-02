@@ -21,19 +21,19 @@
 /**
  *  We are faster in clamp, so always use that tiling when we can.
  */
-static SkShader::TileMode optimize(SkShader::TileMode tm, int dimension) {
+static SkShader::TileMode optimize(SkTileMode tm, int dimension) {
     SkASSERT(dimension > 0);
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // need to update frameworks/base/libs/hwui/tests/unit/SkiaBehaviorTests.cpp:55 to allow
     // for transforming to clamp.
-    return tm;
+    return static_cast<SkShader::TileMode>(tm);
 #else
-    return dimension == 1 ? SkShader::kClamp_TileMode : tm;
+    return dimension == 1 ? SkShader::kClamp_TileMode : static_cast<SkShader::TileMode>(tm);
 #endif
 }
 
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
-                             TileMode tmx, TileMode tmy,
+                             SkTileMode tmx, SkTileMode tmy,
                              const SkMatrix* localMatrix,
                              bool clampAsIfUnpremul)
     : INHERITED(localMatrix)
@@ -47,15 +47,15 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
 // so there's no need to read or write it here.
 
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
-    const TileMode tx = (TileMode)buffer.readUInt();
-    const TileMode ty = (TileMode)buffer.readUInt();
+    auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+    auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     SkMatrix localMatrix;
     buffer.readMatrix(&localMatrix);
     sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(std::move(img), tx, ty, &localMatrix);
+    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
@@ -150,13 +150,13 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
 }
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
-                                    TileMode tx, TileMode ty,
+                                    SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix,
                                     bool clampAsIfUnpremul) {
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
-    return sk_sp<SkShader>{ new SkImageShader(image, tx,ty, localMatrix, clampAsIfUnpremul) };
+    return sk_sp<SkShader>{ new SkImageShader(image, tmx, tmy, localMatrix, clampAsIfUnpremul) };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,15 +265,14 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkImagePriv.h"
 
-sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
-                                   SkShader::TileMode tmy, const SkMatrix* localMatrix,
-                                   SkCopyPixelsMode cpm) {
+sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
+                                   const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
                                tmx, tmy, localMatrix);
 }
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
-                                           SkShader::TileMode tmx, SkShader::TileMode tmy,
+                                           SkTileMode tmx, SkTileMode tmy,
                                            const SkMatrix* localMatrix, SkCopyPixelsMode mode) {
     auto s = SkMakeBitmapShader(src, tmx, tmy, localMatrix, mode);
     if (!s) {

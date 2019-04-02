@@ -33,10 +33,8 @@ static sk_sp<SkShader> make_picture_shader() {
     SkPictureRecorder recorder;
     recorder.beginRecording(100, 100)->drawCircle(50, 50, 50, p);
 
-    return SkPictureShader::Make(recorder.finishRecordingAsPicture(),
-                                 SkShader::kRepeat_TileMode,
-                                 SkShader::kRepeat_TileMode,
-                                 nullptr, nullptr);
+    return recorder.finishRecordingAsPicture()->makeShader(SkTileMode::kRepeat,
+                                                           SkTileMode::kRepeat);
 }
 
 class ShaderMFBench final : public Benchmark {
