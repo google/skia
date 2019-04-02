@@ -71,6 +71,7 @@ static const struct {
     { "glesdft",               "gpu", "api=gles,dit=true" },
     { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
     { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=true" },
+    { "nullgl",                "gpu", "api=nullgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
@@ -229,6 +230,10 @@ static bool parse_option_gpu_api(const SkString&                      value,
     }
     if (value.equals("gles")) {
         *outContextType = GrContextFactory::kGLES_ContextType;
+        return true;
+    }
+    if (value.equals("nullgl")) {
+        *outContextType = GrContextFactory::kNullGL_ContextType;
         return true;
     }
     if (value.equals("angle_d3d9_es2")) {
