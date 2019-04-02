@@ -20,6 +20,9 @@ namespace skiatest {
  */
 class GrGpuResource::CacheAccess {
 private:
+    /** The cache is allowed to go from no refs to 1 ref. */
+    void ref() { fResource->addInitialRef(); }
+
     /**
      * Is the resource currently cached as scratch? This means it is cached, has a valid scratch
      * key, and does not have a unique key.
@@ -78,8 +81,8 @@ private:
     CacheAccess& operator=(const CacheAccess&); // unimpl
 
     // No taking addresses of this type.
-    const CacheAccess* operator&() const;
-    CacheAccess* operator&();
+    const CacheAccess* operator&() const = delete;
+    CacheAccess* operator&() = delete;
 
     GrGpuResource* fResource;
 

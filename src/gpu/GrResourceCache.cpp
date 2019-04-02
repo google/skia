@@ -410,7 +410,7 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
     }
-    resource->ref();
+    resource->cacheAccess().ref();
 
     resource->cacheAccess().setTimestamp(this->getNextTimestamp());
     this->validate();

@@ -102,8 +102,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> result = sk_ref_sp(fUniquelyKeyedProxies.find(key));
-    if (result) {
+    GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
+    sk_sp<GrTextureProxy> result;
+    if (proxy) {
+        proxy->firstRefAccess().ref();
+        result.reset(proxy);
         SkASSERT(result->origin() == origin);
     }
     return result;
@@ -790,15 +793,10 @@ void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureP
     // proxy's unique key. We must do it in this order because 'key' may alias the proxy's key.
     sk_sp<GrGpuResource> invalidGpuResource;
     if (InvalidateGPUResource::kYes == invalidateGPUResource) {
-        if (proxy && proxy->isInstantiated()) {
-            invalidGpuResource = sk_ref_sp(proxy->peekSurface());
-        }
-        if (!invalidGpuResource) {
-            GrContext* direct = fImageContext->priv().asDirectContext();
-            if (direct) {
-                GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
-                invalidGpuResource = resourceProvider->findByUniqueKey<GrGpuResource>(key);
-            }
+        GrContext* direct = fImageContext->priv().asDirectContext();
+        if (direct) {
+            GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
+            invalidGpuResource = resourceProvider->findByUniqueKey<GrGpuResource>(key);
         }
         SkASSERT(!invalidGpuResource || invalidGpuResource->getUniqueKey() == key);
     }
