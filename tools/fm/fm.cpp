@@ -20,6 +20,8 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkSVGDOM.h"
+#include "Skottie.h"
+#include "SkottieUtils.h"
 #include "ToolUtils.h"
 #include "gm.h"
 #include <chrono>
@@ -94,14 +96,16 @@ static void exit_with_failure() {
 struct Source {
     SkString                               name;
     SkISize                                size;
-    std::function<bool(SkCanvas*)>         draw;  // true -> ok, false -> skip; failures should exit_with_failure()
     std::function<void(GrContextOptions*)> tweak;
+    std::function<bool(SkCanvas*)>         draw;  // true -> ok, false -> skip;
+                                                  // failures should exit_with_failure()
 };
 
 static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
     return {
         SkString{gm->getName()},
         gm->getISize(),
+        [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
         [gm](SkCanvas* canvas) {
             SkString err;
             switch (gm->draw(canvas, &err)) {
@@ -113,7 +117,6 @@ static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
             }
             return false;
         },
-        [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
     };
 }
 
@@ -121,11 +124,11 @@ static Source picture_source(SkString name, sk_sp<SkPicture> pic) {
     return {
         name,
         pic->cullRect().roundOut().size(),
+        [](GrContextOptions*) {},
         [pic](SkCanvas* canvas) {
             canvas->drawPicture(pic);
             return true;
         },
-        [](GrContextOptions*) {},
     };
 }
 
@@ -133,6 +136,7 @@ static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
     return {
         name,
         codec->dimensions(),
+        [](GrContextOptions*) {},
         [codec](SkCanvas* canvas) {
             SkImageInfo info = codec->getInfo();
             if (FLAGS_decodeToDst) {
@@ -155,7 +159,6 @@ static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
             }
             return false;
         },
-        [](GrContextOptions*) {},
     };
 }
 
@@ -164,11 +167,45 @@ static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
         name,
         svg->containerSize().isEmpty() ? SkISize{1000,1000}
                                        : svg->containerSize().toCeil(),
+        [](GrContextOptions*) {},
         [svg](SkCanvas* canvas) {
             svg->render(canvas);
             return true;
         },
+    };
+}
+
+static Source skottie_source(SkString name, sk_sp<skottie::Animation> animation) {
+    return {
+        name,
+        {1000,1000},
         [](GrContextOptions*) {},
+        [animation](SkCanvas* canvas) {
+            canvas->clear(SK_ColorWHITE);
+
+            // Draw frames in a shuffled order to exercise nonlinear frame progression.
+            // The film strip will still be in time order, just drawn out of order.
+            const int order[] = { 4, 0, 3, 1, 2 };
+            const int tiles = SK_ARRAY_COUNT(order);
+            const float dim = 1000.0f / tiles;
+
+            const float dt = 1.0f / (tiles*tiles - 1);
+
+            for (int y : order)
+            for (int x : order) {
+                SkRect dst = {x*dim, y*dim, (x+1)*dim, (y+1)*dim};
+
+                SkAutoCanvasRestore _(canvas, true/*save now*/);
+                canvas->clipRect(dst, /*aa=*/true);
+                canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
+                                                        dst,
+                                                        SkMatrix::kCenter_ScaleToFit));
+                float t = (y*tiles + x) * dt;
+                animation->seek(t);
+                animation->render(canvas);
+            }
+            return true;
+        },
     };
 }
 
@@ -341,7 +378,8 @@ int main(int argc, char** argv) {
     }
     for (const SkString& source : FLAGS_sources) {
         if (sk_sp<SkData> blob = SkData::MakeFromFileName(source.c_str())) {
-            const SkString name = SkOSPath::Basename(source.c_str());
+            const SkString dir  = SkOSPath::Dirname (source.c_str()),
+                           name = SkOSPath::Basename(source.c_str());
 
             if (name.endsWith(".skp")) {
                 if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
@@ -351,6 +389,12 @@ int main(int argc, char** argv) {
                 SkMemoryStream stream{blob};
                 if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
                     sources.push_back(svg_source(name, svg));
+                }
+            } else if (name.endsWith(".json")) {
+                if (sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
+                        .setResourceProvider(skottie_utils::FileResourceProvider::Make(dir))
+                        .makeFromFile(source.c_str())) {
+                    sources.push_back(skottie_source(name, animation));
                 }
             } else if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
                 sources.push_back(codec_source(name, codec));
