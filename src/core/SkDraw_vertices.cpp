@@ -204,7 +204,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
 
     constexpr size_t kDefVertexCount = 16;
     constexpr size_t kOuterSize = sizeof(SkTriColorShader) +
-                                 sizeof(SkComposeShader) +
+                                 sizeof(SkShader_Blend) +
                                  (2 * sizeof(SkPoint) + sizeof(SkColor4f)) * kDefVertexCount;
     SkSTArenaAlloc<kOuterSize> outerAlloc;
 
@@ -277,8 +277,8 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                                                                                   vertexCount));
             matrix43 = triShader->getMatrix43();
             if (shader) {
-                shader = outerAlloc.make<SkComposeShader>(sk_ref_sp(triShader), sk_ref_sp(shader),
-                                                          bmode, 1);
+                shader = outerAlloc.make<SkShader_Blend>(bmode,
+                                                         sk_ref_sp(triShader), sk_ref_sp(shader));
             } else {
                 shader = triShader;
             }

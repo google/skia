@@ -49,17 +49,17 @@ DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
 
         // SkLocalMatrixShader(SkComposeShader(SkImageShader(inner)), outer)
         [](const sk_sp<SkImage>& img, const SkMatrix& inner, const SkMatrix& outer) {
-            return SkShader::MakeCompose(SkShader::MakeColorShader(SK_ColorTRANSPARENT),
-                                         img->makeShader(&inner),
-                                         SkBlendMode::kSrcOver)
+            return SkShader::MakeBlend(SkBlendMode::kSrcOver,
+                                       SkShader::MakeColorShader(SK_ColorTRANSPARENT),
+                                       img->makeShader(&inner))
                    ->makeWithLocalMatrix(outer);
         },
 
         // SkLocalMatrixShader(SkComposeShader(SkLocalMatrixShader(SkImageShader(I), inner)), outer)
         [](const sk_sp<SkImage>& img, const SkMatrix& inner, const SkMatrix& outer) {
-            return SkShader::MakeCompose(SkShader::MakeColorShader(SK_ColorTRANSPARENT),
-                                         img->makeShader()->makeWithLocalMatrix(inner),
-                                         SkBlendMode::kSrcOver)
+            return SkShader::MakeBlend(SkBlendMode::kSrcOver,
+                                       SkShader::MakeColorShader(SK_ColorTRANSPARENT),
+                                       img->makeShader()->makeWithLocalMatrix(inner))
                    ->makeWithLocalMatrix(outer);
         },
     };

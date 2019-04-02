@@ -297,7 +297,7 @@ static void draw_composed(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader>
                           SkBlendMode mode, SkAlpha alpha) {
     SkPaint p;
     p.setAlpha(alpha);
-    p.setShader(SkShader::MakeCompose(dst, src, mode));
+    p.setShader(SkShader::MakeBlend(mode, dst, src));
     canvas->drawRect(SkRect::MakeWH(gCellSize, gCellSize), p);
 }
 
