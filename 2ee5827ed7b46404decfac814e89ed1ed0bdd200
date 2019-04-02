@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c238885_7472f53f",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-02T17:03:59Z",
+      "side": 1,
+      "message": "why do we care about a shader here?",
+      "range": {
+        "startLine": 967,
+        "startChar": 66,
+        "endLine": 967,
+        "endChar": 71
+      },
+      "revId": "2ee5827ed7b46404decfac814e89ed1ed0bdd200",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
