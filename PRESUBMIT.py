@@ -25,6 +25,8 @@ SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
 
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
+    'mtklein@chromium.org',
+    'mtklein@google.com',
     'reed@chromium.org',
     'reed@google.com',
     'bsalomon@chromium.org',
