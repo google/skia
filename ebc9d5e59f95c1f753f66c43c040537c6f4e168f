@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c203f7be_2bce74b0",
+        "filename": "gn/examples.gni",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-02T20:48:05Z",
+      "side": 1,
+      "message": "Aside from the comment lines above, this file is valid json, is it not? Can we use the go json parser in named-fiddles/go/named-fiddles/main.go to use this as the list of example files? Mostly want to know if we can push this toward compile and the fiddle builder using the same list of files, and this seems pretty close.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 16
+      },
+      "revId": "ebc9d5e59f95c1f753f66c43c040537c6f4e168f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4e6199a_8dc3160f",
+        "filename": "gn/gni_sources_to_concated_c.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-02T20:48:05Z",
+      "side": 1,
+      "message": "nit: trailing whitespace",
+      "range": {
+        "startLine": 13,
+        "startChar": 16,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "ebc9d5e59f95c1f753f66c43c040537c6f4e168f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
