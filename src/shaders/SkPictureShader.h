@@ -9,6 +9,7 @@
 #define SkPictureShader_DEFINED
 
 #include "SkShaderBase.h"
+#include "SkTileMode.h"
 #include <atomic>
 
 class SkArenaAlloc;
@@ -25,7 +26,7 @@ class SkPictureShader : public SkShaderBase {
 public:
     ~SkPictureShader() override;
 
-    static sk_sp<SkShader> Make(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*,
+    static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, const SkMatrix*,
                                 const SkRect*);
 
 #if SK_SUPPORT_GPU

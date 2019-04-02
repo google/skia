@@ -14,7 +14,8 @@
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
-#include "SkShader.h"
+#include "SkShader.h"   // can remove once we switch to SkTileMode
+#include "SkTileMode.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>
@@ -670,18 +671,22 @@ public:
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
-        SkShader::TileMode rules to fill drawn area outside SkImage. localMatrix permits
+        SkTileMode rules to fill drawn area outside SkImage. localMatrix permits
         transforming SkImage before SkCanvas matrix is applied.
 
-        @param tileMode1    tiling on x-axis, one of: SkShader::kClamp_TileMode,
-                            SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
-        @param tileMode2    tiling on y-axis, one of: SkShader::kClamp_TileMode,
-                            SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
+        @param tmx          tiling in the x direction
+        @param tmy          tiling in the y direction
         @param localMatrix  SkImage transformation, or nullptr
         @return             SkShader containing SkImage
     */
-    sk_sp<SkShader> makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2,
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
+    // DEPRECATED. Use SkTileMode
+    sk_sp<SkShader> makeShader(SkShader::TileMode tmx, SkShader::TileMode tmy,
+                               const SkMatrix* localMatrix = nullptr) const {
+        return this->makeShader(static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
+                                localMatrix);
+    }
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits
@@ -691,7 +696,7 @@ public:
         @return             SkShader containing SkImage
     */
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
-        return this->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, localMatrix);
+        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
     }
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
