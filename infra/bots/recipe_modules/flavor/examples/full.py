@@ -107,7 +107,7 @@ def GenTests(api):
     )
     if 'Chromebook' in buildername and not 'Build' in buildername:
       test += api.step_data(
-          'read chromeos ip',
+          'read ssh_machine.json',
           stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
     if 'Chromecast' in buildername:
       test += api.step_data(
