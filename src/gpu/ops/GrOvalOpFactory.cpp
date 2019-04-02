@@ -1069,9 +1069,11 @@ public:
             // The shader operates in a space where the circle is translated to be centered at the
             // origin. Here we compute points on the unit circle at the starting and ending angles.
             SkPoint startPoint, stopPoint;
-            startPoint.fY = SkScalarSinCos(arcParams->fStartAngleRadians, &startPoint.fX);
+            startPoint.fY = SkScalarSin(arcParams->fStartAngleRadians);
+            startPoint.fX = SkScalarCos(arcParams->fStartAngleRadians);
             SkScalar endAngle = arcParams->fStartAngleRadians + arcParams->fSweepAngleRadians;
-            stopPoint.fY = SkScalarSinCos(endAngle, &stopPoint.fX);
+            stopPoint.fY = SkScalarSin(endAngle);
+            stopPoint.fX = SkScalarCos(endAngle);
 
             // Adjust the start and end points based on the view matrix (to handle rotated arcs)
             startPoint = viewMatrix.mapVector(startPoint.fX, startPoint.fY);
@@ -1468,7 +1470,8 @@ public:
         if (!startAngle) {
             start = {1, 0};
         } else {
-            start.fY = SkScalarSinCos(startAngle, &start.fX);
+            start.fY = SkScalarSin(startAngle);
+            start.fX = SkScalarCos(startAngle);
         }
         viewMatrix.mapVectors(&start, 1);
         startAngle = SkScalarATan2(start.fY, start.fX);

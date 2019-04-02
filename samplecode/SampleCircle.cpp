@@ -79,8 +79,7 @@ protected:
         SkScalar angle = 0;
         for (int i = 1; i < n; i++) {
             angle += step;
-            SkScalar c, s = SkScalarSinCos(angle, &c);
-            path->lineTo(c, s);
+            path->lineTo(SkScalarCos(angle), SkScalarSin(angle));
         }
         path->close();
     }

@@ -43,7 +43,9 @@ public:
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             float angle = fAngle.eval(params, ps[i]);
-            SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
+            SkScalar rad = SkDegreesToRadians(angle);
+            SkScalar s_local = SkScalarSin(rad),
+                     c_local = SkScalarCos(rad);
             SkVector heading = ps[i].getFrameHeading(static_cast<SkParticleFrame>(fFrame));
             SkScalar c = heading.fX * c_local - heading.fY * s_local;
             SkScalar s = heading.fX * s_local + heading.fY * c_local;
@@ -145,7 +147,9 @@ public:
     void onApply(const SkParticleUpdateParams& params, SkParticleState ps[], int count) override {
         for (int i = 0; i < count; ++i) {
             float angle = fAngle.eval(params, ps[i]);
-            SkScalar c_local, s_local = SkScalarSinCos(SkDegreesToRadians(angle), &c_local);
+            SkScalar rad = SkDegreesToRadians(angle);
+            SkScalar s_local = SkScalarSin(rad),
+                     c_local = SkScalarCos(rad);
             SkVector heading = ps[i].getFrameHeading(static_cast<SkParticleFrame>(fFrame));
             ps[i].fPose.fHeading.set(heading.fX * c_local - heading.fY * s_local,
                                      heading.fX * s_local + heading.fY * c_local);

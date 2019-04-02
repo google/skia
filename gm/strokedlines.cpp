@@ -25,7 +25,8 @@ static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, cons
     SkScalar cos, sin;
 
     // first fin
-    sin = SkScalarSinCos(angle + (SK_ScalarPI/4), &cos);
+    sin = SkScalarSin(angle + (SK_ScalarPI/4));
+    cos = SkScalarCos(angle + (SK_ScalarPI/4));
     sin *= kRadius / 2.0f;
     cos *= kRadius / 2.0f;
 
@@ -35,7 +36,8 @@ static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, cons
     canvas->drawPath(p, paint);
 
     // second fin
-    sin = SkScalarSinCos(angle - (SK_ScalarPI/4), &cos);
+    sin = SkScalarSin(angle - (SK_ScalarPI/4));
+    cos = SkScalarCos(angle - (SK_ScalarPI/4));
     sin *= kRadius / 2.0f;
     cos *= kRadius / 2.0f;
 
@@ -52,7 +54,8 @@ static void draw_snowflake(SkCanvas* canvas, const SkPaint& paint) {
 
     SkScalar sin, cos, angle = 0.0f;
     for (int i = 0; i < kNumSpokes/2; ++i, angle += SK_ScalarPI/(kNumSpokes/2)) {
-        sin = SkScalarSinCos(angle, &cos);
+        sin = SkScalarSin(angle);
+        cos = SkScalarCos(angle);
         sin *= kRadius;
         cos *= kRadius;
 

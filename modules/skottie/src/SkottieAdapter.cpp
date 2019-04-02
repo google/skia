@@ -386,9 +386,9 @@ void DropShadowEffectAdapter::apply() {
     fDropShadow->setColor(SkColorSetA(fColor, SkTPin(SkScalarRoundToInt(fOpacity), 0, 255)));
 
     // The offset is specified in terms of a bearing angle + distance.
-    SkScalar sinV, cosV;
-    sinV = SkScalarSinCos(SkDegreesToRadians(90 - fDirection), &cosV);
-    fDropShadow->setOffset(SkVector::Make(fDistance * cosV, -fDistance * sinV));
+    SkScalar rad = SkDegreesToRadians(90 - fDirection);
+    fDropShadow->setOffset(SkVector::Make( fDistance * SkScalarCos(rad),
+                                          -fDistance * SkScalarSin(rad)));
 
     // Close enough to AE.
     static constexpr SkScalar kSoftnessToSigmaFactor = 0.3f;
