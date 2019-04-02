@@ -636,14 +636,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
                                 SkShader::TileMode tx, SkShader::TileMode ty,
                                 bool clampAsIfUnpremul)->sk_sp<SkShader> {
-        return SkImageShader::Make(img, tx, ty, nullptr, clampAsIfUnpremul);
+        return SkImageShader::Make(img, (SkTileMode)tx, (SkTileMode)ty, nullptr, clampAsIfUnpremul);
     }), allow_raw_pointers());
     function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
                                 SkShader::TileMode tx, SkShader::TileMode ty,
                                 bool clampAsIfUnpremul, const SimpleMatrix& lm)->sk_sp<SkShader> {
         SkMatrix localMatrix = toSkMatrix(lm);
 
-        return SkImageShader::Make(img, tx, ty, &localMatrix, clampAsIfUnpremul);
+        return SkImageShader::Make(img, (SkTileMode)tx, (SkTileMode)ty, &localMatrix, clampAsIfUnpremul);
     }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,

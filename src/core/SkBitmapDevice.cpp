@@ -518,8 +518,8 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     // if its mutable, since that precaution is not needed (give the short lifetime of the shader).
 
     // construct a shader, so we can call drawRect with the dst
-    auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkShader::kClamp_TileMode,
-            SkShader::kClamp_TileMode, &matrix, kNever_SkCopyPixelsMode);
+    auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkTileMode::kClamp,
+                                        SkTileMode::kClamp, &matrix, kNever_SkCopyPixelsMode);
     if (!s) {
         return;
     }

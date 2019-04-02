@@ -15,8 +15,8 @@
 class SkImageShader : public SkShaderBase {
 public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
-                                SkShader::TileMode tx,
-                                SkShader::TileMode ty,
+                                SkTileMode tmx,
+                                SkTileMode tmy,
                                 const SkMatrix* localMatrix,
                                 bool clampAsIfUnpremul = false);
 
@@ -30,8 +30,8 @@ private:
     SK_FLATTENABLE_HOOKS(SkImageShader)
 
     SkImageShader(sk_sp<SkImage>,
-                  SkShader::TileMode tx,
-                  SkShader::TileMode ty,
+                  SkTileMode tmx,
+                  SkTileMode tmy,
                   const SkMatrix* localMatrix,
                   bool clampAsIfUnpremul);
 

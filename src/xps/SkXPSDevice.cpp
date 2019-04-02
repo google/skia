@@ -2084,8 +2084,8 @@ void SkXPSDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
         matrix.mapRect(&actualDst, srcBounds);
     }
-    auto bitmapShader = SkMakeBitmapShaderForPaint(paint, bitmap, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode, &matrix,
+    auto bitmapShader = SkMakeBitmapShaderForPaint(paint, bitmap, SkTileMode::kClamp,
+                                                   SkTileMode::kClamp, &matrix,
                                                    kNever_SkCopyPixelsMode);
     SkASSERT(bitmapShader);
     if (!bitmapShader) { return; }

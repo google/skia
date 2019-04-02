@@ -10,13 +10,16 @@
 
 #include "SkRefCnt.h"
 #include "SkRect.h"
+#include "SkTileMode.h"
 #include "SkTypes.h"
 
 class SkCanvas;
 class SkData;
 struct SkDeserialProcs;
 class SkImage;
+class SkMatrix;
 struct SkSerialProcs;
+class SkShader;
 class SkStream;
 class SkWStream;
 
@@ -192,6 +195,23 @@ public:
         @return  approximate size
     */
     virtual size_t approximateBytesUsed() const = 0;
+
+    /** Return a new shader that will draw with this picture.
+     *
+     *  @param tmx  The tiling mode to use when sampling in the x-direction.
+     *  @param tmy  The tiling mode to use when sampling in the y-direction.
+     *  @param localMatrix Optional matrix used when sampling
+     *  @param tile The tile rectangle in picture coordinates: this represents the subset
+     *              (or superset) of the picture used when building a tile. It is not
+     *              affected by localMatrix and does not imply scaling (only translation
+     *              and cropping). If null, the tile rect is considered equal to the picture
+     *              bounds.
+     *  @return     Returns a new shader object. Note: this function never returns null.
+     */
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
+                               const SkMatrix* localMatrix, const SkRect* tileRect) const;
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
+                               const SkMatrix* localMatrix = nullptr) const;
 
 private:
     // Subclass whitelist.
