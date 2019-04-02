@@ -52,8 +52,7 @@ protected:
                           SkIntToScalar(width + height) / 5, paint);
     }
 
-    sk_sp<SkImage> createRectangleTextureImg(GrContext* context, GrSurfaceOrigin origin, int width,
-                                             int height, const uint32_t* pixels) {
+    static const GrGLContext* GetGLContextIfSupported(GrContext* context) {
         GrGpu* gpu = context->priv().getGpu();
         if (!gpu) {
             return nullptr;
@@ -66,6 +65,15 @@ protected:
         if (!(kGL_GrGLStandard == glCtx->standard() && glCtx->version() >= GR_GL_VER(3, 1)) &&
             !(glCtx->hasExtension("GL_ARB_texture_rectangle") ||
               glCtx->hasExtension("GL_ANGLE_texture_rectangle"))) {
+            return nullptr;
+        }
+        return glCtx;
+    }
+
+    sk_sp<SkImage> createRectangleTextureImg(GrContext* context, GrSurfaceOrigin origin, int width,
+                                             int height, const uint32_t* pixels) {
+        const GrGLContext* glCtx = GetGLContextIfSupported(context);
+        if (!glCtx) {
             return nullptr;
         }
 
@@ -119,6 +127,11 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
+        if (!GetGLContextIfSupported(context)) {
+            *errorMsg = "this GM requires an OpenGL 3.1+ context";
+            return DrawResult::kSkip;
+        }
+
         constexpr int kWidth = 50;
         constexpr int kHeight = 50;
         constexpr SkScalar kPad = 5.f;
