@@ -308,6 +308,7 @@ protected:
 
 private:
     bool isPurgeable() const;
+    bool hasRef() const;
     bool hasRefOrPendingIO() const;
 
     /**
@@ -379,8 +380,8 @@ class GrGpuResource::ProxyAccess {
 private:
     ProxyAccess(GrGpuResource* resource) : fResource(resource) {}
 
-    /** Proxies are allowed to go from no refs to 1 ref. */
-    void ref() { fResource->addInitialRef(); }
+    /** Proxies are allowed to take a resource from no refs to 1 ref. */
+    void ref(GrResourceCache* cache);
 
     // No taking addresses of this type.
     const CacheAccess* operator&() const = delete;
