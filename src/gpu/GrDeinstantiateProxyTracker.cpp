@@ -18,7 +18,7 @@ void GrDeinstantiateProxyTracker::addProxy(GrSurfaceProxy* proxy) {
         SkASSERT(proxy != fProxies[i].get());
     }
 #endif
-    proxy->firstRefAccess().ref();
+    proxy->firstRefAccess().ref(fCache);
     fProxies.push_back(sk_sp<GrSurfaceProxy>(proxy));
 }
 
