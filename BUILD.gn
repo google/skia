@@ -2338,14 +2338,13 @@ if (skia_enable_tools) {
     }
   }
 
-  import("gn/examples.gni")
   if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
     test_app("fiddle_examples") {
       sources = [
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
+        "tools/fiddle/all_examples.cpp",
       ]
-      sources += examples_sources
       include_dirs = [ "tools" ]
       if (is_win) {
         cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
