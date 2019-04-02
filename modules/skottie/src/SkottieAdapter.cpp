@@ -462,7 +462,12 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
 TextAdapter::~TextAdapter() = default;
 
 void TextAdapter::apply() {
-    const Shaper::TextDesc text_desc = { fText.fTypeface, fText.fTextSize, fText.fAlign };
+    const Shaper::TextDesc text_desc = {
+        fText.fTypeface,
+        fText.fTextSize,
+        fText.fHAlign,
+        fText.fVAlign,
+    };
     const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox);
 
     fTextNode->setBlob(shape_result.fBlob);

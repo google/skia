@@ -257,6 +257,7 @@ DEF_TEST(Skottie_Shaper, reporter) {
                 typeface,
                 tsize.text_size,
                 talign.align,
+                skottie::Shaper::VAlign::kTopBaseline,
             };
 
             const auto shape_result = skottie::Shaper::Shape(text, desc, text_point);

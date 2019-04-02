@@ -29,10 +29,20 @@ public:
         SkRect computeBounds() const;
     };
 
+    enum class VAlign : uint8_t {
+        // Align the first ascent line with the text box top (or point).
+        kTop,
+        // Align the first baseline with the text box top (or point).
+        kTopBaseline,
+        // Align the center of the shaped text with the center of the text box (or point).
+        kCenter,
+    };
+
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize;
-        SkTextUtils::Align        fAlign;
+        SkTextUtils::Align        fHAlign;
+        VAlign                    fVAlign;
     };
 
     // Performs text layout along an infinite horizontal line, starting at |textPoint|.
