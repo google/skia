@@ -40,9 +40,8 @@
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
-    paint.setShader(SkMakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                       SkShader::kClamp_TileMode, matrix,
-                                       kNever_SkCopyPixelsMode));
+    paint.setShader(SkMakeBitmapShaderForPaint(origPaint, bitmap, SkShader::kClamp_TileMode,
+            SkShader::kClamp_TileMode, matrix, kNever_SkCopyPixelsMode));
     return paint;
 }
 
