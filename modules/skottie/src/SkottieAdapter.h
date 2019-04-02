@@ -28,6 +28,7 @@ class Path;
 class RadialGradient;
 class RenderNode;
 class RRect;
+class ShaderEffect;
 class TextBlob;
 class Transform;
 class TransformEffect;
@@ -231,6 +232,37 @@ private:
     void onApply() override;
 
     using INHERITED = GradientAdapter;
+};
+
+class GradientRampEffectAdapter final : public SkNVRefCnt<GradientRampEffectAdapter> {
+public:
+    explicit GradientRampEffectAdapter(sk_sp<sksg::RenderNode> child);
+    ~GradientRampEffectAdapter();
+
+    ADAPTER_PROPERTY(StartPoint, SkPoint , SkPoint::Make(0, 0))
+    ADAPTER_PROPERTY(EndPoint  , SkPoint , SkPoint::Make(0, 0))
+    ADAPTER_PROPERTY(StartColor, SkColor ,       SK_ColorBLACK)
+    ADAPTER_PROPERTY(EndColor  , SkColor ,       SK_ColorBLACK)
+    ADAPTER_PROPERTY(Blend     , SkScalar,                   0)
+    ADAPTER_PROPERTY(Scatter   , SkScalar,                   0)
+
+    // Really an enum: 1 -> linear, 7 -> radial (?!)
+    ADAPTER_PROPERTY(Shape     , SkScalar,                   0)
+
+    const sk_sp<sksg::ShaderEffect>& root() const { return fRoot; }
+
+private:
+    enum class InstanceType {
+        kNone,
+        kLinear,
+        kRadial,
+    };
+
+    void apply();
+
+    sk_sp<sksg::ShaderEffect> fRoot;
+    sk_sp<sksg::Gradient>     fGradient;
+    InstanceType              fInstanceType = InstanceType::kNone;
 };
 
 class TrimEffectAdapter final : public SkNVRefCnt<TrimEffectAdapter> {
