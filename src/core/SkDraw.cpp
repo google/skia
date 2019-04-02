@@ -40,9 +40,8 @@
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
-    paint.setShader(SkMakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                       SkShader::kClamp_TileMode, matrix,
-                                       kNever_SkCopyPixelsMode));
+    paint.setShader(SkMakeBitmapShaderForPaint(origPaint, bitmap, SkShader::kClamp_TileMode,
+            SkShader::kClamp_TileMode, matrix, kNever_SkCopyPixelsMode));
     return paint;
 }
 
@@ -965,7 +964,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
-    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint)) {
+    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint) && !paint.getShader()) {
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
