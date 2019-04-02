@@ -30,18 +30,6 @@
 
 #include <stdlib.h>
 
-void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
-    if (major) {
-        *major = SKIA_VERSION_MAJOR;
-    }
-    if (minor) {
-        *minor = SKIA_VERSION_MINOR;
-    }
-    if (patch) {
-        *patch = SKIA_VERSION_PATCH;
-    }
-}
-
 void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();

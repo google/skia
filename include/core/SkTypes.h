@@ -19,13 +19,6 @@
 /** \file SkTypes.h
 */
 
-/** See SkGraphics::GetVersion() to retrieve these at runtime
-*/
-#define SKIA_VERSION_MAJOR  1
-#define SKIA_VERSION_MINOR  0
-#define SKIA_VERSION_PATCH  0
-
-
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.

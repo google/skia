@@ -27,12 +27,6 @@ public:
     static void Term() {}
 
     /**
-     *  Return the version numbers for the library. If the parameter is not
-     *  null, it is set to the version number.
-     */
-    static void GetVersion(int32_t* major, int32_t* minor, int32_t* patch);
-
-    /**
      *  Return the max number of bytes that should be used by the font cache.
      *  If the cache needs to allocate more, it will purge previous entries.
      *  This max can be changed by calling SetFontCacheLimit().
