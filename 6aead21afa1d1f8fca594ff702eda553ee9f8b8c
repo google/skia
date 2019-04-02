@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "dbcc94ad_a4449ecf",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-02T17:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e082c62d_2b36fb42",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a23e952_983068ea",
         "filename": "gn/gen_symbols_ios.py",
         "patchSetId": 5
@@ -90,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "f67a929f_547f15cc",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-02T17:22:26Z",
+      "side": 1,
+      "message": "File no longer needed.",
+      "parentUuid": "1dcd6a05_0c55a07c",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "268a9dea_47235fd4",
         "filename": "gn/gen_symbols_ios.py",
         "patchSetId": 5
@@ -104,6 +140,24 @@
       "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3882e47_c8444a2f",
+        "filename": "gn/gen_symbols_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-02T17:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "268a9dea_47235fd4",
+      "revId": "6aead21afa1d1f8fca594ff702eda553ee9f8b8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
