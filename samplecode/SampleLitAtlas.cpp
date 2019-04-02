@@ -42,8 +42,9 @@ public:
     }
 
     void rotateLight() {
-        SkScalar c;
-        SkScalar s = SkScalarSinCos(SK_ScalarPI/6.0f, &c);
+        SkScalar r = SK_ScalarPI / 6.0f,
+                 s = SkScalarSin(r),
+                 c = SkScalarCos(r);
 
         SkScalar newX = c * fLightDir.fX - s * fLightDir.fY;
         SkScalar newY = s * fLightDir.fX + c * fLightDir.fY;
@@ -65,8 +66,8 @@ public:
     }
 
     void thrust() {
-        SkScalar c;
-        SkScalar s = SkScalarSinCos(fShip.rot(), &c);
+        SkScalar s = SkScalarSin(fShip.rot()),
+                 c = SkScalarCos(fShip.rot());
 
         SkVector newVel = fShip.velocity();
         newVel.fX += s;
