@@ -1883,6 +1883,8 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":trace",
+        "modules/skottie",
+        "modules/skottie:utils",
       ]
     }
     test_app("dm") {
