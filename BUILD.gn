@@ -1324,34 +1324,27 @@ if (skia_enable_tools) {
         ]
       }
 
-      bundle_ios_data =
-          defined(invoker.bundle_ios_data) && invoker.bundle_ios_data
-
-      if (bundle_ios_data) {
-        has_skps =
-            "True" == exec_script("//gn/checkdir.py",
-                                  [ rebase_path("skps", root_build_dir) ],
-                                  "trim string")
-        bundle_data("${app_name}_bundle_resources") {
+      has_skps = "True" == exec_script("//gn/checkdir.py",
+                                       [ rebase_path("skps", root_build_dir) ],
+                                       "trim string")
+      bundle_data("${app_name}_bundle_resources") {
+        sources = [
+          "resources",
+        ]
+        outputs = [
+          # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
+          "{{bundle_resources_dir}}/data/resources",
+        ]
+      }
+      if (has_skps) {
+        bundle_data("${app_name}_bundle_skps") {
           sources = [
-            "resources",
+            "skps",
           ]
           outputs = [
-            # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
-            "{{bundle_resources_dir}}/data/resources",
+            # Store in same folder as resources
+            "{{bundle_resources_dir}}/data/skps",
           ]
-        }
-
-        if (has_skps) {
-          bundle_data("${app_name}_bundle_skps") {
-            sources = [
-              "skps",
-            ]
-            outputs = [
-              # Store in same folder as resources
-              "{{bundle_resources_dir}}/data/skps",
-            ]
-          }
         }
       }
 
@@ -1381,6 +1374,19 @@ if (skia_enable_tools) {
         testonly = true
       }
 
+      bundle_data("${app_name}_bundle_symbols") {
+        public_deps = [
+          ":${app_name}_generate_executable",
+        ]
+        sources = [
+          "$gen_path/${app_name}.dSYM",
+        ]
+        outputs = [
+          "{{bundle_executable_dir}}/${app_name}.dSYM",
+        ]
+        testonly = true
+      }
+
       create_bundle("$app_name") {
         product_type = "com.apple.product-type.application"
         testonly = true
@@ -1388,17 +1394,15 @@ if (skia_enable_tools) {
         bundle_root_dir = "${root_build_dir}/${target_name}.app"
         bundle_resources_dir = bundle_root_dir
         bundle_executable_dir = bundle_root_dir
-        bundle_plugins_dir = bundle_root_dir + "/Plugins"
 
         deps = [
           ":${app_name}_bundle_executable",
           ":${app_name}_bundle_info_plist",
+          ":${app_name}_bundle_resources",
+          ":${app_name}_bundle_symbols",
         ]
-        if (bundle_ios_data) {
-          deps += [ ":${app_name}_bundle_resources" ]
-          if (has_skps) {
-            deps += [ ":${app_name}_bundle_skps" ]
-          }
+        if (has_skps) {
+          deps += [ ":${app_name}_bundle_skps" ]
         }
 
         # should only code sign when running on a device, not the simulator
@@ -2355,9 +2359,6 @@ if (skia_enable_tools) {
   }
   test_app("viewer") {
     is_shared_library = is_android
-    if (is_ios) {
-      bundle_ios_data = true
-    }
     sources = [
       "tools/viewer/BisectSlide.cpp",
       "tools/viewer/GMSlide.cpp",
