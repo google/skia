@@ -112,7 +112,9 @@ GrGpuRTCommandBuffer* GrMtlGpu::getCommandBuffer(
             GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    SK_BEGIN_AUTORELEASE_BLOCK
     return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, bounds, colorInfo, stencilInfo);
+    SK_END_AUTORELEASE_BLOCK
 }
 
 GrGpuTextureCommandBuffer* GrMtlGpu::getCommandBuffer(GrTexture* texture,
@@ -372,6 +374,7 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRe
 
     const GrMtlCaps::StencilFormat& sFmt = this->mtlCaps().preferredStencilFormat();
 
+    SK_BEGIN_AUTORELEASE_BLOCK
     GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
                                                                    width,
                                                                    height,
@@ -379,6 +382,7 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(const GrRe
                                                                    sFmt));
     fStats.incStencilAttachmentCreates();
     return stencil;
+    SK_END_AUTORELEASE_BLOCK
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,

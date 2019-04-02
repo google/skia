@@ -321,7 +321,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                                         const GrPrimitiveProcessor& primProc,
                                                         const GrPipeline& pipeline,
                                                         Desc* desc) {
-    auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    auto pipelineDescriptor = [MTLRenderPipelineDescriptor new];
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
     fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");

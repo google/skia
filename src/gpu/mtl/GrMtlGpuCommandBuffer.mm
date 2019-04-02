@@ -257,7 +257,7 @@ MTLRenderPassDescriptor* GrMtlGpuRTCommandBuffer::createRenderPassDesc() const {
     GR_STATIC_ASSERT((int)GrStoreOp::kDiscard == 1);
     SkASSERT(fColorLoadAndStoreInfo.fStoreOp <= GrStoreOp::kDiscard);
 
-    auto renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
+    auto renderPassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
     renderPassDesc.colorAttachments[0].texture =
             static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlRenderTexture();
     renderPassDesc.colorAttachments[0].slice = 0;
