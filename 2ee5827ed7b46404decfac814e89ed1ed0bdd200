@@ -22,6 +22,30 @@
       "revId": "2ee5827ed7b46404decfac814e89ed1ed0bdd200",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ec9bd92_1908b622",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-02T18:42:23Z",
+      "side": 1,
+      "message": "My misunderstanding, it is unnecessary.",
+      "parentUuid": "6c238885_7472f53f",
+      "range": {
+        "startLine": 967,
+        "startChar": 66,
+        "endLine": 967,
+        "endChar": 71
+      },
+      "revId": "2ee5827ed7b46404decfac814e89ed1ed0bdd200",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
