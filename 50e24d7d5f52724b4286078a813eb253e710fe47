@@ -16,6 +16,24 @@
       "revId": "50e24d7d5f52724b4286078a813eb253e710fe47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae1b09fa_af98185b",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-02T18:35:59Z",
+      "side": 1,
+      "message": "Looking back, this is pretty hacky, but:\n\nThe idea is, return Error::Nonfatal(\"blah\"), causes the test to be skipped.\n\nFor a fatal error, we paint the canvas red, draw the error message, and DON\u0027T skip the test. I think this happens in the GM base class. That way, people can see the error in gold.\n\nIs there a way to return an error message and NOT skip the test? If not, can we just SkDebugf it right here?",
+      "parentUuid": "c8083e61_dedfa46e",
+      "revId": "50e24d7d5f52724b4286078a813eb253e710fe47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
