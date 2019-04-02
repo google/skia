@@ -272,6 +272,22 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                tmx, tmy, localMatrix);
 }
 
+sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
+                                           SkShader::TileMode tmx, SkShader::TileMode tmy,
+                                           const SkMatrix* localMatrix, SkCopyPixelsMode mode) {
+    auto s = SkMakeBitmapShader(src, tmx, tmy, localMatrix, mode);
+    if (!s) {
+        return nullptr;
+    }
+    if (src.colorType() == kAlpha_8_SkColorType && paint.getShader()) {
+        // Compose the image shader with the paint's shader. Alpha images+shaders should output the
+        // texture's alpha multiplied by the shader's color. DstIn (d*sa) will achieve this with
+        // the source image and dst shader (MakeBlend takes dst first, src second).
+        s = SkShader::MakeBlend(SkBlendMode::kDstIn, paint.refShader(), std::move(s));
+    }
+    return s;
+}
+
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
 bool SkImageShader::onAppendStages(const SkStageRec& rec) const {

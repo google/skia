@@ -25,6 +25,14 @@ enum {kSkBlitterContextSize = 3332};
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
                                    const SkMatrix* localMatrix, SkCopyPixelsMode);
 
+// Convenience function to return a shader that implements the shader+image behavior defined for
+// drawImage/Bitmap where the paint's shader is ignored when the bitmap is a color image, but
+// properly compose them together when it is an alpha image. This allows the returned paint to
+// be assigned to a paint clone without discarding the original behavior.
+sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
+                                           SkShader::TileMode, SkShader::TileMode,
+                                           const SkMatrix* localMatrix, SkCopyPixelsMode);
+
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or
  *  if it needs to make a deep-copy of the pixels.
