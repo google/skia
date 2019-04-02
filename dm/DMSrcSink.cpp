@@ -95,7 +95,7 @@ Error GMSrc::draw(SkCanvas* canvas) const {
     if (skiagm::DrawResult::kSkip == drawResult) {
         return Error::Nonfatal(std::move(errorMsg));  // Cause this test to be skipped.
     }
-    return "";
+    return errorMsg;
 }
 
 SkISize GMSrc::size() const {

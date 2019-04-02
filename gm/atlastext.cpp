@@ -54,7 +54,7 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
     return positions[cnt - 1].fX + widths[cnt - 1] - positions[0].fX;
 }
 
-class AtlasTextGM : public skiagm::GM {
+class AtlasTextGM : public skiagm::GpuGM {
 public:
     AtlasTextGM() = default;
 
@@ -84,9 +84,16 @@ protected:
         fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (!fRenderer || !fTarget || !fTarget->handle()) {
-            *errorMsg = "No renderer and/or target.";
+    DrawResult onDraw(GrContext*,
+                      GrRenderTargetContext*,
+                      SkCanvas* canvas,
+                      SkString* errorMsg) override {
+        if (!fRenderer) {
+            *errorMsg = "No renderer... probably not supported.";
+            return DrawResult::kSkip;
+        }
+        if (!fTarget || !fTarget->handle()) {
+            *errorMsg = "No target... we can't continue.";
             return DrawResult::kFail;
         }
         fRenderer->clearTarget(fTarget->handle(), 0xFF808080);
