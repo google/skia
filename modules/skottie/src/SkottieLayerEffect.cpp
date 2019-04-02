@@ -20,6 +20,72 @@ namespace internal {
 
 namespace {
 
+sk_sp<sksg::RenderNode> AttachGradientLayerEffect(const skjson::ArrayValue& jprops,
+                                                  const AnimationBuilder* abuilder,
+                                                  AnimatorScope* ascope,
+                                                  sk_sp<sksg::RenderNode> layer) {
+    enum : size_t {
+        kStartPoint_Index  = 0,
+        kStartColor_Index  = 1,
+        kEndPoint_Index    = 2,
+        kEndColor_Index    = 3,
+        kRampShape_Index   = 4,
+        kRampScatter_Index = 5,
+        kBlendRatio_Index  = 6,
+
+        kMax_Index        = kBlendRatio_Index,
+    };
+
+    if (jprops.size() <= kMax_Index) {
+        return nullptr;
+    }
+
+    const skjson::ObjectValue* p0 = jprops[ kStartPoint_Index];
+    const skjson::ObjectValue* p1 = jprops[   kEndPoint_Index];
+    const skjson::ObjectValue* c0 = jprops[ kStartColor_Index];
+    const skjson::ObjectValue* c1 = jprops[   kEndColor_Index];
+    const skjson::ObjectValue* sh = jprops[  kRampShape_Index];
+    const skjson::ObjectValue* bl = jprops[ kBlendRatio_Index];
+    const skjson::ObjectValue* sc = jprops[kRampScatter_Index];
+
+    if (!p0 || !p1 || !c0 || !c1 || !sh || !bl || !sc) {
+        return nullptr;
+    }
+
+    auto adapter = sk_make_sp<GradientRampEffectAdapter>(std::move(layer));
+
+    abuilder->bindProperty<VectorValue>((*p0)["v"], ascope,
+        [adapter](const VectorValue& p0) {
+            adapter->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(p0));
+        });
+    abuilder->bindProperty<VectorValue>((*p1)["v"], ascope,
+        [adapter](const VectorValue& p1) {
+            adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(p1));
+        });
+    abuilder->bindProperty<VectorValue>((*c0)["v"], ascope,
+        [adapter](const VectorValue& c0) {
+            adapter->setStartColor(ValueTraits<VectorValue>::As<SkColor>(c0));
+        });
+    abuilder->bindProperty<VectorValue>((*c1)["v"], ascope,
+        [adapter](const VectorValue& c1) {
+            adapter->setEndColor(ValueTraits<VectorValue>::As<SkColor>(c1));
+        });
+    abuilder->bindProperty<ScalarValue>((*sh)["v"], ascope,
+        [adapter](const ScalarValue& shape) {
+            adapter->setShape(shape);
+        });
+    abuilder->bindProperty<ScalarValue>((*sh)["v"], ascope,
+        [adapter](const ScalarValue& blend) {
+            adapter->setBlend(blend);
+        });
+    abuilder->bindProperty<ScalarValue>((*sc)["v"], ascope,
+        [adapter](const ScalarValue& scatter) {
+            adapter->setScatter(scatter);
+        });
+
+    return adapter->root();
+}
+
 sk_sp<sksg::RenderNode> AttachTintLayerEffect(const skjson::ArrayValue& jprops,
                                               const AnimationBuilder* abuilder,
                                               AnimatorScope* ascope,
@@ -256,6 +322,54 @@ sk_sp<sksg::RenderNode> AttachGaussianBlurLayerEffect(const skjson::ArrayValue& 
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(blur_effect));
 }
 
+using EffectBuilderT = sk_sp<sksg::RenderNode> (*)(const skjson::ArrayValue&,
+                                                   const AnimationBuilder*,
+                                                   AnimatorScope*,
+                                                   sk_sp<sksg::RenderNode>);
+
+EffectBuilderT FindEffectBuilder(const AnimationBuilder* abuilder,
+                                 const skjson::ObjectValue& jeffect) {
+    // First, try assigned types.
+    enum : int32_t {
+        kTint_Effect         = 20,
+        kFill_Effect         = 21,
+        kTritone_Effect      = 23,
+        kDropShadow_Effect   = 25,
+        kGaussianBlur_Effect = 29,
+    };
+
+    const auto ty = ParseDefault<int>(jeffect["ty"], -1);
+
+    switch (ty) {
+    case kTint_Effect:
+        return AttachTintLayerEffect;
+    case kFill_Effect:
+        return AttachFillLayerEffect;
+    case kTritone_Effect:
+        return AttachTritoneLayerEffect;
+    case kDropShadow_Effect:
+        return AttachDropShadowLayerEffect;
+    case kGaussianBlur_Effect:
+        return AttachGaussianBlurLayerEffect;
+    default:
+        break;
+    }
+
+    // Some effects don't have an assigned type, but the data is still present.
+    // Try a name-based lookup.
+
+    if (const skjson::StringValue* mn = jeffect["mn"]) {
+        // Just gradient ramp for now.
+        if (!strcmp(mn->begin(), "ADBE Ramp")) {
+            return AttachGradientLayerEffect;
+        }
+    }
+
+    abuilder->log(Logger::Level::kWarning, nullptr, "Unsupported layer effect type: %d.", ty);
+
+    return nullptr;
+}
+
 } // namespace
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::ArrayValue& jeffects,
@@ -265,44 +379,18 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayerEffects(const skjson::Array
         return nullptr;
     }
 
-    enum : int32_t {
-        kTint_Effect         = 20,
-        kFill_Effect         = 21,
-        kTritone_Effect      = 23,
-        kDropShadow_Effect   = 25,
-        kGaussianBlur_Effect = 29,
-    };
-
     for (const skjson::ObjectValue* jeffect : jeffects) {
         if (!jeffect) {
             continue;
         }
 
+        const auto builder = FindEffectBuilder(this, *jeffect);
         const skjson::ArrayValue* jprops = (*jeffect)["ef"];
-        if (!jprops) {
+        if (!builder || !jprops) {
             continue;
         }
 
-        switch (const auto ty = ParseDefault<int>((*jeffect)["ty"], -1)) {
-        case kTint_Effect:
-            layer = AttachTintLayerEffect(*jprops, this, ascope, std::move(layer));
-            break;
-        case kFill_Effect:
-            layer = AttachFillLayerEffect(*jprops, this, ascope, std::move(layer));
-            break;
-        case kTritone_Effect:
-            layer = AttachTritoneLayerEffect(*jprops, this, ascope, std::move(layer));
-            break;
-        case kDropShadow_Effect:
-            layer = AttachDropShadowLayerEffect(*jprops, this, ascope, std::move(layer));
-            break;
-        case kGaussianBlur_Effect:
-            layer = AttachGaussianBlurLayerEffect(*jprops, this, ascope, std::move(layer));
-            break;
-        default:
-            this->log(Logger::Level::kWarning, nullptr, "Unsupported layer effect type: %d.", ty);
-            break;
-        }
+        layer = builder(*jprops, this, ascope, std::move(layer));
 
         if (!layer) {
             this->log(Logger::Level::kError, jeffect, "Invalid layer effect.");

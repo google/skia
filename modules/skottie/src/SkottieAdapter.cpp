@@ -286,6 +286,58 @@ void RadialGradientAdapter::onApply() {
     grad->setEndRadius(SkPoint::Distance(this->startPoint(), this->endPoint()));
 }
 
+GradientRampEffectAdapter::GradientRampEffectAdapter(sk_sp<sksg::RenderNode> child)
+    : fRoot(sksg::ShaderEffect::Make(std::move(child))) {}
+
+GradientRampEffectAdapter::~GradientRampEffectAdapter() = default;
+
+void GradientRampEffectAdapter::apply() {
+    // This adapter manages a SG fragment with the following structure:
+    //
+    // - ShaderEffect [fRoot]
+    //     \  GradientShader [fGradient]
+    //     \  child/wrapped fragment
+    //
+    // The gradient shader is updated based on the (animatable) intance type (linear/radial).
+
+    auto update_gradient = [this] (InstanceType new_type) {
+        if (new_type != fInstanceType) {
+            fGradient = new_type == InstanceType::kLinear
+                    ? sk_sp<sksg::Gradient>(sksg::LinearGradient::Make())
+                    : sk_sp<sksg::Gradient>(sksg::RadialGradient::Make());
+
+            fRoot->setShader(fGradient);
+            fInstanceType = new_type;
+        }
+
+        fGradient->setColorStops({ {0, fStartColor}, {1, fEndColor} });
+    };
+
+    static constexpr int kLinearShapeValue = 1;
+    const auto instance_type = (SkScalarRoundToInt(fShape) == kLinearShapeValue)
+            ? InstanceType::kLinear
+            : InstanceType::kRadial;
+
+    // Sync the gradient shader instance if needed.
+    update_gradient(instance_type);
+
+    // Sync instance-dependent gradient params.
+    if (instance_type == InstanceType::kLinear) {
+        auto* lg = static_cast<sksg::LinearGradient*>(fGradient.get());
+        lg->setStartPoint(fStartPoint);
+        lg->setEndPoint(fEndPoint);
+    } else {
+        SkASSERT(instance_type == InstanceType::kRadial);
+
+        auto* rg = static_cast<sksg::RadialGradient*>(fGradient.get());
+        rg->setStartCenter(fStartPoint);
+        rg->setEndCenter(fStartPoint);
+        rg->setEndRadius(SkPoint::Distance(fStartPoint, fEndPoint));
+    }
+
+    // TODO: blend, scatter
+}
+
 TrimEffectAdapter::TrimEffectAdapter(sk_sp<sksg::TrimEffect> trimEffect)
     : fTrimEffect(std::move(trimEffect)) {
     SkASSERT(fTrimEffect);
