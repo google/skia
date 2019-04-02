@@ -20,6 +20,7 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkSVGDOM.h"
+#include "SkTHash.h"
 #include "Skottie.h"
 #include "SkottieUtils.h"
 #include "ToolUtils.h"
@@ -364,18 +365,27 @@ int main(int argc, char** argv) {
     GrContextOptions baseOptions;
     SetCtxOptionsFromCommonFlags(&baseOptions);
 
-
-    SkTArray<Source> sources;
+    SkTHashMap<SkString, skiagm::GMFactory> gm_factories;
     for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
-        std::shared_ptr<skiagm::GM> gm{factory(nullptr)};
-
+        std::unique_ptr<skiagm::GM> gm{factory(nullptr)};
         if (FLAGS_sources.isEmpty()) {
             fprintf(stdout, "%s\n", gm->getName());
-        } else if (FLAGS_sources.contains(gm->getName())) {
-            sources.push_back(gm_source(gm));
+        } else {
+            gm_factories.set(SkString{gm->getName()}, factory);
         }
     }
+    if (FLAGS_sources.isEmpty()) {
+        return 0;
+    }
+
+    SkTArray<Source> sources;
     for (const SkString& source : FLAGS_sources) {
+        if (skiagm::GMFactory* factory = gm_factories.find(source)) {
+            std::shared_ptr<skiagm::GM> gm{(*factory)(nullptr)};
+            sources.push_back(gm_source(gm));
+            continue;
+        }
+
         if (sk_sp<SkData> blob = SkData::MakeFromFileName(source.c_str())) {
             const SkString dir  = SkOSPath::Dirname (source.c_str()),
                            name = SkOSPath::Basename(source.c_str());
@@ -399,9 +409,6 @@ int main(int argc, char** argv) {
                 sources.push_back(codec_source(name, codec));
             }
         }
-    }
-    if (sources.empty()) {
-        return 0;
     }
 
     enum NonGpuBackends {
