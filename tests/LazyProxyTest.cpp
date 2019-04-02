@@ -337,7 +337,8 @@ private:
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return rp->createTexture(desc, SkBudgeted::kNo);
+                    return {rp->createTexture(desc, SkBudgeted::kNo),
+                            GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
                 format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
                 SkBudgeted::kNo);
