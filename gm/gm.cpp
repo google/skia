@@ -171,7 +171,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     }
     if (ctx->abandoned()) {
         *errorMsg = "GrContext abandoned.";
-        return DrawResult::kFail;
+        return DrawResult::kSkip;
     }
     return this->onDraw(ctx, rtc, canvas, errorMsg);
 }
