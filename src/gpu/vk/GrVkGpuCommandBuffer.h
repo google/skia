@@ -44,9 +44,9 @@ private:
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                  const SkIPoint& dstPoint)
-            : fSrc(sk_ref_sp(src)), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
-
-        sk_sp<GrSurface> fSrc;
+                : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
+        Src              fSrc;
         GrSurfaceOrigin  fSrcOrigin;
         SkIRect          fSrcRect;
         SkIPoint         fDstPoint;
@@ -159,13 +159,13 @@ private:
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                  const SkIPoint& dstPoint, bool shouldDiscardDst)
-            : fSrc(sk_ref_sp(src))
-            , fSrcOrigin(srcOrigin)
-            , fSrcRect(srcRect)
-            , fDstPoint(dstPoint)
-            , fShouldDiscardDst(shouldDiscardDst) {}
-
-        sk_sp<GrSurface> fSrc;
+                : fSrc(src)
+                , fSrcOrigin(srcOrigin)
+                , fSrcRect(srcRect)
+                , fDstPoint(dstPoint)
+                , fShouldDiscardDst(shouldDiscardDst) {}
+        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
+        Src              fSrc;
         GrSurfaceOrigin  fSrcOrigin;
         SkIRect          fSrcRect;
         SkIPoint         fDstPoint;
