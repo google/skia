@@ -95,6 +95,9 @@ public:
         SKRECT,
         SKIRECT,
         SKPMCOLOR,
+        BOOL,
+        INT,
+        FLOAT,
     };
 
     Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors);
