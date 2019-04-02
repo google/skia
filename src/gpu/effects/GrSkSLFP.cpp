@@ -55,12 +55,14 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
     size_t offset = 0;
     for (const auto& v : fInputVars) {
         SkSL::String name(v->fName);
-        if (&v->fType == fCompiler.context().fInt_Type.get()) {
+        if (&v->fType == fCompiler.context().fInt_Type.get() ||
+            &v->fType == fCompiler.context().fShort_Type.get()) {
             offset = SkAlign4(offset);
             int32_t v = *(int32_t*) (((uint8_t*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(int32_t);
-        } else if (&v->fType == fCompiler.context().fFloat_Type.get()) {
+        } else if (&v->fType == fCompiler.context().fFloat_Type.get() ||
+                   &v->fType == fCompiler.context().fHalf_Type.get()) {
             offset = SkAlign4(offset);
             float v = *(float*) (((uint8_t*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
@@ -84,6 +86,26 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
     SkAssertResult(fCompiler.optimize(*specialized));
     const SkSL::Program* result = specialized.get();
     fSpecializations.insert(std::make_pair(key, std::move(specialized)));
+    return result;
+}
+
+static SkSL::Layout::CType get_ctype(const SkSL::Context& context, const SkSL::Variable& v) {
+   SkSL::Layout::CType result = v.fModifiers.fLayout.fCType;
+   if (result == SkSL::Layout::CType::kDefault) {
+        if (&v.fType == context.fFloat_Type.get()) {
+            result = SkSL::Layout::CType::kFloat;
+        } else if (&v.fType == context.fFloat4_Type.get()) {
+           result = SkSL::Layout::CType::kSkRect;
+        } else if (&v.fType == context.fHalf4_Type.get()) {
+           result = SkSL::Layout::CType::kSkPMColor;
+        } else if (&v.fType == context.fInt_Type.get()) {
+            result = SkSL::Layout::CType::kInt32;
+        } else if (&v.fType == context.fBool_Type.get()) {
+            result = SkSL::Layout::CType::kBool;
+        } else {
+            return SkSL::Layout::CType::kDefault;
+        }
+    }
     return result;
 }
 
@@ -184,53 +206,55 @@ public:
         size_t offset = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         char* inputs = (char*) outer.fInputs.get();
-        const SkSL::Context& context = outer.fFactory->fCompiler.context();
         for (const auto& v : outer.fFactory->fInputVars) {
-            if (&v->fType == context.fFloat4_Type.get() ||
-                &v->fType == context.fHalf4_Type.get()) {
-                float f1, f2, f3, f4;
-                switch (v->fModifiers.fLayout.fCType) {
-                    case SkSL::Layout::CType::kSkPMColor:
-                        f1 = ((uint8_t*) inputs)[offset++] / 255.0;
-                        f2 = ((uint8_t*) inputs)[offset++] / 255.0;
-                        f3 = ((uint8_t*) inputs)[offset++] / 255.0;
-                        f4 = ((uint8_t*) inputs)[offset++] / 255.0;
-                        break;
-                    case SkSL::Layout::CType::kSkRect: // fall through
-                    case SkSL::Layout::CType::kDefault:
-                        offset = SkAlign4(offset);
-                        f1 = *(float*) (inputs + offset);
-                        offset += sizeof(float);
-                        f2 = *(float*) (inputs + offset);
-                        offset += sizeof(float);
-                        f3 = *(float*) (inputs + offset);
-                        offset += sizeof(float);
-                        f4 = *(float*) (inputs + offset);
-                        offset += sizeof(float);
-                        break;
-                    default:
-                        SK_ABORT("unsupported uniform ctype");
+            switch (get_ctype(fContext, *v))  {
+                case SkSL::Layout::CType::kSkPMColor: {
+                    float f1 = ((uint8_t*) inputs)[offset++] / 255.0;
+                    float f2 = ((uint8_t*) inputs)[offset++] / 255.0;
+                    float f3 = ((uint8_t*) inputs)[offset++] / 255.0;
+                    float f4 = ((uint8_t*) inputs)[offset++] / 255.0;
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                        pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
+                    }
+                    break;
                 }
-                if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                    pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
+                case SkSL::Layout::CType::kSkRect: {
+                    offset = SkAlign4(offset);
+                    float f1 = *(float*) (inputs + offset);
+                    offset += sizeof(float);
+                    float f2 = *(float*) (inputs + offset);
+                    offset += sizeof(float);
+                    float f3 = *(float*) (inputs + offset);
+                    offset += sizeof(float);
+                    float f4 = *(float*) (inputs + offset);
+                    offset += sizeof(float);
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                        pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
+                    }
+                    break;
                 }
-            } else if (&v->fType == context.fInt_Type.get()) {
-                int32_t i = *(int32_t*) (inputs + offset);
-                offset += sizeof(int32_t);
-                if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                    pdman.set1i(fUniformHandles[uniformIndex++], i);
+                case SkSL::Layout::CType::kInt32: {
+                    int32_t i = *(int32_t*) (inputs + offset);
+                    offset += sizeof(int32_t);
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                        pdman.set1i(fUniformHandles[uniformIndex++], i);
+                    }
+                    break;
                 }
-            } else if (&v->fType == context.fFloat_Type.get()) {
-                float f = *(float*) (inputs + offset);
-                offset += sizeof(float);
-                if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                    pdman.set1f(fUniformHandles[uniformIndex++], f);
+                case SkSL::Layout::CType::kFloat: {
+                    float f = *(float*) (inputs + offset);
+                    offset += sizeof(float);
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                        pdman.set1f(fUniformHandles[uniformIndex++], f);
+                    }
+                    break;
                 }
-            } else if (&v->fType == context.fBool_Type.get()) {
-                SkASSERT(!(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag));
-                ++offset;
-            } else {
-                SkASSERT(&v->fType == context.fFragmentProcessor_Type.get());
+                case SkSL::Layout::CType::kBool:
+                    SkASSERT(!(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag));
+                    ++offset;
+                    break;
+                default:
+                    SkASSERT(&v->fType == fContext.fFragmentProcessor_Type.get());
             }
         }
     }
@@ -326,55 +350,63 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     char* inputs = (char*) fInputs.get();
     const SkSL::Context& context = fFactory->fCompiler.context();
     for (const auto& v : fFactory->fInputVars) {
-        if (&v->fType == context.fInt_Type.get()) {
-            offset = SkAlign4(offset);
-            if (v->fModifiers.fLayout.fKey) {
-                fKey += inputs[offset + 0];
-                fKey += inputs[offset + 1];
-                fKey += inputs[offset + 2];
-                fKey += inputs[offset + 3];
-                b->add32(*(int32_t*) (inputs + offset));
-            }
-            offset += sizeof(int32_t);
-        } else if (&v->fType == context.fFloat_Type.get()) {
-            offset = SkAlign4(offset);
-            if (v->fModifiers.fLayout.fKey) {
-                fKey += inputs[offset + 0];
-                fKey += inputs[offset + 1];
-                fKey += inputs[offset + 2];
-                fKey += inputs[offset + 3];
-                b->add32(*(float*) (inputs + offset));
-            }
-            offset += sizeof(float);
-        } else if (&v->fType == context.fFloat4_Type.get() ||
-                   &v->fType == context.fHalf4_Type.get()) {
-            if (v->fModifiers.fLayout.fKey) {
-                for (size_t i = 0; i < sizeof(float) * 4; ++i) {
-                    fKey += inputs[offset + i];
-                }
-                b->add32(*(int32_t*) (inputs + offset));
-                offset += sizeof(float);
-                b->add32(*(int32_t*) (inputs + offset));
-                offset += sizeof(float);
-                b->add32(*(int32_t*) (inputs + offset));
-                offset += sizeof(float);
-                b->add32(*(int32_t*) (inputs + offset));
-                offset += sizeof(float);
-            } else {
-                offset += sizeof(float) * 4;
-            }
-        } else if (&v->fType == context.fBool_Type.get()) {
-            if (v->fModifiers.fLayout.fKey) {
-                fKey += inputs[offset];
-                b->add32(inputs[offset]);
-            }
-            ++offset;
-        } else if (&v->fType == context.fFragmentProcessor_Type.get()) {
+        if (&v->fType == context.fFragmentProcessor_Type.get()) {
             continue;
-        } else {
-            // unsupported input var type
-            printf("%s\n", SkSL::String(v->fType.fName).c_str());
-            SkASSERT(false);
+        }
+        switch (get_ctype(context, *v)) {
+            case SkSL::Layout::CType::kBool:
+                if (v->fModifiers.fLayout.fKey) {
+                    fKey += inputs[offset];
+                    b->add32(inputs[offset]);
+                }
+                ++offset;
+                break;
+            case SkSL::Layout::CType::kInt32: {
+                offset = SkAlign4(offset);
+                if (v->fModifiers.fLayout.fKey) {
+                    fKey += inputs[offset + 0];
+                    fKey += inputs[offset + 1];
+                    fKey += inputs[offset + 2];
+                    fKey += inputs[offset + 3];
+                    b->add32(*(int32_t*) (inputs + offset));
+                }
+                offset += sizeof(int32_t);
+                break;
+            }
+            case SkSL::Layout::CType::kFloat: {
+                offset = SkAlign4(offset);
+                if (v->fModifiers.fLayout.fKey) {
+                    fKey += inputs[offset + 0];
+                    fKey += inputs[offset + 1];
+                    fKey += inputs[offset + 2];
+                    fKey += inputs[offset + 3];
+                    b->add32(*(float*) (inputs + offset));
+                }
+                offset += sizeof(float);
+                break;
+            }
+            case SkSL::Layout::CType::kSkPMColor: // fall through
+            case SkSL::Layout::CType::kSkRect:
+                if (v->fModifiers.fLayout.fKey) {
+                    for (size_t i = 0; i < sizeof(float) * 4; ++i) {
+                        fKey += inputs[offset + i];
+                    }
+                    b->add32(*(int32_t*) (inputs + offset));
+                    offset += sizeof(float);
+                    b->add32(*(int32_t*) (inputs + offset));
+                    offset += sizeof(float);
+                    b->add32(*(int32_t*) (inputs + offset));
+                    offset += sizeof(float);
+                    b->add32(*(int32_t*) (inputs + offset));
+                    offset += sizeof(float);
+                } else {
+                    offset += sizeof(float) * 4;
+                }
+                break;
+            default:
+                // unsupported input var type
+                printf("%s\n", SkSL::String(v->fType.fName).c_str());
+                SkASSERT(false);
         }
     }
 }

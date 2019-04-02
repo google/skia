@@ -126,6 +126,9 @@ void Parser::InitLayoutMap() {
     TOKEN(SKRECT,                       "SkRect");
     TOKEN(SKIRECT,                      "SkIRect");
     TOKEN(SKPMCOLOR,                    "SkPMColor");
+    TOKEN(BOOL,                         "bool");
+    TOKEN(INT,                          "int");
+    TOKEN(FLOAT,                        "float");
     #undef TOKEN
 }
 
@@ -737,6 +740,12 @@ Layout::CType Parser::layoutCType() {
                     return Layout::CType::kSkIRect;
                 case LayoutToken::SKPMCOLOR:
                     return Layout::CType::kSkPMColor;
+                case LayoutToken::BOOL:
+                    return Layout::CType::kBool;
+                case LayoutToken::INT:
+                    return Layout::CType::kInt32;
+                case LayoutToken::FLOAT:
+                    return Layout::CType::kFloat;
                 default:
                     break;
             }

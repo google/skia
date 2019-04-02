@@ -15,11 +15,11 @@
 #include "gm.h"
 
 const char* SKSL_TEST_SRC = R"(
-    in uniform float b;
+    layout(ctype=float) in uniform half b;
 
     void main(inout half4 color) {
         color.rg = color.gr;
-        color.b = half(b);
+        color.b = b;
     }
 )";
 

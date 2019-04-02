@@ -79,6 +79,7 @@ struct Layout {
 
     enum class CType {
         kDefault,
+        kBool,
         kFloat,
         kInt32,
         kSkRect,
