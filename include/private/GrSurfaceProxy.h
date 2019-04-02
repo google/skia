@@ -18,7 +18,6 @@
 class GrCaps;
 class GrContext_Base;
 class GrOpList;
-class GrProxyProvider;
 class GrRecordingContext;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
@@ -150,6 +149,15 @@ protected:
     virtual ~GrIORefProxy() {
         // We don't unref 'fTarget' here since the 'unref' method will already
         // have forwarded on the unref call that got us here.
+    }
+
+    // Privileged method that allows going from ref count = 0 to ref count = 1.
+    void addInitialRef() const {
+        this->validate();
+        ++fRefCnt;
+        if (fTarget) {
+            fTarget->proxyAccess().ref();
+        }
     }
 
     // This GrIORefProxy was deferred before but has just been instantiated. To
@@ -458,6 +466,13 @@ public:
     inline GrSurfaceProxyPriv priv();
     inline const GrSurfaceProxyPriv priv() const;
 
+    /**
+     * Provides privileged access to select callers to be able to add a ref to a GrSurfaceProxy
+     * with zero refs.
+     */
+    class FirstRefAccess;
+    inline FirstRefAccess firstRefAccess();
+
     GrInternalSurfaceFlags testingOnly_getFlags() const;
 
 protected:
@@ -567,5 +582,26 @@ private:
 
     typedef GrIORefProxy INHERITED;
 };
+
+class GrSurfaceProxy::FirstRefAccess {
+private:
+    void ref() { fProxy->addInitialRef(); }
+
+    FirstRefAccess(GrSurfaceProxy* proxy) : fProxy(proxy) {}
+
+    // No taking addresses of this type.
+    const FirstRefAccess* operator&() const = delete;
+    FirstRefAccess* operator&() = delete;
+
+    GrSurfaceProxy* fProxy;
+
+    friend class GrSurfaceProxy;
+    friend class GrProxyProvider;
+    friend class GrDeinstantiateProxyTracker;
+};
+
+inline GrSurfaceProxy::FirstRefAccess GrSurfaceProxy::firstRefAccess() {
+    return FirstRefAccess(this);
+}
 
 #endif

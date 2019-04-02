@@ -53,6 +53,8 @@ public:
     // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
     // not intended to cross thread boundaries.
     void ref() const {
+        // Only the cache should be able to add the first ref to a resource.
+        SkASSERT(fRefCnt > 0);
         this->validate();
         ++fRefCnt;
     }
@@ -99,6 +101,12 @@ protected:
 
     bool internalHasRef() const { return SkToBool(fRefCnt); }
     bool internalHasUniqueRef() const { return fRefCnt == 1; }
+
+    // Privileged method that allows going from ref count = 0 to ref count = 1.
+    void addInitialRef() const {
+        this->validate();
+        ++fRefCnt;
+    }
 
 private:
     // This is for a unit test.
@@ -225,6 +233,12 @@ public:
     class CacheAccess;
     inline CacheAccess cacheAccess();
     inline const CacheAccess cacheAccess() const;
+
+    /**
+     * Internal-only helper class used for manipulations of the resource by GrSurfaceProxy.
+     */
+    class ProxyAccess;
+    inline ProxyAccess proxyAccess();
 
     /**
      * Internal-only helper class used for manipulations of the resource by internal code.
@@ -360,5 +374,25 @@ private:
     typedef GrIORef<GrGpuResource> INHERITED;
     friend class GrIORef<GrGpuResource>; // to access notifyAllCntsAreZero and notifyRefCntIsZero.
 };
+
+class GrGpuResource::ProxyAccess {
+private:
+    ProxyAccess(GrGpuResource* resource) : fResource(resource) {}
+
+    /** Proxies are allowed to take a resource from no refs to one ref. */
+    void ref() { fResource->addInitialRef(); }
+
+    // No taking addresses of this type.
+    const CacheAccess* operator&() const = delete;
+    CacheAccess* operator&() = delete;
+
+    GrGpuResource* fResource;
+
+    friend class GrGpuResource;
+    friend class GrSurfaceProxy;
+    friend class GrIORefProxy;
+};
+
+inline GrGpuResource::ProxyAccess GrGpuResource::proxyAccess() { return ProxyAccess(this); }
 
 #endif
