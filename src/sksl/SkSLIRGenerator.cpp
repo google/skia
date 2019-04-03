@@ -348,6 +348,10 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
                                                                  const ASTModifiersDeclaration& m) {
     Modifiers modifiers = m.fModifiers;
     if (modifiers.fLayout.fInvocations != -1) {
+        if (fKind != Program::kGeometry_Kind) {
+            fErrors.error(m.fOffset, "'invocations' is only legal in geometry shaders");
+            return nullptr;
+        }
         fInvocations = modifiers.fLayout.fInvocations;
         if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
