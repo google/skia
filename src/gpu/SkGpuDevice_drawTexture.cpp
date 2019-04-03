@@ -458,10 +458,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                      const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
-    // FIXME (michaelludwig) - If strict is truly important for SkiaRenderer, we can make
-    // GrRTC::drawTextureSet support taking the constraint, or adding constraint to each entry.
-    // For now, at least respect the constraint argument instead of silently downgrading to fast.
-    if (constraint == SkCanvas::kStrict_SrcRectConstraint || !can_use_draw_texture(paint)) {
+    if (!can_use_draw_texture(paint)) {
         // Send every entry through drawImageQuad() to handle the more complicated paint
         int dstClipIndex = 0;
         for (int i = 0; i < count; ++i) {
@@ -494,7 +491,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
             fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
-                                                 filter, mode, GrAA::kYes, this->ctm(),
+                                                 filter, mode, GrAA::kYes, constraint, this->ctm(),
                                                  std::move(textureXform));
         }
     };

@@ -1074,7 +1074,8 @@ void GrRenderTargetContext::drawTextureQuad(const GrClip& clip, sk_sp<GrTextureP
 
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
                                            GrSamplerState::Filter filter, SkBlendMode mode,
-                                           GrAA aa, const SkMatrix& viewMatrix,
+                                           GrAA aa, SkCanvas::SrcRectConstraint constraint,
+                                           const SkMatrix& viewMatrix,
                                            sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -1097,24 +1098,23 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
                 // being drawn.
                 this->drawTexture(clip, set[i].fProxy, filter, mode, {alpha, alpha, alpha, alpha},
                                   set[i].fSrcRect, set[i].fDstRect, aa, set[i].fAAFlags,
-                                  SkCanvas::kFast_SrcRectConstraint, ctm, texXform);
+                                  constraint, ctm, texXform);
             } else {
                 // Generate interpolated texture coordinates to match the dst clip
                 SkPoint srcQuad[4];
                 GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcQuad, 4);
-                // Don't send srcRect as the domain, since the normal case doesn't use a constraint
-                // with the entire srcRect, so sampling into dstRect outside of dstClip will just
-                // keep seams look more correct.
+                const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
+                        ? &set[i].fSrcRect : nullptr;
                 this->drawTextureQuad(clip, set[i].fProxy, filter, mode,
                                       {alpha, alpha, alpha, alpha}, srcQuad, set[i].fDstClipQuad,
-                                      aa, set[i].fAAFlags, nullptr, ctm, texXform);
+                                      aa, set[i].fAAFlags, domain, ctm, texXform);
             }
         }
     } else {
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
         AutoCheckFlush acf(this->drawingManager());
         GrAAType aaType = this->chooseAAType(aa);
-        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, aaType, viewMatrix,
+        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, aaType, constraint, viewMatrix,
                                        std::move(texXform));
         this->addDrawOp(clip, std::move(op));
     }
