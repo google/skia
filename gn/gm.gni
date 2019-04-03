@@ -244,6 +244,7 @@ gm_sources = [
   "$_gm/offsetimagefilter.cpp",
   "$_gm/orientation.cpp",
   "$_gm/ovals.cpp",
+  "$_gm/overdrawcanvas.cpp",
   "$_gm/overdrawcolorfilter.cpp",
   "$_gm/OverStroke.cpp",
   "$_gm/p3.cpp",
