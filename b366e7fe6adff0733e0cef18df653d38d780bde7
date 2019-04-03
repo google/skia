@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca6c1024_cfad96e6",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-03T19:17:29Z",
+      "side": 1,
+      "message": "ubernit: 0.0",
+      "range": {
+        "startLine": 169,
+        "startChar": 23,
+        "endLine": 169,
+        "endChar": 24
+      },
+      "revId": "b366e7fe6adff0733e0cef18df653d38d780bde7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
