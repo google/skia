@@ -404,7 +404,7 @@ int main(int argc, char** argv) {
             } else if (name.endsWith(".json")) {
                 if (sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
                         .setResourceProvider(skottie_utils::FileResourceProvider::Make(dir))
-                        .makeFromFile(source.c_str())) {
+                        .make((const char*)blob->data(), blob->size())) {
                     sources.push_back(skottie_source(name, animation));
                     continue;
                 }
