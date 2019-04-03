@@ -62,7 +62,7 @@ public:
                            sk_sp<SkColorSpace>       colorSpace,
                            bool                      useStencilBuffers,
                            bool                      testThreading,
-                           bool                      testPersistentCache,
+                           int                       testPersistentCache,
                            SurfType);
 
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
@@ -79,7 +79,7 @@ public:
     SkAlphaType   getAlphaType() const { return fAlphaType; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
     bool          getTestThreading() const { return fTestThreading; }
-    bool          getTestPersistentCache() const { return fTestPersistentCache; }
+    int           getTestPersistentCache() const { return fTestPersistentCache; }
     SurfType      getSurfType() const { return fSurfType; }
 
 private:
@@ -91,7 +91,7 @@ private:
     SkAlphaType         fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
     bool                fTestThreading;
-    bool                fTestPersistentCache;
+    int                 fTestPersistentCache;
     SurfType            fSurfType;
 };
 
