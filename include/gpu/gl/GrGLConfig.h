@@ -72,7 +72,7 @@
     #ifdef SK_DEBUG
         #define GR_GL_LOG_CALLS 1
     #else
-        #define GR_GL_LOG_CALLS 0
+        #define GR_GL_LOG_CALLS 1
     #endif
 #endif
 

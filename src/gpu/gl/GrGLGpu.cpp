@@ -45,8 +45,8 @@
 #define SKIP_CACHE_CHECK    true
 
 #if GR_GL_CHECK_ALLOC_WITH_GET_ERROR
-    #define CLEAR_ERROR_BEFORE_ALLOC(iface)   GrGLClearErr(iface)
-    #define GL_ALLOC_CALL(iface, call)        GR_GL_CALL_NOERRCHECK(iface, call)
+    #define CLEAR_ERROR_BEFORE_ALLOC(iface)   do { GrGLClearErr(iface); gLogCallsGL = true; } while(0)
+    #define GL_ALLOC_CALL(iface, call)        do { GR_GL_CALL_NOERRCHECK(iface, call); SkDebugf("\tReturned\n"); gLogCallsGL = false; } while (0)
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_GET_ERROR(iface)
 #else
     #define CLEAR_ERROR_BEFORE_ALLOC(iface)
