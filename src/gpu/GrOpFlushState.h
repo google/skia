@@ -42,7 +42,8 @@ public:
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
     void executeDrawsAndUploadsForMeshDrawOp(
-            const GrOp* op, const SkRect& chainBounds, GrProcessorSet&&, uint32_t pipelineFlags = 0,
+            const GrOp* op, const SkRect& chainBounds, GrProcessorSet&&,
+            GrPipeline::InputFlags = GrPipeline::InputFlags::kNone,
             const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
     GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
