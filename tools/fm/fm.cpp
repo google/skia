@@ -35,10 +35,11 @@ using sk_gpu_test::GrContextFactory;
 static DEFINE_string2(sources, s, "", "Which GMs, .skps, or images to draw.");
 static DEFINE_string2(backend, b, "", "Backend used to create a canvas to draw into.");
 
-static DEFINE_string(ct   ,   "8888", "The color type for any raster backend.");
-static DEFINE_string(at   , "premul", "The alpha type for any raster backend.");
-static DEFINE_string(gamut,   "srgb", "The color gamut for any raster backend.");
-static DEFINE_string(tf   ,   "srgb", "The transfer function for any raster backend.");
+static DEFINE_string(ct    ,   "8888", "The color type for any raster backend.");
+static DEFINE_string(at    , "premul", "The alpha type for any raster backend.");
+static DEFINE_string(gamut ,   "srgb", "The color gamut for any raster backend.");
+static DEFINE_string(tf    ,   "srgb", "The transfer function for any raster backend.");
+static DEFINE_bool  (legacy,    false, "Use a null SkColorSpace instead of --gamut and --tf?");
 
 static DEFINE_int   (samples ,         0, "Samples per pixel in GPU backends.");
 static DEFINE_bool  (nvpr    ,     false, "Use NV_path_rendering in GPU backends?");
@@ -487,7 +488,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    const SkImageInfo unsized_info = SkImageInfo::Make(0,0, ct,at, SkColorSpace::MakeRGB(tf,gamut));
+    sk_sp<SkColorSpace> cs = FLAGS_legacy ? nullptr
+                                          : SkColorSpace::MakeRGB(tf,gamut);
+    const SkImageInfo unsized_info = SkImageInfo::Make(0,0, ct,at,cs);
 
     for (auto source : sources) {
         const auto start = std::chrono::steady_clock::now();
