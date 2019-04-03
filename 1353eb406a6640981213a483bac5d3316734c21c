@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75f54aa1_9dbece2f",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-03T12:15:30Z",
+      "side": 1,
+      "message": "// Note that this enum is extended by PrivateFlags\n\n?",
+      "revId": "1353eb406a6640981213a483bac5d3316734c21c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e7be77c_2fa9dcaf",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-03T12:15:30Z",
+      "side": 1,
+      "message": "wdyt about putting the PrivateFlags in here too?",
+      "revId": "1353eb406a6640981213a483bac5d3316734c21c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e135b037_ee42dad4",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-03T12:15:30Z",
+      "side": 1,
+      "message": "Can we rename this to something like \"InputFlags\" and have a comment like:\n\n// Callers can only specify a subset of the GrPipeline::Flags upon creation.\n\nDunno?",
+      "range": {
+        "startLine": 41,
+        "startChar": 15,
+        "endLine": 41,
+        "endChar": 20
+      },
+      "revId": "1353eb406a6640981213a483bac5d3316734c21c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
