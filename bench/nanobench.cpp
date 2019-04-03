@@ -179,7 +179,7 @@ static DEFINE_string(key, "",
 static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
 
-static DEFINE_bool(purgeBetweenBenches, false,
+static DEFINE_bool(purgeBetweenBenches, true,
                    "Call SkGraphics::PurgeAllCaches() between each benchmark?");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
