@@ -634,12 +634,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
     // Allow localMatrix to be optional, so we have 2 declarations of these shaders
     function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
-                                SkShader::TileMode tx, SkShader::TileMode ty,
+                                SkTileMode tx, SkTileMode ty,
                                 bool clampAsIfUnpremul)->sk_sp<SkShader> {
         return SkImageShader::Make(img, (SkTileMode)tx, (SkTileMode)ty, nullptr, clampAsIfUnpremul);
     }), allow_raw_pointers());
     function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
-                                SkShader::TileMode tx, SkShader::TileMode ty,
+                                SkTileMode tx, SkTileMode ty,
                                 bool clampAsIfUnpremul, const SimpleMatrix& lm)->sk_sp<SkShader> {
         SkMatrix localMatrix = toSkMatrix(lm);
 
@@ -647,7 +647,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
+                                int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
         SkPoint points[] = { start, end };
         // See comment above for uintptr_t explanation
         const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
@@ -658,7 +658,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkShader::TileMode mode, uint32_t flags,
+                                int count, SkTileMode mode, uint32_t flags,
                                 const SimpleMatrix& lm)->sk_sp<SkShader> {
         SkPoint points[] = { start, end };
         // See comment above for uintptr_t explanation
@@ -672,7 +672,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
+                                int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
         const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
@@ -682,7 +682,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                                int count, SkShader::TileMode mode, uint32_t flags,
+                                int count, SkTileMode mode, uint32_t flags,
                                 const SimpleMatrix& lm)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
         const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
@@ -696,7 +696,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 SkPoint start, SkScalar startRadius,
                 SkPoint end, SkScalar endRadius,
                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
+                int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
         const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
         const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
@@ -709,7 +709,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 SkPoint start, SkScalar startRadius,
                 SkPoint end, SkScalar endRadius,
                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
-                int count, SkShader::TileMode mode, uint32_t flags,
+                int count, SkTileMode mode, uint32_t flags,
                 const SimpleMatrix& lm)->sk_sp<SkShader> {
         // See comment above for uintptr_t explanation
         const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
@@ -1193,12 +1193,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("UTF32",   SkTextEncoding::kUTF32)
         .value("GlyphID", SkTextEncoding::kGlyphID);
 
-    enum_<SkShader::TileMode>("TileMode")
-        .value("Clamp",    SkShader::TileMode::kClamp_TileMode)
-        .value("Repeat",   SkShader::TileMode::kRepeat_TileMode)
-        .value("Mirror",   SkShader::TileMode::kMirror_TileMode)
+    enum_<SkTileMode>("TileMode")
+        .value("Clamp",    SkTileMode::kClamp)
+        .value("Repeat",   SkTileMode::kRepeat)
+        .value("Mirror",   SkTileMode::kMirror)
         // Decal mode only works in the SW backend, not WebGl (yet).
-        .value("Decal",    SkShader::TileMode::kDecal_TileMode);
+        .value("Decal",    SkTileMode::kDecal);
 
     enum_<SkVertices::VertexMode>("VertexMode")
         .value("Triangles",       SkVertices::VertexMode::kTriangles_VertexMode)
