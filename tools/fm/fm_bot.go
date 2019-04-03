@@ -83,6 +83,11 @@ func sourcesAndFlags(args []string, gms []string) ([]string, []string, error) {
 	sources := []string{}
 	flags := []string{}
 	for _, arg := range args {
+		// Everything after a # is a comment.
+		if strings.HasPrefix(arg, "#") {
+			break
+		}
+
 		// Treat "gm" or "gms" as a shortcut for all known GMs.
 		if arg == "gm" || arg == "gms" {
 			sources = append(sources, gms...)
