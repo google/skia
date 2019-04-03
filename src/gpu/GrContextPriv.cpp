@@ -304,12 +304,13 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
+    GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
+
     // MDB TODO: delay this instantiation until later in the method
-    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider(), true)) {
+    if (!srcProxy->instantiate(this->resourceProvider())) {
         return false;
     }
 
-    GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
     GrSurface* srcSurface = srcProxy->peekSurface();
 
     if (!GrSurfacePriv::AdjustReadPixelParams(srcSurface->width(), srcSurface->height(),
@@ -450,9 +451,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         sk_bzero(buffer, tempPixmap.computeByteSize());
     }
 
-    if (srcSurface->surfacePriv().hasPendingWrite()) {
-        this->flush(nullptr);  // MDB TODO: tighten this
-    }
+    this->flush(srcProxy);
 
     if (!fContext->fGpu->readPixels(srcSurface, left, top, width, height, allowedColorType, buffer,
                                     rowBytes)) {
@@ -493,11 +492,11 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         return false;
     }
 
-    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider(), true)) {
+    GrSurfaceProxy* dstProxy = dst->asSurfaceProxy();
+    if (!dstProxy->instantiate(this->resourceProvider())) {
         return false;
     }
 
-    GrSurfaceProxy* dstProxy = dst->asSurfaceProxy();
     GrSurface* dstSurface = dstProxy->peekSurface();
 
     if (!GrSurfacePriv::AdjustWritePixelParams(dstSurface->width(), dstSurface->height(),
@@ -580,10 +579,13 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             dst->asRenderTargetContext()->fillRectToRect(
                     GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeXYWH(left, top, width, height), SkRect::MakeWH(width, height));
-            return true;
         } else {
-            return dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top});
+            if (!dst->copy(tempProxy.get(), SkIRect::MakeWH(width, height), {left, top})) {
+                return false;
+            }
         }
+
+        return true;
     }
 
     bool convert = premul || needColorConversion;
@@ -645,9 +647,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         top = dstSurface->height() - top - height;
     }
 
-    if (dstSurface->surfacePriv().hasPendingIO()) {
-        this->flush(nullptr);  // MDB TODO: tighten this
-    }
+    this->flush(dstProxy);
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,
                                        rowBytes);
