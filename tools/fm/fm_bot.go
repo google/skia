@@ -227,7 +227,11 @@ func main() {
 		sourcesPerBatch := (len(sources) + *processLimit - 1) / *processLimit
 
 		for i := 0; i < len(sources); i += sourcesPerBatch {
-			batch := sources[i : i+sourcesPerBatch]
+			end := i+sourcesPerBatch
+			if end > len(sources) {
+				end = len(sources)
+			}
+			batch := sources[i : end]
 
 			queue <- struct {
 				Sources []string
