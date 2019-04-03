@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "31a39b47_cc79c05c",
+        "filename": "gn/examples.gni",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-03T18:15:56Z",
+      "side": 1,
+      "message": "I made it real JSON.\n\nYes, that\u0027s my next thing to do, parse this with named-fiddles to get this in sync.",
+      "parentUuid": "c203f7be_2bce74b0",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 16
+      },
+      "revId": "ebc9d5e59f95c1f753f66c43c040537c6f4e168f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4e6199a_8dc3160f",
         "filename": "gn/gni_sources_to_concated_c.py",
         "patchSetId": 4
