@@ -1322,7 +1322,6 @@ bool Compiler::optimize(Program& program) {
                 ++iter;
             }
         }
-        fSource = nullptr;
     }
     return fErrorCount == 0;
 }
