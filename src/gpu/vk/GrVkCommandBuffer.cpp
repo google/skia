@@ -421,6 +421,7 @@ void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu) {
     fTrackedRecordingResources.rewind();
     this->invalidateState();
     fIsActive = false;
+    fHasWork = false;
 }
 
 void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
@@ -920,4 +921,5 @@ void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
     }
     this->invalidateState();
     fIsActive = false;
+    fHasWork = false;
 }
