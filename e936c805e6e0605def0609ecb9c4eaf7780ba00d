@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d93cf8c4_985daed6",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-04-03T15:26:58Z",
+      "side": 1,
+      "message": "Instead of jumping through hoops to read a misaligned number, might it be better just to use proper padding so it\u0027s aligned?",
+      "range": {
+        "startLine": 184,
+        "startChar": 8,
+        "endLine": 184,
+        "endChar": 75
+      },
+      "revId": "e936c805e6e0605def0609ecb9c4eaf7780ba00d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
