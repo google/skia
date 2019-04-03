@@ -159,7 +159,8 @@ protected:
 
         // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
         // new commands to the buffer;
-        bool fIsActive;
+        bool                      fIsActive;
+        mutable bool              fHasWork = false;
 
         // Stores a pointer to the current active render pass (i.e. begin has been called but not
         // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
@@ -202,8 +203,6 @@ private:
 #ifdef SK_DEBUG
     mutable bool fResourcesReleased = false;
 #endif
-
-    mutable bool fHasWork = false;
 };
 
 class GrVkSecondaryCommandBuffer;
