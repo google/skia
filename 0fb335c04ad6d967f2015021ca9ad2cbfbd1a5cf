@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a175d6b2_4a08936c",
+        "filename": "docs/examples/Bitmap_bytesPerPixel.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-03T18:32:22Z",
+      "side": 1,
+      "message": "Maybe want to loop from 0\u003cct\u003c\u003dkLastEnum_SkColorType, same sort of thing for the other loops/types?",
+      "revId": "0fb335c04ad6d967f2015021ca9ad2cbfbd1a5cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
