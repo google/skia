@@ -464,13 +464,13 @@ static XPS_POINT xps_point(const SkPoint& point, const SkMatrix& matrix) {
     return xps_point(skTransformedPoint);
 }
 
-static XPS_SPREAD_METHOD xps_spread_method(SkShader::TileMode tileMode) {
+static XPS_SPREAD_METHOD xps_spread_method(SkTileMode tileMode) {
     switch (tileMode) {
-    case SkShader::kClamp_TileMode:
+    case SkTileMode::kClamp:
         return XPS_SPREAD_METHOD_PAD;
-    case SkShader::kRepeat_TileMode:
+    case SkTileMode::kRepeat:
         return XPS_SPREAD_METHOD_REPEAT;
-    case SkShader::kMirror_TileMode:
+    case SkTileMode::kMirror:
         return XPS_SPREAD_METHOD_REFLECT;
     default:
         SkDEBUGFAIL("Unknown tile mode.");
@@ -613,8 +613,8 @@ static const XPS_TILE_MODE XTM_XY = XPS_TILE_MODE_FLIPXY;
 //TODO(bungeman): In the future, should skia add None,
 //handle None+Mirror and None+Repeat correctly.
 //None is currently an internal hack so masks don't repeat (None+None only).
-static XPS_TILE_MODE SkToXpsTileMode[SkShader::kTileModeCount+1]
-                                    [SkShader::kTileModeCount+1] = {
+static XPS_TILE_MODE gSkToXpsTileMode[kSkTileModeCount+1]
+                                     [kSkTileModeCount+1] = {
                //Clamp  //Repeat //Mirror //None
     /*Clamp */ {XTM_N,  XTM_T,   XTM_Y,   XTM_N},
     /*Repeat*/ {XTM_T,  XTM_T,   XTM_Y,   XTM_N},
@@ -622,10 +622,14 @@ static XPS_TILE_MODE SkToXpsTileMode[SkShader::kTileModeCount+1]
     /*None  */ {XTM_N,  XTM_N,   XTM_Y,   XTM_N},
 };
 
+static XPS_TILE_MODE SkToXpsTileMode(SkTileMode tmx, SkTileMode tmy) {
+    return gSkToXpsTileMode[(unsigned)tmx][(unsigned)tmy];
+}
+
 HRESULT SkXPSDevice::createXpsImageBrush(
         const SkBitmap& bitmap,
         const SkMatrix& localMatrix,
-        const SkShader::TileMode (&xy)[2],
+        const SkTileMode (&xy)[2],
         const SkAlpha alpha,
         IXpsOMTileBrush** xpsBrush) {
     SkDynamicMemoryWStream write;
@@ -667,10 +671,10 @@ HRESULT SkXPSDevice::createXpsImageBrush(
                                             &xpsImageBrush),
         "Could not create image brush.");
 
-    if (SkShader::kClamp_TileMode != xy[0] &&
-        SkShader::kClamp_TileMode != xy[1]) {
+    if (SkTileMode::kClamp != xy[0] &&
+        SkTileMode::kClamp != xy[1]) {
 
-        HRM(xpsImageBrush->SetTileMode(SkToXpsTileMode[xy[0]][xy[1]]),
+        HRM(xpsImageBrush->SetTileMode(SkToXpsTileMode(xy[0], xy[1])),
             "Could not set image tile mode");
         HRM(xpsImageBrush->SetOpacity(alpha / 255.0f),
             "Could not set image opacity.");
@@ -705,7 +709,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
             "Could not set fill brush for image brush central path.");
 
         //add left/right
-        if (SkShader::kClamp_TileMode == xy[0]) {
+        if (SkTileMode::kClamp == xy[0]) {
             SkRect leftArea = SkRect::MakeLTRB(-BIG, 0, 0, bHeight);
             XPS_RECT leftImageViewBox = {
                 0.0, 0.0,
@@ -726,7 +730,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         }
 
         //add top/bottom
-        if (SkShader::kClamp_TileMode == xy[1]) {
+        if (SkTileMode::kClamp == xy[1]) {
             SkRect topArea = SkRect::MakeLTRB(0, -BIG, bWidth, 0);
             XPS_RECT topImageViewBox = {
                 0.0, 0.0,
@@ -747,8 +751,8 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         }
 
         //add tl, tr, bl, br
-        if (SkShader::kClamp_TileMode == xy[0] &&
-            SkShader::kClamp_TileMode == xy[1]) {
+        if (SkTileMode::kClamp == xy[0] &&
+            SkTileMode::kClamp == xy[1]) {
 
             const SkColor tlColor = bitmap.getColor(0,0);
             const SkRect tlArea = SkRect::MakeLTRB(-BIG, -BIG, 0, 0);
@@ -770,19 +774,19 @@ HRESULT SkXPSDevice::createXpsImageBrush(
 
         //create visual brush from canvas
         XPS_RECT bound = {};
-        if (SkShader::kClamp_TileMode == xy[0] &&
-            SkShader::kClamp_TileMode == xy[1]) {
+        if (SkTileMode::kClamp == xy[0] &&
+            SkTileMode::kClamp == xy[1]) {
 
             bound.x = BIG_F / -2;
             bound.y = BIG_F / -2;
             bound.width = BIG_F;
             bound.height = BIG_F;
-        } else if (SkShader::kClamp_TileMode == xy[0]) {
+        } else if (SkTileMode::kClamp == xy[0]) {
             bound.x = BIG_F / -2;
             bound.y = 0.0f;
             bound.width = BIG_F;
             bound.height = static_cast<FLOAT>(bitmap.height());
-        } else if (SkShader::kClamp_TileMode == xy[1]) {
+        } else if (SkTileMode::kClamp == xy[1]) {
             bound.x = 0;
             bound.y = BIG_F / -2;
             bound.width = static_cast<FLOAT>(bitmap.width());
@@ -793,7 +797,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
             "Could not create visual brush for image brush.");
         HRM(clampBrush->SetVisualLocal(brushCanvas.get()),
             "Could not set canvas on visual brush for image brush.");
-        HRM(clampBrush->SetTileMode(SkToXpsTileMode[xy[0]][xy[1]]),
+        HRM(clampBrush->SetTileMode(SkToXpsTileMode(xy[0], xy[1])),
             "Could not set tile mode on visual brush for image brush.");
         HRM(clampBrush->SetOpacity(alpha / 255.0f),
             "Could not set opacity on visual brush for image brush.");
@@ -877,7 +881,7 @@ HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
             "Could not add linear gradient stop.");
     }
 
-    HRM(gradientBrush->SetSpreadMethod(xps_spread_method(info.fTileMode)),
+    HRM(gradientBrush->SetSpreadMethod(xps_spread_method((SkTileMode)info.fTileMode)),
         "Could not set spread method of linear gradient.");
 
     HRM(gradientBrush->SetOpacity(alpha / 255.0f),
@@ -954,7 +958,7 @@ HRESULT SkXPSDevice::createXpsRadialGradient(SkShader::GradientInfo info,
             "Could not add radial gradient stop.");
     }
 
-    HRM(gradientBrush->SetSpreadMethod(xps_spread_method(info.fTileMode)),
+    HRM(gradientBrush->SetSpreadMethod(xps_spread_method((SkTileMode)info.fTileMode)),
         "Could not set spread method of radial gradient.");
 
     HRM(gradientBrush->SetOpacity(alpha / 255.0f),
@@ -1048,7 +1052,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
 
     SkBitmap outTexture;
     SkMatrix outMatrix;
-    SkShader::TileMode xy[2];
+    SkTileMode xy[2];
     SkImage* image = shader->isAImage(&outMatrix, xy);
     if (image && image->asLegacyBitmap(&outTexture)) {
         //TODO: outMatrix??
@@ -1420,9 +1424,9 @@ HRESULT SkXPSDevice::applyMask(const SkMask& mask,
                    SkIntToScalar(mask.fBounds.fTop));
     m.postScale(SkScalarInvert(ppuScale.fX), SkScalarInvert(ppuScale.fY));
 
-    SkShader::TileMode xy[2];
-    xy[0] = (SkShader::TileMode)3;
-    xy[1] = (SkShader::TileMode)3;
+    SkTileMode xy[2];
+    xy[0] = (SkTileMode)3;
+    xy[1] = (SkTileMode)3;
 
     SkBitmap bm;
     bm.installMaskPixels(mask);
