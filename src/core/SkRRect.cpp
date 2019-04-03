@@ -389,9 +389,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         return true;
     }
 
-    // If transform supported 90 degree rotations (which it could), we could
-    // use SkMatrix::rectStaysRect() to check for a valid transformation.
-    if (!matrix.isScaleTranslate()) {
+    if (!matrix.preservesAxisAlignment()) {
         return false;
     }
 
@@ -411,7 +409,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     // At this point, this is guaranteed to succeed, so we can modify dst.
     dst->fRect = newRect;
 
-    // Since the only transforms that were allowed are scale and translate, the type
+    // Since the only transforms that were allowed are axis aligned, the type
     // remains unchanged.
     dst->fType = fType;
 
@@ -430,11 +428,37 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     // Now scale each corner
     SkScalar xScale = matrix.getScaleX();
+    SkScalar yScale = matrix.getScaleY();
+
+    // There is a rotation of 90 (Clockwise 90) or 270 (Counter clockwise 90).
+    // 180 degrees rotations are simply flipX with a flipY and would come under
+    // a scale transform.
+    if (!matrix.isScaleTranslate()) {
+        const bool isClockwise = matrix.getSkewX() < 0;
+
+        // The matrix location for scale changes if there is a rotation.
+        xScale = matrix.getSkewY() * (isClockwise ? 1 : -1);
+        yScale = matrix.getSkewX() * (isClockwise ? -1 : 1);
+
+        const int dir = isClockwise ? 3 : 1;
+        for (int i = 0; i < 4; ++i) {
+            const int src = (i + dir) >= 4 ? (i + dir) % 4 : (i + dir);
+            // Swap X and Y axis for the radii.
+            dst->fRadii[i].fX = fRadii[src].fY;
+            dst->fRadii[i].fY = fRadii[src].fX;
+        }
+    } else {
+        for (int i = 0; i < 4; ++i) {
+            dst->fRadii[i].fX = fRadii[i].fX;
+            dst->fRadii[i].fY = fRadii[i].fY;
+        }
+    }
+
     const bool flipX = xScale < 0;
     if (flipX) {
         xScale = -xScale;
     }
-    SkScalar yScale = matrix.getScaleY();
+
     const bool flipY = yScale < 0;
     if (flipY) {
         yScale = -yScale;
@@ -442,8 +466,8 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     // Scale the radii without respecting the flip.
     for (int i = 0; i < 4; ++i) {
-        dst->fRadii[i].fX = fRadii[i].fX * xScale;
-        dst->fRadii[i].fY = fRadii[i].fY * yScale;
+        dst->fRadii[i].fX *= xScale;
+        dst->fRadii[i].fY *= yScale;
     }
 
     // Now swap as necessary.

@@ -454,7 +454,7 @@ public:
 
     /** Transforms by SkRRect by matrix, storing result in dst.
         Returns true if SkRRect transformed can be represented by another SkRRect.
-        Returns false if matrix contains transformations other than scale and translate.
+        Returns false if matrix contains transformations that are not axis aligned.
 
         Asserts in debug builds if SkRRect equals dst.
 
