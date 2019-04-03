@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee65a7e1_bf7b5012",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-03T20:44:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fea92a37_33a5c7ff",
+      "range": {
+        "startLine": 586,
+        "startChar": 18,
+        "endLine": 586,
+        "endChar": 27
+      },
+      "revId": "b77e1cecac536cba92eeaf967bcc951e8f05c9aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
