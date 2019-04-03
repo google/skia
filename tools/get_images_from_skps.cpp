@@ -52,8 +52,7 @@ struct Sniffer {
     void sniff(const void* ptr, size_t len) {
         SkMD5 md5;
         md5.write(ptr, len);
-        SkMD5::Digest digest;
-        md5.finish(digest);
+        SkMD5::Digest digest = md5.finish();
 
         if (gSeen.contains(digest)) {
             return;
