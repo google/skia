@@ -1587,7 +1587,7 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
     while (glyphCount > 0) {
         CGGlyph glyph;
         if (CTFontGetGlyphsForCharacters(ctFont, &unichar, &glyph, 1)) {
-            if (out[glyph] != 0) {
+            if (out[glyph] == 0) {
                 out[glyph] = unichar;
                 --glyphCount;
             }
@@ -1637,7 +1637,9 @@ static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
             CGGlyph glyph;
             UniChar unichar = static_cast<UniChar>((i << 3) + j);
             if (mask & (1 << j) && CTFontGetGlyphsForCharacters(ctFont, &unichar, &glyph, 1)) {
-                glyphToUnicode[glyph] = unichar;
+                if (glyphToUnicode[glyph] == 0) {
+                    glyphToUnicode[glyph] = unichar;
+                }
             }
         }
     }
