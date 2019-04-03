@@ -13,8 +13,7 @@ void draw(SkCanvas* canvas) {
                       /* { 5, 7 }, */ { 4, 6 }, { 3, 7 },    { 1, 5 },
                       /* { 1, 5 }, */ { 2, 4 }, { 1, 3 }, /* { 3, 1 } */ };
     SkPoint texCoords[] = { { 0, 0 }, { 0, 62}, { 62, 62}, { 62, 0 } };
-    paint.setShader(SkShader::MakeBitmapShader(source, SkShader::kClamp_TileMode,
-                                                       SkShader::kClamp_TileMode, nullptr));
+    paint.setShader(SkShader::MakeBitmapShader(source, SkTileMode::kClamp, SkTileMode::kClamp));
     canvas->scale(30, 30);
     canvas->drawPatch(cubics, nullptr, texCoords, paint);
 }

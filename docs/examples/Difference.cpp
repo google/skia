@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     SkColor alphas[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
     SkPoint vert[] = { { 0, 0 }, { 0, 256 } };
     paint.setShader(SkGradientShader::MakeLinear(vert, alphas, nullptr, SK_ARRAY_COUNT(alphas),
-            SkShader::kClamp_TileMode));
+            SkTileMode::kClamp));
     canvas->drawPaint(paint);
     canvas->clipRect( { 30, 30, 226, 226 } );
     canvas->drawColor(0x80bb9977, SkBlendMode::kDifference);

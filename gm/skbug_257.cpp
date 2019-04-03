@@ -24,8 +24,7 @@ static void rotated_checkerboard_shader(SkPaint* paint,
     matrix.setScale(0.75f, 0.75f);
     matrix.preRotate(30.0f);
     paint->setShader(
-            SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                       &matrix));
+            SkShader::MakeBitmapShader(bm, SkTileMode::kRepeat, SkTileMode::kRepeat, &matrix));
 }
 
 static void exercise_draw_pos_text(SkCanvas* canvas,

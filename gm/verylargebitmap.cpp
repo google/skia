@@ -17,7 +17,7 @@ static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     const SkScalar radius = 40;
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, nullptr, 2,
-                                                 SkShader::kMirror_TileMode));
+                                                 SkTileMode::kMirror));
     paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawPaint(paint);
 }

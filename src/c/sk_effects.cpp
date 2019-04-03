@@ -19,14 +19,14 @@ static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
 
 const struct {
     sk_shader_tilemode_t    fC;
-    SkShader::TileMode      fSK;
+    SkTileMode              fSK;
 } gTileModeMap[] = {
-    { CLAMP_SK_SHADER_TILEMODE,     SkShader::kClamp_TileMode },
-    { REPEAT_SK_SHADER_TILEMODE,    SkShader::kRepeat_TileMode },
-    { MIRROR_SK_SHADER_TILEMODE,    SkShader::kMirror_TileMode  },
+    { CLAMP_SK_SHADER_TILEMODE,     SkTileMode::kClamp },
+    { REPEAT_SK_SHADER_TILEMODE,    SkTileMode::kRepeat },
+    { MIRROR_SK_SHADER_TILEMODE,    SkTileMode::kMirror  },
 };
 
-static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkShader::TileMode* skMode) {
+static bool from_c_tilemode(sk_shader_tilemode_t cMode, SkTileMode* skMode) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTileModeMap); ++i) {
         if (cMode == gTileModeMap[i].fC) {
             if (skMode) {
@@ -52,7 +52,7 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
                                            int colorCount,
                                            sk_shader_tilemode_t cmode,
                                            const sk_matrix_t* cmatrix) {
-    SkShader::TileMode mode;
+    SkTileMode mode;
     if (!from_c_tilemode(cmode, &mode)) {
         return nullptr;
     }
@@ -79,7 +79,7 @@ sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
                                            int colorCount,
                                            sk_shader_tilemode_t cmode,
                                            const sk_matrix_t* cmatrix) {
-    SkShader::TileMode mode;
+    SkTileMode mode;
     if (!from_c_tilemode(cmode, &mode)) {
         return nullptr;
     }
@@ -123,7 +123,7 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
                                                       int colorCount,
                                                       sk_shader_tilemode_t cmode,
                                                       const sk_matrix_t* cmatrix) {
-    SkShader::TileMode mode;
+    SkTileMode mode;
     if (!from_c_tilemode(cmode, &mode)) {
         return nullptr;
     }

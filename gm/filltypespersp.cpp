@@ -60,7 +60,7 @@ protected:
                                                      colors,
                                                      pos,
                                                      SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode));
+                                                     SkTileMode::kClamp));
         paint.setAntiAlias(aa);
 
         showPath(canvas,   0,   0, SkPath::kWinding_FillType,
@@ -89,7 +89,7 @@ protected:
                                                       colors,
                                                       pos,
                                                       SK_ARRAY_COUNT(colors),
-                                                      SkShader::kClamp_TileMode));
+                                                      SkTileMode::kClamp));
         canvas->save();
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
             SkMatrix mat;

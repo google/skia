@@ -118,7 +118,7 @@ const SkMatrix& SkShader::getLocalMatrix() const {
     return as_SB(this)->getLocalMatrix();
 }
 
-SkImage* SkShader::isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
+SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
     return as_SB(this)->onIsAImage(localMatrix, xy);
 }
 
@@ -148,13 +148,13 @@ sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, SkTileMode tmx, 
     return SkMakeBitmapShader(src, tmx, tmy, localMatrix, kIfMutable_SkCopyPixelsMode);
 }
 
-// deprecated
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
 sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix, const SkRect* tile) {
-    return src ? src->makeShader(static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
-                                 localMatrix, tile)
+    return src ? src->makeShader((SkTileMode)tmx, (SkTileMode)tmy, localMatrix, tile)
                : MakeEmptyShader();
 }
+#endif
 
 bool SkShaderBase::appendStages(const SkStageRec& rec) const {
     return this->onAppendStages(rec);

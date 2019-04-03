@@ -33,7 +33,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest, reporte
                                                       gColors,
                                                       gPos,
                                                       7,
-                                                      SkShader::kClamp_TileMode));
+                                                      SkTileMode::kClamp));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));

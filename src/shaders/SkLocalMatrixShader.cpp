@@ -51,7 +51,7 @@ SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
 }
 #endif
 
-SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mode) const {
+SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, SkTileMode* mode) const {
     SkMatrix imageMatrix;
     SkImage* image = fProxyShader->isAImage(&imageMatrix, mode);
     if (image && outMatrix) {
