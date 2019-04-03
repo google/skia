@@ -8,9 +8,10 @@
 #include "SkOverdrawCanvas.h"
 
 #include "SkColorFilter.h"
+#include "SkDevice.h"
 #include "SkDrawShadowInfo.h"
 #include "SkDrawable.h"
-#include "SkFindAndPlaceGlyph.h"
+#include "SkGlyphRunPainter.h"
 #include "SkImagePriv.h"
 #include "SkLatticeIter.h"
 #include "SkPatchUtils.h"
@@ -21,26 +22,6 @@
 #include "SkTextBlob.h"
 #include "SkTextBlobPriv.h"
 #include "SkTo.h"
-
-namespace {
-class ProcessOneGlyphBounds {
-public:
-    ProcessOneGlyphBounds(SkOverdrawCanvas* canvas)
-        : fCanvas(canvas)
-    {}
-
-    void operator()(const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
-        int left = SkScalarFloorToInt(position.fX) + glyph.fLeft;
-        int top = SkScalarFloorToInt(position.fY) + glyph.fTop;
-        int right = left + glyph.fWidth;
-        int bottom = top + glyph.fHeight;
-        fCanvas->onDrawRect(SkRect::MakeLTRB(left, top, right, bottom), SkPaint());
-    }
-
-private:
-    SkOverdrawCanvas* fCanvas;
-};
-};
 
 SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     : INHERITED(canvas->onImageInfo().width(), canvas->onImageInfo().height())
@@ -61,42 +42,42 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     fPaint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(kIncrementAlpha));
 }
 
-void SkOverdrawCanvas::drawPosTextCommon(const SkGlyphID glyphs[], int count, const SkScalar pos[],
-                                         int scalarsPerPos, const SkPoint& offset,
-                                         const SkFont& font, const SkPaint& paint) {
-    ProcessOneGlyphBounds processBounds(this);
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    this->getProps(&props);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                font, paint, props,
-                                SkScalerContextFlags::kNone, this->getTotalMatrix());
-    SkFindAndPlaceGlyph::ProcessPosText(glyphs, count,
-                                        SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
-                                        cache.get(), processBounds);
-}
+namespace {
+class TextDevice : public SkNoPixelsDevice, public SkGlyphRunListPainter::BitmapDevicePainter {
+public:
+    TextDevice(SkCanvas* overdrawCanvas, const SkSurfaceProps& props)
+            : SkNoPixelsDevice{SkIRect::MakeWH(32767, 32767), props},
+              fOverdrawCanvas{overdrawCanvas},
+              fPainter{props, kN32_SkColorType, nullptr, SkStrikeCache::GlobalStrikeCache()} {}
+
+    void paintPaths(SkSpan<const SkPathPos> pathsAndPositions, SkScalar scale,
+                    const SkPaint& paint) const override {}
+
+    void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const override {
+        for (auto& mask : masks) {
+            fOverdrawCanvas->drawRect(SkRect::Make(mask.fBounds), SkPaint());
+        }
+    }
+
+protected:
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
+        fPainter.drawForBitmapDevice(glyphRunList, fOverdrawCanvas->getTotalMatrix(), this);
+    }
+
+private:
+    SkCanvas* const fOverdrawCanvas;
+    SkGlyphRunListPainter fPainter;
+};
+}  // namespace
 
 void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                       const SkPaint& paint) {
-    SkTextBlobRunIterator it(blob);
-    for (;!it.done(); it.next()) {
-        const SkPoint& offset = it.offset();
-        switch (it.positioning()) {
-            case SkTextBlobRunIterator::kDefault_Positioning:
-                SK_ABORT("This canvas does not support draw text.");
-                break;
-            case SkTextBlobRunIterator::kHorizontal_Positioning:
-                this->drawPosTextCommon(it.glyphs(), it.glyphCount(), it.pos(), 1,
-                                        SkPoint::Make(x, y + offset.y()), it.font(), paint);
-                break;
-            case SkTextBlobRunIterator::kFull_Positioning:
-                this->drawPosTextCommon(it.glyphs(), it.glyphCount(), it.pos(), 2, {x, y},
-                                        it.font(), paint);
-                break;
-            case SkTextBlobRunIterator::kRSXform_Positioning:
-                // unimplemented ...
-                break;
-        }
-    }
+    SkGlyphRunBuilder b;
+    SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
+    this->getProps(&props);
+    TextDevice device{this, props};
+
+    b.drawTextBlob(paint, *blob, {x, y}, &device);
 }
 
 void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

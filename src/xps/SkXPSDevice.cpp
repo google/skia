@@ -26,7 +26,6 @@
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkEndian.h"
-#include "SkFindAndPlaceGlyph.h"
 #include "SkGeometry.h"
 #include "SkHRESULT.h"
 #include "SkIStream.h"
