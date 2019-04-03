@@ -741,7 +741,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
 
     GrPipeline::InitArgs initArgs;
     if (GrAAType::kMSAA == fAAType) {
-        initArgs.fFlags = GrPipeline::kHWAntialias_Flag;
+        initArgs.fFlags = GrPipeline::Flags::kHWAntialias;
     }
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();

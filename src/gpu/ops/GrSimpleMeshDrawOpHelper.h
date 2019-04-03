@@ -38,9 +38,9 @@ public:
     template <typename Op, typename... OpArgs>
     static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs...);
 
-    enum class Flags : uint32_t {
-        kNone = 0x0,
-        kSnapVerticesToPixelCenters = 0x1,
+    enum class Flags : uint8_t {
+        kNone = 0,
+        kSnapVerticesToPixelCenters = (uint8_t)GrPipeline::Flags::kSnapVerticesToPixelCenters,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
 
@@ -124,7 +124,7 @@ public:
     void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
 
 protected:
-    uint32_t pipelineFlags() const { return fPipelineFlags; }
+    GrPipeline::Flags pipelineFlags() const { return fPipelineFlags; }
 
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType,
@@ -132,7 +132,7 @@ protected:
             GrProcessorAnalysisColor* geometryColor);
 
     GrProcessorSet* fProcessors;
-    unsigned fPipelineFlags : 8;
+    GrPipeline::Flags fPipelineFlags;
     unsigned fAAType : 2;
     unsigned fUsesLocalCoords : 1;
     unsigned fCompatibleWithCoverageAsAlpha : 1;
