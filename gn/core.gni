@@ -200,7 +200,6 @@ skia_core_sources = [
   "$_src/core/SkEdge.cpp",
   "$_src/core/SkEdge.h",
   "$_src/core/SkFDot6.h",
-  "$_src/core/SkFindAndPlaceGlyph.h",
   "$_src/core/SkArenaAlloc.cpp",
   "$_src/core/SkArenaAllocList.h",
   "$_src/core/SkGaussFilter.cpp",
