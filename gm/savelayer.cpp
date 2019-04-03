@@ -140,7 +140,7 @@ static void draw_mask(SkCanvas* canvas, int size) {
     canvas->drawPaint(paint);
 
     paint.setShader(SkGradientShader::MakeRadial({cx, cy}, size / 4, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawCircle(cx, cy, size / 4, paint);
 }
 
@@ -305,7 +305,7 @@ static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkSca
     // draw the treatment
     const SkPoint pts[] = { {r.fLeft,0}, {r.fRight, 0} };
     const SkColor colors[] = { 0x88000000, 0x0 };
-    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
     p.setShader(sh);
     p.setBlendMode(SkBlendMode::kDstIn);
     canvas->drawRect(r, p);

@@ -19,7 +19,7 @@ DEF_SIMPLE_GM(stroke_rect_shader, canvas, 690, 300) {
     constexpr SkColor kColors[] {SK_ColorRED, SK_ColorBLUE};
     SkPaint paint;
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2,
-                                                          SkShader::kClamp_TileMode);
+                                                          SkTileMode::kClamp);
     paint.setShader(std::move(shader));
     paint.setStyle(SkPaint::kStroke_Style);
     // Do a large initial translate so that local coords disagree with device coords significantly

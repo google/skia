@@ -20,7 +20,7 @@ static sk_sp<SkShader> make_color_shader(SkColor color) {
     constexpr SkPoint kPts[] = {{0, 0}, {1, 1}};
     SkColor colors[] = {color, color};
 
-    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 static sk_sp<SkShader> make_solid_shader() {
@@ -49,7 +49,7 @@ static sk_sp<SkShader> make_bg_shader(int checkSize) {
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     canvas.drawRect(rect1, paint);
     canvas.drawRect(rect0, paint);
-    return SkShader::MakeBitmapShader(bmp, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return SkShader::MakeBitmapShader(bmp, SkTileMode::kRepeat, SkTileMode::kRepeat);
 }
 
 class ModeColorFilterGM : public GM {

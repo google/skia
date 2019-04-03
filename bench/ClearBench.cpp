@@ -23,7 +23,7 @@
 static sk_sp<SkShader> make_shader() {
     static const SkPoint kPts[] = {{0, 0}, {10, 10}};
     static const SkColor kColors[] = {SK_ColorBLUE, SK_ColorWHITE};
-    return SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2, SkTileMode::kClamp);
 }
 
 class ClearBench : public Benchmark {

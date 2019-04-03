@@ -68,7 +68,7 @@ protected:
         SkPoint points[] = { SkPoint::Make(50.0f, 50.0f), SkPoint::Make(150.0f, 150.0f) };
         SkColor colors[] = { SK_ColorBLUE, SK_ColorYELLOW };
         paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+                                                     SkTileMode::kClamp));
         canvas->drawRegion(fRegion, paint);
     }
 

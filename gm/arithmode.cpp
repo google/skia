@@ -31,7 +31,7 @@ static sk_sp<SkImage> make_src() {
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }
@@ -47,7 +47,7 @@ static sk_sp<SkImage> make_dst() {
         SK_ColorGRAY,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }

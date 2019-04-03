@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
         SkColor colors[] = { color, SkColorSetA(color, 192), SkColorSetA(color, 128),
                              SkColorSetA(color, 0) };
         paint.setShader(SkGradientShader::MakeRadial({ 64, 64}, 100,
-                colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
+                colors, nullptr, SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
         canvas->drawCircle(64, 64, 100, paint);
         canvas->translate(64, 64);
     }

@@ -124,9 +124,8 @@ protected:
                 tilePtr = nullptr;
             }
 
-            fShaders[i] = SkShader::MakePictureShader(pictureRef, SkShader::kRepeat_TileMode,
-                                                      SkShader::kRepeat_TileMode, &localMatrix,
-                                                      tilePtr);
+            fShaders[i] = pictureRef->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                 &localMatrix, tilePtr);
         }
     }
 

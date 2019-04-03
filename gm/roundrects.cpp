@@ -263,7 +263,7 @@ protected:
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
         SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
         auto shader = SkGradientShader::MakeRadial(center, 20, colors, pos, SK_ARRAY_COUNT(colors),
-                                                   SkShader::kClamp_TileMode);
+                                                   SkTileMode::kClamp);
 
         for (int i = 0; i < fPaints.count(); ++i) {
             canvas->save();

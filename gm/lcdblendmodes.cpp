@@ -32,7 +32,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         SK_ColorRED, SK_ColorGREEN,
     };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kRepeat_TileMode);
+                                        SkTileMode::kRepeat);
 }
 
 class LcdBlendGM : public skiagm::GM {

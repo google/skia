@@ -104,8 +104,7 @@ protected:
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        auto s = SkShader::MakeBitmapShader(fBG, SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode, &m);
+        auto s = SkShader::MakeBitmapShader(fBG, SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
 
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
