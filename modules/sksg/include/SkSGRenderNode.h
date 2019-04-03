@@ -47,11 +47,12 @@ protected:
     struct RenderContext {
         sk_sp<SkColorFilter> fColorFilter;
         sk_sp<SkShader>      fShader;
+        SkMatrix             fShaderCTM = SkMatrix::I();
         float                fOpacity   = 1;
         SkBlendMode          fBlendMode = SkBlendMode::kSrcOver;
 
         // Returns true if the paint was modified.
-        bool modulatePaint(SkPaint*) const;
+        bool modulatePaint(const SkMatrix& ctm, SkPaint*) const;
     };
 
     class ScopedRenderContext final {
@@ -77,16 +78,18 @@ protected:
         // Add (cumulative) paint overrides to a render node sub-DAG.
         ScopedRenderContext&& modulateOpacity(float opacity);
         ScopedRenderContext&& modulateColorFilter(sk_sp<SkColorFilter>);
-        ScopedRenderContext&& modulateShader(sk_sp<SkShader>);
+        ScopedRenderContext&& modulateShader(sk_sp<SkShader>, const SkMatrix& shader_ctm);
         ScopedRenderContext&& modulateBlendMode(SkBlendMode);
 
         // Force content isolation for a node sub-DAG by applying the RenderContext
         // overrides via a layer.
-        ScopedRenderContext&& setIsolation(const SkRect& bounds, bool do_isolate);
+        ScopedRenderContext&& setIsolation(const SkRect& bounds, const SkMatrix& ctm,
+                                           bool do_isolate);
 
         // Similarly, force content isolation by applying the RenderContext overrides and
         // an image filter via a single layer.
-        ScopedRenderContext&& setFilterIsolation(const SkRect& bounds, sk_sp<SkImageFilter>);
+        ScopedRenderContext&& setFilterIsolation(const SkRect& bounds, const SkMatrix& ctm,
+                                                 sk_sp<SkImageFilter>);
 
     private:
         // stack-only
