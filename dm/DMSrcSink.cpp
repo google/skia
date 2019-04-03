@@ -1510,9 +1510,11 @@ GPUPersistentCacheTestingSink::GPUPersistentCacheTestingSink(
         SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace,
         bool threaded,
-        const GrContextOptions& grCtxOptions)
+        const GrContextOptions& grCtxOptions,
+        int cacheType)
         : INHERITED(ct, overrides, surfType, samples, diText, colorType, alphaType,
-                    std::move(colorSpace), threaded, grCtxOptions) {}
+                    std::move(colorSpace), threaded, grCtxOptions)
+        , fCacheType(cacheType) {}
 
 Error GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream,
                                           SkString* log) const {
@@ -1521,6 +1523,7 @@ Error GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStre
     sk_gpu_test::MemoryCache memoryCache;
     GrContextOptions contextOptions = this->baseContextOptions();
     contextOptions.fPersistentCache = &memoryCache;
+    contextOptions.fDisallowGLSLBinaryCaching = (fCacheType == 2);
 
     Error err = this->onDraw(src, dst, wStream, log, contextOptions);
     if (!err.isEmpty() || !dst) {

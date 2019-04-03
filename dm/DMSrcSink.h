@@ -394,7 +394,8 @@ public:
                                   SkCommandLineConfigGpu::SurfType surfType, int samples,
                                   bool diText, SkColorType colorType, SkAlphaType alphaType,
                                   sk_sp<SkColorSpace> colorSpace, bool threaded,
-                                  const GrContextOptions& grCtxOptions);
+                                  const GrContextOptions& grCtxOptions,
+                                  int cacheType);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
@@ -404,6 +405,8 @@ public:
     }
 
 private:
+    int fCacheType;
+
     typedef GPUSink INHERITED;
 };
 
