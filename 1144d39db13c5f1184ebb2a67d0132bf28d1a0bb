@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6e2c219_a30e0f90",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2343,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-03T18:54:48Z",
+      "side": 1,
+      "message": "Should add\n\nsources \u003d [ \"gn/examples.json\" ]\n\nso we rebuild when this file changes.",
+      "revId": "1144d39db13c5f1184ebb2a67d0132bf28d1a0bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
