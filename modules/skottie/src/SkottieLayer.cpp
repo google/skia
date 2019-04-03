@@ -194,7 +194,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
 
         void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
             const auto local_scope =
-                ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(), true);
+                ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
+                                                              canvas->getTotalMatrix(),
+                                                              true);
             fAnimation->render(canvas);
         }
 
@@ -518,16 +520,23 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
 
     const AutoPropertyTracker apt(this, *jlayer);
 
-    using LayerAttacher = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
-                                                                        const LayerInfo&,
-                                                                        AnimatorScope*) const;
-    static constexpr LayerAttacher gLayerAttachers[] = {
-        &AnimationBuilder::attachPrecompLayer,  // 'ty': 0
-        &AnimationBuilder::attachSolidLayer,    // 'ty': 1
-        &AnimationBuilder::attachImageLayer,    // 'ty': 2
-        &AnimationBuilder::attachNullLayer,     // 'ty': 3
-        &AnimationBuilder::attachShapeLayer,    // 'ty': 4
-        &AnimationBuilder::attachTextLayer,     // 'ty': 5
+    using LayerBuilder = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
+                                                                       const LayerInfo&,
+                                                                       AnimatorScope*) const;
+    enum : uint32_t {
+        kTransformEffects = 1, // The layer transform applies to its effects also.
+    };
+
+    static constexpr struct {
+        LayerBuilder fBuilder;
+        uint32_t     fFlags;
+    } gLayerBuildInfo[] = {
+        { &AnimationBuilder::attachPrecompLayer,                 0 },  // 'ty': 0 -> precomp
+        { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty': 1 -> solid
+        { &AnimationBuilder::attachImageLayer  ,                 0 },  // 'ty': 2 -> image
+        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 3 -> null
+        { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty': 4 -> shape
+        { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty': 5 -> text
     };
 
     const auto type = ParseDefault<int>((*jlayer)["ty"], -1);
@@ -545,14 +554,16 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
         return nullptr;
     }
 
-    if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gLayerAttachers))) {
+    if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gLayerBuildInfo))) {
         return nullptr;
     }
 
+    const auto& build_info = gLayerBuildInfo[type];
+
     AnimatorScope layer_animators;
 
-    // Layer content.
-    auto layer = (this->*(gLayerAttachers[type]))(*jlayer, layer_info, &layer_animators);
+    // Build the layer content fragment.
+    auto layer = (this->*(build_info.fBuilder))(*jlayer, layer_info, &layer_animators);
 
     // Clip layers with explicit dimensions.
     float w = 0, h = 0;
@@ -566,7 +577,24 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     layer = AttachMask((*jlayer)["masksProperties"], this, &layer_animators, std::move(layer));
 
     // Optional layer transform.
-    if (auto layer_transform = layerCtx->attachLayerTransform(*jlayer, this)) {
+    auto layer_transform = layerCtx->attachLayerTransform(*jlayer, this);
+
+    // Does the transform apply to effects also?
+    // (AE quirk: it doesn't - except for solid layers)
+    const auto transform_effects = (build_info.fFlags & kTransformEffects);
+
+    // Attach the transform before effects, when needed.
+    if (layer_transform && !transform_effects) {
+        layer = sksg::TransformEffect::Make(std::move(layer), layer_transform);
+    }
+
+    // Optional layer effects.
+    if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
+        layer = this->attachLayerEffects(*jeffects, &layer_animators, std::move(layer));
+    }
+
+    // Attach the transform after effects, when needed.
+    if (layer_transform && transform_effects) {
         layer = sksg::TransformEffect::Make(std::move(layer), std::move(layer_transform));
     }
 
@@ -574,11 +602,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     // TODO: de-dupe this "ks" lookup with matrix above.
     if (const skjson::ObjectValue* jtransform = (*jlayer)["ks"]) {
         layer = this->attachOpacity(*jtransform, &layer_animators, std::move(layer));
-    }
-
-    // Optional layer effects.
-    if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
-        layer = this->attachLayerEffects(*jeffects, &layer_animators, std::move(layer));
     }
 
     // Optional blend mode.

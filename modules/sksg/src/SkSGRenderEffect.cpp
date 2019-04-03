@@ -7,6 +7,7 @@
 
 #include "SkSGRenderEffect.h"
 
+#include "SkCanvas.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkMakeUnique.h"
 #include "SkShader.h"
@@ -53,7 +54,7 @@ SkRect ShaderEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ct
 
 void ShaderEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     const auto local_ctx = ScopedRenderContext(canvas, ctx)
-            .modulateShader(fShader ? fShader->getShader() : nullptr);
+            .modulateShader(fShader ? fShader->getShader() : nullptr, canvas->getTotalMatrix());
 
     this->INHERITED::onRender(canvas, local_ctx);
 }
@@ -109,6 +110,7 @@ void ImageFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) con
     // Note: we're using the source content bounds for saveLayer, not our local/filtered bounds.
     const auto filter_ctx =
         ScopedRenderContext(canvas, ctx).setFilterIsolation(this->getChild()->bounds(),
+                                                            canvas->getTotalMatrix(),
                                                             fImageFilter->getFilter());
     this->INHERITED::onRender(canvas, filter_ctx);
 }

@@ -26,7 +26,7 @@ const RenderNode* RenderNode::nodeAt(const SkPoint& p) const {
     return this->bounds().contains(p.x(), p.y()) ? this->onNodeAt(p) : nullptr;
 }
 
-bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
+bool RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* paint) const {
     const auto initial_alpha = paint->getAlpha(),
                        alpha = SkToU8(sk_float_round2int(initial_alpha * fOpacity));
 
@@ -35,8 +35,28 @@ bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
         paint->setColorFilter(SkColorFilter::MakeComposeFilter(fColorFilter,
                                                                paint->refColorFilter()));
         if (fShader) {
-            // Topmost shader takes precedence.
-            paint->setShader(fShader);
+            if (fShaderCTM != ctm) {
+                // The shader is declared to operate under a specific transform, but due to the
+                // deferral mechanism, other transformations might have been pushed to the state.
+                // We want to undo these transforms:
+                //
+                //   shaderCTM x T = ctm
+                //
+                //   =>  T = Inv(shaderCTM) x ctm
+                //
+                //   =>  Inv(T) = Inv(Inv(shaderCTM) x ctm)
+                //
+                //   =>  Inv(T) = Inv(ctm) x shaderCTM
+
+                SkMatrix inv_ctm;
+                if (ctm.invert(&inv_ctm)) {
+                    paint->setShader(
+                        fShader->makeWithLocalMatrix(SkMatrix::Concat(inv_ctm, fShaderCTM)));
+                }
+            } else {
+                // No intervening transforms.
+                paint->setShader(fShader);
+            }
         }
         paint->setBlendMode(fBlendMode);
         return true;
@@ -71,10 +91,11 @@ RenderNode::ScopedRenderContext::modulateColorFilter(sk_sp<SkColorFilter> cf) {
 }
 
 RenderNode::ScopedRenderContext&&
-RenderNode::ScopedRenderContext::modulateShader(sk_sp<SkShader> sh) {
+RenderNode::ScopedRenderContext::modulateShader(sk_sp<SkShader> sh, const SkMatrix& shader_ctm) {
     // Topmost shader takes precedence.
     if (!fCtx.fShader) {
         fCtx.fShader = std::move(sh);
+        fCtx.fShaderCTM = shader_ctm;
     }
 
     return std::move(*this);
@@ -87,10 +108,11 @@ RenderNode::ScopedRenderContext::modulateBlendMode(SkBlendMode mode) {
 }
 
 RenderNode::ScopedRenderContext&&
-RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, bool isolation) {
+RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, const SkMatrix& ctm,
+                                              bool isolation) {
     if (isolation) {
         SkPaint layer_paint;
-        if (fCtx.modulatePaint(&layer_paint)) {
+        if (fCtx.modulatePaint(ctm, &layer_paint)) {
             fCanvas->saveLayer(bounds, &layer_paint);
             fCtx = RenderContext();
         }
@@ -99,10 +121,10 @@ RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, bool isolati
 }
 
 RenderNode::ScopedRenderContext&&
-RenderNode::ScopedRenderContext::setFilterIsolation(const SkRect& bounds,
+RenderNode::ScopedRenderContext::setFilterIsolation(const SkRect& bounds, const SkMatrix& ctm,
                                                     sk_sp<SkImageFilter> filter) {
     SkPaint layer_paint;
-    fCtx.modulatePaint(&layer_paint);
+    fCtx.modulatePaint(ctm, &layer_paint);
 
     SkASSERT(!layer_paint.getImageFilter());
     layer_paint.setImageFilter(std::move(filter));

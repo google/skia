@@ -7,6 +7,8 @@
 
 #include "SkSGGroup.h"
 
+#include "SkCanvas.h"
+
 #include <algorithm>
 
 namespace sksg {
@@ -59,7 +61,9 @@ void Group::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     //   a) it is fragile because it relies on all leaf render nodes being atomic draws
     //   b) could be improved by e.g. detecting all leaf render draws are non-overlapping
     const auto isolate = fChildren.size() > 1;
-    const auto local_ctx = ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(), isolate);
+    const auto local_ctx = ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
+                                                                         canvas->getTotalMatrix(),
+                                                                         isolate);
 
     for (const auto& child : fChildren) {
         child->render(canvas, local_ctx);
