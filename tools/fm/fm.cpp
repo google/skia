@@ -414,7 +414,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        fprintf(stderr, "Don't understand --source %s... bailing out.\n", source.c_str());
+        fprintf(stderr, "Don't understand source '%s'... bailing out.\n", source.c_str());
         return 1;
     }
 
