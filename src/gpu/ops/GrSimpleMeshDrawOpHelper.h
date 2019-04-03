@@ -38,13 +38,14 @@ public:
     template <typename Op, typename... OpArgs>
     static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs...);
 
-    enum class Flags : uint32_t {
-        kNone = 0x0,
-        kSnapVerticesToPixelCenters = 0x1,
+    // Here we allow callers to specify a subset of the GrPipeline::InputFlags upon creation.
+    enum class InputFlags : uint8_t {
+        kNone = 0,
+        kSnapVerticesToPixelCenters = (uint8_t)GrPipeline::InputFlags::kSnapVerticesToPixelCenters,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags);
 
-    GrSimpleMeshDrawOpHelper(const MakeArgs&, GrAAType, Flags = Flags::kNone);
+    GrSimpleMeshDrawOpHelper(const MakeArgs&, GrAAType, InputFlags = InputFlags::kNone);
     ~GrSimpleMeshDrawOpHelper();
 
     GrSimpleMeshDrawOpHelper() = delete;
@@ -124,7 +125,7 @@ public:
     void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
 
 protected:
-    uint32_t pipelineFlags() const { return fPipelineFlags; }
+    GrPipeline::InputFlags pipelineFlags() const { return fPipelineFlags; }
 
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType,
@@ -132,7 +133,7 @@ protected:
             GrProcessorAnalysisColor* geometryColor);
 
     GrProcessorSet* fProcessors;
-    unsigned fPipelineFlags : 8;
+    GrPipeline::InputFlags fPipelineFlags;
     unsigned fAAType : 2;
     unsigned fUsesLocalCoords : 1;
     unsigned fCompatibleWithCoverageAsAlpha : 1;
@@ -148,7 +149,7 @@ protected:
 class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
-    using Flags = GrSimpleMeshDrawOpHelper::Flags;
+    using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
     using GrSimpleMeshDrawOpHelper::visitProxies;
 
@@ -161,7 +162,7 @@ public:
     }
 
     GrSimpleMeshDrawOpHelperWithStencil(const MakeArgs&, GrAAType, const GrUserStencilSettings*,
-                                        Flags = Flags::kNone);
+                                        InputFlags = InputFlags::kNone);
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
@@ -220,6 +221,6 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingCon
     }
 }
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::Flags)
+GR_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::InputFlags)
 
 #endif
