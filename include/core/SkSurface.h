@@ -690,6 +690,94 @@ public:
     */
     void writePixels(const SkBitmap& src, int dstX, int dstY);
 
+    /** Controls whether rescaling occurs in a linear version of the source surface's colorspace. */
+    enum RescaleLinear : bool {
+        kNo = false,
+        kYes = true,
+    };
+    using RescaleAndReadContext = void*;
+    using RescaleAndReadCallback = void(RescaleAndReadContext, void* data, size_t rowBytes);
+
+    /**
+     * For the subset of the src specified by 'srcRect' rescale to 'dstW' x 'dstH', convert to
+     * 'dstColorType'/'dstColorSpace', and then (if surface is on the GPU) read back to CPU
+     * asynchronously (if possible).  When the CPU data is available call 'callback' with the data.
+     * 'callback' may be called any time the GrContext is used. The client can actively poll for
+     * completion using GrContext::checkAsyncWorkCompletion().
+     *
+     * The rescaling is done either in the source SkSurfaces colorspace if 'rescaleLinear' is kNo.
+     * If 'rescaleLinear' is kYes then the source data is first converted to a colorspace that has
+     * the same gamut as the source but a linear gamma. In either case conversion to 'dstColorSpace'
+     * occurs after rescaling.
+     *
+     * If the SkSurface is not GPU-backed or if the underlying 3D API does not support asynchronous
+     * readbacks then 'callback' is called synchronously from this function.
+     *
+     * Upon error 'callback' is called with null data pointer. For bad input this is done
+     * synchronously. If the read back fails after this returns (e.g. GrContext becomes abandoned)
+     * 'callback' is called with 'data'=nullptr asynchronously. 'callback' is guaranteed to be
+     * called either with success or failure and only once. 'callback' will be passed 'context' upon
+     * success or failure.
+     *
+     * @param dstColorType    Pixel format of the result.
+     * @param dstColorSpace   Colorspace of the result.
+     * @param srcRect         Subrect of the source to read. If not a subset of the source SkSurface
+     * or empty this fails.
+     * @param dstW            width to rescale srcRect to. Fails if < 1.
+     * @param dstH            height to rescale srcRect to. Fails if < 1.
+     * @param rescaleQuality  controls the quality of the rescaling step.
+     * @param callback        callback to invoke upon success or failure.
+     * @param context         context to pass to callback.
+     */
+    void asyncRescaleAndReadPixels(GrContext*, SkColorType dstColorType,
+                                   sk_sp<SkColorSpace> dstColorSpace, SkIRect& srcRect, int dstW,
+                                   int dstH, RescaleLinear, SkFilterQuality rescaleQuality,
+                                   RescaleAndReadCallback callback, RescaleAndReadContext context);
+
+    enum Planes {
+        /** Three separate planes for each of Y, U, and V. */
+        kY_U_V_Planes,
+        /** Two separate planes: One for Y and one for interleaved U and V. */
+        kY_UV_Planes,
+        /** One plane containing interleaved Y, U, and V. */
+        kYUV_Plane,
+    };
+    enum Subsampling {
+        /** One U and V value for each Y value. */
+        kNotSubsampled,
+        /** U/V plane(s) are half as wide as Y plane. Disallowed with kYUV_Plane. */
+        kSubsampledX,
+        /**
+         * U/V plane(s) are half as wide and half as tall as Y plane.
+         * Disallowed with kYUV_Plane.
+         */
+        kSubsampeledXAndY
+    };
+
+    using RescaleAndReadCallbackYUV = void(RescaleAndReadContext, void* data[3],
+                                           size_t rowBytes[3]);
+    /**
+     * Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
+     * RGB->YUV conversion is controlled by 'yuvColorSpace'. The YUV data is always 8 bit per
+     * channel and subsampling and interleaved vs planar as described by 'planes' and 'subsampling'.
+     * 'callback' receives 1 to 3 data a rowbytes values depending upon the value of 'planes'.
+     *
+     * @param yuvColorSpace
+     * @param planes
+     * @param subsampling
+     * @param dstColorSpace
+     * @param srcRect
+     * @param dstW
+     * @param dstH
+     * @param rescaleQuality
+     * @param callback
+     */
+    void asyncRescaleAndReadPixelsYUV(SkYUVColorSpace yuvColorSpace, Planes planes,
+                                      Subsampling subsampling, sk_sp<SkColorSpace> dstColorSpace,
+                                      SkIRect& srcRect, int dstW, int dstH, RescaleLinear,
+                                      SkFilterQuality rescaleQuality,
+                                      RescaleAndReadCallbackYUV callback);
+
     /** Returns SkSurfaceProps for surface.
 
         @return  LCD striping orientation and setting for device independent fonts
