@@ -1507,7 +1507,6 @@ if (skia_enable_tools) {
       "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
       "tools/gpu/gl/GLTestContext.cpp",
       "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
-      "tools/gpu/gl/null/NullGLTestContext.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
     libs = []
