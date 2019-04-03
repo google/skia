@@ -172,13 +172,15 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt, GrSamplerState::Filter filter, GrAAType aaType,
+                                          SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         size_t size = sizeof(TextureOp) + sizeof(Proxy) * (cnt - 1);
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         void* mem = pool->allocate(size);
-        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(set, cnt, filter, aaType, viewMatrix,
-                                                             std::move(textureColorSpaceXform)));
+        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(
+                set, cnt, filter, aaType, constraint, viewMatrix,
+                std::move(textureColorSpaceXform)));
     }
 
     ~TextureOp() override {
@@ -302,7 +304,8 @@ private:
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
-              GrSamplerState::Filter filter, GrAAType aaType, const SkMatrix& viewMatrix,
+              GrSamplerState::Filter filter, GrAAType aaType,
+              SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
@@ -318,6 +321,7 @@ private:
         // The quad list will automatically adapt to that.
         fQuads.reserve(cnt, GrQuadTypeForTransformedRect(viewMatrix));
         bool allOpaque = true;
+        Domain netDomain = Domain::kNo;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -356,6 +360,17 @@ private:
                              GrTextureOp::GetFilterHasEffect(ctm, set[p].fSrcRect,
                                                              set[p].fDstRect);
             }
+            Domain domainForQuad = Domain::kNo;
+            if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+                // Check (briefly) if the strict constraint is needed for this set entry
+                if (!set[p].fSrcRect.contains(fProxies[p].fProxy->getWorstCaseBoundsRect()) &&
+                    (mustFilter || aaForQuad == GrAAType::kCoverage)) {
+                    // Can't rely on hardware clamping and the draw will access outer texels
+                    // for AA and/or bilerp
+                    netDomain = Domain::kYes;
+                    domainForQuad = Domain::kYes;
+                }
+            }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             allOpaque &= (1.f == alpha);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
@@ -370,14 +385,14 @@ private:
                 srcQuadIndex = fSrcQuads.count() - 1;
             }
             fQuads.push_back(quad, quadType,
-                             {color, set[p].fSrcRect, srcQuadIndex, Domain::kNo, aaFlags});
+                             {color, set[p].fSrcRect, srcQuadIndex, domainForQuad, aaFlags});
         }
         fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {
             fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
-        fDomain = static_cast<unsigned>(false);
+        fDomain = static_cast<unsigned>(netDomain);
     }
 
     void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy, int start,
@@ -703,9 +718,10 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   int cnt,
                                   GrSamplerState::Filter filter,
                                   GrAAType aaType,
+                                  SkCanvas::SrcRectConstraint constraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-    return TextureOp::Make(context, set, cnt, filter, aaType, viewMatrix,
+    return TextureOp::Make(context, set, cnt, filter, aaType, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
 }
 
