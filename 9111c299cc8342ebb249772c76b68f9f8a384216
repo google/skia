@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d27bf045_f2b59e35",
+        "filename": "tools/fm/fm_bot.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-03T16:31:47Z",
+      "side": 1,
+      "message": "I\u0027m not sure whether I prefer this approach or querying FM to classify backends.  But this seems simple enough for now.",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 3
+      },
+      "revId": "9111c299cc8342ebb249772c76b68f9f8a384216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
