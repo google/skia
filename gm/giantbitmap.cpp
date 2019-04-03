@@ -20,7 +20,7 @@
 
 class GiantBitmapGM : public skiagm::GM {
     SkBitmap* fBM;
-    SkShader::TileMode fMode;
+    SkTileMode fMode;
     bool fDoFilter;
     bool fDoRotate;
 
@@ -60,7 +60,7 @@ class GiantBitmapGM : public skiagm::GM {
     }
 
 public:
-    GiantBitmapGM(SkShader::TileMode mode, bool doFilter, bool doRotate) : fBM(nullptr) {
+    GiantBitmapGM(SkTileMode mode, bool doFilter, bool doRotate) : fBM(nullptr) {
         fMode = mode;
         fDoFilter = doFilter;
         fDoRotate = doRotate;
@@ -73,14 +73,17 @@ protected:
     SkString onShortName() override {
         SkString str("giantbitmap_");
         switch (fMode) {
-            case SkShader::kClamp_TileMode:
+            case SkTileMode::kClamp:
                 str.append("clamp");
                 break;
-            case SkShader::kRepeat_TileMode:
+            case SkTileMode::kRepeat:
                 str.append("repeat");
                 break;
-            case SkShader::kMirror_TileMode:
+            case SkTileMode::kMirror:
                 str.append("mirror");
+                break;
+            case SkTileMode::kDecal:
+                str.append("decal");
                 break;
             default:
                 break;
@@ -120,16 +123,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, false, false); )
-DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, false); )
-DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, false, false); )
-DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, true, false); )
-DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, false); )
-DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, true, false); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, false, false); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, false, false); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, false, false); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, true, false); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, true, false); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, true, false); )
 
-DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, false, true); )
-DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, false, true); )
-DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, false, true); )
-DEF_GM( return new GiantBitmapGM(SkShader::kClamp_TileMode, true, true); )
-DEF_GM( return new GiantBitmapGM(SkShader::kRepeat_TileMode, true, true); )
-DEF_GM( return new GiantBitmapGM(SkShader::kMirror_TileMode, true, true); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, false, true); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, false, true); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, false, true); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kClamp, true, true); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kRepeat, true, true); )
+DEF_GM( return new GiantBitmapGM(SkTileMode::kMirror, true, true); )

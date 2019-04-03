@@ -16,7 +16,7 @@ static sk_sp<SkShader> make_grad(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+                                        SkTileMode::kMirror);
 }
 
 // test opaque shader
@@ -24,13 +24,13 @@ static sk_sp<SkShader> make_grad2(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+                                        SkTileMode::kMirror);
 }
 
 static sk_sp<SkShader> make_chrome_solid() {
     SkColor colors[] = { SK_ColorGREEN, SK_ColorGREEN };
     SkPoint pts[] = { { 0, 0 }, { 1, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 namespace skiagm {

@@ -118,7 +118,7 @@ uint32_t next_id() {
 
 } // namespace
 
-SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
+SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
                                  const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(std::move(picture))
@@ -139,10 +139,7 @@ sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, 
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShader::MakeEmptyShader();
     }
-    return sk_sp<SkShader>(new SkPictureShader(std::move(picture),
-                                               static_cast<TileMode>(tmx),
-                                               static_cast<TileMode>(tmy),
-                                               localMatrix, tile));
+    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
@@ -164,8 +161,8 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
 
 void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(this->getLocalMatrix());
-    buffer.write32(fTmx);
-    buffer.write32(fTmy);
+    buffer.write32((unsigned)fTmx);
+    buffer.write32((unsigned)fTmy);
     buffer.writeRect(fTile);
 
     buffer.writeBool(true);

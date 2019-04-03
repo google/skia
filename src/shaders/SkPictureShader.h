@@ -44,7 +44,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkPictureShader)
 
-    SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
+    SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, const SkMatrix*, const SkRect*);
 
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
                                     SkColorType dstColorType, SkColorSpace* dstColorSpace,
@@ -68,7 +68,7 @@ private:
 
     sk_sp<SkPicture>    fPicture;
     SkRect              fTile;
-    TileMode            fTmx, fTmy;
+    SkTileMode          fTmx, fTmy;
 
     const uint32_t            fUniqueID;
     mutable std::atomic<bool> fAddedToCache;

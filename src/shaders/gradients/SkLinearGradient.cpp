@@ -64,7 +64,7 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
         return nullptr;
     }
 
-    return fTileMode != kDecal_TileMode
+    return fTileMode != SkTileMode::kDecal
         ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
         : nullptr;
 }
@@ -72,7 +72,7 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
 SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
 
-    if (fTileMode == SkShader::kDecal_TileMode) {
+    if (fTileMode == SkTileMode::kDecal) {
         // we only support decal w/ stages
         return nullptr;
     }

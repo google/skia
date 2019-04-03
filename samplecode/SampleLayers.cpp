@@ -27,7 +27,7 @@ static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                  SkShader::kClamp_TileMode, 0, &localMatrix));
+                                                  SkTileMode::kClamp, 0, &localMatrix));
     paint->setBlendMode(SkBlendMode::kDstIn);
 }
 

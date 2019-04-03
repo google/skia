@@ -73,14 +73,14 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
     SkScalar    pos[] = { 0.2f, 0.8f };
     paint.setShader(SkGradientShader::MakeLinear(
         pts, colors, pos,
-        SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
+        SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
     canvas->drawRect(bounds, paint);
 
     bounds = SkRect::MakeLTRB(0.1f, 0.6f, 0.9f, 0.8f);
     SkColor colors2[] = { SK_ColorGREEN, SK_ColorWHITE };
     paint.setShader(SkGradientShader::MakeLinear(
         pts, colors2, pos,
-        SK_ARRAY_COUNT(colors2), SkShader::kClamp_TileMode));
+        SK_ARRAY_COUNT(colors2), SkTileMode::kClamp));
     canvas->drawRect(bounds, paint);
 
     canvas->restore();
@@ -99,10 +99,10 @@ public:
         fFilter = SkHighContrastFilter::Make(fConfig);
         fGr1 = SkGradientShader::MakeLinear(
             g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
-            SkShader::kClamp_TileMode);
+            SkTileMode::kClamp);
         fGr2 = SkGradientShader::MakeLinear(
             g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
-            SkShader::kClamp_TileMode);
+            SkTileMode::kClamp);
     }
 
 protected:

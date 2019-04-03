@@ -22,9 +22,7 @@ void draw(SkCanvas* canvas) {
     matrix.setScale(0.75f, 0.75f);
     matrix.preRotate(frame * 30.0f * duration); // If an animation, rotate at 30 deg/s.
     SkPaint paint;
-    paint.setShader(image->makeShader(SkShader::kRepeat_TileMode,
-                                      SkShader::kRepeat_TileMode,
-                                      &matrix));
+    paint.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &matrix));
     canvas->drawPaint(paint);
     SkDebugf("This is text output: %d", 2);
 

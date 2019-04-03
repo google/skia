@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -13,7 +13,7 @@
 static sk_sp<SkShader> make_grad(SkScalar w, SkScalar h) {
     SkColor colors[] = { 0xFF000000, 0xFF333333 };
     SkPoint pts[] = { { 0, 0 }, { w, h } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 class BigGradientView : public Sample {

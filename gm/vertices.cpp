@@ -24,7 +24,7 @@ static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
 
     sk_sp<SkShader> grad = SkGradientShader::MakeLinear(pts, colors, nullptr,
                                                         SK_ARRAY_COUNT(colors),
-                                                        SkShader::kMirror_TileMode, 0,
+                                                        SkTileMode::kMirror, 0,
                                                         &localMatrix);
     // Throw in a couple of local matrix wrappers for good measure.
     return shaderScale == 1

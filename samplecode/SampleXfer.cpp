@@ -85,7 +85,7 @@ public:
         const SkColor colors[] = { 0, c };
         fPaint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(size/2, size/2), size/2,
                                                                      colors, nullptr, 2,
-                                                                     SkShader::kClamp_TileMode));
+                                                                     SkTileMode::kClamp));
         fBounds = SkRect::MakeWH(size, size);
     }
 

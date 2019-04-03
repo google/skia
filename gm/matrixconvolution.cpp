@@ -39,7 +39,7 @@ protected:
                            {0, 80.0f} };
         SkScalar pos[2] = { 0, 80.0f };
         paint.setShader(SkGradientShader::MakeLinear(
-            pts, fColors, pos, 2, SkShader::kClamp_TileMode));
+            pts, fColors, pos, 2, SkTileMode::kClamp));
         SkFont font(ToolUtils::create_portable_typeface(), 180.0f);
         canvas.drawString("e", -10.0f, 80.0f, font, paint);
     }

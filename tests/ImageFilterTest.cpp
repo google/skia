@@ -114,7 +114,7 @@ void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
     colors[1] = SK_ColorBLACK;
     sk_sp<SkShader> shader(
         SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
-                                       SkShader::kClamp_TileMode)
+                                       SkTileMode::kClamp)
     );
     SkPaint paint;
     paint.setShader(shader);

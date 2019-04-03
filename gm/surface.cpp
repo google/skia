@@ -20,7 +20,7 @@ static sk_sp<SkShader> make_shader() {
     int b = 0xBB;
     SkPoint pts[] = { { 0, 0 }, { W, H } };
     SkColor colors[] = { SkColorSetRGB(a, a, a), SkColorSetRGB(b, b, b) };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 static sk_sp<SkSurface> make_surface(GrContext* ctx, const SkImageInfo& info, SkPixelGeometry geo) {
@@ -196,7 +196,7 @@ DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
     {
         SkPoint pts[] = {{0, 0}, {40, 50}};
         SkColor colors[] = {SK_ColorRED, SK_ColorBLUE};
-        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode);
+        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kRepeat);
         SkPaint paint;
         paint.setShader(sh);
         surf->getCanvas()->drawPaint(paint);
@@ -225,7 +225,7 @@ DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
     {
         SkPoint pts[] = {{SkIntToScalar(subset.left()), 0}, {SkIntToScalar(subset.right()), 0}};
         SkColor colors[] = {0xFF000000, 0};
-        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
         SkPaint paint;
         paint.setShader(sh);
         paint.setBlendMode(SkBlendMode::kDstIn);

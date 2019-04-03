@@ -53,7 +53,7 @@ protected:
             { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
         paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
                                                      nullptr, SK_ARRAY_COUNT(kColors),
-                                                     SkShader::kMirror_TileMode));
+                                                     SkTileMode::kMirror));
         SkBitmap rgbBmp;
         rgbBmp.allocN32Pixels(kBmpSize, kBmpSize, true);
         SkCanvas canvas(rgbBmp);

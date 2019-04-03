@@ -33,7 +33,7 @@ protected:
         SkPaint paint;
         paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
                                                              nullptr, 2,
-                                                             SkShader::kClamp_TileMode));
+                                                             SkTileMode::kClamp));
         canvas->drawPaint(paint);
     }
 

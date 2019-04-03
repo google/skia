@@ -795,22 +795,22 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate_only_matrix) {
     SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(fTileModeX == fTileModeY);
-    SkASSERT(fTileModeX != SkShader::kDecal_TileMode);
+    SkASSERT(fTileModeX != SkTileMode::kDecal);
 
     // Check for our special case translate methods when there is no scale/affine/perspective.
     if (translate_only_matrix && kNone_SkFilterQuality == fFilterQuality) {
         switch (fTileModeX) {
             default: SkASSERT(false);
-            case SkShader::kClamp_TileMode:  return  clampx_nofilter_trans;
-            case SkShader::kRepeat_TileMode: return repeatx_nofilter_trans;
-            case SkShader::kMirror_TileMode: return mirrorx_nofilter_trans;
+            case SkTileMode::kClamp:  return  clampx_nofilter_trans;
+            case SkTileMode::kRepeat: return repeatx_nofilter_trans;
+            case SkTileMode::kMirror: return mirrorx_nofilter_trans;
         }
     }
 
     // The arrays are all [ nofilter, filter ].
     int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
 
-    if (fTileModeX == SkShader::kClamp_TileMode) {
+    if (fTileModeX == SkTileMode::kClamp) {
         // clamp gets special version of filterOne, working in non-normalized space (allowing decal)
         fFilterOneX = SK_Fixed1;
         fFilterOneY = SK_Fixed1;
@@ -821,7 +821,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
     fFilterOneX = SK_Fixed1 / fPixmap.width();
     fFilterOneY = SK_Fixed1 / fPixmap.height();
 
-    if (fTileModeX == SkShader::kRepeat_TileMode) {
+    if (fTileModeX == SkTileMode::kRepeat) {
         return RepeatX_RepeatY_Procs[index];
     }
 

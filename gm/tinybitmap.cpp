@@ -37,8 +37,7 @@ protected:
         SkBitmap bm = make_bitmap();
         SkPaint paint;
         paint.setAlphaf(0.5f);
-        paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                                   SkShader::kMirror_TileMode));
+        paint.setShader(SkShader::MakeBitmapShader(bm, SkTileMode::kRepeat, SkTileMode::kMirror));
         canvas->drawPaint(paint);
     }
 

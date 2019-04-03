@@ -32,7 +32,7 @@ protected:
 
     virtual sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                          const SkColor*, const SkScalar*, int count,
-                                         SkShader::TileMode, const SkMatrix& localMatrix) const = 0;
+                                         SkTileMode, const SkMatrix& localMatrix) const = 0;
 
 private:
     using StopPositionArray = SkSTArray<2, SkScalar, true>;

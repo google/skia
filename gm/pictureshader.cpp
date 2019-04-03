@@ -15,12 +15,12 @@
 #include "SkShader.h"
 
 static struct {
-    SkShader::TileMode tmx;
-    SkShader::TileMode tmy;
+    SkTileMode tmx;
+    SkTileMode tmy;
 } kTileConfigs[] = {
-    { SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode },
-    { SkShader::kRepeat_TileMode, SkShader::kClamp_TileMode  },
-    { SkShader::kMirror_TileMode, SkShader::kRepeat_TileMode },
+    { SkTileMode::kRepeat, SkTileMode::kRepeat },
+    { SkTileMode::kRepeat, SkTileMode::kClamp  },
+    { SkTileMode::kMirror, SkTileMode::kRepeat },
 };
 
 class PictureShaderGM : public skiagm::GM {
@@ -151,11 +151,10 @@ private:
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
         canvas->drawRect(SkRect::MakeXYWH(fSceneSize * 1.1f, 0, fSceneSize, fSceneSize), paint);
 
-        auto pictureShader = SkShader::MakePictureShader(fPicture, kTileConfigs[tileMode].tmx,
-                                                         kTileConfigs[tileMode].tmy,
-                                                         fUseLocalMatrixWrapper
-                                                            ? nullptr : &localMatrix,
-                                                         nullptr);
+        auto pictureShader = fPicture->makeShader(kTileConfigs[tileMode].tmx,
+                                                  kTileConfigs[tileMode].tmy,
+                                                  fUseLocalMatrixWrapper ? nullptr : &localMatrix,
+                                                  nullptr);
         paint.setShader(fUseLocalMatrixWrapper
                             ? pictureShader->makeWithLocalMatrix(localMatrix)
                             : pictureShader);
@@ -214,8 +213,6 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     p.setColor(0xFFB6B6B6);  // gray
     canvas->drawPaint(p);
 
-    p.setShader(SkShader::MakePictureShader(std::move(picture), SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode,
-                                            nullptr, nullptr));
+    p.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
     canvas->drawPaint(p);
 }

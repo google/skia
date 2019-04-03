@@ -44,7 +44,7 @@ protected:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif
 
-    SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override;
+    SkImage* onIsAImage(SkMatrix* matrix, SkTileMode* mode) const override;
 
     bool onAppendStages(const SkStageRec&) const override;
 

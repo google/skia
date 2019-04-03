@@ -104,7 +104,7 @@ public:
                                                   colors,
                                                   nullptr,
                                                   3,
-                                                  SkShader::kMirror_TileMode,
+                                                  SkTileMode::kMirror,
                                                   0,
                                                   nullptr);
     }

@@ -127,8 +127,7 @@ protected:
             SkPoint pts[] = { {-kRadius-kPad, -kRadius-kPad }, { kRadius+kPad, kRadius+kPad } };
 
             SkPaint p;
-            p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkShader::kClamp_TileMode, 0, nullptr));
+            p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
 
             fPaints.push_back(p);
         }
@@ -155,8 +154,8 @@ protected:
 
             SkPaint p;
             p.setShader(SkShader::MakeBitmapShader(bm,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode,
+                                                   SkTileMode::kRepeat,
+                                                   SkTileMode::kRepeat,
                                                    &m));
             fPaints.push_back(p);
         }

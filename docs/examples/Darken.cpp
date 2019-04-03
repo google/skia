@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, SK_ARRAY_COUNT(colors),
-            SkShader::kClamp_TileMode));
+            SkTileMode::kClamp));
     paint.setBlendMode(SkBlendMode::kDarken);
     canvas->drawPaint(paint);
 }

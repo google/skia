@@ -31,7 +31,7 @@ static void make_bitmap(SkBitmap* bm) {
     canvas.drawLine(0, 0, SkIntToScalar(W), 0, paint);
 }
 
-static void make_paint(SkPaint* paint, SkShader::TileMode tm) {
+static void make_paint(SkPaint* paint, SkTileMode tm) {
     SkBitmap bm;
     make_bitmap(&bm);
 
@@ -55,7 +55,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
-        make_paint(&paint, SkShader::kRepeat_TileMode);
+        make_paint(&paint, SkTileMode::kRepeat);
 
 //        canvas->scale(SK_Scalar1*2, SK_Scalar1);
         canvas->translate(SkIntToScalar(100), SkIntToScalar(100));

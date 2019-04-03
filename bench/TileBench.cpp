@@ -36,8 +36,8 @@ class ConstXTileBench : public Benchmark {
     static const int kHeight = 300;
 
 public:
-    ConstXTileBench(SkShader::TileMode xTile,
-                    SkShader::TileMode yTile,
+    ConstXTileBench(SkTileMode xTile,
+                    SkTileMode yTile,
                     bool doFilter,
                     bool doTrans,
                     bool doScale)
@@ -55,9 +55,9 @@ public:
 
         fName.printf("constXTile_");
 
-        static const char* gTileModeStr[SkShader::kTileModeCount] = { "C", "R", "M" };
-        fName.append(gTileModeStr[xTile]);
-        fName.append(gTileModeStr[yTile]);
+        static const char* gTileModeStr[kSkTileModeCount] = { "C", "R", "M", "D" };
+        fName.append(gTileModeStr[(unsigned)xTile]);
+        fName.append(gTileModeStr[(unsigned)yTile]);
 
         if (doFilter) {
             fName.append("_filter");
@@ -114,18 +114,18 @@ private:
 // Scaled benches are trending towards free.  Seems like caching.
 // TODO(mtklein, reed): fix and reenable
 
-//DEF_BENCH(return new ConstXTileBench(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, false, false, true))
-DEF_BENCH(return new ConstXTileBench(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, false, false, false))
-//DEF_BENCH(return new ConstXTileBench(SkShader::kMirror_TileMode, SkShader::kMirror_TileMode, false, false, true))
+//DEF_BENCH(return new ConstXTileBench(SkTileMode::kRepeat, SkTileMode::kRepeat, false, false, true))
+DEF_BENCH(return new ConstXTileBench(SkTileMode::kClamp, SkTileMode::kClamp, false, false, false))
+//DEF_BENCH(return new ConstXTileBench(SkTileMode::kMirror, SkTileMode::kMirror, false, false, true))
 
-DEF_BENCH(return new ConstXTileBench(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, true, false, false))
-//DEF_BENCH(return new ConstXTileBench(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, true, false, true))
-DEF_BENCH(return new ConstXTileBench(SkShader::kMirror_TileMode, SkShader::kMirror_TileMode, true, false, false))
+DEF_BENCH(return new ConstXTileBench(SkTileMode::kRepeat, SkTileMode::kRepeat, true, false, false))
+//DEF_BENCH(return new ConstXTileBench(SkTileMode::kClamp, SkTileMode::kClamp, true, false, true))
+DEF_BENCH(return new ConstXTileBench(SkTileMode::kMirror, SkTileMode::kMirror, true, false, false))
 
-//DEF_BENCH(return new ConstXTileBench(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, false, true, true))
-DEF_BENCH(return new ConstXTileBench(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, false, true, false))
-//DEF_BENCH(return new ConstXTileBench(SkShader::kMirror_TileMode, SkShader::kMirror_TileMode, false, true, true))
+//DEF_BENCH(return new ConstXTileBench(SkTileMode::kRepeat, SkTileMode::kRepeat, false, true, true))
+DEF_BENCH(return new ConstXTileBench(SkTileMode::kClamp, SkTileMode::kClamp, false, true, false))
+//DEF_BENCH(return new ConstXTileBench(SkTileMode::kMirror, SkTileMode::kMirror, false, true, true))
 
-DEF_BENCH(return new ConstXTileBench(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, true, true, false))
-//DEF_BENCH(return new ConstXTileBench(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, true, true, true))
-DEF_BENCH(return new ConstXTileBench(SkShader::kMirror_TileMode, SkShader::kMirror_TileMode, true, true, false))
+DEF_BENCH(return new ConstXTileBench(SkTileMode::kRepeat, SkTileMode::kRepeat, true, true, false))
+//DEF_BENCH(return new ConstXTileBench(SkTileMode::kClamp, SkTileMode::kClamp, true, true, true))
+DEF_BENCH(return new ConstXTileBench(SkTileMode::kMirror, SkTileMode::kMirror, true, true, false))

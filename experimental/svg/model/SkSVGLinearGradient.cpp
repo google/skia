@@ -57,7 +57,7 @@ void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& 
 
 sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   const SkColor* colors, const SkScalar* pos,
-                                                  int count, SkShader::TileMode tm,
+                                                  int count, SkTileMode tm,
                                                   const SkMatrix& localMatrix) const {
     const auto& lctx = ctx.lengthContext();
     const auto x1 = lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal);

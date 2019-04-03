@@ -41,7 +41,7 @@ protected:
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
         fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                               SkShader::kClamp_TileMode);
+                                               SkTileMode::kClamp);
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,

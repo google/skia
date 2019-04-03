@@ -207,15 +207,15 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
     // All tile modes are supported (unless something was added to SkShader)
     std::unique_ptr<GrFragmentProcessor> master;
     switch(shader.getTileMode()) {
-        case SkShader::kRepeat_TileMode:
+        case SkTileMode::kRepeat:
             master = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
                                                  /* mirror */ false, makePremul, allOpaque);
             break;
-        case SkShader::kMirror_TileMode:
+        case SkTileMode::kMirror:
             master = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
                                                  /* mirror */ true, makePremul, allOpaque);
             break;
-        case SkShader::kClamp_TileMode:
+        case SkTileMode::kClamp:
             // For the clamped mode, the border colors are the first and last colors, corresponding
             // to t=0 and t=1, because SkGradientShaderBase enforces that by adding color stops as
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
@@ -223,7 +223,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
             master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
                     colors[0], colors[shader.fColorCount - 1], makePremul, allOpaque);
             break;
-        case SkShader::kDecal_TileMode:
+        case SkTileMode::kDecal:
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
             master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
@@ -296,7 +296,7 @@ RandomParams::RandomParams(SkRandom* random) {
             stop = i < fColorCount - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;
         }
     }
-    fTileMode = static_cast<SkShader::TileMode>(random->nextULessThan(SkShader::kTileModeCount));
+    fTileMode = static_cast<SkTileMode>(random->nextULessThan(kSkTileModeCount));
 }
 #endif
 

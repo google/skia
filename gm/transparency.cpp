@@ -30,8 +30,7 @@ static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height)
         shaderColors[0] = SK_AlphaTRANSPARENT;
         shaderColors[1] = kColors[i];
         SkPaint p;
-        p.setShader(SkGradientShader::MakeLinear(pts, shaderColors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(pts, shaderColors, nullptr, 2, SkTileMode::kClamp));
         canvas->drawRect(SkRect::MakeXYWH(0, i * kRowHeight, width, kRowHeight), p);
     }
 }
@@ -43,7 +42,7 @@ static sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int si
     bm.eraseColor(c1);
     bm.eraseArea(SkIRect::MakeLTRB(0, 0, size, size), c2);
     bm.eraseArea(SkIRect::MakeLTRB(size, size, 2 * size, 2 * size), c2);
-    return SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return SkShader::MakeBitmapShader(bm, SkTileMode::kRepeat, SkTileMode::kRepeat);
 }
 
 // http://crrev.com/834303005

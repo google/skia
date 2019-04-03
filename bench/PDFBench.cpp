@@ -210,7 +210,7 @@ struct PDFShaderBench : public Benchmark {
         };
         fShader = SkGradientShader::MakeLinear(
                 pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                SkShader::kClamp_TileMode);
+                SkTileMode::kClamp);
     }
     void onDraw(int loops, SkCanvas*) final {
         SkASSERT(fShader);

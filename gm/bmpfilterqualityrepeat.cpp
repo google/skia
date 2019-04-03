@@ -73,7 +73,7 @@ private:
         SkAutoCanvasRestore acr(canvas, true);
 
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
-            constexpr SkShader::TileMode kTM = SkShader::kRepeat_TileMode;
+            constexpr SkTileMode kTM = SkTileMode::kRepeat;
             bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
             bmpPaint.setFilterQuality(kQualities[q].fQuality);
             canvas->drawRect(rect, bmpPaint);

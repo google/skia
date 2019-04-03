@@ -37,12 +37,11 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 
     paint.setDither(true);
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
-                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
+                SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
-static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
-                  SkShader::TileMode tmx, SkShader::TileMode tmy) {
+static void setup(SkPaint* paint, const SkBitmap& bm, bool filter, SkTileMode tmx, SkTileMode tmy) {
     paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
@@ -89,8 +88,8 @@ protected:
         static const bool           gFilters[] = { false, true };
         static const char*          gFilterNames[] = {     "point",                     "bilinear" };
 
-        static const SkShader::TileMode gModes[] = { SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
-        static const char*          gModeNames[] = {    "C",                    "R",                   "M" };
+        static const SkTileMode gModes[] = { SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror };
+        static const char*  gModeNames[] = {    "C",                    "R",                   "M" };
 
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(10);

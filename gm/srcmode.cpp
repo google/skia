@@ -25,7 +25,7 @@ static void gradient_paintproc(SkPaint* paint) {
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
     const SkPoint pts[] = { { 0, 0 }, { W, H } };
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                  SkShader::kClamp_TileMode));
+                                                  SkTileMode::kClamp));
 }
 
 typedef void (*Proc)(SkCanvas*, const SkPaint&, const SkFont&);

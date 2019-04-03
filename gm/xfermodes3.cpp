@@ -169,8 +169,7 @@ private:
 
         SkMatrix lm;
         lm.setScale(SkIntToScalar(kCheckSize), SkIntToScalar(kCheckSize));
-        fBGShader = SkShader::MakeBitmapShader(bg, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode, &lm);
+        fBGShader = SkShader::MakeBitmapShader(bg, SkTileMode::kRepeat, SkTileMode::kRepeat, &lm);
 
         SkPaint bmpPaint;
         const SkPoint kCenter = { SkIntToScalar(kSize) / 2, SkIntToScalar(kSize) / 2 };
@@ -179,7 +178,7 @@ private:
         };
         bmpPaint.setShader(SkGradientShader::MakeRadial(kCenter, 3 * SkIntToScalar(kSize) / 4,
                                                         kColors, nullptr, SK_ARRAY_COUNT(kColors),
-                                                        SkShader::kRepeat_TileMode));
+                                                        SkTileMode::kRepeat));
 
         SkBitmap bmp;
         bmp.allocN32Pixels(kSize, kSize);
@@ -190,8 +189,7 @@ private:
                         7 * SkIntToScalar(kSize) / 8, 7 * SkIntToScalar(kSize) / 8};
         bmpCanvas.drawRect(rect, bmpPaint);
 
-        fBmpShader = SkShader::MakeBitmapShader(bmp, SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode);
+        fBmpShader = SkShader::MakeBitmapShader(bmp, SkTileMode::kClamp, SkTileMode::kClamp);
     }
 
     enum {

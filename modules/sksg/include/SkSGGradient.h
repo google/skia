@@ -34,7 +34,7 @@ public:
     };
 
     SG_ATTRIBUTE(ColorStops, std::vector<ColorStop>, fColorStops)
-    SG_ATTRIBUTE(TileMode  , SkShader::TileMode    , fTileMode  )
+    SG_ATTRIBUTE(TileMode  , SkTileMode            , fTileMode  )
 
 protected:
     sk_sp<SkShader> onRevalidateShader() final;
@@ -47,7 +47,7 @@ protected:
 
 private:
     std::vector<ColorStop> fColorStops;
-    SkShader::TileMode     fTileMode = SkShader::kClamp_TileMode;
+    SkTileMode             fTileMode = SkTileMode::kClamp;
 
     using INHERITED = Shader;
 };

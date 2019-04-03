@@ -33,7 +33,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
 
     GrContext* context = canvas->getGrContext();
 
-    auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
     SkPaint paint;
     paint.setShader(gradient);
 

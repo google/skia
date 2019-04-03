@@ -40,14 +40,12 @@ protected:
         SkCanvas canvas(bmp);
         SkPoint pts[] = { {0, 0}, {0, SkIntToScalar(height)} };
         SkColor colors0[] = { 0xFF1060B0 , 0xFF102030 };
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors0, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+        paint.setShader(SkGradientShader::MakeLinear(pts, colors0, nullptr, 2, SkTileMode::kClamp));
         canvas.drawPaint(paint);
 
         SkColor colors1[] = {0xFFA07010, 0xFFA02080};
         paint.setAntiAlias(true);
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors1, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+        paint.setShader(SkGradientShader::MakeLinear(pts, colors1, nullptr, 2, SkTileMode::kClamp));
         canvas.drawCircle(SkIntToScalar(width) / 2, SkIntToScalar(height) / 2,
                           SkIntToScalar(width + height) / 5, paint);
     }
@@ -196,8 +194,8 @@ protected:
                     // repeat/mirror shader
                     SkPaint repeatPaint;
                     repeatPaint.setFilterQuality(q);
-                    repeatPaint.setShader(rectImgs[i]->makeShader(SkShader::kRepeat_TileMode,
-                                                                  SkShader::kMirror_TileMode));
+                    repeatPaint.setShader(rectImgs[i]->makeShader(SkTileMode::kRepeat,
+                                                                  SkTileMode::kMirror));
                     canvas->drawRect(SkRect::MakeWH(1.5f * kWidth, 1.5f * kHeight), repeatPaint);
                     canvas->translate(1.5f * kWidth + kPad, 0);
 

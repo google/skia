@@ -34,7 +34,11 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
             info->fColors[0] = fColor;
         }
         info->fColorCount = 1;
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
         info->fTileMode = SkShader::kRepeat_TileMode;
+#else
+        info->fTileMode = SkTileMode::kRepeat;
+#endif
     }
     return kColor_GradientType;
 }

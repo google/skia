@@ -40,9 +40,9 @@ public:
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
                 fShaders.push_back(SkShader::MakeBitmapShader(bm,
-                                                           SkShader::kClamp_TileMode,
-                                                           SkShader::kClamp_TileMode,
-                                                           &matrix));
+                                                              SkTileMode::kClamp,
+                                                              SkTileMode::kClamp,
+                                                              &matrix));
             } else {
                 break;
             }

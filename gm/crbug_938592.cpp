@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(crbug_938592, canvas, 500, 300) {
     static constexpr SkColor c1 = SK_ColorRED;
     static constexpr SkColor c2 = SK_ColorGREEN;
     static constexpr SkColor colors[] = {c0, c0, c1, c1, c2, c2};
-    auto grad = SkGradientShader::MakeLinear(pts, colors, pos, 6, SkShader::kClamp_TileMode);
+    auto grad = SkGradientShader::MakeLinear(pts, colors, pos, 6, SkTileMode::kClamp);
     SkPaint paint;
     paint.setShader(grad);
     static constexpr int kMirrorX = 400;

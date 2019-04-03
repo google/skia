@@ -28,6 +28,10 @@ class SkRasterPipeline;
 class GrContext;
 class GrFragmentProcessor;
 
+#ifndef SK_SUPPORT_LEGACY_TILEMODE_ENUM
+#define SK_SUPPORT_LEGACY_TILEMODE_ENUM
+#endif
+
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
@@ -40,6 +44,7 @@ class GrFragmentProcessor;
  */
 class SK_API SkShader : public SkFlattenable {
 public:
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
     enum TileMode {
         /**
          *  Replicate the edge color if the shader draws outside of its
@@ -67,6 +72,7 @@ public:
     };
 
     static constexpr int kTileModeCount = kLast_TileMode + 1;
+#endif
 
     /**
      *  Returns the local matrix.
@@ -88,10 +94,15 @@ public:
      *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
      *  if they want to keep it longer than the lifetime of the shader). If not, return nullptr.
      */
-    SkImage* isAImage(SkMatrix* localMatrix, TileMode xy[2]) const;
+    SkImage* isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const;
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
+    SkImage* isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
+        return this->isAImage(localMatrix, (SkTileMode*)xy);
+    }
+#endif
 
     bool isAImage() const {
-        return this->isAImage(nullptr, nullptr) != nullptr;
+        return this->isAImage(nullptr, (SkTileMode*)nullptr) != nullptr;
     }
 
     /**
@@ -142,7 +153,11 @@ public:
         SkScalar*   fColorOffsets;  //!< The unit offset for color transitions.
         SkPoint     fPoint[2];      //!< Type specific, see above.
         SkScalar    fRadius[2];     //!< Type specific, see above.
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
         TileMode    fTileMode;      //!< The tile mode used.
+#else
+        SkTileMode  fTileMode;
+#endif
         uint32_t    fGradientFlags; //!< see SkGradientShader::Flags
     };
 
@@ -224,14 +239,12 @@ public:
     */
     static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                             const SkMatrix* localMatrix = nullptr);
-    // DEPRECATED. Use SkTileMode
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
     static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix = nullptr) {
         return MakeBitmapShader(src, static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
                                 localMatrix);
     }
-
-    // NOTE: You can create an SkImage Shader with SkImage::newShader().
 
     /** DEPRECATED: call picture->makeShader(...)
      *  Call this to create a new shader that will draw with the specified picture.
@@ -250,6 +263,7 @@ public:
     */
     static sk_sp<SkShader> MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
                                              const SkMatrix* localMatrix, const SkRect* tile);
+#endif
 
     /** DEPRECATED. skbug.com/8941
      *  If this shader can be represented by another shader + a localMatrix, return that shader and

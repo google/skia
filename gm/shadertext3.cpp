@@ -28,10 +28,10 @@ static void makebm(SkBitmap* bm, int w, int h) {
     SkPaint     paint;
 
     paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode));
+                    SK_ARRAY_COUNT(kColors0), SkTileMode::kClamp));
     canvas.drawPaint(paint);
     paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode));
+                    SK_ARRAY_COUNT(kColors1), SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
@@ -80,9 +80,9 @@ protected:
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
-        constexpr SkShader::TileMode kTileModes[] = {
-            SkShader::kRepeat_TileMode,
-            SkShader::kMirror_TileMode,
+        constexpr SkTileMode kTileModes[] = {
+            SkTileMode::kRepeat,
+            SkTileMode::kMirror,
         };
 
         // position the baseline of the first run

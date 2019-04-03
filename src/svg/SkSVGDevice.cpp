@@ -116,14 +116,14 @@ bool RequiresViewportReset(const SkPaint& paint) {
   if (!shader)
     return false;
 
-  SkShader::TileMode xy[2];
+  SkTileMode xy[2];
   SkImage* image = shader->isAImage(nullptr, xy);
 
   if (!image)
     return false;
 
   for (int i = 0; i < 2; i++) {
-    if (xy[i] == SkShader::kRepeat_TileMode)
+    if (xy[i] == SkTileMode::kRepeat)
       return true;
   }
   return false;
@@ -442,7 +442,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
                                                        Resources* resources) {
     SkMatrix outMatrix;
 
-    SkShader::TileMode xy[2];
+    SkTileMode xy[2];
     SkImage* image = shader->isAImage(&outMatrix, xy);
     SkASSERT(image);
 
@@ -456,7 +456,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
     for (int i = 0; i < 2; i++) {
         int imageDimension = i == 0 ? imageSize.width() : imageSize.height();
         switch (xy[i]) {
-            case SkShader::kRepeat_TileMode:
+            case SkTileMode::kRepeat:
                 patternDims[i].appendScalar(imageDimension);
             break;
             default:

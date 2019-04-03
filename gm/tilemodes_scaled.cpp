@@ -30,12 +30,12 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 
     paint.setDither(true);
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
-                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
+                SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, SkFilterQuality filter_level,
-                  SkShader::TileMode tmx, SkShader::TileMode tmy) {
+                  SkTileMode tmx, SkTileMode tmy) {
     paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
     paint->setFilterQuality(filter_level);
 }
@@ -95,8 +95,8 @@ protected:
               kHigh_SkFilterQuality };
         const char* gFilterNames[] = { "None", "Low", "Medium", "High" };
 
-        constexpr SkShader::TileMode gModes[] = {
-            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
+        constexpr SkTileMode gModes[] = {
+            SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror };
         const char* gModeNames[] = { "C", "R", "M" };
 
         SkScalar y = SkIntToScalar(24);
@@ -156,13 +156,13 @@ private:
 constexpr int gWidth = 32;
 constexpr int gHeight = 32;
 
-static sk_sp<SkShader> make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_bm(SkTileMode tx, SkTileMode ty) {
     SkBitmap bm;
     makebm(&bm, kN32_SkColorType, gWidth, gHeight);
     return SkShader::MakeBitmapShader(bm, tx, ty);
 }
 
-static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_grad(SkTileMode tx, SkTileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
@@ -181,7 +181,7 @@ static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     return nullptr;
 }
 
-typedef sk_sp<SkShader> (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
+typedef sk_sp<SkShader> (*ShaderProc)(SkTileMode, SkTileMode);
 
 class ScaledTiling2GM : public skiagm::GM {
     ShaderProc fProc;
@@ -206,8 +206,8 @@ protected:
         const SkScalar h = SkIntToScalar(gHeight);
         SkRect r = { -w, -h, w*2, h*2 };
 
-        constexpr SkShader::TileMode gModes[] = {
-            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
+        constexpr SkTileMode gModes[] = {
+            SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror
         };
         const char* gModeNames[] = {
             "Clamp", "Repeat", "Mirror"

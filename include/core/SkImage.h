@@ -681,12 +681,13 @@ public:
     */
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
-    // DEPRECATED. Use SkTileMode
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
     sk_sp<SkShader> makeShader(SkShader::TileMode tmx, SkShader::TileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const {
         return this->makeShader(static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
                                 localMatrix);
     }
+#endif
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits

@@ -36,7 +36,7 @@ static void paint_proc3(SkPaint* paint) {
     SkColor colors[] = { SK_ColorRED, COLOR, SK_ColorBLUE };
     SkPoint pts[] = { { 3, 0 }, { 7, 5 } };
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                  SkShader::kMirror_TileMode));
+                                                  SkTileMode::kMirror));
 }
 
 static void paint_proc5(SkPaint* paint) {

@@ -976,7 +976,7 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_shader_renderers() {
     static constexpr SkPoint kPts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor kColors[] = { SK_ColorBLUE, SK_ColorWHITE };
     auto gradient = SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2,
-                                                 SkShader::kMirror_TileMode);
+                                                 SkTileMode::kMirror);
 
     auto info = SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kOpaque_SkAlphaType);
     SkBitmap bm;
@@ -1012,7 +1012,7 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
     static constexpr SkColor kAlphas[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };
     auto alphaGradient = SkGradientShader::MakeRadial(
             {0.5f * kTileWidth * kColCount, 0.5f * kTileHeight * kRowCount},
-            0.25f * kTileWidth * kColCount, kAlphas, nullptr, 2, SkShader::kClamp_TileMode);
+            0.25f * kTileWidth * kColCount, kAlphas, nullptr, 2, SkTileMode::kClamp);
     sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(std::move(alphaGradient));
 
     SkTArray<sk_sp<ClipTileRenderer>> renderers;

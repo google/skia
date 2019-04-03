@@ -43,8 +43,7 @@ protected:
         fBitmap = ToolUtils::create_checkerboard_bitmap(
                 kCellSize, kCellSize, SK_ColorBLUE, SK_ColorYELLOW, kCellSize / 10);
 
-        fBitmapShader = SkShader::MakeBitmapShader(fBitmap, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode);
+        fBitmapShader = SkShader::MakeBitmapShader(fBitmap, SkTileMode::kClamp, SkTileMode::kClamp);
         SkPoint pts1[] = {
             { 0, 0 },
             { SkIntToScalar(kCellSize), SkIntToScalar(kCellSize) }
@@ -59,9 +58,9 @@ protected:
         constexpr SkScalar pos[] = { 0, 0.25f, 0.5f, 0.75f, SK_Scalar1 };
 
         fLinearGrad1 = SkGradientShader::MakeLinear(pts1, colors, pos, SK_ARRAY_COUNT(colors),
-                                                    SkShader::kClamp_TileMode);
+                                                    SkTileMode::kClamp);
         fLinearGrad2 = SkGradientShader::MakeLinear(pts2, colors, pos, SK_ARRAY_COUNT(colors),
-                                                    SkShader::kClamp_TileMode);
+                                                    SkTileMode::kClamp);
 
         fPerspMatrix.reset();
         fPerspMatrix.setPerspY(SK_Scalar1 / 50);

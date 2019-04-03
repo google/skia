@@ -135,7 +135,7 @@ static sk_sp<SkShader> make_grad(int size, float t) {
     SkPoint pts[] = {{0, 0}, {size*1.0f, size*1.0f}};
     SkScalar pos[] = {0, 1 - t, 1.0f};
     return SkGradientShader::MakeLinear(pts, colors, pos, SK_ARRAY_COUNT(colors),
-                                        SkShader::kClamp_TileMode);
+                                        SkTileMode::kClamp);
 }
 
 class ShaderMixerGM final : public skiagm::GM {

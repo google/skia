@@ -88,9 +88,9 @@ public:
 
         fFilter = SkLumaColorFilter::Make();
         fGr1 = SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
-                                            SkShader::kClamp_TileMode);
+                                            SkTileMode::kClamp);
         fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
-                                            SkShader::kClamp_TileMode);
+                                            SkTileMode::kClamp);
     }
 
 protected:

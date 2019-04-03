@@ -39,7 +39,7 @@ static sk_sp<SkShader> make_shader(const SkRect& r) {
         { r.fLeft, r.fTop }, { r.fRight, r.fBottom },
     };
     const SkColor colors[] = { 0, SK_ColorWHITE };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kRepeat);
 }
 
 DEF_SIMPLE_GM(shadermaskfilter_gradient, canvas, 512, 512) {
@@ -96,9 +96,8 @@ static sk_sp<SkMaskFilter> make_path_mf(const SkPath& path, unsigned alpha) {
 
     SkPictureRecorder recorder;
     recorder.beginRecording(1000, 1000)->drawPath(path, paint);
-    auto shader = SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
-                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                              nullptr, nullptr);
+    auto shader = recorder.finishRecordingAsPicture()->makeShader(SkTileMode::kClamp,
+                                                                  SkTileMode::kClamp);
     return SkShaderMaskFilter::Make(shader);
 }
 
@@ -245,14 +244,14 @@ DEF_SIMPLE_GM(shadermaskfilter_localmatrix, canvas, 1500, 1000) {
                         ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(kSize, kSize));
                 draw_mask(surface->getCanvas());
                 return surface->makeImageSnapshot()->makeShader(
-                        SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &lm);
+                        SkTileMode::kClamp, SkTileMode::kClamp, &lm);
             },
             [](SkCanvas*, const SkMatrix& lm) -> sk_sp<SkShader> {
                 SkPictureRecorder recorder;
                 draw_mask(recorder.beginRecording(kSize, kSize));
-                return SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
-                                                   SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode,
+                return recorder.finishRecordingAsPicture()->makeShader(
+                                                   SkTileMode::kClamp,
+                                                   SkTileMode::kClamp,
                                                    &lm,
                                                    nullptr);
             },
