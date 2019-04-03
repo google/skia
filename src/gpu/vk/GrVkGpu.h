@@ -106,10 +106,6 @@ public:
     GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
 
-    void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
-                          VkPipelineStageFlags dstStageMask,
-                          bool byRegion,
-                          VkMemoryBarrier* barrier) const;
     void addBufferMemoryBarrier(const GrVkResource*,
                                 VkPipelineStageFlags srcStageMask,
                                 VkPipelineStageFlags dstStageMask,

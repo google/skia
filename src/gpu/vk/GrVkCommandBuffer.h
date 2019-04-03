@@ -33,7 +33,6 @@ public:
     // CommandBuffer commands
     ////////////////////////////////////////////////////////////////////////////
     enum BarrierType {
-        kMemory_BarrierType,
         kBufferMemory_BarrierType,
         kImageMemory_BarrierType
     };
@@ -151,7 +150,9 @@ protected:
             return fCmdPool == nullptr;
         }
 
-        void addingWork() { fHasWork = true; }
+        void addingWork(const GrVkGpu* gpu);
+
+        void submitPipelineBarriers(const GrVkGpu* gpu);
 
         SkTDArray<const GrVkResource*>          fTrackedResources;
         SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
@@ -203,6 +204,12 @@ private:
 #ifdef SK_DEBUG
     mutable bool fResourcesReleased = false;
 #endif
+    // Tracking of memory barriers so that we can submit them all in a batch together.
+    SkSTArray<4, VkBufferMemoryBarrier> fBufferBarriers;
+    SkSTArray<1, VkImageMemoryBarrier> fImageBarriers;
+    bool fBarriersByRegion = false;
+    VkPipelineStageFlags fSrcStageMask = 0;
+    VkPipelineStageFlags fDstStageMask = 0;
 };
 
 class GrVkSecondaryCommandBuffer;
