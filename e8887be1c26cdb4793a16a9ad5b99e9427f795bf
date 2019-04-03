@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6461b06_a7558ee6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-03T20:33:33Z",
+      "side": 1,
+      "message": "This is related to pdf I suppose, but it isn\u0027t really worth mentioning that here.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 6
+      },
+      "revId": "e8887be1c26cdb4793a16a9ad5b99e9427f795bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8f419c0_ca0979b6",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1640,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-03T20:33:33Z",
+      "side": 1,
+      "message": "This changes the meaning to \u0027the first\u0027 instead of \u0027the last\u0027. I suppose that is to bring this implementation into line with the other implementations?\n\nIf so, please mention that in the commit description.",
+      "range": {
+        "startLine": 1640,
+        "startChar": 16,
+        "endLine": 1640,
+        "endChar": 49
+      },
+      "revId": "e8887be1c26cdb4793a16a9ad5b99e9427f795bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

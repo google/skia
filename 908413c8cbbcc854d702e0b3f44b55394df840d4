@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95636e34_13e7fc51",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-03T20:33:33Z",
+      "side": 0,
+      "message": "So this method just always set all values in \u0027out\u0027 to 0?\n\nIf so, please mention this fix in the commit message.",
+      "range": {
+        "startLine": 1590,
+        "startChar": 27,
+        "endLine": 1590,
+        "endChar": 29
+      },
+      "revId": "908413c8cbbcc854d702e0b3f44b55394df840d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
