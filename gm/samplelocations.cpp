@@ -191,7 +191,8 @@ private:
         );
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                            GrPipeline::Flags::kHWAntialias_Flag, &kStencilWrite);
+                            GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
         flushState->rtCommandBuffer()->draw(

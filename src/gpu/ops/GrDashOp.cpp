@@ -624,9 +624,9 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        uint32_t pipelineFlags = 0;
+        auto pipelineFlags = GrPipeline::InputFlags::kNone;
         if (AAMode::kCoverageWithMSAA == fAAMode) {
-            pipelineFlags |= GrPipeline::kHWAntialias_Flag;
+            pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         }
         flushState->executeDrawsAndUploadsForMeshDrawOp(
                 this, chainBounds, std::move(fProcessorSet), pipelineFlags, fStencilSettings);

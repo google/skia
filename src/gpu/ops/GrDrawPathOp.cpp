@@ -45,7 +45,7 @@ SkString GrDrawPathOp::dumpInfo() const {
 GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     GrPipeline::InitArgs args;
     if (fDoAA) {
-        args.fFlags |= GrPipeline::kHWAntialias_Flag;
+        args.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
     args.fUserStencil = &kCoverPass;
     args.fCaps = &state.caps();

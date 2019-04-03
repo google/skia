@@ -13,19 +13,16 @@
 #include "SkGr.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
-                                                   Flags flags)
+                                                   InputFlags inputFlags)
         : fProcessors(args.fProcessorSet)
-        , fPipelineFlags(0)
+        , fPipelineFlags((GrPipeline::InputFlags)inputFlags)
         , fAAType((int)aaType)
         , fUsesLocalCoords(false)
         , fCompatibleWithCoverageAsAlpha(false) {
     SkDEBUGCODE(fDidAnalysis = false);
     SkDEBUGCODE(fMadePipeline = false);
     if (GrAATypeIsHW(aaType)) {
-        fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
-    }
-    if (flags & Flags::kSnapVerticesToPixelCenters) {
-        fPipelineFlags |= GrPipeline::kSnapVerticesToPixelCenters_Flag;
+        fPipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
 }
 
@@ -115,6 +112,19 @@ void GrSimpleMeshDrawOpHelper::executeDrawsAndUploads(
 }
 
 #ifdef SK_DEBUG
+static void dump_pipeline_flags(GrPipeline::InputFlags flags, SkString* result) {
+    if (GrPipeline::InputFlags::kNone != flags) {
+        if (flags & GrPipeline::InputFlags::kSnapVerticesToPixelCenters) {
+            result->append("Snap vertices to pixel center.\n");
+        }
+        if (flags & GrPipeline::InputFlags::kHWAntialias) {
+            result->append("HW Antialiasing enabled.\n");
+        }
+        return;
+    }
+    result->append("No pipeline flags\n");
+}
+
 SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
     const GrProcessorSet& processors = fProcessors ? *fProcessors : GrProcessorSet::EmptySet();
     SkString result = processors.dumpProcessors();
@@ -133,15 +143,15 @@ SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
             result.append(" mixed samples\n");
             break;
     }
-    result.append(GrPipeline::DumpFlags(fPipelineFlags));
+    dump_pipeline_flags(fPipelineFlags, &result);
     return result;
 }
 #endif
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
         const MakeArgs& args, GrAAType aaType, const GrUserStencilSettings* stencilSettings,
-        Flags flags)
-        : INHERITED(args, aaType, flags)
+        InputFlags inputFlags)
+        : INHERITED(args, aaType, inputFlags)
         , fStencilSettings(stencilSettings ? stencilSettings : &GrUserStencilSettings::kUnused) {}
 
 GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionFlags() const {
