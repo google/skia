@@ -90,20 +90,20 @@ public:
                           int numAttachments,
                           const VkClearAttachment* attachments,
                           int numRects,
-                          const VkClearRect* clearRects) const;
+                          const VkClearRect* clearRects);
 
     void drawIndexed(const GrVkGpu* gpu,
                      uint32_t indexCount,
                      uint32_t instanceCount,
                      uint32_t firstIndex,
                      int32_t vertexOffset,
-                     uint32_t firstInstance) const;
+                     uint32_t firstInstance);
 
     void draw(const GrVkGpu* gpu,
               uint32_t vertexCount,
               uint32_t instanceCount,
               uint32_t firstVertex,
-              uint32_t firstInstance) const;
+              uint32_t firstInstance);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
@@ -151,7 +151,7 @@ protected:
             return fCmdPool == nullptr;
         }
 
-        void addedWork() const { fHasWork = true; }
+        void addingWork() { fHasWork = true; }
 
         SkTDArray<const GrVkResource*>          fTrackedResources;
         SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
@@ -160,7 +160,7 @@ protected:
         // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
         // new commands to the buffer;
         bool                      fIsActive;
-        mutable bool              fHasWork = false;
+        bool                      fHasWork = false;
 
         // Stores a pointer to the current active render pass (i.e. begin has been called but not
         // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
