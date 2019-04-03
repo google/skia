@@ -1021,8 +1021,6 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
-    // TODO: clipImage support.
-
     sk_sp<SkSpecialImage> result;
     if (paint.getImageFilter()) {
         SkIPoint offset = { 0, 0 };
@@ -1046,10 +1044,11 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     const GrPixelConfig config = proxy->config();
 
+    SkMatrix ctm = this->ctm();
+    ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
+
     SkPaint tmpUnfiltered(paint);
     if (tmpUnfiltered.getMaskFilter()) {
-        SkMatrix ctm = this->ctm();
-        ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
         tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
     }
 
@@ -1068,6 +1067,43 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     if (!SkPaintToGrPaintReplaceShader(this->context(), fRenderTargetContext->colorSpaceInfo(),
                                        tmpUnfiltered, std::move(fp), &grPaint)) {
         return;
+    }
+
+    if (clipImage) {
+        // Fold clip matrix into ctm, which isn't used after this, so it's okay to reuse the matrix
+        ctm.preConcat(clipMatrix);
+        SkMatrix inverseClipMatrix;
+        if (!ctm.invert(&inverseClipMatrix)) {
+            return;
+        }
+
+        // Add the image as a simple texture effect applied to coverage. Accessing content outside
+        // of the clip image should behave as if it were a decal (i.e. zero coverage).
+        GrSamplerState::Filter filter = paint.getFilterQuality() > kNone_SkFilterQuality
+                ? GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kBilerp;
+        GrSamplerState::WrapMode wrap = this->context()->priv().caps()->clampToBorderSupport()
+                ? GrSamplerState::WrapMode::kClampToBorder : GrSamplerState::WrapMode::kClamp;
+
+        GrSamplerState clipSampler(wrap, filter);
+        sk_sp<GrTextureProxy> clipProxy = as_IB(clipImage)->asTextureProxyRef(this->context(),
+                                                                              clipSampler, nullptr);
+        if (!clipProxy) {
+            return;
+        }
+
+        auto cfp = wrap == GrSamplerState::WrapMode::kClampToBorder ?
+                GrSimpleTextureEffect::Make(std::move(clipProxy), inverseClipMatrix, clipSampler) :
+                GrTextureDomainEffect::Make(std::move(clipProxy), inverseClipMatrix,
+                        SkRect::MakeWH(clipImage->width(), clipImage->height()),
+                        GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode, clipSampler);
+        if (clipImage->colorType() != kAlpha_8_SkColorType) {
+            cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
+        }
+        if (!cfp) {
+            return;
+        }
+
+        grPaint.addCoverageFragmentProcessor(std::move(cfp));
     }
 
     const SkIRect& subset = result->subset();
