@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2628191b_6925d8a5",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-03T18:07:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75f54aa1_9dbece2f",
+      "revId": "1353eb406a6640981213a483bac5d3316734c21c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e7be77c_2fa9dcaf",
         "filename": "src/gpu/GrPipeline.h",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-04-03T12:15:30Z",
       "side": 1,
       "message": "wdyt about putting the PrivateFlags in here too?",
+      "revId": "1353eb406a6640981213a483bac5d3316734c21c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a0ed675_59eb136e",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-03T18:07:28Z",
+      "side": 1,
+      "message": "This was only used in one spot in GrSimpleMeshDrawOpHelper.cpp (and the variable only held InputFlags). I moved the logic there. Does that seem ok?",
+      "parentUuid": "3e7be77c_2fa9dcaf",
       "revId": "1353eb406a6640981213a483bac5d3316734c21c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -56,6 +92,30 @@
       "revId": "1353eb406a6640981213a483bac5d3316734c21c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b72b7e5_803c4960",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-03T18:07:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e135b037_ee42dad4",
+      "range": {
+        "startLine": 41,
+        "startChar": 15,
+        "endLine": 41,
+        "endChar": 20
+      },
+      "revId": "1353eb406a6640981213a483bac5d3316734c21c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
