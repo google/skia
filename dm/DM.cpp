@@ -929,7 +929,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                         contextType, contextOverrides, gpuConfig->getSurfType(),
                         gpuConfig->getSamples(), gpuConfig->getUseDIText(),
                         gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
+                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions,
+                        gpuConfig->getTestPersistentCache());
             } else {
                 return new GPUSink(contextType, contextOverrides, gpuConfig->getSurfType(),
                                    gpuConfig->getSamples(), gpuConfig->getUseDIText(),
