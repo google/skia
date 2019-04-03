@@ -18,7 +18,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     const int szInt = SkScalarTruncToInt(sz);
     const SkScalar tx = sz + 15.0f;
     const SkRect r = SkRect::MakeXYWH(0, 0, sz, sz);
-    SkShader::TileMode rpt = SkShader::kRepeat_TileMode;
+    SkTileMode rpt = SkTileMode::kRepeat;
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
 
     SkBitmap ditherBmp;
@@ -141,8 +141,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz + (sz * 10), 0)
         };
         SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp));
         nextRect("Gradient", "Interpolation");
     }
 
@@ -154,8 +153,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz, 0)
         };
         SkColor colors[2] = { 0xffbbbbbb, 0xffbdbdbd };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp));
         nextRect("Gradient", "Endpoints");
     }
 
@@ -167,8 +165,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz, 0)
         };
         SkColor colors[3] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 3,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 3, SkTileMode::kClamp));
         nextRect("Gradient", "3-Stop");
     }
 
@@ -180,8 +177,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz, 0)
         };
         SkColor colors[5] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 5,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 5, SkTileMode::kClamp));
         nextRect("Gradient", "Texture");
     }
 

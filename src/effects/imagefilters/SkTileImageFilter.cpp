@@ -108,7 +108,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setShader(subset->makeShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
+    paint.setShader(subset->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
     canvas->translate(-dstRect.fLeft, -dstRect.fTop);
     canvas->drawRect(dstRect, paint);
     offset->fX = dstIRect.fLeft;

@@ -13,6 +13,7 @@
 #include "SkSurface.h"
 #include "Test.h"
 
+#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
 // Test that attempting to create a picture shader with a nullptr picture or
 // empty picture returns a shader that draws nothing.
 DEF_TEST(PictureShader_empty, reporter) {
@@ -40,6 +41,7 @@ DEF_TEST(PictureShader_empty, reporter) {
     canvas.drawRect(SkRect::MakeWH(1,1), paint);
     REPORTER_ASSERT(reporter, *bitmap.getAddr32(0,0) == SK_ColorGREEN);
 }
+#endif
 
 // Test that the SkPictureShader cache is purged on shader deletion.
 DEF_TEST(PictureShader_caching, reporter) {

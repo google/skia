@@ -103,7 +103,7 @@ protected:
         canvas->drawImage(image, 0, 0);
         canvas->translate(0, 120);
 
-        const SkShader::TileMode tile = SkShader::kRepeat_TileMode;
+        const SkTileMode tile = SkTileMode::kRepeat;
         const SkMatrix localM = SkMatrix::MakeTrans(-50, -50);
         SkPaint paint;
         paint.setShader(image->makeShader(tile, tile, &localM));

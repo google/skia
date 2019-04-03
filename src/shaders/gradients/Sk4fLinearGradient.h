@@ -21,14 +21,14 @@ public:
 private:
     using INHERITED = GradientShaderBase4fContext;
 
-    template<ApplyPremul, TileMode>
+    template<ApplyPremul, SkTileMode>
     class LinearIntervalProcessor;
 
     template <ApplyPremul premul>
     void shadePremulSpan(int x, int y, SkPMColor dst[], int count,
                          float bias0, float bias1) const;
 
-    template <ApplyPremul premul, SkShader::TileMode tileMode>
+    template <ApplyPremul premul, SkTileMode tileMode>
     void shadeSpanInternal(int x, int y, SkPMColor dst[], int count,
                            float bias0, float bias1) const;
 

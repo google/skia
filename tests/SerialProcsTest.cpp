@@ -163,8 +163,8 @@ DEF_TEST(serial_procs_picture, reporter) {
     // test inside effect
     p0 = make_pic([p1](SkCanvas* c) {
         SkPaint paint;
-        SkShader::TileMode tm = SkShader::kClamp_TileMode;
-        paint.setShader(SkShader::MakePictureShader(p1, tm, tm, nullptr, nullptr));
+        SkTileMode tm = SkTileMode::kClamp;
+        paint.setShader(p1->makeShader(tm, tm));
         c->drawPaint(paint);
     });
     test_pictures(reporter, p0, 1, true);

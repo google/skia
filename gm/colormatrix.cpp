@@ -68,7 +68,7 @@ protected:
         SkColor colors[] = {0x00000000, 0xFFFFFFFF};
         SkPaint paint;
         paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+                                                     SkTileMode::kClamp));
         canvas.drawRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), paint);
         return SkImage::MakeFromBitmap(bm);
     }

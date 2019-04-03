@@ -34,7 +34,7 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     pixels[0] = pixels[2] = color0;
     pixels[1] = pixels[3] = color1;
 
-    return SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return SkShader::MakeBitmapShader(bm, SkTileMode::kRepeat, SkTileMode::kRepeat);
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
@@ -42,7 +42,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::MakeLinear(pts, colors, nullptr,
-                    SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
+                    SK_ARRAY_COUNT(colors), SkTileMode::kMirror);
 }
 
 class VerticesView : public Sample {

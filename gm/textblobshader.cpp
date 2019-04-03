@@ -73,7 +73,7 @@ private:
                                                SkIntToScalar(sz.height() / 2)),
                                                sz.width() * .66f, colors, pos,
                                                SK_ARRAY_COUNT(colors),
-                                               SkShader::kRepeat_TileMode);
+                                               SkTileMode::kRepeat);
     }
 
     SkString onShortName() override {

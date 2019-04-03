@@ -190,7 +190,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
     sk_sp<SkColorFilter> colorFilter(nullptr);
     SkBitmap bitmap;
     sk_sp<SkImage> img;
-    SkShader::TileMode tmX, tmY;
+    SkTileMode tmX, tmY;
     bool useMatrix;
     SkColor color;
     SkMatrix matrix;
@@ -210,8 +210,8 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             return SkShader::MakeColorShader(color);
         case 3:
             img = make_fuzz_image(fuzz);
-            fuzz->nextRange(&tmX, 0, SkShader::TileMode::kLast_TileMode);
-            fuzz->nextRange(&tmY, 0, SkShader::TileMode::kLast_TileMode);
+            fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
+            fuzz->nextRange(&tmY, 0, SkTileMode::kLastTileMode);
             fuzz->next(&useMatrix);
             if (useMatrix) {
                 FuzzNiceMatrix(fuzz, &matrix);
@@ -219,8 +219,8 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             return img->makeShader(tmX, tmY, useMatrix ? &matrix : nullptr);
         case 4:
             bitmap = make_fuzz_bitmap(fuzz);
-            fuzz->nextRange(&tmX, 0, SkShader::TileMode::kLast_TileMode);
-            fuzz->nextRange(&tmY, 0, SkShader::TileMode::kLast_TileMode);
+            fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
+            fuzz->nextRange(&tmY, 0, SkTileMode::kLastTileMode);
             fuzz->next(&useMatrix);
             if (useMatrix) {
                 FuzzNiceMatrix(fuzz, &matrix);
@@ -243,8 +243,8 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             auto pic = make_fuzz_picture(fuzz, depth - 1);
             bool useTile;
             SkRect tile;
-            fuzz->nextRange(&tmX, 0, SkShader::TileMode::kLast_TileMode);
-            fuzz->nextRange(&tmY, 0, SkShader::TileMode::kLast_TileMode);
+            fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
+            fuzz->nextRange(&tmY, 0, SkTileMode::kLastTileMode);
             fuzz->next(&useMatrix, &useTile);
             if (useMatrix) {
                 FuzzNiceMatrix(fuzz, &matrix);
@@ -252,9 +252,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (useTile) {
                 fuzz->next(&tile);
             }
-            return SkShader::MakePictureShader(std::move(pic), tmX, tmY,
-                                               useMatrix ? &matrix : nullptr,
-                                               useTile ? &tile : nullptr);
+            return pic->makeShader(tmX, tmY, useMatrix ? &matrix : nullptr, useTile ? &tile : nullptr);
         }
         // EFFECTS:
         case 9:
@@ -270,7 +268,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             fuzz->nextN(pts, 2);
             fuzz->nextRange(&colorCount, 2, kMaxColors);
             fuzz->nextN(colors, colorCount);
-            fuzz->nextRange(&tmX, 0, SkShader::TileMode::kLast_TileMode);
+            fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
             fuzz->next(&useMatrix, &usePos);
             if (useMatrix) {
                 FuzzNiceMatrix(fuzz, &matrix);
@@ -289,7 +287,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             bool usePos;
             SkColor colors[kMaxColors];
             SkScalar pos[kMaxColors];
-            fuzz->nextRange(&tmX, 0, SkShader::TileMode::kLast_TileMode);
+            fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
             fuzz->next(&useMatrix, &usePos, &center, &radius);
             fuzz->nextRange(&colorCount, 2, kMaxColors);
             fuzz->nextN(colors, colorCount);
@@ -310,7 +308,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             bool usePos;
             SkColor colors[kMaxColors];
             SkScalar pos[kMaxColors];
-            fuzz->nextRange(&tmX, 0, SkShader::TileMode::kLast_TileMode);
+            fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
             fuzz->next(&useMatrix, &usePos, &startRadius, &endRadius, &start, &end);
             fuzz->nextRange(&colorCount, 2, kMaxColors);
             fuzz->nextN(colors, colorCount);

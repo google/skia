@@ -63,7 +63,7 @@ constexpr int IMAGES_X = 4;             // number of images per row
 
 static sk_sp<SkShader> make_linear_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
     return SkGradientShader::MakeLinear(pts, gColors, nullptr, SK_ARRAY_COUNT(gColors),
-                                        SkShader::kClamp_TileMode, 0, &localMatrix);
+                                        SkTileMode::kClamp, 0, &localMatrix);
 }
 
 static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
@@ -72,7 +72,7 @@ static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix
                SkScalarAve(pts[0].fY, pts[1].fY));
     float radius = (center - pts[0]).length();
     return SkGradientShader::MakeRadial(center, radius, gColors, nullptr, SK_ARRAY_COUNT(gColors),
-                                        SkShader::kClamp_TileMode, 0, &localMatrix);
+                                        SkTileMode::kClamp, 0, &localMatrix);
 }
 
 static void draw_gradients(SkCanvas* canvas,

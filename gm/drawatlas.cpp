@@ -157,7 +157,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
 static sk_sp<SkShader> make_shader() {
     SkPoint pts[2] = {{0, 0}, {220, 0}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorBLUE};
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 }
 
 static void drawTextPath(SkCanvas* canvas, bool doStroke) {

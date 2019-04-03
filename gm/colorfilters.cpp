@@ -20,7 +20,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
     };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kClamp_TileMode);
+                                        SkTileMode::kClamp);
 }
 
 typedef void (*InstallPaint)(SkPaint*, uint32_t, uint32_t);

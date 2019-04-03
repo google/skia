@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setShader(SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
-            SkShader::kClamp_TileMode));
+            SkTileMode::kClamp));
     canvas->drawOval(bounds , paint);
 }
 }  // END FIDDLE

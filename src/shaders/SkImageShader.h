@@ -39,14 +39,14 @@ private:
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
 #endif
-    SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
+    SkImage* onIsAImage(SkMatrix*, SkTileMode*) const override;
 
     bool onAppendStages(const SkStageRec&) const override;
 
-    sk_sp<SkImage>           fImage;
-    const SkShader::TileMode fTileModeX;
-    const SkShader::TileMode fTileModeY;
-    const bool               fClampAsIfUnpremul;
+    sk_sp<SkImage>   fImage;
+    const SkTileMode fTileModeX;
+    const SkTileMode fTileModeY;
+    const bool       fClampAsIfUnpremul;
 
     friend class SkShaderBase;
     typedef SkShaderBase INHERITED;

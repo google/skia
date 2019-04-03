@@ -15,8 +15,7 @@
 static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
 
-    return SkGradientShader::MakeLinear(pts, bw, nullptr, SK_ARRAY_COUNT(bw),
-                                        SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, bw, nullptr, SK_ARRAY_COUNT(bw), SkTileMode::kClamp);
 }
 
 /**
@@ -91,7 +90,7 @@ static sk_sp<SkShader> make_gradient(SkColor c) {
     SkColor colors[2];
     colors[0] = c;
     colors[1] = SkColorSetA(c, 0);
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,
