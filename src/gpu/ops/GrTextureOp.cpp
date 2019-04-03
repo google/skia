@@ -532,8 +532,8 @@ private:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         auto pipelineFlags = (GrAAType::kMSAA == this->aaType())
-                ? GrPipeline::kHWAntialias_Flag
-                : 0;
+                ? GrPipeline::Flags::kHWAntialias
+                : GrPipeline::Flags::kNone;
         flushState->executeDrawsAndUploadsForMeshDrawOp(
                 this, chainBounds, GrProcessorSet::MakeEmptySet(), pipelineFlags);
     }

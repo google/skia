@@ -34,7 +34,7 @@ GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
 
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         const GrOp* op, const SkRect& chainBounds, GrProcessorSet&& processorSet,
-        uint32_t pipelineFlags, const GrUserStencilSettings* stencilSettings) {
+        GrPipeline::Flags pipelineFlags, const GrUserStencilSettings* stencilSettings) {
     SkASSERT(this->rtCommandBuffer());
 
     GrPipeline::InitArgs pipelineArgs;

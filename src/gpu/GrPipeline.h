@@ -39,21 +39,24 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
 
-    enum Flags {
+    enum class Flags : uint8_t {
+        kNone = 0,
         /**
          * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
          * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
          * the 3D API.
          */
-        kHWAntialias_Flag = 0x1,
+        kHWAntialias = (1 << 0),
         /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
-        kSnapVerticesToPixelCenters_Flag = 0x2,
+        kSnapVerticesToPixelCenters = (1 << 1),
     };
 
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
+
     struct InitArgs {
-        uint32_t fFlags = 0;
+        Flags fFlags = Flags::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
@@ -93,7 +96,7 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrScissorTest, SkBlendMode, uint32_t flags = 0,
+    GrPipeline(GrScissorTest, SkBlendMode, Flags = Flags::kNone,
                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
@@ -163,32 +166,32 @@ public:
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     bool isScissorEnabled() const {
-        return SkToBool(fFlags & kScissorEnabled_Flag);
+        return SkToBool(fFlags & PrivateFlags::kScissorEnabled);
     }
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
-    bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAntialias_Flag); }
+    bool isHWAntialiasState() const { return SkToBool(fFlags & Flags::kHWAntialias); }
     bool snapVerticesToPixelCenters() const {
-        return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag);
+        return SkToBool(fFlags & Flags::kSnapVerticesToPixelCenters);
     }
     bool hasStencilClip() const {
-        return SkToBool(fFlags & kHasStencilClip_Flag);
+        return SkToBool(fFlags & PrivateFlags::kHasStencilClip);
     }
     bool isStencilEnabled() const {
-        return SkToBool(fFlags & kStencilEnabled_Flag);
+        return SkToBool(fFlags & PrivateFlags::kStencilEnabled);
     }
-    bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
+    bool isBad() const { return SkToBool(fFlags & PrivateFlags::kIsBad); }
 
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
-    static SkString DumpFlags(uint32_t flags) {
-        if (flags) {
+    static SkString DumpFlags(Flags flags) {
+        if (Flags::kNone != flags) {
             SkString result;
-            if (flags & GrPipeline::kSnapVerticesToPixelCenters_Flag) {
+            if (flags & Flags::kSnapVerticesToPixelCenters) {
                 result.append("Snap vertices to pixel center.\n");
             }
-            if (flags & GrPipeline::kHWAntialias_Flag) {
+            if (flags & Flags::kHWAntialias) {
                 result.append("HW Antialiasing enabled.\n");
             }
             return result;
@@ -200,15 +203,20 @@ public:
     uint32_t getBlendInfoKey() const;
 
 private:
-    void markAsBad() { fFlags |= kIsBad_Flag; }
+    void markAsBad() { fFlags |= PrivateFlags::kIsBad; }
+
+    static constexpr uint8_t kLastPublicFlag = (uint8_t)Flags::kSnapVerticesToPixelCenters;
 
     /** This is a continuation of the public "Flags" enum. */
-    enum PrivateFlags {
-        kHasStencilClip_Flag = 0x10,
-        kStencilEnabled_Flag = 0x20,
-        kScissorEnabled_Flag = 0x40,
-        kIsBad_Flag = 0x80,
+    enum class PrivateFlags : uint8_t {
+        kHasStencilClip = (kLastPublicFlag << 1),
+        kStencilEnabled = (kLastPublicFlag << 2),
+        kScissorEnabled = (kLastPublicFlag << 3),
+        kIsBad = (kLastPublicFlag << 4),
     };
+
+    friend bool operator&(Flags, PrivateFlags);
+    friend void operator|=(GrPipeline::Flags&, GrPipeline::PrivateFlags);
 
     using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
     using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
@@ -217,12 +225,21 @@ private:
     SkIPoint fDstTextureOffset;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
-    uint16_t fFlags;
+    Flags fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
     FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::Flags);
+
+inline bool operator&(GrPipeline::Flags flags, GrPipeline::PrivateFlags privateFlag) {
+    return (flags & (GrPipeline::Flags)privateFlag);
+}
+inline static void operator|=(GrPipeline::Flags& flags, GrPipeline::PrivateFlags privateFlag) {
+    flags |= (GrPipeline::Flags)privateFlag;
+}
 
 #endif

@@ -15,17 +15,14 @@
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
                                                    Flags flags)
         : fProcessors(args.fProcessorSet)
-        , fPipelineFlags(0)
+        , fPipelineFlags((GrPipeline::Flags)flags)
         , fAAType((int)aaType)
         , fUsesLocalCoords(false)
         , fCompatibleWithCoverageAsAlpha(false) {
     SkDEBUGCODE(fDidAnalysis = false);
     SkDEBUGCODE(fMadePipeline = false);
     if (GrAATypeIsHW(aaType)) {
-        fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
-    }
-    if (flags & Flags::kSnapVerticesToPixelCenters) {
-        fPipelineFlags |= GrPipeline::kSnapVerticesToPixelCenters_Flag;
+        fPipelineFlags |= GrPipeline::Flags::kHWAntialias;
     }
 }
 
