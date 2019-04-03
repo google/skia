@@ -570,8 +570,6 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
 
     // Rotation fails.
     matrix.reset();
-    matrix.setRotate(SkIntToScalar(90));
-    assert_transform_failure(reporter, orig, matrix);
     matrix.setRotate(SkIntToScalar(37));
     assert_transform_failure(reporter, orig, matrix);
 
@@ -689,6 +687,219 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
                                                   orig.rect().left() * xScale));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.rect().top(),
                                                   orig.rect().top() * yScale));
+
+
+    //  a-----b            d-----a
+    //  |     |     ->     |     |
+    //  |     |  Rotate 90 |     |
+    //  d-----c            c-----b
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(90));
+    dst.setEmpty();
+    success = orig.transform(matrix, &dst);
+    REPORTER_ASSERT(reporter, success);
+    {
+        GET_RADII;
+        // Radii have cycled clockwise and swapped their x and y axis.
+        REPORTER_ASSERT(reporter, dstUL.x() == origLL.y());
+        REPORTER_ASSERT(reporter, dstUL.y() == origLL.x());
+        REPORTER_ASSERT(reporter, dstUR.x() == origUL.y());
+        REPORTER_ASSERT(reporter, dstUR.y() == origUL.x());
+        REPORTER_ASSERT(reporter, dstLR.x() == origUR.y());
+        REPORTER_ASSERT(reporter, dstLR.y() == origUR.x());
+        REPORTER_ASSERT(reporter, dstLL.x() == origLR.y());
+        REPORTER_ASSERT(reporter, dstLL.y() == origLR.x());
+    }
+    // Width and height would get swapped.
+    REPORTER_ASSERT(reporter, orig.rect().width() == dst.rect().height());
+    REPORTER_ASSERT(reporter, orig.rect().height() == dst.rect().width());
+
+    //  a-----b        b-----a           c-----b
+    //  |     |   ->   |     |    ->     |     |
+    //  |     | Flip X |     | Rotate 90 |     |
+    //  d-----c        c-----d           d-----a
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(90));
+    matrix.postScale(SkIntToScalar(-1), SkIntToScalar(1));
+    dst.setEmpty();
+    success = orig.transform(matrix, &dst);
+    REPORTER_ASSERT(reporter, success);
+    {
+        GET_RADII;
+        REPORTER_ASSERT(reporter, dstUL.x() == origLR.y());
+        REPORTER_ASSERT(reporter, dstUL.y() == origLR.x());
+        REPORTER_ASSERT(reporter, dstUR.x() == origUR.y());
+        REPORTER_ASSERT(reporter, dstUR.y() == origUR.x());
+        REPORTER_ASSERT(reporter, dstLR.x() == origUL.y());
+        REPORTER_ASSERT(reporter, dstLR.y() == origUL.x());
+        REPORTER_ASSERT(reporter, dstLL.x() == origLL.y());
+        REPORTER_ASSERT(reporter, dstLL.y() == origLL.x());
+    }
+    // Width and height would get swapped.
+    REPORTER_ASSERT(reporter, orig.rect().width() == dst.rect().height());
+    REPORTER_ASSERT(reporter, orig.rect().height() == dst.rect().width());
+
+    //  a-----b           d-----a        c-----b
+    //  |     |    ->     |     |   ->   |     |
+    //  |     | Rotate 90 |     | Flip Y |     |
+    //  d-----c           c-----b        d-----a
+    //
+    // This is the same as Flip X and Rotate 90.
+    matrix.reset();
+    matrix.setScale(SkIntToScalar(1), SkIntToScalar(-1));
+    matrix.postRotate(SkIntToScalar(90));
+    SkRRect dst2;
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+    //  a-----b            b-----c        c-----b
+    //  |     |     ->     |     |   ->   |     |
+    //  |     | Rotate 270 |     | Flip X |     |
+    //  d-----c            a-----d        d-----a
+    matrix.reset();
+    matrix.setScale(SkIntToScalar(-1), SkIntToScalar(1));
+    matrix.postRotate(SkIntToScalar(270));
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+    //  a-----b        d-----c            c-----b
+    //  |     |   ->   |     |     ->     |     |
+    //  |     | Flip Y |     | Rotate 270 |     |
+    //  d-----c        a-----b            d-----a
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(270));
+    matrix.postScale(SkIntToScalar(1), SkIntToScalar(-1));
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+    //  a-----b           d-----a        a-----d
+    //  |     |    ->     |     |   ->   |     |
+    //  |     | Rotate 90 |     | Flip X |     |
+    //  d-----c           c-----b        b-----c
+    matrix.reset();
+    matrix.setScale(SkIntToScalar(-1), SkIntToScalar(1));
+    matrix.postRotate(SkIntToScalar(90));
+    dst.setEmpty();
+    success = orig.transform(matrix, &dst);
+    REPORTER_ASSERT(reporter, success);
+    {
+        GET_RADII;
+        REPORTER_ASSERT(reporter, dstUL.x() == origUL.y());
+        REPORTER_ASSERT(reporter, dstUL.y() == origUL.x());
+        REPORTER_ASSERT(reporter, dstUR.x() == origLL.y());
+        REPORTER_ASSERT(reporter, dstUR.y() == origLL.x());
+        REPORTER_ASSERT(reporter, dstLR.x() == origLR.y());
+        REPORTER_ASSERT(reporter, dstLR.y() == origLR.x());
+        REPORTER_ASSERT(reporter, dstLL.x() == origUR.y());
+        REPORTER_ASSERT(reporter, dstLL.y() == origUR.x());
+    }
+    // Width and height would get swapped.
+    REPORTER_ASSERT(reporter, orig.rect().width() == dst.rect().height());
+    REPORTER_ASSERT(reporter, orig.rect().height() == dst.rect().width());
+
+    //  a-----b        d-----c           a-----d
+    //  |     |   ->   |     |    ->     |     |
+    //  |     | Flip Y |     | Rotate 90 |     |
+    //  d-----c        a-----b           b-----c
+    // This is the same as rotate 90 and flip x.
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(90));
+    matrix.postScale(SkIntToScalar(1), SkIntToScalar(-1));
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+    //  a-----b        b-----a            a-----d
+    //  |     |   ->   |     |     ->     |     |
+    //  |     | Flip X |     | Rotate 270 |     |
+    //  d-----c        c-----d            b-----c
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(270));
+    matrix.postScale(SkIntToScalar(-1), SkIntToScalar(1));
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+    //  a-----b            b-----c        a-----d
+    //  |     |     ->     |     |   ->   |     |
+    //  |     | Rotate 270 |     | Flip Y |     |
+    //  d-----c            a-----d        b-----c
+    matrix.reset();
+    matrix.setScale(SkIntToScalar(1), SkIntToScalar(-1));
+    matrix.postRotate(SkIntToScalar(270));
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+
+    //  a-----b        b-----a        c-----d            b-----c
+    //  |     |   ->   |     |   ->   |     |    ->      |     |
+    //  |     | Flip X |     | Flip Y |     | Rotate 90  |     |
+    //  d-----c        c-----d        b-----a            a-----d
+    //
+    // This is the same as rotation by 270.
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(90));
+    matrix.postScale(SkIntToScalar(-1), SkIntToScalar(-1));
+    dst.setEmpty();
+    success = orig.transform(matrix, &dst);
+    REPORTER_ASSERT(reporter, success);
+    {
+        GET_RADII;
+        // Radii have cycled clockwise and swapped their x and y axis.
+        REPORTER_ASSERT(reporter, dstUL.x() == origUR.y());
+        REPORTER_ASSERT(reporter, dstUL.y() == origUR.x());
+        REPORTER_ASSERT(reporter, dstUR.x() == origLR.y());
+        REPORTER_ASSERT(reporter, dstUR.y() == origLR.x());
+        REPORTER_ASSERT(reporter, dstLR.x() == origLL.y());
+        REPORTER_ASSERT(reporter, dstLR.y() == origLL.x());
+        REPORTER_ASSERT(reporter, dstLL.x() == origUL.y());
+        REPORTER_ASSERT(reporter, dstLL.y() == origUL.x());
+    }
+    // Width and height would get swapped.
+    REPORTER_ASSERT(reporter, orig.rect().width() == dst.rect().height());
+    REPORTER_ASSERT(reporter, orig.rect().height() == dst.rect().width());
+
+    //  a-----b             b-----c
+    //  |     |     ->      |     |
+    //  |     | Rotate 270  |     |
+    //  d-----c             a-----d
+    //
+    dst2.setEmpty();
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(270));
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
+    //  a-----b        b-----a        c-----d             d-----a
+    //  |     |   ->   |     |   ->   |     |     ->      |     |
+    //  |     | Flip X |     | Flip Y |     | Rotate 270  |     |
+    //  d-----c        c-----d        b-----a             c-----b
+    //
+    // This is the same as rotation by 90 degrees.
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(270));
+    matrix.postScale(SkIntToScalar(-1), SkIntToScalar(-1));
+    dst.setEmpty();
+    success = orig.transform(matrix, &dst);
+    REPORTER_ASSERT(reporter, success);
+
+    matrix.reset();
+    matrix.setRotate(SkIntToScalar(90));
+    dst2.setEmpty();
+    success = orig.transform(matrix, &dst2);
+    REPORTER_ASSERT(reporter, dst == dst2);
+
 }
 
 static void test_round_rect_transform(skiatest::Reporter* reporter) {
