@@ -16,6 +16,40 @@
       "revId": "1144d39db13c5f1184ebb2a67d0132bf28d1a0bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca7a5b48_b1ad0210",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2349,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-03T22:13:00Z",
+      "side": 1,
+      "message": "action(\"all_examples.cpp\") {\n      all_examples_cpp \u003d \"$target_gen_dir/all_examples.cpp\"\n      script \u003d \"gn/list_of_sources_to_concated_c.py\"\n      sources \u003d [ \"gn/examples.json\" ]\n      args \u003d [\n        rebase_path(\"gn/examples.json\", root_build_dir),\n        rebase_path(all_examples_cpp, root_build_dir),\n      ]\n      depfile \u003d \"$all_examples_cpp.deps\"\n      outputs \u003d [ all_examples_cpp ]\n    }",
+      "revId": "1144d39db13c5f1184ebb2a67d0132bf28d1a0bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1574e17_b0e594f8",
+        "filename": "gn/list_of_sources_to_concated_c.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-03T22:13:00Z",
+      "side": 1,
+      "message": "then have a thing like gn/list_of_sources_to_concated_c.py but instead does\n\nwith open(dst + \u0027.deps\u0027, \u0027w\u0027) as f:\n  f.write(dst + \u0027:\u0027)\n  for header in headers:\n    f.write(\u0027 \u0027 + dst.absolute) #absolute path to dst\n  f.write(\u0027 build.ninja.d\u0027)\n  f.write(\u0027\\n\u0027)\n\nso that we properly re-generate this file in the event of a file deletion or build change.",
+      "revId": "1144d39db13c5f1184ebb2a67d0132bf28d1a0bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
