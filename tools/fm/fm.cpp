@@ -545,8 +545,7 @@ int main(int argc, char** argv) {
                 hash.write(blob->data(), blob->size());
             }
 
-            SkMD5::Digest digest;
-            hash.finish(digest);
+            SkMD5::Digest digest = hash.finish();
             for (int i = 0; i < 16; i++) {
                 md5.appendf("%02x", digest.data[i]);
             }

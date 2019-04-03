@@ -57,14 +57,14 @@
     #define SK_PNG_DISABLE_TESTS
 #endif
 
-static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
+static SkMD5::Digest md5(const SkBitmap& bm) {
     SkASSERT(bm.getPixels());
     SkMD5 md5;
     size_t rowLen = bm.info().bytesPerPixel() * bm.width();
     for (int y = 0; y < bm.height(); ++y) {
         md5.write(bm.getAddr(0, y), rowLen);
     }
-    md5.finish(*digest);
+    return md5.finish();
 }
 
 /**
@@ -75,8 +75,7 @@ static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
  */
 static void compare_to_good_digest(skiatest::Reporter* r, const SkMD5::Digest& goodDigest,
                            const SkBitmap& bm) {
-    SkMD5::Digest digest;
-    md5(bm, &digest);
+    SkMD5::Digest digest = md5(bm);
     REPORTER_ASSERT(r, digest == goodDigest);
 }
 
@@ -178,7 +177,7 @@ static void test_codec(skiatest::Reporter* r, const char* path, Codec* codec, Sk
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
 
-    md5(bm, digest);
+    *digest = md5(bm);
     if (goodDigest) {
         REPORTER_ASSERT(r, *digest == *goodDigest);
     }
@@ -196,8 +195,7 @@ static void test_codec(skiatest::Reporter* r, const char* path, Codec* codec, Sk
 
             auto actualResult = codec->getPixels(info565, bm565.getPixels(), bm565.rowBytes());
             if (actualResult == expectedResult) {
-                SkMD5::Digest digest565;
-                md5(bm565, &digest565);
+                SkMD5::Digest digest565 = md5(bm565);
 
                 // A request for non-opaque should also succeed.
                 for (auto alpha : { kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
@@ -225,8 +223,7 @@ static void test_codec(skiatest::Reporter* r, const char* path, Codec* codec, Sk
         REPORTER_ASSERT(r, expectedResult == codec->getPixels(grayInfo,
                 grayBm.getPixels(), grayBm.rowBytes()));
 
-        SkMD5::Digest grayDigest;
-        md5(grayBm, &grayDigest);
+        SkMD5::Digest grayDigest = md5(grayBm);
 
         for (auto alpha : { kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
             grayInfo = grayInfo.makeAlphaType(alpha);
@@ -702,8 +699,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
     bm.setInfo(bmInfo);
     bm.allocPixels();
     bm.eraseColor(SK_ColorBLUE);
-    SkMD5::Digest goodDigest;
-    md5(bm, &goodDigest);
+    SkMD5::Digest goodDigest = md5(bm);
 
     // Write to a png file.
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -1080,10 +1076,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
-    SkMD5::Digest d1, d2;
-    md5(bm1, &d1);
-    md5(bm2, &d2);
-    REPORTER_ASSERT(r, d1 == d2);
+    REPORTER_ASSERT(r, md5(bm1) == md5(bm2));
 }
 
 DEF_TEST(Codec_PngRoundTrip, r) {

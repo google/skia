@@ -171,8 +171,7 @@ SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
         md5.write(value.c_str(), value.size());
         md5.write("\036", 1);
     }
-    SkMD5::Digest digest;
-    md5.finish(digest);
+    SkMD5::Digest digest = md5.finish();
     // See RFC 4122, page 6-7.
     digest.data[6] = (digest.data[6] & 0x0F) | 0x30;
     digest.data[8] = (digest.data[6] & 0x3F) | 0x80;
