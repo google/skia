@@ -86,13 +86,13 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
     //       * href attribute inheritance (not just color stops)
     //       * objectBoundingBox units support
 
-    static_assert(static_cast<SkShader::TileMode>(SkSVGSpreadMethod::Type::kPad) ==
-                  SkShader::kClamp_TileMode, "SkSVGSpreadMethod::Type is out of sync");
-    static_assert(static_cast<SkShader::TileMode>(SkSVGSpreadMethod::Type::kRepeat) ==
-                  SkShader::kRepeat_TileMode, "SkSVGSpreadMethod::Type is out of sync");
-    static_assert(static_cast<SkShader::TileMode>(SkSVGSpreadMethod::Type::kReflect) ==
-                  SkShader::kMirror_TileMode, "SkSVGSpreadMethod::Type is out of sync");
-    const auto tileMode = static_cast<SkShader::TileMode>(fSpreadMethod.type());
+    static_assert(static_cast<SkTileMode>(SkSVGSpreadMethod::Type::kPad) ==
+                  SkTileMode::kClamp, "SkSVGSpreadMethod::Type is out of sync");
+    static_assert(static_cast<SkTileMode>(SkSVGSpreadMethod::Type::kRepeat) ==
+                  SkTileMode::kRepeat, "SkSVGSpreadMethod::Type is out of sync");
+    static_assert(static_cast<SkTileMode>(SkSVGSpreadMethod::Type::kReflect) ==
+                  SkTileMode::kMirror, "SkSVGSpreadMethod::Type is out of sync");
+    const auto tileMode = static_cast<SkTileMode>(fSpreadMethod.type());
 
     paint->setShader(this->onMakeShader(ctx, colors.begin(), pos.begin(), colors.count(), tileMode,
                                         fGradientTransform.value()));

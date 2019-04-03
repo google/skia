@@ -118,7 +118,7 @@ const SkMatrix& SkShader::getLocalMatrix() const {
     return as_SB(this)->getLocalMatrix();
 }
 
-SkImage* SkShader::isAImage(SkMatrix* localMatrix, TileMode xy[2]) const {
+SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
     return as_SB(this)->onIsAImage(localMatrix, xy);
 }
 

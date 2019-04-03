@@ -1019,10 +1019,10 @@ static const struct luaL_Reg gSkFont_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* mode2string(SkShader::TileMode mode) {
-    static const char* gNames[] = { "clamp", "repeat", "mirror" };
+static const char* mode2string(SkTileMode mode) {
+    static const char* gNames[] = { "clamp", "repeat", "mirror", "decal" };
     SkASSERT((unsigned)mode < SK_ARRAY_COUNT(gNames));
-    return gNames[mode];
+    return gNames[static_cast<int>(mode)];
 }
 
 static const char* gradtype2string(SkShader::GradientType t) {
@@ -1042,7 +1042,7 @@ static int lshader_isAImage(lua_State* L) {
     SkShader* shader = get_ref<SkShader>(L, 1);
     if (shader) {
         SkMatrix matrix;
-        SkShader::TileMode modes[2];
+        SkTileMode modes[2];
         if (SkImage* image = shader->isAImage(&matrix, modes)) {
             lua_newtable(L);
             setfield_number(L, "id", image->uniqueID());
@@ -1071,7 +1071,7 @@ static int lshader_asAGradient(lua_State* L) {
 
             lua_newtable(L);
             setfield_string(L,  "type",           gradtype2string(t));
-            setfield_string(L,  "tile",           mode2string(info.fTileMode));
+            setfield_string(L,  "tile",           mode2string((SkTileMode)info.fTileMode));
             setfield_number(L,  "colorCount",     info.fColorCount);
 
             lua_newtable(L);
