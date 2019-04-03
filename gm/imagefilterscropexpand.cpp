@@ -165,7 +165,7 @@ namespace {
         colors[1] = SK_ColorBLACK;
         SkPaint paint;
         paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr,
-                                                     2, SkShader::kClamp_TileMode));
+                                                     2, SkTileMode::kClamp));
         canvas->drawCircle(x, y, radius, paint);
 
         return surface->makeImageSnapshot();

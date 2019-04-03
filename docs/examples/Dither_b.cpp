@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeLinear(
                      points, colors, nullptr, SK_ARRAY_COUNT(colors),
-                     SkShader::kClamp_TileMode, 0, nullptr));
+                     SkTileMode::kClamp));
     paint.setDither(true);
     c32.drawPaint(paint);
     canvas->scale(12, 12);

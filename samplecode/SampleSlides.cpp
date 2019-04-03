@@ -175,11 +175,11 @@ static const GradData gGradData[] = {
 { 5, gColors, gPos2 }
 };
 
-static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
 }
 
-static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
@@ -187,14 +187,14 @@ static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, Sk
                                           data.fPos, data.fCount, tm);
 }
 
-static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
 }
 
-static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -205,7 +205,7 @@ static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, 
                                                   data.fColors, data.fPos, data.fCount, tm);
 }
 
-typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData&, SkShader::TileMode);
+typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData&, SkTileMode);
 static const GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Conical
 };
@@ -215,7 +215,7 @@ static void gradient_slide(SkCanvas* canvas) {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
     };
-    SkShader::TileMode tm = SkShader::kClamp_TileMode;
+    SkTileMode tm = SkTileMode::kClamp;
     SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -246,8 +246,7 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
 
     decode_file("/skimages/logo.gif", &bm);
     size->set(bm.width(), bm.height());
-    return SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
-                                        SkShader::kClamp_TileMode);
+    return SkShader::MakeBitmapShader(bm, SkTileMode::kClamp, SkTileMode::kClamp);
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
@@ -255,7 +254,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::MakeLinear(pts, colors, nullptr,
-                                          SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
+                                          SK_ARRAY_COUNT(colors), SkTileMode::kMirror);
 }
 
 class Rec {

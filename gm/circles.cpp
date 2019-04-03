@@ -66,7 +66,7 @@ protected:
         SkColor colors[] = { SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN };
         SkScalar pos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
         p.setShader(SkGradientShader::MakeRadial(center, 20, colors, pos, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
         fPaints.push_back(p);
         }
 

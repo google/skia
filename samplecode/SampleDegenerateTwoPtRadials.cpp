@@ -30,7 +30,7 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
                                                           pos, SK_ARRAY_COUNT(pos),
-                                                          SkShader::kClamp_TileMode));
+                                                          SkTileMode::kClamp));
     canvas->drawRect(rect, paint);
 }
 

@@ -157,7 +157,7 @@ bool make_ringed_alpha_image(TestPixels* result, int width, int height) {
 static sk_sp<SkShader> make_shader() {
     constexpr SkPoint pts[] = { {0, 0}, {20, 20} };
     constexpr SkColor colors[] = { SK_ColorGREEN, SK_ColorYELLOW };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 }
 
 static sk_sp<SkShader> make_null_shader() { return nullptr; }

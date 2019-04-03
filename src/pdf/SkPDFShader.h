@@ -50,7 +50,7 @@ struct SkPDFImageShaderKey {
     SkMatrix fShaderTransform;
     SkIRect fBBox;
     SkBitmapKey fBitmapKey;
-    SkShader::TileMode fImageTileModes[2];
+    SkTileMode fImageTileModes[2];
     SkColor fPaintColor;
 };
 SK_END_REQUIRE_DENSE

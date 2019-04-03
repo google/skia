@@ -17,6 +17,6 @@ DEF_SIMPLE_GM(radial_gradient_precision, canvas, 200, 200) {
     SkPaint p;
     p.setShader(SkGradientShader::MakeRadial(center, radius,
                                              colors, nullptr, SK_ARRAY_COUNT(colors),
-                                             SkShader::kRepeat_TileMode));
+                                             SkTileMode::kRepeat));
     canvas->drawPaint(p);
 }

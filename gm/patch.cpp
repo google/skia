@@ -19,7 +19,7 @@ static sk_sp<SkShader> make_shader() {
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
 
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+                                        SkTileMode::kMirror);
 }
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
@@ -98,7 +98,7 @@ static void dopatch(SkCanvas* canvas, const SkColor colors[], sk_sp<SkImage> img
     if (img) {
         SkScalar w = img->width();
         SkScalar h = img->height();
-        shader = img->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+        shader = img->makeShader();
         texStorage[0].set(0, 0);
         texStorage[1].set(w, 0);
         texStorage[2].set(w, h);

@@ -26,7 +26,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
     SkPaint paint;
 
     SkPoint pts1[] = {{0.f, 0.f}, {(SkScalar)w, (SkScalar)h}};
-    auto grad = SkGradientShader::MakeLinear(pts1, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    auto grad = SkGradientShader::MakeLinear(pts1, colors, nullptr, 2, SkTileMode::kClamp);
     paint.setShader(std::move(grad));
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
@@ -39,7 +39,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
     }
 
     SkPoint pts2[] = {{0.f, (SkScalar)h}, {(SkScalar)w, 0.f}};
-    grad = SkGradientShader::MakeLinear(pts2, colors + 2, nullptr, 2, SkShader::kClamp_TileMode);
+    grad = SkGradientShader::MakeLinear(pts2, colors + 2, nullptr, 2, SkTileMode::kClamp);
     paint.setShader(std::move(grad));
     paint.setBlendMode(SkBlendMode::kMultiply);
     stripePts[0] = {-w - kStripeW, h + kStripeW};

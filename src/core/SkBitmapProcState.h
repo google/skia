@@ -29,20 +29,20 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcInfo {
-    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
+    SkBitmapProcInfo(const SkBitmapProvider&, SkTileMode tmx, SkTileMode tmy);
     ~SkBitmapProcInfo();
 
-    const SkBitmapProvider        fProvider;
+    const SkBitmapProvider  fProvider;
 
-    SkPixmap                      fPixmap;
-    SkMatrix                      fInvMatrix;         // This changes based on tile mode.
+    SkPixmap                fPixmap;
+    SkMatrix                fInvMatrix;         // This changes based on tile mode.
     // TODO: combine fInvMatrix and fRealInvMatrix.
-    SkMatrix                      fRealInvMatrix;     // The actual inverse matrix.
-    SkColor                       fPaintColor;
-    SkShader::TileMode            fTileModeX;
-    SkShader::TileMode            fTileModeY;
-    SkFilterQuality               fFilterQuality;
-    SkMatrix::TypeMask            fInvType;
+    SkMatrix                fRealInvMatrix;     // The actual inverse matrix.
+    SkColor                 fPaintColor;
+    SkTileMode              fTileModeX;
+    SkTileMode              fTileModeY;
+    SkFilterQuality         fFilterQuality;
+    SkMatrix::TypeMask      fInvType;
 
     bool init(const SkMatrix& inverse, const SkPaint&);
 
@@ -55,7 +55,7 @@ private:
 };
 
 struct SkBitmapProcState : public SkBitmapProcInfo {
-    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy)
+    SkBitmapProcState(const SkBitmapProvider& prov, SkTileMode tmx, SkTileMode tmy)
         : SkBitmapProcInfo(prov, tmx, tmy) {}
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {

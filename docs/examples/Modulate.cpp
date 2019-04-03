@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
         const SkPoint horz[] = { { 0, 0 }, { 128, 0 } };
         SkPaint paint;
         paint.setShader(SkGradientShader::MakeLinear(horz, colors, nullptr, SK_ARRAY_COUNT(colors),
-                SkShader::kClamp_TileMode));
+                SkTileMode::kClamp));
         paint.setBlendMode(mode);
         canvas->translate(dx, dy);
         canvas->drawRect({0, 0, 128, 128}, paint);
