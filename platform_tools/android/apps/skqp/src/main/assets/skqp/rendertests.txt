@@ -706,7 +706,7 @@ yuv_nv12_to_rgb_effect,-1
 yuv_to_rgb_effect,-1
 zeroPath,-1
 zero_control_stroke,-1
-zero_length_paths_aa,0
+zero_length_paths_aa,-1
 zero_length_paths_bw,-1
 zero_length_paths_dbl_aa,-1
 zero_length_paths_dbl_bw,-1
