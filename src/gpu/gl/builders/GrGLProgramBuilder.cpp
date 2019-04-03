@@ -148,8 +148,50 @@ void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
     }
 }
 
+struct GrGLSLSet {
+    SkSL::String fGLSL[kGrShaderTypeCount];
+
+    SkSL::String& gs() { return fGLSL[kGeometry_GrShaderType]; }
+    SkSL::String& vs() { return fGLSL[kVertex_GrShaderType]; }
+    SkSL::String& fs() { return fGLSL[kFragment_GrShaderType]; }
+
+    size_t getCacheSize() const {
+        size_t size = 0;
+        for (int i = 0; i < kGrShaderTypeCount; ++i) {
+            if (fGLSL[i].size() > 0) {
+                size += fGLSL[i].size() + 1;
+            }
+        }
+        return size;
+    }
+};
+
+struct GrGLSLCacheEntry {
+    GrGLSLCacheEntry(const SkSL::Program::Inputs& inputs, const GrGLSLSet& glsl)
+            : fInputs(inputs) {
+        size_t offset = sizeof(*this);
+        for (int i = 0; i < kGrShaderTypeCount; ++i) {
+            if (glsl.fGLSL[i].size() > 0) {
+                fOffset[i] = offset;
+                offset += glsl.fGLSL[i].size() + 1;
+            } else {
+                fOffset[i] = 0;
+            }
+        }
+    }
+
+    const char* get(int shaderType) const {
+        SkASSERT(shaderType < kGrShaderTypeCount);
+        return fOffset[shaderType] ? SkTAddOffset<const char>(this, fOffset[shaderType])
+                                   : nullptr;
+    }
+
+    SkSL::Program::Inputs fInputs;
+    size_t fOffset[kGrShaderTypeCount];
+};
+
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                                            const SkSL::String& glsl) {
+                                            const GrGLSLSet& glsl) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
     }
@@ -175,12 +217,18 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         }
     } else {
         // source cache
-        size_t dataLength = sizeof(inputs) + glsl.length();
+        size_t dataLength = sizeof(GrGLSLCacheEntry) + glsl.getCacheSize();
         std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
         size_t offset = 0;
-        memcpy(data.get() + offset, &inputs, sizeof(inputs));
-        offset += sizeof(inputs);
-        memcpy(data.get() + offset, glsl.data(), glsl.length());
+        GrGLSLCacheEntry entry(inputs, glsl);
+        memcpy(data.get() + offset, &entry, sizeof(entry));
+        offset += sizeof(entry);
+        for (int i = 0; i < kGrShaderTypeCount; ++i) {
+            if (glsl.fGLSL[i].size() > 0) {
+                memcpy(data.get() + offset, glsl.fGLSL[i].data(), glsl.fGLSL[i].size() + 1);
+                offset += glsl.fGLSL[i].size() + 1;
+            }
+        }
         this->gpu()->getContext()->priv().getPersistentCache()->store(
                                             *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
     }
@@ -220,13 +268,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     checkLinked = true;
 #endif
     bool cached = fCached.get() != nullptr;
-    SkSL::String glsl;
+    GrGLSLSet glsl;
     if (cached) {
         const uint8_t* bytes = fCached->bytes();
-        size_t offset = 0;
-        memcpy(&inputs, bytes + offset, sizeof(inputs));
-        offset += sizeof(inputs);
         if (fGpu->glCaps().programBinarySupport()) {
+            size_t offset = 0;
+            memcpy(&inputs, bytes + offset, sizeof(inputs));
+            offset += sizeof(inputs);
             // binary cache hit, just hand the binary to GL
             int binaryFormat;
             memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
@@ -248,13 +296,19 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             }
         } else {
             // source cache hit, we don't need to compile the SkSL->GLSL
-            glsl = SkSL::String(((const char*) bytes) + offset, fCached->size() - offset);
+            const GrGLSLCacheEntry* entry = (const GrGLSLCacheEntry*)(bytes);
+            inputs = entry->fInputs;
+            for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                if (entry->fOffset[i]) {
+                    glsl.fGLSL[i] = SkSL::String(entry->get(i));
+                }
+            }
         }
     }
     if (!cached || !fGpu->glCaps().programBinarySupport()) {
         // either a cache miss, or we can't store binaries in the cache
-        if (glsl == "" || true) {
-            // don't have cached GLSL, need to compile SkSL->GLSL
+        if (glsl.fs().empty()) {
+            // Don't have cached GLSL, need to compile SkSL->GLSL
             if (fFS.fForceHighPrecision) {
                 settings.fForceHighPrecision = true;
             }
@@ -264,35 +318,42 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                                                              fFS.fCompilerStringLengths.begin(),
                                                              fFS.fCompilerStrings.count(),
                                                              settings,
-                                                             &glsl);
+                                                             &glsl.fs());
             if (!fs) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }
             inputs = fs->fInputs;
+            this->addInputVars(inputs);
         } else {
             // we've pulled GLSL and inputs from the cache, but still need to do some setup
             this->addInputVars(inputs);
             this->computeCountsAndStrides(programID, primProc, false);
         }
-        this->addInputVars(inputs);
-        if (!this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
+        if (!this->compileAndAttachShaders(glsl.fs().c_str(), glsl.fs().size(), programID,
                                            GR_GL_FRAGMENT_SHADER, &shadersToDelete, settings,
                                            inputs)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
 
-        std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
-                                                         GR_GL_VERTEX_SHADER,
-                                                         fVS.fCompilerStrings.begin(),
-                                                         fVS.fCompilerStringLengths.begin(),
-                                                         fVS.fCompilerStrings.count(),
-                                                         settings,
-                                                         &glsl);
-        if (!vs || !this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
-                                                  GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
-                                                  inputs)) {
+        if (glsl.vs().empty()) {
+            // Don't have cached GLSL, need to compile SkSL->GLSL
+            std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
+                                                             GR_GL_VERTEX_SHADER,
+                                                             fVS.fCompilerStrings.begin(),
+                                                             fVS.fCompilerStringLengths.begin(),
+                                                             fVS.fCompilerStrings.count(),
+                                                             settings,
+                                                             &glsl.vs());
+            if (!vs) {
+                this->cleanupProgram(programID, shadersToDelete);
+                return nullptr;
+            }
+        }
+        if (!this->compileAndAttachShaders(glsl.vs().c_str(), glsl.vs().size(), programID,
+                                           GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
+                                           inputs)) {
             this->cleanupProgram(programID, shadersToDelete);
             return nullptr;
         }
@@ -304,17 +365,24 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         }
 
         if (primProc.willUseGeoShader()) {
-            std::unique_ptr<SkSL::Program> gs;
-            gs = GrSkSLtoGLSL(gpu()->glContext(),
-                              GR_GL_GEOMETRY_SHADER,
-                              fGS.fCompilerStrings.begin(),
-                              fGS.fCompilerStringLengths.begin(),
-                              fGS.fCompilerStrings.count(),
-                              settings,
-                              &glsl);
-            if (!gs || !this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
-                                                      GR_GL_GEOMETRY_SHADER, &shadersToDelete,
-                                                      settings, inputs)) {
+            if (glsl.gs().empty()) {
+                // Don't have cached GLSL, need to compile SkSL->GLSL
+                std::unique_ptr<SkSL::Program> gs;
+                gs = GrSkSLtoGLSL(gpu()->glContext(),
+                                  GR_GL_GEOMETRY_SHADER,
+                                  fGS.fCompilerStrings.begin(),
+                                  fGS.fCompilerStringLengths.begin(),
+                                  fGS.fCompilerStrings.count(),
+                                  settings,
+                                  &glsl.gs());
+                if (!gs) {
+                    this->cleanupProgram(programID, shadersToDelete);
+                    return nullptr;
+                }
+            }
+            if (!this->compileAndAttachShaders(glsl.gs().c_str(), glsl.gs().size(), programID,
+                                               GR_GL_GEOMETRY_SHADER, &shadersToDelete, settings,
+                                               inputs)) {
                 this->cleanupProgram(programID, shadersToDelete);
                 return nullptr;
             }

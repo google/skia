@@ -70,7 +70,8 @@ static const struct {
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
     { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
-    { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=true" },
+    { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=1" },
+    { "gltestglslcache",       "gpu", "api=gl,testPersistentCache=2" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
@@ -97,7 +98,7 @@ static const struct {
     { "vkmsaa8",               "gpu", "api=vulkan,samples=8" },
     { "vkbetex",               "gpu", "api=vulkan,surf=betex" },
     { "vkbert",                "gpu", "api=vulkan,surf=bert" },
-    { "vktestpersistentcache", "gpu", "api=vulkan,testPersistentCache=true" },
+    { "vktestpersistentcache", "gpu", "api=vulkan,testPersistentCache=1" },
 #endif
 #ifdef SK_METAL
     { "mtl",                   "gpu", "api=metal" },
@@ -168,8 +169,9 @@ static const char configExtendedHelp[] =
         "\t    Allow the use of stencil buffers.\n"
         "\ttestThreading\ttype: bool\tdefault: false.\n"
         "\t    Run with and without worker threads, check that results match.\n"
-        "\ttestPersistentCache\ttype: bool\tdefault: false.\n"
-        "\t    Run using a pre-warmed GrContextOption::fPersistentCache.\n"
+        "\ttestPersistentCache\ttype: int\tdefault: 0.\n"
+        "\t    1: Run using a pre-warmed binary GrContextOptions::fPersistentCache.\n"
+        "\t    2: Run using a pre-warmed GLSL GrContextOptions::fPersistentCache.\n"
         "\tsurf\ttype: string\tdefault: default.\n"
         "\t    Controls the type of backing store for SkSurfaces.\n"
         "\t    Options:\n"
@@ -437,7 +439,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                sk_sp<SkColorSpace>       colorSpace,
                                                bool                      useStencilBuffers,
                                                bool                      testThreading,
-                                               bool                      testPersistentCache,
+                                               int                       testPersistentCache,
                                                SurfType                  surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
@@ -475,7 +477,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     sk_sp<SkColorSpace>                 colorSpace          = nullptr;
     bool                                useStencils         = true;
     bool                                testThreading       = false;
-    bool                                testPersistentCache = false;
+    int                                 testPersistentCache = 0;
     SkCommandLineConfigGpu::SurfType    surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool            parseSucceeded = false;
@@ -492,11 +494,11 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType, &colorSpace) &&
             extendedOptions.get_option_bool("stencils", &useStencils) &&
             extendedOptions.get_option_bool("testThreading", &testThreading) &&
-            extendedOptions.get_option_bool("testPersistentCache", &testPersistentCache) &&
+            extendedOptions.get_option_int("testPersistentCache", &testPersistentCache) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
     // testing threading and the persistent cache are mutually exclusive.
-    if (!validOptions || (testThreading && testPersistentCache)) {
+    if (!validOptions || (testThreading && (testPersistentCache != 0))) {
         return nullptr;
     }
 
