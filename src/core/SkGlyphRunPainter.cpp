@@ -35,6 +35,8 @@
 #include "src/core/SkStrikeInterface.h"
 #include "src/core/SkTraceEvent.h"
 
+#include <limits.h>
+
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
 
 SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {

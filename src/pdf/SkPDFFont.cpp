@@ -6,29 +6,47 @@
  */
 
 #include "src/pdf/SkPDFFont.h"
-
+#include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/SkMacros.h"
+#include "include/private/SkBitmaskEnum.h"
+#include "include/private/SkTHash.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
 #include "src/pdf/SkPDFBitmap.h"
-#include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
-#include "src/pdf/SkPDFResourceDict.h"
 #include "src/pdf/SkPDFSubsetFont.h"
+#include "src/pdf/SkPDFType1Font.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "src/utils/SkUTF.h"
+
+#include <limits.h>
+#include <initializer_list>
+#include <memory>
+#include <utility>
 
 SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     SkFont font;

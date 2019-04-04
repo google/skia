@@ -13,6 +13,8 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
+#include <limits.h>
+
 namespace skottie {
 namespace {
 

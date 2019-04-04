@@ -3,8 +3,15 @@
 
 #include "run_handler.h"
 
+#include "SkShaper.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTFitsIn.h"
 #include "src/core/SkTextBlobPriv.h"
+
+#include <limits.h>
+#include <string.h>
 
 using namespace editor;
 

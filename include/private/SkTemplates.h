@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,17 +5,19 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
-#include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTLogic.h"
-#include <limits.h>
+
+#include <string.h>
+#include <array>
+#include <cstddef>
 #include <memory>
 #include <new>
+#include <utility>
 
 /** \file SkTemplates.h
 
