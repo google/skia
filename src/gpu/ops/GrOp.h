@@ -54,7 +54,7 @@ class GrRenderTargetOpList;
 #endif
 
 // Print out op information at flush time
-#define GR_FLUSH_TIME_OP_SPEW 0
+#define GR_FLUSH_TIME_OP_SPEW 1
 
 // A helper macro to generate a class static id
 #define DEFINE_OP_CLASS_ID \

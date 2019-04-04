@@ -163,6 +163,11 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
         // implemented it should be enabled whenever sorting is enabled.
         fReduceOpListSplitting = false; // sortOpLists
     }
+
+    SkDebugf("-------------------------%s %s %s\n",
+        explicitlyAllocating ? "explicit" : "legacy",
+        sortOpLists ? "sorting" : "not-sorting",
+        fReduceOpListSplitting ? "reduced" : "not-reduced");
 }
 
 void GrDrawingManager::cleanup() {

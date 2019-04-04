@@ -149,14 +149,14 @@ struct SK_API GrContextOptions {
      * Allow Ganesh to sort the opLists prior to allocating resources. This is an optional
      * behavior but, eventually, this will just be what is done and will not be optional.
      */
-    Enable fSortRenderTargets = Enable::kDefault;
+    Enable fSortRenderTargets = Enable::kNo;
 
     /**
      * Allow Ganesh to more aggressively reorder operations. This is an optional
      * behavior that is only relevant when 'fSortRenderTargets' is enabled.
      * Eventually this will just be what is done and will not be optional.
      */
-    Enable fReduceOpListSplitting = Enable::kDefault;
+    Enable fReduceOpListSplitting = Enable::kNo;
 
     /**
      * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
