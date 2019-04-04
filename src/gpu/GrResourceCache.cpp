@@ -658,6 +658,11 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
         fMaxBytes = cachedByteCount;
     }
 }
+bool GrResourceCache::requestsFlush() const {
+    return this->overBudget() && !fPurgeableQueue.count() &&
+           fNumBudgetedResourcesFlushWillMakePurgeable > 0;
+}
+
 
 void GrResourceCache::insertDelayedResourceUnref(GrGpuResource* resource) {
     resource->ref();
