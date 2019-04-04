@@ -195,6 +195,18 @@ void GrDrawingManager::freeGpuResources() {
     fSoftwarePathRenderer = nullptr;
 }
 
+void GrDrawingManager::cleanupAfterFailedAllocations(int startIndex, int stopIndex) {
+    for (int i = startIndex; i < stopIndex; ++i) {
+        if (fDAG.opList(i) && !fDAG.opList(i)->isFullyInstantiated()) {
+            // If the backing surface wasn't allocated drop the entire opList.
+            fDAG.removeOpList(i);
+        }
+        if (fDAG.opList(i)) {
+            fDAG.opList(i)->purgeOpsWithUninstantiatedProxies();
+        }
+    }
+}
+
 // MDB TODO: make use of the 'proxy' parameter.
 GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
                                               SkSurface::BackendSurfaceAccess access,
@@ -291,23 +303,19 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
                 fDAG.opList(i)->gatherProxyIntervals(&alloc);
+                if (GrResourceAllocator::AssignError::kNone != alloc.errorState()) {
+                    this->cleanupAfterFailedAllocations(i, i+1);
+                    alloc.clearError();
+                }
             }
             alloc.markEndOfOpList(i);
         }
 
-        GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
         int numOpListsExecuted = 0;
-        while (alloc.assign(&startIndex, &stopIndex, &error)) {
-            if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
-                for (int i = startIndex; i < stopIndex; ++i) {
-                    if (fDAG.opList(i) && !fDAG.opList(i)->isFullyInstantiated()) {
-                        // If the backing surface wasn't allocated drop the entire opList.
-                        fDAG.removeOpList(i);
-                    }
-                    if (fDAG.opList(i)) {
-                        fDAG.opList(i)->purgeOpsWithUninstantiatedProxies();
-                    }
-                }
+        while (alloc.assign(&startIndex, &stopIndex)) {
+            if (GrResourceAllocator::AssignError::kNone != alloc.errorState()) {
+                this->cleanupAfterFailedAllocations(startIndex, stopIndex);
+                alloc.clearError();
             }
 
             if (this->executeOpLists(startIndex, stopIndex, &flushState, &numOpListsExecuted)) {

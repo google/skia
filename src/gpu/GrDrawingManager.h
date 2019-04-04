@@ -149,6 +149,9 @@ private:
     // return true if any opLists were actually executed; false otherwise
     bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
+    // Some proxy failed to allocate w/in the provided range of opLists
+    void cleanupAfterFailedAllocations(int startIndex, int stopIndex);
+
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 SkSurface::BackendSurfaceAccess access,
                                 SkSurface::FlushFlags flags,
