@@ -158,6 +158,13 @@ public:
         return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
     }
 
+    bool hasPath() const {
+        // Find path must have been called to use this call.
+        SkASSERT(fPathData != nullptr);
+
+        return fPathData != nullptr && fPathData->fHasPath;
+    }
+
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 

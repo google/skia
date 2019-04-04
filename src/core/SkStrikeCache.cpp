@@ -41,6 +41,13 @@ public:
         return fStrike.glyphMetrics(id, point, n, result);
     }
 
+    SkSpan<SkGlyphPos> glyphMetrics2(const SkGlyphID glyphIDs[],
+                                     const SkPoint positions[],
+                                     int n,
+                                     int maxDimension,
+                                     SkGlyphPos results[]) override {
+        return fStrike.glyphMetrics2(glyphIDs, positions, n, maxDimension, results);
+    }
 
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override {
         return fStrike.decideCouldDrawFromPath(glyph);

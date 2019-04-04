@@ -238,9 +238,9 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
 int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
-                 const SkPoint positions[],
-                 int n,
-                 SkGlyphPos result[]) {
+                           const SkPoint positions[],
+                           int n,
+                           SkGlyphPos result[]) {
 
     int drawableGlyphCount = 0;
     const SkPoint* posCursor = positions;
@@ -249,13 +249,39 @@ int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
         if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
             const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
             if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {&glyph, glyphPos};
+                result[drawableGlyphCount++] = {i, &glyph, glyphPos};
             }
         }
     }
 
     return drawableGlyphCount;
 }
+
+SkSpan<SkGlyphPos> SkStrike::glyphMetrics2(const SkGlyphID glyphIDs[],
+                                           const SkPoint positions[],
+                                           int n,
+                                           int maxDimension,
+                                           SkGlyphPos result[]) {
+    int drawableGlyphCount = 0;
+    const SkPoint* posCursor = positions;
+    for (int i = 0; i < n; i++) {
+        SkPoint glyphPos = *posCursor++;
+        if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
+            const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
+            if (!glyph.isEmpty()) {
+                int glyphMaxDimension = std::max(glyph.fWidth, glyph.fHeight);
+                if (glyphMaxDimension <= maxDimension) {
+                    result[drawableGlyphCount++] = {i, &glyph, glyphPos};
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                    this->findPath(glyph);
+                }
+            }
+        }
+    }
+
+    return SkSpan<SkGlyphPos>(result, drawableGlyphCount);
+}
+
 
 #include "../pathops/SkPathOpsCubic.h"
 #include "../pathops/SkPathOpsQuad.h"

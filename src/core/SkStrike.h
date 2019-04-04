@@ -138,6 +138,12 @@ public:
 
     int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) override;
 
+    SkSpan<SkGlyphPos> glyphMetrics2(const SkGlyphID glyphIDs[],
+                                     const SkPoint positions[],
+                                     int n,
+                                     int maxDimension,
+                                     SkGlyphPos results[]) override;
+
     void onAboutToExitScope() override;
 
     /** Return the approx RAM usage for this cache. */
