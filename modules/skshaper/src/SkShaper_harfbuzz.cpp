@@ -624,62 +624,22 @@ struct ShapedRunGlyphIterator {
     size_t fGlyphIndex;
 };
 
-}  // namespace
-
-
-std::unique_ptr<SkShaper::BiDiRunIterator>
-SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
-    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
-    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
-    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
-        SkDEBUGF("Bidi error: text too long");
-        return nullptr;
-    }
-
-    UErrorCode status = U_ZERO_ERROR;
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
-    status = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
-        return nullptr;
-    }
-
-    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return nullptr;
-    }
-    SkASSERT(bidi);
-
-    // The required lifetime of utf16 isn't well documented.
-    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return nullptr;
-    }
-
-    return skstd::make_unique<IcuBiDiRunIterator>(utf8, utf8 + utf8Bytes, std::move(bidi));
-}
-
-std::unique_ptr<SkShaper::ScriptRunIterator>
-SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
-    return skstd::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
-}
-
-class SkShaperHarfBuzz : public SkShaper {
+class ShaperHarfBuzz : public SkShaper {
 public:
-    SkShaperHarfBuzz();
-    bool good() const;
-private:
-    HBBuffer fBuffer;
+    ShaperHarfBuzz(HBBuffer, ICUBrk line, ICUBrk grapheme);
+protected:
     ICUBrk fLineBreakIterator;
     ICUBrk fGraphemeBreakIterator;
+
+    ShapedRun shape(const char* utf8, size_t utf8Bytes,
+                    const char* utf8Start,
+                    const char* utf8End,
+                    const BiDiRunIterator&,
+                    const LanguageRunIterator&,
+                    const ScriptRunIterator&,
+                    const FontRunIterator&) const;
+private:
+    HBBuffer fBuffer;
 
     void shape(const char* utf8, size_t utf8Bytes,
                const SkFont&,
@@ -695,74 +655,90 @@ private:
                SkScalar width,
                RunHandler*) const override;
 
-    void shapeCorrect(char const * const utf8, size_t utf8Bytes,
+    virtual void wrap(char const * const utf8, size_t utf8Bytes,
                       const BiDiRunIterator&,
                       const LanguageRunIterator&,
                       const ScriptRunIterator&,
                       const FontRunIterator&,
                       RunIteratorQueue& runSegmenter,
                       SkScalar width,
-                      RunHandler*) const;
-
-    void shapeOk(const char* utf8, size_t utf8Bytes,
-                 const BiDiRunIterator&,
-                 const LanguageRunIterator&,
-                 const ScriptRunIterator&,
-                 const FontRunIterator&,
-                 RunIteratorQueue& runSegmenter,
-                 SkScalar width,
-                 RunHandler*) const;
-
-    ShapedRun shape(const char* utf8, size_t utf8Bytes,
-                    const char* utf8Start,
-                    const char* utf8End,
-                    const BiDiRunIterator&,
-                    const LanguageRunIterator&,
-                    const ScriptRunIterator&,
-                    const FontRunIterator&) const;
+                      RunHandler*) const = 0;
 };
 
-std::unique_ptr<SkShaper> SkShaper::MakeHarfBuzz() {
-    auto hb = skstd::make_unique<SkShaperHarfBuzz>();
-    return hb->good() ? std::move(hb) : nullptr;
-}
+class ShaperDrivenWrapper : public ShaperHarfBuzz {
+public:
+    using ShaperHarfBuzz::ShaperHarfBuzz;
+private:
+    void wrap(char const * const utf8, size_t utf8Bytes,
+              const BiDiRunIterator&,
+              const LanguageRunIterator&,
+              const ScriptRunIterator&,
+              const FontRunIterator&,
+              RunIteratorQueue& runSegmenter,
+              SkScalar width,
+              RunHandler*) const override;
+};
 
-SkShaperHarfBuzz::SkShaperHarfBuzz() {
-#if defined(SK_USING_THIRD_PARTY_ICU)
+class ShapeThenWrap : public ShaperHarfBuzz {
+public:
+    using ShaperHarfBuzz::ShaperHarfBuzz;
+private:
+    void wrap(char const * const utf8, size_t utf8Bytes,
+              const BiDiRunIterator&,
+              const LanguageRunIterator&,
+              const ScriptRunIterator&,
+              const FontRunIterator&,
+              RunIteratorQueue& runSegmenter,
+              SkScalar width,
+              RunHandler*) const override;
+};
+
+static std::unique_ptr<SkShaper> MakeHarfBuzz(bool correct) {
+    #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
-        SkDebugf("SkLoadICU() failed!\n");
-        return;
+        SkDEBUGF("SkLoadICU() failed!\n");
+        return nullptr;
     }
-#endif
-    fBuffer.reset(hb_buffer_create());
-    SkASSERT(fBuffer);
+    #endif
+    HBBuffer buffer(hb_buffer_create());
+    if (!buffer) {
+        SkDEBUGF("Could not create hb_buffer");
+        return nullptr;
+    }
 
     UErrorCode status = U_ZERO_ERROR;
-    fLineBreakIterator.reset(ubrk_open(UBRK_LINE, "th", nullptr, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDebugf("Could not create line break iterator: %s", u_errorName(status));
-        SK_ABORT("");
+    ICUBrk lineBreakIterator(ubrk_open(UBRK_LINE, "th", nullptr, 0, &status));
+    if (!lineBreakIterator || U_FAILURE(status)) {
+        SkDEBUGF("Could not create line break iterator: %s", u_errorName(status));
+        return nullptr;
     }
 
-    fGraphemeBreakIterator.reset(ubrk_open(UBRK_CHARACTER, "th", nullptr, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDebugf("Could not create grapheme break iterator: %s", u_errorName(status));
-        SK_ABORT("");
+    ICUBrk graphemeBreakIterator(ubrk_open(UBRK_CHARACTER, "th", nullptr, 0, &status));
+    if (!graphemeBreakIterator || U_FAILURE(status)) {
+        SkDEBUGF("Could not create grapheme break iterator: %s", u_errorName(status));
+        return nullptr;
     }
 
+    if (correct) {
+        return skstd::make_unique<ShaperDrivenWrapper>(
+            std::move(buffer), std::move(lineBreakIterator), std::move(graphemeBreakIterator));
+    } else {
+        return skstd::make_unique<ShapeThenWrap>(
+            std::move(buffer), std::move(lineBreakIterator), std::move(graphemeBreakIterator));
+    }
 }
 
-bool SkShaperHarfBuzz::good() const {
-    return fBuffer &&
-           fLineBreakIterator &&
-           fGraphemeBreakIterator;
-}
+ShaperHarfBuzz::ShaperHarfBuzz(HBBuffer buffer, ICUBrk line, ICUBrk grapheme)
+    : fLineBreakIterator(std::move(line))
+    , fGraphemeBreakIterator(std::move(grapheme))
+    , fBuffer(std::move(buffer))
+{}
 
-void SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
-                             const SkFont& srcFont,
-                             bool leftToRight,
-                             SkScalar width,
-                             RunHandler* handler) const
+void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
+                           const SkFont& srcFont,
+                           bool leftToRight,
+                           SkScalar width,
+                           RunHandler* handler) const
 {
     SkASSERT(handler);
     sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
@@ -792,13 +768,13 @@ void SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
     this->shape(utf8, utf8Bytes, *font, *bidi, *script, *language, width, handler);
 }
 
-void SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
-                             FontRunIterator& font,
-                             BiDiRunIterator& bidi,
-                             ScriptRunIterator& script,
-                             LanguageRunIterator& language,
-                             SkScalar width,
-                             RunHandler* handler) const
+void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
+                           FontRunIterator& font,
+                           BiDiRunIterator& bidi,
+                           ScriptRunIterator& script,
+                           LanguageRunIterator& language,
+                           SkScalar width,
+                           RunHandler* handler) const
 {
     RunIteratorQueue runSegmenter;
     runSegmenter.insert(&font);
@@ -806,21 +782,17 @@ void SkShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
     runSegmenter.insert(&script);
     runSegmenter.insert(&language);
 
-    if (true) {
-        shapeCorrect(utf8, utf8Bytes, bidi, language, script, font, runSegmenter, width, handler);
-    } else {
-        shapeOk(utf8, utf8Bytes, bidi, language, script, font, runSegmenter, width, handler);
-    }
+    this->wrap(utf8, utf8Bytes, bidi, language, script, font, runSegmenter, width, handler);
 }
 
-void SkShaperHarfBuzz::shapeCorrect(char const * const utf8, size_t utf8Bytes,
-                                    const BiDiRunIterator& bidi,
-                                    const LanguageRunIterator& language,
-                                    const ScriptRunIterator& script,
-                                    const FontRunIterator& font,
-                                    RunIteratorQueue& runSegmenter,
-                                    SkScalar width,
-                                    RunHandler* handler) const
+void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
+                               const BiDiRunIterator& bidi,
+                               const LanguageRunIterator& language,
+                               const ScriptRunIterator& script,
+                               const FontRunIterator& font,
+                               RunIteratorQueue& runSegmenter,
+                               SkScalar width,
+                               RunHandler* handler) const
 {
     ShapedLine line;
 
@@ -964,14 +936,14 @@ void SkShaperHarfBuzz::shapeCorrect(char const * const utf8, size_t utf8Bytes,
     emit(line, handler);
 }
 
-void SkShaperHarfBuzz::shapeOk(char const * const utf8, size_t utf8Bytes,
-                               const BiDiRunIterator& bidi,
-                               const LanguageRunIterator& language,
-                               const ScriptRunIterator& script,
-                               const FontRunIterator& font,
-                               RunIteratorQueue& runSegmenter,
-                               SkScalar width,
-                               RunHandler* handler) const
+void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
+                         const BiDiRunIterator& bidi,
+                         const LanguageRunIterator& language,
+                         const ScriptRunIterator& script,
+                         const FontRunIterator& font,
+                         RunIteratorQueue& runSegmenter,
+                         SkScalar width,
+                         RunHandler* handler) const
 {
     SkTArray<ShapedRun> runs;
 {
@@ -1185,7 +1157,7 @@ void SkShaperHarfBuzz::shapeOk(char const * const utf8, size_t utf8Bytes,
 }
 
 
-ShapedRun SkShaperHarfBuzz::shape(char const * const utf8,
+ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
                                   size_t const utf8Bytes,
                                   char const * const utf8Start,
                                   char const *  const utf8End,
@@ -1280,4 +1252,58 @@ ShapedRun SkShaperHarfBuzz::shape(char const * const utf8,
     run.fAdvance = runAdvance;
 
     return run;
+}
+
+}  // namespace
+
+std::unique_ptr<SkShaper::BiDiRunIterator>
+SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
+    // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
+    // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
+    if (!SkTFitsIn<int32_t>(utf8Bytes)) {
+        SkDEBUGF("Bidi error: text too long");
+        return nullptr;
+    }
+
+    UErrorCode status = U_ZERO_ERROR;
+
+    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+    int32_t utf16Units;
+    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
+    status = U_ZERO_ERROR;
+    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
+        return nullptr;
+    }
+
+    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Bidi error: %s", u_errorName(status));
+        return nullptr;
+    }
+    SkASSERT(bidi);
+
+    // The required lifetime of utf16 isn't well documented.
+    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
+    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Bidi error: %s", u_errorName(status));
+        return nullptr;
+    }
+
+    return skstd::make_unique<IcuBiDiRunIterator>(utf8, utf8 + utf8Bytes, std::move(bidi));
+}
+
+std::unique_ptr<SkShaper::ScriptRunIterator>
+SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
+    return skstd::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
+}
+
+std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper() {
+    return MakeHarfBuzz(true);
+}
+std::unique_ptr<SkShaper> SkShaper::MakeShapeThenWrap() {
+    return MakeHarfBuzz(false);
 }

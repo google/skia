@@ -29,7 +29,8 @@ class SkShaper {
 public:
     static std::unique_ptr<SkShaper> MakePrimitive();
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
-    static std::unique_ptr<SkShaper> MakeHarfBuzz();
+    static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper();
+    static std::unique_ptr<SkShaper> MakeShapeThenWrap();
     #endif
 
     static std::unique_ptr<SkShaper> Make();
