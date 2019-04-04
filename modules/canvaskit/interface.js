@@ -381,6 +381,18 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      return this._makeShader(xTileMode, yTileMode, localMatrix);
+    } else {
+      return this._makeShader(xTileMode, yTileMode);
+    }
+  }
+
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
   // or just arrays of floats in groups of 4.
@@ -768,7 +780,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
 }
 
 CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -790,7 +802,7 @@ CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, loc
 }
 
 CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -813,7 +825,7 @@ CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode,
 
 CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, endRadius,
                                                        colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -840,7 +852,10 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     boneIndices, boneWeights, indices, isVolatile) {
   var positionPtr = copy2dArray(positions,          CanvasKit.HEAPF32);
   var texPtr =      copy2dArray(textureCoordinates, CanvasKit.HEAPF32);
-  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAPU32);
+  // Since we write the colors to memory as signed integers (JSColor), we can
+  // read them out on the other side as unsigned ints (SkColor) just fine
+  // - it's effectively casting.
+  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAP32);
 
   var boneIdxPtr =  copy2dArray(boneIndices,        CanvasKit.HEAP32);
   var boneWtPtr  =  copy2dArray(boneWeights,        CanvasKit.HEAPF32);

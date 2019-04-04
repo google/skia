@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    correctness, except by perhaps fixing a few bugs in various surface types.
  - Use unsigned ints for SkColor on the JS side - this shouldn't have any impacts
    unless clients have pre-computed colors, in which case, they will need to re-compute them.
+ - [breaking] Moved `CanvasKit.MakeImageShader` to `SkImage.makeShader` - removed clampUnpremul
+   as argument.
 
 ## [0.5.1] - 2019-03-21
 

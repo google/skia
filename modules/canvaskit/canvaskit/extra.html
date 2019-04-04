@@ -350,7 +350,7 @@ const snowfall = {
     paint.delete();
 
     // Make it repeat a bunch with a shader
-    const pattern = CanvasKit.MakeImageShader(img, CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
     const patternPaint = new CanvasKit.SkPaint();
     patternPaint.setShader(pattern);
 
