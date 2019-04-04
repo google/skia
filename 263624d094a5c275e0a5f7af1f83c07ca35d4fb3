@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd53b22f_170adf23",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-04T16:36:06Z",
+      "side": 1,
+      "message": "Were you hitting this? The intent is that the op for which this failed would be dropped.",
+      "revId": "263624d094a5c275e0a5f7af1f83c07ca35d4fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56c457f4_29913d3d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-04T16:36:06Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "263624d094a5c275e0a5f7af1f83c07ca35d4fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
