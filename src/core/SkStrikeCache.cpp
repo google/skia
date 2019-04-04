@@ -36,14 +36,12 @@ public:
         return fStrike.getGlyphMetrics(glyphID, position);
     }
 
-    int glyphMetrics(
-            const SkGlyphID id[], const SkPoint point[], int n, SkGlyphPos result[]) override {
-        return fStrike.glyphMetrics(id, point, n, result);
-    }
-
-
-    bool decideCouldDrawFromPath(const SkGlyph& glyph) override {
-        return fStrike.decideCouldDrawFromPath(glyph);
+    SkSpan<const SkGlyphPos> glyphMetrics2(const SkGlyphID glyphIDs[],
+                                           const SkPoint positions[],
+                                           int n,
+                                           int maxDimension,
+                                           SkGlyphPos results[]) override {
+        return fStrike.glyphMetrics2(glyphIDs, positions, n, maxDimension, results);
     }
 
     const SkDescriptor& getDescriptor() const override {
