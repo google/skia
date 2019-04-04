@@ -1687,6 +1687,7 @@ if (skia_enable_tools) {
       deps += [ "modules/skshaper" ]
       defines = [ "SK_USING_SKSHAPER" ]
     }
+    libs = [ "/Users/mtklein/blend2d/libblend2d.dylib" ]
   }
 
   import("gn/tests.gni")
@@ -2341,9 +2342,9 @@ if (skia_enable_tools) {
   if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
     test_app("fiddle_examples") {
       sources = [
+        "tools/fiddle/all_examples.cpp",
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
-        "tools/fiddle/all_examples.cpp",
       ]
       include_dirs = [ "tools" ]
       if (is_win) {
