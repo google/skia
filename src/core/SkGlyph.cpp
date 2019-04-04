@@ -45,7 +45,7 @@ static size_t format_alignment(SkMask::Format format) {
         case SkMask::kLCD16_Format:
             return alignof(uint16_t);
         default:
-            SK_ABORT("Unknown mask format.");
+            SkDEBUGFAILF("Unknown mask format %d.", format);
             break;
     }
     return 0;
