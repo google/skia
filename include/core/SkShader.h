@@ -28,6 +28,10 @@ class SkRasterPipeline;
 class GrContext;
 class GrFragmentProcessor;
 
+#ifndef SK_SUPPORT_LEGACY_TILEMODE_ENUM
+#define SK_SUPPORT_LEGACY_TILEMODE_ENUM
+#endif
+
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
