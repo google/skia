@@ -34,6 +34,52 @@
       "revId": "fd17c1a6c877714055856d348aa60ded3300035f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc17ff65_9ef0d0f3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-04-04T17:51:22Z",
+      "side": 1,
+      "message": "I\u0027m surprised there are no crashes on the renderer side, since we use the same code during serialization here. Do we need to handle that here as well?\n\nIf its possible to get glyphs with an invalid format, then we need to make sure we don\u0027t serialize them with the invalid value. Since if we detect any invalid data during deserialization, we\u0027ll assume compromised renderer and don\u0027t read any remaining data in that command. So the whole RasterCHROMIUM will fail (https://cs.chromium.org/chromium/src/gpu/command_buffer/service/raster_decoder.cc?q\u003draster_decoder.cc\u0026g\u003d0\u0026l\u003d2096). I would say don\u0027t serialize the glyph but then it looks like a cache miss on the GPU if the renderer doesn\u0027t send anything. :/\n\nMaybe we can put a valid format here for these cases but send the glyph with zero size. So it gets skipped during rendering but doesn\u0027t look like a cache miss?",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 50
+      },
+      "revId": "fd17c1a6c877714055856d348aa60ded3300035f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43d9cb2b_4ab7eff3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-04-04T17:51:22Z",
+      "side": 1,
+      "message": "Might be better to check that the mask format is valid during deserialization in readGlyph and fail earlier, so we\u0027re guaranteed to never use an invalid glyph. This will keep the fuzzers happy too.",
+      "range": {
+        "startLine": 765,
+        "startChar": 12,
+        "endLine": 765,
+        "endChar": 59
+      },
+      "revId": "fd17c1a6c877714055856d348aa60ded3300035f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
