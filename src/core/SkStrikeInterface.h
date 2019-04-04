@@ -70,10 +70,16 @@ public:
     virtual const SkDescriptor& getDescriptor() const = 0;
     virtual SkStrikeSpec strikeSpec() const = 0;
 
-    // glyphMetrics writes its results to result, but only returns a subspan of result.
-    virtual int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) = 0;
+    // glyphMetrics should lookup all the glyph metrics, and add the glyph to results if the
+    // glyph is not empty. In addition, if the glyph's max dimension > maxDimension, then it
+    // needs to ensure that the path has been added if it is not a color glyph, and it has a path.
+    virtual SkSpan<const SkGlyphPos> glyphMetrics2(const SkGlyphID glyphIDs[],
+                                                   const SkPoint positions[],
+                                                   int n,
+                                                   int maxDimension,
+                                                   SkGlyphPos results[]) = 0;
+
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
-    virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
     virtual void onAboutToExitScope() = 0;
 
     struct Deleter {

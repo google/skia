@@ -233,11 +233,11 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
-int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
-                 const SkPoint positions[],
-                 int n,
-                 SkGlyphPos result[]) {
-
+SkSpan<const SkGlyphPos> SkStrike::glyphMetrics2(const SkGlyphID glyphIDs[],
+                                                 const SkPoint positions[],
+                                                 int n,
+                                                 int maxDimension,
+                                                 SkGlyphPos result[]) {
     int drawableGlyphCount = 0;
     const SkPoint* posCursor = positions;
     for (int i = 0; i < n; i++) {
@@ -246,11 +246,15 @@ int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
             const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
             if (!glyph.isEmpty()) {
                 result[drawableGlyphCount++] = {i, &glyph, glyphPos};
+                if (glyph.maxDimension() > maxDimension
+                        && glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                    this->findPath(glyph);
+                }
             }
         }
     }
 
-    return drawableGlyphCount;
+    return SkSpan<const SkGlyphPos>(result, drawableGlyphCount);
 }
 
 #include "../pathops/SkPathOpsCubic.h"
@@ -435,10 +439,6 @@ void SkStrike::dump() const {
                face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
                rec.dump().c_str(), fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
-}
-
-bool SkStrike::decideCouldDrawFromPath(const SkGlyph& glyph) {
-    return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
 }
 
 void SkStrike::onAboutToExitScope() { }
