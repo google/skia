@@ -145,7 +145,13 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "        return " << token << "(" << token << "::END_OF_FILE, startOffset, 0);\n";
     out << "    }\n";
     out << "    int16_t state = 1;\n";
-    out << "    while (fOffset < fLength) {\n";
+    out << "    for (;;) {\n";
+    out << "        if (fOffset >= fLength) {\n";
+    out << "            if (accepts[state] == -1) {\n";
+    out << "                return Token(Token::END_OF_FILE, startOffset, 0);\n";
+    out << "            }\n";
+    out << "            break;\n";
+    out << "        }\n";
     out << "        uint8_t c = (uint8_t) fText[fOffset];";
     out << "        if (c <= 8 || c >= " << dfa.fCharMappings.size() << ") {";
     out << "            c = INVALID_CHAR;";
