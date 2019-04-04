@@ -125,6 +125,7 @@ ${EMCXX} \
     -DSK_DISABLE_AAA \
     -std=c++17 \
     $WASM_GPU \
+    --pre-js $BASE_DIR/helper.js \
     --post-js $BASE_DIR/ready.js \
     --bind \
     $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \

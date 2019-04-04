@@ -11,7 +11,7 @@
         });
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var surface = DebuggerView.MakeSurface(canvas.width, canvas.height);
+      let surface = DebuggerView.MakeSurface(canvas.width, canvas.height);
       if (surface) {
         surface._canvas = canvas;
       }
@@ -25,10 +25,10 @@
     }
 
     DebuggerView.MakeSurface = function(width, height) {
-      var bufferLen = width * height * 4; // 4 bytes per pixel
+      const bufferLen = width * height * 4; // 4 bytes per pixel
       // Allocate the buffer of pixels to be drawn into.
-      var pixelPtr = DebuggerView._malloc(bufferLen);
-      var imageInfo = {
+      const pixelPtr = DebuggerView._malloc(bufferLen);
+      const imageInfo = {
         'width':  width,
         'height': height,
         // RGBA 8888 is the only pixel format we can show on an HTML canvas
@@ -37,7 +37,7 @@
         // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
         'alphaType': DebuggerView.AlphaType.Unpremul,
       }
-      var surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width * 4);
+      let surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width * 4);
       if (surface) {
         surface._canvas = null;
         surface._width = width;
@@ -60,8 +60,8 @@
         // Do we have an HTML canvas to write the pixels to?
         // We will not if this a GPU build or a raster surface, for example.
         if (this._canvas) {
-          var pixels = new Uint8ClampedArray(DebuggerView.buffer, this._pixelPtr, this._bufferLen);
-          var imageData = new ImageData(pixels, this._width, this._height);
+          const pixels = new Uint8ClampedArray(DebuggerView.buffer, this._pixelPtr, this._bufferLen);
+          const imageData = new ImageData(pixels, this._width, this._height);
           this._canvas.getContext('2d').putImageData(imageData, 0, 0);
         }
       };

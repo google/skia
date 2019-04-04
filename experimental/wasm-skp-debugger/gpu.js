@@ -4,7 +4,7 @@
     function makeWebGLContext(canvas, attrs) {
       // These defaults come from the emscripten _emscripten_webgl_create_context
       // TODO(nifong): All these settings appear to be ignored. investigate.
-      var contextAttributes = {
+      const contextAttributes = {
         alpha: 1,
         depth: 1,
         stencil: 0,
@@ -46,7 +46,7 @@
     // canvas - a canvas element to use for this surface.
     DebuggerView.MakeWebGLCanvasSurface = function(canvas) {
       // we are ok with all the defaults
-      var ctx = DebuggerView.GetWebGLContext(canvas);
+      const ctx = DebuggerView.GetWebGLContext(canvas);
 
       if (!ctx || ctx < 0) {
         throw 'failed to create webgl context: err ' + ctx;
@@ -60,12 +60,12 @@
       }
 
       // Bump the default resource cache limit.
-      var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
-      grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
+      //const RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
+      //grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
 
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height);
+      let surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height);
       if (!surface) {
         // Don't fall back silently in the debugger, the user explicitly controls which backend he
         // wants via the UI. Calling function may catch this and show the user an error.
