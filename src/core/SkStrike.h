@@ -126,8 +126,6 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
-    bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
-
     const SkDescriptor& getDescriptor() const override;
 
     SkStrikeSpec strikeSpec() const override {

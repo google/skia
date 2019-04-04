@@ -49,8 +49,6 @@ public:
                                                int maxDimension,
                                                SkGlyphPos results[]) override;
 
-    bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
-
     void onAboutToExitScope() override {}
 
 private:

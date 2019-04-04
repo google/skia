@@ -82,7 +82,6 @@ public:
                                                        SkGlyphPos results[]) = 0;
 
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
-    virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
     virtual void onAboutToExitScope() = 0;
 
     struct Deleter {
