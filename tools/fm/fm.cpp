@@ -4,15 +4,18 @@
 #include "CommandLineFlags.h"
 #include "CommonFlags.h"
 #include "EventTracingPriv.h"
+#include "gl/builders/GrGLProgramBuilder.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "HashAndEncode.h"
+#include "MemoryCache.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkGraphics.h"
+#include "SkJSONWriter.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -61,6 +64,8 @@ static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
+
+static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
 static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
 static DEFINE_string(parameters, "", "Metadata passed through to .png encoder and .json output.");
@@ -366,6 +371,12 @@ int main(int argc, char** argv) {
     GrContextOptions baseOptions;
     SetCtxOptionsFromCommonFlags(&baseOptions);
 
+    sk_gpu_test::MemoryCache memoryCache;
+    if (!FLAGS_writeShaders.isEmpty()) {
+        baseOptions.fPersistentCache = &memoryCache;
+        baseOptions.fDisallowGLSLBinaryCaching = true;
+    }
+
     SkTHashMap<SkString, skiagm::GMFactory> gm_factories;
     for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm{factory(nullptr)};
@@ -571,6 +582,64 @@ int main(int argc, char** argv) {
         fprintf(stdout, "\t%s\t%7dms\n",
                 md5.c_str(),
                 (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+    }
+
+    if (!FLAGS_writeShaders.isEmpty()) {
+        sk_mkdir(FLAGS_writeShaders[0]);
+
+        SkTHashMap<SkString, std::pair<SkString, int>> shaders[kGrShaderTypeCount];
+        int numPrograms = 0;
+        auto collectShaders =
+                [&shaders, &numPrograms](const SkData& key, const SkData& data, int hitCount) {
+            numPrograms++;
+            const GrGLSLCacheEntry* entry = (const GrGLSLCacheEntry*)data.data();
+            for (int shaderType = 0; shaderType < kGrShaderTypeCount; ++shaderType) {
+                if (entry->fOffset[shaderType]) {
+                    SkMD5 hash;
+                    hash.write(key.bytes(), key.size());
+                    SkMD5::Digest digest = hash.finish();
+                    SkString md5;
+                    for (int i = 0; i < 16; ++i) {
+                        md5.appendf("%02x", digest.data[i]);
+                    }
+                    SkString shader(entry->get(shaderType));
+                    shaders[shaderType].set(md5, std::make_pair(shader, hitCount));
+                }
+            }
+        };
+        memoryCache.foreach(collectShaders);
+
+        fprintf(stdout, "\t%5d programs\n", numPrograms);
+
+        // Default extensions detected by the Mali Offline Compiler
+        const char* extensions[kGrShaderTypeCount] = { "vert", "geom", "frag" };
+
+        for (int shaderType = 0; shaderType < kGrShaderTypeCount; ++shaderType) {
+            // For now, only dump fragment shaders
+            if (shaderType != kFragment_GrShaderType) {
+                continue;
+            }
+
+            const char* ext = extensions[shaderType];
+            SkString jsonPath = SkStringPrintf("%s/%s.json", FLAGS_writeShaders[0], ext);
+            SkFILEWStream jsonFile(jsonPath.c_str());
+            SkJSONWriter writer(&jsonFile, SkJSONWriter::Mode::kPretty);
+            writer.beginArray();
+
+            auto dumpShader = [ext, &writer]
+                    (const SkString& key, std::pair<SkString, int>* shaderAndCount) {
+                SkString path = SkStringPrintf("%s/%s.%s", FLAGS_writeShaders[0], key.c_str(), ext);
+                SkFILEWStream file(path.c_str());
+                file.write(shaderAndCount->first.c_str(), shaderAndCount->first.size());
+                writer.beginArray(nullptr, false);
+                writer.appendString(key.c_str());
+                writer.appendS32(shaderAndCount->second);
+                writer.endArray();
+            };
+
+            shaders[shaderType].foreach(dumpShader);
+            writer.endArray();
+        }
     }
 
     return 0;

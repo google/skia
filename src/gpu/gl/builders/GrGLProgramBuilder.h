@@ -24,6 +24,15 @@ struct GrGLSLSet;
 class GrGLSLShaderBuilder;
 class GrShaderCaps;
 
+struct GrGLSLCacheEntry {
+    GrGLSLCacheEntry(const SkSL::Program::Inputs& inputs, const GrGLSLSet& glsl);
+
+    const char* get(int shaderType) const;
+
+    SkSL::Program::Inputs fInputs;
+    size_t fOffset[kGrShaderTypeCount];
+};
+
 class GrGLProgramBuilder : public GrGLSLProgramBuilder {
 public:
     /** Generates a shader program.

@@ -166,29 +166,24 @@ struct GrGLSLSet {
     }
 };
 
-struct GrGLSLCacheEntry {
-    GrGLSLCacheEntry(const SkSL::Program::Inputs& inputs, const GrGLSLSet& glsl)
-            : fInputs(inputs) {
-        size_t offset = sizeof(*this);
-        for (int i = 0; i < kGrShaderTypeCount; ++i) {
-            if (glsl.fGLSL[i].size() > 0) {
-                fOffset[i] = offset;
-                offset += glsl.fGLSL[i].size() + 1;
-            } else {
-                fOffset[i] = 0;
-            }
+GrGLSLCacheEntry::GrGLSLCacheEntry(const SkSL::Program::Inputs& inputs, const GrGLSLSet& glsl)
+        : fInputs(inputs) {
+    size_t offset = sizeof(*this);
+    for (int i = 0; i < kGrShaderTypeCount; ++i) {
+        if (glsl.fGLSL[i].size() > 0) {
+            fOffset[i] = offset;
+            offset += glsl.fGLSL[i].size() + 1;
+        } else {
+            fOffset[i] = 0;
         }
     }
+}
 
-    const char* get(int shaderType) const {
-        SkASSERT(shaderType < kGrShaderTypeCount);
-        return fOffset[shaderType] ? SkTAddOffset<const char>(this, fOffset[shaderType])
-                                   : nullptr;
-    }
-
-    SkSL::Program::Inputs fInputs;
-    size_t fOffset[kGrShaderTypeCount];
-};
+const char* GrGLSLCacheEntry::get(int shaderType) const {
+    SkASSERT(shaderType < kGrShaderTypeCount);
+    return fOffset[shaderType] ? SkTAddOffset<const char>(this, fOffset[shaderType])
+                                : nullptr;
+}
 
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                                             const GrGLSLSet& glsl) {
