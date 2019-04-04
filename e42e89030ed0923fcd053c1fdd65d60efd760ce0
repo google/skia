@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d118f600_f3887d9e",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-04T14:41:13Z",
+      "side": 1,
+      "message": "can\u0027t use const here - the current version of emscripten/closure doesn\u0027t support it (yet)",
+      "range": {
+        "startLine": 71,
+        "startChar": 7,
+        "endLine": 71,
+        "endChar": 14
+      },
+      "revId": "e42e89030ed0923fcd053c1fdd65d60efd760ce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
