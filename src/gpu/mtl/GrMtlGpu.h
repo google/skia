@@ -44,9 +44,9 @@ public:
 
     id<MTLDevice> device() const { return fDevice; }
 
-    id<MTLCommandBuffer> commandBuffer() const { return fCmdBuffer; }
-
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
+
+    id<MTLCommandBuffer> commandBuffer();
 
     enum SyncQueue {
         kForce_SyncQueue,
