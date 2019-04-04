@@ -51,8 +51,11 @@ protected:
         float                fOpacity   = 1;
         SkBlendMode          fBlendMode = SkBlendMode::kSrcOver;
 
+        // Returns true if the paint overrides require a layer when applied to non-atomic draws.
+        bool requiresIsolation() const;
+
         // Returns true if the paint was modified.
-        bool modulatePaint(const SkMatrix& ctm, SkPaint*) const;
+        void modulatePaint(const SkMatrix& ctm, SkPaint*) const;
     };
 
     class ScopedRenderContext final {
