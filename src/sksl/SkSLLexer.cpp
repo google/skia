@@ -1012,7 +1012,13 @@ Token Lexer::next() {
         return Token(Token::END_OF_FILE, startOffset, 0);
     }
     int16_t state = 1;
-    while (fOffset < fLength) {
+    for (;;) {
+        if (fOffset >= fLength) {
+            if (accepts[state] == -1) {
+                return Token(Token::END_OF_FILE, startOffset, 0);
+            }
+            break;
+        }
         uint8_t c = (uint8_t)fText[fOffset];
         if (c <= 8 || c >= 127) {
             c = INVALID_CHAR;
