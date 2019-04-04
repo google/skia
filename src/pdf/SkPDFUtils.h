@@ -112,10 +112,12 @@ inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
 }
 
 inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
+#if 0
     SkMatrix localMatrix;
     if (sk_sp<SkShader> s = shader->makeAsALocalMatrixShader(&localMatrix)) {
         return SkMatrix::Concat(s->getLocalMatrix(), localMatrix);
     }
+#endif
     return shader->getLocalMatrix();
 }
 bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);

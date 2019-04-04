@@ -114,8 +114,9 @@ bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace
     return !SkColorSpaceXformSteps::Required(shaderColorSpace, fDstColorSpace);
 }
 
-const SkMatrix& SkShader::getLocalMatrix() const {
-    return as_SB(this)->getLocalMatrix();
+SkMatrix SkShader::getLocalMatrix() const {
+    return SkMatrix::I();
+//    return as_SB(this)->getLocalMatrix();
 }
 
 SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
