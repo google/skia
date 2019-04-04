@@ -209,13 +209,13 @@ SkWuffsFrame::SkWuffsFrame(wuffs_base__frame_config* fc)
 }
 
 SkCodec::FrameInfo SkWuffsFrame::frameInfo(bool fullyReceived) const {
-    return ((SkCodec::FrameInfo){
-        .fRequiredFrame = getRequiredFrame(),
-        .fDuration = getDuration(),
-        .fFullyReceived = fullyReceived,
-        .fAlphaType = hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType,
-        .fDisposalMethod = getDisposalMethod(),
-    });
+    SkCodec::FrameInfo ret;
+    ret.fRequiredFrame = getRequiredFrame();
+    ret.fDuration = getDuration();
+    ret.fFullyReceived = fullyReceived;
+    ret.fAlphaType = hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
+    ret.fDisposalMethod = getDisposalMethod();
+    return ret;
 }
 
 uint64_t SkWuffsFrame::ioPosition() const {
