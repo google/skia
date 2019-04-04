@@ -102,9 +102,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     alloc.markEndOfOpList(0);
 
     int startIndex, stopIndex;
-    GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
-    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+    alloc.assign(&startIndex, &stopIndex);
+    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNone == alloc.errorState());
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
     REPORTER_ASSERT(reporter, p2->peekSurface());
@@ -132,9 +131,8 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     alloc.markEndOfOpList(0);
 
     int startIndex, stopIndex;
-    GrResourceAllocator::AssignError error;
-    alloc.assign(&startIndex, &stopIndex, &error);
-    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+    alloc.assign(&startIndex, &stopIndex);
+    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNone == alloc.errorState());
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
     REPORTER_ASSERT(reporter, p2->peekSurface());
@@ -365,8 +363,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
             alloc.incOps();
             alloc.markEndOfOpList(0);
             int startIndex, stopIndex;
-            GrResourceAllocator::AssignError error;
-            alloc.assign(&startIndex, &stopIndex, &error);
+            alloc.assign(&startIndex, &stopIndex);
+            REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNone == alloc.errorState());
         }
         deinstantiateTracker.deinstantiateAllProxies();
         REPORTER_ASSERT(reporter, !p0->isInstantiated());
@@ -421,14 +419,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
         alloc.markEndOfOpList(1);
 
         int startIndex, stopIndex;
-        GrResourceAllocator::AssignError error;
 
-        alloc.assign(&startIndex, &stopIndex, &error);
-        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+        alloc.assign(&startIndex, &stopIndex);
+        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNone == alloc.errorState());
         REPORTER_ASSERT(reporter, 0 == startIndex && 1 == stopIndex);
 
-        alloc.assign(&startIndex, &stopIndex, &error);
-        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
+        alloc.assign(&startIndex, &stopIndex);
+        REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNone == alloc.errorState());
         REPORTER_ASSERT(reporter, 1 == startIndex && 2 == stopIndex);
 
         p1->completedRead();

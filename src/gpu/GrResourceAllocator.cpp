@@ -113,6 +113,8 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                     GrSurfaceProxy::LazyInstantiationType::kDeinstantiate) {
                     fDeinstantiateTracker->addProxy(proxy);
                 }
+            } else {
+                this->setError(AssignError::kFailedProxyInstantiation);
             }
         }
     }
@@ -338,9 +340,8 @@ void GrResourceAllocator::forceIntermediateFlush(int* stopIndex) {
     this->expire(tmp->start());
 }
 
-bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
-    SkASSERT(outError);
-    *outError = AssignError::kNoError;
+bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
+    SkASSERT(AssignError::kNone == this->errorState());
 
     fIntvlHash.reset(); // we don't need the interval hash anymore
     if (fIntvlList.empty()) {
@@ -388,7 +389,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         if (cur->proxy()->isInstantiated()) {
             if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
                         fResourceProvider, cur->proxy()->peekSurface(), needsStencil)) {
-                *outError = AssignError::kFailedProxyInstantiation;
+                this->setError(AssignError::kFailedProxyInstantiation);
             }
 
             fActiveIntvls.insertByIncreasingEnd(cur);
@@ -406,7 +407,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
         if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
-                *outError = AssignError::kFailedProxyInstantiation;
+                this->setError(AssignError::kFailedProxyInstantiation);
             } else {
                 if (GrSurfaceProxy::LazyInstantiationType::kDeinstantiate ==
                     cur->proxy()->priv().lazyInstantiationType()) {
@@ -434,7 +435,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
             cur->assign(std::move(surface));
         } else {
             SkASSERT(!cur->proxy()->isInstantiated());
-            *outError = AssignError::kFailedProxyInstantiation;
+            this->setError(AssignError::kFailedProxyInstantiation);
         }
 
         fActiveIntvls.insertByIncreasingEnd(cur);

@@ -61,9 +61,15 @@ public:
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     enum class AssignError {
-        kNoError,
+        kNone,
         kFailedProxyInstantiation
     };
+
+    AssignError errorState() { return fErrorState; }
+    void setError(AssignError error) { fErrorState = error; }
+    void clearError() { fErrorState = AssignError::kNone; }
+
+    AssignError fErrorState = AssignError::kNone;
 
     // Returns true when the opLists from 'startIndex' to 'stopIndex' should be executed;
     // false when nothing remains to be executed.
@@ -71,7 +77,7 @@ public:
     // If this happens, the caller should remove all ops which reference an uninstantiated proxy.
     // This is used to execute a portion of the queued opLists in order to reduce the total
     // amount of GPU resources required.
-    bool assign(int* startIndex, int* stopIndex, AssignError* outError);
+    bool assign(int* startIndex, int* stopIndex);
 
     void markEndOfOpList(int opListIndex);
 
