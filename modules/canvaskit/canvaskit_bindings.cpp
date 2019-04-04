@@ -22,7 +22,6 @@
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
-#include "SkImageShader.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
@@ -632,19 +631,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
-    // Allow localMatrix to be optional, so we have 2 declarations of these shaders
-    function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
-                                SkShader::TileMode tx, SkShader::TileMode ty,
-                                bool clampAsIfUnpremul)->sk_sp<SkShader> {
-        return SkImageShader::Make(img, (SkTileMode)tx, (SkTileMode)ty, nullptr, clampAsIfUnpremul);
-    }), allow_raw_pointers());
-    function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
-                                SkShader::TileMode tx, SkShader::TileMode ty,
-                                bool clampAsIfUnpremul, const SimpleMatrix& lm)->sk_sp<SkShader> {
-        SkMatrix localMatrix = toSkMatrix(lm);
-
-        return SkImageShader::Make(img, (SkTileMode)tx, (SkTileMode)ty, &localMatrix, clampAsIfUnpremul);
-    }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
@@ -920,7 +906,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("height", &SkImage::height)
         .function("width", &SkImage::width)
         .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
-        .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData));
+        .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData))
+            // Allow localMatrix to be optional, so we have 2 declarations of these shaders
+        .function("_makeShader", optional_override([](sk_sp<SkImage> self,
+                                SkShader::TileMode tx, SkShader::TileMode ty)->sk_sp<SkShader> {
+            return self->makeShader((SkTileMode)tx, (SkTileMode)ty, nullptr);
+        }), allow_raw_pointers())
+        .function("_makeShader", optional_override([](sk_sp<SkImage> self,
+                                 SkShader::TileMode tx, SkShader::TileMode ty,
+                                 const SimpleMatrix& lm)->sk_sp<SkShader> {
+            SkMatrix localMatrix = toSkMatrix(lm);
+
+            return self->makeShader((SkTileMode)tx, (SkTileMode)ty, &localMatrix);
+        }), allow_raw_pointers());
 
     class_<SkMaskFilter>("SkMaskFilter")
         .smart_ptr<sk_sp<SkMaskFilter>>("sk_sp<SkMaskFilter>");

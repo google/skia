@@ -381,6 +381,18 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      return this._makeShader(xTileMode, yTileMode, localMatrix);
+    } else {
+      return this._makeShader(xTileMode, yTileMode);
+    }
+  }
+
   // str can be either a text string or a ShapedText object
   CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
     if (typeof str === 'string') {
@@ -676,23 +688,6 @@ CanvasKit.MakeImageFromEncoded = function(data) {
     return null;
   }
   return img;
-}
-
-// imgData is an SkImage, e.g. from MakeImageFromEncoded or SkSurface.makeImageSnapshot
-CanvasKit.MakeImageShader = function(img, xTileMode, yTileMode, clampUnpremul, localMatrix) {
-  if (!img) {
-    return null;
-  }
-  clampUnpremul = clampUnpremul || false;
-  if (localMatrix) {
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
-    return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul, localMatrix);
-  } else {
-    return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul);
-  }
 }
 
 // pixels is a Uint8Array
