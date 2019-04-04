@@ -761,6 +761,9 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                 allocatedGlyph->fPathData = glyphPath;
             }
 
+            // All known formats have an alignment of at least 1 byte.  0 -> bad format enum value.
+            if (glyph->formatAlignment() == 0) READ_FAILURE;
+
             auto imageSize = glyph->computeImageSize();
             if (imageSize == 0u) continue;
 
