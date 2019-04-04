@@ -193,7 +193,7 @@ public:
 
     /** Returns true if the cache would like a flush to occur in order to make more resources
         purgeable. */
-    bool requestsFlush() const { return this->overBudget() && !fPurgeableQueue.count(); }
+    bool requestsFlush() const;
 
     /** Maintain a ref to this resource until we receive a GrGpuResourceFreedMessage. */
     void insertDelayedResourceUnref(GrGpuResource* resource);
