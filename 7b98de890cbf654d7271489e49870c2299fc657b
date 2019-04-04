@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd9ee06a_7ec74d7c",
+        "filename": "src/sksl/lex/Main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-04T16:20:58Z",
+      "side": 1,
+      "message": "-1 is just a sentinel value for \"didn\u0027t initialize\"?  Or does it mean \"Invalid\"?",
+      "range": {
+        "startLine": 150,
+        "startChar": 46,
+        "endLine": 150,
+        "endChar": 48
+      },
+      "revId": "7b98de890cbf654d7271489e49870c2299fc657b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
