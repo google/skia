@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrTexture.h"
 #include "SkImage_Gpu.h"
+#include "SkColorFilter.h"
 #include "SkPromiseImageTexture.h"
 
 using namespace sk_gpu_test;
@@ -443,4 +444,62 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     gpu->testingOnly_flushGpuAndSync();
 
     gpu->deleteTestingOnlyBackendTexture(backendTex);
+}
+
+// Test case where promise image fulfill returns nullptr.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+
+    GrContext* ctx = ctxInfo.grContext();
+    GrGpu* gpu = ctx->priv().getGpu();
+
+    // Do all this just to get a valid backend format for the image.
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, backendTex.isValid());
+    GrBackendFormat backendFormat = backendTex.getBackendFormat();
+    REPORTER_ASSERT(reporter, backendFormat.isValid());
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
+
+    struct Counts {
+        int fFulfillCount = 0;
+        int fReleaseCount = 0;
+        int fDoneCount = 0;
+    } counts;
+    auto fulfill = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+        ++static_cast<Counts*>(ctx)->fFulfillCount;
+        return sk_sp<SkPromiseImageTexture>();
+    };
+    auto release = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+        ++static_cast<Counts*>(ctx)->fReleaseCount;
+    };
+    auto done = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+        ++static_cast<Counts*>(ctx)->fDoneCount;
+    };
+    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(
+            ctx, backendFormat, kWidth, kHeight, GrMipMapped::kNo, texOrigin,
+            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, fulfill, release, done, &counts,
+            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surface->getCanvas();
+    // Draw the image a few different ways.
+    canvas->drawImage(refImg, 0, 0);
+    SkPaint paint;
+    paint.setColorFilter(SkColorFilter::MakeLinearToSRGBGamma());
+    canvas->drawImage(refImg, 0, 0, &paint);
+    auto shader = refImg->makeShader(SkTileMode::kClamp, SkTileMode::kClamp);
+    REPORTER_ASSERT(reporter, shader);
+    paint.setShader(std::move(shader));
+    canvas->drawRect(SkRect::MakeWH(1,1), paint);
+    paint.setShader(nullptr);
+    refImg.reset();
+    surface->flush();
+    // We should only call each callback once and we should have made all the calls by this point.
+    REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
+    REPORTER_ASSERT(reporter, counts.fReleaseCount == 1);
+    REPORTER_ASSERT(reporter, counts.fDoneCount == 1);
 }
