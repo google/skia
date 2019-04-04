@@ -138,27 +138,6 @@ static bool check_glyph_position(SkPoint position) {
              lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)));
 }
 
-static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* image) {
-    SkMask mask;
-    int left = SkScalarFloorToInt(position.fX);
-    int top  = SkScalarFloorToInt(position.fY);
-
-    left += glyph.fLeft;
-    top  += glyph.fTop;
-
-    int right   = left + glyph.fWidth;
-    int bottom  = top  + glyph.fHeight;
-
-    mask.fBounds.set(left, top, right, bottom);
-    SkASSERT(!mask.fBounds.isEmpty());
-
-    mask.fImage    = (uint8_t*)image;
-    mask.fRowBytes = glyph.rowBytes();
-    mask.fFormat   = static_cast<SkMask::Format>(glyph.fMaskFormat);
-
-    return mask;
-}
-
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         const BitmapDevicePainter* bitmapDevice) {
@@ -187,23 +166,33 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             // The sub-pixel position will always happen when transforming to the screen.
             pathFont.setSubpixel(false);
 
-            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                pathFont, pathPaint, props,
-                                fScalerContextFlags, SkMatrix::I());
+            SkAutoDescriptor ad;
+            SkScalerContextEffects effects;
+            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
+                                                                  pathPaint,
+                                                                  props,
+                                                                  fScalerContextFlags,
+                                                                  SkMatrix::I(),
+                                                                  &ad,
+                                                                  &effects);
+
+            SkScopedStrike strike =
+                    fStrikeCache->findOrCreateScopedStrike(
+                            *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
+
+            auto glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
 
             SkTDArray<SkPathPos> pathsAndPositions;
             pathsAndPositions.setReserve(runSize);
-            SkPoint* positionCursor = fPositions;
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint position = *positionCursor++;
-                if (check_glyph_position(position)) {
-                    const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
-                    if (!glyph.isEmpty()) {
-                        const SkPath* path = pathCache->findPath(glyph);
-                        if (path != nullptr) {
-                            pathsAndPositions.push_back(SkPathPos{path, position});
-                        }
-                    }
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
+                if (check_glyph_position(position)
+                    && !glyph.isEmpty()
+                    && glyph.fMaskFormat != SkMask::kARGB32_Format
+                    && glyph.hasPath()) {
+                        pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
                 }
             }
 
@@ -216,30 +205,39 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     SkSpan<const SkPathPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
                     textScale, pathPaint);
         } else {
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                        runFont, runPaint, props,
-                                        fScalerContextFlags, deviceMatrix);
+            SkAutoDescriptor ad;
+            SkScalerContextEffects effects;
+
+            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+                    runFont, runPaint, props, fScalerContextFlags, deviceMatrix, &ad,
+                    &effects);
+
+            SkTypeface* typeface = runFont.getTypefaceOrDefault();
+            SkScopedStrike strike =
+                    fStrikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
             matrix.preTranslate(origin.x(), origin.y());
-            SkPoint rounding = cache->rounding();
+            SkPoint rounding = strike->rounding();
             matrix.postTranslate(rounding.x(), rounding.y());
             matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
+                    std::numeric_limits<int>::max(), fGlyphPos);
+
             SkTDArray<SkMask> masks;
-            masks.setReserve(runSize);
-            const SkPoint* positionCursor = fPositions;
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                auto position = *positionCursor++;
-                if (check_glyph_position(position)) {
-                    const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
-                    const void* image;
-                    if (!glyph.isEmpty() && (image = cache->findImage(glyph))) {
-                        masks.push_back(create_mask(glyph, position, image));
-                    }
+            masks.setReserve(glyphPosSpan.size());
+
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
+                if (check_glyph_position(position) && !glyph.isEmpty()) {
+                    masks.push_back(glyph.mask(position));
                 }
             }
+
             bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, runPaint);
         }
     }
@@ -306,10 +304,11 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *runFont.getTypefaceOrDefault());
 
-        SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(fARGBGlyphsIDs.data(),
-                                                                     fARGBPositions.data(),
-                                                                     fARGBGlyphsIDs.size(),
-                                                                     fGlyphPos);
+        auto glyphPosSpan = strike->prepareForDrawing(fARGBGlyphsIDs.data(),
+                                                      fARGBPositions.data(),
+                                                      fARGBGlyphsIDs.size(),
+                                                      SkStrikeCommon::kSkSideTooBigForAtlas,
+                                                      fGlyphPos);
         if (process) {
             process->processDeviceFallback(glyphPosSpan, strike.get());
         }
@@ -350,17 +349,15 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *fallbackFont.getTypefaceOrDefault());
 
-        int glyphCount = 0;
-        for (size_t i = 0; i < fARGBGlyphsIDs.size(); i++) {
-            SkGlyphID glyphID = fARGBGlyphsIDs[i];
-            SkPoint pos = fARGBPositions[i];
-            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
-            fGlyphPos[glyphCount++] = {i, &glyph, pos};
-        }
+        auto glyphPosSpan = strike->prepareForDrawing(fARGBGlyphsIDs.data(),
+                                                      fARGBPositions.data(),
+                                                      fARGBGlyphsIDs.size(),
+                                                      SkStrikeCommon::kSkSideTooBigForAtlas,
+                                                      fGlyphPos);
 
         if (process) {
             process->processSourceFallback(
-                    SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                    glyphPosSpan,
                     strike.get(),
                     fallbackTextScale,
                     viewMatrix.hasPerspective());
@@ -427,31 +424,32 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fStrikeCache->findOrCreateScopedStrike(
                             *ad.getDesc(), effects, *dfFont.getTypefaceOrDefault());
 
-            int glyphCount = 0;
-            for (size_t i = 0; i < glyphRun.runSize(); i++) {
-                SkGlyphID glyphID = glyphRun.glyphsIDs()[i];
-                SkPoint glyphSourcePosition = fPositions[i];
-                const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
+            auto glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
+                    SkStrikeCommon::kSkSideTooBigForAtlas, fGlyphPos);
 
+            int glyphsWithMaskCount = 0;
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
                 if (glyph.isEmpty()) {
                     // do nothing
                 } else if (glyph.fMaskFormat == SkMask::kSDF_Format
                            && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
-                    fGlyphPos[glyphCount++] = {i, &glyph, glyphSourcePosition};
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
-                           && strike->decideCouldDrawFromPath(glyph)) {
-                    fPaths.push_back({i, &glyph, glyphSourcePosition});
+                    fGlyphPos[glyphsWithMaskCount++] = glyphPos;
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format && glyph.hasPath()) {
+                    fPaths.push_back(glyphPos);
                 } else {
-                    addFallback(glyph, glyphSourcePosition);
+                    addFallback(glyph, position);
                 }
             }
 
             if (process) {
-                if (glyphCount > 0) {
+                if (glyphsWithMaskCount > 0) {
                     bool hasWCoord = viewMatrix.hasPerspective()
                                      || options.fDistanceFieldVerticesAlwaysHaveW;
                     process->processSourceSDFT(
-                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphsWithMaskCount)},
                             strike.get(),
                             runFont,
                             cacheToSourceScale,
@@ -502,28 +500,26 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fStrikeCache->findOrCreateScopedStrike(
                             *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
 
-            int glyphCount = 0;
-            for (size_t i = 0; i < glyphRun.runSize(); i++) {
-                SkGlyphID glyphID = glyphRun.glyphsIDs()[i];
-                SkPoint glyphSourcePosition = fPositions[i];
+            auto glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
 
-                // Use outline from {0, 0} because all transforms including subpixel translation
-                // happen during drawing.
-                const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
+            int glyphsWithPathCount = 0;
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
                 if (glyph.isEmpty()) {
                     // do nothing
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
-                           && strike->decideCouldDrawFromPath(glyph)) {
-                    fGlyphPos[glyphCount++] = {i, &glyph, glyphSourcePosition};
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format && glyph.hasPath()) {
+                    fGlyphPos[glyphsWithPathCount++] = glyphPos;
                 } else {
-                    addFallback(glyph, glyphSourcePosition);
+                    addFallback(glyph, position);
                 }
             }
 
             if (process) {
-                if (glyphCount > 0) {
+                if (glyphsWithPathCount > 0) {
                     process->processSourcePaths(
-                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
+                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphsWithPathCount)},
                             strike.get(),
                             strikeToSourceRatio);
                 }
@@ -552,10 +548,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.postTranslate(rounding.x(), rounding.y());
             mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(
-                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), fGlyphPos);
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
+                    SkStrikeCommon::kSkSideTooBigForAtlas, fGlyphPos);
 
-            size_t glyphsWithMaskCount = 0;
+            int glyphsWithMaskCount = 0;
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 const SkPoint position = glyphPos.position;
@@ -565,8 +562,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
                 if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
-                           && strike->decideCouldDrawFromPath(glyph)) {
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format && glyph.hasPath()) {
                     fPaths.push_back(glyphPos);
                 } else {
                     addFallback(glyph, origin + glyphRun.positions()[glyphPos.index]);

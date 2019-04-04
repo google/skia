@@ -568,32 +568,6 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
     return *glyphPtr;
 }
 
-// Because the strike calls between the Renderer and the GPU are mirror images of each other, the
-// information needed to make the call in the Renderer needs to be sent to the GPU so it can also
-// make the call. If there is a path then it should be sent, and the path is queued to be sent and
-// true returned. Otherwise, false is returned signaling an empty glyph.
-//
-// A key reason for no path is the fact that the glyph is a color image or is a bitmap only
-// font.
-bool SkStrikeServer::SkGlyphCacheState::decideCouldDrawFromPath(const SkGlyph& glyph) {
-
-    // Check to see if we have processed this glyph for a path before.
-    if (glyph.fPathData == nullptr) {
-
-        // Never checked for a path before. Add the path now.
-        auto path = const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc);
-        if (path != nullptr) {
-
-            // A path was added make sure to send it to the GPU.
-            fCachedGlyphPaths.add(glyph.getPackedID());
-            fPendingGlyphPaths.push_back(glyph.getPackedID());
-            return true;
-        }
-    }
-
-    return glyph.path() != nullptr;
-}
-
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
                                                        Serializer* serializer) const {
     SkPath path;
@@ -610,9 +584,12 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 
 // This version of glyphMetrics only adds entries to result if their data need to be sent to the
 // GPU process.
-SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics(
-        const SkGlyphID glyphIDs[], const SkPoint positions[], size_t n, SkGlyphPos result[]) {
-
+SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
+        const SkGlyphID* glyphIDs,
+        const SkPoint* positions,
+        size_t n,
+        int maxDimension,
+        SkGlyphPos* results) {
     size_t glyphsToSendCount = 0;
     for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = positions[i];
@@ -633,15 +610,30 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics(
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
 
-            result[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+            int glyphMaxDimension = std::max(glyphPtr->fWidth, glyphPtr->fHeight);
+            if (glyphMaxDimension <= maxDimension) {
+                results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+            } else if (glyphPtr->fMaskFormat != SkMask::kARGB32_Format) {
+                if (glyphPtr->fPathData == nullptr) {
+
+                    // Never checked for a path before. Add the path now.
+                    auto path = const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
+                    if (path != nullptr) {
+
+                        // A path was added make sure to send it to the GPU.
+                        fCachedGlyphPaths.add(glyphPtr->getPackedID());
+                        fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
+                    }
+                }
+            }
 
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
             fCachedGlyphImages.add(packedGlyphID);
             fPendingGlyphImages.push_back(packedGlyphID);
         }
-    }
 
-    return SkSpan<const SkGlyphPos>{result, glyphsToSendCount};
+    }
+    return SkSpan<const SkGlyphPos>{results, glyphsToSendCount};
 }
 
 // SkStrikeClient -----------------------------------------
