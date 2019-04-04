@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Better `GrGLCaps` support for WebGL - this shouldn't have any impacts on APIs or
    correctness, except by perhaps fixing a few bugs in various surface types.
+ - [breaking] Moved `CanvasKit.MakeImageShader` to `SkImage.makeShader` - removed clampUnpremul
+   as argument.
 
 ## [0.5.1] - 2019-03-21
 

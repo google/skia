@@ -216,9 +216,6 @@ ${EMCXX} \
     -Imodules/skshaper/include \
     -Imodules/particles/include \
     -Isrc/core/ \
-    -Isrc/gpu/ \
-    -Isrc/sfnt/ \
-    -Isrc/shaders/ \
     -Isrc/utils/ \
     -Ithird_party/icu \
     -Itools \
