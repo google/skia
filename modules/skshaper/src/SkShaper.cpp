@@ -24,7 +24,7 @@
 
 std::unique_ptr<SkShaper> SkShaper::Make() {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
-    std::unique_ptr<SkShaper> shaper = SkShaper::MakeHarfBuzz();
+    std::unique_ptr<SkShaper> shaper = SkShaper::MakeShaperDrivenWrapper();
     if (shaper) {
         return shaper;
     }
