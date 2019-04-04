@@ -502,6 +502,7 @@
       "~^RGB565TextureTest$",
       "~^RGBA4444TextureTest$",
       "~^TextureIdleProcFlushTest$",
+      "~^TextureStripAtlasManagerColorFilterTest$",
       "~^WritePixelsNonTextureMSAA_Gpu$",
       "--nonativeFonts",
       "--verbose"
