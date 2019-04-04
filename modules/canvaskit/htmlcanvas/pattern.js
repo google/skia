@@ -61,8 +61,7 @@ function CanvasPattern(image, repetition) {
   this._getShader = function(currentTransform) {
     // Ignore currentTransform since it will be applied later
     this._dispose();
-    this._shader = CanvasKit.MakeImageShader(this._image, this._tileX, this._tileY,
-                                             false, this._transform);
+    this._shader = this._image.makeShader(this._tileX, this._tileY, this._transform);
     return this._shader;
   }
 
