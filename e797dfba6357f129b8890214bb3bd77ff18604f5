@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "807a9661_dcb1b198",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-04T20:38:57Z",
+      "side": 0,
+      "message": "https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/graphics/logging_canvas.cc?rcl\u003d073ade76f7c0bff679d747fbc11cb873580bf9b6\u0026l\u003d323",
+      "revId": "e797dfba6357f129b8890214bb3bd77ff18604f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
