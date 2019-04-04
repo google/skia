@@ -453,7 +453,9 @@ private:
                 numTotalQuads += op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
                 if (target->resourceProvider()->explicitlyAllocateGPUResources()) {
-                    SkASSERT(proxy->isInstantiated());
+                    if (!proxy->isInstantiated()) {
+                        return;
+                    }
                 } else if (!proxy->instantiate(target->resourceProvider())) {
                     return;
                 }

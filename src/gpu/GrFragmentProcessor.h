@@ -434,8 +434,7 @@ public:
     // TODO: this can go away once explicit allocation has stuck
     bool instantiate(GrResourceProvider* resourceProvider) const {
         if (resourceProvider->explicitlyAllocateGPUResources()) {
-            SkASSERT(fProxyRef.get()->isInstantiated());
-            return true;
+            return fProxyRef.get()->isInstantiated();
         } else {
             return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
         }
