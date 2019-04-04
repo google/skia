@@ -37,7 +37,6 @@ var CanvasKit = {
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
 	MakeGrContext: function() {},
-	MakeImageShader: function() {},
 	/** @return {CanvasKit.SkImage} */
 	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
@@ -65,7 +64,6 @@ var CanvasKit = {
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
 	_MakeImage: function() {},
-	_MakeImageShader: function() {},
 	_MakeLinearGradientShader: function() {},
 	_MakePathFromCmds: function() {},
 	_MakeRadialGradientShader: function() {},
@@ -170,6 +168,7 @@ var CanvasKit = {
 		// private API
 		_encodeToData: function() {},
 		_encodeToDataWithFormat: function() {},
+		_makeShader: function() {},
 	},
 
 	SkMatrix: {
@@ -516,6 +515,7 @@ CanvasKit.SkSurface.prototype.requestAnimationFrame = function() {};
 CanvasKit.SkVertices.prototype.applyBones = function() {};
 
 CanvasKit.SkImage.prototype.encodeToData = function() {};
+CanvasKit.SkImage.prototype.makeShader = function() {};
 
 CanvasKit.SkCanvas.prototype.drawAtlas = function() {};
 CanvasKit.SkCanvas.prototype.drawText = function() {};

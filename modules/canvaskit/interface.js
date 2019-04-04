@@ -381,6 +381,18 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      return this._makeShader(xTileMode, yTileMode, localMatrix);
+    } else {
+      return this._makeShader(xTileMode, yTileMode);
+    }
+  }
+
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
   // or just arrays of floats in groups of 4.

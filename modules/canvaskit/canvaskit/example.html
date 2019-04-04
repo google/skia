@@ -906,8 +906,8 @@
     let paint = new CanvasKit.SkPaint();
     let bonesImage = CanvasKit.MakeImageFromEncoded(bonesImageData);
 
-    let shader = CanvasKit.MakeImageShader(bonesImage,
-                    CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
+    let shader = bonesImage.makeShader(CanvasKit.TileMode.Clamp,
+                                       CanvasKit.TileMode.Clamp);
 
     // comment this out to see just the triangles move.
     paint.setShader(shader);
@@ -1198,7 +1198,7 @@
     paint.delete();
 
     // Make it repeat a bunch with a shader
-    const pattern = CanvasKit.MakeImageShader(img, CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
     const patternPaint = new CanvasKit.SkPaint();
     patternPaint.setShader(pattern);
 
