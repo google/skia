@@ -627,7 +627,7 @@ int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
 
-            result[glyphsToSendCount++] = {glyphPtr, glyphPos};
+            result[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
 
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
             fCachedGlyphImages.add(packedGlyphID);
@@ -636,6 +636,57 @@ int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
     }
 
     return glyphsToSendCount;
+}
+
+SkSpan<SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics2(const SkGlyphID* glyphIDs,
+                                                                    const SkPoint* positions, int n,
+                                                                    int maxDimension,
+                                                                    SkGlyphPos* results) {
+    int glyphsToSendCount = 0;
+    const SkPoint* posCursor = positions;
+    for (int i = 0; i < n; i++) {
+        SkPoint glyphPos = *posCursor++;
+        SkGlyphID glyphID = glyphIDs[i];
+        SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
+        SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
+                                                    : SkPackedGlyphID{glyphID};
+
+        // Check the cache for the glyph.
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
+
+        // Has this glyph ever been seen before?
+        if (glyphPtr == nullptr) {
+
+            // Never seen before. Make a new glyph.
+            glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
+            fGlyphMap.set(glyphPtr);
+            this->ensureScalerContext();
+            fContext->getMetrics(glyphPtr);
+
+            int glyphMaxDimension = std::max(glyphPtr->fWidth, glyphPtr->fHeight);
+            if (glyphMaxDimension <= maxDimension) {
+                results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+            } else if (glyphPtr->fMaskFormat != SkMask::kARGB32_Format) {
+                if (glyphPtr->fPathData == nullptr) {
+
+                    // Never checked for a path before. Add the path now.
+                    auto path = const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
+                    if (path != nullptr) {
+
+                        // A path was added make sure to send it to the GPU.
+                        fCachedGlyphPaths.add(glyphPtr->getPackedID());
+                        fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
+                    }
+                }
+            }
+
+            // Make sure to send the glyph to the GPU because we always send the image for a glyph.
+            fCachedGlyphImages.add(packedGlyphID);
+            fPendingGlyphImages.push_back(packedGlyphID);
+        }
+
+    }
+    return SkSpan<SkGlyphPos>(results, glyphsToSendCount);
 }
 
 // SkStrikeClient -----------------------------------------
