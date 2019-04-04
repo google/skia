@@ -67,10 +67,6 @@
           throw 'failed to create webgl context: err ' + ctx;
         }
 
-        // Bump the default resource cache limit.
-        var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
-        ctx.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
-
         if (!canvas && (!width || !height)) {
           throw 'height and width must be provided with context';
         }
