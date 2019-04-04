@@ -14,11 +14,8 @@
 #ifndef SkTLogic_DEFINED
 #define SkTLogic_DEFINED
 
-#include <array>
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
 #include <type_traits>
-#include <utility>
 
 namespace skstd {
 
@@ -46,17 +43,17 @@ template <typename... T> using common_type_t = typename std::common_type<T...>::
 
 template <std::size_t... Ints> struct index_sequence {
     using type = index_sequence;
-    using value_type = size_t;
+    using value_type = std::size_t;
     static constexpr std::size_t size() noexcept { return sizeof...(Ints); }
 };
 
 template <typename S1, typename S2> struct make_index_sequence_combine;
-template <size_t... I1, size_t... I2>
+template <std::size_t... I1, std::size_t... I2>
 struct make_index_sequence_combine<skstd::index_sequence<I1...>, skstd::index_sequence<I2...>>
     : skstd::index_sequence<I1..., (sizeof...(I1)+I2)...>
 { };
 
-template <size_t N> struct make_index_sequence
+template <std::size_t N> struct make_index_sequence
     : make_index_sequence_combine<typename skstd::make_index_sequence<    N/2>::type,
                                   typename skstd::make_index_sequence<N - N/2>::type>{};
 template<> struct make_index_sequence<0> : skstd::index_sequence< >{};
