@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bef5d91_e28d5105",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2019-04-04T17:17:50Z",
+      "side": 1,
+      "message": "This is still an assert in debug builds, right? If so, then I think debug fuzzers will still complain about this.  I\u0027d maybe suggest that this should be a log instead of an assert, but no strong feelings because we can just ignore it when the debug fuzzer comes back with the same case again.",
+      "revId": "fd17c1a6c877714055856d348aa60ded3300035f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
