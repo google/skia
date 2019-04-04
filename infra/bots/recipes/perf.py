@@ -253,6 +253,11 @@ def nanobench_flags(api, bot):
     match.append('~^top25desk_techcrunch.skp_1$')
     match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
     match.append('~^top25desk_techcrunch.skp_1.1$')
+    # skia:skia:8706
+    match.append('~^mobi_wsj.skp_1_mpd$')
+    match.append('~^mobi_wsj.skp_1$')
+    match.append('~^mobi_wsj.skp_1.1_mpd$')
+    match.append('~^mobi_wsj.skp_1.1$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
