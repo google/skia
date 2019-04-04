@@ -184,8 +184,11 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ persp_shaders_bw')
       blacklist('gltestthreading gm _ dftext_blob_persp')
       blacklist('gltestthreading gm _ dftext')
-    # skbug.com/7523 - Flaky on various GPUs
+      # skbug.com/7523 - Flaky on various GPUs
       blacklist('gltestthreading gm _ orientation')
+      # These GMs only differ in the low bits
+      blacklist('gltestthreading gm _ stroketext')
+      blacklist('gltestthreading gm _ draw_image_set')
 
     # CommandBuffer bot *only* runs the command_buffer config.
     if 'CommandBuffer' in bot:
