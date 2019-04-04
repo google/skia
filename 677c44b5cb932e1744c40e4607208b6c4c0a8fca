@@ -22,6 +22,30 @@
       "revId": "677c44b5cb932e1744c40e4607208b6c4c0a8fca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e4ef274_ec757db6",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-04-04T13:16:00Z",
+      "side": 1,
+      "message": "It wouldn\u0027t hurt. We should do Vertex, Fragment, and Geometry.",
+      "parentUuid": "ab374ce4_89707376",
+      "range": {
+        "startLine": 351,
+        "startChar": 21,
+        "endLine": 351,
+        "endChar": 44
+      },
+      "revId": "677c44b5cb932e1744c40e4607208b6c4c0a8fca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
