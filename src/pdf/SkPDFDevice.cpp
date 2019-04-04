@@ -247,6 +247,61 @@ static bool is_rect(const SkClipStack& clipStack, const SkRect& bounds, SkRect* 
     return true;
 }
 
+static bool is_complex_clip(const SkClipStack& stack) {
+    SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
+    while (const SkClipStack::Element* element = iter.next()) {
+        switch (element->getOp()) {
+            case SkClipOp::kDifference:
+            case SkClipOp::kIntersect:
+                break;
+            default:
+                return true;
+        }
+    }
+    return false;
+}
+
+template <typename F>
+static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn) {
+    // assumes clipstack is not complex.
+    constexpr SkRect kHuge{-30000, -30000, 30000, 30000};
+    SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
+    SkRect bounds = outerBounds;
+    while (const SkClipStack::Element* element = iter.next()) {
+        SkPath operand;
+        element->asDeviceSpacePath(&operand);
+        SkPathOp op;
+        switch (element->getOp()) {
+            case SkClipOp::kDifference: op = kDifference_SkPathOp; break;
+            case SkClipOp::kIntersect:  op = kIntersect_SkPathOp;  break;
+            default: SkASSERT(false); return;
+        }
+        if (op == kDifference_SkPathOp  ||
+            operand.isInverseFillType() ||
+            !kHuge.contains(operand.getBounds()))
+        {
+            Op(to_path(bounds), operand, op, &operand);
+        }
+        SkASSERT(!operand.isInverseFillType());
+        fn(operand);
+        if (!bounds.intersect(operand.getBounds())) {
+            return; // return early;
+        }
+    }
+}
+
+static void append_clip_path(const SkPath& clipPath, SkWStream* wStream) {
+    SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
+    SkPath::FillType clipFill = clipPath.getFillType();
+    NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
+    NOT_IMPLEMENTED(clipFill == SkPath::kInverseWinding_FillType, false);
+    if (clipFill == SkPath::kEvenOdd_FillType) {
+        wStream->writeText("W* n\n");
+    } else {
+        wStream->writeText("W n\n");
+    }
+}
+
 static void append_clip(const SkClipStack& clipStack,
                         const SkIRect& bounds,
                         SkWStream* wStream) {
@@ -262,22 +317,19 @@ static void append_clip(const SkClipStack& clipStack,
         return;
     }
 
-    SkPath clipPath;
-    (void)clipStack.asPath(&clipPath);
-
-    if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
-        SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
-        SkPath::FillType clipFill = clipPath.getFillType();
-        NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
-        NOT_IMPLEMENTED(clipFill == SkPath::kInverseWinding_FillType, false);
-        if (clipFill == SkPath::kEvenOdd_FillType) {
-            wStream->writeText("W* n\n");
-        } else {
-            wStream->writeText("W n\n");
+    if (is_complex_clip(clipStack)) {
+        SkPath clipPath;
+        (void)clipStack.asPath(&clipPath);
+        if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
+            append_clip_path(clipPath, wStream);
         }
+        // If Op() fails (pathological case; e.g. input values are
+        // extremely large or NaN), emit no clip at all.
+    } else {
+        apply_clip(clipStack, outsetBounds, [wStream](const SkPath& path) {
+            append_clip_path(path, wStream);
+        });
     }
-    // If Op() fails (pathological case; e.g. input values are
-    // extremely large or NaN), emit no clip at all.
 }
 
 // TODO(vandebo): Take advantage of SkClipStack::getSaveCount(), the PDF
