@@ -26,43 +26,46 @@ const RenderNode* RenderNode::nodeAt(const SkPoint& p) const {
     return this->bounds().contains(p.x(), p.y()) ? this->onNodeAt(p) : nullptr;
 }
 
-bool RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* paint) const {
-    const auto initial_alpha = paint->getAlpha(),
-                       alpha = SkToU8(sk_float_round2int(initial_alpha * fOpacity));
+static SkAlpha ScaleAlpha(SkAlpha alpha, float opacity) {
+   return SkToU8(sk_float_round2int(alpha * opacity));
+}
 
-    if (alpha != initial_alpha || fColorFilter || fShader || fBlendMode != paint->getBlendMode()) {
-        paint->setAlpha(alpha);
-        paint->setColorFilter(SkColorFilter::MakeComposeFilter(fColorFilter,
+bool RenderNode::RenderContext::requiresIsolation() const {
+    // Note: fShader is never applied on isolation layers.
+    return ScaleAlpha(SK_AlphaOPAQUE, fOpacity) != SK_AlphaOPAQUE
+        || fColorFilter
+        || fBlendMode != SkBlendMode::kSrcOver;
+}
+
+void RenderNode::RenderContext::modulatePaint(const SkMatrix& ctm, SkPaint* paint) const {
+    paint->setAlpha(ScaleAlpha(paint->getAlpha(), fOpacity));
+    paint->setColorFilter(SkColorFilter::MakeComposeFilter(fColorFilter,
                                                                paint->refColorFilter()));
-        if (fShader) {
-            if (fShaderCTM != ctm) {
-                // The shader is declared to operate under a specific transform, but due to the
-                // deferral mechanism, other transformations might have been pushed to the state.
-                // We want to undo these transforms:
-                //
-                //   shaderCTM x T = ctm
-                //
-                //   =>  T = Inv(shaderCTM) x ctm
-                //
-                //   =>  Inv(T) = Inv(Inv(shaderCTM) x ctm)
-                //
-                //   =>  Inv(T) = Inv(ctm) x shaderCTM
+    if (fShader) {
+        if (fShaderCTM != ctm) {
+            // The shader is declared to operate under a specific transform, but due to the
+            // deferral mechanism, other transformations might have been pushed to the state.
+            // We want to undo these transforms:
+            //
+            //   shaderCTM x T = ctm
+            //
+            //   =>  T = Inv(shaderCTM) x ctm
+            //
+            //   =>  Inv(T) = Inv(Inv(shaderCTM) x ctm)
+            //
+            //   =>  Inv(T) = Inv(ctm) x shaderCTM
 
-                SkMatrix inv_ctm;
-                if (ctm.invert(&inv_ctm)) {
-                    paint->setShader(
-                        fShader->makeWithLocalMatrix(SkMatrix::Concat(inv_ctm, fShaderCTM)));
-                }
-            } else {
-                // No intervening transforms.
-                paint->setShader(fShader);
+            SkMatrix inv_ctm;
+            if (ctm.invert(&inv_ctm)) {
+                paint->setShader(
+                            fShader->makeWithLocalMatrix(SkMatrix::Concat(inv_ctm, fShaderCTM)));
             }
+        } else {
+            // No intervening transforms.
+            paint->setShader(fShader);
         }
-        paint->setBlendMode(fBlendMode);
-        return true;
     }
-
-    return false;
+    paint->setBlendMode(fBlendMode);
 }
 
 RenderNode::ScopedRenderContext::ScopedRenderContext(SkCanvas* canvas, const RenderContext* ctx)
@@ -110,13 +113,17 @@ RenderNode::ScopedRenderContext::modulateBlendMode(SkBlendMode mode) {
 RenderNode::ScopedRenderContext&&
 RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, const SkMatrix& ctm,
                                               bool isolation) {
-    if (isolation) {
+    if (isolation && fCtx.requiresIsolation()) {
         SkPaint layer_paint;
-        if (fCtx.modulatePaint(ctm, &layer_paint)) {
-            fCanvas->saveLayer(bounds, &layer_paint);
-            fCtx = RenderContext();
-        }
+        fCtx.modulatePaint(ctm, &layer_paint);
+        fCanvas->saveLayer(bounds, &layer_paint);
+
+        // Reset only the props applied via isolation layers.
+        fCtx.fColorFilter = nullptr;
+        fCtx.fOpacity     = 1;
+        fCtx.fBlendMode   = SkBlendMode::kSrcOver;
     }
+
     return std::move(*this);
 }
 
