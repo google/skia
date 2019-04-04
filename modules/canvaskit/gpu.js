@@ -63,6 +63,10 @@
         // we are ok with all the defaults
         var ctx = this.GetWebGLContext(canvas);
 
+        // ... except the resouce cache limit
+        const RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
+        ctx.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
+
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
         }
