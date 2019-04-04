@@ -269,7 +269,7 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
         {SkTileMode::kClamp, SkTileMode::kClamp},
         paintColor};
 
-    key.fShaderTransform = shader->getLocalMatrix();
+    key.fShaderTransform = as_SB(shader)->getLocalMatrix();
 
     // surfaceBBox is in device space. While that's exactly what we
     // want for sizing our bitmap, we need to map it into
