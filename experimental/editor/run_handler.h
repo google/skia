@@ -3,7 +3,14 @@
 #ifndef run_handler_DEFINED
 #define run_handler_DEFINED
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
 #include "modules/skshaper/include/SkShaper.h"
+
+class SkFont;
 
 namespace editor {
 

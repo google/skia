@@ -13,6 +13,8 @@
 #include "include/core/SkStream.h"
 #include "src/utils/SkOSPath.h"
 
+#include <limits.h>
+
 #ifndef SK_SKQP_GLOBAL_ERROR_TOLERANCE
 #define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0
 #endif

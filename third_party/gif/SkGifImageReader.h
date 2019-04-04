@@ -51,6 +51,8 @@ class SkGifCodec;
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkStreamBuffer.h"
+
+#include <array>
 #include <memory>
 
 typedef SkTArray<unsigned char, true> SkGIFRow;

@@ -15,6 +15,7 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkImagePriv.h"
 
+#include <limits.h>
 #include <utility>
 
 sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,

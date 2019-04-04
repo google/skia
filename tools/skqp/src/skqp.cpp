@@ -26,6 +26,7 @@
 #include "tools/gpu/gl/GLTestContext.h"
 #include "tools/gpu/vk/VkTestContext.h"
 
+#include <limits.h>
 #include <algorithm>
 #include <cinttypes>
 #include <sstream>
