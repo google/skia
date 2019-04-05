@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faaae3f3_9b84e9b2",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-05T14:24:01Z",
+      "side": 1,
+      "message": "Should we add some sort of note on these like we had hiding inside SkStrike::initializeFoo?",
+      "revId": "b2ef09958e48a19a438ca9390583f5732dae8595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "064eccf0_0a10c7ab",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-05T14:24:01Z",
+      "side": 1,
+      "message": "we tend to put {} around any if statement body, especially if it\u0027s on a new line.  It\u0027s just a little too easy to fall into\n\n  if (should_foo)\n    foo();\n\nbecoming\n\n  if (should_foo)\n    SkPrintf(\"doing foo\\n\");\n    foo();",
+      "range": {
+        "startLine": 777,
+        "startChar": 12,
+        "endLine": 777,
+        "endChar": 50
+      },
+      "revId": "b2ef09958e48a19a438ca9390583f5732dae8595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
