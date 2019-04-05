@@ -15,19 +15,24 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
+#include <cmath>
+
 namespace skottie_utils {
 
-sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data) {
+sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
         return sk_sp<MultiFrameImageAsset>(
-              new MultiFrameImageAsset(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec))));
+              new MultiFrameImageAsset(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec)),
+                                                                             predecode));
     }
 
     return nullptr;
 }
 
-MultiFrameImageAsset::MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer> player)
-    : fPlayer(std::move(player)) {
+MultiFrameImageAsset::MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer> player,
+                                           bool predecode)
+    : fPlayer(std::move(player))
+    , fPreDecode(predecode) {
     SkASSERT(fPlayer);
 }
 
@@ -36,8 +41,40 @@ bool MultiFrameImageAsset::isMultiFrame() {
 }
 
 sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
+    auto decode = [](sk_sp<SkImage> image) {
+        SkASSERT(image->isLazyGenerated());
+
+        static constexpr size_t kMaxArea = 2048 * 2048;
+        const auto image_area = SkToSizeT(image->width() * image->height());
+
+        if (image_area > kMaxArea) {
+            // When the image is too large, decode and scale down to a reasonable size.
+            const auto scale = std::sqrt(static_cast<float>(kMaxArea) / image_area);
+            const auto info  = SkImageInfo::MakeN32Premul(scale * image->width(),
+                                                          scale * image->height());
+            SkBitmap bm;
+            if (bm.tryAllocPixels(info, info.minRowBytes()) &&
+                    image->scalePixels(bm.pixmap(),
+                                       SkFilterQuality::kMedium_SkFilterQuality,
+                                       SkImage::kDisallow_CachingHint)) {
+                image = SkImage::MakeFromBitmap(bm);
+            }
+        } else {
+            // When the image size is OK, just force-decode.
+            image = image->makeRasterImage();
+        }
+
+        return image;
+    };
+
     fPlayer->seek(static_cast<uint32_t>(t * 1000));
-    return fPlayer->getFrame();
+    auto frame = fPlayer->getFrame();
+
+    if (fPreDecode && frame && frame->isLazyGenerated()) {
+        frame = decode(std::move(frame));
+    }
+
+    return frame;
 }
 
 sk_sp<FileResourceProvider> FileResourceProvider::Make(SkString base_dir) {

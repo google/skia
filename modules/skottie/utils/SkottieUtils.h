@@ -27,16 +27,24 @@ namespace skottie_utils {
 
 class MultiFrameImageAsset final : public skottie::ImageAsset {
 public:
-    static sk_sp<MultiFrameImageAsset> Make(sk_sp<SkData>);
+    /**
+    * By default, images are decoded on-the-fly, at rasterization time.
+    * Large images may cause jank as decoding is expensive (and can thrash internal caches).
+    *
+    * Pass |predecode| true to force-decode all images upfront, at the cost of potentially more RAM
+    * and slower animation build times.
+    */
+    static sk_sp<MultiFrameImageAsset> Make(sk_sp<SkData>, bool predecode = false);
 
     bool isMultiFrame() override;
 
     sk_sp<SkImage> getFrame(float t) override;
 
 private:
-    explicit MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer>);
+    explicit MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer>, bool predecode);
 
     std::unique_ptr<SkAnimCodecPlayer> fPlayer;
+    bool                               fPreDecode;
 
     using INHERITED = skottie::ImageAsset;
 };
