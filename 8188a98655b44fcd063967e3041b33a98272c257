@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "508962a2_0288d46b",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-05T19:02:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e858f2d_c8639e13",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "263e92b5_d022a42f",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "8188a98655b44fcd063967e3041b33a98272c257",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e50dfc06_7496817b",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-05T19:02:00Z",
+      "side": 1,
+      "message": "Added a comment, and added a new GM to test the combination of mask filter and clip mask image.",
+      "parentUuid": "263e92b5_d022a42f",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d8f79be0_4ad02f47",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1111,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-05T19:02:00Z",
+      "side": 1,
+      "message": "GM_savelayer_clipmask gets this case and the \u0027fall-through\u0027 case below.",
+      "parentUuid": "c4380d68_f940d602",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "990575a3_bf5b62fb",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "8188a98655b44fcd063967e3041b33a98272c257",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21326f3d_14f17cfa",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-05T19:02:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "990575a3_bf5b62fb",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
