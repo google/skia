@@ -322,9 +322,12 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                                           CanClearFullscreen canClearFullscreen) {
     bool isFull = false;
     if (!clip.hasWindowRectangles()) {
+        // TODO: wrt the shouldInitializeTextures path, it would be more performant to
+        // only clear the entire target if we knew it had not been cleared before. As
+        // is this could end up doing a lot of redundant clears.
         isFull = !clip.scissorEnabled() ||
                  (CanClearFullscreen::kYes == canClearFullscreen &&
-                  this->caps()->preferFullscreenClears()) ||
+                  (this->caps()->preferFullscreenClears() || this->caps()->shouldInitializeTextures())) ||
                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
     }
 
