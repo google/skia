@@ -166,7 +166,30 @@ function loadCmdsTypedArray(arr) {
   return [ptr, len];
 }
 
-
+function saveBytesToFile(bytes, fileName) {
+  if (!isNode) {
+    // https://stackoverflow.com/a/32094834
+    var blob = new Blob([bytes], {type: 'application/octet-stream'});
+    url = window.URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    document.body.appendChild(a);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    // clean up after because FF might not download it synchronously
+    setTimeout(function() {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 50);
+  } else {
+    var fs = require('fs');
+    // https://stackoverflow.com/a/42006750
+    // https://stackoverflow.com/a/47018122
+    fs.writeFile(fileName, new Buffer(bytes), function(err) {
+      if (err) throw err;
+    });
+  }
+}
 /**
  * Generic helper for dealing with an array of four floats.
  */
