@@ -15,7 +15,6 @@ namespace DM {
 
 /**
  *  Class for collecting results from DM and writing to a json file.
- *  All methods are thread-safe.
  */
 class JsonWriter {
 public:
@@ -38,13 +37,15 @@ public:
 
     /**
      *  Add a result to the end of the list of results.
+     *  Not thread safe.
      */
     static void AddBitmapResult(const BitmapResult&);
 
     /**
-     *  Write all collected results to the file dir/dm.json.
+     *  Write all collected results to path.
+     *  Not thread safe.
      */
-    static void DumpJson(const char* dir,
+    static void DumpJson(const char* path,
                          CommandLineFlags::StringArray key,
                          CommandLineFlags::StringArray properties);
 
