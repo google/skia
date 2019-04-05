@@ -131,6 +131,29 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     return r.finishRecordingAsPicture();
 }
 
+#ifdef SK_DISABLE_SKPICTURE_DESERIALIZE
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procs) {
+    return nullptr;
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
+                                         const SkDeserialProcs* procs) {
+    return nullptr;
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs* procs) {
+    return nullptr;
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procsPtr,
+                                           SkTypefacePlayback* typefaces) {
+    return nullptr;
+}
+
+sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
+    return nullptr;
+}
+#else
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procs) {
     return MakeFromStream(stream, procs, nullptr);
 }
@@ -212,6 +235,7 @@ sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
    std::unique_ptr<SkPictureData> data(SkPictureData::CreateFromBuffer(buffer, info));
     return SkPicture::Forwardport(info, data.get(), &buffer);
 }
+#endif
 
 SkPictureData* SkPicture::backport() const {
     SkPictInfo info = this->createHeader();
