@@ -21,7 +21,19 @@ source $EMSDK/emsdk_env.sh
 EMCC=`which emcc`
 EMCXX=`which em++`
 
-BUILD_DIR=${BUILD_DIR:="out/debugger_wasm"}
+if [[ $@ == *debug* ]]; then
+  echo "Building a Debug build"
+  EXTRA_CFLAGS="\"-DSK_DEBUG\","
+  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
+                --source-map-base /node_modules/debugger/bin/ -DSK_DEBUG"
+  BUILD_DIR=${BUILD_DIR:="out/debugger_wasm_debug"}
+else
+  echo "Building a Release build"
+  EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+  RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
+  BUILD_DIR=${BUILD_DIR:="out/debugger_wasm"}
+fi
+
 mkdir -p $BUILD_DIR
 
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
@@ -57,6 +69,7 @@ echo "Compiling bitcode"
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     ${GN_GPU_FLAGS}
+    ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
   is_official_build=true \
@@ -102,7 +115,7 @@ echo "Generating final debugger wasm and javascript"
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
-    --closure 1 \
+    $RELEASE_CONF \
     -Iexperimental \
     -Iinclude/c \
     -Iinclude/codec \
@@ -125,6 +138,7 @@ ${EMCXX} \
     -DSK_DISABLE_AAA \
     -std=c++17 \
     $WASM_GPU \
+    --pre-js $BASE_DIR/helper.js \
     --post-js $BASE_DIR/ready.js \
     --bind \
     $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
