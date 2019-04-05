@@ -564,11 +564,9 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
 
             if (process) {
-                if (glyphsWithMaskCount > 0) {
-                    process->processDeviceMasks(
-                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphsWithMaskCount)},
-                            strike.get());
-                }
+                process->processDeviceMasks(
+                        SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphsWithMaskCount)},
+                        strike.get());
                 if (!fPaths.empty()) {
                     process->processDevicePaths(SkSpan<const SkGlyphPos>{fPaths});
                 }
