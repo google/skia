@@ -36,6 +36,15 @@ class SkDeferredDisplayList;
 // each GrRenderTarget/GrOpList and manage the DAG.
 class GrDrawingManager {
 public:
+    struct FooTraits {
+        static const GrSurfaceProxy::UniqueID GetKey(const GrSurfaceProxy& p) { return p.uniqueID(); }
+
+        static uint32_t Hash(const GrSurfaceProxy::UniqueID& uniqueID) { return uniqueID.asUInt(); }
+    };
+    typedef SkTDynamicHash<GrSurfaceProxy, GrSurfaceProxy::UniqueID, FooTraits> ProxyHash;
+
+    ProxyHash fFoo;
+
     ~GrDrawingManager();
 
     void freeGpuResources();
