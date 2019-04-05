@@ -950,12 +950,6 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         REPORTER_ASSERT(reporter, fallbackCache.get() != nullptr);
         auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
         REPORTER_ASSERT(reporter, glyph->fMaskFormat == fakeMask);
-
-        // Try overriding the image, it should stay the same.
-        REPORTER_ASSERT(reporter,
-                        memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
-        const uint8_t newGlyphImage[] = {0, 0};
-        fallbackCache->initializeImage(newGlyphImage, glyph->computeImageSize(), glyph);
         REPORTER_ASSERT(reporter,
                         memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
     }

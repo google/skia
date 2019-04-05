@@ -142,9 +142,7 @@ const void* SkStrike::findImage(const SkGlyph& glyph) {
 }
 
 void SkStrike::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
-    // Don't overwrite the image if we already have one. We could have used a fallback if the
-    // glyph was missing earlier.
-    if (glyph->fImage) return;
+    SkASSERT(!glyph->fImage);
 
     if (glyph->fWidth > 0 && glyph->fWidth < kMaxGlyphWidth) {
         size_t allocSize = glyph->allocImage(&fAlloc);
@@ -180,9 +178,7 @@ const SkPath* SkStrike::findPath(const SkGlyph& glyph) {
 }
 
 bool SkStrike::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
-    // Don't overwrite the path if we already have one. We could have used a fallback if the
-    // glyph was missing earlier.
-    if (glyph->fPathData) return true;
+    SkASSERT(!glyph->fPathData);
 
     if (glyph->fWidth) {
         SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
