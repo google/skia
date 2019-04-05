@@ -269,7 +269,8 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver,
                                    Animation::Builder::Stats* stats,
-                                   const SkSize& size, float duration, float framerate)
+                                   const SkSize& size, float duration, float framerate,
+                                   uint32_t flags)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
@@ -279,6 +280,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fSize(size)
     , fDuration(duration)
     , fFrameRate(framerate)
+    , fFlags(flags)
     , fHasNontrivialBlending(false) {}
 
 std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
@@ -430,6 +432,11 @@ Animation::Builder& Animation::Builder::setMarkerObserver(sk_sp<MarkerObserver> 
     return *this;
 }
 
+Animation::Builder& Animation::Builder::setPredecodeImages(bool predecode) {
+    fFlags = (fFlags & ~kPredecodeImages_Flag) | (-SkToU32(predecode) & kPredecodeImages_Flag);
+    return *this;
+}
+
 sk_sp<Animation> Animation::Builder::make(SkStream* stream) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
@@ -503,7 +510,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
                                        std::move(fMarkerObserver),
-                                       &fStats, size, duration, fps);
+                                       &fStats, size, duration, fps, fFlags);
     auto scene = builder.parse(json);
 
     const auto t2 = std::chrono::steady_clock::now();

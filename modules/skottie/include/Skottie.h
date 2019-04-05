@@ -164,6 +164,19 @@ public:
         Builder& setMarkerObserver(sk_sp<MarkerObserver>);
 
         /**
+         * Control pre-decoding of compressed images.
+         *
+         * By default, images are decoded on-the-fly, at rasterization time.
+         * Large images may cause jank as decoding is expensive (and can thrash internal caches).
+         *
+         * Pass true to force decode all images upfront, at the cost of potentially more RAM
+         * and slower animation build times.
+         *
+         */
+        Builder& setPredecodeImages(bool);
+
+
+        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -177,6 +190,7 @@ public:
         sk_sp<Logger>           fLogger;
         sk_sp<MarkerObserver>   fMarkerObserver;
         Stats                   fStats;
+        uint32_t                fFlags = 0;
     };
 
     /**
@@ -229,6 +243,7 @@ public:
 private:
     enum Flags : uint32_t {
         kRequiresTopLevelIsolation = 1 << 0, // Needs to draw into a layer due to layer blending.
+        kPredecodeImages_Flag      = 1 << 1, // Force decoding of compressed images at load time.
     };
 
     Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
