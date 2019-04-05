@@ -1360,6 +1360,7 @@ struct Task {
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
 static void gather_tests() {
+    return;
     if (!FLAGS_src.contains("tests")) {
         return;
     }

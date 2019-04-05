@@ -73,7 +73,8 @@ public:
                    const char* name,
                    const char* sksl,
                    const void* inputs,
-                   size_t inputSize);
+                   size_t inputSize,
+                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
 
     static std::unique_ptr<GrSkSLFP> Make(
                    GrContext_Base* context,
@@ -81,7 +82,8 @@ public:
                    const char* name,
                    SkString sksl,
                    const void* inputs,
-                   size_t inputSize);
+                   size_t inputSize,
+                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
 
     const char* name() const override;
 
@@ -90,9 +92,9 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps, int fIndex,
-             const char* name, const char* sksl, SkString skslString, const void* inputs,
-             size_t inputSize);
+    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
+             SkSL::Program::Kind kind, int fIndex, const char* name, const char* sksl,
+             SkString skslString, const void* inputs, size_t inputSize);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -109,6 +111,8 @@ private:
     const sk_sp<GrShaderCaps> fShaderCaps;
 
     mutable sk_sp<GrSkSLFPFactory> fFactory;
+
+    SkSL::Program::Kind fKind;
 
     int fIndex;
 
@@ -152,10 +156,13 @@ public:
      * the produced shaders to differ), so it is important to reuse the same factory instance for
      * the same shader in order to avoid repeatedly re-parsing the SkSL.
      */
-    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl);
+    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl,
+                    SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
 
     const SkSL::Program* getSpecialization(const SkSL::String& key, const void* inputs,
                                            size_t inputSize);
+
+    SkSL::Program::Kind fKind;
 
     const char* fName;
 
