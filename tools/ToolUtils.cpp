@@ -37,9 +37,9 @@ namespace ToolUtils {
 
 const char* alphatype_name(SkAlphaType at) {
     switch (at) {
-        case kUnknown_SkAlphaType: return "Unknown";
-        case kOpaque_SkAlphaType: return "Opaque";
-        case kPremul_SkAlphaType: return "Premul";
+        case kUnknown_SkAlphaType:  return "Unknown";
+        case kOpaque_SkAlphaType:   return "Opaque";
+        case kPremul_SkAlphaType:   return "Premul";
         case kUnpremul_SkAlphaType: return "Unpremul";
     }
     SkASSERT(false);
@@ -48,23 +48,44 @@ const char* alphatype_name(SkAlphaType at) {
 
 const char* colortype_name(SkColorType ct) {
     switch (ct) {
-        case kUnknown_SkColorType: return "Unknown";
-        case kAlpha_8_SkColorType: return "Alpha_8";
-        case kRGB_565_SkColorType: return "RGB_565";
-        case kARGB_4444_SkColorType: return "ARGB_4444";
-        case kRGBA_8888_SkColorType: return "RGBA_8888";
-        case kRGB_888x_SkColorType: return "RGB_888x";
-        case kBGRA_8888_SkColorType: return "BGRA_8888";
+        case kUnknown_SkColorType:      return "Unknown";
+        case kAlpha_8_SkColorType:      return "Alpha_8";
+        case kRGB_565_SkColorType:      return "RGB_565";
+        case kARGB_4444_SkColorType:    return "ARGB_4444";
+        case kRGBA_8888_SkColorType:    return "RGBA_8888";
+        case kRGB_888x_SkColorType:     return "RGB_888x";
+        case kBGRA_8888_SkColorType:    return "BGRA_8888";
         case kRGBA_1010102_SkColorType: return "RGBA_1010102";
-        case kRGB_101010x_SkColorType: return "RGB_101010x";
-        case kGray_8_SkColorType: return "Gray_8";
+        case kRGB_101010x_SkColorType:  return "RGB_101010x";
+        case kGray_8_SkColorType:       return "Gray_8";
         case kRGBA_F16Norm_SkColorType: return "RGBA_F16Norm";
-        case kRGBA_F16_SkColorType: return "RGBA_F16";
-        case kRGBA_F32_SkColorType: return "RGBA_F32";
+        case kRGBA_F16_SkColorType:     return "RGBA_F16";
+        case kRGBA_F32_SkColorType:     return "RGBA_F32";
     }
     SkASSERT(false);
     return "unexpected colortype";
 }
+
+const char* colortype_depth(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:      return "Unknown";
+        case kAlpha_8_SkColorType:      return "A8";
+        case kRGB_565_SkColorType:      return "565";
+        case kARGB_4444_SkColorType:    return "4444";
+        case kRGBA_8888_SkColorType:    return "8888";
+        case kRGB_888x_SkColorType:     return "888";
+        case kBGRA_8888_SkColorType:    return "8888";
+        case kRGBA_1010102_SkColorType: return "1010102";
+        case kRGB_101010x_SkColorType:  return "101010";
+        case kGray_8_SkColorType:       return "G8";
+        case kRGBA_F16Norm_SkColorType: return "F16Norm";  // TODO: "F16"?
+        case kRGBA_F16_SkColorType:     return "F16";
+        case kRGBA_F32_SkColorType:     return "F32";
+    }
+    SkASSERT(false);
+    return "unexpected colortype";
+}
+
 
 SkColor color_to_565(SkColor color) {
     // Not a good idea to use this function for greyscale colors...

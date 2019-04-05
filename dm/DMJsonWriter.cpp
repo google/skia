@@ -11,7 +11,6 @@
 #include "SkData.h"
 #include "SkJSON.h"
 #include "SkJSONWriter.h"
-#include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
@@ -19,24 +18,17 @@
 
 namespace DM {
 
-SkTArray<JsonWriter::BitmapResult> gBitmapResults;
-SK_DECLARE_STATIC_MUTEX(gBitmapResultLock);
+static SkTArray<JsonWriter::BitmapResult> gBitmapResults;
 
 void JsonWriter::AddBitmapResult(const BitmapResult& result) {
-    SkAutoMutexAcquire lock(&gBitmapResultLock);
     gBitmapResults.push_back(result);
 }
 
-void JsonWriter::DumpJson(const char* dir,
+void JsonWriter::DumpJson(const char* path,
                           CommandLineFlags::StringArray key,
                           CommandLineFlags::StringArray properties) {
-    if (0 == strcmp(dir, "")) {
-        return;
-    }
-
-    SkString path = SkOSPath::Join(dir, "dm.json");
-    sk_mkdir(dir);
-    SkFILEWStream stream(path.c_str());
+    sk_mkdir(SkOSPath::Dirname(path).c_str());
+    SkFILEWStream stream(path);
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
 
     writer.beginObject(); // root
@@ -57,7 +49,6 @@ void JsonWriter::DumpJson(const char* dir,
     }
 
     {
-        SkAutoMutexAcquire lock(&gBitmapResultLock);
         writer.beginArray("results");
         for (int i = 0; i < gBitmapResults.count(); i++) {
             writer.beginObject();

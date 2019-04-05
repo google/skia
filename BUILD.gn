@@ -1867,6 +1867,16 @@ if (skia_enable_tools) {
         "//third_party/libpng",
       ]
     }
+    test_lib("dm_json_writer") {
+      public_include_dirs = [ "dm" ]
+      sources = [
+        "dm/DMJsonWriter.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":tool_utils",
+      ]
+    }
     test_app("fm") {
       sources = [
         "tools/fm/fm.cpp",
@@ -1874,6 +1884,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_aa",
         ":common_flags_gpu",
+        ":dm_json_writer",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -1890,7 +1901,6 @@ if (skia_enable_tools) {
       sources = [
         "dm/DM.cpp",
         "dm/DMGpuTestProcs.cpp",
-        "dm/DMJsonWriter.cpp",
         "dm/DMSrcSink.cpp",
       ]
       deps = [
@@ -1898,6 +1908,7 @@ if (skia_enable_tools) {
         ":common_flags_config",
         ":common_flags_gpu",
         ":common_flags_images",
+        ":dm_json_writer",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -2341,9 +2352,9 @@ if (skia_enable_tools) {
   if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
     test_app("fiddle_examples") {
       sources = [
+        "tools/fiddle/all_examples.cpp",
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
-        "tools/fiddle/all_examples.cpp",
       ]
       include_dirs = [ "tools" ]
       if (is_win) {
