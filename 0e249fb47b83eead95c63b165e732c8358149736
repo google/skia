@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7879594d_3c3830c7",
+        "filename": "experimental/wasm-skp-debugger/gpu.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-04-05T17:22:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "854fdab8_e60df7df",
+      "range": {
+        "startLine": 49,
+        "startChar": 6,
+        "endLine": 49,
+        "endChar": 11
+      },
+      "revId": "0e249fb47b83eead95c63b165e732c8358149736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4e36e64_c0ef5d23",
         "filename": "experimental/wasm-skp-debugger/helper.js",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "48bbdb65_e9a546c8",
+        "filename": "experimental/wasm-skp-debugger/helper.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-04-05T17:22:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4e36e64_c0ef5d23",
+      "range": {
+        "startLine": 6,
+        "startChar": 4,
+        "endLine": 6,
+        "endChar": 7
+      },
+      "revId": "0e249fb47b83eead95c63b165e732c8358149736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8c6ce777_6e954245",
         "filename": "experimental/wasm-skp-debugger/helper.js",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2019-04-05T11:45:31Z",
       "side": 1,
       "message": "Does this just get leaked?",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 20
+      },
+      "revId": "0e249fb47b83eead95c63b165e732c8358149736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d25161df_4788e658",
+        "filename": "experimental/wasm-skp-debugger/helper.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-04-05T17:22:43Z",
+      "side": 1,
+      "message": "I think it does. When the user opens a new file, new memory is allocated for it, and this is not cleaned up until the tab closes.",
+      "parentUuid": "8c6ce777_6e954245",
       "range": {
         "startLine": 12,
         "startChar": 10,
