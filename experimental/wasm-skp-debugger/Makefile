@@ -1,10 +1,24 @@
-debug:
+release:
 	# Does an incremental build where possible.
 	./compile.sh
 	mkdir -p ./debugger/bin
 	cp ../../out/debugger_wasm/debugger.js   ./debugger/bin
 	cp ../../out/debugger_wasm/debugger.wasm ./debugger/bin
 
+debug:
+	# Does an incremental build where possible.
+	./compile.sh debug
+	mkdir -p ./debugger/bin
+	cp ../../out/debugger_wasm_debug/debugger.js   ./debugger/bin
+	cp ../../out/debugger_wasm_debug/debugger.wasm ./debugger/bin
+	# assume the developer also has a checkout of buildbot here and wants to test the newly
+	# built wasm debugger with the interface.
+	cp ./debugger/bin/debugger.js   ~/go/src/go.skia.org/infra/debugger-assets/res/js
+	cp ./debugger/bin/debugger.wasm ~/go/src/go.skia.org/infra/debugger-assets/res
+
+# A barebones local example of the wasm module included in a page.
+# for the real interface see
+# https://github.com/google/skia-buildbot/blob/master/debugger-assets/res/imp/wasm-app.html
 local-example:
 	rm -rf node_modules/debugger
 	mkdir -p node_modules
