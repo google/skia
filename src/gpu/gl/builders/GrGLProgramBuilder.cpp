@@ -276,7 +276,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             memcpy(&inputs, bytes + offset, sizeof(inputs));
             offset += sizeof(inputs);
             // binary cache hit, just hand the binary to GL
-            int binaryFormat;
+            GrGLenum binaryFormat;
             memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
             offset += sizeof(binaryFormat);
             GrGLClearErr(this->gpu()->glInterface());
