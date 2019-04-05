@@ -3,6 +3,7 @@
 
 #include "CommandLineFlags.h"
 #include "CommonFlags.h"
+#include "DMJsonWriter.h"
 #include "EventTracingPriv.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
@@ -113,12 +114,15 @@ static Result fail(const char* why, Args... args) {
 
 struct Source {
     SkString                               name;
+    const char*                            type;
     SkISize                                size;
     std::function<Result(SkCanvas*)>       draw;
     std::function<void(GrContextOptions*)> tweak = [](GrContextOptions*){};
+    SkString                               options;
 };
 
 static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
+    source->type  = "gm";
     source->size  = gm->getISize();
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
@@ -133,6 +137,7 @@ static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
 }
 
 static void init(Source* source, sk_sp<SkPicture> pic) {
+    source->type = "picture";
     source->size = pic->cullRect().roundOut().size();
     source->draw = [pic](SkCanvas* canvas) {
         canvas->drawPicture(pic);
@@ -141,8 +146,10 @@ static void init(Source* source, sk_sp<SkPicture> pic) {
 }
 
 static void init(Source* source, std::shared_ptr<SkCodec> codec) {
-    source->size = codec->dimensions();
-    source->draw = [codec](SkCanvas* canvas) {
+    source->type    = "codec";
+    source->size    = codec->dimensions();
+    source->options = SkStringPrintf("--decodeToDst=%s", FLAGS_decodeToDst ? "true" : "false");
+    source->draw    = [codec](SkCanvas* canvas) {
         SkImageInfo info = codec->getInfo();
         if (FLAGS_decodeToDst) {
             info = canvas->imageInfo().makeWH(info.width(),
@@ -163,6 +170,7 @@ static void init(Source* source, std::shared_ptr<SkCodec> codec) {
 }
 
 static void init(Source* source, sk_sp<SkSVGDOM> svg) {
+    source->type = "svg";
     source->size = svg->containerSize().isEmpty() ? SkISize{1000,1000}
                                                   : svg->containerSize().toCeil();
     source->draw = [svg](SkCanvas* canvas) {
@@ -172,6 +180,7 @@ static void init(Source* source, sk_sp<SkSVGDOM> svg) {
 }
 
 static void init(Source* source, sk_sp<skottie::Animation> animation) {
+    source->type = "skottie";
     source->size = {1000,1000};
     source->draw = [animation](SkCanvas* canvas) {
         canvas->clear(SK_ColorWHITE);
@@ -576,6 +585,20 @@ int main(int argc, char** argv) {
                 SkFILEWStream file(path.c_str());
                 file.write(blob->data(), blob->size());
             }
+
+            DM::JsonWriter::AddBitmapResult({source.name,
+                                             SkString{"fm"},  // config... kind of obsolete now
+                                             SkString{source.type},
+                                             source.options,
+                                             md5,
+                                             SkString{ext},
+                                             SkString{FLAGS_gamut[0]},
+                                             SkString{FLAGS_tf[0]},
+                                             SkString{ToolUtils::colortype_name (ct)},
+                                             SkString{ToolUtils::alphatype_name (at)},
+                                             SkString{ToolUtils::colortype_depth(ct)}});
+            DM::JsonWriter::DumpJson(SkOSPath::Join(FLAGS_writePath[0], "fm.json").c_str(),
+                                     FLAGS_key, FLAGS_properties);
         }
 
         const auto elapsed = std::chrono::steady_clock::now() - start;
