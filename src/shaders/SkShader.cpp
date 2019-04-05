@@ -114,6 +114,10 @@ bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace
     return !SkColorSpaceXformSteps::Required(shaderColorSpace, fDstColorSpace);
 }
 
+const SkMatrix& SkShader::getLocalMatrix() const {
+    return as_SB(this)->getLocalMatrix();
+}
+
 SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
     return as_SB(this)->onIsAImage(localMatrix, xy);
 }
@@ -128,7 +132,7 @@ std::unique_ptr<GrFragmentProcessor> SkShaderBase::asFragmentProcessor(const GrF
 }
 #endif
 
-sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const {
+sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 
