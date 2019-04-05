@@ -21,7 +21,6 @@
 #include "GrTextureAdjuster.h"
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
-#include "SkClipStack.h"
 #include "SkDraw.h"
 #include "SkGr.h"
 #include "SkImageFilter.h"
@@ -1022,6 +1021,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
+    // TODO: clipImage support.
+
     sk_sp<SkSpecialImage> result;
     if (paint.getImageFilter()) {
         SkIPoint offset = { 0, 0 };
@@ -1045,11 +1046,10 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     const GrPixelConfig config = proxy->config();
 
-    SkMatrix ctm = this->ctm();
-    ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
-
     SkPaint tmpUnfiltered(paint);
     if (tmpUnfiltered.getMaskFilter()) {
+        SkMatrix ctm = this->ctm();
+        ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
         tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithMatrix(ctm));
     }
 
@@ -1071,57 +1071,14 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     }
 
     const SkIRect& subset = result->subset();
-    SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
-    SkRect srcRect = SkRect::Make(subset);
-    if (clipImage) {
-        // Add the image as a simple texture effect applied to coverage. Accessing content outside
-        // of the clip image should behave as if it were a decal (i.e. zero coverage). However, to
-        // limit pixels touched and hardware checks, we draw the clip image geometry to get the
-        // decal effect.
-        GrSamplerState sampler = paint.getFilterQuality() > kNone_SkFilterQuality ?
-                GrSamplerState::ClampBilerp() : GrSamplerState::ClampNearest();
-        sk_sp<GrTextureProxy> clipProxy = as_IB(clipImage)->asTextureProxyRef(this->context(),
-                                                                              sampler, nullptr);
-        // Fold clip matrix into ctm
-        ctm.preConcat(clipMatrix);
-        SkMatrix inverseClipMatrix;
 
-        std::unique_ptr<GrFragmentProcessor> cfp;
-        if (clipProxy && ctm.invert(&inverseClipMatrix)) {
-            cfp = GrSimpleTextureEffect::Make(std::move(clipProxy), inverseClipMatrix, sampler);
-            if (clipImage->colorType() != kAlpha_8_SkColorType) {
-                cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
-            }
-        }
-
-        if (cfp) {
-            // If the grPaint already has coverage, this adds an additional stage that multiples
-            // the image's alpha channel with the prior coverage.
-            grPaint.addCoverageFragmentProcessor(std::move(cfp));
-
-            // Undo the offset that was needed for shader coord transforms to get the transform for
-            // the actual drawn geometry.
-            ctm.postTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            inverseClipMatrix.preTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
-            SkRect clipGeometry = SkRect::MakeWH(clipImage->width(), clipImage->height());
-            if (!clipGeometry.contains(inverseClipMatrix.mapRect(dstRect))) {
-                // Draw the clip geometry since it is smaller, using dstRect as an extra scissor
-                SkClipStack clip(this->cs());
-                clip.clipDevRect(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()),
-                                 SkClipOp::kIntersect);
-                SkMatrix local = SkMatrix::Concat(SkMatrix::MakeRectToRect(
-                        dstRect, srcRect, SkMatrix::kFill_ScaleToFit), ctm);
-                fRenderTargetContext->fillRectWithLocalMatrix(GrClipStackClip(&clip),
-                        std::move(grPaint), GrAA(paint.isAntiAlias()), ctm, clipGeometry, local);
-                return;
-            }
-            // Else fall through and draw the subset since that is contained in the clip geometry
-        }
-        // Else some issue configuring the coverage FP, so just draw without the clip mask image
-    }
-    // Draw directly in screen space, possibly with an extra coverage processor
-    fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint),
-            GrAA(paint.isAntiAlias()), SkMatrix::I(), dstRect, srcRect);
+    fRenderTargetContext->fillRectToRect(
+            this->clip(),
+            std::move(grPaint),
+            GrAA(tmpUnfiltered.isAntiAlias()),
+            SkMatrix::I(),
+            SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height())),
+            SkRect::Make(subset));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
