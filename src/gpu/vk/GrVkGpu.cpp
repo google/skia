@@ -322,6 +322,7 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     if (!fCurrentCmdBuffer->hasWork() && kForce_SyncQueue != sync &&
         !fSemaphoresToSignal.count() && !fSemaphoresToWaitOn.count()) {
         SkASSERT(fDrawables.empty());
+        fResourceProvider.checkCommandBuffers();
         return;
     }
 
