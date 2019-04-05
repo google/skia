@@ -59,10 +59,6 @@
           + grcontext);
       }
 
-      // Bump the default resource cache limit.
-      var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
-      grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
-
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
       var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height);
