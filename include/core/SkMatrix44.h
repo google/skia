@@ -133,7 +133,6 @@ struct SkVector4 {
 
     The SkMatrix44 class holds a 4x4 matrix.
 
-    SkMatrix44 is not thread safe unless you've first called SkMatrix44::getType().
 */
 class SK_API SkMatrix44 {
 public:
@@ -157,21 +156,12 @@ public:
 
     constexpr SkMatrix44() : SkMatrix44{kIdentity_Constructor} {}
 
-    SkMatrix44(const SkMatrix44& src) {
-        memcpy(fMat, src.fMat, sizeof(fMat));
-        fTypeMask.store(src.fTypeMask, std::memory_order_relaxed);
-    }
+    SkMatrix44(const SkMatrix44& src) = default;
+
+    SkMatrix44& operator=(const SkMatrix44& src) = default;
 
     SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
         this->setConcat(a, b);
-    }
-
-    SkMatrix44& operator=(const SkMatrix44& src) {
-        if (&src != this) {
-            memcpy(fMat, src.fMat, sizeof(fMat));
-            fTypeMask.store(src.fTypeMask, std::memory_order_relaxed);
-        }
-        return *this;
     }
 
     bool operator==(const SkMatrix44& other) const;
@@ -196,12 +186,13 @@ public:
      */
     static const SkMatrix44& I();
 
-    enum TypeMask {
-        kIdentity_Mask      = 0,
-        kTranslate_Mask     = 0x01,  //!< set if the matrix has translation
-        kScale_Mask         = 0x02,  //!< set if the matrix has any scale != 1
-        kAffine_Mask        = 0x04,  //!< set if the matrix skews or rotates
-        kPerspective_Mask   = 0x08   //!< set if the matrix is in perspective
+    using TypeMask = uint8_t;
+    enum : TypeMask {
+        kIdentity_Mask = 0,
+        kTranslate_Mask = 1 << 0,    //!< set if the matrix has translation
+        kScale_Mask = 1 << 1,        //!< set if the matrix has any scale != 1
+        kAffine_Mask = 1 << 2,       //!< set if the matrix skews or rotates
+        kPerspective_Mask = 1 << 3,  //!< set if the matrix is in perspective
     };
 
     /**
@@ -211,13 +202,7 @@ public:
      *  other bits may be set to true even in the case of a pure perspective
      *  transform.
      */
-    inline TypeMask getType() const {
-        if (fTypeMask.load(std::memory_order_relaxed) & kUnknown_Mask) {
-            fTypeMask.store(this->computeTypeMask(), std::memory_order_relaxed);
-        }
-        SkASSERT(!(fTypeMask & kUnknown_Mask));
-        return (TypeMask)fTypeMask.load(std::memory_order_relaxed);
-    }
+    inline TypeMask getType() const { return fTypeMask; }
 
     /**
      *  Return true if the matrix is identity.
@@ -276,7 +261,7 @@ public:
         SkASSERT((unsigned)row <= 3);
         SkASSERT((unsigned)col <= 3);
         fMat[col][row] = value;
-        this->dirtyTypeMask();
+        this->recomputeTypeMask();
     }
 
     inline double getDouble(int row, int col) const {
@@ -446,10 +431,8 @@ public:
 
 private:
     /* This is indexed by [col][row]. */
-    SkMScalar                       fMat[4][4];
-    mutable std::atomic<unsigned>   fTypeMask;
-
-    static constexpr int kUnknown_Mask = 0x80;
+    SkMScalar fMat[4][4];
+    TypeMask fTypeMask;
 
     static constexpr int kAllPublic_Masks = 0xF;
 
@@ -468,23 +451,11 @@ private:
     SkMScalar perspY() const { return fMat[1][3]; }
     SkMScalar perspZ() const { return fMat[2][3]; }
 
-    int computeTypeMask() const;
+    void recomputeTypeMask();
 
-    inline void dirtyTypeMask() {
-        fTypeMask.store(kUnknown_Mask, std::memory_order_relaxed);
-    }
-
-    inline void setTypeMask(int mask) {
-        SkASSERT(0 == (~(kAllPublic_Masks | kUnknown_Mask) & mask));
-        fTypeMask.store(mask, std::memory_order_relaxed);
-    }
-
-    /**
-     *  Does not take the time to 'compute' the typemask. Only returns true if
-     *  we already know that this matrix is identity.
-     */
-    inline bool isTriviallyIdentity() const {
-        return 0 == fTypeMask.load(std::memory_order_relaxed);
+    inline void setTypeMask(TypeMask mask) {
+        SkASSERT(0 == (~kAllPublic_Masks & mask));
+        fTypeMask = mask;
     }
 
     inline const SkMScalar* values() const { return &fMat[0][0]; }
