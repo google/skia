@@ -178,12 +178,6 @@ public:
     }
     static void RegisterFlattenables();
 
-    /** DEPRECATED. skbug.com/8941
-     *  If this shader can be represented by another shader + a localMatrix, return that shader and
-     *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
-     */
-    virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
-
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
 
