@@ -319,9 +319,17 @@ GrGpuTextureCommandBuffer* GrVkGpu::getCommandBuffer(GrTexture* texture, GrSurfa
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fCurrentCmdBuffer);
 
+    printf("%d %d %d %d %d\n",
+           fCurrentCmdBuffer->hasWork(),
+           sync,
+           fSemaphoresToSignal.count(),
+           fSemaphoresToWaitOn.count(),
+           fDrawables.count());
     if (!fCurrentCmdBuffer->hasWork() && kForce_SyncQueue != sync &&
         !fSemaphoresToSignal.count() && !fSemaphoresToWaitOn.count()) {
         SkASSERT(fDrawables.empty());
+        fResourceProvider.checkCommandBuffers();
+        printf("Skipping submit\n");
         return;
     }
 
