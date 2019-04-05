@@ -164,6 +164,30 @@
       "revId": "0e249fb47b83eead95c63b165e732c8358149736",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c5906e0_66e9f292",
+        "filename": "experimental/wasm-skp-debugger/helper.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-05T17:33:24Z",
+      "side": 1,
+      "message": "Or simply try calling DebuggerView._free(fileMemPtr) before returning",
+      "parentUuid": "2cc8fe4b_2ad45574",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 20
+      },
+      "revId": "0e249fb47b83eead95c63b165e732c8358149736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
