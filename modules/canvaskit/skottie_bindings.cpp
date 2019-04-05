@@ -87,6 +87,7 @@ public:
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
                             .setResourceProvider(ap)
+                            .setPredecodeImages(true)
                             .make(json.c_str(), json.size());
 
         return animation

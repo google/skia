@@ -332,6 +332,32 @@ AnimationBuilder::loadImageAsset(const skjson::ObjectValue& jimage) const {
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectValue& jimage,
                                                            const LayerInfo& layer_info,
                                                            AnimatorScope* ascope) const {
+    auto decode = [](sk_sp<SkImage> image) {
+        SkASSERT(image->isLazyGenerated());
+
+        static constexpr size_t kMaxArea = 2048 * 2048;
+        const auto image_area = SkToSizeT(image->width() * image->height());
+
+        if (image_area > kMaxArea) {
+            // When the image is too large, decode and scale down to a reasonable size.
+            const auto scale = std::sqrt(static_cast<float>(kMaxArea) / image_area);
+            const auto info  = SkImageInfo::MakeN32Premul(scale * image->width(),
+                                                          scale * image->height());
+            SkBitmap bm;
+            if (bm.tryAllocPixels(info, info.minRowBytes()) &&
+                    image->scalePixels(bm.pixmap(),
+                                       SkFilterQuality::kMedium_SkFilterQuality,
+                                       SkImage::kDisallow_CachingHint)) {
+                image = SkImage::MakeFromBitmap(bm);
+            }
+        } else {
+            // When the image size is OK, just force-decode.
+            image = image->makeRasterImage();
+        }
+
+        return image;
+    };
+
     const auto* asset_info = this->loadImageAsset(jimage);
     if (!asset_info) {
         return nullptr;
@@ -344,10 +370,20 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         return nullptr;
     }
 
+    // Compute the target asset size before decoding, as that may clamp the image dimensions.
+    const auto asset_size = SkISize::Make(
+            asset_info->fSize.width()  > 0 ? asset_info->fSize.width()  : image->width(),
+            asset_info->fSize.height() > 0 ? asset_info->fSize.height() : image->height());
+
+    const auto is_multiframe = asset_info->fAsset->isMultiFrame();
+    if (fPredecode && !is_multiframe && image->isLazyGenerated()) {
+        image = decode(std::move(image));
+    }
+
     auto image_node = sksg::Image::Make(image);
     image_node->setQuality(kMedium_SkFilterQuality);
 
-    if (asset_info->fAsset->isMultiFrame()) {
+    if (is_multiframe) {
         class MultiFrameAnimator final : public sksg::Animator {
         public:
             MultiFrameAnimator(sk_sp<ImageAsset> asset, sk_sp<sksg::Image> image_node,
@@ -373,10 +409,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
                                                                  layer_info.fInPoint,
                                                                  1 / fFrameRate));
     }
-
-    const auto asset_size = SkISize::Make(
-            asset_info->fSize.width()  > 0 ? asset_info->fSize.width()  : image->width(),
-            asset_info->fSize.height() > 0 ? asset_info->fSize.height() : image->height());
 
     if (asset_size == image->bounds().size()) {
         // No resize needed.

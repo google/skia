@@ -164,6 +164,20 @@ public:
         Builder& setMarkerObserver(sk_sp<MarkerObserver>);
 
         /**
+         * Control pre-decoding of compressed images.
+         *
+         * By default, images are decoded on-the-fly, at rasterization time.
+         * Large images may cause jank as decoding is expensive (and can thrash internal caches).
+         *
+         * Pass true to force-decode all images upfront, at the cost of potentially more RAM
+         * and slower animation build times.
+         *
+         * This only affects static/single-frame images.  Multiframe images are never predecoded.
+         */
+        Builder& setPredecodeImages(bool);
+
+
+        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -177,6 +191,7 @@ public:
         sk_sp<Logger>           fLogger;
         sk_sp<MarkerObserver>   fMarkerObserver;
         Stats                   fStats;
+        bool                    fPredecodeimages = false;
     };
 
     /**
