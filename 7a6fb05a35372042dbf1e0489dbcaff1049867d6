@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "191bbc82_a20b9388",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-05T14:59:04Z",
+      "side": 1,
+      "message": "Are these guys not enough?\n\n  SK_DISABLE_READBUFFER\n  SK_DISABLE_EFFECT_DESERIALIZATION\n\nThat\u0027s what we use in Flutter already.",
+      "revId": "7a6fb05a35372042dbf1e0489dbcaff1049867d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
