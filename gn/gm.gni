@@ -309,6 +309,7 @@ gm_sources = [
   "$_gm/skbug_4868.cpp",
   "$_gm/skbug_5321.cpp",
   "$_gm/skbug_8664.cpp",
+  "$_gm/skbug_8955.cpp",
   "$_gm/skbug1719.cpp",
   "$_gm/skinning.cpp",
   "$_gm/smallarc.cpp",
