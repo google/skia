@@ -3,6 +3,7 @@
 
 #include "CommandLineFlags.h"
 #include "CommonFlags.h"
+#include "DMJsonWriter.h"
 #include "EventTracingPriv.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
@@ -63,7 +64,7 @@ static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimiza
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
 
 static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
-static DEFINE_string(parameters, "", "Metadata passed through to .png encoder and .json output.");
+static DEFINE_string(properties, "", "Metadata passed through to .png encoder and .json output.");
 
 template <typename T>
 struct FlagOption {
@@ -95,7 +96,9 @@ static void exit_with_failure() {
 }
 
 struct Source {
+    const char*                            type;
     SkString                               name;
+    SkString                               options;
     SkISize                                size;
     std::function<void(GrContextOptions*)> tweak;
     std::function<bool(SkCanvas*)>         draw;  // true -> ok, false -> skip;
@@ -104,7 +107,9 @@ struct Source {
 
 static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
     return {
+        "gm",
         SkString{gm->getName()},
+        SkString{},
         gm->getISize(),
         [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
         [gm](SkCanvas* canvas) {
@@ -123,7 +128,9 @@ static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
 
 static Source picture_source(SkString name, sk_sp<SkPicture> pic) {
     return {
+        "picture",
         name,
+        SkString{},
         pic->cullRect().roundOut().size(),
         [](GrContextOptions*) {},
         [pic](SkCanvas* canvas) {
@@ -135,7 +142,9 @@ static Source picture_source(SkString name, sk_sp<SkPicture> pic) {
 
 static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
     return {
+        "codec",
         name,
+        FLAGS_decodeToDst ? SkString{"decodeToDst"} : SkString{},
         codec->dimensions(),
         [](GrContextOptions*) {},
         [codec](SkCanvas* canvas) {
@@ -165,7 +174,9 @@ static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
 
 static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
     return {
+        "svg",
         name,
+        SkString{},
         svg->containerSize().isEmpty() ? SkISize{1000,1000}
                                        : svg->containerSize().toCeil(),
         [](GrContextOptions*) {},
@@ -178,7 +189,9 @@ static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
 
 static Source skottie_source(SkString name, sk_sp<skottie::Animation> animation) {
     return {
+        "skottie",
         name,
+        SkString{},
         {1000,1000},
         [](GrContextOptions*) {},
         [animation](SkCanvas* canvas) {
@@ -557,7 +570,7 @@ int main(int argc, char** argv) {
 
             if (image) {
                 if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
-                                              FLAGS_key, FLAGS_parameters)) {
+                                              FLAGS_key, FLAGS_properties)) {
                     fprintf(stderr, "Could not write to %s.\n", path.c_str());
                     exit_with_failure();
                 }
@@ -565,6 +578,37 @@ int main(int argc, char** argv) {
                 SkFILEWStream file(path.c_str());
                 file.write(blob->data(), blob->size());
             }
+
+            auto color_depth = [](SkColorType ct) {
+                switch (ct) {
+                    case kUnknown_SkColorType: break;
+                    case kAlpha_8_SkColorType:      return "A8";
+                    case kRGB_565_SkColorType:      return "565";
+                    case kARGB_4444_SkColorType:    return "4444";
+                    case kRGBA_8888_SkColorType:    return "8888";
+                    case kRGB_888x_SkColorType:     return "888";
+                    case kBGRA_8888_SkColorType:    return "8888";
+                    case kRGBA_1010102_SkColorType: return "1010102";
+                    case kRGB_101010x_SkColorType:  return "101010";
+                    case kGray_8_SkColorType:       return "G8";
+                    case kRGBA_F16Norm_SkColorType: return "F16Norm";  // TODO: "F16"?
+                    case kRGBA_F16_SkColorType:     return "F16";
+                    case kRGBA_F32_SkColorType:     return "F32";
+                }
+                return "Unknown";
+            };
+            DM::JsonWriter::AddBitmapResult({source.name,
+                                             SkString{"fm"},
+                                             SkString{source.type},
+                                             source.options,
+                                             md5,
+                                             SkString{ext},
+                                             SkString{FLAGS_gamut[0]},
+                                             SkString{FLAGS_tf[0]},
+                                             SkString{FLAGS_ct[0]},
+                                             SkString{FLAGS_at[0]},
+                                             SkString{color_depth(ct)}});
+            DM::JsonWriter::DumpJson(FLAGS_writePath[0], FLAGS_key, FLAGS_properties);
         }
 
         const auto elapsed = std::chrono::steady_clock::now() - start;

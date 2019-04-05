@@ -10,7 +10,10 @@
 
 #include "CommandLineFlags.h"
 #include "SkString.h"
-#include "Test.h"
+
+namespace skiatest {
+    struct Failure;
+}
 
 namespace DM {
 
