@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3900f8ff_83e544ad",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-05T16:38:53Z",
+      "side": 1,
+      "message": "Aww man this is dumb, but some of our bots are building with a standard C++ library that actually predates the full C++11 standard a bit, and is_trivially_copyable is one of the things they either got into the standard or changed the name of real late in the process.\n\nElsewhere we want to do this, we compromise and just make sure the asserts exist on _some_ platform we\u0027re testing, e.g. this snippet from include/gpu/gl/GrGLFunctions.h:\n\n  #if defined(__APPLE__)  // I am having serious trouble getting these to work with all STLs...\n        static_assert(std::is_trivially_copyable\u003cClosure\u003e::value, \"\");\n        static_assert(std::is_trivially_destructible\u003cClosure\u003e::value, \"\");\n  #endif",
+      "revId": "fd0037ff2442779366ff190a3c4562152203cbbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
