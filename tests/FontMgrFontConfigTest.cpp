@@ -30,13 +30,30 @@ static bool bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
 
 DEF_TEST(FontMgrFontConfig, reporter) {
     FcConfig* config = FcConfigCreate();
-    SkString distortablePath = GetResourcePath("fonts/Distortable.ttf");
-    FcConfigAppFontAddFile(
-        config, reinterpret_cast<const FcChar8*>(distortablePath.c_str()));
+
+    // When sysroot was implemented in e96d7760886a3781a46b3271c76af99e15cb0146 (before 2.11.0) it
+    // was broken but mostly fixed with d17f556153fbaf8fe57fdb4fc1f0efa4313f0ecf (after 2.11.1).
+    // This leaves Debian 8 and 9 with broken support for this feature.
+    // As a result, this feature should not be used until at least 2.11.91.
+    if (FcGetVersion() < 21191) {
+        SkString distortablePath = GetResourcePath("fonts/Distortable.ttf");
+        FcConfigAppFontAddFile(config, reinterpret_cast<const FcChar8*>(distortablePath.c_str()));
+    } else {
+        // FontConfig may modify the passed path (make absolute or other).
+        FcConfigSetSysRoot(config, reinterpret_cast<const FcChar8*>(GetResourcePath("").c_str()));
+        // FontConfig will lexically compare paths against its version of the sysroot.
+        SkString distortablePath(reinterpret_cast<const char*>(FcConfigGetSysRoot(config)));
+        distortablePath += "/fonts/Distortable.ttf";
+        FcConfigAppFontAddFile(config, reinterpret_cast<const FcChar8*>(distortablePath.c_str()));
+    }
     FcConfigBuildFonts(config);
 
     sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config));
     sk_sp<SkTypeface> typeface(fontMgr->legacyMakeTypeface("Distortable", SkFontStyle()));
+    if (!typeface) {
+        ERRORF(reporter, "Could not find typeface. FcVersion: %d", FcGetVersion());
+        return;
+    }
 
     SkBitmap bitmapStream;
     bitmapStream.allocN32Pixels(64, 64);
