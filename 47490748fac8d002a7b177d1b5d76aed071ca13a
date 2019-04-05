@@ -16,6 +16,29 @@
       "revId": "47490748fac8d002a7b177d1b5d76aed071ca13a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77cde0cd_1e1d6852",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-05T15:48:58Z",
+      "side": 1,
+      "message": "Comment:\nprocessDeviceMask must be called even if there are no glyphs to make sure runs are set correctly.",
+      "range": {
+        "startLine": 567,
+        "startChar": 16,
+        "endLine": 567,
+        "endChar": 44
+      },
+      "revId": "47490748fac8d002a7b177d1b5d76aed071ca13a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
