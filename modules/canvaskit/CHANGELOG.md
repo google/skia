@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    a set of transforms, color blends, etc.
  - `SkColorBuilder`, `RSXFormBuilder`, `SkRectBuilder` which increase performance by
    reducing the amount of malloc/free calls per frame, given that the array size is fixed.
+ - Basic `SkPicture` support. `SkSurface.captureFrameAsSkPicture` is a helper function to
+   capture an `SkPicture`, which can be dumped to disk (for debugging) with
+   `SkPicture.DEBUGONLY_saveAsFile`.
 
 ### Changed
  - Better `GrGLCaps` support for WebGL - this shouldn't have any impacts on APIs or
