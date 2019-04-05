@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5ca75276_07bd97ef",
+        "filename": "include/core/SkMatrix44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "Good, thanks - I deleted the thread-safe part of the comment. I was wondering how it could be thread-safe since there is no synchronization on fMat, but I figured I was missing something magic.",
+      "parentUuid": "1564bf7c_b64de593",
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de9d7992_cf47aab6",
         "filename": "include/core/SkMatrix44.h",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "cee25efe_27ff71d5",
+        "filename": "include/core/SkMatrix44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de9d7992_cf47aab6",
+      "range": {
+        "startLine": 434,
+        "startChar": 4,
+        "endLine": 434,
+        "endChar": 12
+      },
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e3676ad_248d6d6c",
         "filename": "include/core/SkMatrix44.h",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "470036c1_8b17d997",
+        "filename": "include/core/SkMatrix44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "Yes, definitely. I was thinking that myself, I\u0027m glad you mentioned it. Done.",
+      "parentUuid": "4e3676ad_248d6d6c",
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "6ab12ddb_3b1f0ca7",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "005bf8ff_5dffb168",
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0054324_9f044ef8",
         "filename": "src/core/SkMatrix44.cpp",
         "patchSetId": 1
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "84971560_ae98f8ce",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "Let me know if you like the new comment.",
+      "parentUuid": "d0054324_9f044ef8",
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b2450b8_25c83342",
         "filename": "src/core/SkMatrix44.cpp",
         "patchSetId": 1
@@ -107,6 +203,24 @@
       "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "340acc55_c8d0450f",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "It must be (close to) true to within a few LSBs, right? Anyway, I\u0027ll let you ponder it.",
+      "parentUuid": "9b2450b8_25c83342",
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -130,6 +244,30 @@
       "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35db654f_8fb37734",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 8932
+      },
+      "writtenOn": "2019-04-05T16:13:48Z",
+      "side": 1,
+      "message": "No problem, done. I come from blink, where the mantra is \"early out, early out, early out\".",
+      "parentUuid": "5bd62aad_87fc502a",
+      "range": {
+        "startLine": 698,
+        "startChar": 3,
+        "endLine": 706,
+        "endChar": 30
+      },
+      "revId": "dde6f3e8391dbe3bc3fcade8c419efe7b3a5e9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
