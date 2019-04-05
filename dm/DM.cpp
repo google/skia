@@ -816,6 +816,7 @@ template <typename T>
 void gather_file_srcs(const CommandLineFlags::StringArray& flags,
                       const char*                          ext,
                       const char*                          src_name = nullptr) {
+    return;
     if (!src_name) {
         // With the exception of Lottie files, the source name is the extension.
         src_name = ext;
@@ -836,6 +837,7 @@ void gather_file_srcs(const CommandLineFlags::StringArray& flags,
 
 static bool gather_srcs() {
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
+        break;
         push_src("gm", "", new GMSrc(f));
     }
 
