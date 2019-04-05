@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55531d6d_f10164a5",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-05T15:27:05Z",
+      "side": 1,
+      "message": "maybe add skia:8929 here?",
+      "revId": "d33ccda6f3bba5761e1da7b0a0506c60e0beb85c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
