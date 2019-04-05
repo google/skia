@@ -32,7 +32,7 @@ class SkData;
 
 // FC_POSTSCRIPT_NAME was added with b561ff20 which ended up in 2.10.92
 // Ubuntu 14.04 is on 2.11.0
-// Debian 8 is on 2.11
+// Debian 8 and 9 are on 2.11
 // OpenSUSE Leap 42.1 is on 2.11.0 (42.3 is on 2.11.1)
 // Fedora 24 is on 2.11.94
 #ifndef FC_POSTSCRIPT_NAME
@@ -463,10 +463,12 @@ private:
 
 class SkTypeface_fontconfig : public SkTypeface_FreeType {
 public:
-    static sk_sp<SkTypeface_fontconfig> Make(SkAutoFcPattern pattern) {
-        return sk_sp<SkTypeface_fontconfig>(new SkTypeface_fontconfig(std::move(pattern)));
+    static sk_sp<SkTypeface_fontconfig> Make(SkAutoFcPattern pattern, SkString sysroot) {
+        return sk_sp<SkTypeface_fontconfig>(new SkTypeface_fontconfig(std::move(pattern),
+                                                                      std::move(sysroot)));
     }
-    mutable SkAutoFcPattern fPattern;
+    mutable SkAutoFcPattern fPattern;  // Mutable for passing to FontConfig API.
+    const SkString fSysroot;
 
     void onGetFamilyName(SkString* familyName) const override {
         *familyName = get_string(fPattern, FC_FAMILY);
@@ -484,7 +486,17 @@ public:
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
         FCLocker lock;
         *ttcIndex = get_int(fPattern, FC_INDEX, 0);
-        return SkStream::MakeFromFile(get_string(fPattern, FC_FILE));
+        const char* filename = get_string(fPattern, FC_FILE);
+        // See FontAccessible for note on searching sysroot then non-sysroot path.
+        SkString resolvedFilename;
+        if (!fSysroot.isEmpty()) {
+            resolvedFilename = fSysroot;
+            resolvedFilename += filename;
+            if (sk_exists(resolvedFilename.c_str(), kRead_SkFILE_Flag)) {
+                filename = resolvedFilename.c_str();
+            }
+        }
+        return SkStream::MakeFromFile(filename);
     }
 
     void onFilterRec(SkScalerContextRec* rec) const override {
@@ -550,19 +562,21 @@ public:
     }
 
 private:
-    SkTypeface_fontconfig(SkAutoFcPattern pattern)
+    SkTypeface_fontconfig(SkAutoFcPattern pattern, SkString sysroot)
         : INHERITED(skfontstyle_from_fcpattern(pattern),
                     FC_PROPORTIONAL != get_int(pattern, FC_SPACING, FC_PROPORTIONAL))
         , fPattern(std::move(pattern))
+        , fSysroot(std::move(sysroot))
     { }
 
     typedef SkTypeface_FreeType INHERITED;
 };
 
 class SkFontMgr_fontconfig : public SkFontMgr {
-    mutable SkAutoFcConfig fFC;
-    sk_sp<SkDataTable> fFamilyNames;
-    SkTypeface_FreeType::Scanner fScanner;
+    mutable SkAutoFcConfig fFC;  // Only mutable to avoid const cast when passed to FontConfig API.
+    const SkString fSysroot;
+    const sk_sp<SkDataTable> fFamilyNames;
+    const SkTypeface_FreeType::Scanner fScanner;
 
     class StyleSet : public SkFontStyleSet {
     public:
@@ -689,7 +703,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         sk_sp<SkTypeface> face = fTFCache.findByProcAndRef(FindByFcPattern, pattern);
         if (!face) {
             FcPatternReference(pattern);
-            face = SkTypeface_fontconfig::Make(SkAutoFcPattern(pattern));
+            face = SkTypeface_fontconfig::Make(SkAutoFcPattern(pattern), fSysroot);
             if (face) {
                 // Cannot hold the lock when calling add; an evicted typeface may need to lock.
                 FCLocker::Suspend suspend;
@@ -703,6 +717,7 @@ public:
     /** Takes control of the reference to 'config'. */
     explicit SkFontMgr_fontconfig(FcConfig* config)
         : fFC(config ? config : FcInitLoadConfigAndFonts())
+        , fSysroot(reinterpret_cast<const char*>(FcConfigGetSysRoot(fFC)))
         , fFamilyNames(GetFamilyNames(fFC)) { }
 
     ~SkFontMgr_fontconfig() override {
@@ -758,11 +773,29 @@ protected:
         return false;
     }
 
-    static bool FontAccessible(FcPattern* font) {
+    bool FontAccessible(FcPattern* font) const {
         // FontConfig can return fonts which are unreadable.
         const char* filename = get_string(font, FC_FILE, nullptr);
         if (nullptr == filename) {
             return false;
+        }
+
+        // When sysroot was implemented in e96d7760886a3781a46b3271c76af99e15cb0146 (before 2.11.0)
+        // it was broken;  mostly fixed in d17f556153fbaf8fe57fdb4fc1f0efa4313f0ecf (after 2.11.1).
+        // This leaves Debian 8 and 9 with broken support for this feature.
+        // As a result, this feature should not be used until at least 2.11.91.
+        // The broken support is mostly around not making all paths relative to the sysroot.
+        // However, even at 2.13.1 it is possible to get a mix of sysroot and non-sysroot paths,
+        // as any added file path not lexically starting with the sysroot will be unchanged.
+        // To allow users to add local app files outside the sysroot,
+        // prefer the sysroot but also look without the sysroot.
+        if (!fSysroot.isEmpty()) {
+            SkString resolvedFilename;
+            resolvedFilename = fSysroot;
+            resolvedFilename += filename;
+            if (sk_exists(resolvedFilename.c_str(), kRead_SkFILE_Flag)) {
+                return true;
+            }
         }
         return sk_exists(filename, kRead_SkFILE_Flag);
     }

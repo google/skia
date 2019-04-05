@@ -30,13 +30,22 @@ static bool bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
 
 DEF_TEST(FontMgrFontConfig, reporter) {
     FcConfig* config = FcConfigCreate();
-    SkString distortablePath = GetResourcePath("fonts/Distortable.ttf");
-    FcConfigAppFontAddFile(
-        config, reinterpret_cast<const FcChar8*>(distortablePath.c_str()));
+
+    // FontConfig may modify the passed path (make absolute or other).
+    FcConfigSetSysRoot(config, reinterpret_cast<const FcChar8*>(GetResourcePath("").c_str()));
+    // FontConfig will lexically compare paths against its version of the sysroot.
+    SkString distortablePath(reinterpret_cast<const char*>(FcConfigGetSysRoot(config)));
+    distortablePath += "/fonts/Distortable.ttf";
+    FcConfigAppFontAddFile(config, reinterpret_cast<const FcChar8*>(distortablePath.c_str()));
+
     FcConfigBuildFonts(config);
 
     sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config));
     sk_sp<SkTypeface> typeface(fontMgr->legacyMakeTypeface("Distortable", SkFontStyle()));
+    if (!typeface) {
+        ERRORF(reporter, "Could not find typeface. FcVersion: %d", FcGetVersion());
+        return;
+    }
 
     SkBitmap bitmapStream;
     bitmapStream.allocN32Pixels(64, 64);
