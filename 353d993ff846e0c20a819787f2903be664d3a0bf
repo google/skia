@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "186caa8b_c5cba51e",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-05T15:26:22Z",
+      "side": 1,
+      "message": "I find it helps to call things pictures or SkPictures, or .skp files, pronounced dot es kay pee.",
+      "revId": "353d993ff846e0c20a819787f2903be664d3a0bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
