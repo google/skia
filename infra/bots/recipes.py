@@ -100,6 +100,20 @@ def parse(repo_root, recipes_cfg_path):
 _BAT = '.bat' if sys.platform.startswith(('win', 'cygwin')) else ''
 GIT = 'git' + _BAT
 VPYTHON = 'vpython' + _BAT
+CIPD = 'cipd' + _BAT
+REQUIRED_BINARIES = {GIT, VPYTHON, CIPD}
+
+
+def _is_executable(path):
+  return os.path.isfile(path) and os.access(path, os.X_OK)
+
+# TODO: Use shutil.which once we switch to Python3.
+def _is_on_path(basename):
+  for path in os.environ['PATH'].split(os.pathsep):
+    full_path = os.path.join(path, basename)
+    if _is_executable(full_path):
+      return True
+  return False
 
 
 def _subprocess_call(argv, **kwargs):
@@ -179,6 +193,10 @@ def checkout_engine(engine_path, repo_root, recipes_cfg_path):
 
 
 def main():
+  for required_binary in REQUIRED_BINARIES:
+    if not _is_on_path(required_binary):
+      return 'Required binary is not found on PATH: %s' % required_binary
+
   if '--verbose' in sys.argv:
     logging.getLogger().setLevel(logging.INFO)
 
