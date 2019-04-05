@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e858f2d_c8639e13",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-05T17:47:04Z",
+      "side": 1,
+      "message": "we could draw w/o the clipImage",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "263e92b5_d022a42f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-05T17:47:04Z",
+      "side": 1,
+      "message": "// If the grPaint already has a coverage FP the coverages will combine ...\n\n?\n\nAlso do we have a GM for that case?",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4380d68_f940d602",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-05T17:47:04Z",
+      "side": 1,
+      "message": "Do we have a GM that tests this path ?",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "990575a3_bf5b62fb",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-05T17:47:04Z",
+      "side": 1,
+      "message": "move over ?",
+      "revId": "8188a98655b44fcd063967e3041b33a98272c257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
