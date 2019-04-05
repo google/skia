@@ -16,6 +16,24 @@
       "revId": "7a6fb05a35372042dbf1e0489dbcaff1049867d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "977656eb_f51b08d7",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1012,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-05T15:15:18Z",
+      "side": 1,
+      "message": "I blindly put that in w/o testing.  Turns out, emscripten is being smart about this case. I\u0027ll undo this ifdeffing.",
+      "parentUuid": "191bbc82_a20b9388",
+      "revId": "7a6fb05a35372042dbf1e0489dbcaff1049867d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
