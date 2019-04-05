@@ -136,6 +136,11 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     if (SyncQueue::kForce_SyncQueue == sync) {
         [fCmdBuffer waitUntilCompleted];
     }
+    if (MTLCommandBufferStatusError == fCmdBuffer.status) {
+        NSString* description = fCmdBuffer.error.localizedDescription;
+        const char* errorString = [description UTF8String];
+        SkDebugf("Error submitting command buffer: %s\n", errorString);
+    }
     fCmdBuffer = nil;
 }
 
@@ -269,6 +274,10 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         layerHeight = currentHeight;
     }
     [blitCmdEncoder endEncoding];
+#ifdef SK_BUILD_FOR_MAC
+    // for Managed resources, need to tell driver to sync CPU and GPU copies
+    [transferBuffer didModifyRange: NSMakeRange(0, combinedBufferSize)];
+#endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
         tex->texturePriv().markMipMapsDirty();
@@ -612,17 +621,16 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
     desc.usage |= renderable ? MTLTextureUsageRenderTarget : 0;
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
 
-    SkAutoTMalloc<char> srcBuffer;
     size_t bpp = GrColorTypeBytesPerPixel(colorType);
-    size_t bufferSize = w * h * bpp;
-    if (!srcData) {
-        srcBuffer.reset(bufferSize);
-        memset(srcBuffer, 0, bufferSize);
-        srcData = srcBuffer;
+    if (!srcRowBytes) {
         srcRowBytes = w * bpp;
+#ifdef SK_BUILD_FOR_MAC
+        // On MacOS, the fillBuffer command needs a range with a multiple of 4 bytes
+        srcRowBytes = ((srcRowBytes + 3) & (~3));
+#endif
     }
-    SkASSERT(srcData);
-    NSUInteger options = 0;
+    size_t bufferSize = srcRowBytes * h;
+    NSUInteger options = 0;  // TODO: consider other options here
 #ifdef SK_BUILD_FOR_MAC
     options |= MTLResourceStorageModeManaged;
 #else
@@ -630,31 +638,35 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrColorType colorType, int w, int
 #endif
 
     // TODO: Create GrMtlTransferBuffer
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: bufferSize
-                                                        options: options];
+    id<MTLBuffer> transferBuffer;
+    if (srcData) {
+        transferBuffer = [fDevice newBufferWithBytes: srcData
+                                              length: bufferSize
+                                             options: options];
+    } else {
+        transferBuffer = [fDevice newBufferWithLength: bufferSize
+                                             options: options];
+    }
     if (nil == transferBuffer) {
         return false;
     }
-    char* buffer = (char*) transferBuffer.contents;
-    size_t trimRowBytes = w * bpp;
-    if (!srcRowBytes) {
-        srcRowBytes = trimRowBytes;
-    }
-    SkRectMemcpy(buffer, trimRowBytes, srcData, srcRowBytes, trimRowBytes, h);
-
-    MTLOrigin origin = MTLOriginMake(0, 0, 0);
 
     id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
+    if (!srcData) {
+        [blitCmdEncoder fillBuffer: transferBuffer
+                             range: NSMakeRange(0, bufferSize)
+                             value: 0];
+    }
     [blitCmdEncoder copyFromBuffer: transferBuffer
                       sourceOffset: 0
-                 sourceBytesPerRow: trimRowBytes
-               sourceBytesPerImage: trimRowBytes*h
+                 sourceBytesPerRow: srcRowBytes
+               sourceBytesPerImage: bufferSize
                         sourceSize: MTLSizeMake(w, h, 1)
                          toTexture: testTexture
                   destinationSlice: 0
                   destinationLevel: 0
-                 destinationOrigin: origin];
+                 destinationOrigin: MTLOriginMake(0, 0, 0)];
     [blitCmdEncoder endEncoding];
     [cmdBuffer commit];
     [cmdBuffer waitUntilCompleted];
@@ -946,15 +958,21 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     SK_BEGIN_AUTORELEASE_BLOCK
     bool doResolve = get_surface_sample_cnt(surface) > 1;
     id<MTLTexture> mtlTexture = GrGetMTLTextureFromSurface(surface, doResolve);
-    if (!mtlTexture) {
+    if (!mtlTexture || [mtlTexture isFramebufferOnly]) {
         return false;
     }
 
     size_t transBufferImageBytes = transBufferRowBytes * height;
 
     // TODO: implement some way of reusing buffers instead of making a new one every time.
+    NSUInteger options = 0;
+#ifdef SK_BUILD_FOR_MAC
+    options |= MTLResourceStorageModeManaged;
+#else
+    options |= MTLResourceStorageModeShared;
+#endif
     transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
-                                                        options: MTLResourceStorageModeShared];
+                                                        options: options];
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
     [blitCmdEncoder copyFromTexture: mtlTexture
@@ -966,6 +984,10 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                   destinationOffset: 0
              destinationBytesPerRow: transBufferRowBytes
            destinationBytesPerImage: transBufferImageBytes];
+#ifdef SK_BUILD_FOR_MAC
+    // Sync GPU data back to the CPU
+    [blitCmdEncoder synchronizeResource: transferBuffer];
+#endif
     [blitCmdEncoder endEncoding];
     SK_END_AUTORELEASE_BLOCK
 
@@ -973,6 +995,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     const void* mappedMemory = transferBuffer.contents;
 
     SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+
     return true;
 
 }
