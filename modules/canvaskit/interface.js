@@ -566,6 +566,34 @@ CanvasKit.onRuntimeInitialized = function() {
     return font;
   }
 
+  // The serialized format of an SkPicture (informally called an "skp"), is not something
+  // that clients should ever rely on. It is useful when filing bug reports, but that's
+  // about it. The format may change at anytime and no promises are made for backwards
+  // or forward compatibility.
+  CanvasKit.SkPicture.prototype.DEBUGONLY_saveAsFile = function(skpName) {
+    var data = this.DEBUGONLY_serialize();
+    if (!data) {
+      SkDebug('Could not serialize to skpicture.');
+      return;
+    }
+    var bytes = CanvasKit.getSkDataBytes(data);
+    saveBytesToFile(bytes, skpName);
+    data.delete();
+  }
+
+  CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
+    // Set up SkPictureRecorder
+    var spr = new CanvasKit.SkPictureRecorder();
+    var canvas = spr.beginRecording(
+                    CanvasKit.LTRBRect(0, 0, this.width(), this.height()));
+    drawFrame(canvas);
+    var pic = spr.finishRecordingAsPicture();
+    spr.delete();
+    // TODO: do we need to clean up the memory for canvas?
+    // If we delete it here, saveAsFile doesn't work correctly.
+    return pic;
+  }
+
   CanvasKit.SkSurface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
@@ -744,23 +772,6 @@ CanvasKit.MakeImageFromEncoded = function(data) {
     return null;
   }
   return img;
-}
-
-// imgData is an SkImage, e.g. from MakeImageFromEncoded or SkSurface.makeImageSnapshot
-CanvasKit.MakeImageShader = function(img, xTileMode, yTileMode, clampUnpremul, localMatrix) {
-  if (!img) {
-    return null;
-  }
-  clampUnpremul = clampUnpremul || false;
-  if (localMatrix) {
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
-    return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul, localMatrix);
-  } else {
-    return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul);
-  }
 }
 
 // pixels is a Uint8Array

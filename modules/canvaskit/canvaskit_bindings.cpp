@@ -30,6 +30,8 @@
 #include "SkPathEffect.h"
 #include "SkPathMeasure.h"
 #include "SkPathOps.h"
+#include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkScalar.h"
 #include "SkShader.h"
 #include "SkShadowUtils.h"
@@ -782,6 +784,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawOval", &SkCanvas::drawOval)
         .function("drawPaint", &SkCanvas::drawPaint)
         .function("drawPath", &SkCanvas::drawPath)
+        // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
+        // a bitmap. An SkPicture is a series of draw commands.
+        .function("drawPicture",  select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))
         .function("drawRect", &SkCanvas::drawRect)
         .function("drawRoundRect", &SkCanvas::drawRoundRect)
         .function("drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
@@ -1028,6 +1033,29 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("isClosed", &SkPathMeasure::isClosed)
         .function("nextContour", &SkPathMeasure::nextContour);
+
+    class_<SkPictureRecorder>("SkPictureRecorder")
+        .constructor<>()
+        .function("beginRecording", optional_override([](SkPictureRecorder& self,
+                                                         const SkRect& bounds) -> SkCanvas* {
+            return self.beginRecording(bounds, nullptr, 0);
+        }), allow_raw_pointers())
+        .function("finishRecordingAsPicture", optional_override([](SkPictureRecorder& self)
+                                                                   -> sk_sp<SkPicture> {
+            return self.finishRecordingAsPicture(0);
+        }), allow_raw_pointers());
+
+    class_<SkPicture>("SkPicture")
+        .smart_ptr<sk_sp<SkPicture>>("sk_sp<SkPicture>")
+        // The serialized format of an SkPicture (informally called an "skp"), is not something
+        // that clients should ever rely on. It is useful when filing bug reports, but that's
+        // about it. The format may change at anytime and no promises are made for backwards
+        // or forward compatibility.
+        .function("DEBUGONLY_serialize", optional_override([](SkPicture& self) -> sk_sp<SkData> {
+            // Emscripten doesn't play well with optional arguments, which we don't
+            // want to expose anyway.
+            return self.serialize();
+        }), allow_raw_pointers());
 
     class_<SkShader>("SkShader")
         .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>");

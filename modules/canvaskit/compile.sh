@@ -177,7 +177,7 @@ echo "Compiling bitcode"
   skia_enable_skshaper=true \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
-  skia_enable_skpicture=false \
+  skia_enable_skpicture=true \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 

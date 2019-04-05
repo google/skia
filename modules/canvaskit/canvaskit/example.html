@@ -1257,7 +1257,18 @@
       dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
 
       canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
-      surface.requestAnimationFrame(drawFrame);
+
+      // Skip drawing the 17th frame to the screen, and instead draw it to
+      // an SkPicture - a format which can be useful for debugging.
+      // The C++ version of Skia can open a SKP created by the WASM version,
+      // which can aid performance diagnosis.
+      //if (i === 17) {
+      //   const pic = surface.captureFrameAsSkPicture(drawFrame, "frame17.skp");
+      //   pic.DEBUGONLY_saveAsFile("frame17.skp");
+      //   pic.delete();
+      // } else {
+        surface.requestAnimationFrame(drawFrame);
+       // }
     }
     surface.requestAnimationFrame(drawFrame);
 
