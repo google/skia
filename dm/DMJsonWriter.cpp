@@ -16,6 +16,7 @@
 #include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkTArray.h"
+#include "Test.h"
 
 namespace DM {
 

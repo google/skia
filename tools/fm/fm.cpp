@@ -3,6 +3,7 @@
 
 #include "CommandLineFlags.h"
 #include "CommonFlags.h"
+#include "DMJsonWriter.h"
 #include "EventTracingPriv.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
@@ -63,7 +64,7 @@ static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimiza
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
 
 static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
-static DEFINE_string(parameters, "", "Metadata passed through to .png encoder and .json output.");
+static DEFINE_string(properties, "", "Metadata passed through to .png encoder and .json output.");
 
 template <typename T>
 struct FlagOption {
@@ -96,117 +97,106 @@ static void exit_with_failure() {
 
 struct Source {
     SkString                               name;
+    const char*                            type;
     SkISize                                size;
-    std::function<void(GrContextOptions*)> tweak;
+    SkString                               options;
+    std::function<void(GrContextOptions*)> tweak = [](GrContextOptions*){};
     std::function<bool(SkCanvas*)>         draw;  // true -> ok, false -> skip;
                                                   // failures should exit_with_failure()
 };
 
-static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
-    return {
-        SkString{gm->getName()},
-        gm->getISize(),
-        [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
-        [gm](SkCanvas* canvas) {
-            SkString err;
-            switch (gm->draw(canvas, &err)) {
-                case skiagm::DrawResult::kOk:   return true;
-                case skiagm::DrawResult::kSkip: break;
-                case skiagm::DrawResult::kFail:
-                    fprintf(stderr, "Drawing GM %s failed: %s\n", gm->getName(), err.c_str());
-                    exit_with_failure();
-            }
-            return false;
-        },
+static void gm_source(std::shared_ptr<skiagm::GM> gm, Source* source) {
+    source->type  = "gm";
+    source->size  = gm->getISize();
+    source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
+    source->draw  = [gm](SkCanvas* canvas) {
+        SkString err;
+        switch (gm->draw(canvas, &err)) {
+            case skiagm::DrawResult::kOk:   return true;
+            case skiagm::DrawResult::kSkip: break;
+            case skiagm::DrawResult::kFail:
+                fprintf(stderr, "Drawing GM %s failed: %s\n", gm->getName(), err.c_str());
+                exit_with_failure();
+        }
+        return false;
     };
 }
 
-static Source picture_source(SkString name, sk_sp<SkPicture> pic) {
-    return {
-        name,
-        pic->cullRect().roundOut().size(),
-        [](GrContextOptions*) {},
-        [pic](SkCanvas* canvas) {
-            canvas->drawPicture(pic);
-            return true;
-        },
+static void picture_source(sk_sp<SkPicture> pic, Source* source) {
+    source->type = "picture";
+    source->size = pic->cullRect().roundOut().size();
+    source->draw = [pic](SkCanvas* canvas) {
+        canvas->drawPicture(pic);
+        return true;
     };
 }
 
-static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
-    return {
-        name,
-        codec->dimensions(),
-        [](GrContextOptions*) {},
-        [codec](SkCanvas* canvas) {
-            SkImageInfo info = codec->getInfo();
-            if (FLAGS_decodeToDst) {
-                info = canvas->imageInfo().makeWH(info.width(),
-                                                  info.height());
-            }
+static void codec_source(std::shared_ptr<SkCodec> codec, Source* source) {
+    source->type    = "codec";
+    source->size    = codec->dimensions();
+    source->options = FLAGS_decodeToDst ? SkString{"decodeToDst"} : SkString{};
+    source->draw    = [codec](SkCanvas* canvas) {
+        SkImageInfo info = codec->getInfo();
+        if (FLAGS_decodeToDst) {
+            info = canvas->imageInfo().makeWH(info.width(),
+                                              info.height());
+        }
 
-            SkBitmap bm;
-            bm.allocPixels(info);
+        SkBitmap bm;
+        bm.allocPixels(info);
 
-            switch (auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes())) {
-                case SkCodec::kSuccess:
-                case SkCodec::kErrorInInput:
-                case SkCodec::kIncompleteInput:
-                    canvas->drawBitmap(bm, 0,0);
-                    return true;
-                default:
-                    fprintf(stderr, "SkCodec::getPixels failed: %d.", result);
-                    exit_with_failure();
-            }
-            return false;
-        },
+        switch (auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes())) {
+            case SkCodec::kSuccess:
+            case SkCodec::kErrorInInput:
+            case SkCodec::kIncompleteInput:
+                canvas->drawBitmap(bm, 0,0);
+                return true;
+            default:
+                fprintf(stderr, "SkCodec::getPixels failed: %d.", result);
+                exit_with_failure();
+        }
+        return false;
     };
 }
 
-static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
-    return {
-        name,
-        svg->containerSize().isEmpty() ? SkISize{1000,1000}
-                                       : svg->containerSize().toCeil(),
-        [](GrContextOptions*) {},
-        [svg](SkCanvas* canvas) {
-            svg->render(canvas);
-            return true;
-        },
+static void svg_source(sk_sp<SkSVGDOM> svg, Source* source) {
+    source->type = "svg";
+    source->size = svg->containerSize().isEmpty() ? SkISize{1000,1000}
+                                                  : svg->containerSize().toCeil();
+    source->draw = [svg](SkCanvas* canvas) {
+        svg->render(canvas);
+        return true;
     };
 }
 
-static Source skottie_source(SkString name, sk_sp<skottie::Animation> animation) {
-    return {
-        name,
-        {1000,1000},
-        [](GrContextOptions*) {},
-        [animation](SkCanvas* canvas) {
-            canvas->clear(SK_ColorWHITE);
+static void skottie_source(sk_sp<skottie::Animation> animation, Source* source) {
+    source->type = "skottie";
+    source->size = {1000,1000};
+    source->draw = [animation](SkCanvas* canvas) {
+        canvas->clear(SK_ColorWHITE);
 
-            // Draw frames in a shuffled order to exercise nonlinear frame progression.
-            // The film strip will still be in time order, just drawn out of order.
-            const int order[] = { 4, 0, 3, 1, 2 };
-            const int tiles = SK_ARRAY_COUNT(order);
-            const float dim = 1000.0f / tiles;
+        // Draw frames in a shuffled order to exercise nonlinear frame progression.
+        // The film strip will still be in time order, just drawn out of order.
+        const int order[] = { 4, 0, 3, 1, 2 };
+        const int tiles = SK_ARRAY_COUNT(order);
+        const float dim = 1000.0f / tiles;
 
-            const float dt = 1.0f / (tiles*tiles - 1);
+        const float dt = 1.0f / (tiles*tiles - 1);
 
-            for (int y : order)
-            for (int x : order) {
-                SkRect dst = {x*dim, y*dim, (x+1)*dim, (y+1)*dim};
+        for (int y : order)
+        for (int x : order) {
+            SkRect dst = {x*dim, y*dim, (x+1)*dim, (y+1)*dim};
 
-                SkAutoCanvasRestore _(canvas, true/*save now*/);
-                canvas->clipRect(dst, /*aa=*/true);
-                canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
-                                                        dst,
-                                                        SkMatrix::kCenter_ScaleToFit));
-                float t = (y*tiles + x) * dt;
-                animation->seek(t);
-                animation->render(canvas);
-            }
-            return true;
-        },
+            SkAutoCanvasRestore _(canvas, true/*save now*/);
+            canvas->clipRect(dst, /*aa=*/true);
+            canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
+                                                    dst,
+                                                    SkMatrix::kCenter_ScaleToFit));
+            float t = (y*tiles + x) * dt;
+            animation->seek(t);
+            animation->render(canvas);
+        }
+        return true;
     };
 }
 
@@ -381,36 +371,38 @@ int main(int argc, char** argv) {
 
     SkTArray<Source> sources;
     for (const SkString& source : FLAGS_sources) {
+        Source* s = &sources.push_back();
         if (skiagm::GMFactory* factory = gm_factories.find(source)) {
             std::shared_ptr<skiagm::GM> gm{(*factory)(nullptr)};
-            sources.push_back(gm_source(gm));
+            s->name = source;
+            gm_source(gm, s);
             continue;
         }
 
         if (sk_sp<SkData> blob = SkData::MakeFromFileName(source.c_str())) {
-            const SkString dir  = SkOSPath::Dirname (source.c_str()),
-                           name = SkOSPath::Basename(source.c_str());
+            s->name = SkOSPath::Basename(source.c_str());
 
-            if (name.endsWith(".skp")) {
+            if (source.endsWith(".skp")) {
                 if (sk_sp<SkPicture> pic = SkPicture::MakeFromData(blob.get())) {
-                    sources.push_back(picture_source(name, pic));
+                    picture_source(pic, s);
                     continue;
                 }
-            } else if (name.endsWith(".svg")) {
+            } else if (source.endsWith(".svg")) {
                 SkMemoryStream stream{blob};
                 if (sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream)) {
-                    sources.push_back(svg_source(name, svg));
+                    svg_source(svg, s);
                     continue;
                 }
-            } else if (name.endsWith(".json")) {
+            } else if (source.endsWith(".json")) {
+                const SkString dir = SkOSPath::Dirname(source.c_str());
                 if (sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
                         .setResourceProvider(skottie_utils::FileResourceProvider::Make(dir))
                         .make((const char*)blob->data(), blob->size())) {
-                    sources.push_back(skottie_source(name, animation));
+                    skottie_source(animation, s);
                     continue;
                 }
             } else if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
-                sources.push_back(codec_source(name, codec));
+                codec_source(codec, s);
                 continue;
             }
         }
@@ -557,7 +549,7 @@ int main(int argc, char** argv) {
 
             if (image) {
                 if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
-                                              FLAGS_key, FLAGS_parameters)) {
+                                              FLAGS_key, FLAGS_properties)) {
                     fprintf(stderr, "Could not write to %s.\n", path.c_str());
                     exit_with_failure();
                 }
@@ -565,6 +557,37 @@ int main(int argc, char** argv) {
                 SkFILEWStream file(path.c_str());
                 file.write(blob->data(), blob->size());
             }
+
+            auto color_depth = [](SkColorType ct) {
+                switch (ct) {
+                    case kUnknown_SkColorType: break;
+                    case kAlpha_8_SkColorType:      return "A8";
+                    case kRGB_565_SkColorType:      return "565";
+                    case kARGB_4444_SkColorType:    return "4444";
+                    case kRGBA_8888_SkColorType:    return "8888";
+                    case kRGB_888x_SkColorType:     return "888";
+                    case kBGRA_8888_SkColorType:    return "8888";
+                    case kRGBA_1010102_SkColorType: return "1010102";
+                    case kRGB_101010x_SkColorType:  return "101010";
+                    case kGray_8_SkColorType:       return "G8";
+                    case kRGBA_F16Norm_SkColorType: return "F16Norm";  // TODO: "F16"?
+                    case kRGBA_F16_SkColorType:     return "F16";
+                    case kRGBA_F32_SkColorType:     return "F32";
+                }
+                return "Unknown";
+            };
+            DM::JsonWriter::AddBitmapResult({source.name,
+                                             SkString{"fm"},
+                                             SkString{source.type},
+                                             source.options,
+                                             md5,
+                                             SkString{ext},
+                                             SkString{FLAGS_gamut[0]},
+                                             SkString{FLAGS_tf[0]},
+                                             SkString{FLAGS_ct[0]},
+                                             SkString{FLAGS_at[0]},
+                                             SkString{color_depth(ct)}});
+            DM::JsonWriter::DumpJson(FLAGS_writePath[0], FLAGS_key, FLAGS_properties);
         }
 
         const auto elapsed = std::chrono::steady_clock::now() - start;
