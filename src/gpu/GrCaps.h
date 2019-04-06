@@ -220,6 +220,19 @@ public:
         return GrPixelConfigToColorType(config);
     }
 
+    /**
+     * Gets the requirements to use GrGpu::transferPixelsFrom for a given GrColorType.
+     * @param bufferColorType The color type of the pixel data that will be stored in the transfer
+     *                        buffer.
+     * @param width  The number of color values per row that will be stored in the buffer.
+     * @param rowBytes The number of bytes per row that will be used in the transfer buffer.
+     * @param alignment The required aligment of the offset into the transfer buffer passed
+     *                         to GrGpu::transferPixelsFrom.
+     * @return true if transferPixelFrom is supported, false otherwise. If false then rowBytes and
+     * alignment are not updated.
+     */
+    virtual bool transferFromBufferRequirements(GrColorType bufferColorType, int width, size_t* rowBytes, size_t* alignment);
+
     bool suppressPrints() const { return fSuppressPrints; }
 
     size_t bufferMapThreshold() const {
