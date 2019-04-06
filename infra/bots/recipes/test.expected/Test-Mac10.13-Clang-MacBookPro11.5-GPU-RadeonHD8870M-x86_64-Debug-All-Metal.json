@@ -505,7 +505,7 @@
       "~^PromiseImageTextureReuseDifferentConfig$",
       "~^SurfaceSemaphores$",
       "~^SurfaceTest$",
-      "~^TransferPixelsTest$",
+      "~^TransferPixelsToTest$",
       "~^VertexAttributeCount$",
       "~^WritePixelsNonTexture_Gpu$",
       "~^RGB565TextureTest$",
