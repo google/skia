@@ -27,7 +27,7 @@
 #error "SkWuffsCodec should not #define WUFFS_IMPLEMENTATION"
 #endif
 #include "wuffs-v0.2.c"
-#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1655
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1675
 #error "Wuffs version is too old. Upgrade to the latest version."
 #endif
 
