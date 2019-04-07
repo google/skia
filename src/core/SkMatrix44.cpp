@@ -24,6 +24,8 @@ static inline bool eq4(const SkMScalar* SK_RESTRICT a,
     return (a[0] == b[0]) & (a[1] == b[1]) & (a[2] == b[2]) & (a[3] == b[3]);
 }
 
+static_assert(std::is_trivially_copyable<SkMatrix44>::value, "Must be trivially copyable");
+
 bool SkMatrix44::operator==(const SkMatrix44& other) const {
     if (this == &other) {
         return true;
@@ -240,6 +242,18 @@ void SkMatrix44::set3x4RowMajorf(const float src[]) {
     fMat[0][3] = 0;      fMat[1][3] = 0;      fMat[2][3] = 0;       fMat[3][3] = 1;
     this->recomputeTypeMask();
 }
+
+void SkMatrix44::set4x4(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20, SkMScalar m_30,
+                SkMScalar m_01, SkMScalar m_11, SkMScalar m_21, SkMScalar m_31,
+                SkMScalar m_02, SkMScalar m_12, SkMScalar m_22, SkMScalar m_32,
+                SkMScalar m_03, SkMScalar m_13, SkMScalar m_23, SkMScalar m_33) {
+    fMat[0][0] = m_00; fMat[0][1] = m_10; fMat[0][2] = m_20; fMat[0][3] = m_30;
+    fMat[1][0] = m_01; fMat[1][1] = m_11; fMat[1][2] = m_21; fMat[1][3] = m_31;
+    fMat[2][0] = m_02; fMat[2][1] = m_12; fMat[2][2] = m_22; fMat[2][3] = m_32;
+    fMat[3][0] = m_03; fMat[3][1] = m_13; fMat[3][2] = m_23; fMat[3][3] = m_33;
+    this->recomputeTypeMask();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
