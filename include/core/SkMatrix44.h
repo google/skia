@@ -322,6 +322,11 @@ public:
                 SkMScalar m_02, SkMScalar m_12, SkMScalar m_22);
     void set3x3RowMajorf(const float[]);
 
+    void set4x4(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20, SkMScalar m_30,
+                SkMScalar m_01, SkMScalar m_11, SkMScalar m_21, SkMScalar m_31,
+                SkMScalar m_02, SkMScalar m_12, SkMScalar m_22, SkMScalar m_32,
+                SkMScalar m_03, SkMScalar m_13, SkMScalar m_23, SkMScalar m_33);
+
     void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
     void preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
     void postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
