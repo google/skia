@@ -53,6 +53,7 @@ private:
 };
 
 struct SkGlyphPos {
+    int index;
     const SkGlyph* glyph;
     SkPoint position;
 };
