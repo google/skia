@@ -184,6 +184,9 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkFont  pathFont{runFont};
             SkScalar textScale = pathFont.setupForAsPaths(&pathPaint);
 
+            // The sub-pixel position will always happen when transforming to the screen.
+            pathFont.setSubpixel(false);
+
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
                                 pathFont, pathPaint, props,
                                 fScalerContextFlags, SkMatrix::I());
@@ -329,6 +332,9 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         SkFont fallbackFont{runFont};
         fallbackFont.setSize(fallbackTextSize);
 
+        // No sub-pixel needed. The transform to the screen will take care of sub-pixel positioning.
+        fallbackFont.setSubpixel(false);
+
         // The scale factor to go from strike size to the source size for glyphs.
         SkScalar fallbackTextScale = runFontTextSize / fallbackTextSize;
 
@@ -473,6 +479,9 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             // the source.
             SkScalar strikeToSourceRatio = pathFont.setupForAsPaths(&pathPaint);
 
+            // The sub-pixel position will always happen when transforming to the screen.
+            pathFont.setSubpixel(false);
+
             SkAutoDescriptor ad;
             SkScalerContextEffects effects;
             SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
@@ -482,6 +491,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                                                                   SkMatrix::I(),
                                                                   &ad,
                                                                   &effects);
+
             SkScopedStrike strike =
                     fStrikeCache->findOrCreateScopedStrike(
                             *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
@@ -555,7 +565,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                            && strike->decideCouldDrawFromPath(glyph)) {
                     fPaths.push_back({&glyph, glyphDevicePosition});
                 } else {
-                    addFallback(glyph, glyphSourcePosition);
+                    addFallback(glyph, origin + glyphSourcePosition);
                 }
             }
 
