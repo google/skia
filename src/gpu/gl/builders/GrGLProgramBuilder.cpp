@@ -12,6 +12,7 @@
 #include "GrContextPriv.h"
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
+#include "GrPersistentCacheEntry.h"
 #include "GrProgramDesc.h"
 #include "GrShaderCaps.h"
 #include "GrSwizzle.h"
@@ -166,30 +167,6 @@ struct GrGLSLSet {
     }
 };
 
-struct GrGLSLCacheEntry {
-    GrGLSLCacheEntry(const SkSL::Program::Inputs& inputs, const GrGLSLSet& glsl)
-            : fInputs(inputs) {
-        size_t offset = sizeof(*this);
-        for (int i = 0; i < kGrShaderTypeCount; ++i) {
-            if (glsl.fGLSL[i].size() > 0) {
-                fOffset[i] = offset;
-                offset += glsl.fGLSL[i].size() + 1;
-            } else {
-                fOffset[i] = 0;
-            }
-        }
-    }
-
-    const char* get(int shaderType) const {
-        SkASSERT(shaderType < kGrShaderTypeCount);
-        return fOffset[shaderType] ? SkTAddOffset<const char>(this, fOffset[shaderType])
-                                   : nullptr;
-    }
-
-    SkSL::Program::Inputs fInputs;
-    size_t fOffset[kGrShaderTypeCount];
-};
-
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                                             const GrGLSLSet& glsl) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
@@ -201,36 +178,29 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         GrGLsizei length = 0;
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
         if (length > 0) {
+            GrPersistentCacheBlob::Builder builder;
+            builder.add(kFragment_GrShaderType, inputs);
+
             GrGLenum binaryFormat;
-            std::unique_ptr<char[]> binary(new char[length]);
-            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary.get()));
-            size_t dataLength = sizeof(inputs) + sizeof(binaryFormat) + length;
-            std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-            size_t offset = 0;
-            memcpy(data.get() + offset, &inputs, sizeof(inputs));
-            offset += sizeof(inputs);
-            memcpy(data.get() + offset, &binaryFormat, sizeof(binaryFormat));
-            offset += sizeof(binaryFormat);
-            memcpy(data.get() + offset, binary.get(), length);
-            this->gpu()->getContext()->priv().getPersistentCache()->store(
-                                            *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
+            void* binary = builder.reserve(GrPersistentCacheBlob::kGLBinary_Type, length);
+            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary));
+
+            builder.add(binaryFormat);
+
+            auto data = builder.snapshot();
+            this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
         }
     } else {
         // source cache
-        size_t dataLength = sizeof(GrGLSLCacheEntry) + glsl.getCacheSize();
-        std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-        size_t offset = 0;
-        GrGLSLCacheEntry entry(inputs, glsl);
-        memcpy(data.get() + offset, &entry, sizeof(entry));
-        offset += sizeof(entry);
+        GrPersistentCacheBlob::Builder builder;
+        builder.add(kFragment_GrShaderType, inputs);
         for (int i = 0; i < kGrShaderTypeCount; ++i) {
             if (glsl.fGLSL[i].size() > 0) {
-                memcpy(data.get() + offset, glsl.fGLSL[i].data(), glsl.fGLSL[i].size() + 1);
-                offset += glsl.fGLSL[i].size() + 1;
+                builder.add(GrPersistentCacheBlob::kGLSL_Type, GrShaderType(i), glsl.fGLSL[i]);
             }
         }
-        this->gpu()->getContext()->priv().getPersistentCache()->store(
-                                            *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
+        auto data = builder.snapshot();
+        this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
     }
 }
 
@@ -270,19 +240,19 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     bool cached = fCached.get() != nullptr;
     GrGLSLSet glsl;
     if (cached) {
-        const uint8_t* bytes = fCached->bytes();
+        GrPersistentCacheBlob blob(fCached);
+        SkAssertResult(blob.get(kFragment_GrShaderType, &inputs));
+
         if (fGpu->glCaps().programBinarySupport()) {
-            size_t offset = 0;
-            memcpy(&inputs, bytes + offset, sizeof(inputs));
-            offset += sizeof(inputs);
             // binary cache hit, just hand the binary to GL
             GrGLenum binaryFormat;
-            memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
-            offset += sizeof(binaryFormat);
+            blob.get(&binaryFormat);
+            size_t size = 0;
+            const void* binary = blob.get(GrPersistentCacheBlob::kGLBinary_Type, &size);
             GrGLClearErr(this->gpu()->glInterface());
             GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
-                                  ProgramBinary(programID, binaryFormat, (void*) (bytes + offset),
-                                                fCached->size() - offset));
+                                  ProgramBinary(programID, binaryFormat, const_cast<void*>(binary),
+                                                size));
             if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
                 if (checkLinked) {
                     cached = this->checkLinkStatus(programID);
@@ -296,12 +266,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             }
         } else {
             // source cache hit, we don't need to compile the SkSL->GLSL
-            const GrGLSLCacheEntry* entry = (const GrGLSLCacheEntry*)(bytes);
-            inputs = entry->fInputs;
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                if (entry->fOffset[i]) {
-                    glsl.fGLSL[i] = SkSL::String(entry->get(i));
-                }
+                blob.get(GrPersistentCacheBlob::kGLSL_Type, GrShaderType(i), &glsl.fGLSL[i]);
             }
         }
     }
