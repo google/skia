@@ -84,6 +84,13 @@ func sourcesAndFlags(args []string, gms []string) ([]string, []string, error) {
 	sources := []string{}
 	flags := []string{}
 	for _, arg := range args {
+		// I wish we could parse flags here too, but it's too late.
+		if strings.HasPrefix(arg, "-") {
+			return nil, nil, fmt.Errorf(
+				"Please pass flags like '%s' first on the command line, before the FM binary.",
+				arg)
+		}
+
 		// Everything after a # is a comment.
 		if strings.HasPrefix(arg, "#") {
 			break
