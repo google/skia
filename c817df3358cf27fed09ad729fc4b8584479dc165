@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf95f13c_1c5cbbdf",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-08T21:02:33Z",
+      "side": 1,
+      "message": "meant to be temporary?",
+      "range": {
+        "startLine": 812,
+        "startChar": 12,
+        "endLine": 812,
+        "endChar": 20
+      },
+      "revId": "c817df3358cf27fed09ad729fc4b8584479dc165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0726d1e3_d9cea9dc",
+        "filename": "tools/fm/fm.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-08T21:02:33Z",
+      "side": 1,
+      "message": "These two code snippets guarded by !FLAGS_writeShaders.isEmpty() feel like they might make natural sense with a unique_ptr, SkScopeExit, or some other sort of RAII deal?",
+      "revId": "c817df3358cf27fed09ad729fc4b8584479dc165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
