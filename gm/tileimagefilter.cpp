@@ -91,7 +91,7 @@ protected:
         SkRect dstRect = SkRect::MakeWH(SkIntToScalar(fBitmap->width() * 2),
                                         SkIntToScalar(fBitmap->height() * 2));
         sk_sp<SkImageFilter> tile(SkTileImageFilter::Make(srcRect, dstRect, nullptr));
-        sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+        sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(matrix));
 
         SkPaint paint;
         paint.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), std::move(tile)));
@@ -110,8 +110,7 @@ protected:
         srcRect = SkRect::MakeXYWH(0, 0, 50, 50);
         dstRect = SkRect::MakeXYWH(0, 0, 100, 100);
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(5, 5, 40, 40));
-        sk_sp<SkColorFilter> greenCF = SkColorFilter::MakeModeFilter(SK_ColorGREEN,
-                                                                     SkBlendMode::kSrc);
+        sk_sp<SkColorFilter> greenCF = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrc);
         sk_sp<SkImageFilter> green(SkColorFilterImageFilter::Make(std::move(greenCF),
                                                                   nullptr,
                                                                   &cropRect));

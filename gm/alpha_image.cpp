@@ -31,7 +31,7 @@ static sk_sp<SkColorFilter> make_color_filter() {
         0, 1, 0,   0,   0,
         0, 0, 0.5, 0.5, 0,
         0, 0, 0.5, 0.5, 0}; // mix G and A.
-    return SkColorFilter::MakeMatrixFilterRowMajor255(colorMatrix);
+    return SkColorFilters::MatrixRowMajor255(colorMatrix);
 }
 
 DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {

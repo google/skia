@@ -221,7 +221,7 @@ public:
                 0.f, 0.f, 0.f, 255.f, 0.f
             };
 
-            blit.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(kFilter));
+            blit.setColorFilter(SkColorFilters::MatrixRowMajor255(kFilter));
         }
 
         canvas->scale(scale, scale);

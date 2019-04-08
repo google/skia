@@ -270,7 +270,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
     auto verts = make_vertices(image, tex, color);
     const sk_sp<SkColorFilter> filters[] = {
         nullptr,
-        SkColorFilter::MakeModeFilter(0xFF00FF88, SkBlendMode::kModulate),
+        SkColorFilters::Blend(0xFF00FF88, SkBlendMode::kModulate),
     };
     const SkBlendMode modes[] = {
         SkBlendMode::kSrcOver,

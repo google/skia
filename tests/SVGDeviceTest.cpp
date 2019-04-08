@@ -359,7 +359,7 @@ DEF_TEST(SVGDevice_image_shader_tileboth, reporter) {
 DEF_TEST(SVGDevice_ColorFilters, reporter) {
     SkDOM dom;
     SkPaint paint;
-    paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kSrcIn));
+    paint.setColorFilter(SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kSrcIn));
     {
         auto svgCanvas = MakeDOMCanvas(&dom);
         SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
