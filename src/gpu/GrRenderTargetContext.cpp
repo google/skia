@@ -1482,7 +1482,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             auto circleBounds = SkRect::MakeLTRB(cx - avgR, cy - avgR, cx + avgR, cy + avgR);
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             stroke.setStrokeStyle(outerR - innerR);
-            auto op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix,
+            auto op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), aa, viewMatrix,
                                                   circleBounds, GrStyle(stroke, nullptr),
                                                   this->caps()->shaderCaps());
             if (op) {
@@ -1633,8 +1633,6 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa);
-
     std::unique_ptr<GrDrawOp> op;
     if (style.isSimpleFill()) {
         // GrFillRRectOp has special geometry and a fragment-shader branch to conditionally evaluate
@@ -1643,17 +1641,18 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         // inside the oval's inner diamond). Given these optimizations, it's a clear win to draw
         // ovals the exact same way we do round rects.
         //
-        // However, we still don't draw true circles as round rects in coverage mode, because it can
+        // However, we still don't draw true circles as round rects, because it can
         // cause perf regressions on some platforms as compared to the dedicated circle Op.
-        if (GrAAType::kCoverage != aaType || oval.height() != oval.width()) {
+        if (oval.height() != oval.width()) {
             assert_alive(paint);
+            GrAAType aaType = this->chooseAAType(aa);
             op = GrFillRRectOp::Make(fContext, aaType, viewMatrix, SkRRect::MakeOval(oval),
                                      *this->caps(), std::move(paint));
         }
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op) {
         assert_alive(paint);
-        op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
+        op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), aa, viewMatrix, oval, style,
                                          this->caps()->shaderCaps());
     }
     if (op) {

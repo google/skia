@@ -63,10 +63,11 @@ static inline GrVertexWriter::TriStrip<float> origin_centered_tri_strip(float x,
 
 class CircleGeometryProcessor : public GrGeometryProcessor {
 public:
-    CircleGeometryProcessor(bool stroke, bool clipPlane, bool isectPlane, bool unionPlane,
+    CircleGeometryProcessor(bool aa, bool stroke, bool clipPlane, bool isectPlane, bool unionPlane,
                             bool roundCaps, bool wideColor, const SkMatrix& localMatrix)
             : INHERITED(kCircleGeometryProcessor_ClassID)
             , fLocalMatrix(localMatrix)
+            , fAA(aa)
             , fStroke(stroke) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInColor = MakeColorAttribute("inColor", wideColor);
@@ -159,11 +160,20 @@ private:
 
             fragBuilder->codeAppend("float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("half distanceToOuterEdge = half(circleEdge.z * (1.0 - d));");
-            fragBuilder->codeAppend("half edgeAlpha = saturate(distanceToOuterEdge);");
+            if (cgp.fAA) {
+                fragBuilder->codeAppend("half edgeAlpha = saturate(distanceToOuterEdge);");
+            } else {
+                fragBuilder->codeAppend("half edgeAlpha = distanceToOuterEdge > 0 ? 1.0 : 0.0;");
+            }
             if (cgp.fStroke) {
                 fragBuilder->codeAppend(
                         "half distanceToInnerEdge = half(circleEdge.z * (d - circleEdge.w));");
-                fragBuilder->codeAppend("half innerAlpha = saturate(distanceToInnerEdge);");
+                if (cgp.fAA) {
+                    fragBuilder->codeAppend("half innerAlpha = saturate(distanceToInnerEdge);");
+                } else {
+                    fragBuilder->codeAppend("half innerAlpha = "
+                                            "distanceToInnerEdge > 0 ? 1.0 : 0.0;");
+                }
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
@@ -210,6 +220,7 @@ private:
             key |= cgp.fInIsectPlane.isInitialized() ? 0x08 : 0x0;
             key |= cgp.fInUnionPlane.isInitialized() ? 0x10 : 0x0;
             key |= cgp.fInRoundCapCenters.isInitialized() ? 0x20 : 0x0;
+            key |= cgp.fAA ? 0x40 : 0x0;
             b->add32(key);
         }
 
@@ -234,6 +245,7 @@ private:
     Attribute fInUnionPlane;
     Attribute fInRoundCapCenters;
 
+    bool fAA;
     bool fStroke;
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -244,6 +256,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    bool aa = d->fRandom->nextBool();
     bool stroke = d->fRandom->nextBool();
     bool roundCaps = stroke ? d->fRandom->nextBool() : false;
     bool wideColor = d->fRandom->nextBool();
@@ -252,7 +265,7 @@ sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestDa
     bool unionPlane = d->fRandom->nextBool();
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     return sk_sp<GrGeometryProcessor>(new CircleGeometryProcessor(
-            stroke, clipPlane, isectPlane, unionPlane, roundCaps, wideColor, matrix));
+            aa, stroke, clipPlane, isectPlane, unionPlane, roundCaps, wideColor, matrix));
 }
 #endif
 
@@ -976,6 +989,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
+                                          GrAA aa,
                                           const SkMatrix& viewMatrix,
                                           SkPoint center,
                                           SkScalar radius,
@@ -1012,11 +1026,11 @@ public:
                     break;
             }
         }
-        return Helper::FactoryHelper<CircleOp>(context, std::move(paint), viewMatrix, center,
+        return Helper::FactoryHelper<CircleOp>(context, std::move(paint), aa, viewMatrix, center,
                                                radius, style, arcParams);
     }
 
-    CircleOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+    CircleOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, GrAA aa,
              const SkMatrix& viewMatrix, SkPoint center, SkScalar radius, const GrStyle& style,
              const ArcParams* arcParams)
             : GrMeshDrawOp(ClassID()), fHelper(helperArgs, GrAAType::kCoverage) {
@@ -1024,7 +1038,7 @@ public:
         SkStrokeRec::Style recStyle = stroke.getStyle();
 
         fRoundCaps = false;
-
+        fUseAA = (GrAA::kYes == aa);
         viewMatrix.mapPoints(&center, 1);
         radius = viewMatrix.mapRadius(radius);
         SkScalar strokeWidth = viewMatrix.mapRadius(stroke.getWidth());
@@ -1053,8 +1067,10 @@ public:
         // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
         // Second, the outer radius is used to compute the verts of the bounding box that is
         // rendered and the outset ensures the box will cover all partially covered by the circle.
-        outerRadius += SK_ScalarHalf;
-        innerRadius -= SK_ScalarHalf;
+        if (fUseAA) {
+            outerRadius += SK_ScalarHalf;
+            innerRadius -= SK_ScalarHalf;
+        }
         bool stroked = isStrokeOnly && innerRadius > 0.0f;
         fViewMatrixIfUsingLocalCoords = viewMatrix;
 
@@ -1240,8 +1256,8 @@ private:
 
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(
-                !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps, fWideColor,
-                localMatrix));
+                fUseAA, !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps,
+                fWideColor, localMatrix));
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
@@ -1387,6 +1403,10 @@ private:
             return CombineResult::kCannotCombine;
         }
 
+        if (fUseAA != that->fUseAA) {
+            return CombineResult::kCannotCombine;
+        }
+
         // Because we've set up the ops that don't use the planes with noop values
         // we can just accumulate used planes by later ops.
         fClipPlane |= that->fClipPlane;
@@ -1419,6 +1439,7 @@ private:
     SkSTArray<1, Circle, true> fCircles;
     int fVertCount;
     int fIndexCount;
+    bool fUseAA;
     bool fAllFill;
     bool fClipPlane;
     bool fClipPlaneIsect;
@@ -2484,8 +2505,8 @@ private:
 
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(
-                new CircleGeometryProcessor(!fAllFill, false, false, false, false, fWideColor,
-                                            localMatrix));
+                new CircleGeometryProcessor(true, !fAllFill, false, false, false, false,
+                                            fWideColor, localMatrix));
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
@@ -2979,7 +3000,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
                                                        const SkStrokeRec& stroke,
                                                        const GrShaderCaps* shaderCaps) {
     if (rrect.isOval()) {
-        return MakeOvalOp(context, std::move(paint), viewMatrix, rrect.getBounds(),
+        return MakeOvalOp(context, std::move(paint), GrAA::kYes, viewMatrix, rrect.getBounds(),
                           GrStyle(stroke, nullptr), shaderCaps);
     }
 
@@ -2994,6 +3015,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrRecordingContext* conte
 
 std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* context,
                                                       GrPaint&& paint,
+                                                      GrAA aa,
                                                       const SkMatrix& viewMatrix,
                                                       const SkRect& oval,
                                                       const GrStyle& style,
@@ -3015,7 +3037,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
             auto offInterval = style.dashIntervals()[1];
             if (offInterval == 0) {
                 GrStyle strokeStyle(style.strokeRec(), nullptr);
-                return MakeOvalOp(context, std::move(paint), viewMatrix, oval,
+                return MakeOvalOp(context, std::move(paint), aa, viewMatrix, oval,
                                   strokeStyle, shaderCaps);
             } else if (onInterval == 0) {
                 // There is nothing to draw but we have no way to indicate that here.
@@ -3031,7 +3053,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrRecordingContext* contex
                                                style.strokeRec().getWidth(), kStartAngle,
                                                angularOnInterval, angularOffInterval, phaseAngle);
         }
-        return CircleOp::Make(context, std::move(paint), viewMatrix, center, r, style);
+        return CircleOp::Make(context, std::move(paint), aa, viewMatrix, center, r, style);
     }
 
     if (style.pathEffect()) {
@@ -3080,7 +3102,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeArcOp(GrRecordingContext* context
     SkPoint center = {oval.centerX(), oval.centerY()};
     CircleOp::ArcParams arcParams = {SkDegreesToRadians(startAngle), SkDegreesToRadians(sweepAngle),
                                      useCenter};
-    return CircleOp::Make(context, std::move(paint), viewMatrix,
+    return CircleOp::Make(context, std::move(paint), GrAA::kYes, viewMatrix,
                           center, width / 2.f, style, &arcParams);
 }
 
@@ -3104,6 +3126,7 @@ GR_DRAW_OP_TEST_DEFINE(CircleOp) {
         SkRect circle = GrTest::TestSquare(random);
         SkPoint center = {circle.centerX(), circle.centerY()};
         SkScalar radius = circle.width() / 2.f;
+        GrAA aa = (GrAA)(random->nextBool());
         SkStrokeRec stroke = GrTest::TestStrokeRec(random);
         CircleOp::ArcParams arcParamsTmp;
         const CircleOp::ArcParams* arcParams = nullptr;
@@ -3113,7 +3136,7 @@ GR_DRAW_OP_TEST_DEFINE(CircleOp) {
             arcParamsTmp.fUseCenter = random->nextBool();
             arcParams = &arcParamsTmp;
         }
-        std::unique_ptr<GrDrawOp> op = CircleOp::Make(context, std::move(paint), viewMatrix,
+        std::unique_ptr<GrDrawOp> op = CircleOp::Make(context, std::move(paint), aa, viewMatrix,
                                                       center, radius,
                                                       GrStyle(stroke, nullptr), arcParams);
         if (op) {
