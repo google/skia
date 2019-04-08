@@ -30,6 +30,9 @@
 SkMatrix SkShader::getLocalMatrix() const {
     return as_SB(this)->getLocalMatrix();
 }
+sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix* localMatrix) const {
+    return as_SB(this)->makeAsALocalMatrixShader(localMatrix);
+}
 #endif
 
 SkShaderBase::SkShaderBase(const SkMatrix* localMatrix)
