@@ -53,6 +53,7 @@ private:
 };
 
 struct SkGlyphPos {
+    size_t index;
     const SkGlyph* glyph;
     SkPoint position;
 };
@@ -70,7 +71,8 @@ public:
     virtual SkStrikeSpec strikeSpec() const = 0;
 
     // glyphMetrics writes its results to result, but only returns a subspan of result.
-    virtual int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) = 0;
+    virtual size_t glyphMetrics(
+            const SkGlyphID[], const SkPoint[], size_t n, SkGlyphPos result[]) = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
     virtual void onAboutToExitScope() = 0;

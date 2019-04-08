@@ -36,8 +36,8 @@ public:
         return fStrike.getGlyphMetrics(glyphID, position);
     }
 
-    int glyphMetrics(
-            const SkGlyphID id[], const SkPoint point[], int n, SkGlyphPos result[]) override {
+    size_t glyphMetrics(
+            const SkGlyphID id[], const SkPoint point[], size_t n, SkGlyphPos result[]) override {
         return fStrike.glyphMetrics(id, point, n, result);
     }
 
