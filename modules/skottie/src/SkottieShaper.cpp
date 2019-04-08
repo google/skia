@@ -115,9 +115,13 @@ public:
         SkPoint pos {fBox.x(), fBox.y()};
 
         switch (fDesc.fVAlign) {
-        case Shaper::VAlign::kTop:
-            // Nothing to do (SkShaper default behavior).
-            break;
+        case Shaper::VAlign::kTop: {
+            // By default, SkShaper top-aligns for y == 0.  It may sound like this should be
+            // sufficient, but it's not: SkShaper's alignment is based on maxAscent, which
+            // doesn't always yield visually accurate alignment.  To compensate, we always
+            // align based on the computed tight bounds.
+            pos.offset(0, -ComputeBlobBounds(blob).fTop);
+        } break;
         case Shaper::VAlign::kTopBaseline:
             pos.offset(0, fFirstLineAscent);
             break;
