@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "018803fc_52586f93",
+        "filename": "modules/pathkit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-08T13:48:45Z",
+      "side": 0,
+      "message": "Got a hint from https://github.com/emscripten-core/emscripten/issues/8098\n\nWith this in, computeYFromX was getting optimized poorly and reading out of memory.",
+      "revId": "d3c9245454ed998b997a215c57b4f70efd2b569d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
