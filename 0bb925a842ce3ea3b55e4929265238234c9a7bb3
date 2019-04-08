@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47180891_7b1f2ec6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-08T22:06:33Z",
+      "side": 1,
+      "message": "It seems somewhat awkward that this CL adds \u0027index\u0027 but doesn\u0027t use it. I know it\u0027s going to be used right here, but it isn\u0027t used yet so looks weird as a separate CL (especially since to do so the for-range loops are temporarily replaced with for-count loops).",
+      "range": {
+        "startLine": 568,
+        "startChar": 69,
+        "endLine": 568,
+        "endChar": 70
+      },
+      "revId": "0bb925a842ce3ea3b55e4929265238234c9a7bb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08288c1c_2c2872da",
+        "filename": "src/core/SkStrikeInterface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-08T22:06:33Z",
+      "side": 1,
+      "message": "Is there a really good reason to use int instead of size_t here? Is the value already limited to the range of int? If it is, I suppose this is ok, but it isn\u0027t obvious that it is.",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 7
+      },
+      "revId": "0bb925a842ce3ea3b55e4929265238234c9a7bb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
