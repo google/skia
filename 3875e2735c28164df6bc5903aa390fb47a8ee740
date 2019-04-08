@@ -39,6 +39,30 @@
       "revId": "3875e2735c28164df6bc5903aa390fb47a8ee740",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c413872_30d443b3",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-08T17:37:54Z",
+      "side": 1,
+      "message": "It slightly more (on the skia side), but allows me to quickly land a huge (boring) change in skia, avoiding accidental merge conflicts later",
+      "parentUuid": "29787db8_878deaf1",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "3875e2735c28164df6bc5903aa390fb47a8ee740",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
