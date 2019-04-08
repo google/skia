@@ -2,11 +2,11 @@
 
 var DebuggerView = {
 	MakeSWCanvasSurface: function() {},
-
 	_getRasterDirectSurface: function() {},
 	_malloc: function() {},
 	_free: function() {},
 	onRuntimeInitialized: function() {},
+	SkpFilePlayer: function() {},
 
 	ColorType: {
 		RGBA_8888: {},
