@@ -194,6 +194,7 @@ skia_core_sources = [
   "$_src/core/SkEdgeBuilder.h",
   "$_src/core/SkEdgeClipper.cpp",
   "$_src/core/SkEdgeClipper.h",
+  "$_src/core/SkEffect.cpp",
   "$_src/core/SkEndian.h",
   "$_src/core/SkExecutor.cpp",
   "$_src/core/SkAnalyticEdge.cpp",

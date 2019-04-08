@@ -158,9 +158,11 @@ sk_sp<SkShader> SkShader::MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, 
 }
 #endif
 
+#if 0
 bool SkShaderBase::appendStages(const SkStageRec& rec) const {
     return this->onAppendStages(rec);
 }
+#endif
 
 bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     // SkShader::Context::shadeSpan() handles the paint opacity internally,
