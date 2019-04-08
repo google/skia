@@ -24,6 +24,7 @@
 #include "SkParsePath.h"
 #include "SkPngCodec.h"
 #include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkStream.h"
 #include "SkTHash.h"
 #include "SkTo.h"
@@ -547,8 +548,8 @@ SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::Gradient
         gradient.addAttribute("x2", info.fPoint[1].x());
         gradient.addAttribute("y2", info.fPoint[1].y());
 
-        if (!shader->getLocalMatrix().isIdentity()) {
-            this->addAttribute("gradientTransform", svg_transform(shader->getLocalMatrix()));
+        if (!as_SB(shader)->getLocalMatrix().isIdentity()) {
+            this->addAttribute("gradientTransform", svg_transform(as_SB(shader)->getLocalMatrix()));
         }
 
         SkASSERT(info.fColorCount >= 2);
