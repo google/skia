@@ -96,10 +96,8 @@ protected:
         const SkMatrix& ctm = canvas->getTotalMatrix();
 
         SkPaint paint;
-        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fDiffuse,
-                SkTileMode::kClamp, SkTileMode::kClamp, &matrix);
-        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fNormalMaps[mapType],
-                SkTileMode::kClamp, SkTileMode::kClamp, &matrix);
+        sk_sp<SkShader> diffuseShader = fDiffuse.makeShader(&matrix);
+        sk_sp<SkShader> normalMap = fNormalMaps[mapType].makeShader(&matrix);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
                                                                                ctm);
         paint.setShader(SkLightingShader::Make(std::move(diffuseShader), std::move(normalSource),

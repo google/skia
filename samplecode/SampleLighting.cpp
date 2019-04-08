@@ -38,17 +38,14 @@ public:
 
             fRect = SkRect::MakeIWH(diffuseBitmap.width(), diffuseBitmap.height());
 
-            fDiffuseShader = SkShader::MakeBitmapShader(diffuseBitmap,
-                                                        SkTileMode::kClamp, SkTileMode::kClamp);
+            fDiffuseShader = diffuseBitmap.makeShader();
         }
 
         {
             SkBitmap normalBitmap;
             SkAssertResult(GetResourceAsBitmap("images/brickwork_normal-map.jpg", &normalBitmap));
 
-            sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normalBitmap,
-                                                                   SkTileMode::kClamp,
-                                                                   SkTileMode::kClamp);
+            sk_sp<SkShader> normalMap = normalBitmap.makeShader();
             fNormalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap), SkMatrix::I());
         }
     }

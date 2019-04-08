@@ -59,9 +59,7 @@ protected:
 
         draw_into_bitmap(fBitmap);
 
-        fPaint.setShader(SkShader::MakeBitmapShader(fBitmap,
-                                                    SkTileMode::kRepeat,
-                                                    SkTileMode::kRepeat));
+        fPaint.setShader(fBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
     }
 
 

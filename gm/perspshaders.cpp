@@ -43,7 +43,7 @@ protected:
         fBitmap = ToolUtils::create_checkerboard_bitmap(
                 kCellSize, kCellSize, SK_ColorBLUE, SK_ColorYELLOW, kCellSize / 10);
 
-        fBitmapShader = SkShader::MakeBitmapShader(fBitmap, SkTileMode::kClamp, SkTileMode::kClamp);
+        fBitmapShader = fBitmap.makeShader();
         SkPoint pts1[] = {
             { 0, 0 },
             { SkIntToScalar(kCellSize), SkIntToScalar(kCellSize) }

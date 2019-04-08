@@ -72,7 +72,7 @@ protected:
 
         createTexture();
 
-        fShader = SkShader::MakeBitmapShader(fTexture, SkTileMode::kRepeat, SkTileMode::kRepeat);
+        fShader = fTexture.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
     }
 
     void createMaskFilter() {

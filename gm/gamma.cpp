@@ -104,7 +104,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     canvas->save();
 
     // Black/white dither, pixel perfect. This is ground truth.
-    p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt));
+    p.setShader(ditherBmp.makeShader(rpt, rpt));
     p.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     nextRect("Dither", "Reference");
 
@@ -113,19 +113,19 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     // the raster pipeline into *not* snapping to nearest.
     SkMatrix offsetMatrix = SkMatrix::Concat(
         SkMatrix::MakeScale(-1.0f), SkMatrix::MakeTrans(0.5f, 0.0f));
-    p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &offsetMatrix));
+    p.setShader(ditherBmp.makeShader(rpt, rpt, &offsetMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Bilerp");
 
     // Black/white dither, scaled down by 2x. Tests minification.
     SkMatrix scaleMatrix = SkMatrix::MakeScale(0.5f);
-    p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &scaleMatrix));
+    p.setShader(ditherBmp.makeShader(rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Scale");
 
     // 25%/75% dither, scaled down by 2x. Tests ALL aspects of minification. Specifically, are
     // sRGB sources decoded to linear before computing mipmaps?
-    p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
+    p.setShader(mipmapBmp.makeShader(rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("MipMaps", nullptr);
 
@@ -188,12 +188,12 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextBitmap(srgbGreyBmp, "sRGB BMP");
 
     // Bitmap wrapped in a shader (linear):
-    p.setShader(SkShader::MakeBitmapShader(linearGreyBmp, rpt, rpt));
+    p.setShader(linearGreyBmp.makeShader(rpt, rpt));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Lnr BMP", "Shader");
 
     // Bitmap wrapped in a shader (sRGB):
-    p.setShader(SkShader::MakeBitmapShader(srgbGreyBmp, rpt, rpt));
+    p.setShader(srgbGreyBmp.makeShader(rpt, rpt));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("sRGB BMP", "Shader");
 

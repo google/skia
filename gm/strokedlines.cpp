@@ -153,10 +153,7 @@ protected:
             m.preScale(3.0f, 3.0f);
 
             SkPaint p;
-            p.setShader(SkShader::MakeBitmapShader(bm,
-                                                   SkTileMode::kRepeat,
-                                                   SkTileMode::kRepeat,
-                                                   &m));
+            p.setShader(bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m));
             fPaints.push_back(p);
         }
         {
