@@ -40,9 +40,10 @@ sk_sp<SkData> MemoryCache::load(const SkData& key) {
     }
     if (LOG_MEMORY_CACHE) {
         SkDebugf("Load Key: %s\n\tFound Data: %s\n\n", data_to_str(key).c_str(),
-                 data_to_str(*result->second).c_str());
+                 data_to_str(*result->second.fData).c_str());
     }
-    return result->second;
+    result->second.fHitCount++;
+    return result->second.fData;
 }
 
 void MemoryCache::store(const SkData& key, const SkData& data) {
@@ -50,7 +51,7 @@ void MemoryCache::store(const SkData& key, const SkData& data) {
         SkDebugf("Store Key: %s\n\tData: %s\n\n", data_to_str(key).c_str(),
                  data_to_str(data).c_str());
     }
-    fMap[Key(key)] = SkData::MakeWithCopy(data.data(), data.size());
+    fMap[Key(key)] = Value(data);
 }
 
 }  // namespace sk_gpu_test
