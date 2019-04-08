@@ -156,7 +156,6 @@ private:
                                     SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>*);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrTexture*, const GrSamplerState&, const char* name);
-    void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
 
 #ifdef SK_DEBUG
