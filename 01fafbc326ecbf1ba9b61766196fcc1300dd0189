@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49e2041d_1441fa17",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-08T16:01:46Z",
+      "side": 1,
+      "message": "// The atlas isn\u0027t guaranteed to touch all its pixels so, for platforms that benefit from complete initialization, clear everything.\n\n?",
+      "revId": "01fafbc326ecbf1ba9b61766196fcc1300dd0189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
