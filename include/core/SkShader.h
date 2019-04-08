@@ -71,14 +71,6 @@ public:
 #endif
 
     /**
-     *  Returns the local matrix.
-     *
-     *  FIXME: This can be incorrect for a Shader with its own local matrix
-     *  that is also wrapped via CreateLocalMatrixShader.
-     */
-    const SkMatrix& getLocalMatrix() const;
-
-    /**
      *  Returns true if the shader is guaranteed to produce only opaque
      *  colors, subject to the SkPaint using the shader to apply an opaque
      *  alpha value. Subclasses should override this to allow some
@@ -261,12 +253,9 @@ public:
                                              const SkMatrix* localMatrix, const SkRect* tile);
 #endif
 
-    /** DEPRECATED. skbug.com/8941
-     *  If this shader can be represented by another shader + a localMatrix, return that shader and
-     *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
-     */
-    // TODO: clean up clients, move to SkShaderBase.
-    virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
+#ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
+    SkMatrix getLocalMatrix() const;
+#endif
 
 private:
     SkShader() = default;
