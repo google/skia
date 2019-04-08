@@ -223,9 +223,28 @@ public:
      * @param rowBytes         number of bytes between consecutive rows in the buffer. Zero
      *                         means rows are tightly packed.
      */
-    bool transferPixels(GrTexture* texture, int left, int top, int width, int height,
-                        GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
-                        size_t rowBytes);
+    bool transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                          GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
+                          size_t rowBytes);
+
+    /**
+     * Reads the pixels from a rectangle of a surface into a buffer
+     *
+     * There are a couple of assumptions here. First, we only update the top miplevel.
+     * And second, that any y flip needed has already been done in the buffer.
+     *
+     * @param surface          The surface to read from.
+     * @param left             left edge of the rectangle to read (inclusive)
+     * @param top              top edge of the rectangle to read (inclusive)
+     * @param width            width of rectangle to read in pixels.
+     * @param height           height of rectangle to read in pixels.
+     * @param bufferColorType  the color type of the transfer buffer's pixel data
+     * @param transferBuffer   GrBuffer to write pixels to (type must be "kXferGpuToCpu")
+     * @param offset           offset from the start of the buffer
+     */
+    size_t transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                              GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                              size_t offset);
 
     // After the client interacts directly with the 3D context state the GrGpu
     // must resync its internal state and assumptions about 3D context state.
@@ -515,9 +534,13 @@ private:
                                const GrMipLevel texels[], int mipLevelCount) = 0;
 
     // overridden by backend-specific derived class to perform the texture transfer
-    virtual bool onTransferPixels(GrTexture*, int left, int top, int width, int height,
-                                  GrColorType colorType, GrGpuBuffer* transferBuffer, size_t offset,
-                                  size_t rowBytes) = 0;
+    virtual bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
+                                    GrColorType colorType, GrGpuBuffer* transferBuffer,
+                                    size_t offset, size_t rowBytes) = 0;
+    // overridden by backend-specific derived class to perform the surface transfer
+    virtual size_t onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
+                                        GrColorType colorType, GrGpuBuffer* transferBuffer,
+                                        size_t offset) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;

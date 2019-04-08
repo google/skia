@@ -776,7 +776,7 @@ def dm_flags(api, bot):
     match.append('~^PromiseImageTextureReuseDifferentConfig$')
     match.append('~^SurfaceSemaphores$')
     match.append('~^SurfaceTest$')
-    match.append('~^TransferPixelsTest$')
+    match.append('~^TransferPixelsToTest$')
     match.append('~^VertexAttributeCount$')
     match.append('~^WritePixelsNonTexture_Gpu$')
     if 'Mac' in bot:
