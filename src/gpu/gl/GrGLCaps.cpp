@@ -470,7 +470,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (GR_IS_GR_GL(standard)) {
-        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object")) {
+        if (version >= GR_GL_VER(2, 1) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object") ||
+            ctxInfo.hasExtension("GL_EXT_pixel_buffer_object")) {
+            fTransferBufferSupport = true;
             fTransferBufferType = kPBO_TransferBufferType;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
@@ -478,9 +480,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             (ctxInfo.hasExtension("GL_NV_pixel_buffer_object") &&
              // GL_EXT_unpack_subimage needed to support subtexture rectangles
              ctxInfo.hasExtension("GL_EXT_unpack_subimage"))) {
+            fTransferBufferSupport = true;
             fTransferBufferType = kPBO_TransferBufferType;
 // TODO: get transfer buffers working in Chrome
 //        } else if (ctxInfo.hasExtension("GL_CHROMIUM_pixel_transfer_buffer_object")) {
+//            fTransferBufferSupport = true;
 //            fTransferBufferType = kChromium_TransferBufferType;
         }
     } // no WebGL support
@@ -2622,6 +2626,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // See skbug.com/7058
     fMapBufferType = kNone_MapBufferType;
     fMapBufferFlags = kNone_MapFlags;
+    fTransferBufferSupport = false;
+    fTransferBufferType = kNone_TransferBufferType;
 #endif
 #endif
 
@@ -2633,10 +2639,21 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driverVersion() > GR_GL_DRIVER_VER(127, 0, 0)) {
         fMapBufferType = kNone_MapBufferType;
         fMapBufferFlags = kNone_MapFlags;
+        fTransferBufferSupport = false;
+        fTransferBufferType = kNone_TransferBufferType;
     }
 
     // TODO: re-enable for ANGLE
     if (kANGLE_GrGLDriver == ctxInfo.driver()) {
+        fTransferBufferSupport = false;
+        fTransferBufferType = kNone_TransferBufferType;
+    }
+
+    // Unit test for TransferPixelsFromTest fails on Shield with X1. Unclear whether this is a
+    // driver bug or a bug in our implementation. It passes on desktop NVIDIA GPUs, so perhaps
+    // something related to OpenGL ES?
+    if (kTegra_GrGLRenderer == ctxInfo.renderer()) {
+        fTransferBufferSupport = false;
         fTransferBufferType = kNone_TransferBufferType;
     }
 
