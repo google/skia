@@ -6,6 +6,7 @@
  */
 
 #include "effects/GrDisableColorXP.h"
+#include "GrShaderCaps.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -50,11 +51,14 @@ public:
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
-        // This emit code should be empty. However, on the nexus 6 there is a driver bug where if
-        // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
-        // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
-        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
-        fragBuilder->codeAppendf("%s = half4(0);", args.fOutputPrimary);
+        if (args.fShaderCaps->mustWriteToFragColor()) {
+            // This emit code should be empty. However, on the nexus 6 there is a driver bug where
+            // if you do not give gl_FragColor a value, the gl context is lost and we end up drawing
+            // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
+            // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
+            GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+            fragBuilder->codeAppendf("%s = half4(0);", args.fOutputPrimary);
+        }
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
