@@ -235,17 +235,17 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
 // position or that there are no mask pixels.
 int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
                  const SkPoint positions[],
-                 int n,
+                 size_t n,
                  SkGlyphPos result[]) {
 
     int drawableGlyphCount = 0;
     const SkPoint* posCursor = positions;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = *posCursor++;
         if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
             const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
             if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {&glyph, glyphPos};
+                result[drawableGlyphCount++] = {i, &glyph, glyphPos};
             }
         }
     }
