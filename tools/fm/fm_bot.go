@@ -168,7 +168,7 @@ func main() {
 	if *script != "" {
 		file := os.Stdin
 		if *script != "-" {
-			file, err := os.Open(*script)
+			file, err = os.Open(*script)
 			if err != nil {
 				log.Fatal(err)
 			}
