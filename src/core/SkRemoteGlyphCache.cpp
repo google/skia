@@ -610,12 +610,12 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 
 // This version of glyphMetrics only adds entries to result if their data need to be sent to the
 // GPU process.
-int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
-        const SkGlyphID glyphIDs[], const SkPoint positions[], int n, SkGlyphPos result[]) {
+size_t SkStrikeServer::SkGlyphCacheState::glyphMetrics(
+        const SkGlyphID glyphIDs[], const SkPoint positions[], size_t n, SkGlyphPos result[]) {
 
-    int glyphsToSendCount = 0;
+    size_t glyphsToSendCount = 0;
     const SkPoint* posCursor = positions;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = *posCursor++;
         SkGlyphID glyphID = glyphIDs[i];
         SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
@@ -634,7 +634,7 @@ int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
 
-            result[glyphsToSendCount++] = {glyphPtr, glyphPos};
+            result[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
 
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
             fCachedGlyphImages.add(packedGlyphID);
