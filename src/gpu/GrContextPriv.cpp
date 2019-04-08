@@ -198,26 +198,6 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
                                       SkSurface::kNone_FlushFlags, 0, nullptr);
 }
 
-void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkASSERT(proxy);
-    ASSERT_OWNED_PROXY_PRIV(proxy);
-    if (proxy->priv().hasPendingWrite()) {
-        this->flush(proxy);
-    }
-}
-
-void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkASSERT(proxy);
-    ASSERT_OWNED_PROXY_PRIV(proxy);
-    if (proxy->priv().hasPendingIO()) {
-        this->flush(proxy);
-    }
-}
-
 void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
