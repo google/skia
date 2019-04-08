@@ -634,7 +634,7 @@ int SkStrikeServer::SkGlyphCacheState::glyphMetrics(
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
 
-            result[glyphsToSendCount++] = {glyphPtr, glyphPos};
+            result[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
 
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
             fCachedGlyphImages.add(packedGlyphID);

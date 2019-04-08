@@ -245,7 +245,7 @@ int SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
         if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
             const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
             if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {&glyph, glyphPos};
+                result[drawableGlyphCount++] = {i, &glyph, glyphPos};
             }
         }
     }
