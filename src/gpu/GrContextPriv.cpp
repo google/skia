@@ -198,26 +198,6 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
                                       SkSurface::kNone_FlushFlags, 0, nullptr);
 }
 
-void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkASSERT(proxy);
-    ASSERT_OWNED_PROXY_PRIV(proxy);
-    if (proxy->priv().hasPendingWrite()) {
-        this->flush(proxy);
-    }
-}
-
-void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkASSERT(proxy);
-    ASSERT_OWNED_PROXY_PRIV(proxy);
-    if (proxy->priv().hasPendingIO()) {
-        this->flush(proxy);
-    }
-}
-
 void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
@@ -451,6 +431,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         sk_bzero(buffer, tempPixmap.computeByteSize());
     }
 
+    // All writes to this proxy must be complete
     this->flush(srcProxy);
 
     if (!fContext->fGpu->readPixels(srcSurface, left, top, width, height, allowedColorType, buffer,
@@ -647,6 +628,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         top = dstSurface->height() - top - height;
     }
 
+    // All reads and writes to this proxy must be completed
     this->flush(dstProxy);
 
     return this->getGpu()->writePixels(dstSurface, left, top, width, height, srcColorType, buffer,

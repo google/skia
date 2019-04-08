@@ -206,6 +206,20 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     if (fFlushing || this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
+
+#if 0
+    if (SkSurface::kNone_FlushFlags == flags && !numSemaphores) {
+        if (proxy && !fFoo.find(proxy->uniqueID())) {
+            SkASSERT(!proxy->priv().hasPendingWrite());
+            return GrSemaphoresSubmitted::kNo;
+        } else {
+            SkASSERT(proxy->priv().hasPendingWrite());
+        }
+    }
+
+    fFoo.rewind();
+#endif
+
     SkDEBUGCODE(this->validate());
 
     auto direct = fContext->priv().asDirectContext();
@@ -767,6 +781,10 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
+#if 0
+    fFoo.add(sProxy.get());
+#endif
+
     return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext,
                                                                   std::move(renderTargetProxy),
                                                                   std::move(colorSpace),
@@ -789,6 +807,10 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     // GrTextureRenderTargets should always be using a GrRenderTargetContext
     SkASSERT(!sProxy->asRenderTargetProxy());
+
+#if 0
+    fFoo.add(sProxy.get());
+#endif
 
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
