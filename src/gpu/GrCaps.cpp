@@ -282,8 +282,27 @@ bool GrCaps::transferFromBufferRequirements(GrColorType bufferColorType, int wid
     if (!this->transferBufferSupport()) {
         return false;
     }
-    return this->onTransferFromBufferRequirements(bufferColorType, width, rowBytes,
-                                                  offsetAlignment);
+    if (this->onTransferFromBufferRequirements(bufferColorType, width, rowBytes,
+                                                  offsetAlignment)) {
+        // It's very convenient to access 1 byte-per-channel RGB/RGBA color types as uint32_t. Make
+        // those aligned reads out of the buffer even if the underlying API doesn't require it.
+        auto componentFlags = GrColorTypeComponentFlags(bufferColorType);
+        if ((componentFlags == kRGBA_SkColorTypeComponentFlags ||
+             componentFlags == kRGB_SkColorTypeComponentFlags) &&
+            GrColorTypeBytesPerPixel(bufferColorType) == 4) {
+            switch ((*offsetAlignment & 0b11)) {
+                case 0: // offset alignment already a multple of 4
+                    break;
+                case 2: // offset alignment is a multiple of 2 but not 4.
+                    *offsetAlignment *= 2;
+                    break;
+                default:
+                    *offsetAlignment *= 4;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
@@ -328,13 +347,4 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
 
 GrBackendFormat GrCaps::getBackendFormatFromColorType(SkColorType ct) const {
     return this->getBackendFormatFromGrColorType(SkColorTypeToGrColorType(ct), GrSRGBEncoded::kNo);
-}
-
-bool GrCaps::onTransferFromBufferRequirements(GrColorType bufferColorType, int width,
-                                              size_t* rowBytes, size_t* offsetAlignment) const {
-    // TODO(bsalomon): Provide backend-specific overrides of this the return the true requirements.
-    // Currently assuming tight row bytes rounded up to a multiple of 4 and 4 byte offset alignment.
-    *rowBytes = GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType) * width, 4);
-    *offsetAlignment = 4;
-    return true;
 }

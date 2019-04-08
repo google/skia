@@ -427,7 +427,8 @@ private:
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
     virtual bool onTransferFromBufferRequirements(GrColorType bufferColorType, int width,
-                                                  size_t* rowBytes, size_t* offsetAlignment) const;
+                                                  size_t* rowBytes,
+                                                  size_t* offsetAlignment) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.

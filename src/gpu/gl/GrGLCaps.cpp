@@ -3259,3 +3259,95 @@ GrBackendFormat GrGLCaps::getBackendFormatFromGrColorType(GrColorType ct,
     return GrBackendFormat::MakeGL(this->configSizedInternalFormat(config), GR_GL_TEXTURE_2D);
 }
 
+bool GrGLCaps::onTransferFromBufferRequirements(GrColorType bufferColorType, int width,
+                                                size_t* rowBytes, size_t* offsetAlignment) const {
+    // This implementation is highly coupled with decisions made in initConfigTable and GrGLGpu's
+    // read pixels implementation and may not be correct for all types. TODO(bsalomon): This will be
+    // cleaned up/unified as part of removing GrPixelConfig .
+    auto config = GrColorTypeToPixelConfig(bufferColorType, GrSRGBEncoded::kNo);
+    size_t alignment = 0;
+    // This switch is derived from a table titled "Pixel data type parameter values and the
+    // corresponding GL data types" in the OpenGL spec (Table 8.2 in OpenGL 4.5).
+    switch (fConfigTable[config].fFormats.fExternalType) {
+        case GR_GL_UNSIGNED_BYTE:
+            alignment = sizeof(GrGLubyte);
+            break;
+        case GR_GL_BYTE:
+            alignment = sizeof(GrGLbyte);
+            break;
+        case GR_GL_UNSIGNED_SHORT:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_SHORT:
+            alignment = sizeof(GrGLshort);
+            break;
+        case GR_GL_UNSIGNED_INT:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_INT:
+            alignment = sizeof(GrGLint);
+            break;
+        case GR_GL_HALF_FLOAT:
+            alignment = sizeof(GrGLhalf);
+            break;
+        case GR_GL_FLOAT:
+            alignment = sizeof(GrGLfloat);
+            break;
+        case GR_GL_UNSIGNED_SHORT_5_6_5:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_UNSIGNED_SHORT_4_4_4_4:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_UNSIGNED_SHORT_5_5_5_1:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_UNSIGNED_INT_2_10_10_10_REV:
+            alignment = sizeof(GrGLuint);
+            break;
+#if 0  // GL types we currently don't use. Here for future reference.
+        case GR_GL_UNSIGNED_BYTE_3_3_2:
+            alignment = sizeof(GrGLubyte);
+            break;
+        case GR_GL_UNSIGNED_BYTE_2_3_3_REV:
+            alignment = sizeof(GrGLubyte);
+            break;
+        case GR_GL_UNSIGNED_SHORT_5_6_5_REV:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_UNSIGNED_SHORT_4_4_4_4_REV:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_UNSIGNED_SHORT_1_5_5_5_REV:
+            alignment = sizeof(GrGLushort);
+            break;
+        case GR_GL_UNSIGNED_INT_8_8_8_8:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_UNSIGNED_INT_8_8_8_8_REV:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_UNSIGNED_INT_10_10_10_2:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_UNSIGNED_INT_24_8:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_UNSIGNED_INT_10F_11F_11F_REV:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_UNSIGNED_INT_5_9_9_9_REV:
+            alignment = sizeof(GrGLuint);
+            break;
+        case GR_GL_FLOAT_32_UNSIGNED_INT_24_8_REV n
+            alignment = 0;
+            break;
+#endif
+    }
+    if (!alignment) {
+        return false;
+    }
+    *rowBytes = GrColorTypeBytesPerPixel(bufferColorType) * width;
+    *offsetAlignment = alignment;
+    return true;
+}
