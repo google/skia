@@ -127,14 +127,6 @@ static void draw_points(SkCanvas::PointMode mode,
     draw.drawPoints(mode, count, points, paint, device);
 }
 
-// If the paint will definitely draw opaquely, replace kSrc with
-// kSrcOver.  http://crbug.com/473572
-static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
-    if (kSrcOver_SkXfermodeInterpretation == SkInterpretXfermode(*paint, false)) {
-        paint->setBlendMode(SkBlendMode::kSrcOver);
-    }
-}
-
 // A shader's matrix is:  CTMM x LocalMatrix x WrappingLocalMatrix.  We want to
 // switch to device space, where CTM = I, while keeping the original behavior.
 //
@@ -144,6 +136,7 @@ static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
 //                                 NewWrappingMatrix = InvLocalMatrix * CTM * LocalMatrix
 //
 static void transform_shader(SkPaint* paint, const SkMatrix& ctm) {
+    SkASSERT(!ctm.isIdentity());
     SkMatrix lm = SkPDFUtils::GetShaderLocalMatrix(paint->getShader());
     SkMatrix lmInv;
     if (lm.invert(&lmInv)) {
@@ -162,16 +155,32 @@ static void emit_pdf_color(SkColor4f color, SkWStream* result) {
     result->writeText(" ");
 }
 
-// If the paint has a color filter, apply the color filter to the shader or the
-// paint color.  Remove the color filter.
-void remove_color_filter(SkPaint* paint) {
+static SkTCopyOnFirstWrite<SkPaint> clean_paint(const SkPaint& srcPaint) {
+    SkTCopyOnFirstWrite<SkPaint> paint(srcPaint);
+    // If the paint will definitely draw opaquely, replace kSrc with
+    // kSrcOver.  http://crbug.com/473572
+    if (SkBlendMode::kSrcOver != paint->getBlendMode() &&
+        kSrcOver_SkXfermodeInterpretation == SkInterpretXfermode(*paint, false))
+    {
+        paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
+    }
+    // If the paint has a color filter, apply the color filter to the shader or the
+    // paint color.  Remove the color filter.
     if (SkColorFilter* cf = paint->getColorFilter()) {
+        SkPaint* p = paint.writable();
         if (SkShader* shader = paint->getShader()) {
-            paint->setShader(shader->makeWithColorFilter(paint->refColorFilter()));
+            p->setShader(shader->makeWithColorFilter(paint->refColorFilter()));
         } else {
-            paint->setColor4f(cf->filterColor4f(paint->getColor4f(), nullptr), nullptr);
+            p->setColor4f(cf->filterColor4f(paint->getColor4f(), nullptr), nullptr);
         }
-        paint->setColorFilter(nullptr);
+        p->setColorFilter(nullptr);
+    }
+    return paint;
+}
+
+static void set_style(SkTCopyOnFirstWrite<SkPaint>* paint, SkPaint::Style style) {
+    if (paint->get()->getStyle() != style) {
+        paint->writable()->setStyle(style);
     }
 }
 
@@ -607,46 +616,44 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     if (this->hasEmptyClip()) {
         return;
     }
-    SkPaint passedPaint = srcPaint;
-    remove_color_filter(&passedPaint);
-    replace_srcmode_on_opaque_paint(&passedPaint);
-    if (SkCanvas::kPoints_PointMode != mode) {
-        passedPaint.setStyle(SkPaint::kStroke_Style);
-    }
     if (count == 0) {
         return;
+    }
+    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
+
+
+
+    if (SkCanvas::kPoints_PointMode != mode) {
+        set_style(&paint, SkPaint::kStroke_Style);
     }
 
     // SkDraw::drawPoints converts to multiple calls to fDevice->drawPath.
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
-    if (passedPaint.getPathEffect()) {
-        draw_points(mode, count, points, passedPaint,
+    if (paint->getPathEffect()) {
+        draw_points(mode, count, points, *paint,
                     this->devClipBounds(), this->ctm(), this);
         return;
     }
 
-    const SkPaint* paint = &passedPaint;
-    SkPaint modifiedPaint;
 
-    if (mode == SkCanvas::kPoints_PointMode &&
-            paint->getStrokeCap() != SkPaint::kRound_Cap) {
-        modifiedPaint = *paint;
-        paint = &modifiedPaint;
+    if (mode == SkCanvas::kPoints_PointMode && paint->getStrokeCap() != SkPaint::kRound_Cap) {
         if (paint->getStrokeWidth()) {
             // PDF won't draw a single point with square/butt caps because the
             // orientation is ambiguous.  Draw a rectangle instead.
-            modifiedPaint.setStyle(SkPaint::kFill_Style);
+            set_style(&paint, SkPaint::kFill_Style);
             SkScalar strokeWidth = paint->getStrokeWidth();
             SkScalar halfStroke = SkScalarHalf(strokeWidth);
             for (size_t i = 0; i < count; i++) {
                 SkRect r = SkRect::MakeXYWH(points[i].fX, points[i].fY, 0, 0);
                 r.inset(-halfStroke, -halfStroke);
-                this->drawRect(r, modifiedPaint);
+                this->drawRect(r, *paint);
             }
             return;
         } else {
-            modifiedPaint.setStrokeCap(SkPaint::kRound_Cap);
+            if (paint->getStrokeCap() != SkPaint::kRound_Cap) {
+                paint.writable()->setStrokeCap(SkPaint::kRound_Cap);
+            }
         }
     }
 
@@ -724,23 +731,21 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     if (this->hasEmptyClip()) {
         return;
     }
-    SkPaint paint = srcPaint;
-    remove_color_filter(&paint);
-    replace_srcmode_on_opaque_paint(&paint);
+    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
     SkRect r = rect;
     r.sort();
 
-    if (paint.getPathEffect() || paint.getMaskFilter() || this->ctm().hasPerspective()) {
-        this->drawPath(to_path(r), paint, true);
+    if (paint->getPathEffect() || paint->getMaskFilter() || this->ctm().hasPerspective()) {
+        this->drawPath(to_path(r), *paint, true);
         return;
     }
 
-    ScopedContentEntry content(this, paint);
+    ScopedContentEntry content(this, *paint);
     if (!content) {
         return;
     }
     SkPDFUtils::AppendRectangle(r, content.stream());
-    SkPDFUtils::PaintPath(paint.getStyle(), SkPath::kWinding_FillType, content.stream());
+    SkPDFUtils::PaintPath(paint->getStyle(), SkPath::kWinding_FillType, content.stream());
 }
 
 void SkPDFDevice::drawRRect(const SkRRect& rrect,
@@ -748,12 +753,10 @@ void SkPDFDevice::drawRRect(const SkRRect& rrect,
     if (this->hasEmptyClip()) {
         return;
     }
-    SkPaint paint = srcPaint;
-    remove_color_filter(&paint);
-    replace_srcmode_on_opaque_paint(&paint);
-    SkPath  path;
+    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
+    SkPath path;
     path.addRRect(rrect);
-    this->drawPath(path, paint, true);
+    this->drawPath(path, *paint, true);
 }
 
 void SkPDFDevice::drawOval(const SkRect& oval,
@@ -761,12 +764,10 @@ void SkPDFDevice::drawOval(const SkRect& oval,
     if (this->hasEmptyClip()) {
         return;
     }
-    SkPaint paint = srcPaint;
-    remove_color_filter(&paint);
-    replace_srcmode_on_opaque_paint(&paint);
-    SkPath  path;
+    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
+    SkPath path;
     path.addOval(oval);
-    this->drawPath(path, paint, true);
+    this->drawPath(path, *paint, true);
 }
 
 void SkPDFDevice::drawPath(const SkPath& origPath,
@@ -853,20 +854,18 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     if (clipStack.isEmpty(this->bounds())) {
         return;
     }
-    SkPaint paint = srcPaint;
-    remove_color_filter(&paint);
-    replace_srcmode_on_opaque_paint(&paint);
+    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
     SkPath modifiedPath;
     SkPath* pathPtr = const_cast<SkPath*>(&origPath);
 
-    if (paint.getMaskFilter()) {
-        this->internalDrawPathWithFilter(clipStack, ctm, origPath, paint);
+    if (paint->getMaskFilter()) {
+        this->internalDrawPathWithFilter(clipStack, ctm, origPath, *paint);
         return;
     }
 
     SkMatrix matrix = ctm;
 
-    if (paint.getPathEffect()) {
+    if (paint->getPathEffect()) {
         if (clipStack.isEmpty(this->bounds())) {
             return;
         }
@@ -875,16 +874,18 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
             pathPtr = &modifiedPath;
             pathIsMutable = true;
         }
-        if (paint.getFillPath(*pathPtr, pathPtr)) {
-            paint.setStyle(SkPaint::kFill_Style);
+        if (paint->getFillPath(*pathPtr, pathPtr)) {
+            set_style(&paint, SkPaint::kFill_Style);
         } else {
-            paint.setStyle(SkPaint::kStroke_Style);
-            paint.setStrokeWidth(0);
+            set_style(&paint, SkPaint::kStroke_Style);
+            if (paint->getStrokeWidth() != 0) {
+                paint.writable()->setStrokeWidth(0);
+            }
         }
-        paint.setPathEffect(nullptr);
+        paint.writable()->setPathEffect(nullptr);
     }
 
-    if (this->handleInversePath(*pathPtr, paint, pathIsMutable)) {
+    if (this->handleInversePath(*pathPtr, *paint, pathIsMutable)) {
         return;
     }
     if (matrix.getType() & SkMatrix::kPerspective_Mask) {
@@ -894,13 +895,13 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
             pathIsMutable = true;
         }
         pathPtr->transform(matrix);
-        if (paint.getShader()) {
-            transform_shader(&paint, matrix);
+        if (paint->getShader()) {
+            transform_shader(paint.writable(), matrix);
         }
         matrix = SkMatrix::I();
     }
 
-    ScopedContentEntry content(this, &clipStack, matrix, paint);
+    ScopedContentEntry content(this, &clipStack, matrix, *paint);
     if (!content) {
         return;
     }
@@ -908,12 +909,12 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     SkScalar matrixScale = matrix.mapRadius(1.0f);
     SkScalar tolerance = matrixScale > 0.0f ? kToleranceScale / matrixScale : kToleranceScale;
     bool consumeDegeratePathSegments =
-           paint.getStyle() == SkPaint::kFill_Style ||
-           (paint.getStrokeCap() != SkPaint::kRound_Cap &&
-            paint.getStrokeCap() != SkPaint::kSquare_Cap);
-    SkPDFUtils::EmitPath(*pathPtr, paint.getStyle(), consumeDegeratePathSegments, content.stream(),
+           paint->getStyle() == SkPaint::kFill_Style ||
+           (paint->getStrokeCap() != SkPaint::kRound_Cap &&
+            paint->getStrokeCap() != SkPaint::kSquare_Cap);
+    SkPDFUtils::EmitPath(*pathPtr, paint->getStyle(), consumeDegeratePathSegments, content.stream(),
                          tolerance);
-    SkPDFUtils::PaintPath(paint.getStyle(), pathPtr->getFillType(), content.stream());
+    SkPDFUtils::PaintPath(paint->getStyle(), pathPtr->getFillType(), content.stream());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1151,10 +1152,8 @@ void SkPDFDevice::internalDrawGlyphRun(
 
     SkRect clipStackBounds = this->cs().bounds(this->bounds());
 
-    SkPaint paint(runPaint);
-    remove_color_filter(&paint);
-    replace_srcmode_on_opaque_paint(&paint);
-    ScopedContentEntry content(this, paint, glyphRunFont.getScaleX());
+    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(runPaint));
+    ScopedContentEntry content(this, *paint, glyphRunFont.getScaleX());
     if (!content) {
         return;
     }
@@ -1862,15 +1861,18 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
 
     // If the image is opaque and the paint's alpha is too, replace
-    // kSrc blendmode with kSrcOver.
-    SkPaint paint = srcPaint;
-    if (imageSubset.image()->isOpaque()) {
-        replace_srcmode_on_opaque_paint(&paint);
+    // kSrc blendmode with kSrcOver.  http://crbug.com/473572
+    SkTCopyOnFirstWrite<SkPaint> paint(srcPaint);
+    if (SkBlendMode::kSrcOver != paint->getBlendMode() &&
+        imageSubset.image()->isOpaque() &&
+        kSrcOver_SkXfermodeInterpretation == SkInterpretXfermode(*paint, false))
+    {
+        paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
     }
 
     // Alpha-only images need to get their color from the shader, before
     // applying the colorfilter.
-    if (imageSubset.image()->isAlphaOnly() && paint.getColorFilter()) {
+    if (imageSubset.image()->isAlphaOnly() && paint->getColorFilter()) {
         // must blend alpha image and shader before applying colorfilter.
         auto surface =
             SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(imageSubset.image()->dimensions()));
@@ -1878,18 +1880,20 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkPaint tmpPaint;
         // In the case of alpha images with shaders, the shader's coordinate
         // system is the image's coordiantes.
-        tmpPaint.setShader(sk_ref_sp(paint.getShader()));
-        tmpPaint.setColor4f(paint.getColor4f(), nullptr);
+        tmpPaint.setShader(sk_ref_sp(paint->getShader()));
+        tmpPaint.setColor4f(paint->getColor4f(), nullptr);
         canvas->clear(0x00000000);
         canvas->drawImage(imageSubset.image().get(), 0, 0, &tmpPaint);
-        paint.setShader(nullptr);
+        if (paint->getShader() != nullptr) {
+            paint.writable()->setShader(nullptr);
+        }
         imageSubset = SkKeyedImage(surface->makeImageSnapshot());
         SkASSERT(!imageSubset.image()->isAlphaOnly());
     }
 
     if (imageSubset.image()->isAlphaOnly()) {
         // The ColorFilter applies to the paint color/shader, not the alpha layer.
-        SkASSERT(nullptr == paint.getColorFilter());
+        SkASSERT(nullptr == paint->getColorFilter());
 
         sk_sp<SkImage> mask = alpha_image_to_greyscale_image(imageSubset.image().get());
         if (!mask) {
@@ -1900,14 +1904,14 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
         {
             SkCanvas canvas(maskDevice);
-            if (paint.getMaskFilter()) {
+            if (paint->getMaskFilter()) {
                 // This clip prevents the mask image shader from covering
                 // entire device if unnecessary.
                 canvas.clipRect(this->cs().bounds(this->bounds()));
                 canvas.concat(ctm);
                 SkPaint tmpPaint;
                 tmpPaint.setShader(mask->makeShader(&transform));
-                tmpPaint.setMaskFilter(sk_ref_sp(paint.getMaskFilter()));
+                tmpPaint.setMaskFilter(sk_ref_sp(paint->getMaskFilter()));
                 canvas.drawRect(dst, tmpPaint);
             } else {
                 canvas.concat(ctm);
@@ -1918,10 +1922,10 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                 canvas.drawImage(mask, 0, 0);
             }
         }
-        if (!ctm.isIdentity() && paint.getShader()) {
-            transform_shader(&paint, ctm); // Since we are using identity matrix.
+        if (!ctm.isIdentity() && paint->getShader()) {
+            transform_shader(paint.writable(), ctm); // Since we are using identity matrix.
         }
-        ScopedContentEntry content(this, &this->cs(), SkMatrix::I(), paint);
+        ScopedContentEntry content(this, &this->cs(), SkMatrix::I(), *paint);
         if (!content) {
             return;
         }
@@ -1931,10 +1935,10 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         this->clearMaskOnGraphicState(content.stream());
         return;
     }
-    if (paint.getMaskFilter()) {
-        paint.setShader(imageSubset.image()->makeShader(&transform));
+    if (paint->getMaskFilter()) {
+        paint.writable()->setShader(imageSubset.image()->makeShader(&transform));
         SkPath path = to_path(dst); // handles non-integral clipping.
-        this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
+        this->internalDrawPath(this->cs(), this->ctm(), path, *paint, true);
         return;
     }
     transform.postConcat(ctm);
@@ -2025,7 +2029,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     scaled.postScale(SkIntToScalar(subset.width()),
                      SkIntToScalar(subset.height()));
     scaled.postConcat(matrix);
-    ScopedContentEntry content(this, &this->cs(), scaled, paint);
+    ScopedContentEntry content(this, &this->cs(), scaled, *paint);
     if (!content) {
         return;
     }
@@ -2038,7 +2042,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         return;
     }
 
-    if (SkColorFilter* colorFilter = paint.getColorFilter()) {
+    if (SkColorFilter* colorFilter = paint->getColorFilter()) {
         sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
         imageSubset = SkKeyedImage(std::move(img));
         if (!imageSubset) {
