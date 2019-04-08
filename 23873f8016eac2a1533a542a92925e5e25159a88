@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21a54a26_db5b4274",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-08T18:50:38Z",
+      "side": 1,
+      "message": "This has no more callers now? Can it be removed?",
+      "revId": "23873f8016eac2a1533a542a92925e5e25159a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
