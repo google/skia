@@ -2954,16 +2954,23 @@ void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& 
 }
 
 void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStream& out) {
+    // We believe the while loop code below will work, but Skia doesn't actually use them and
+    // adequately testing this code in the absence of Skia exercising it isn't straightforward. For
+    // the time being, we just fail with an error due to the lack of testing. If you encounter this
+    // message, simply remove the error call below to see whether our while loop support actually
+    // works.
+    fErrors.error(w.fOffset, "internal error: while loop support has been disabled in SPIR-V, "
+                  "see SkSLSPIRVCodeGenerator.cpp for details");
+
     SpvId header = this->nextId();
     SpvId start = this->nextId();
     SpvId body = this->nextId();
-    SpvId continueTarget = this->nextId();
-    fContinueTarget.push(continueTarget);
+    fContinueTarget.push(start);
     SpvId end = this->nextId();
     fBreakTarget.push(end);
     this->writeInstruction(SpvOpBranch, header, out);
     this->writeLabel(header, out);
-    this->writeInstruction(SpvOpLoopMerge, end, continueTarget, SpvLoopControlMaskNone, out);
+    this->writeInstruction(SpvOpLoopMerge, end, start, SpvLoopControlMaskNone, out);
     this->writeInstruction(SpvOpBranch, start, out);
     this->writeLabel(start, out);
     SpvId test = this->writeExpression(*w.fTest, out);
@@ -2971,10 +2978,8 @@ void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStre
     this->writeLabel(body, out);
     this->writeStatement(*w.fStatement, out);
     if (fCurrentBlock) {
-        this->writeInstruction(SpvOpBranch, continueTarget, out);
+        this->writeInstruction(SpvOpBranch, start, out);
     }
-    this->writeLabel(continueTarget, out);
-    this->writeInstruction(SpvOpBranch, header, out);
     this->writeLabel(end, out);
     fBreakTarget.pop();
     fContinueTarget.pop();
@@ -2992,13 +2997,12 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     SpvId header = this->nextId();
     SpvId start = this->nextId();
     SpvId next = this->nextId();
-    SpvId continueTarget = this->nextId();
-    fContinueTarget.push(continueTarget);
+    fContinueTarget.push(next);
     SpvId end = this->nextId();
     fBreakTarget.push(end);
     this->writeInstruction(SpvOpBranch, header, out);
     this->writeLabel(header, out);
-    this->writeInstruction(SpvOpLoopMerge, end, continueTarget, SpvLoopControlMaskNone, out);
+    this->writeInstruction(SpvOpLoopMerge, end, start, SpvLoopControlMaskNone, out);
     this->writeInstruction(SpvOpBranch, start, out);
     this->writeLabel(start, out);
     this->writeStatement(*d.fStatement, out);
@@ -3007,9 +3011,7 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     }
     this->writeLabel(next, out);
     SpvId test = this->writeExpression(*d.fTest, out);
-    this->writeInstruction(SpvOpBranchConditional, test, continueTarget, end, out);
-    this->writeLabel(continueTarget, out);
-    this->writeInstruction(SpvOpBranch, header, out);
+    this->writeInstruction(SpvOpBranchConditional, test, start, end, out);
     this->writeLabel(end, out);
     fBreakTarget.pop();
     fContinueTarget.pop();

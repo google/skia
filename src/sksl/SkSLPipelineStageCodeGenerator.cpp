@@ -59,7 +59,7 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
 }
 
 void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
-                                                       Precedence parentPrecedence) {
+                                             Precedence parentPrecedence) {
     if (b.fOperator == Token::PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
         Precedence precedence = GetBinaryPrecedence(b.fOperator);
@@ -147,7 +147,8 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                                 found = true;
                                 break;
                             }
-                            if (var.fModifiers.fFlags & Modifiers::kUniform_Flag) {
+                            if (var.fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                                         Modifiers::kUniform_Flag)) {
                                 ++index;
                             }
                         }
@@ -156,20 +157,8 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 SkASSERT(found);
                 fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                                            index));
-            } else if (fProgramKind == Program::kMixer_Kind &&
-                     ref.fVariable.fStorage == Variable::kParameter_Storage &&
-                     fCurrentFunction->fName == "main") {
-                this->write("%s");
-                for (size_t i = 0; i < fCurrentFunction->fParameters.size(); ++i) {
-                    if (fCurrentFunction->fParameters[i] == &ref.fVariable) {
-                        fFormatArgs->push_back(Compiler::FormatArg(
-                                                         Compiler::FormatArg::Kind::kChildProcessor,
-                                                         i));
-                        return;
-                    }
-                }
-                SkASSERT(false);
-            } else {
+            }
+            else {
                 this->write(ref.fVariable.fName);
             }
     }
@@ -182,18 +171,6 @@ void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& s) {
     INHERITED::writeIfStatement(s);
 }
 
-void PipelineStageCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
-    if (fProgramKind == Program::Kind::kMixer_Kind) {
-        SkASSERT(r.fExpression);
-        this->write("%s = ");
-        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
-        this->writeExpression(*r.fExpression, kTopLevel_Precedence);
-        this->write(";\nbreak;\n");
-    } else {
-        INHERITED::writeReturnStatement(r);
-    }
-}
-
 void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     if (s.fIsStatic) {
         this->write("@");
@@ -202,13 +179,7 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
 }
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    fCurrentFunction = &f.fDeclaration;
     if (f.fDeclaration.fName == "main") {
-        if (fProgramKind == Program::kMixer_Kind) {
-            // Mixers use return statements. To make this work, we wrap the Mixer's body in a loop
-            // and replace the return with a break.
-            this->writef("while (true) {");
-        }
         fFunctionHeader = "";
         OutputStream* oldOut = fOut;
         StringStream buffer;
@@ -219,9 +190,6 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
             this->writeLine();
-        }
-        if (fProgramKind == Program::kMixer_Kind) {
-            this->write("};\n");
         }
 
         fOut = oldOut;

@@ -451,10 +451,6 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
     }
 }
 
-static bool is_true(Expression& expr) {
-    return expr.fKind == Expression::kBoolLiteral_Kind && ((BoolLiteral&) expr).fValue;
-}
-
 void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
     switch ((*s)->fKind) {
         case Statement::kBlock_Kind:
@@ -540,9 +536,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             fLoopExits.push(loopExit);
             this->addExpression(cfg, &w.fTest, true);
             BlockId test = cfg.fCurrent;
-            if (!is_true(*w.fTest)) {
-                cfg.addExit(test, loopExit);
-            }
+            cfg.addExit(test, loopExit);
             cfg.newBlock();
             this->addStatement(cfg, &w.fStatement);
             cfg.addExit(cfg.fCurrent, loopStart);
