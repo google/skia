@@ -242,9 +242,12 @@ void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
 }
 
 const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
-    const GrShaderCaps& caps = *fProgramBuilder->shaderCaps();
-    return caps.mustDeclareFragmentShaderOutput() ? DeclaredSecondaryColorOutputName()
-                                                  : "gl_SecondaryFragColorEXT";
+    if (this->hasSecondaryOutput()) {
+        return (fProgramBuilder->shaderCaps()->mustDeclareFragmentShaderOutput())
+                ? DeclaredSecondaryColorOutputName()
+                : "gl_SecondaryFragColorEXT";
+    }
+    return nullptr;
 }
 
 GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
