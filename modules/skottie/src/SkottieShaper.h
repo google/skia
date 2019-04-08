@@ -30,7 +30,7 @@ public:
     };
 
     enum class VAlign : uint8_t {
-        // Align the first line ascent with the text box top.
+        // Align the first line visual top with the text box top.
         kTop,
         // Align the first line baseline with the text box top.
         kTopBaseline,
