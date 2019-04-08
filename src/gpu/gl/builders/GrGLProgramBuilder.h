@@ -20,7 +20,6 @@
 class GrFragmentProcessor;
 class GrGLContextInfo;
 class GrProgramDesc;
-struct GrGLSLSet;
 class GrGLSLShaderBuilder;
 class GrShaderCaps;
 
@@ -64,7 +63,7 @@ private:
     void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
                                  bool bindAttribLocations);
     void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                            const GrGLSLSet& glsl);
+                            const SkSL::String glsl[]);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
