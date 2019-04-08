@@ -13,6 +13,7 @@ flutter_defines = [
   "SK_DISABLE_AAA",
 
   # API staging
+  "SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY",
 
   # Flutter doesn't deserialize anything.
   "SK_DISABLE_READBUFFER",
