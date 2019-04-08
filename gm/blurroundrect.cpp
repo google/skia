@@ -57,9 +57,7 @@ public:
             paint->setMaskFilter(SkMaskFilter::MakeBlur(
                     kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf)));
-            paint->setColorFilter(SkColorFilter::MakeModeFilter(
-                    SK_ColorLTGRAY,
-                    SkBlendMode::kSrcIn));
+            paint->setColorFilter(SkColorFilterMaker::Blend(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
             paint->setColor(SK_ColorGRAY);
         }
         {
