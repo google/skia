@@ -177,18 +177,6 @@ public:
     void flush(GrSurfaceProxy*);
 
     /**
-     * After this returns any pending writes to the surface will have been issued to the
-     * backend 3D API.
-     */
-    void flushSurfaceWrites(GrSurfaceProxy*);
-
-    /**
-     * After this returns any pending reads or writes to the surface will have been issued to the
-     * backend 3D API.
-     */
-    void flushSurfaceIO(GrSurfaceProxy*);
-
-    /**
      * Finalizes all pending reads and writes to the surface and also performs an MSAA resolve
      * if necessary.
      *

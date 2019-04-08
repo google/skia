@@ -206,6 +206,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     if (fFlushing || this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
+
     SkDEBUGCODE(this->validate());
 
     auto direct = fContext->priv().asDirectContext();
