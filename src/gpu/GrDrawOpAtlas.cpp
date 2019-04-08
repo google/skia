@@ -515,7 +515,13 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
 
     GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
+    if (proxyProvider->caps()->shouldInitializeTextures()) {
+        // The atlas isn't guaranteed to touch all its pixels so, for platforms that benefit
+        // from complete initialization, clear everything.
+        desc.fFlags = kPerformInitialClear_GrSurfaceFlag;
+    } else {
+        desc.fFlags = kNone_GrSurfaceFlags;
+    }
     desc.fWidth = fTextureWidth;
     desc.fHeight = fTextureHeight;
     desc.fConfig = fPixelConfig;
