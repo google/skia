@@ -465,6 +465,8 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    bool onTransferFromBufferRequirements(GrColorType bufferColorType, int width, size_t* rowBytes,
+                                          size_t* offsetAlignment) const override;
 
     GrGLStandard fStandard;
 

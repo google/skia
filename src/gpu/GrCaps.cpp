@@ -329,12 +329,3 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
 GrBackendFormat GrCaps::getBackendFormatFromColorType(SkColorType ct) const {
     return this->getBackendFormatFromGrColorType(SkColorTypeToGrColorType(ct), GrSRGBEncoded::kNo);
 }
-
-bool GrCaps::onTransferFromBufferRequirements(GrColorType bufferColorType, int width,
-                                              size_t* rowBytes, size_t* offsetAlignment) const {
-    // TODO(bsalomon): Provide backend-specific overrides of this the return the true requirements.
-    // Currently assuming tight row bytes rounded up to a multiple of 4 and 4 byte offset alignment.
-    *rowBytes = GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType) * width, 4);
-    *offsetAlignment = 4;
-    return true;
-}
