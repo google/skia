@@ -30,43 +30,35 @@ public:
     void unref() const final { GrGpuResource::unref(); }
 
     /**
-     * Maps the buffer to be written by the CPU.
+     * Maps the buffer to be read or written by the CPU.
      *
-     * The previous content of the buffer is invalidated. It is an error
-     * to draw from the buffer while it is mapped. It may fail if the backend
-     * doesn't support mapping the buffer. If the buffer is CPU backed then
-     * it will always succeed and is a free operation. Once a buffer is mapped,
-     * subsequent calls to map() are ignored.
+     * It is an error to draw from the buffer while it is mapped or transfer to/from the buffer. It
+     * may fail if the backend doesn't support mapping the buffer. Once a buffer is mapped,
+     * subsequent calls to map() trivially succeed. No matter how many times map() is called,
+     * umap() will unmap the buffer on the first call if it is mapped.
      *
-     * Note that buffer mapping does not go through GrContext and therefore is
-     * not serialized with other operations.
+     * If the buffer is of type GrGpuBufferType::kXferGpuToCpu then it is mapped for reading only.
+     * Otherwise it is mapped writing only. Writing to a buffer that is mapped for reading or vice
+     * versa produces undefined results. If the buffer is mapped for writing then then the buffer's
+     * previous contents are invalidated.
      *
      * @return a pointer to the data or nullptr if the map fails.
      */
-    void* map() {
-        if (!fMapPtr) {
-            this->onMap();
-        }
-        return fMapPtr;
-    }
+    void* map();
 
     /**
-     * Unmaps the buffer.
+     * Unmaps the buffer if it is mapped.
      *
      * The pointer returned by the previous map call will no longer be valid.
      */
-    void unmap() {
-        SkASSERT(fMapPtr);
-        this->onUnmap();
-        fMapPtr = nullptr;
-    }
+    void unmap();
 
     /**
-     Queries whether the buffer has been mapped.
-
-     @return true if the buffer is mapped, false otherwise.
+     * Queries whether the buffer has been mapped.
+     *
+     * @return true if the buffer is mapped, false otherwise.
      */
-    bool isMapped() const { return SkToBool(fMapPtr); }
+    bool isMapped() const;
 
     bool isCpuBuffer() const final { return false; }
 
@@ -79,16 +71,14 @@ public:
      *
      * The buffer must not be mapped.
      *
+     * Fails for GrGpuBufferType::kXferGpuToCpu.
+     *
      * Note that buffer updates do not go through GrContext and therefore are
      * not serialized with other operations.
      *
      * @return returns true if the update succeeds, false otherwise.
      */
-    bool updateData(const void* src, size_t srcSizeInBytes) {
-        SkASSERT(!this->isMapped());
-        SkASSERT(srcSizeInBytes <= fSizeInBytes);
-        return this->onUpdateData(src, srcSizeInBytes);
-    }
+    bool updateData(const void* src, size_t srcSizeInBytes);
 
 protected:
     GrGpuBuffer(GrGpu*, size_t sizeInBytes, GrGpuBufferType, GrAccessPattern);
