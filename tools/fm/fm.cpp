@@ -8,7 +8,9 @@
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrPersistentCacheUtils.h"
 #include "HashAndEncode.h"
+#include "MemoryCache.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
@@ -61,6 +63,8 @@ static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
+
+static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
 static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
 static DEFINE_string(parameters, "", "Metadata passed through to .png encoder and .json output.");
@@ -366,6 +370,12 @@ int main(int argc, char** argv) {
     GrContextOptions baseOptions;
     SetCtxOptionsFromCommonFlags(&baseOptions);
 
+    sk_gpu_test::MemoryCache memoryCache;
+    if (!FLAGS_writeShaders.isEmpty()) {
+        baseOptions.fPersistentCache = &memoryCache;
+        baseOptions.fDisallowGLSLBinaryCaching = true;
+    }
+
     SkTHashMap<SkString, skiagm::GMFactory> gm_factories;
     for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm{factory(nullptr)};
@@ -571,6 +581,14 @@ int main(int argc, char** argv) {
         fprintf(stdout, "\t%s\t%7dms\n",
                 md5.c_str(),
                 (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+    }
+
+    if (!FLAGS_writeShaders.isEmpty()) {
+        sk_mkdir(FLAGS_writeShaders[0]);
+        GrBackendApi api =
+                GrContextFactory::ContextTypeBackend((GrContextFactory::ContextType)backend);
+        memoryCache.writeShadersToDisk(FLAGS_writeShaders[0], api);
+
     }
 
     return 0;
