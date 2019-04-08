@@ -328,7 +328,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
 }
 
 // TODO(bsalomon): Vulkan
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
     if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
         return;
     }
