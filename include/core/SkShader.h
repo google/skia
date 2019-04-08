@@ -255,6 +255,7 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
     SkMatrix getLocalMatrix() const;
+    sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 #endif
 
 private:
