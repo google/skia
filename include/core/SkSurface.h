@@ -700,6 +700,20 @@ public:
     */
     void prepareForExternalIO();
 
+    /** Transitions the backend-end object of a gpu backed SkSurface to a state that is suitable for
+        external operations by the client. Currently this only has an effect if the backend gpu API
+        is Vulkan. In this case it will transition the underlying VkImage back to original
+        VkQueueFamilyIndex that the VkImage was in when the SkSurface was created.
+
+        Similar to drawing calls, the actual transitioning of the SkImage will not happen until the
+        next time the image is flushed and is ordered around other operations on the SkImage. If any
+        operations are called on the image (either directly or indirectly via an
+        associated SkCanvas) between calling prepareForExternalIO and calling flush, the surface
+        will no longer be guaranteed to be transitioned to the correct external state. Therefore,
+        prepareForExternalIO should only be called immediately before calling flush.
+    */
+    void prepareForExternalIO(GrContext* context);
+
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
 
         Skia flushes as needed, so it is not necessary to call this if Skia manages
@@ -711,12 +725,6 @@ public:
     enum class BackendSurfaceAccess {
         kNoAccess,  //!< back-end object will not be used by client
         kPresent,   //!< back-end surface will be used for presenting to screen
-    };
-
-    enum FlushFlags {
-        kNone_FlushFlags = 0,
-        // flush will wait till all submitted GPU work is finished before returning.
-        kSyncCpu_FlushFlag = 0x1,
     };
 
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
@@ -752,14 +760,21 @@ public:
 
         Pending surface commands are flushed regardless of the return result.
 
+        If a finishedProc is provided, the finishedProc will be called with the finishedContext when
+        the gpu is done all work that was submitted to the gpu by this flush call.
+
         @param access            type of access the call will do on the backend object after flush
         @param flags             flush options
         @param numSemaphores     size of signalSemaphores array
         @param signalSemaphores  array of semaphore containers
+        @param finishedProc      proc called after gpu work from flush has finished
+        @param finishedContext   context passed into call to finishedProc
         @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
     */
-    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, FlushFlags flags,
-                                int numSemaphores, GrBackendSemaphore signalSemaphores[]);
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
+                                int numSemaphores, GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr);
 
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
         After issuing all commands, signalSemaphores of count numSemaphores semaphores
