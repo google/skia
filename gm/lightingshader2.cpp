@@ -79,8 +79,7 @@ protected:
 
         SkBitmap opaqueDiffuseMap = ToolUtils::create_checkerboard_bitmap(
                 kTexSize, kTexSize, SK_ColorBLACK, 0xFF808080, 8);
-        fOpaqueDiffuse = SkShader::MakeBitmapShader(opaqueDiffuseMap, SkTileMode::kClamp,
-                                                    SkTileMode::kClamp, &matrix);
+        fOpaqueDiffuse = opaqueDiffuseMap.makeShader(&matrix);
 
         SkBitmap translucentDiffuseMap =
                 ToolUtils::create_checkerboard_bitmap(kTexSize,
@@ -88,13 +87,10 @@ protected:
                                                       SkColorSetARGB(0x55, 0x00, 0x00, 0x00),
                                                       SkColorSetARGB(0x55, 0x80, 0x80, 0x80),
                                                       8);
-        fTranslucentDiffuse = SkShader::MakeBitmapShader(translucentDiffuseMap,
-                                                         SkTileMode::kClamp,
-                                                         SkTileMode::kClamp, &matrix);
+        fTranslucentDiffuse = translucentDiffuseMap.makeShader(&matrix);
 
         SkBitmap normalMap = make_frustum_normalmap(kTexSize);
-        fNormalMapShader = SkShader::MakeBitmapShader(normalMap, SkTileMode::kClamp,
-                                                      SkTileMode::kClamp, &matrix);
+        fNormalMapShader = normalMap.makeShader(&matrix);
 
     }
 

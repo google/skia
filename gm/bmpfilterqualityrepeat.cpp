@@ -74,7 +74,7 @@ private:
 
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
             constexpr SkTileMode kTM = SkTileMode::kRepeat;
-            bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
+            bmpPaint.setShader(fBmp.makeShader(kTM, kTM, &lm));
             bmpPaint.setFilterQuality(kQualities[q].fQuality);
             canvas->drawRect(rect, bmpPaint);
             canvas->drawString(kQualities[q].fName, 20, 40, font, textPaint);

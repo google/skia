@@ -51,7 +51,7 @@ public:
 
         create_gradient(&bm);
 
-        fPaint.setShader(SkShader::MakeBitmapShader(bm, xTile, yTile));
+        fPaint.setShader(bm.makeShader(xTile, yTile));
 
         fName.printf("constXTile_");
 

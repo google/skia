@@ -18,7 +18,7 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     bmp.setInfo(info);
 
     // test 1: bitmap without pixel data
-    auto shader = SkShader::MakeBitmapShader(bmp, SkTileMode::kClamp, SkTileMode::kClamp);
+    auto shader = bmp.makeShader(SkTileMode::kClamp, SkTileMode::kClamp);
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, !shader->isOpaque());
 
@@ -26,19 +26,19 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     bmp.allocPixels(info);
 
     // test 2: not opaque by default
-    shader = SkShader::MakeBitmapShader(bmp, SkTileMode::kClamp, SkTileMode::kClamp);
+    shader = bmp.makeShader();
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, !shader->isOpaque());
 
     // test 3: explicitly opaque
     bmp.setAlphaType(kOpaque_SkAlphaType);
-    shader = SkShader::MakeBitmapShader(bmp, SkTileMode::kClamp, SkTileMode::kClamp);
+    shader = bmp.makeShader();
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, shader->isOpaque());
 
     // test 4: explicitly not opaque
     bmp.setAlphaType(kPremul_SkAlphaType);
-    shader = SkShader::MakeBitmapShader(bmp, SkTileMode::kClamp, SkTileMode::kClamp);
+    shader = bmp.makeShader();
     REPORTER_ASSERT(reporter, shader);
     REPORTER_ASSERT(reporter, !shader->isOpaque());
 }

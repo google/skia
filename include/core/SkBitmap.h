@@ -13,12 +13,14 @@
 #include "SkPixmap.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
+#include "SkTileMode.h"
 
 struct SkMask;
 struct SkIRect;
 struct SkRect;
 class SkPaint;
 class SkPixelRef;
+class SkShader;
 class SkString;
 
 /** \class SkBitmap
@@ -1093,6 +1095,11 @@ public:
         @return        true if SkBitmap has direct access to pixels
     */
     bool peekPixels(SkPixmap* pixmap) const;
+
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
+                               const SkMatrix* localMatrix = nullptr) const;
+    // defaults to Clamp in x, and y
+    sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const;
 
     /** Asserts if internal values are illegal or inconsistent. Only available if
         SK_DEBUG is defined at compile time.

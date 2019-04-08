@@ -45,8 +45,7 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     SkMatrix localM;
     localM.setRotate(35.f);
     localM.postTranslate(10.f, 0.f);
-    paint.setShader(SkShader::MakeBitmapShader(
-            bmp, SkTileMode::kMirror, SkTileMode::kMirror, &localM));
+    paint.setShader(bmp.makeShader(SkTileMode::kMirror, SkTileMode::kMirror, &localM));
     paint.setFilterQuality(kMedium_SkFilterQuality);
     canvas->drawPaint(paint);
 }

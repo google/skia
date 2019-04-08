@@ -603,12 +603,10 @@ DEF_TEST(Serialization, reporter) {
         normals.allocN32Pixels(kTexSize, kTexSize);
 
         ToolUtils::create_frustum_normal_map(&normals, SkIRect::MakeWH(kTexSize, kTexSize));
-        sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(normals, SkTileMode::kClamp,
-                SkTileMode::kClamp, &matrix);
+        sk_sp<SkShader> normalMap = normals.makeShader(&matrix);
         sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(std::move(normalMap),
                                                                                ctm);
-        sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(diffuse,
-                SkTileMode::kClamp, SkTileMode::kClamp, &matrix);
+        sk_sp<SkShader> diffuseShader = diffuse.makeShader(&matrix);
 
         sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
                                                                 normalSource,

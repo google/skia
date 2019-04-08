@@ -162,7 +162,7 @@ private:
 
         canvas->translate(fSceneSize * 1.1f, 0);
 
-        auto bitmapShader = SkShader::MakeBitmapShader(fBitmap,
+        auto bitmapShader = fBitmap.makeShader(
                                                        kTileConfigs[tileMode].tmx,
                                                        kTileConfigs[tileMode].tmy,
                                                        fUseLocalMatrixWrapper
