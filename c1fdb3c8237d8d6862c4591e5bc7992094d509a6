@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d767b230_5f21133f",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-08T19:23:44Z",
+      "side": 1,
+      "message": "I\u0027m perfectly happy with this name, but you might also just want to try \"SkColorFilters\" out to see how you like it?",
+      "range": {
+        "startLine": 181,
+        "startChar": 13,
+        "endLine": 181,
+        "endChar": 32
+      },
+      "revId": "c1fdb3c8237d8d6862c4591e5bc7992094d509a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95a935bc_e8526fa3",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-08T19:23:44Z",
+      "side": 1,
+      "message": "This is now idiomatically \n  \n   SkColorFilterMaker() \u003d delete;\n\nIt can go anywhere... public, private, etc.",
+      "revId": "c1fdb3c8237d8d6862c4591e5bc7992094d509a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
