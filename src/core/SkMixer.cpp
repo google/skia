@@ -8,36 +8,13 @@
 #include "SkBlendModePriv.h"
 #include "SkEffectPriv.h"
 #include "SkMixerBase.h"
-#include "SkMixerShader.h"
 #include "SkReadBuffer.h"
 #include "SkRasterPipeline.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrRecordingContext.h"
 #include "effects/GrConstColorProcessor.h"
-#include "effects/GrSkSLFP.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
-
-static std::unique_ptr<GrFragmentProcessor> sksl_mixer_fp(
-                                               const GrFPArgs& args,
-                                               int index,
-                                               const char* sksl,
-                                               sk_sp<SkData> inputs,
-                                               std::unique_ptr<GrFragmentProcessor> fp1,
-                                               std::unique_ptr<GrFragmentProcessor> fp2,
-                                               std::unique_ptr<GrFragmentProcessor> fp3 = nullptr) {
-    std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(args.fContext, index, "Runtime Mixer", sksl,
-                                                      inputs ? inputs->data() : nullptr,
-                                                      inputs ? inputs->size() : 0,
-                                                      SkSL::Program::kMixer_Kind);
-    result->addChild(std::move(fp1));
-    result->addChild(std::move(fp2));
-    if (fp3) {
-        result->addChild(std::move(fp3));
-    }
-    return std::move(result);
-}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,9 +37,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor>
-    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
-                        const sk_sp<SkShader> shader2) const override {
-        return GrConstColorProcessor::Make(fPM, GrConstColorProcessor::InputMode::kIgnore);
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        //    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB), std::move(fpA), fMode);
+        return nullptr;
     }
 #endif
 };
@@ -105,9 +82,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor>
-    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
-                        const sk_sp<SkShader> shader2) const override {
-        return as_MB(fProxy)->asFragmentProcessor(args, shader2, shader1);
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        //    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB), std::move(fpA), fMode);
+        return nullptr;
     }
 #endif
 };
@@ -137,18 +114,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor>
-    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
-                        const sk_sp<SkShader> shader2) const override {
-        std::unique_ptr<GrFragmentProcessor> fp1 = as_SB(shader1)->asFragmentProcessor(args);
-        if (!fp1) {
-            return nullptr;
-        }
-        std::unique_ptr<GrFragmentProcessor> fp2 = as_SB(shader2)->asFragmentProcessor(args);
-        if (!fp2) {
-            return nullptr;
-        }
-        return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fp2), std::move(fp1),
-                                                                  fMode);
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        //    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB), std::move(fpA), fMode);
+        return nullptr;
     }
 #endif
 };
@@ -183,26 +151,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor>
-    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
-                        const sk_sp<SkShader> shader2) const override {
-        std::unique_ptr<GrFragmentProcessor> fp1 = as_SB(shader1)->asFragmentProcessor(args);
-        if (!fp1) {
-            return nullptr;
-        }
-        std::unique_ptr<GrFragmentProcessor> fp2 = as_SB(shader2)->asFragmentProcessor(args);
-        if (!fp2) {
-            return nullptr;
-        }
-        static int index = GrSkSLFP::NewIndex();
-        return sksl_mixer_fp(args,
-                             index,
-                             "in uniform float weight;"
-                             "half4 main(half4 input1, half4 input2) {"
-                             "    return mix(input1, input2, half(weight));"
-                             "}",
-                             SkData::MakeWithCopy(&fWeight, sizeof(fWeight)),
-                             std::move(fp1),
-                             std::move(fp2));
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        //    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB), std::move(fpA), fMode);
+        return nullptr;
     }
 #endif
 };
@@ -255,31 +206,8 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor>
-    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
-                        const sk_sp<SkShader> shader2) const override {
-        std::unique_ptr<GrFragmentProcessor> fp1 = as_SB(shader1)->asFragmentProcessor(args);
-        if (!fp1) {
-            return nullptr;
-        }
-        std::unique_ptr<GrFragmentProcessor> fp2 = as_SB(shader2)->asFragmentProcessor(args);
-        if (!fp2) {
-            return nullptr;
-        }
-        std::unique_ptr<GrFragmentProcessor> fp3 = as_SB(fShader)->asFragmentProcessor(args);
-        if (!fp3) {
-            return nullptr;
-        }
-        static int index = GrSkSLFP::NewIndex();
-        return sksl_mixer_fp(args,
-                             index,
-                             "in fragmentProcessor lerpControl;"
-                             "half4 main(half4 input1, half4 input2) {"
-                             "    return mix(input1, input2, process(lerpControl).r);"
-                             "}",
-                             nullptr,
-                             std::move(fp1),
-                             std::move(fp2),
-                             std::move(fp3));
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        return nullptr;
     }
 #endif
 };
@@ -348,11 +276,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor>
-    asFragmentProcessor(const GrFPArgs& args, const sk_sp<SkShader> shader1,
-                        const sk_sp<SkShader> shader2) const override {
-        return SkShader_Mixer(sk_sp<SkShader>(new SkShader_Mixer(shader1, shader2, fM0)),
-                              sk_sp<SkShader>(new SkShader_Mixer(shader1, shader2, fM1)),
-                              fCombine).asFragmentProcessor(args);
+    asFragmentProcessor(GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+        //    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB), std::move(fpA), fMode);
+        return nullptr;
     }
 #endif
 };

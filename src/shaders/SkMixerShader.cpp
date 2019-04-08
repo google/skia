@@ -73,6 +73,17 @@ bool SkShader_Mixer::onAppendStages(const SkStageRec& rec) const {
 
 std::unique_ptr<GrFragmentProcessor>
 SkShader_Mixer::asFragmentProcessor(const GrFPArgs& args) const {
-    return as_MB(fMixer)->asFragmentProcessor(args, fShader0, fShader1);
+    std::unique_ptr<GrFragmentProcessor> fpA(as_SB(fShader0)->asFragmentProcessor(args));
+    if (!fpA) {
+        return nullptr;
+    }
+    std::unique_ptr<GrFragmentProcessor> fpB(as_SB(fShader1)->asFragmentProcessor(args));
+    if (!fpB) {
+        return nullptr;
+    }
+
+    // TODO: need to make a mixer-processor...
+    return nullptr;
+    //return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB), std::move(fpA), fMode);
 }
 #endif
