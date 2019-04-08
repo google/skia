@@ -40,7 +40,6 @@
 #include "SkRasterClip.h"
 #include "SkSFNTHeader.h"
 #include "SkShader.h"
-#include "SkShaderBase.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkStrikeCache.h"
@@ -1017,7 +1016,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
+        SkMatrix localMatrix = shader->getLocalMatrix();
         if (parentTransform) {
             localMatrix.preConcat(*parentTransform);
         }
@@ -1057,7 +1056,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkImage* image = shader->isAImage(&outMatrix, xy);
     if (image && image->asLegacyBitmap(&outTexture)) {
         //TODO: outMatrix??
-        SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
+        SkMatrix localMatrix = shader->getLocalMatrix();
         if (parentTransform) {
             localMatrix.postConcat(*parentTransform);
         }
