@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "393f3f12_21fec2ff",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-08T17:35:28Z",
+      "side": 1,
+      "message": "Maybe also tag this for removal somehow?",
+      "revId": "3875e2735c28164df6bc5903aa390fb47a8ee740",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29787db8_878deaf1",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-08T17:35:28Z",
+      "side": 1,
+      "message": "Do you find this workflow more convenient/safer vs. landing the guards first?\n\nJust curious, as it seems a bit more churn.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "3875e2735c28164df6bc5903aa390fb47a8ee740",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
