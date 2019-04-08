@@ -28,10 +28,6 @@ class SkRasterPipeline;
 class GrContext;
 class GrFragmentProcessor;
 
-#ifndef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
-#define SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
-#endif
-
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
