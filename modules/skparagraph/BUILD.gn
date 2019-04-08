@@ -1,0 +1,31 @@
+# Copyright 2019 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+config("public_config") {
+  include_dirs = [
+    "include",
+    "src",
+    "../shaper/include",
+    "../../src/core",
+    "../../include/private",
+  ]
+}
+
+source_set("skparagraph") {
+  import("skparagraph.gni")
+
+  public_configs = [ ":public_config" ]
+  public = skparagraph_public
+  sources = skparagraph_sources
+  deps = [
+    "../..:skia",
+    "../skshaper",
+    "//third_party/icu",
+  ]
+
+  configs += [ "../../:skia_private" ]
+}

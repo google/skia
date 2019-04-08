@@ -63,6 +63,7 @@ samples_sources = [
   "$_samplecode/SampleMegaStroke.cpp",
   "$_samplecode/SampleNima.cpp",
   "$_samplecode/SampleMixer.cpp",
+  "$_samplecode/SampleParagraph.cpp",
   "$_samplecode/SamplePatch.cpp",
   "$_samplecode/SamplePath.cpp",
   "$_samplecode/SamplePathText.cpp",
