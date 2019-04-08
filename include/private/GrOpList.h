@@ -60,6 +60,16 @@ public:
 
     bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
 
+    virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
+
+    bool isUsed(GrSurfaceProxy* proxy) const {
+        if (proxy == fTarget.get()) {
+            return true;
+        }
+
+        return this->onIsUsed(proxy);
+    }
+
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */

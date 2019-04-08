@@ -72,6 +72,18 @@ void GrDrawingManager::OpListDAG::removeOpLists(int startIndex, int stopIndex) {
     }
 }
 
+bool GrDrawingManager::OpListDAG::isUsed(GrSurfaceProxy* proxy) const {
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        if (fOpLists[i]) {
+            if (fOpLists[i]->isUsed(proxy)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void GrDrawingManager::OpListDAG::add(sk_sp<GrOpList> opList) {
     fOpLists.emplace_back(std::move(opList));
 }
@@ -208,6 +220,12 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     }
 
     SkDEBUGCODE(this->validate());
+
+    if (SkSurface::kNone_FlushFlags == flags && !numSemaphores && proxy) {
+        if (!fDAG.isUsed(proxy)) {
+            return GrSemaphoresSubmitted::kNo;
+        }
+    }
 
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
@@ -768,6 +786,10 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
+#if 0
+    fFoo.add(sProxy.get());
+#endif
+
     return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext,
                                                                   std::move(renderTargetProxy),
                                                                   std::move(colorSpace),
@@ -790,6 +812,10 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     // GrTextureRenderTargets should always be using a GrRenderTargetContext
     SkASSERT(!sProxy->asRenderTargetProxy());
+
+#if 0
+    fFoo.add(sProxy.get());
+#endif
 
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 

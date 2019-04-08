@@ -180,6 +180,24 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
     }
 }
 
+bool GrTextureOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
+    bool used = false;
+
+    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p) {
+        if (p == proxyToCheck) {
+            used = true;
+        }
+    };
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].get();
+        if (op) {
+            op->visitProxies(visit, GrOp::VisitorType::kOther);
+        }
+    }
+
+    return used;
+}
+
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
     // Add the interval for all the writes to this opList's target

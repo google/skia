@@ -72,6 +72,8 @@ public:
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
+    bool onIsUsed(GrSurfaceProxy*) const override;
+
     void addWaitOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
         fHasWaitOp= true;
         this->addOp(std::move(op), caps);
