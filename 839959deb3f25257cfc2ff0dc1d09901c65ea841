@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa4de8c2_d4a7fe93",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-08T19:04:54Z",
+      "side": 1,
+      "message": "SkottieShaper does that right here.",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 45
+      },
+      "revId": "839959deb3f25257cfc2ff0dc1d09901c65ea841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70ddf371_13137b58",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-08T19:04:54Z",
+      "side": 1,
+      "message": "SkottieShaper. SkShaper just outputs the values on a baseline of 0 now.\n\nInteresting, so this has the same behavior as \u0027center\u0027 which is that if a new glyph is added which goes outside the current max or min that will move things about.",
+      "range": {
+        "startLine": 119,
+        "startChar": 27,
+        "endLine": 119,
+        "endChar": 35
+      },
+      "revId": "839959deb3f25257cfc2ff0dc1d09901c65ea841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
