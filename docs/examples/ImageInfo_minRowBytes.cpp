@@ -4,7 +4,7 @@
 // HASH=897230ecfb36095486beca324fd369f9
 REG_FIDDLE(ImageInfo_minRowBytes, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    for (int shift = 24; shift < 32; ++shift) {
+    for (int shift = 24; shift < 31; ++shift) {
         int width = 1 << shift;
         SkImageInfo imageInfo =
                 SkImageInfo::Make(width, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
