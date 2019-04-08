@@ -126,6 +126,8 @@ private:
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrRenderTargetContext;
 
+    bool onIsUsed(GrSurfaceProxy*) const override;
+
     // Must only be called if native stencil buffer clearing is enabled
     void setStencilLoadOp(GrLoadOp op);
     // Must only be called if native color buffer clearing is enabled.
