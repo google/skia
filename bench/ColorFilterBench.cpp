@@ -21,7 +21,7 @@ static sk_sp<SkImageFilter> make_brightness(float amount, sk_sp<SkImageFilter> i
                             0, 1, 0, 0, amount255,
                             0, 0, 1, 0, amount255,
                             0, 0, 0, 1, 0 };
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    sk_sp<SkColorFilter> filter(SkColorFilters::MatrixRowMajor255(matrix));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
@@ -32,12 +32,12 @@ static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    sk_sp<SkColorFilter> filter(SkColorFilters::MatrixRowMajor255(matrix));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkBlendMode::kSrcIn));
+    sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
@@ -310,8 +310,8 @@ protected:
             img = img->makeRasterImage();
         }
         fShader = img->makeShader();
-        auto cf0 = SkColorFilter::MakeModeFilter(0x88FF3366, SkBlendMode::kDstIn);
-        auto cf1 = SkColorFilter::MakeModeFilter(0x88FF3366, SkBlendMode::kDstATop);
+        auto cf0 = SkColorFilters::Blend(0x88FF3366, SkBlendMode::kDstIn);
+        auto cf1 = SkColorFilters::Blend(0x88FF3366, SkBlendMode::kDstATop);
         auto mx = SkMixer::MakeLerp(0.5f);
         if (!(fFlags & kUseCF0)) {
             cf0 = nullptr;
@@ -319,7 +319,7 @@ protected:
         if (!(fFlags & kUseCF1)) {
             cf1 = nullptr;
         }
-        fFilter = SkColorFilter::MakeMixer(cf0, cf1, mx);
+        fFilter = SkColorFilters::Mixer(mx, cf0, cf1);
     }
     void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r = SkRect::MakeWH(256, 256);

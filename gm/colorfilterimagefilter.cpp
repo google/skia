@@ -27,7 +27,7 @@ static sk_sp<SkColorFilter> cf_make_brightness(float brightness) {
         0, 1, 0, 0, amount255,
         0, 0, 1, 0, amount255,
         0, 0, 0, 1, 0 };
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
+    return SkColorFilters::MatrixRowMajor255(matrix);
 }
 
 static sk_sp<SkColorFilter> cf_make_grayscale() {
@@ -37,11 +37,11 @@ static sk_sp<SkColorFilter> cf_make_grayscale() {
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
+    return SkColorFilters::MatrixRowMajor255(matrix);
 }
 
 static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
-    return SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrc);
+    return SkColorFilters::Blend(color, SkBlendMode::kSrc);
 }
 
 static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
@@ -179,7 +179,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
-    sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    sk_sp<SkColorFilter> cf(SkColorFilters::MatrixRowMajor255(cm.fMat));
     SkPaint p;
     p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
     canvas->saveLayer(nullptr, &p);

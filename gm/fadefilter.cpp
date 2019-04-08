@@ -15,7 +15,7 @@ DEF_SIMPLE_GM(fadefilter, canvas, 256, 256) {
                             0, 1, 0, 0, 128.0f,
                             0, 0, 1, 0, 128.0f,
                             0, 0, 0, 1, 0 };
-    sk_sp<SkColorFilter> colorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    sk_sp<SkColorFilter> colorFilter(SkColorFilters::MatrixRowMajor255(matrix));
     SkPaint layerPaint;
     layerPaint.setImageFilter(SkColorFilterImageFilter::Make(std::move(colorFilter), nullptr));
     canvas->drawRect(SkRect::MakeLTRB(64, 64, 192, 192), layerPaint);

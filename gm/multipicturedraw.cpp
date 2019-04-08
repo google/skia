@@ -409,7 +409,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
             step.fY = SkIntToScalar(y*kTileHeight);
             step.fPaint = new SkPaint;
             step.fPaint->setColorFilter(
-                SkColorFilter::MakeModeFilter(colors[x][y], SkBlendMode::kModulate));
+                SkColorFilters::Blend(colors[x][y], SkBlendMode::kModulate));
 
             step.fSurf = create_compat_surface(finalCanvas, kTileWidth, kTileHeight);
 

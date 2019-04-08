@@ -48,7 +48,7 @@ protected:
         paint.setColorFilter(cf0);
         canvas->drawImage(fImg, 0, 0, &paint);
 
-        paint.setColorFilter(SkColorFilter::MakeLerp(cf0, cf1, fWeight));
+        paint.setColorFilter(SkColorFilters::Lerp(fWeight, cf0, cf1));
         canvas->drawImage(fImg, fImg->width() + gap * fWeight, 0, &paint);
 
         paint.setColorFilter(cf1);
@@ -58,8 +58,8 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         if (!fImg) {
             fImg = GetResourceAsImage("images/mandrill_256.png");
-            fCF0 = SkColorFilter::MakeMatrixFilterRowMajor255(gMat);
-            fCF1 = SkColorFilter::MakeModeFilter(0xFF44CC88, SkBlendMode::kScreen);
+            fCF0 = SkColorFilters::MatrixRowMajor255(gMat);
+            fCF1 = SkColorFilters::Blend(0xFF44CC88, SkBlendMode::kScreen);
         }
 
         float gap = fImg->width() * 3;

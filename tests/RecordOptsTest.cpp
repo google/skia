@@ -236,7 +236,7 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     xfermodePaint.setBlendMode(SkBlendMode::kDstIn);
     SkPaint colorFilterPaint;
     colorFilterPaint.setColorFilter(
-        SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
+        SkColorFilters::Blend(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
 
     SkPaint opaqueFilterLayerPaint;
     opaqueFilterLayerPaint.setColor(0xFF020202);  // Opaque.

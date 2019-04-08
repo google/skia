@@ -54,7 +54,7 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
                             0, 1, 0, 0, 255,
                             0, 0, 1, 0, 0,
                             0, 0, 0, 1, 32 };
-    sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    sk_sp<SkColorFilter> cfAlphaTrans(SkColorFilters::MatrixRowMajor255(matrix));
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
     SkScalar MARGIN = SkIntToScalar(12);

@@ -18,6 +18,6 @@ DEF_SIMPLE_GM(crbug_899512, canvas, 520, 520) {
     canvas->concat(matrix);
     SkPaint paint;
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 6.2735f, false));
-    paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLACK, SkBlendMode::kSrcIn));
+    paint.setColorFilter(SkColorFilters::Blend(SK_ColorBLACK, SkBlendMode::kSrcIn));
     canvas->drawRect(SkRect::MakeXYWH(0, 10, 200, 200), paint);
 }

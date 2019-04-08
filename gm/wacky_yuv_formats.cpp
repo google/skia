@@ -782,7 +782,7 @@ static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
         0.0f,  0.0f,       0.0f,      1.0f,    0.0f
     };
 
-    return SkColorFilter::MakeMatrixFilterRowMajor255(kJPEGConversionMatrix);
+    return SkColorFilters::MatrixRowMajor255(kJPEGConversionMatrix);
 }
 
 namespace skiagm {
