@@ -113,7 +113,7 @@ protected:
         int w = 40;
         int h = 40;
         makebm(&fBmp, w, h);
-        fBmShader = SkShader::MakeBitmapShader(fBmp, SkTileMode::kRepeat, SkTileMode::kRepeat);
+        fBmShader = fBmp.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
         int offset = 2;
         int count = 0;
         for (int j = 0; j < NY; ++j) {

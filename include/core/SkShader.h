@@ -28,6 +28,10 @@ class SkRasterPipeline;
 class GrContext;
 class GrFragmentProcessor;
 
+#ifndef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
+#define SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
+#endif
+
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
@@ -211,7 +215,9 @@ public:
 
     static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, sk_sp<SkMixer>);
 
-    /** Call this to create a new shader that will draw with the specified bitmap.
+#ifdef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
+    /** DEPRECATED. call bitmap.makeShader()
+     *  Call this to create a new shader that will draw with the specified bitmap.
      *
      *  If the bitmap cannot be used (e.g. has no pixels, or its dimensions
      *  exceed implementation limits (currently at 64K - 1)) then SkEmptyShader
@@ -227,6 +233,7 @@ public:
     */
     static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                             const SkMatrix* localMatrix = nullptr);
+#endif
 #ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
     static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix = nullptr) {

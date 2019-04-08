@@ -142,12 +142,25 @@ sk_sp<SkShader> SkShader::MakeEmptyShader() { return sk_make_sp<SkEmptyShader>()
 
 sk_sp<SkShader> SkShader::MakeColorShader(SkColor color) { return sk_make_sp<SkColorShader>(color); }
 
+#ifdef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
 sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                            const SkMatrix* localMatrix) {
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
     return SkMakeBitmapShader(src, tmx, tmy, localMatrix, kIfMutable_SkCopyPixelsMode);
+}
+#endif
+
+sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* lm) const {
+    if (lm && !lm->invert(nullptr)) {
+        return nullptr;
+    }
+    return SkMakeBitmapShader(*this, tmx, tmy, lm, kIfMutable_SkCopyPixelsMode);
+}
+
+sk_sp<SkShader> SkBitmap::makeShader(const SkMatrix* lm) const {
+    return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, lm);
 }
 
 #ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM

@@ -14,8 +14,7 @@ void draw(SkCanvas* canvas) {
                       /* { 1, 5 }, */ { 2, 4 }, { 1, 3 }, /* { 3, 1 } */ };
     SkColor colors[] = { 0xbfff0000, 0xbf0000ff, 0xbfff00ff, 0xbf00ffff };
     SkPoint texCoords[] = { { -30, -30 }, { 162, -30}, { 162, 162}, { -30, 162} };
-    paint.setShader(SkShader::MakeBitmapShader(source, SkTileMode::kClamp,
-                                                       SkTileMode::kClamp, nullptr));
+    paint.setShader(source.makeShader());
     canvas->scale(15, 15);
     for (auto blend : { SkBlendMode::kSrcOver, SkBlendMode::kModulate, SkBlendMode::kXor } ) {
         canvas->drawPatch(cubics, colors, texCoords, blend, paint);

@@ -132,12 +132,10 @@ protected:
             SkMatrix m;
             m.setRSXform(xforms[i]);
 
-            sk_sp<SkShader> normalMap = SkShader::MakeBitmapShader(fAtlas, SkTileMode::kClamp,
-                    SkTileMode::kClamp, &normalMat);
+            sk_sp<SkShader> normalMap = fAtlas.makeShader(&normalMat);
             sk_sp<SkNormalSource> normalSource = SkNormalSource::MakeFromNormalMap(
                     std::move(normalMap), m);
-            sk_sp<SkShader> diffuseShader = SkShader::MakeBitmapShader(fAtlas,
-                    SkTileMode::kClamp, SkTileMode::kClamp, &diffMat);
+            sk_sp<SkShader> diffuseShader = fAtlas.makeShader(&diffMat);
             paint.setShader(SkLightingShader::Make(std::move(diffuseShader),
                     std::move(normalSource), fLights));
 

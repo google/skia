@@ -35,7 +35,7 @@ static void make_paint(SkPaint* paint, SkTileMode tm) {
     SkBitmap bm;
     make_bitmap(&bm);
 
-    paint->setShader(SkShader::MakeBitmapShader(bm, tm, tm));
+    paint->setShader(bm.makeShader(tm, tm));
 }
 
 class RepeatTileView : public Sample {

@@ -100,8 +100,7 @@ protected:
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
-                fillPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTileModes[tm0],
-                                                               kTileModes[tm1], &localM));
+                fillPaint.setShader(fBmp.makeShader(kTileModes[tm0], kTileModes[tm1], &localM));
 
                 constexpr char kText[] = "B";
                 canvas->drawString(kText, 0, 0, font, fillPaint);

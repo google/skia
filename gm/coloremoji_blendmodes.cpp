@@ -108,7 +108,7 @@ protected:
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        auto s = SkShader::MakeBitmapShader(fBG, SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
+        auto s = fBG.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
 
         SkFont labelFont(ToolUtils::create_portable_typeface());
 

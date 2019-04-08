@@ -42,7 +42,7 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, bool filter, SkTileMode tmx, SkTileMode tmy) {
-    paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
+    paint->setShader(bm.makeShader(tmx, tmy));
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
