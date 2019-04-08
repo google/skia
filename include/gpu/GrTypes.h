@@ -259,6 +259,15 @@ enum GrGLBackendState {
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
 
+enum GrFlushFlags {
+    kNone_FlushFlags = 0,
+    // flush will wait till all submitted GPU work is finished before returning.
+    kSyncCpu_FlushFlag = 0x1,
+};
+
+typedef void* GrGpuFinishedContext;
+typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
+
 /**
  * Enum used as return value when flush with semaphores so the client knows whether the semaphores
  * were submitted to GPU or not.
