@@ -668,6 +668,8 @@ def dm_flags(api, bot):
     match.append('~FloatingPointTextureTest$')
 
   if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
+    # skia:8961
+    blacklist(['vk', 'gm', '_', 'savelayer_clipmask'])
     # skia:8659
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
