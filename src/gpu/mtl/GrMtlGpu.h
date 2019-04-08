@@ -162,12 +162,19 @@ private:
     bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
                        const GrMipLevel[], int mipLevelCount) override;
 
-    bool onTransferPixels(GrTexture*,
-                          int left, int top, int width, int height,
-                          GrColorType, GrGpuBuffer*,
-                          size_t offset, size_t rowBytes) override {
+    bool onTransferPixelsTo(GrTexture*,
+                            int left, int top, int width, int height,
+                            GrColorType, GrGpuBuffer*,
+                            size_t offset, size_t rowBytes) override {
         // TODO: not sure this is worth the work since nobody uses it
         return false;
+    }
+    size_t onTransferPixelsFrom(GrSurface*,
+                                int left, int top, int width, int height,
+                                GrColorType, GrGpuBuffer*,
+                                size_t offset) override {
+        // TODO: Will need to implement this to support async read backs.
+        return 0;
     }
 
     bool onRegenerateMipMapLevels(GrTexture*) override;

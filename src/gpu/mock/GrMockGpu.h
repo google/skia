@@ -91,11 +91,15 @@ private:
         return true;
     }
 
-    bool onTransferPixels(GrTexture* texture, int left, int top, int width, int height, GrColorType,
-                          GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) override {
+    bool onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                            GrColorType, GrGpuBuffer* transferBuffer, size_t offset,
+                            size_t rowBytes) override {
         return true;
     }
-
+    size_t onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                GrColorType, GrGpuBuffer* transferBuffer, size_t offset) override {
+        return true;
+    }
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override {

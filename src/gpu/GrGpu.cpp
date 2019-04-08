@@ -301,9 +301,9 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     return false;
 }
 
-bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int height,
-                           GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
-                           size_t rowBytes) {
+bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                             GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                             size_t offset, size_t rowBytes) {
     SkASSERT(texture);
     SkASSERT(transferBuffer);
 
@@ -319,8 +319,8 @@ bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(texture, left, top, width, height, bufferColorType, transferBuffer,
-                               offset, rowBytes)) {
+    if (this->onTransferPixelsTo(texture, left, top, width, height, bufferColorType, transferBuffer,
+                                 offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
         fStats.incTransfersToTexture();
@@ -328,6 +328,28 @@ bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int
         return true;
     }
     return false;
+}
+
+size_t GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                 GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                                 size_t offset) {
+    SkASSERT(surface);
+    SkASSERT(transferBuffer);
+
+    // We require that the write region is contained in the texture
+    SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+    SkIRect bounds = SkIRect::MakeWH(surface->width(), surface->height());
+    if (!bounds.contains(subRect)) {
+        return false;
+    }
+
+    this->handleDirtyContext();
+    if (auto result = this->onTransferPixelsFrom(surface, left, top, width, height, bufferColorType,
+                                                 transferBuffer, offset)) {
+        fStats.incTransfersFromSurface();
+        return result;
+    }
+    return 0;
 }
 
 bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
@@ -457,6 +479,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
     out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
+    out->appendf("Transfers from Surface: %d\n", fTransfersFromSurface);
     out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
     out->appendf("Number of draws: %d\n", fNumDraws);
 }

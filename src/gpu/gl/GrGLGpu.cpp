@@ -882,9 +882,9 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
     return 0;
 }
 
-bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width, int height,
-                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                               size_t offset, size_t rowBytes) {
+bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                                 GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                                 size_t offset, size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
@@ -957,6 +957,33 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
     }
 
     return true;
+}
+
+size_t GrGLGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                     GrColorType dstColorType, GrGpuBuffer* transferBuffer,
+                                     size_t offset) {
+    size_t offsetAlignment;
+    size_t rowBytes;
+    if (!this->glCaps().transferFromBufferRequirements(dstColorType, width, &rowBytes,
+                                                       &offsetAlignment)) {
+        return false;
+    }
+    if (offset % offsetAlignment) {
+        return false;
+    }
+    if (offset + rowBytes * height > transferBuffer->size()) {
+        return false;
+    }
+
+    auto* glBuffer = static_cast<GrGLBuffer*>(transferBuffer);
+    this->bindBuffer(GrGpuBufferType::kXferGpuToCpu, glBuffer);
+
+    auto offsetAsPtr = reinterpret_cast<void*>(offset);
+    if (this->readOrTransferPixelsFrom(surface, left, top, width, height, dstColorType, offsetAsPtr,
+                                       rowBytes)) {
+        return rowBytes;
+    }
+    return 0;
 }
 
 /**
@@ -2334,8 +2361,9 @@ bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig rea
     }
 }
 
-bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                           GrColorType dstColorType, void* buffer, size_t rowBytes) {
+bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                       GrColorType dstColorType, void* offsetOrPtr,
+                                       size_t rowBytes) {
     SkASSERT(surface);
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
@@ -2387,21 +2415,11 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     int bytesPerPixel = GrBytesPerPixel(dstAsConfig);
     size_t tightRowBytes = bytesPerPixel * width;
-
-    size_t readDstRowBytes = tightRowBytes;
-    void* readDst = buffer;
-
     // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
-    SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
     if (rowBytes != tightRowBytes) {
-        if (this->glCaps().packRowLengthSupport() && !(rowBytes % bytesPerPixel)) {
-            GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH,
-                                static_cast<GrGLint>(rowBytes / bytesPerPixel)));
-            readDstRowBytes = rowBytes;
-        } else {
-            scratch.reset(tightRowBytes * height);
-            readDst = scratch.get();
-        }
+        SkASSERT(this->glCaps().packRowLengthSupport());
+        SkASSERT(!(rowBytes % bytesPerPixel));
+        GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, static_cast<GrGLint>(rowBytes / bytesPerPixel)));
     }
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, config_alignment(dstAsConfig)));
 
@@ -2416,9 +2434,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                                         GR_GL_RENDERBUFFER, 0));
     }
 
-    GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom,
-                       readRect.fWidth, readRect.fHeight,
-                       externalFormat, externalType, readDst));
+    GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom, readRect.fWidth, readRect.fHeight,
+                       externalFormat, externalType, offsetOrPtr));
 
     if (reattachStencil) {
         GrGLStencilAttachment* stencilAttachment = static_cast<GrGLStencilAttachment*>(
@@ -2427,9 +2444,43 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                                         GR_GL_RENDERBUFFER, stencilAttachment->renderbufferID()));
     }
 
-    if (readDstRowBytes != tightRowBytes) {
+    if (rowBytes != tightRowBytes) {
         SkASSERT(this->glCaps().packRowLengthSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
+    }
+
+    if (!renderTarget) {
+        this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, surface);
+    }
+    return true;
+}
+
+bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                           GrColorType dstColorType, void* buffer, size_t rowBytes) {
+    SkASSERT(surface);
+
+    // TODO: Avoid this conversion by making GrGLCaps work with color types.
+    auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
+
+    int bytesPerPixel = GrBytesPerPixel(dstAsConfig);
+    size_t tightRowBytes = bytesPerPixel * width;
+
+    size_t readDstRowBytes = tightRowBytes;
+    void* readDst = buffer;
+
+    // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
+    SkAutoSMalloc<32 * sizeof(GrColor)> scratch;
+    if (rowBytes != tightRowBytes) {
+        if (this->glCaps().packRowLengthSupport() && !(rowBytes % bytesPerPixel)) {
+            readDstRowBytes = rowBytes;
+        } else {
+            scratch.reset(tightRowBytes * height);
+            readDst = scratch.get();
+        }
+    }
+    if (!this->readOrTransferPixelsFrom(surface, left, top, width, height, dstColorType, readDst,
+                                        readDstRowBytes)) {
+        return false;
     }
 
     if (readDst != buffer) {
@@ -2438,9 +2489,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         const char* src = reinterpret_cast<const char*>(readDst);
         char* dst = reinterpret_cast<char*>(buffer);
         SkRectMemcpy(dst, rowBytes, src, readDstRowBytes, tightRowBytes, height);
-    }
-    if (!renderTarget) {
-        this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, surface);
     }
     return true;
 }
