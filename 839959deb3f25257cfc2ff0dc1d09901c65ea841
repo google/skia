@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c1fbc44f_1428c19d",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-08T22:10:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "aa4de8c2_d4a7fe93",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 45
+      },
+      "revId": "839959deb3f25257cfc2ff0dc1d09901c65ea841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70ddf371_13137b58",
         "filename": "modules/skottie/src/SkottieShaper.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "839959deb3f25257cfc2ff0dc1d09901c65ea841",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3517665_2bfdbafd",
+        "filename": "modules/skottie/src/SkottieShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-08T22:10:43Z",
+      "side": 1,
+      "message": "\u003e SkottieShaper. SkShaper just outputs the values on a baseline of 0 now.\n\nGood point, and after this change there is no reason to keep doing that since none of the VAlign modes care about the first line ascent anymore.\n\nUpdated to drop the ascent tweaking and have the default skottie::Shaper mode match SkShaper (now kTopBaseline).\n\n\n\u003e Interesting, so this has the same behavior as \u0027center\u0027 which is that if a new glyph is added which goes outside the current max or min that will move things about.\n\nYup, this is what AE apparently does.  I\u0027m glad we figured it out, once and for all! :)",
+      "parentUuid": "70ddf371_13137b58",
+      "range": {
+        "startLine": 119,
+        "startChar": 27,
+        "endLine": 119,
+        "endChar": 35
+      },
+      "revId": "839959deb3f25257cfc2ff0dc1d09901c65ea841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
