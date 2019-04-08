@@ -176,4 +176,15 @@ private:
     typedef SkFlattenable INHERITED;
 };
 
+class SK_API SkColorFilterMaker {
+    static sk_sp<SkColorFilter> Blend(SkColor c, SkBlendMode mode);
+    static sk_sp<SkColorFilter> MatrixRowMajor255(const SkScalar array[20]);
+    static sk_sp<SkColorFilter> LinearToSRGBGamma();
+    static sk_sp<SkColorFilter> SRGBToLinearGamma();
+    static sk_sp<SkColorFilter> Lerp(float t, sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
+
+private:
+    SkColorFilterMaker();    // illegal
+};
+
 #endif
