@@ -115,7 +115,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             SkBlendMode mode;
             fuzz->next(&color);
             fuzz->nextRange(&mode, 0, SkBlendMode::kLastMode);
-            return SkColorFilter::MakeModeFilter(color, mode);
+            return SkColorFilters::Blend(color, mode);
         }
         case 2: {
             sk_sp<SkColorFilter> outer = make_fuzz_colorfilter(fuzz, depth - 1);
@@ -129,7 +129,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
         case 3: {
             SkScalar array[20];
             fuzz->nextN(array, SK_ARRAY_COUNT(array));
-            return SkColorFilter::MakeMatrixFilterRowMajor255(array);
+            return SkColorFilters::MatrixRowMajor255(array);
         }
         case 4: {
             SkColor mul, add;

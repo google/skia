@@ -489,7 +489,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     // Draw the image a few different ways.
     canvas->drawImage(refImg, 0, 0);
     SkPaint paint;
-    paint.setColorFilter(SkColorFilter::MakeLinearToSRGBGamma());
+    paint.setColorFilter(SkColorFilters::LinearToSRGBGamma());
     canvas->drawImage(refImg, 0, 0, &paint);
     auto shader = refImg->makeShader(SkTileMode::kClamp, SkTileMode::kClamp);
     REPORTER_ASSERT(reporter, shader);

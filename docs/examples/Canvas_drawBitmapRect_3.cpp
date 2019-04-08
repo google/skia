@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     canvas->scale(4, 4);
     for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {
-        paint.setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kPlus));
+        paint.setColorFilter(SkColorFilters::Blend(color, SkBlendMode::kPlus));
         canvas->drawBitmapRect(bitmap, SkRect::MakeWH(8, 8), &paint);
         canvas->translate(8, 0);
     }

@@ -5,7 +5,7 @@
 REG_FIDDLE(Paint_setColorFilter, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
-   paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
+   paint.setColorFilter(SkColorFilters::Blend(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
    canvas->drawRect(SkRect::MakeWH(50, 50), paint);
    paint.setColorFilter(nullptr);
    canvas->translate(70, 0);

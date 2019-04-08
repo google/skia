@@ -12,7 +12,15 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
-sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> f0, sk_sp<SkColorFilter> f1, sk_sp<SkMixer> mixer) {
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
+sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> f0, sk_sp<SkColorFilter> f1,
+                                              sk_sp<SkMixer> mixer) {
+    return SkColorFilters::Mixer(std::move(mixer), std::move(f0), std::move(f1));
+}
+#endif
+
+sk_sp<SkColorFilter> SkColorFilters::Mixer(sk_sp<SkMixer> mixer,
+                                               sk_sp<SkColorFilter> f0, sk_sp<SkColorFilter> f1) {
     if (!mixer) {
         return nullptr;
     }
@@ -27,7 +35,7 @@ sk_sp<SkFlattenable> SkColorFilter_Mixer::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkColorFilter> s1(buffer.readColorFilter());
     sk_sp<SkMixer>  mx(buffer.readMixer());
 
-    return MakeMixer(std::move(s0), std::move(s1), std::move(mx));
+    return SkColorFilters::Mixer(std::move(mx), std::move(s0), std::move(s1));
 }
 
 void SkColorFilter_Mixer::flatten(SkWriteBuffer& buffer) const {

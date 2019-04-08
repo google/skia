@@ -74,8 +74,7 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
         draw_bitmap, draw_path, draw_paint, draw_text
     };
 
-    sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA,
-                                                          SkBlendMode::kSrcIn));
+    sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorMAGENTA, SkBlendMode::kSrcIn));
     sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
     SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
                                      SkImageFilter::CropRect::kHasAll_CropEdge);

@@ -39,7 +39,7 @@ static sk_sp<SkShader> make_shader2() {
 }
 
 static sk_sp<SkColorFilter> make_color_filter() {
-    return SkColorFilter::MakeModeFilter(0xFFAABBCC, SkBlendMode::kDarken);
+    return SkColorFilters::Blend(0xFFAABBCC, SkBlendMode::kDarken);
 }
 
 static constexpr SkScalar kMeshSize = 30;

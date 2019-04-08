@@ -244,11 +244,21 @@ sk_sp<SkColorFilter> MakeSRGBGammaCF() {
     return sk_ref_sp(gSingleton);
 }
 
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
 sk_sp<SkColorFilter> SkColorFilter::MakeLinearToSRGBGamma() {
-    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kLinearToSRGB>();
+    return SkColorFilters::LinearToSRGBGamma();
 }
 
 sk_sp<SkColorFilter> SkColorFilter::MakeSRGBToLinearGamma() {
+    return SkColorFilters::SRGBToLinearGamma();
+}
+#endif
+
+sk_sp<SkColorFilter> SkColorFilters::LinearToSRGBGamma() {
+    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kLinearToSRGB>();
+}
+
+sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
     return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
 }
 
@@ -331,12 +341,19 @@ sk_sp<SkFlattenable> SkMixerColorFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkColorFilter> cf0(buffer.readColorFilter());
     sk_sp<SkColorFilter> cf1(buffer.readColorFilter());
     const float weight = buffer.readScalar();
-    return MakeLerp(std::move(cf0), std::move(cf1), weight);
+    return SkColorFilters::Lerp(weight, std::move(cf0), std::move(cf1));
 }
 
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
 sk_sp<SkColorFilter> SkColorFilter::MakeLerp(sk_sp<SkColorFilter> cf0,
                                              sk_sp<SkColorFilter> cf1,
                                              float weight) {
+    return SkColorFilters::Lerp(weight, std::move(cf0), std::move(cf1));
+}
+#endif
+
+sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0,
+                                                        sk_sp<SkColorFilter> cf1) {
     if (!cf0 && !cf1) {
         return nullptr;
     }

@@ -1006,7 +1006,7 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_filtered_renderers() {
 
     SkColorMatrix cm;
     cm.setSaturation(10);
-    sk_sp<SkColorFilter> colorFilter = SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat);
+    sk_sp<SkColorFilter> colorFilter = SkColorFilters::MatrixRowMajor255(cm.fMat);
     sk_sp<SkImageFilter> imageFilter = SkDilateImageFilter::Make(8, 8, nullptr);
 
     static constexpr SkColor kAlphas[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };

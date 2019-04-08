@@ -20,7 +20,7 @@ sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColo
     const SkColor opaqueAlphaMask = SK_ColorBLACK;
     // omit the alpha and compare only the RGB values
     if (0 == (add & ~opaqueAlphaMask)) {
-        return SkColorFilter::MakeModeFilter(mul | opaqueAlphaMask, SkBlendMode::kModulate);
+        return SkColorFilters::Blend(mul | opaqueAlphaMask, SkBlendMode::kModulate);
     }
 
     SkColorMatrix matrix;
@@ -32,5 +32,5 @@ sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColo
                          SkIntToScalar(SkColorGetG(add)),
                          SkIntToScalar(SkColorGetB(add)),
                          0);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix.fMat);
+    return SkColorFilters::MatrixRowMajor255(matrix.fMat);
 }

@@ -122,7 +122,7 @@ protected:
         const int kRectsPerRow = SkMax32(this->getISize().fWidth / kRectWidth, 1);
         for (size_t cfm = 0; cfm < SK_ARRAY_COUNT(modes); ++cfm) {
             for (size_t cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
-                paint.setColorFilter(SkColorFilter::MakeModeFilter(colors[cfc], modes[cfm]));
+                paint.setColorFilter(SkColorFilters::Blend(colors[cfc], modes[cfm]));
                 for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
                     paint.setShader(shaders[s]);
                     bool hasShader = nullptr == paint.getShader();

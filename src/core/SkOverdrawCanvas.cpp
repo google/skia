@@ -39,7 +39,7 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
 
     fPaint.setAntiAlias(false);
     fPaint.setBlendMode(SkBlendMode::kPlus);
-    fPaint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(kIncrementAlpha));
+    fPaint.setColorFilter(SkColorFilters::MatrixRowMajor255(kIncrementAlpha));
 }
 
 namespace {

@@ -46,7 +46,7 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi) {
         0, 0, 0, (a_hi - a_lo) / 255.0f, SkIntToScalar(a_lo),
     };
 
-    return SkColorFilter::MakeMatrixFilterRowMajor255(tint_matrix)
+    return SkColorFilters::MatrixRowMajor255(tint_matrix)
     ->makeComposed(SkLumaColorFilter::Make());
 }
 
@@ -96,7 +96,7 @@ private:
             SkAutoCanvasRestore arc(canvas, true);
             for (size_t i = 0; i < fTileCount; ++i) {
                 paint.setColorFilter(
-                    SkColorFilter::MakeLerp(cf0, cf1, static_cast<float>(i) / (fTileCount - 1)));
+                    SkColorFilters::Lerp(static_cast<float>(i) / (fTileCount - 1), cf0, cf1));
                 canvas->translate(fTileSize.width() * 0.1f, 0);
                 canvas->drawRect(SkRect::MakeWH(fTileSize.width(), fTileSize.height()), paint);
                 canvas->translate(fTileSize.width() * 1.1f, 0);
@@ -220,10 +220,10 @@ DEF_SIMPLE_GM(mixercolorfilter, canvas, 768, 512) {
 
     auto mx = SkMixer::MakeLerp(0.5f);
 
-    p.setColorFilter(SkColorFilter::MakeMixer(cf0, cf1, mx));
+    p.setColorFilter(SkColorFilters::Mixer(mx, cf0, cf1));
     draw_rect(canvas, r, p,   0, 256);
-    p.setColorFilter(SkColorFilter::MakeMixer(cf0, nullptr, mx));
+    p.setColorFilter(SkColorFilters::Mixer(mx, cf0, nullptr));
     draw_rect(canvas, r, p, 256, 256);
-    p.setColorFilter(SkColorFilter::MakeMixer(nullptr, cf1, mx));
+    p.setColorFilter(SkColorFilters::Mixer(mx, nullptr, cf1));
     draw_rect(canvas, r, p, 512, 256);
 }

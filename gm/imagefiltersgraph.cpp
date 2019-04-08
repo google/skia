@@ -46,7 +46,7 @@ protected:
         canvas->clear(SK_ColorBLACK);
         {
             sk_sp<SkImageFilter> bitmapSource(SkImageSource::Make(fImage));
-            sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
+            sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorRED,
                                                                   SkBlendMode::kSrcIn));
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, std::move(bitmapSource)));
             sk_sp<SkImageFilter> erode(SkErodeImageFilter::Make(4, 4, blur));
@@ -67,7 +67,7 @@ protected:
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
 
-            sk_sp<SkColorFilter> matrixFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            sk_sp<SkColorFilter> matrixFilter(SkColorFilters::MatrixRowMajor255(matrix));
             sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Make(std::move(matrixFilter),
                                                                            std::move(morph)));
             SkPaint paint;
@@ -82,7 +82,7 @@ protected:
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
-            sk_sp<SkColorFilter> matrixCF(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            sk_sp<SkColorFilter> matrixCF(SkColorFilters::MatrixRowMajor255(matrix));
             sk_sp<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Make(std::move(matrixCF),
                                                                              nullptr));
             sk_sp<SkImageFilter> offsetFilter(SkOffsetImageFilter::Make(10.0f, 10.f,
@@ -141,10 +141,8 @@ protected:
         }
         {
             // Test that crop offsets are absolute, not relative to the parent's crop rect.
-            sk_sp<SkColorFilter> cf1(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
-                                                                   SkBlendMode::kSrcIn));
-            sk_sp<SkColorFilter> cf2(SkColorFilter::MakeModeFilter(SK_ColorGREEN,
-                                                                   SkBlendMode::kSrcIn));
+            sk_sp<SkColorFilter> cf1(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
+            sk_sp<SkColorFilter> cf2(SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrcIn));
             SkImageFilter::CropRect outerRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
                                                                SkIntToScalar(80), SkIntToScalar(80)));
             SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
