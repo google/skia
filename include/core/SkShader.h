@@ -28,10 +28,6 @@ class SkRasterPipeline;
 class GrContext;
 class GrFragmentProcessor;
 
-#ifndef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
-#define SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
-#endif
-
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint
@@ -237,8 +233,8 @@ public:
 #ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
     static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix = nullptr) {
-        return MakeBitmapShader(src, static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
-                                localMatrix);
+        return src.makeShader(static_cast<SkTileMode>(tmx), static_cast<SkTileMode>(tmy),
+                              localMatrix);
     }
 
     /** DEPRECATED: call picture->makeShader(...)
