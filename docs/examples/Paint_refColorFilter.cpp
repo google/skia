@@ -5,7 +5,7 @@
 REG_FIDDLE(Paint_refColorFilter, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint1, paint2;
-    paint1.setColorFilter(SkColorFilter::MakeModeFilter(0xFFFF0000, SkBlendMode::kSrcATop));
+    paint1.setColorFilter(SkColorFilters::Blend(0xFFFF0000, SkBlendMode::kSrcATop));
     SkDebugf("color filter unique: %s\n", paint1.getColorFilter()->unique() ? "true" : "false");
     paint2.setColorFilter(paint1.refColorFilter());
     SkDebugf("color filter unique: %s\n", paint1.getColorFilter()->unique() ? "true" : "false");

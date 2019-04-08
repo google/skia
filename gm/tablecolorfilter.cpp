@@ -230,7 +230,7 @@ protected:
         int index = 0;
         for (int i = 0; i < MODE_COUNT; ++i) {
             for (int j = 0; j < COLOR_COUNT; ++j) {
-                filters[index++] = SkColorFilter::MakeModeFilter(fColors[j], fModes[i]);
+                filters[index++] = SkColorFilters::Blend(fColors[j], fModes[i]);
             }
         }
 

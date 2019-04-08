@@ -58,7 +58,7 @@ ModeColorFilter::~ModeColorFilter() {
 
 sk_sp<SkColorFilter> ModeColorFilter::onRevalidateFilter() {
     fColor->revalidate(nullptr, SkMatrix::I());
-    return SkColorFilter::MakeModeFilter(fColor->getColor(), fMode);
+    return SkColorFilters::Blend(fColor->getColor(), fMode);
 }
 
 sk_sp<GradientColorFilter> GradientColorFilter::Make(sk_sp<RenderNode> child,
@@ -132,7 +132,7 @@ sk_sp<SkColorFilter> Make2ColorGradient(const sk_sp<Color>& color0, const sk_sp<
                         0,                 0,                 0, 1,           0,
     };
 
-    return SkColorFilter::MakeMatrixFilterRowMajor255(tint_matrix);
+    return SkColorFilters::MatrixRowMajor255(tint_matrix);
 }
 
 sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors) {
@@ -184,7 +184,7 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
     };
 
     return SkTableColorFilter::MakeARGB(nullptr, rTable, gTable, bTable)
-            ->makeComposed(SkColorFilter::MakeMatrixFilterRowMajor255(luminance_matrix));
+            ->makeComposed(SkColorFilters::MatrixRowMajor255(luminance_matrix));
 }
 
 } // namespace
@@ -202,7 +202,7 @@ sk_sp<SkColorFilter> GradientColorFilter::onRevalidateFilter() {
     auto gradientCF = (fColors.size() > 2) ? MakeNColorGradient(fColors)
                                            : Make2ColorGradient(fColors[0], fColors[1]);
 
-    return SkColorFilter::MakeLerp(nullptr, std::move(gradientCF), fWeight);
+    return SkColorFilters::Lerp(fWeight, nullptr, std::move(gradientCF));
 }
 
 } // namespace sksg

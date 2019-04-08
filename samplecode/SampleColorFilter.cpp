@@ -179,7 +179,7 @@ protected:
 
         for (size_t y = 0; y < SK_ARRAY_COUNT(gColors); y++) {
             for (size_t x = 0; x < SK_ARRAY_COUNT(gModes); x++) {
-                paint.setColorFilter(SkColorFilter::MakeModeFilter(gColors[y], gModes[x]));
+                paint.setColorFilter(SkColorFilters::Blend(gColors[y], gModes[x]));
                 canvas->drawBitmap(fBitmap, x * N * 1.25f, y * N * scale, &paint);
             }
         }

@@ -6,7 +6,7 @@ REG_FIDDLE(Paint_getColorFilter, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkDebugf("nullptr %c= color filter\n", paint.getColorFilter() ? '!' : '=');
-   paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
+   paint.setColorFilter(SkColorFilters::Blend(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
    SkDebugf("nullptr %c= color filter\n", paint.getColorFilter() ? '!' : '=');
 }
 }  // END FIDDLE
