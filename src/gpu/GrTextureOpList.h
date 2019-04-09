@@ -59,6 +59,8 @@ public:
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
 
 private:
+    bool onIsUsed(GrSurfaceProxy*) const override;
+
     void deleteOp(int index);
     void deleteOps();
 

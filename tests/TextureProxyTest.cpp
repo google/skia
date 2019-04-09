@@ -105,7 +105,8 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
 
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
-    *backingSurface = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    *backingSurface = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+                                                      GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;
     }

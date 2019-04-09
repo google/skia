@@ -91,7 +91,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                         desc.fWidth = fWidth;
                         desc.fHeight = fHeight;
                         desc.fConfig = pixelConfig;
-                        fBackingTexture = resourceProvider->createTexture(desc, SkBudgeted::kYes);
+                        fBackingTexture = resourceProvider->createTexture(
+                            desc, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
                     }
                     return GrSurfaceProxy::LazyInstantiationResult(fBackingTexture);
             },

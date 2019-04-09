@@ -95,7 +95,8 @@ public:
                             desc.fWidth = 1234;
                             desc.fHeight = 567;
                             desc.fConfig = kRGB_565_GrPixelConfig;
-                            sk_sp<GrTexture> texture = rp->createTexture(desc, SkBudgeted::kYes);
+                            sk_sp<GrTexture> texture = rp->createTexture(
+                                desc, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return std::move(texture);
                         }
@@ -337,7 +338,8 @@ private:
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc, SkBudgeted::kNo),
+                    return {rp->createTexture(desc, SkBudgeted::kNo,
+                                              GrResourceProvider::Flags::kNoPendingIO),
                             GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
                 format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,

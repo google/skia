@@ -130,9 +130,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
     sk_sp<GrTexture> tex;
 
     if (SkBackingFit::kApprox == fit) {
-        tex = resourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNone);
+        tex = resourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNoPendingIO);
     } else {
-        tex = resourceProvider->createTexture(desc, budgeted, GrResourceProvider::Flags::kNone);
+        tex = resourceProvider->createTexture(desc, budgeted,
+                                              GrResourceProvider::Flags::kNoPendingIO);
     }
     if (!tex) {
         return nullptr;
@@ -243,6 +244,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         if (this->caps()->usesMixedSamples() && sampleCnt > 1) {
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
         }
+    }
+    if (fImageContext->priv().explicitlyAllocateGPUResources()) {
+        surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
     }
 
     GrSurfaceDesc desc;

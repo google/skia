@@ -117,7 +117,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
             continue;
         }
 
-        sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+        sk_sp<GrTexture> tex = resourceProvider->createTexture(
+            desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
         if (!tex) {
             continue;
         }
