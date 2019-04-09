@@ -134,6 +134,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
                                                   this->colorSpace(), this->alphaType());
     }
     const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
+    printf("SkImage_GpuYUVA::asTextureProxyRef\n");
     if (!RenderYUVAToRGBA(fContext.get(), renderTargetContext.get(), rect, fYUVColorSpace,
                           std::move(colorSpaceXform), fProxies, fYUVAIndices)) {
         return nullptr;
