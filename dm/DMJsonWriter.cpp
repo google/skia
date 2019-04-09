@@ -27,14 +27,6 @@ void JsonWriter::AddBitmapResult(const BitmapResult& result) {
     gBitmapResults.push_back(result);
 }
 
-SkTArray<skiatest::Failure> gFailures;
-SK_DECLARE_STATIC_MUTEX(gFailureLock);
-
-void JsonWriter::AddTestFailure(const skiatest::Failure& failure) {
-    SkAutoMutexAcquire lock(gFailureLock);
-    gFailures.push_back(failure);
-}
-
 void JsonWriter::DumpJson(const char* dir,
                           CommandLineFlags::StringArray key,
                           CommandLineFlags::StringArray properties) {
@@ -96,24 +88,6 @@ void JsonWriter::DumpJson(const char* dir,
             writer.endObject(); // 1 result
         }
         writer.endArray(); // results
-    }
-
-    {
-        SkAutoMutexAcquire lock(gFailureLock);
-        if (gFailures.count() > 0) {
-            writer.beginObject("test_results");
-            writer.beginArray("failures");
-            for (int i = 0; i < gFailures.count(); i++) {
-                writer.beginObject();
-                writer.appendString("file_name", gFailures[i].fileName);
-                writer.appendS32   ("line_no"  , gFailures[i].lineNo);
-                writer.appendString("condition", gFailures[i].condition);
-                writer.appendString("message"  , gFailures[i].message.c_str());
-                writer.endObject(); // 1 failure
-            }
-            writer.endArray(); // failures
-            writer.endObject(); // test_results
-        }
     }
 
     writer.endObject(); // root
