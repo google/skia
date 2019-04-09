@@ -1382,7 +1382,6 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
     struct : public skiatest::Reporter {
         void reportFailed(const skiatest::Failure& failure) override {
             fail(failure.toString());
-            JsonWriter::AddTestFailure(failure);
         }
         bool allowExtendedTest() const override {
             return FLAGS_pathOpsExtended;

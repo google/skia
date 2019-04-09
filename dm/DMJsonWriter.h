@@ -10,7 +10,6 @@
 
 #include "CommandLineFlags.h"
 #include "SkString.h"
-#include "Test.h"
 
 namespace DM {
 
@@ -41,11 +40,6 @@ public:
      *  Add a result to the end of the list of results.
      */
     static void AddBitmapResult(const BitmapResult&);
-
-    /**
-     *  Add a Failure from a Test.
-     */
-    static void AddTestFailure(const skiatest::Failure&);
 
     /**
      *  Write all collected results to the file dir/dm.json.
