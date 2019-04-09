@@ -574,7 +574,21 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 }
 
 bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
-    return false; // TODO
+    GrMtlTexture* grMtlTexture = static_cast<GrMtlTexture*>(texture);
+    id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
+
+    // Automatic mipmap generation is only supported by color-renderable formats
+    if (!fMtlCaps->isConfigRenderable(texture->config()) &&
+        // We have pixel configs marked as textureable-only that use RGBA8 as the internal format
+        MTLPixelFormatRGBA8Unorm != mtlTexture.pixelFormat) {
+        return false;
+    }
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    [blitCmdEncoder generateMipmapsForTexture: mtlTexture];
+    [blitCmdEncoder endEncoding];
+
+    return true;
 }
 
 #if GR_TEST_UTILS
