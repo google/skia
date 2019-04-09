@@ -40,10 +40,16 @@ bool do_buffers_contain_same_values(const GrColor* bufferA,
                                     int width,
                                     int height,
                                     size_t rowBytesA,
-                                    size_t rowBytesB) {
+                                    size_t rowBytesB,
+                                    bool swiz) {
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
-            if (bufferA[i] != bufferB[i]) {
+            auto colorA = bufferA[i];
+            if (swiz) {
+                colorA = GrColorPackRGBA(GrColorUnpackB(colorA), GrColorUnpackG(colorA),
+                                         GrColorUnpackR(colorA), GrColorUnpackA(colorA));
+            }
+            if (colorA != bufferB[i]) {
                 return false;
             }
         }
@@ -133,7 +139,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
                                                                      kTextureWidth,
                                                                      kTextureHeight,
                                                                      rowBytes,
-                                                                     rowBytes));
+                                                                     rowBytes,
+                                                                     false));
         }
 
         //////////////////////////
@@ -169,15 +176,26 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
                                                                      kTextureWidth,
                                                                      kTextureHeight,
                                                                      rowBytes,
-                                                                     rowBytes));
+                                                                     rowBytes,
+                                                                     false));
         }
     }
 }
 
-void basic_transfer_from_test(skiatest::Reporter* reporter, GrContext* context,
+void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo,
                               GrColorType colorType, bool renderTarget) {
+    auto context = ctxInfo.grContext();
     if (GrCaps::kNone_MapFlags == context->priv().caps()->mapBufferFlags()) {
         return;
+    }
+
+    // On OpenGL ES it may not be possible to read back in to BGRA becagse GL_RGBA/GL_UNSIGNED_BYTE
+    // may be the only allowed format/type params to glReadPixels. So read back into GL_RGBA.
+    // TODO(bsalomon): Make this work in GrGLGpu.
+    auto readColorType = colorType;
+    if (GrColorType::kBGRA_8888 == colorType &&
+        ctxInfo.type() == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
+        readColorType = GrColorType::kRGBA_8888;
     }
 
     auto resourceProvider = context->priv().resourceProvider();
@@ -250,8 +268,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, GrContext* context,
 
         //////////////////////////
         // transfer full data
-        auto bufferRowBytes = gpu->transferPixelsFrom(tex.get(), 0, 0, kTextureWidth,
-                                                      kTextureHeight, colorType, buffer.get(), 0);
+        auto bufferRowBytes = gpu->transferPixelsFrom(
+                tex.get(), 0, 0, kTextureWidth, kTextureHeight, readColorType, buffer.get(), 0);
         REPORTER_ASSERT(reporter, bufferRowBytes = fullBufferRowBytes);
         if (!bufferRowBytes) {
             continue;
@@ -272,13 +290,15 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, GrContext* context,
                                                                  kTextureWidth,
                                                                  kTextureHeight,
                                                                  textureDataRowBytes,
-                                                                 bufferRowBytes));
+                                                                 bufferRowBytes,
+                                                                 readColorType != colorType));
         buffer->unmap();
 
+        ///////////////////////
         // Now test a partial read at an offset into the buffer.
-        bufferRowBytes =
-                gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop, kPartialWidth,
-                                        kPartialHeight, colorType, buffer.get(), partialReadOffset);
+        bufferRowBytes = gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop,
+                                                 kPartialWidth, kPartialHeight, readColorType,
+                                                 buffer.get(), partialReadOffset);
         REPORTER_ASSERT(reporter, bufferRowBytes = partialBufferRowBytes);
         if (!bufferRowBytes) {
             continue;
@@ -304,7 +324,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, GrContext* context,
                                                                  kPartialWidth,
                                                                  kPartialHeight,
                                                                  textureDataRowBytes,
-                                                                 bufferRowBytes));
+                                                                 bufferRowBytes,
+                                                                 readColorType != colorType));
         buffer->unmap();
     }
 #if GR_GPU_STATS
@@ -333,10 +354,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo)
         return;
     }
     // RGBA
-    basic_transfer_from_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888, false);
-    basic_transfer_from_test(reporter, ctxInfo.grContext(), GrColorType::kRGBA_8888, true);
+    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kRGBA_8888, false);
+    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kRGBA_8888, true);
 
     // BGRA
-    basic_transfer_from_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, false);
-    basic_transfer_from_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, true);
+    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kBGRA_8888, false);
+    basic_transfer_from_test(reporter, ctxInfo, GrColorType::kBGRA_8888, true);
 }
