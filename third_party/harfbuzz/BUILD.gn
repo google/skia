@@ -26,7 +26,6 @@ if (skia_use_system_harfbuzz) {
       "HAVE_ICU",
       "HAVE_ICU_BUILTIN",
       "HAVE_OT",
-      "HB_NO_MT",
     ]
     deps = [
       "//third_party/icu",
