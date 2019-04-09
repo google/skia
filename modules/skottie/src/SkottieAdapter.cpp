@@ -470,24 +470,6 @@ void TextAdapter::apply() {
     };
     const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox);
 
-#if (0)
-    // Enable for text box debugging/visualization.
-    auto box_color = sksg::Color::Make(0xffff0000);
-    box_color->setStyle(SkPaint::kStroke_Style);
-    box_color->setStrokeWidth(1);
-    box_color->setAntiAlias(true);
-
-    auto bounds_color = sksg::Color::Make(0xff00ff00);
-    bounds_color->setStyle(SkPaint::kStroke_Style);
-    bounds_color->setStrokeWidth(1);
-    bounds_color->setAntiAlias(true);
-
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(fText.fBox),
-                                     std::move(box_color)));
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeBounds()),
-                                     std::move(bounds_color)));
-#endif
-
     fTextNode->setBlob(shape_result.fBlob);
     fTextNode->setPosition(shape_result.fPos);
 
