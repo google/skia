@@ -264,24 +264,24 @@ public:
         const GrCircleBlurFragmentProcessor& _outer =
                 args.fFp.cast<GrCircleBlurFragmentProcessor>();
         (void)_outer;
-        auto circleRect = _outer.circleRect();
+        auto circleRect = _outer.circleRect;
         (void)circleRect;
-        auto textureRadius = _outer.textureRadius();
+        auto textureRadius = _outer.textureRadius;
         (void)textureRadius;
-        auto solidRadius = _outer.solidRadius();
+        auto solidRadius = _outer.solidRadius;
         (void)solidRadius;
-        fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                          "circleData");
+        circleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                         "circleData");
         fragBuilder->codeAppendf(
                 "half2 vec = half2(half((sk_FragCoord.x - float(%s.x)) * float(%s.w)), "
                 "half((sk_FragCoord.y - float(%s.y)) * float(%s.w)));\nhalf dist = length(vec) + "
                 "(0.5 - %s.z) * %s.w;\n%s = %s * texture(%s, float2(half2(dist, 0.5))).%s.w;\n",
-                args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fUniformHandler->getUniformCStr(fCircleDataVar),
-                args.fUniformHandler->getUniformCStr(fCircleDataVar), args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(circleDataVar),
+                args.fUniformHandler->getUniformCStr(circleDataVar),
+                args.fUniformHandler->getUniformCStr(circleDataVar),
+                args.fUniformHandler->getUniformCStr(circleDataVar),
+                args.fUniformHandler->getUniformCStr(circleDataVar),
+                args.fUniformHandler->getUniformCStr(circleDataVar), args.fOutputColor,
                 args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
@@ -291,22 +291,22 @@ private:
     void onSetData(const GrGLSLProgramDataManager& data,
                    const GrFragmentProcessor& _proc) override {
         const GrCircleBlurFragmentProcessor& _outer = _proc.cast<GrCircleBlurFragmentProcessor>();
-        auto circleRect = _outer.circleRect();
+        auto circleRect = _outer.circleRect;
         (void)circleRect;
-        auto textureRadius = _outer.textureRadius();
+        auto textureRadius = _outer.textureRadius;
         (void)textureRadius;
-        auto solidRadius = _outer.solidRadius();
+        auto solidRadius = _outer.solidRadius;
         (void)solidRadius;
         GrSurfaceProxy& blurProfileSamplerProxy = *_outer.textureSampler(0).proxy();
         GrTexture& blurProfileSampler = *blurProfileSamplerProxy.peekTexture();
         (void)blurProfileSampler;
-        UniformHandle& circleData = fCircleDataVar;
+        UniformHandle& circleData = circleDataVar;
         (void)circleData;
 
         data.set4f(circleData, circleRect.centerX(), circleRect.centerY(), solidRadius,
                    1.f / textureRadius);
     }
-    UniformHandle fCircleDataVar;
+    UniformHandle circleDataVar;
 };
 GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLCircleBlurFragmentProcessor();
@@ -316,19 +316,19 @@ void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& ca
 bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrCircleBlurFragmentProcessor& that = other.cast<GrCircleBlurFragmentProcessor>();
     (void)that;
-    if (fCircleRect != that.fCircleRect) return false;
-    if (fTextureRadius != that.fTextureRadius) return false;
-    if (fSolidRadius != that.fSolidRadius) return false;
-    if (fBlurProfileSampler != that.fBlurProfileSampler) return false;
+    if (circleRect != that.circleRect) return false;
+    if (textureRadius != that.textureRadius) return false;
+    if (solidRadius != that.solidRadius) return false;
+    if (blurProfileSampler != that.blurProfileSampler) return false;
     return true;
 }
 GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         const GrCircleBlurFragmentProcessor& src)
         : INHERITED(kGrCircleBlurFragmentProcessor_ClassID, src.optimizationFlags())
-        , fCircleRect(src.fCircleRect)
-        , fTextureRadius(src.fTextureRadius)
-        , fSolidRadius(src.fSolidRadius)
-        , fBlurProfileSampler(src.fBlurProfileSampler) {
+        , circleRect(src.circleRect)
+        , textureRadius(src.textureRadius)
+        , solidRadius(src.solidRadius)
+        , blurProfileSampler(src.blurProfileSampler) {
     this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
@@ -336,7 +336,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() cons
 }
 const GrFragmentProcessor::TextureSampler& GrCircleBlurFragmentProcessor::onTextureSampler(
         int index) const {
-    return IthTextureSampler(index, fBlurProfileSampler);
+    return IthTextureSampler(index, blurProfileSampler);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS

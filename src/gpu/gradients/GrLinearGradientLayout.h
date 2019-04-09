@@ -18,28 +18,26 @@
 #include "GrCoordTransform.h"
 class GrLinearGradientLayout : public GrFragmentProcessor {
 public:
-    const SkMatrix44& gradientMatrix() const { return fGradientMatrix; }
-
     static std::unique_ptr<GrFragmentProcessor> Make(const SkLinearGradient& gradient,
                                                      const GrFPArgs& args);
     GrLinearGradientLayout(const GrLinearGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LinearGradientLayout"; }
+    GrCoordTransform fCoordTransform0;
+    SkMatrix44 gradientMatrix;
 
 private:
     GrLinearGradientLayout(SkMatrix44 gradientMatrix)
             : INHERITED(kGrLinearGradientLayout_ClassID,
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
-            , fGradientMatrix(gradientMatrix)
-            , fCoordTransform0(gradientMatrix) {
+            , fCoordTransform0(gradientMatrix)
+            , gradientMatrix(gradientMatrix) {
         this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkMatrix44 fGradientMatrix;
-    GrCoordTransform fCoordTransform0;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

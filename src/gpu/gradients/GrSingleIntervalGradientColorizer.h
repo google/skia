@@ -15,8 +15,6 @@
 #include "GrCoordTransform.h"
 class GrSingleIntervalGradientColorizer : public GrFragmentProcessor {
 public:
-    const SkPMColor4f& start() const { return fStart; }
-    const SkPMColor4f& end() const { return fEnd; }
     static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor4f start, SkPMColor4f end) {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrSingleIntervalGradientColorizer(start, end));
@@ -24,18 +22,18 @@ public:
     GrSingleIntervalGradientColorizer(const GrSingleIntervalGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SingleIntervalGradientColorizer"; }
+    SkPMColor4f start;
+    SkPMColor4f end;
 
 private:
     GrSingleIntervalGradientColorizer(SkPMColor4f start, SkPMColor4f end)
             : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
-            , fStart(start)
-            , fEnd(end) {}
+            , start(start)
+            , end(end) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkPMColor4f fStart;
-    SkPMColor4f fEnd;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

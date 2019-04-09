@@ -44,10 +44,10 @@ in uniform half      weight;
                       ? ConstantOutputForConstantInput(this->childProcessor(1), input)
                       : input;
         return {
-            c0.fR + (c1.fR - c0.fR) * fWeight,
-            c0.fG + (c1.fG - c0.fG) * fWeight,
-            c0.fB + (c1.fB - c0.fB) * fWeight,
-            c0.fA + (c1.fA - c0.fA) * fWeight
+            c0.fR + (c1.fR - c0.fR) * weight,
+            c0.fG + (c1.fG - c0.fG) * weight,
+            c0.fB + (c1.fB - c0.fB) * weight,
+            c0.fA + (c1.fA - c0.fA) * weight
         };
     }
 }

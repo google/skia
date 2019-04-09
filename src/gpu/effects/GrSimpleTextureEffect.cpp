@@ -22,7 +22,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSimpleTextureEffect& _outer = args.fFp.cast<GrSimpleTextureEffect>();
         (void)_outer;
-        auto matrix = _outer.matrix();
+        auto matrix = _outer.matrix;
         (void)matrix;
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
@@ -44,24 +44,24 @@ void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSimpleTextureEffect& that = other.cast<GrSimpleTextureEffect>();
     (void)that;
-    if (fImage != that.fImage) return false;
-    if (fMatrix != that.fMatrix) return false;
+    if (image != that.image) return false;
+    if (matrix != that.matrix) return false;
     return true;
 }
 GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
         : INHERITED(kGrSimpleTextureEffect_ClassID, src.optimizationFlags())
-        , fImage(src.fImage)
-        , fMatrix(src.fMatrix)
-        , fImageCoordTransform(src.fImageCoordTransform) {
+        , imageCoordTransform(src.imageCoordTransform)
+        , image(src.image)
+        , matrix(src.matrix) {
     this->setTextureSamplerCnt(1);
-    this->addCoordTransform(&fImageCoordTransform);
+    this->addCoordTransform(&imageCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(*this));
 }
 const GrFragmentProcessor::TextureSampler& GrSimpleTextureEffect::onTextureSampler(
         int index) const {
-    return IthTextureSampler(index, fImage);
+    return IthTextureSampler(index, image);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS

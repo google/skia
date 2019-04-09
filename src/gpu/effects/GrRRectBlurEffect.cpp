@@ -62,18 +62,18 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRRectBlurEffect& _outer = args.fFp.cast<GrRRectBlurEffect>();
         (void)_outer;
-        auto sigma = _outer.sigma();
+        auto sigma = _outer.sigma;
         (void)sigma;
-        auto rect = _outer.rect();
+        auto rect = _outer.rect;
         (void)rect;
-        auto cornerRadius = _outer.cornerRadius();
+        auto cornerRadius = _outer.cornerRadius;
         (void)cornerRadius;
-        fCornerRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                            "cornerRadius");
-        fProxyRectVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                         "proxyRect");
-        fBlurRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                          "blurRadius");
+        cornerRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                           "cornerRadius");
+        proxyRectVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                        "proxyRect");
+        blurRadiusVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                         "blurRadius");
         fragBuilder->codeAppendf(
                 "\nhalf2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);\nhalf threshold = %s "
                 "+ 2.0 * %s;\nhalf2 middle = half2((%s.zw - %s.xy) - float(2.0 * threshold));\nif "
@@ -82,11 +82,11 @@ public:
                 "middle.x + threshold) {\n    translatedFragPos.x -= middle.x - 1.0;\n}\nif "
                 "(translatedFragPos.y > threshold && translatedFragPos.y < middle.y + threshold) "
                 "{\n    translatedFragPos.y = threshold;",
-                args.fUniformHandler->getUniformCStr(fProxyRectVar),
-                args.fUniformHandler->getUniformCStr(fCornerRadiusVar),
-                args.fUniformHandler->getUniformCStr(fBlurRadiusVar),
-                args.fUniformHandler->getUniformCStr(fProxyRectVar),
-                args.fUniformHandler->getUniformCStr(fProxyRectVar));
+                args.fUniformHandler->getUniformCStr(proxyRectVar),
+                args.fUniformHandler->getUniformCStr(cornerRadiusVar),
+                args.fUniformHandler->getUniformCStr(blurRadiusVar),
+                args.fUniformHandler->getUniformCStr(proxyRectVar),
+                args.fUniformHandler->getUniformCStr(proxyRectVar));
         fragBuilder->codeAppendf(
                 "\n} else if (translatedFragPos.y >= middle.y + threshold) {\n    "
                 "translatedFragPos.y -= middle.y - 1.0;\n}\nhalf2 proxyDims = half2(2.0 * "
@@ -101,19 +101,19 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrRRectBlurEffect& _outer = _proc.cast<GrRRectBlurEffect>();
-        { pdman.set1f(fCornerRadiusVar, (_outer.cornerRadius())); }
-        auto sigma = _outer.sigma();
+        { pdman.set1f(cornerRadiusVar, (_outer.cornerRadius)); }
+        auto sigma = _outer.sigma;
         (void)sigma;
-        auto rect = _outer.rect();
+        auto rect = _outer.rect;
         (void)rect;
-        UniformHandle& cornerRadius = fCornerRadiusVar;
+        UniformHandle& cornerRadius = cornerRadiusVar;
         (void)cornerRadius;
         GrSurfaceProxy& ninePatchSamplerProxy = *_outer.textureSampler(0).proxy();
         GrTexture& ninePatchSampler = *ninePatchSamplerProxy.peekTexture();
         (void)ninePatchSampler;
-        UniformHandle& proxyRect = fProxyRectVar;
+        UniformHandle& proxyRect = proxyRectVar;
         (void)proxyRect;
-        UniformHandle& blurRadius = fBlurRadiusVar;
+        UniformHandle& blurRadius = blurRadiusVar;
         (void)blurRadius;
 
         float blurRadiusValue = 3.f * SkScalarCeilToScalar(sigma - 1 / 6.0f);
@@ -123,9 +123,9 @@ private:
         outset.outset(blurRadiusValue, blurRadiusValue);
         pdman.set4f(proxyRect, outset.fLeft, outset.fTop, outset.fRight, outset.fBottom);
     }
-    UniformHandle fProxyRectVar;
-    UniformHandle fBlurRadiusVar;
-    UniformHandle fCornerRadiusVar;
+    UniformHandle proxyRectVar;
+    UniformHandle blurRadiusVar;
+    UniformHandle cornerRadiusVar;
 };
 GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRRectBlurEffect();
@@ -135,25 +135,25 @@ void GrRRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRRectBlurEffect& that = other.cast<GrRRectBlurEffect>();
     (void)that;
-    if (fSigma != that.fSigma) return false;
-    if (fRect != that.fRect) return false;
-    if (fCornerRadius != that.fCornerRadius) return false;
-    if (fNinePatchSampler != that.fNinePatchSampler) return false;
+    if (sigma != that.sigma) return false;
+    if (rect != that.rect) return false;
+    if (cornerRadius != that.cornerRadius) return false;
+    if (ninePatchSampler != that.ninePatchSampler) return false;
     return true;
 }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         : INHERITED(kGrRRectBlurEffect_ClassID, src.optimizationFlags())
-        , fSigma(src.fSigma)
-        , fRect(src.fRect)
-        , fCornerRadius(src.fCornerRadius)
-        , fNinePatchSampler(src.fNinePatchSampler) {
+        , sigma(src.sigma)
+        , rect(src.rect)
+        , cornerRadius(src.cornerRadius)
+        , ninePatchSampler(src.ninePatchSampler) {
     this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRRectBlurEffect(*this));
 }
 const GrFragmentProcessor::TextureSampler& GrRRectBlurEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, fNinePatchSampler);
+    return IthTextureSampler(index, ninePatchSampler);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 #if GR_TEST_UTILS

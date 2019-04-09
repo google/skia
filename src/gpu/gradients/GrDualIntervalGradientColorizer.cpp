@@ -23,35 +23,35 @@ public:
         const GrDualIntervalGradientColorizer& _outer =
                 args.fFp.cast<GrDualIntervalGradientColorizer>();
         (void)_outer;
-        auto scale01 = _outer.scale01();
+        auto scale01 = _outer.scale01;
         (void)scale01;
-        auto bias01 = _outer.bias01();
+        auto bias01 = _outer.bias01;
         (void)bias01;
-        auto scale23 = _outer.scale23();
+        auto scale23 = _outer.scale23;
         (void)scale23;
-        auto bias23 = _outer.bias23();
+        auto bias23 = _outer.bias23;
         (void)bias23;
-        auto threshold = _outer.threshold();
+        auto threshold = _outer.threshold;
         (void)threshold;
-        fScale01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       "scale01");
-        fBias01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                      "bias01");
-        fScale23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       "scale23");
-        fBias23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                      "bias23");
-        fThresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                         "threshold");
+        scale01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                      "scale01");
+        bias01Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                     "bias01");
+        scale23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                      "scale23");
+        bias23Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                     "bias23");
+        thresholdVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                        "threshold");
         fragBuilder->codeAppendf(
                 "half t = %s.x;\nfloat4 scale, bias;\nif (t < %s) {\n    scale = %s;\n    bias = "
                 "%s;\n} else {\n    scale = %s;\n    bias = %s;\n}\n%s = half4(float(t) * scale + "
                 "bias);\n",
-                args.fInputColor, args.fUniformHandler->getUniformCStr(fThresholdVar),
-                args.fUniformHandler->getUniformCStr(fScale01Var),
-                args.fUniformHandler->getUniformCStr(fBias01Var),
-                args.fUniformHandler->getUniformCStr(fScale23Var),
-                args.fUniformHandler->getUniformCStr(fBias23Var), args.fOutputColor);
+                args.fInputColor, args.fUniformHandler->getUniformCStr(thresholdVar),
+                args.fUniformHandler->getUniformCStr(scale01Var),
+                args.fUniformHandler->getUniformCStr(bias01Var),
+                args.fUniformHandler->getUniformCStr(scale23Var),
+                args.fUniformHandler->getUniformCStr(bias23Var), args.fOutputColor);
     }
 
 private:
@@ -60,43 +60,43 @@ private:
         const GrDualIntervalGradientColorizer& _outer =
                 _proc.cast<GrDualIntervalGradientColorizer>();
         {
-            const SkPMColor4f& scale01Value = _outer.scale01();
-            if (fScale01Prev != scale01Value) {
-                fScale01Prev = scale01Value;
-                pdman.set4fv(fScale01Var, 1, scale01Value.vec());
+            const SkPMColor4f& scale01Value = _outer.scale01;
+            if (scale01Prev != scale01Value) {
+                scale01Prev = scale01Value;
+                pdman.set4fv(scale01Var, 1, scale01Value.vec());
             }
-            const SkPMColor4f& bias01Value = _outer.bias01();
-            if (fBias01Prev != bias01Value) {
-                fBias01Prev = bias01Value;
-                pdman.set4fv(fBias01Var, 1, bias01Value.vec());
+            const SkPMColor4f& bias01Value = _outer.bias01;
+            if (bias01Prev != bias01Value) {
+                bias01Prev = bias01Value;
+                pdman.set4fv(bias01Var, 1, bias01Value.vec());
             }
-            const SkPMColor4f& scale23Value = _outer.scale23();
-            if (fScale23Prev != scale23Value) {
-                fScale23Prev = scale23Value;
-                pdman.set4fv(fScale23Var, 1, scale23Value.vec());
+            const SkPMColor4f& scale23Value = _outer.scale23;
+            if (scale23Prev != scale23Value) {
+                scale23Prev = scale23Value;
+                pdman.set4fv(scale23Var, 1, scale23Value.vec());
             }
-            const SkPMColor4f& bias23Value = _outer.bias23();
-            if (fBias23Prev != bias23Value) {
-                fBias23Prev = bias23Value;
-                pdman.set4fv(fBias23Var, 1, bias23Value.vec());
+            const SkPMColor4f& bias23Value = _outer.bias23;
+            if (bias23Prev != bias23Value) {
+                bias23Prev = bias23Value;
+                pdman.set4fv(bias23Var, 1, bias23Value.vec());
             }
-            float thresholdValue = _outer.threshold();
-            if (fThresholdPrev != thresholdValue) {
-                fThresholdPrev = thresholdValue;
-                pdman.set1f(fThresholdVar, thresholdValue);
+            float thresholdValue = _outer.threshold;
+            if (thresholdPrev != thresholdValue) {
+                thresholdPrev = thresholdValue;
+                pdman.set1f(thresholdVar, thresholdValue);
             }
         }
     }
-    SkPMColor4f fScale01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f fBias01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f fScale23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f fBias23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    float fThresholdPrev = SK_FloatNaN;
-    UniformHandle fScale01Var;
-    UniformHandle fBias01Var;
-    UniformHandle fScale23Var;
-    UniformHandle fBias23Var;
-    UniformHandle fThresholdVar;
+    SkPMColor4f scale01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f bias01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f scale23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkPMColor4f bias23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    float thresholdPrev = SK_FloatNaN;
+    UniformHandle scale01Var;
+    UniformHandle bias01Var;
+    UniformHandle scale23Var;
+    UniformHandle bias23Var;
+    UniformHandle thresholdVar;
 };
 GrGLSLFragmentProcessor* GrDualIntervalGradientColorizer::onCreateGLSLInstance() const {
     return new GrGLSLDualIntervalGradientColorizer();
@@ -106,21 +106,21 @@ void GrDualIntervalGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& 
 bool GrDualIntervalGradientColorizer::onIsEqual(const GrFragmentProcessor& other) const {
     const GrDualIntervalGradientColorizer& that = other.cast<GrDualIntervalGradientColorizer>();
     (void)that;
-    if (fScale01 != that.fScale01) return false;
-    if (fBias01 != that.fBias01) return false;
-    if (fScale23 != that.fScale23) return false;
-    if (fBias23 != that.fBias23) return false;
-    if (fThreshold != that.fThreshold) return false;
+    if (scale01 != that.scale01) return false;
+    if (bias01 != that.bias01) return false;
+    if (scale23 != that.scale23) return false;
+    if (bias23 != that.bias23) return false;
+    if (threshold != that.threshold) return false;
     return true;
 }
 GrDualIntervalGradientColorizer::GrDualIntervalGradientColorizer(
         const GrDualIntervalGradientColorizer& src)
         : INHERITED(kGrDualIntervalGradientColorizer_ClassID, src.optimizationFlags())
-        , fScale01(src.fScale01)
-        , fBias01(src.fBias01)
-        , fScale23(src.fScale23)
-        , fBias23(src.fBias23)
-        , fThreshold(src.fThreshold) {}
+        , scale01(src.scale01)
+        , bias01(src.bias01)
+        , scale23(src.scale23)
+        , bias23(src.bias23)
+        , threshold(src.threshold) {}
 std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(*this));
 }

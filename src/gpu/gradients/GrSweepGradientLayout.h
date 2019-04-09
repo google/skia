@@ -18,34 +18,30 @@
 #include "GrCoordTransform.h"
 class GrSweepGradientLayout : public GrFragmentProcessor {
 public:
-    const SkMatrix44& gradientMatrix() const { return fGradientMatrix; }
-    float bias() const { return fBias; }
-    float scale() const { return fScale; }
-
     static std::unique_ptr<GrFragmentProcessor> Make(const SkSweepGradient& gradient,
                                                      const GrFPArgs& args);
     GrSweepGradientLayout(const GrSweepGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SweepGradientLayout"; }
+    GrCoordTransform fCoordTransform0;
+    SkMatrix44 gradientMatrix;
+    float bias;
+    float scale;
 
 private:
     GrSweepGradientLayout(SkMatrix44 gradientMatrix, float bias, float scale)
             : INHERITED(kGrSweepGradientLayout_ClassID,
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
-            , fGradientMatrix(gradientMatrix)
-            , fBias(bias)
-            , fScale(scale)
-            , fCoordTransform0(gradientMatrix) {
+            , fCoordTransform0(gradientMatrix)
+            , gradientMatrix(gradientMatrix)
+            , bias(bias)
+            , scale(scale) {
         this->addCoordTransform(&fCoordTransform0);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkMatrix44 fGradientMatrix;
-    float fBias;
-    float fScale;
-    GrCoordTransform fCoordTransform0;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

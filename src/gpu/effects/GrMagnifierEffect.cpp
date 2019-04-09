@@ -22,29 +22,29 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrMagnifierEffect& _outer = args.fFp.cast<GrMagnifierEffect>();
         (void)_outer;
-        auto bounds = _outer.bounds();
+        auto bounds = _outer.bounds;
         (void)bounds;
-        auto srcRect = _outer.srcRect();
+        auto srcRect = _outer.srcRect;
         (void)srcRect;
-        auto xInvZoom = _outer.xInvZoom();
+        auto xInvZoom = _outer.xInvZoom;
         (void)xInvZoom;
-        auto yInvZoom = _outer.yInvZoom();
+        auto yInvZoom = _outer.yInvZoom;
         (void)yInvZoom;
-        auto xInvInset = _outer.xInvInset();
+        auto xInvInset = _outer.xInvInset;
         (void)xInvInset;
-        auto yInvInset = _outer.yInvInset();
+        auto yInvInset = _outer.yInvInset;
         (void)yInvInset;
-        fBoundsUniformVar = args.fUniformHandler->addUniform(
+        boundsUniformVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat4_GrSLType, "boundsUniform");
-        fXInvZoomVar = args.fUniformHandler->addUniform(
+        xInvZoomVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat_GrSLType, "xInvZoom");
-        fYInvZoomVar = args.fUniformHandler->addUniform(
+        yInvZoomVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat_GrSLType, "yInvZoom");
-        fXInvInsetVar = args.fUniformHandler->addUniform(
+        xInvInsetVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat_GrSLType, "xInvInset");
-        fYInvInsetVar = args.fUniformHandler->addUniform(
+        yInvInsetVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat_GrSLType, "yInvInset");
-        fOffsetVar =
+        offsetVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "offset");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
@@ -56,13 +56,13 @@ public:
                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
                 sk_TransformedCoords2D_0.c_str(),
-                args.fUniformHandler->getUniformCStr(fOffsetVar),
-                args.fUniformHandler->getUniformCStr(fXInvZoomVar),
-                args.fUniformHandler->getUniformCStr(fYInvZoomVar),
-                args.fUniformHandler->getUniformCStr(fBoundsUniformVar),
-                args.fUniformHandler->getUniformCStr(fBoundsUniformVar),
-                args.fUniformHandler->getUniformCStr(fXInvInsetVar),
-                args.fUniformHandler->getUniformCStr(fYInvInsetVar));
+                args.fUniformHandler->getUniformCStr(offsetVar),
+                args.fUniformHandler->getUniformCStr(xInvZoomVar),
+                args.fUniformHandler->getUniformCStr(yInvZoomVar),
+                args.fUniformHandler->getUniformCStr(boundsUniformVar),
+                args.fUniformHandler->getUniformCStr(boundsUniformVar),
+                args.fUniformHandler->getUniformCStr(xInvInsetVar),
+                args.fUniformHandler->getUniformCStr(yInvInsetVar));
         fragBuilder->codeAppendf(
                 "d.y), 1.0);\n}\n%s = texture(%s, mix(coord, zoom_coord, weight)).%s;\n",
                 args.fOutputColor,
@@ -75,29 +75,29 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrMagnifierEffect& _outer = _proc.cast<GrMagnifierEffect>();
         {
-            pdman.set1f(fXInvZoomVar, (_outer.xInvZoom()));
-            pdman.set1f(fYInvZoomVar, (_outer.yInvZoom()));
-            pdman.set1f(fXInvInsetVar, (_outer.xInvInset()));
-            pdman.set1f(fYInvInsetVar, (_outer.yInvInset()));
+            pdman.set1f(xInvZoomVar, (_outer.xInvZoom));
+            pdman.set1f(yInvZoomVar, (_outer.yInvZoom));
+            pdman.set1f(xInvInsetVar, (_outer.xInvInset));
+            pdman.set1f(yInvInsetVar, (_outer.yInvInset));
         }
         GrSurfaceProxy& srcProxy = *_outer.textureSampler(0).proxy();
         GrTexture& src = *srcProxy.peekTexture();
         (void)src;
-        auto bounds = _outer.bounds();
+        auto bounds = _outer.bounds;
         (void)bounds;
-        UniformHandle& boundsUniform = fBoundsUniformVar;
+        UniformHandle& boundsUniform = boundsUniformVar;
         (void)boundsUniform;
-        auto srcRect = _outer.srcRect();
+        auto srcRect = _outer.srcRect;
         (void)srcRect;
-        UniformHandle& xInvZoom = fXInvZoomVar;
+        UniformHandle& xInvZoom = xInvZoomVar;
         (void)xInvZoom;
-        UniformHandle& yInvZoom = fYInvZoomVar;
+        UniformHandle& yInvZoom = yInvZoomVar;
         (void)yInvZoom;
-        UniformHandle& xInvInset = fXInvInsetVar;
+        UniformHandle& xInvInset = xInvInsetVar;
         (void)xInvInset;
-        UniformHandle& yInvInset = fYInvInsetVar;
+        UniformHandle& yInvInset = yInvInsetVar;
         (void)yInvInset;
-        UniformHandle& offset = fOffsetVar;
+        UniformHandle& offset = offsetVar;
         (void)offset;
 
         SkScalar invW = 1.0f / src.width();
@@ -125,12 +125,12 @@ private:
                         SkIntToScalar(src.height()) / bounds.height());
         }
     }
-    UniformHandle fBoundsUniformVar;
-    UniformHandle fOffsetVar;
-    UniformHandle fXInvZoomVar;
-    UniformHandle fYInvZoomVar;
-    UniformHandle fXInvInsetVar;
-    UniformHandle fYInvInsetVar;
+    UniformHandle boundsUniformVar;
+    UniformHandle offsetVar;
+    UniformHandle xInvZoomVar;
+    UniformHandle yInvZoomVar;
+    UniformHandle xInvInsetVar;
+    UniformHandle yInvInsetVar;
 };
 GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
     return new GrGLSLMagnifierEffect();
@@ -140,33 +140,33 @@ void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMagnifierEffect& that = other.cast<GrMagnifierEffect>();
     (void)that;
-    if (fSrc != that.fSrc) return false;
-    if (fBounds != that.fBounds) return false;
-    if (fSrcRect != that.fSrcRect) return false;
-    if (fXInvZoom != that.fXInvZoom) return false;
-    if (fYInvZoom != that.fYInvZoom) return false;
-    if (fXInvInset != that.fXInvInset) return false;
-    if (fYInvInset != that.fYInvInset) return false;
+    if (src != that.src) return false;
+    if (bounds != that.bounds) return false;
+    if (srcRect != that.srcRect) return false;
+    if (xInvZoom != that.xInvZoom) return false;
+    if (yInvZoom != that.yInvZoom) return false;
+    if (xInvInset != that.xInvInset) return false;
+    if (yInvInset != that.yInvInset) return false;
     return true;
 }
 GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         : INHERITED(kGrMagnifierEffect_ClassID, src.optimizationFlags())
-        , fSrc(src.fSrc)
-        , fBounds(src.fBounds)
-        , fSrcRect(src.fSrcRect)
-        , fXInvZoom(src.fXInvZoom)
-        , fYInvZoom(src.fYInvZoom)
-        , fXInvInset(src.fXInvInset)
-        , fYInvInset(src.fYInvInset)
-        , fSrcCoordTransform(src.fSrcCoordTransform) {
+        , srcCoordTransform(src.srcCoordTransform)
+        , src(src.src)
+        , bounds(src.bounds)
+        , srcRect(src.srcRect)
+        , xInvZoom(src.xInvZoom)
+        , yInvZoom(src.yInvZoom)
+        , xInvInset(src.xInvInset)
+        , yInvInset(src.yInvInset) {
     this->setTextureSamplerCnt(1);
-    this->addCoordTransform(&fSrcCoordTransform);
+    this->addCoordTransform(&srcCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrMagnifierEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrMagnifierEffect(*this));
 }
 const GrFragmentProcessor::TextureSampler& GrMagnifierEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, fSrc);
+    return IthTextureSampler(index, src);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 #if GR_TEST_UTILS

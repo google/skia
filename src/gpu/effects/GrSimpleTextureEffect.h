@@ -15,8 +15,6 @@
 #include "GrCoordTransform.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
-    const SkMatrix44& matrix() const { return fMatrix; }
-
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
@@ -43,6 +41,9 @@ public:
     GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SimpleTextureEffect"; }
+    GrCoordTransform imageCoordTransform;
+    TextureSampler image;
+    SkMatrix44 matrix;
 
 private:
     GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix,
@@ -54,20 +55,17 @@ private:
                                                 GrSamplerState::WrapMode::kClampToBorder ||
                                         samplerParams.wrapModeY() ==
                                                 GrSamplerState::WrapMode::kClampToBorder))
-            , fImage(std::move(image), samplerParams)
-            , fMatrix(matrix)
-            , fImageCoordTransform(matrix, fImage.proxy()) {
+            , imageCoordTransform(matrix, image.get())
+            , image(std::move(image), samplerParams)
+            , matrix(matrix) {
         this->setTextureSamplerCnt(1);
-        this->addCoordTransform(&fImageCoordTransform);
+        this->addCoordTransform(&imageCoordTransform);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    TextureSampler fImage;
-    SkMatrix44 fMatrix;
-    GrCoordTransform fImageCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

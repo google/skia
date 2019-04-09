@@ -236,6 +236,18 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(")");
     this->writeSection(INITIALIZERS_SECTION, "\n    , ");
+    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        String field = CoordTransformName(s.fArgument.c_str(), i);
+        if (s.fArgument.size()) {
+            this->writef("\n    , %s(%s, %s.get())", field.c_str(), s.fText.c_str(),
+                         FieldName(s.fArgument.c_str()).c_str());
+        }
+        else {
+            this->writef("\n    , %s(%s)", field.c_str(), s.fText.c_str());
+        }
+    }
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String nameString(param->fName);
         const char* name = nameString.c_str();
@@ -253,18 +265,6 @@ void HCodeGenerator::writeConstructor() {
             // do nothing
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
-        }
-    }
-    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-    for (size_t i = 0; i < transforms.size(); ++i) {
-        const Section& s = *transforms[i];
-        String field = CoordTransformName(s.fArgument.c_str(), i);
-        if (s.fArgument.size()) {
-            this->writef("\n    , %s(%s, %s.proxy())", field.c_str(), s.fText.c_str(),
-                         FieldName(s.fArgument.c_str()).c_str());
-        }
-        else {
-            this->writef("\n    , %s(%s)", field.c_str(), s.fText.c_str());
         }
     }
     this->writef(" {\n");
@@ -301,6 +301,12 @@ void HCodeGenerator::writeConstructor() {
 
 void HCodeGenerator::writeFields() {
     this->writeSection(FIELDS_SECTION);
+    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        this->writef("    GrCoordTransform %s;\n",
+                     CoordTransformName(s.fArgument.c_str(), i).c_str());
+    }
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String name = FieldName(String(param->fName).c_str());
         if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
@@ -310,12 +316,6 @@ void HCodeGenerator::writeFields() {
                                                    param->fModifiers.fLayout).c_str(),
                                          name.c_str());
         }
-    }
-    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-    for (size_t i = 0; i < transforms.size(); ++i) {
-        const Section& s = *transforms[i];
-        this->writef("    GrCoordTransform %s;\n",
-                     CoordTransformName(s.fArgument.c_str(), i).c_str());
     }
 }
 
@@ -355,27 +355,13 @@ bool HCodeGenerator::generateCode() {
         }
     }
     this->writeSection(CLASS_SECTION);
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType.kind() == Type::kSampler_Kind) {
-            continue;
-        }
-        String nameString(param->fName);
-        const char* name = nameString.c_str();
-        if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-            this->writef("    int %s_index() const { return %s_index; }\n", name,
-                         FieldName(name).c_str());
-        } else {
-            this->writef("    %s %s() const { return %s; }\n",
-                         AccessType(fContext, param->fType, param->fModifiers.fLayout).c_str(),
-                         name, FieldName(name).c_str());
-        }
-    }
     this->writeMake();
     this->writef("    %s(const %s& src);\n"
                  "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
-                 "    const char* name() const override { return \"%s\"; }\n"
-                 "private:\n",
+                 "    const char* name() const override { return \"%s\"; }\n",
                  fFullName.c_str(), fFullName.c_str(), fName.c_str());
+    this->writeFields();
+    this->writef("private:\n");
     this->writeConstructor();
     this->writef("    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;\n"
                  "    void onGetGLSLProcessorKey(const GrShaderCaps&,"
@@ -388,7 +374,6 @@ bool HCodeGenerator::generateCode() {
         }
     }
     this->writef("    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n");
-    this->writeFields();
     this->writef("    typedef GrFragmentProcessor INHERITED;\n"
                 "};\n");
     this->writeSection(HEADER_END_SECTION);

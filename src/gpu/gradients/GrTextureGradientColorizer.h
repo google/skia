@@ -21,11 +21,12 @@ public:
     GrTextureGradientColorizer(const GrTextureGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "TextureGradientColorizer"; }
+    TextureSampler gradient;
 
 private:
     GrTextureGradientColorizer(sk_sp<GrTextureProxy> gradient)
             : INHERITED(kGrTextureGradientColorizer_ClassID, kNone_OptimizationFlags)
-            , fGradient(std::move(gradient), GrSamplerState::ClampBilerp()) {
+            , gradient(std::move(gradient), GrSamplerState::ClampBilerp()) {
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -33,7 +34,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    TextureSampler fGradient;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
