@@ -10,6 +10,7 @@ var DebuggerView = {
 	MakeWebGLCanvasSurface: function() {},
 	MakeGrContext: function() {},
 	MakeOnScreenGLSurface: function() {},
+	MakeCanvasSurface: function() {},
 
 	ColorType: {
 		RGBA_8888: {},
@@ -18,6 +19,8 @@ var DebuggerView = {
 	AlphaType: {
 		Unpremul: {},
 	},
+
+	TRANSPARENT: {},
 
 	SkSurface: {
 		// public API (from C++ bindings)
