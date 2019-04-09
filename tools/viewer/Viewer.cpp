@@ -13,6 +13,8 @@
 #include "GMSlide.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
+#include "GrPersistentCacheUtils.h"
 #include "ImageSlide.h"
 #include "ParticlesSlide.h"
 #include "Resources.h"
@@ -28,6 +30,7 @@
 #include "SkOSPath.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkPictureRecorder.h"
+#include "SkReader32.h"
 #include "SkScan.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -35,6 +38,7 @@
 #include "SkTo.h"
 #include "SlideDir.h"
 #include "SvgSlide.h"
+#include "SkWriter32.h"
 #include "ToolUtils.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
@@ -274,6 +278,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
+    displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
+    displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
@@ -1473,10 +1479,99 @@ static bool ImGui_DragQuad(SkPoint* pts) {
     return dc.fDragging;
 }
 
+struct InputTextCallback_UserData {
+    std::string*            Str;
+    ImGuiInputTextCallback  ChainCallback;
+    void*                   ChainCallbackUserData;
+};
+
+static int InputTextCallback(ImGuiInputTextCallbackData* data) {
+    InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
+        // Resize string callback
+        // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+        std::string* str = user_data->Str;
+        IM_ASSERT(data->Buf == str->c_str());
+        str->resize(data->BufTextLen);
+        data->Buf = (char*)str->c_str();
+    } else if (user_data->ChainCallback) {
+        // Forward to user callback, if any
+        data->UserData = user_data->ChainCallbackUserData;
+        return user_data->ChainCallback(data);
+    }
+    return 0;
+}
+
+bool ImGui_InputTextMultiline(const char* label, std::string* str,
+                              const ImVec2& size = ImVec2(0, 0),
+                              ImGuiInputTextFlags flags = 0,
+                              ImGuiInputTextCallback callback = nullptr,
+                              void* user_data = nullptr) {
+    IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+    flags |= ImGuiInputTextFlags_CallbackResize;
+
+    InputTextCallback_UserData cb_user_data;
+    cb_user_data.Str = str;
+    cb_user_data.ChainCallback = callback;
+    cb_user_data.ChainCallbackUserData = user_data;
+    return ImGui::InputTextMultiline(label, (char*)str->c_str(), str->capacity() + 1, size, flags,
+                                     InputTextCallback, &cb_user_data);
+}
+
 void Viewer::drawImGui() {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
         ImGui::ShowDemoWindow(&fShowImGuiTestWindow);
+    }
+
+    bool showShadersWindow = true;
+    if (showShadersWindow) {
+        if (ImGui::Begin("Shaders")) {
+            bool reset = ImGui::Button("Reset"); ImGui::SameLine();
+            bool load = ImGui::Button("Load"); ImGui::SameLine();
+            bool save = ImGui::Button("Save");
+
+            if (reset) {
+                fCachedGLSL.reset();
+                fPersistentCache.reset();
+                fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+            }
+            if (load) {
+                fCachedGLSL.reset();
+                auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
+                                             int hitCount) {
+                    CachedGLSL& entry(fCachedGLSL.push_back());
+                    entry.fKey = key;
+                    SkReader32 reader(data->data(), data->size());
+                    GrPersistentCacheUtils::UnpackCachedGLSL(reader, &entry.fInputs, entry.fShader);
+                };
+                fPersistentCache.foreach(collectShaders);
+            }
+            if (save) {
+                fPersistentCache.reset();
+                fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                for (const auto& entry : fCachedGLSL) {
+                    SkWriter32 writer;
+                    GrPersistentCacheUtils::PackCachedGLSL(writer, entry.fInputs, entry.fShader);
+                    auto data = writer.snapshotAsData();
+                    fPersistentCache.store(*entry.fKey, *data);
+                }
+            }
+
+            for (int i = 0; i < fCachedGLSL.count(); ++i) {
+                ImGui::PushID(i);
+                if (ImGui::TreeNode("<Insert Key>")) {
+                    ImGui_InputTextMultiline("VP", &fCachedGLSL[i].fShader[kVertex_GrShaderType],
+                                             ImVec2(-1.0f, ImGui::GetTextLineHeight() * 20.0f));
+                    ImGui_InputTextMultiline("FP", &fCachedGLSL[i].fShader[kFragment_GrShaderType],
+                                             ImVec2(-1.0f, ImGui::GetTextLineHeight() * 20.0f));
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+            }
+
+            ImGui::End();
+        }
     }
 
     if (fShowImGuiDebugWindow) {
