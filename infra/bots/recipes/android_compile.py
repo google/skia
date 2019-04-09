@@ -19,7 +19,8 @@ CF_X86_PHONE_ENG_LUNCH_TARGET = 'cf_x86_phone-eng'
 SDK_LUNCH_TARGET = 'sdk'
 
 LUNCH_TARGET_TO_MMMA_TARGETS = {
-  CF_X86_PHONE_ENG_LUNCH_TARGET: 'frameworks/base/core/jni,external/skia',
+  CF_X86_PHONE_ENG_LUNCH_TARGET: (
+      'frameworks/base/core/jni,frameworks/base/libs/hwui,external/skia'),
   SDK_LUNCH_TARGET: 'external/skia',
 }
 
