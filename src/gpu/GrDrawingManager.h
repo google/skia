@@ -118,6 +118,8 @@ private:
         bool empty() const { return fOpLists.empty(); }
         int numOpLists() const { return fOpLists.count(); }
 
+        bool isUsed(GrSurfaceProxy*) const;
+
         GrOpList* opList(int index) { return fOpLists[index].get(); }
         const GrOpList* opList(int index) const { return fOpLists[index].get(); }
 
