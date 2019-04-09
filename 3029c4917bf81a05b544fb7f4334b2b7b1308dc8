@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d36aa99_40f57f8f",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-09T18:57:31Z",
+      "side": 1,
+      "message": "Oh geez. Updated the comment to reflect that this can be overly aggressive.\n\nI\u0027m trying to avoid making these implementations overly complicated with the current mess of GrColorType, GrPixelConfig, and GrBackendFormat and hoping to back-fill correctness when getting rid of GrPixelConfig.\n\nFor the actual async read API failure here will be handled by falling back to synchronous readback using the existing GrSurfaceContext level code that handles many more src/dst types. Then as the texture format/color type refactor comes along we\u0027ll remove those edge cases and allow GrXXGpu classes be able to perform more readback conversions.",
+      "parentUuid": "e30f0ff7_bcac1a2e",
+      "range": {
+        "startLine": 956,
+        "startChar": 72,
+        "endLine": 956,
+        "endChar": 86
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cf5aea23_cf7f5688",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-04-09T18:41:03Z",
       "side": 1,
       "message": "do you mean 0b11?????",
+      "range": {
+        "startLine": 963,
+        "startChar": 18,
+        "endLine": 963,
+        "endChar": 23
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1434b784_290ce426",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-09T18:57:31Z",
+      "side": 1,
+      "message": "wow, yes. nice catch!",
+      "parentUuid": "cf5aea23_cf7f5688",
       "range": {
         "startLine": 963,
         "startChar": 18,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "38c07383_ac62ea47",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-09T18:57:31Z",
+      "side": 1,
+      "message": "I think so. I was actually planning to move this up to the base class impl of transferPixelsFrom() and turn it into asserts in a later CL. Ok to defer it?",
+      "parentUuid": "c9ed9baf_373e4573",
+      "range": {
+        "startLine": 495,
+        "startChar": 4,
+        "endLine": 498,
+        "endChar": 5
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "79f65446_95a418a7",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "68ddf60f_fda7a662",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-09T18:57:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79f65446_95a418a7",
+      "range": {
+        "startLine": 538,
+        "startChar": 40,
+        "endLine": 538,
+        "endChar": 54
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "969cbda4_81a7e79f",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2019-04-09T18:36:05Z",
       "side": 1,
       "message": "Remove? What about Metal?",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 25
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c9d1f56_6949917a",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-09T18:57:31Z",
+      "side": 1,
+      "message": "Updated to \"Metal\"",
+      "parentUuid": "969cbda4_81a7e79f",
       "range": {
         "startLine": 330,
         "startChar": 0,
