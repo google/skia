@@ -148,6 +148,30 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
     } else {
         SkASSERT(barrierType == kImageMemory_BarrierType);
         const VkImageMemoryBarrier* barrierPtr = reinterpret_cast<VkImageMemoryBarrier*>(barrier);
+        // We need to check if we are adding a pipeline barrier that covers part of the same
+        // subresource range as a barrier that is already in current batch. If it does, then we must
+        // submit the first batch because the vulkan spec does not define a specific ordering for
+        // barriers submitted in the same batch.
+        // TODO: Look if we can gain anything by merging barriers together instead of submitting
+        // the old ones.
+        for (int i = 0; i < fImageBarriers.count(); ++i) {
+            VkImageMemoryBarrier& currentBarrier = fImageBarriers[i];
+            if (barrierPtr->image == currentBarrier.image) {
+                const VkImageSubresourceRange newRange = barrierPtr->subresourceRange;
+                const VkImageSubresourceRange oldRange = currentBarrier.subresourceRange;
+                SkASSERT(newRange.aspectMask == oldRange.aspectMask);
+                SkASSERT(newRange.baseArrayLayer == oldRange.baseArrayLayer);
+                SkASSERT(newRange.layerCount == oldRange.layerCount);
+                uint32_t newStart = newRange.baseMipLevel;
+                uint32_t newEnd = newRange.baseMipLevel + newRange.levelCount - 1;
+                uint32_t oldStart = oldRange.baseMipLevel;
+                uint32_t oldEnd = oldRange.baseMipLevel + oldRange.levelCount - 1;
+                if (SkTMax(newStart, oldStart) <= SkTMin(newEnd, oldEnd)) {
+                    this->submitPipelineBarriers(gpu);
+                    break;
+                }
+            }
+        }
         fImageBarriers.push_back(*barrierPtr);
     }
     fBarriersByRegion |= byRegion;
