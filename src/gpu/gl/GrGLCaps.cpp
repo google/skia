@@ -3242,6 +3242,9 @@ static GrPixelConfig get_yuva_config(GrGLenum format) {
         case GR_GL_RGB10_A2:
             config = kRGBA_1010102_GrPixelConfig;
             break;
+        case GR_GL_R16F:
+            config = kAlpha_half_as_Red_GrPixelConfig;
+            break;
     }
 
     return config;
