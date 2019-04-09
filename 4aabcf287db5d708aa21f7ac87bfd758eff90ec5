@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afcdb33a_68f49d6f",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-09T16:54:32Z",
+      "side": 1,
+      "message": "Do we still check coverage here because stroke needs it?",
+      "range": {
+        "startLine": 1473,
+        "startChar": 8,
+        "endLine": 1473,
+        "endChar": 37
+      },
+      "revId": "4aabcf287db5d708aa21f7ac87bfd758eff90ec5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ddc630c_492c9fb1",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-09T16:54:32Z",
+      "side": 1,
+      "message": "rewrap?",
+      "range": {
+        "startLine": 1646,
+        "startChar": 69,
+        "endLine": 1647,
+        "endChar": 33
+      },
+      "revId": "4aabcf287db5d708aa21f7ac87bfd758eff90ec5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1d28999_96c2a18a",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-09T16:54:32Z",
+      "side": 1,
+      "message": "Should this be 0.5?",
+      "range": {
+        "startLine": 166,
+        "startChar": 63,
+        "endLine": 166,
+        "endChar": 64
+      },
+      "revId": "4aabcf287db5d708aa21f7ac87bfd758eff90ec5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "660d5748_8a4c09b6",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-09T16:54:32Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 174,
+        "startChar": 68,
+        "endLine": 174,
+        "endChar": 69
+      },
+      "revId": "4aabcf287db5d708aa21f7ac87bfd758eff90ec5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
