@@ -349,8 +349,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
     basic_transfer_to_test(reporter, ctxInfo.grContext(), GrColorType::kBGRA_8888, true);
 }
 
-// TODO(bsalomon): Vulkan
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
+// TODO(bsalomon): Metal
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
     if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
         return;
     }
