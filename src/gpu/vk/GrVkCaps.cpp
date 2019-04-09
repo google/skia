@@ -413,6 +413,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
+        // Transfer doesn't support this workaround.
+        fTransferBufferSupport = false;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -949,3 +951,30 @@ GrBackendFormat GrVkCaps::getBackendFormatFromGrColorType(GrColorType ct,
     return GrBackendFormat::MakeVk(format);
 }
 
+bool GrVkCaps::onTransferFromBufferRequirements(GrColorType bufferColorType, int width,
+                                                size_t* rowBytes, size_t* offsetAlignment) const {
+    // This GrColorType has 32 bpp but the Vulkan pixel format we use for with may have 24bpp
+    // (VK_FORMAT_R8G8B8_...) or may be 32 bpp. We don't support post transforming the pixel data
+    // for transfer-from currently and don't want to have to pass info about the src surface here.
+    if (bufferColorType == GrColorType::kRGB_888x) {
+        return false;
+    }
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
+    switch (bpp & 0b11) {
+        case 0:  // bpp is a multiple of 4
+            *offsetAlignment = bpp;
+            break;
+        case 2:  // bpp is a multiple of 2
+            *offsetAlignment = 2 * bpp;
+            break;
+        case 1:
+        case 3:  // bpp neither a multiple of 2 nor 4.
+            *offsetAlignment = 4 * bpp;
+            break;
+    }
+    // The bufferRowLength member of VkBufferImageCopy is in texel units and must be >= the extent
+    // of the src VkImage region.
+    *rowBytes = width * bpp;
+    return true;
+}

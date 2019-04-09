@@ -484,6 +484,88 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     return true;
 }
 
+size_t GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                     GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                                     size_t offset) {
+    SkASSERT(surface);
+    SkASSERT(transferBuffer);
+
+    size_t rowBytes;
+    size_t offsetAlignment;
+    if (!this->vkCaps().transferFromBufferRequirements(bufferColorType, width, &rowBytes,
+                                                       &offsetAlignment)) {
+        return 0;
+    }
+
+    if (offset % offsetAlignment || offset + height * rowBytes > transferBuffer->size()) {
+        return 0;
+    }
+
+    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
+
+    GrVkImage* srcImage;
+    if (GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(surface->asRenderTarget())) {
+        // Reading from render targets that wrap a secondary command buffer is not allowed since
+        // it would require us to know the VkImage, which we don't have, as well as need us to
+        // stop and start the VkRenderPass which we don't have access to.
+        if (rt->wrapsSecondaryCommandBuffer()) {
+            return false;
+        }
+        // resolve the render target if necessary
+        switch (rt->getResolveType()) {
+            case GrVkRenderTarget::kCantResolve_ResolveType:
+                return false;
+            case GrVkRenderTarget::kAutoResolves_ResolveType:
+                break;
+            case GrVkRenderTarget::kCanResolve_ResolveType:
+                this->resolveRenderTargetNoFlush(rt);
+                break;
+            default:
+                SK_ABORT("Unknown resolve type");
+        }
+        srcImage = rt;
+    } else {
+        srcImage = static_cast<GrVkTexture*>(surface->asTexture());
+    }
+
+    // Set up copy region
+    VkBufferImageCopy region;
+    memset(&region, 0, sizeof(VkBufferImageCopy));
+    region.bufferOffset = offset;
+    // We're assuming that GrVkCaps made the row bytes tight.
+    region.bufferRowLength = 0;
+#ifdef SK_DEBUG
+    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    SkASSERT(rowBytes == width * (size_t)bpp);
+#endif
+    region.bufferImageHeight = 0;
+    region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    region.imageOffset = { left, top, 0 };
+    region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
+
+    srcImage->setImageLayout(this,
+                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                             VK_ACCESS_TRANSFER_READ_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             false);
+
+    fCurrentCmdBuffer->copyImageToBuffer(this, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                         vkBuffer, 1, &region);
+
+    // Make sure the copy to buffer has finished.
+    vkBuffer->addMemoryBarrier(this,
+                               VK_ACCESS_TRANSFER_WRITE_BIT,
+                               VK_ACCESS_HOST_READ_BIT,
+                               VK_PIPELINE_STAGE_TRANSFER_BIT,
+                               VK_PIPELINE_STAGE_HOST_BIT,
+                               false);
+
+    // The caller is responsible for syncing.
+    this->submitCommandBuffer(kSkip_SyncQueue);
+
+    return rowBytes;
+}
+
 void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint) {
     SkASSERT(dst);
