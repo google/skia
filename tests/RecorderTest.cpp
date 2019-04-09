@@ -58,7 +58,7 @@ DEF_TEST(Recorder_RefLeaking, r) {
 
     SkRect bounds = SkRect::MakeWH(320, 240);
     SkPaint paint;
-    paint.setShader(SkShader::MakeEmptyShader());
+    paint.setShader(SkShader::Empty());
 
     REPORTER_ASSERT(r, paint.getShader()->unique());
     {

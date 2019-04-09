@@ -31,7 +31,7 @@ static sk_sp<SkShader> make_bitmapfade(const SkBitmap& bm) {
 
     auto shaderB = bm.makeShader();
 
-    return SkShader::MakeComposeShader(std::move(shaderB), std::move(shaderA), SkBlendMode::kDstIn);
+    return SkShaders::Blend(SkBlendMode::kDstIn, std::move(shaderB), std::move(shaderA));
 }
 
 class ShaderView : public Sample {

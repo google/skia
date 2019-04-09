@@ -561,18 +561,18 @@ static sk_sp<SkShader> make_degenerate_gradient(const SkColor4f colors[], const 
         case SkTileMode::kDecal:
             // normally this would reject the area outside of the interpolation region, so since
             // inside region is empty when the radii are equal, the entire draw region is empty
-            return SkShader::MakeEmptyShader();
+            return SkShaders::Empty();
         case SkTileMode::kRepeat:
         case SkTileMode::kMirror:
             // repeat and mirror are treated the same: the border colors are never visible,
             // but approximate the final color as infinite repetitions of the colors, so
             // it can be represented as the average color of the gradient.
-            return SkShader::MakeColorShader(
+            return SkShaders::Color(
                     average_gradient_color(colors, pos, colorCount), std::move(colorSpace));
         case SkTileMode::kClamp:
             // Depending on how the gradient shape degenerates, there may be a more specialized
             // fallback representation for the factories to use, but this is a reasonable default.
-            return SkShader::MakeColorShader(colors[colorCount - 1], std::move(colorSpace));
+            return SkShaders::Color(colors[colorCount - 1], std::move(colorSpace));
     }
     SkDEBUGFAIL("Should not be reached");
     return nullptr;
