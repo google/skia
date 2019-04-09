@@ -43,8 +43,9 @@ class SkTypeface;
 
 namespace ToolUtils {
 
-const char* alphatype_name(SkAlphaType);
-const char* colortype_name(SkColorType);
+const char* alphatype_name (SkAlphaType);
+const char* colortype_name (SkColorType);
+const char* colortype_depth(SkColorType);  // like colortype_name, but channel order agnostic
 
 /**
  * Map opaque colors from 8888 to 565.
