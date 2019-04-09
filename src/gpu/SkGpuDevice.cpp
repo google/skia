@@ -1634,7 +1634,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             format, fit, cinfo.fInfo.width(), cinfo.fInfo.height(), config,
             fRenderTargetContext->colorSpaceInfo().refColorSpace(),
             fRenderTargetContext->numStencilSamples(), GrMipMapped::kNo,
-            kBottomLeft_GrSurfaceOrigin, &props));
+            fContext->priv().caps()->renderTargetOrigin(), &props));
     if (!rtc) {
         return nullptr;
     }

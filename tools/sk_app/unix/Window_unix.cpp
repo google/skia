@@ -352,6 +352,11 @@ bool Window_unix::attach(BackendType attachType) {
     }
 
     switch (attachType) {
+#ifdef SK_DAWN
+        case kDawn_BackendType:
+            fWindowContext = window_context_factory::NewDawnVulkanForXlib(winInfo, fRequestedDisplayParams);
+            break;
+#endif
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext = window_context_factory::NewVulkanForXlib(winInfo,

@@ -331,4 +331,3 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     traceMemoryDump->dumpNumericValue("skia/gr_text_blob_cache", "size", "bytes",
                                       this->getTextBlobCache()->usedBytes());
 }
-

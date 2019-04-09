@@ -282,8 +282,8 @@ public:
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar), args.fOutputColor,
-                args.fInputColor,
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                args.fInputColor ? args.fInputColor : "half4(1)",
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }
 

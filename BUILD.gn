@@ -33,17 +33,20 @@ declare_args() {
   skia_use_wuffs = false
   skia_use_zlib = true
   skia_use_metal = false
+  skia_use_dawn = true
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
   skia_use_xps = true
+}
 
+declare_args() {
   skia_android_serial = ""
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
   skia_enable_nima = false
   skia_enable_pdf = true
-  skia_enable_spirv_validation = is_skia_dev_build && is_debug
+  skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_enable_skpicture = true
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_qt_path = getenv("QT_PATH")
@@ -58,6 +61,11 @@ declare_args() {
 
   skia_tools_require_resources = false
 }
+
+if (skia_use_dawn) {
+  import("third_party/externals/dawn/scripts/dawn_features.gni")
+}
+
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
@@ -695,13 +703,34 @@ optional("gpu") {
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
+  if (skia_use_dawn) {
+    public_defines += [ "SK_DAWN" ]
+    sources += skia_dawn_sources
+    public_deps += [
+      "//third_party/dawn:dawn_headers",
+      "//third_party/dawn:libdawn",
+      "//third_party/dawn:libdawn_native_sources",
+    ]
+    if (dawn_enable_d3d12) {
+      libs += [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+      ]
+    } else if (dawn_enable_metal) {
+      libs += [ "Metal.framework" ]
+    }
+  }
+
   cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     libs += [ "Metal.framework" ]
     libs += [ "Foundation.framework" ]
-    cflags_objcc += [ "-fobjc-arc" ]
+    if (!skia_use_dawn) {
+      cflags_objcc = [ "-fobjc-arc" ]
+    }
   }
 
   if (skia_enable_atlas_text) {
@@ -1274,6 +1303,9 @@ if (skia_enable_tools) {
     # We add this directory to simulate the client already have
     # vulkan/vulkan_core.h on their path.
     include_dirs = [ "include/third_party/vulkan" ]
+    if (skia_use_dawn) {
+      deps += [ "//third_party/dawn:dawn_headers" ]
+    }
   }
 
   template("test_lib") {
@@ -1532,7 +1564,9 @@ if (skia_enable_tools) {
       }
     }
 
-    cflags_objcc = [ "-fobjc-arc" ]
+    if (!skia_use_dawn) {
+      cflags_objcc = [ "-fobjc-arc" ]
+    }
 
     if (skia_use_angle) {
       deps += [ "//third_party/angle2" ]
@@ -1549,6 +1583,16 @@ if (skia_enable_tools) {
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+    }
+    if (skia_use_dawn) {
+      public_deps += [ "//third_party/dawn:dawn_headers" ]
+      if (dawn_enable_metal) {
+        sources += [ "tools/gpu/dawn/DawnMTLUtils.mm" ]
+      }
+      if (dawn_enable_vulkan) {
+        public_include_dirs += [ "third_party/vulkan" ]
+      }
+      sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
     }
   }
 
@@ -2248,6 +2292,11 @@ if (skia_enable_tools) {
     ]
     libs = []
 
+    if (skia_use_dawn) {
+      sources += [ "tools/sk_app/DawnWindowContext.cpp" ]
+      sources += [ "tools/sk_app/DawnGLWindowContext.cpp" ]
+    }
+
     if (is_android) {
       sources += [
         "tools/sk_app/android/GLWindowContext_android.cpp",
@@ -2265,6 +2314,16 @@ if (skia_enable_tools) {
         "tools/sk_app/unix/keysym2ucs.c",
         "tools/sk_app/unix/main_unix.cpp",
       ]
+      if (skia_use_dawn) {
+        if (dawn_enable_opengl) {
+          sources += [ "tools/sk_app/unix/DawnGLWindowContext_unix.cpp" ]
+        }
+        if (dawn_enable_vulkan) {
+          sources += [ "tools/sk_app/unix/DawnVulkanWindowContext_unix.cpp" ]
+          defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
+          libs += [ "X11-xcb" ]
+        }
+      }
       libs += [
         "GL",
         "X11",
@@ -2279,6 +2338,14 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         sources += [ "tools/sk_app/win/ANGLEWindowContext_win.cpp" ]
       }
+      if (skia_use_dawn) {
+        if (dawn_enable_opengl) {
+          sources += [ "tools/sk_app/win/DawnGLWindowContext_win.cpp" ]
+        }
+        if (dawn_enable_d3d12) {
+          sources += [ "tools/sk_app/win/DawnD3D12WindowContext_win.cpp" ]
+        }
+      }
     } else if (is_mac) {
       sources += [
         "tools/sk_app/mac/GLWindowContext_mac.mm",
@@ -2286,6 +2353,14 @@ if (skia_enable_tools) {
         "tools/sk_app/mac/Window_mac.mm",
         "tools/sk_app/mac/main_mac.mm",
       ]
+      if (skia_use_dawn) {
+        if (dawn_enable_metal) {
+          sources += [ "tools/sk_app/mac/DawnMTLWindowContext_mac.mm" ]
+        }
+        if (dawn_enable_opengl) {
+          sources += [ "tools/sk_app/mac/DawnGLWindowContext_mac.mm" ]
+        }
+      }
       libs += [
         "QuartzCore.framework",
         "Cocoa.framework",
@@ -2341,9 +2416,9 @@ if (skia_enable_tools) {
   if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
     test_app("fiddle_examples") {
       sources = [
+        "tools/fiddle/all_examples.cpp",
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
-        "tools/fiddle/all_examples.cpp",
       ]
       include_dirs = [ "tools" ]
       if (is_win) {

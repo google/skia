@@ -100,7 +100,7 @@ public:
             fragBuilder->codeAppendf(
                 "half4 tmp%d = texture(%s, %s).%s;",
                     i,
-                    fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[i]).c_str(),
+                    fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[i]),
                     coords[i].c_str(),
                     fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[i]).c_str());
         }
