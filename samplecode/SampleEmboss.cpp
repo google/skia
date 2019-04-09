@@ -48,7 +48,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(10));
         paint.setMaskFilter(SkEmbossMaskFilter::Make(SkBlurMask::ConvertRadiusToSigma(4), fLight));
-        paint.setShader(SkShader::MakeColorShader(SK_ColorBLUE));
+        paint.setShader(SkShaders::Color(SK_ColorBLUE));
         paint.setDither(true);
 
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),

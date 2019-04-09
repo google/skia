@@ -186,7 +186,7 @@ public:
 
         {
             SkPaint greenColorShaderPaint;
-            greenColorShaderPaint.setShader(SkShader::MakeColorShader(SK_ColorGREEN));
+            greenColorShaderPaint.setShader(SkShaders::Color(SK_ColorGREEN));
 
             SkImageFilter::CropRect leftSideCropRect(SkRect::MakeXYWH(0, 0, 32, 64));
             sk_sp<SkImageFilter> paintFilterLeft(SkPaintImageFilter::Make(greenColorShaderPaint,

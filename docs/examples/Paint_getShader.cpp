@@ -6,7 +6,7 @@ REG_FIDDLE(Paint_getShader, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkDebugf("nullptr %c= shader\n", paint.getShader() ? '!' : '=');
-   paint.setShader(SkShader::MakeEmptyShader());
+   paint.setShader(SkShaders::Empty());
    SkDebugf("nullptr %c= shader\n", paint.getShader() ? '!' : '=');
 }
 }  // END FIDDLE

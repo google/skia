@@ -68,7 +68,7 @@ struct GradRec {
 
 
 static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const GradRec&) {
-    sk_sp<SkShader> s(SkShader::MakeEmptyShader());
+    sk_sp<SkShader> s(SkShaders::Empty());
     REPORTER_ASSERT(reporter, SkShader::kNone_GradientType == s->asAGradient(nullptr));
 }
 

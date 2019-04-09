@@ -6,7 +6,7 @@ REG_FIDDLE(Paint_setShader, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
-    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
+    paint.setShader(SkShaders::Color(SK_ColorRED));
     canvas->drawRect(SkRect::MakeWH(40, 40), paint);
     paint.setShader(nullptr);
     canvas->translate(50, 0);

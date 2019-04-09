@@ -159,12 +159,11 @@ protected:
         canvas->translate(0, SIZE + 10.f);
 
         auto sh = fSurface->makeImageSnapshot()->makeShader();
-        auto mx = SkMixer::MakeShaderLerp(sh);
 
         canvas->save();
         paint.setShader(sh); canvas->drawRect(r, paint);
         canvas->translate(SIZE + 10.f, 0);
-        paint.setShader(SkShader::MakeMixer(fSH0, fSH1, mx)); canvas->drawRect(r, paint);
+        paint.setShader(SkShaders::Lerp(sh, fSH0, fSH1)); canvas->drawRect(r, paint);
         canvas->restore();
     }
 
