@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "969cbda4_81a7e79f",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-09T18:36:05Z",
+      "side": 1,
+      "message": "Remove? What about Metal?",
+      "range": {
+        "startLine": 330,
+        "startChar": 0,
+        "endLine": 330,
+        "endChar": 25
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
