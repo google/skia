@@ -260,7 +260,7 @@ static int calculate_buffer(int window) {
 //
 using Pass0And1 = Sk4u[2];
 // The would be dLeft parameter is assumed to be 0.
-static void blur_one_direction(Sk4u* buffer, int window,
+static void blur_one_direction(Sk4u* buffer, SkBlurImageFilter::TileMode tileMode, int window,
                                int srcLeft, int srcRight, int dstRight,
                                const uint32_t* src, int srcXStride, int srcYStride, int srcH,
                                      uint32_t* dst, int dstXStride, int dstYStride) {
@@ -339,11 +339,19 @@ static void blur_one_direction(Sk4u* buffer, int window,
         const uint32_t* srcCursor = src;
               uint32_t* dstCursor = dst;
 
-        // The destination pixels are not effected by the src pixels,
-        // change to zero as per the spec.
-        // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
+        // The leading edge hasn't yet hit the src pixels.
         while (dstIdx < srcIdx) {
-            *dstCursor = 0;
+            switch (tileMode) {
+                case SkBlurImageFilter::kClamp_TileMode: {
+                    Sk4u clamp = SkNx_cast<uint32_t>(Sk4b::Load(srcCursor));
+                    SkNx_cast<uint8_t>(processValue(clamp)).store(dstCursor);
+                    break;
+                }
+                case SkBlurImageFilter::kRepeat_TileMode:  // TODO(mtklein)
+                case SkBlurImageFilter::kClampToBlack_TileMode:
+                    SkNx_cast<uint8_t>(processValue(0u)).store(dstCursor);
+                    break;
+            }
             dstCursor += dstXStride;
             SK_PREFETCH(dstCursor);
             dstIdx++;
@@ -370,11 +378,20 @@ static void blur_one_direction(Sk4u* buffer, int window,
             dstIdx++;
         }
 
-        // The leading edge is beyond the end of the source. Assume that the pixels
-        // are now 0x0000 until the end of the destination.
+        // The leading edge is beyond the end of the source.
         loopEnd = dstEnd;
         while (dstIdx < loopEnd) {
-            SkNx_cast<uint8_t>(processValue(0u)).store(dstCursor);
+            switch (tileMode) {
+                case SkBlurImageFilter::kClamp_TileMode: {
+                    Sk4u clamp = SkNx_cast<uint32_t>(Sk4b::Load(srcCursor - srcXStride));
+                    SkNx_cast<uint8_t>(processValue(clamp)).store(dstCursor);
+                    break;
+                }
+                case SkBlurImageFilter::kRepeat_TileMode:  // TODO(mtklein)
+                case SkBlurImageFilter::kClampToBlack_TileMode:
+                    SkNx_cast<uint8_t>(processValue(0u)).store(dstCursor);
+                    break;
+            }
             dstCursor += dstXStride;
             SK_PREFETCH(dstCursor);
             dstIdx++;
@@ -452,6 +469,7 @@ static sk_sp<SkSpecialImage> copy_image_with_bounds(
 
 // TODO: Implement CPU backend for different fTileMode.
 static sk_sp<SkSpecialImage> cpu_blur(
+        SkBlurImageFilter::TileMode tileMode,
         SkVector sigma,
         SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
@@ -540,7 +558,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
         intermediateDst = static_cast<uint32_t *>(dst.getPixels());
 
         blur_one_direction(
-                buffer, windowW,
+                buffer, tileMode, windowW,
                 srcBounds.left(), srcBounds.right(), dstBounds.right(),
                 static_cast<uint32_t *>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
                 intermediateSrc, 1, intermediateRowBytesAsPixels);
@@ -548,7 +566,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
 
     if (windowH > 1) {
         blur_one_direction(
-                buffer, windowH,
+                buffer, tileMode, windowH,
                 srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                 intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
                 intermediateDst, dst.rowBytesAsPixels(), 1);
@@ -605,7 +623,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     } else
 #endif
     {
-        result = cpu_blur(sigma, source, input, inputBounds, dstBounds);
+        result = cpu_blur(fTileMode, sigma, source, input, inputBounds, dstBounds);
     }
 
     // Return the resultOffset if the blur succeeded.
