@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "e30f0ff7_bcac1a2e",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-09T18:41:03Z",
+      "side": 1,
+      "message": "This isn\u0027t always true especially since you are using a GrColorType here. We may use vulkan RGBA or RGB here with that color type. Should this function also be taking a GrBackendFormat so we can more accurately make this decision?",
+      "range": {
+        "startLine": 956,
+        "startChar": 72,
+        "endLine": 956,
+        "endChar": 86
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf5aea23_cf7f5688",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-09T18:41:03Z",
+      "side": 1,
+      "message": "do you mean 0b11?????",
+      "range": {
+        "startLine": 963,
+        "startChar": 18,
+        "endLine": 963,
+        "endChar": 23
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9ed9baf_373e4573",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-09T18:41:03Z",
+      "side": 1,
+      "message": "since it doesn\u0027t look like we adjust offset at all, I\u0027m assuming someone higher up the call stack is calling this function as well. If that is the case can we just assert this passes here?",
+      "range": {
+        "startLine": 495,
+        "startChar": 4,
+        "endLine": 498,
+        "endChar": 5
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79f65446_95a418a7",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-09T18:41:03Z",
+      "side": 1,
+      "message": "are we ever planning on rowBytes not being width * bpp? If not we can just set this to width or 0. Could always put an assert that rowBytes / bpp equals width and update this if we ever hit that case.",
+      "range": {
+        "startLine": 538,
+        "startChar": 40,
+        "endLine": 538,
+        "endChar": 54
+      },
+      "revId": "3029c4917bf81a05b544fb7f4334b2b7b1308dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "969cbda4_81a7e79f",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 2
