@@ -141,9 +141,13 @@ sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 
-sk_sp<SkShader> SkShader::MakeEmptyShader() { return sk_make_sp<SkEmptyShader>(); }
+#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
+sk_sp<SkShader> SkShader::MakeEmptyShader() { return SkShaders::Empty(); }
+sk_sp<SkShader> SkShader::MakeColorShader(SkColor color) { return SkShaders::Color(color); }
+#endif
 
-sk_sp<SkShader> SkShader::MakeColorShader(SkColor color) { return sk_make_sp<SkColorShader>(color); }
+sk_sp<SkShader> SkShaders::Empty() { return sk_make_sp<SkEmptyShader>(); }
+sk_sp<SkShader> SkShaders::Color(SkColor color) { return sk_make_sp<SkColorShader>(color); }
 
 #ifdef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
 sk_sp<SkShader> SkShader::MakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
@@ -224,5 +228,5 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
-    return SkShader::MakeEmptyShader();
+    return SkShaders::Empty();
 }

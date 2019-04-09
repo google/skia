@@ -170,6 +170,7 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
     /**
      *  Call this to create a new "empty" shader, that will not draw anything.
      */
@@ -210,6 +211,7 @@ public:
     static sk_sp<SkShader> MakeLerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src);
 
     static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, sk_sp<SkMixer>);
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
     /** DEPRECATED. call bitmap.makeShader()
@@ -263,6 +265,20 @@ private:
     friend class SkShaderBase;
 
     typedef SkFlattenable INHERITED;
+};
+
+class SK_API SkShaders {
+public:
+    static sk_sp<SkShader> Empty();
+    static sk_sp<SkShader> Color(SkColor);
+    static sk_sp<SkShader> Color(const SkColor4f&, sk_sp<SkColorSpace>);
+    static sk_sp<SkShader> Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src);
+    static sk_sp<SkShader> Lerp(float t, sk_sp<SkShader> dst, sk_sp<SkShader> src);
+
+    static sk_sp<SkShader> Lerp(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src);
+
+private:
+    SkShaders() = delete;
 };
 
 #endif

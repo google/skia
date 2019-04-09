@@ -56,7 +56,7 @@ sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
         sk_sp<SkData> data = buffer.readByteArrayAsData();
         colorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
     }
-    return SkShader::MakeColorShader(color, std::move(colorSpace));
+    return SkShaders::Color(color, std::move(colorSpace));
 }
 
 void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
@@ -71,7 +71,13 @@ void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
 }
 
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
 sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorSpace> space) {
+    return SkShaders::Color(color, std::move(space));
+}
+#endif
+
+sk_sp<SkShader> SkShaders::Color(const SkColor4f& color, sk_sp<SkColorSpace> space) {
     if (!SkScalarsAreFinite(color.vec(), 4)) {
         return nullptr;
     }

@@ -16,9 +16,19 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
 sk_sp<SkShader> SkShader::MakeBlend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
+    return SkShaders::Blend(mode, std::move(dst), std::move(src)));
+}
+
+sk_sp<SkShader> SkShader::MakeLerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
+    return SkShaders::Lerp(weight, std::move(dst), std::move(src)));
+}
+#endif
+
+sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     switch (mode) {
-        case SkBlendMode::kClear: return MakeColorShader(0);
+        case SkBlendMode::kClear: return Color(0);
         case SkBlendMode::kDst:   return dst;
         case SkBlendMode::kSrc:   return src;
         default: break;
@@ -26,7 +36,7 @@ sk_sp<SkShader> SkShader::MakeBlend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp
     return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src)));
 }
 
-sk_sp<SkShader> SkShader::MakeLerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
+sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     if (SkScalarIsNaN(weight)) {
         return nullptr;
     }
@@ -83,7 +93,7 @@ sk_sp<SkFlattenable> SkShader_Blend::CreateProc(SkReadBuffer& buffer) {
     if (!buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode)) {
         return nullptr;
     }
-    return MakeBlend(static_cast<SkBlendMode>(mode), std::move(dst), std::move(src));
+    return SkShaders::Blend(static_cast<SkBlendMode>(mode), std::move(dst), std::move(src));
 }
 
 void SkShader_Blend::flatten(SkWriteBuffer& buffer) const {
@@ -107,7 +117,7 @@ sk_sp<SkFlattenable> SkShader_Lerp::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> dst(buffer.readShader());
     sk_sp<SkShader> src(buffer.readShader());
     float t = buffer.readScalar();
-    return buffer.isValid() ? MakeLerp(t, std::move(dst), std::move(src)) : nullptr;
+    return buffer.isValid() ? SkShaders::Lerp(t, std::move(dst), std::move(src)) : nullptr;
 }
 
 void SkShader_Lerp::flatten(SkWriteBuffer& buffer) const {

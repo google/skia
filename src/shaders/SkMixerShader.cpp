@@ -12,6 +12,7 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
 sk_sp<SkShader> SkShader::MakeMixer(sk_sp<SkShader> s0, sk_sp<SkShader> s1, sk_sp<SkMixer> mixer) {
     if (!mixer) {
         return nullptr;
@@ -24,6 +25,7 @@ sk_sp<SkShader> SkShader::MakeMixer(sk_sp<SkShader> s0, sk_sp<SkShader> s1, sk_s
     }
     return sk_sp<SkShader>(new SkShader_Mixer(std::move(s0), std::move(s1), std::move(mixer)));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +34,11 @@ sk_sp<SkFlattenable> SkShader_Mixer::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> s1(buffer.readShader());
     sk_sp<SkMixer>  mx(buffer.readMixer());
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
     return MakeMixer(std::move(s0), std::move(s1), std::move(mx));
+#else
+    return nullptr;
+#endif
 }
 
 void SkShader_Mixer::flatten(SkWriteBuffer& buffer) const {
