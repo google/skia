@@ -67,7 +67,7 @@ static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.")
 static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
 static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
-static DEFINE_string(parameters, "", "Metadata passed through to .png encoder and .json output.");
+static DEFINE_string(properties, "", "Metadata passed through to .png encoder and .json output.");
 
 template <typename T>
 struct FlagOption {
@@ -567,7 +567,7 @@ int main(int argc, char** argv) {
 
             if (image) {
                 if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
-                                              FLAGS_key, FLAGS_parameters)) {
+                                              FLAGS_key, FLAGS_properties)) {
                     fprintf(stderr, "Could not write to %s.\n", path.c_str());
                     exit_with_failure();
                 }
