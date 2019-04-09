@@ -158,13 +158,6 @@ public:
         return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
     }
 
-    int maxDimension() const {
-        // width and height are only defined if a metrics call was made.
-        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-
-        return std::max(fWidth, fHeight);
-    }
-
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
