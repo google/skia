@@ -545,9 +545,6 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& t
 SkPDFDevice::~SkPDFDevice() = default;
 
 void SkPDFDevice::reset() {
-    fLinkToURLs = std::vector<RectWithData>();
-    fLinkToDestinations = std::vector<RectWithData>();
-    fNamedDestinations = std::vector<NamedDestination>();
     fGraphicStateResources.reset();
     fXObjectResources.reset();
     fShaderResources.reset();
@@ -560,6 +557,8 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     if (!value) {
         return;
     }
+    const SkMatrix& pageXform = fDocument->currentPageTransform();
+    SkPoint deviceOffset = {(float)this->getOrigin().x(), (float)this->getOrigin().y()};
     if (rect.isEmpty()) {
         if (!strcmp(key, SkPDFGetNodeIdKey())) {
             int nodeID;
@@ -569,9 +568,10 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
             return;
         }
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
-            SkPoint transformedPoint;
-            this->ctm().mapXY(rect.x(), rect.y(), &transformedPoint);
-            fNamedDestinations.emplace_back(NamedDestination{sk_ref_sp(value), transformedPoint});
+            SkPoint p = deviceOffset + this->ctm().mapXY(rect.x(), rect.y());
+            pageXform.mapPoints(&p, 1);
+            auto pg = fDocument->currentPage();
+            fDocument->fNamedDestinations.push_back(SkPDFNamedDestination{sk_ref_sp(value), p, pg});
         }
         return;
     }
@@ -582,14 +582,17 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     (void)this->cs().asPath(&clip);
     Op(clip, path, kIntersect_SkPathOp, &path);
     // PDF wants a rectangle only.
-    SkRect transformedRect = path.getBounds();
+    SkRect transformedRect =
+        pageXform.mapRect(path.getBounds().makeOffset(deviceOffset.x(), deviceOffset.y()));
     if (transformedRect.isEmpty()) {
         return;
     }
     if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
-        fLinkToURLs.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
+        fDocument->fCurrentPageLinkToURLs.push_back(
+                std::make_pair(sk_ref_sp(value), transformedRect));
     } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
-        fLinkToDestinations.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
+        fDocument->fCurrentPageLinkToDestinations.emplace_back(
+                std::make_pair(sk_ref_sp(value), transformedRect));
     }
 }
 
@@ -688,42 +691,6 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
         default:
             SkASSERT(false);
     }
-}
-
-static std::unique_ptr<SkPDFDict> create_link_annotation(const SkRect& translatedRect) {
-    auto annotation = SkPDFMakeDict("Annot");
-    annotation->insertName("Subtype", "Link");
-    annotation->insertInt("F", 4);  // required by ISO 19005
-    // Border: 0 = Horizontal corner radius.
-    //         0 = Vertical corner radius.
-    //         0 = Width, 0 = no border.
-    annotation->insertObject("Border", SkPDFMakeArray(0, 0, 0));
-
-    annotation->insertObject("Rect", SkPDFMakeArray(translatedRect.fLeft,
-                                                    translatedRect.fTop,
-                                                    translatedRect.fRight,
-                                                    translatedRect.fBottom));
-    return annotation;
-}
-
-static std::unique_ptr<SkPDFDict> create_link_to_url(const SkData* urlData, const SkRect& r) {
-    std::unique_ptr<SkPDFDict> annotation = create_link_annotation(r);
-    SkString url(static_cast<const char *>(urlData->data()),
-                 urlData->size() - 1);
-    auto action = SkPDFMakeDict("Action");
-    action->insertName("S", "URI");
-    action->insertString("URI", url);
-    annotation->insertObject("A", std::move(action));
-    return annotation;
-}
-
-static std::unique_ptr<SkPDFDict> create_link_named_dest(const SkData* nameData,
-                                                         const SkRect& r) {
-    std::unique_ptr<SkPDFDict> annotation = create_link_annotation(r);
-    SkString name(static_cast<const char *>(nameData->data()),
-                  nameData->size() - 1);
-    annotation->insertName("Dest", name);
-    return annotation;
 }
 
 void SkPDFDevice::drawRect(const SkRect& rect,
@@ -1300,21 +1267,6 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
     // our onCreateCompatibleDevice() always creates SkPDFDevice subclasses.
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
-    SkScalar scalarX = SkIntToScalar(x);
-    SkScalar scalarY = SkIntToScalar(y);
-    for (const RectWithData& l : pdfDevice->fLinkToURLs) {
-        SkRect r = l.rect.makeOffset(scalarX, scalarY);
-        fLinkToURLs.emplace_back(RectWithData{r, l.data});
-    }
-    for (const RectWithData& l : pdfDevice->fLinkToDestinations) {
-        SkRect r = l.rect.makeOffset(scalarX, scalarY);
-        fLinkToDestinations.emplace_back(RectWithData{r, l.data});
-    }
-    for (const NamedDestination& d : pdfDevice->fNamedDestinations) {
-        SkPoint p = d.point + SkPoint::Make(scalarX, scalarY);
-        fNamedDestinations.emplace_back(NamedDestination{d.nameData, p});
-    }
-
     if (pdfDevice->isContentEmpty()) {
         return;
     }
@@ -1440,42 +1392,6 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     return true;
 }
 
-std::unique_ptr<SkPDFArray> SkPDFDevice::getAnnotations() {
-    std::unique_ptr<SkPDFArray> array;
-    size_t count = fLinkToURLs.size() + fLinkToDestinations.size();
-    if (0 == count) {
-        return array;
-    }
-    array = SkPDFMakeArray();
-    array->reserve(count);
-    for (const RectWithData& rectWithURL : fLinkToURLs) {
-        SkRect r;
-        fInitialTransform.mapRect(&r, rectWithURL.rect);
-        array->appendRef(fDocument->emit(*create_link_to_url(rectWithURL.data.get(), r)));
-    }
-    for (const RectWithData& linkToDestination : fLinkToDestinations) {
-        SkRect r;
-        fInitialTransform.mapRect(&r, linkToDestination.rect);
-        array->appendRef(
-                fDocument->emit(*create_link_named_dest(linkToDestination.data.get(), r)));
-    }
-    return array;
-}
-
-void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFIndirectReference page) const {
-    for (const NamedDestination& dest : fNamedDestinations) {
-        SkPoint p = fInitialTransform.mapXY(dest.point.x(), dest.point.y());
-        auto pdfDest = SkPDFMakeArray();
-        pdfDest->reserve(5);
-        pdfDest->appendRef(page);
-        pdfDest->appendName("XYZ");
-        pdfDest->appendScalar(p.x());
-        pdfDest->appendScalar(p.y());
-        pdfDest->appendInt(0);  // Leave zoom unchanged
-        dict->insertObject(SkString(static_cast<const char*>(dest.nameData->data())),
-                           std::move(pdfDest));
-    }
-}
 
 SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     SkMatrix inverseTransform = SkMatrix::I();

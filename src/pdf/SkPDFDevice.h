@@ -97,15 +97,6 @@ public:
     /** Create the resource dictionary for this device. Destructive. */
     std::unique_ptr<SkPDFDict> makeResourceDict();
 
-    /** return annotations (link to urls and destinations) or nulltpr */
-    std::unique_ptr<SkPDFArray> getAnnotations();
-
-    /** Add our named destinations to the supplied dictionary.
-     *  @param dict  Dictionary to add destinations to.
-     *  @param page  The PDF object representing the page for this device.
-     */
-    void appendDestinations(SkPDFDict* dict, SkPDFIndirectReference page) const;
-
     /** Returns a SkStream with the page contents.
      */
     std::unique_ptr<SkStreamAsset> content();
@@ -126,6 +117,8 @@ public:
 
     void DrawGlyphRunAsPath(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset);
 
+    const SkMatrix& initialTransform() const { return fInitialTransform; }
+
 protected:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
@@ -139,25 +132,11 @@ protected:
     SkImageFilterCache* getImageFilterCache() override;
 
 private:
-    struct RectWithData {
-        SkRect rect;
-        sk_sp<SkData> data;
-    };
-
-    struct NamedDestination {
-        sk_sp<SkData> nameData;
-        SkPoint point;
-    };
-
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
 
     SkMatrix fInitialTransform;
-
-    std::vector<RectWithData> fLinkToURLs;
-    std::vector<RectWithData> fLinkToDestinations;
-    std::vector<NamedDestination> fNamedDestinations;
 
     SkTHashSet<SkPDFIndirectReference> fGraphicStateResources;
     SkTHashSet<SkPDFIndirectReference> fXObjectResources;
