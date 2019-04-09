@@ -2649,14 +2649,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferBufferType = kNone_TransferBufferType;
     }
 
-    // Unit test for TransferPixelsFromTest fails on Shield with X1. Unclear whether this is a
-    // driver bug or a bug in our implementation. It passes on desktop NVIDIA GPUs, so perhaps
-    // something related to OpenGL ES?
-    if (kTegra_GrGLRenderer == ctxInfo.renderer()) {
-        fTransferBufferSupport = false;
-        fTransferBufferType = kNone_TransferBufferType;
-    }
-
     // Using MIPs on this GPU seems to be a source of trouble.
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer()) {
         fMipMapSupport = false;
