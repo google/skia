@@ -73,7 +73,9 @@ public:
         fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
     }
 
-    void commitRunInfo() override {}
+    void commitRunInfo() override {
+        fCurrentPosition.fY -= fMaxRunAscent;
+    }
 
     Buffer runBuffer(const RunInfo& info) override {
         int glyphCount = SkTFitsIn<int>(info.glyphCount) ? info.glyphCount : INT_MAX;
@@ -100,6 +102,11 @@ public:
 
     void commitLine() override {
         fOffset += { 0, fMaxRunDescent + fMaxRunLeading - fMaxRunAscent };
+
+        // Grab the first line ascent for vertical alignment.
+        if (SkScalarIsNaN(fFirstLineAscent)) {
+            fFirstLineAscent = fMaxRunAscent;
+        }
     }
 
     Shaper::Result makeBlob() {
@@ -107,14 +114,12 @@ public:
 
         SkPoint pos {fBox.x(), fBox.y()};
 
-        // By default, first line is vertical-aligned on a baseline of 0.
-        // Perform additional adjustments based on VAlign.
         switch (fDesc.fVAlign) {
-        case Shaper::VAlign::kTop: {
-            pos.offset(0, -ComputeBlobBounds(blob).fTop);
-        } break;
+        case Shaper::VAlign::kTop:
+            // Nothing to do (SkShaper default behavior).
+            break;
         case Shaper::VAlign::kTopBaseline:
-            // Default behavior.
+            pos.offset(0, fFirstLineAscent);
             break;
         case Shaper::VAlign::kCenter: {
             const auto bounds = ComputeBlobBounds(blob).makeOffset(pos.x(), pos.y());
@@ -180,6 +185,7 @@ private:
     SkTextBlobBuilder         fBuilder;
     std::unique_ptr<SkShaper> fShaper;
 
+    SkScalar fFirstLineAscent = SK_ScalarNaN;
     SkScalar fMaxRunAscent;
     SkScalar fMaxRunDescent;
     SkScalar fMaxRunLeading;
