@@ -47,6 +47,13 @@ private:
     size_t fBaseOffset = SIZE_MAX;
 };
 
+
+struct SkPDFNamedDestination {
+    sk_sp<SkData> fName;
+    SkPoint fPoint;
+    SkPDFIndirectReference fPage;
+};
+
 /** Concrete implementation of SkDocument that creates PDF files. This
     class does not produced linearized or optimized PDFs; instead it
     it attempts to use a minimum amount of RAM. */
@@ -84,6 +91,9 @@ public:
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
     SkPDFIndirectReference getPage(size_t pageIndex) const;
+    SkPDFIndirectReference currentPage() const {
+        return SkASSERT(!fPageRefs.empty()), fPageRefs.back();
+    }
     // Returns -1 if no mark ID.
     int getMarkIdForNodeId(int nodeId);
 
@@ -94,6 +104,8 @@ public:
     void signalJobComplete();
     size_t currentPageIndex() { return fPages.size(); }
     size_t pageCount() { return fPageRefs.size(); }
+
+    const SkMatrix& currentPageTransform() const;
 
     // Canonicalized objects
     SkTHashMap<SkPDFImageShaderKey, SkPDFIndirectReference> fImageShaderMap;
@@ -111,12 +123,16 @@ public:
     SkPDFIndirectReference fInvertFunction;
     SkPDFIndirectReference fNoSmaskGraphicState;
 
+    std::vector<std::pair<sk_sp<SkData>, SkRect>> fCurrentPageLinkToURLs;
+    std::vector<std::pair<sk_sp<SkData>, SkRect>> fCurrentPageLinkToDestinations;
+    std::vector<SkPDFNamedDestination> fNamedDestinations;
+
 private:
     SkPDFOffsetMap fOffsetMap;
     SkCanvas fCanvas;
     std::vector<std::unique_ptr<SkPDFDict>> fPages;
     std::vector<SkPDFIndirectReference> fPageRefs;
-    SkPDFDict fDests;
+
     sk_sp<SkPDFDevice> fPageDevice;
     std::atomic<int> fNextObjectNumber = {1};
     std::atomic<int> fJobCount = {0};
