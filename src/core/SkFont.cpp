@@ -124,9 +124,6 @@ SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
         this->setEdging(Edging::kAntiAlias);
     }
 
-    // The sub-pixel position will always happen when transforming to the screen.
-    this->setSubpixel(false);
-
     if (paint) {
         paint->setStyle(SkPaint::kFill_Style);
         paint->setPathEffect(nullptr);
