@@ -11,6 +11,8 @@ debug:
 	mkdir -p ./debugger/bin
 	cp ../../out/debugger_wasm_debug/debugger.js   ./debugger/bin
 	cp ../../out/debugger_wasm_debug/debugger.wasm ./debugger/bin
+
+move-assets:
 	# assume the developer also has a checkout of buildbot here and wants to test the newly
 	# built wasm debugger with the interface.
 	cp ./debugger/bin/debugger.js   ~/go/src/go.skia.org/infra/debugger-assets/res/js
