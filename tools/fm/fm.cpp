@@ -15,6 +15,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkGraphics.h"
+#include "SkJSONWriter.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -45,29 +46,32 @@ static DEFINE_bool  (legacy,    false, "Use a null SkColorSpace instead of --gam
 
 static DEFINE_int   (samples ,         0, "Samples per pixel in GPU backends.");
 static DEFINE_bool  (nvpr    ,     false, "Use NV_path_rendering in GPU backends?");
-static DEFINE_bool  (stencils,      true, "If false, avoid stencil buffers in GPU backends.");
-static DEFINE_bool  (dit     ,     false, "Use device-independent text in GPU backends.");
+static DEFINE_bool  (stencils,      true, "Use stencil buffers in GPU backends?");
+static DEFINE_bool  (dit     ,     false, "Use device-independent text in GPU backends?");
 static DEFINE_string(surf    , "default", "Backing store for GPU backend surfaces.");
 
-static DEFINE_bool(       preAbandonGpuContext, false, "Abandon the GrContext before drawing.");
-static DEFINE_bool(          abandonGpuContext, false, "Abandon the GrContext after drawing.");
+static DEFINE_bool(       preAbandonGpuContext, false, "Abandon the GrContext before drawing?");
+static DEFINE_bool(          abandonGpuContext, false, "Abandon the GrContext after drawing?");
 static DEFINE_bool(releaseAndAbandonGpuContext, false,
-                   "Release all GPU resources and abandon the GrContext after drawing.");
+                   "Release all GPU resources and abandon the GrContext after drawing?");
 
 static DEFINE_bool(decodeToDst, false,
-                   "Decode images to destination format rather than suggested natural format.");
+                   "Decode images to destination format rather than suggested natural format?");
 
 static DEFINE_double(rasterDPI, SK_ScalarDefaultRasterDPI,
                      "DPI for rasterized content in vector backends like --backend pdf.");
 static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 
-static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
+static DEFINE_bool(cpuDetect, true, "Detect CPU features for runtime optimizations?");
+
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
+
+static DEFINE_bool(json, false, "Print progress in JSON-ish fragments?");
 
 static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
-static DEFINE_string(key,        "", "Metadata passed through to .png encoder and .json output.");
-static DEFINE_string(properties, "", "Metadata passed through to .png encoder and .json output.");
+static DEFINE_string(key,        "", "Metadata passed through to .png encoder.");
+static DEFINE_string(properties, "", "Metadata passed through to .png encoder.");
 
 template <typename T>
 struct FlagOption {
@@ -113,12 +117,15 @@ static Result fail(const char* why, Args... args) {
 
 struct Source {
     SkString                               name;
+    const char*                            type;
     SkISize                                size;
     std::function<Result(SkCanvas*)>       draw;
     std::function<void(GrContextOptions*)> tweak = [](GrContextOptions*){};
+    SkString                               options;
 };
 
 static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
+    source->type  = "gm";
     source->size  = gm->getISize();
     source->tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); };
     source->draw  = [gm](SkCanvas* canvas) {
@@ -133,6 +140,7 @@ static void init(Source* source, std::shared_ptr<skiagm::GM> gm) {
 }
 
 static void init(Source* source, sk_sp<SkPicture> pic) {
+    source->type = "skp";
     source->size = pic->cullRect().roundOut().size();
     source->draw = [pic](SkCanvas* canvas) {
         canvas->drawPicture(pic);
@@ -141,8 +149,10 @@ static void init(Source* source, sk_sp<SkPicture> pic) {
 }
 
 static void init(Source* source, std::shared_ptr<SkCodec> codec) {
-    source->size = codec->dimensions();
-    source->draw = [codec](SkCanvas* canvas) {
+    source->type    = "codec";
+    source->size    = codec->dimensions();
+    source->options = SkStringPrintf("--decodeToDst=%s", FLAGS_decodeToDst ? "true" : "false");
+    source->draw    = [codec](SkCanvas* canvas) {
         SkImageInfo info = codec->getInfo();
         if (FLAGS_decodeToDst) {
             info = canvas->imageInfo().makeWH(info.width(),
@@ -163,6 +173,7 @@ static void init(Source* source, std::shared_ptr<SkCodec> codec) {
 }
 
 static void init(Source* source, sk_sp<SkSVGDOM> svg) {
+    source->type = "svg";
     source->size = svg->containerSize().isEmpty() ? SkISize{1000,1000}
                                                   : svg->containerSize().toCeil();
     source->draw = [svg](SkCanvas* canvas) {
@@ -172,6 +183,7 @@ static void init(Source* source, sk_sp<SkSVGDOM> svg) {
 }
 
 static void init(Source* source, sk_sp<skottie::Animation> animation) {
+    source->type = "lottie";
     source->size = {1000,1000};
     source->draw = [animation](SkCanvas* canvas) {
         canvas->clear(SK_ColorWHITE);
@@ -488,16 +500,49 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    const char* ext = ".png";
+    switch (backend) {
+        case kSKP_Backend: ext = ".skp"; break;
+        case kPDF_Backend: ext = ".pdf"; break;
+    }
     sk_sp<SkColorSpace> cs = FLAGS_legacy ? nullptr
                                           : SkColorSpace::MakeRGB(tf,gamut);
     const SkImageInfo unsized_info = SkImageInfo::Make(0,0, ct,at,cs);
 
     for (auto source : sources) {
         const auto start = std::chrono::steady_clock::now();
-        fprintf(stdout, "%50s", source.name.c_str());
 
-        const SkImageInfo info = unsized_info.makeWH(source.size.width(),
-                                                     source.size.height());
+        if (FLAGS_json) {
+            SkDynamicMemoryWStream stream;
+            {
+                SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+                writer.beginObject();
+                    writer.beginObject("key");
+                        writer.appendString("name",        source.name.c_str());
+                        writer.appendString("config",      FLAGS_backend[0]);
+                        writer.appendString("source_type", source.type);
+                        if (!source.options.isEmpty()) {
+                            writer.appendString("source_options", source.options.c_str());
+                        }
+                    writer.endObject();
+
+                    writer.beginObject("options");
+                        writer.appendString("ext"  ,       ext);
+                        writer.appendString("gamut",       FLAGS_gamut[0]);
+                        writer.appendString("transfer_fn", FLAGS_tf[0]);
+                        writer.appendString("color_type",  ToolUtils::colortype_name (ct));
+                        writer.appendString("alpha_type",  ToolUtils::alphatype_name (at));
+                        writer.appendString("color_depth", ToolUtils::colortype_depth(ct));
+                    writer.endObject();
+                writer.endObject();
+            }
+            sk_sp<SkData> json = stream.detachAsData();
+
+            // Skip leading { and trailing }.
+            fprintf(stdout, "%.*s", (int)json->size()-2, json->bytes() + 1);
+        } else {
+            fprintf(stdout, "%50s", source.name.c_str());
+        }
 
         auto draw = [&source](SkCanvas* canvas) {
             Result result = source.draw(canvas);
@@ -511,32 +556,29 @@ int main(int argc, char** argv) {
             return true;
         };
 
+        const SkImageInfo info = unsized_info.makeWH(source.size.width(),
+                                                     source.size.height());
+
         GrContextOptions options = baseOptions;
         source.tweak(&options);
         GrContextFactory factory(options);  // N.B. factory must outlive image
 
         sk_sp<SkImage> image;
         sk_sp<SkData>  blob;
-        const char*    ext = ".png";
         switch (backend) {
-            case kCPU_Backend:
-                image = draw_with_cpu(draw, info);
-                break;
-            case kSKP_Backend:
-                blob = draw_as_skp(draw, info);
-                ext  = ".skp";
-                break;
-            case kPDF_Backend:
-                blob = draw_as_pdf(draw, info, source.name);
-                ext  = ".pdf";
-                break;
+            case kCPU_Backend: image = draw_with_cpu(draw, info);              break;
+            case kSKP_Backend: blob  = draw_as_skp  (draw, info);              break;
+            case kPDF_Backend: blob  = draw_as_pdf  (draw, info, source.name); break;
             default:
                 image = draw_with_gpu(draw, info, (GrContextFactory::ContextType)backend, &factory);
-                break;
         }
 
         if (!image && !blob) {
-            fprintf(stdout, "\tskipped\n");
+            if (FLAGS_json) {
+                fprintf(stdout, "\n");
+            } else {
+                fprintf(stdout, "\tskipped\n");
+            }
             continue;
         }
 
@@ -578,10 +620,14 @@ int main(int argc, char** argv) {
             }
         }
 
-        const auto elapsed = std::chrono::steady_clock::now() - start;
-        fprintf(stdout, "\t%s\t%7dms\n",
-                md5.c_str(),
-                (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+        if (FLAGS_json) {
+            fprintf(stdout, ",\"md5\":\"%s\"\n", md5.c_str());
+        } else {
+            const auto elapsed = std::chrono::steady_clock::now() - start;
+            fprintf(stdout, "\t%s\t%7dms\n",
+                    md5.c_str(),
+                    (int)std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+        }
     }
 
     if (!FLAGS_writeShaders.isEmpty()) {
