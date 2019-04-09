@@ -624,8 +624,6 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     }
     SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
 
-
-
     if (SkCanvas::kPoints_PointMode != mode) {
         set_style(&paint, SkPaint::kStroke_Style);
     }
@@ -638,7 +636,6 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
                     this->devClipBounds(), this->ctm(), this);
         return;
     }
-
 
     if (mode == SkCanvas::kPoints_PointMode && paint->getStrokeCap() != SkPaint::kRound_Cap) {
         if (paint->getStrokeWidth()) {
@@ -660,81 +657,53 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
         }
     }
 
-    ScopedContentEntry content(this, *paint);
-    if (!content) {
-        return;
-    }
-    SkDynamicMemoryWStream* contentStream = content.stream();
+    SkPath path;
     switch (mode) {
         case SkCanvas::kPolygon_PointMode:
-            SkPDFUtils::MoveTo(points[0].fX, points[0].fY, contentStream);
+            path.moveTo(points[0]);
             for (size_t i = 1; i < count; i++) {
-                SkPDFUtils::AppendLine(points[i].fX, points[i].fY, contentStream);
+                path.lineTo(points[i]);
             }
-            SkPDFUtils::StrokePath(contentStream);
             break;
         case SkCanvas::kLines_PointMode:
-            for (size_t i = 0; i < count/2; i++) {
-                SkPDFUtils::MoveTo(points[i * 2].fX, points[i * 2].fY, contentStream);
-                SkPDFUtils::AppendLine(points[i * 2 + 1].fX, points[i * 2 + 1].fY, contentStream);
-                SkPDFUtils::StrokePath(contentStream);
+            for (size_t i = 0; i < count / 2; i++) {
+                path.moveTo(points[i * 2]);
+                path.lineTo(points[i * 2 + 1]);
             }
             break;
         case SkCanvas::kPoints_PointMode:
             SkASSERT(paint->getStrokeCap() == SkPaint::kRound_Cap);
             for (size_t i = 0; i < count; i++) {
-                SkPDFUtils::MoveTo(points[i].fX, points[i].fY, contentStream);
-                SkPDFUtils::ClosePath(contentStream);
-                SkPDFUtils::StrokePath(contentStream);
+                path.moveTo(points[i]);
+                path.close();
             }
             break;
         default:
             SkASSERT(false);
     }
+    set_style(&paint, SkPaint::kStroke_Style);
+    this->internalDrawPath(this->cs(), this->ctm(), path, *paint, true);
 }
 
 void SkPDFDevice::drawRect(const SkRect& rect,
-                           const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
-        return;
-    }
-    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
+                           const SkPaint& paint) {
     SkRect r = rect;
     r.sort();
-
-    if (paint->getPathEffect() || paint->getMaskFilter() || this->ctm().hasPerspective()) {
-        this->drawPath(to_path(r), *paint, true);
-        return;
-    }
-
-    ScopedContentEntry content(this, *paint);
-    if (!content) {
-        return;
-    }
-    SkPDFUtils::AppendRectangle(r, content.stream());
-    SkPDFUtils::PaintPath(paint->getStyle(), SkPath::kWinding_FillType, content.stream());
+    this->internalDrawPath(this->cs(), this->ctm(), to_path(r), paint, true);
 }
 
 void SkPDFDevice::drawRRect(const SkRRect& rrect,
-                            const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
-        return;
-    }
-    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
+                            const SkPaint& paint) {
     SkPath path;
     path.addRRect(rrect);
-    this->drawPath(path, *paint, true);
+    this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
 }
 
 void SkPDFDevice::drawOval(const SkRect& oval,
-                           const SkPaint& srcPaint) {
-    if (this->hasEmptyClip()) {
-        return;
-    }
-    SkTCopyOnFirstWrite<SkPaint> paint(clean_paint(srcPaint));
+                           const SkPaint& paint) {
     SkPath path;
     path.addOval(oval);
-    this->drawPath(path, *paint, true);
+    this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
 }
 
 void SkPDFDevice::drawPath(const SkPath& origPath,
@@ -907,7 +876,7 @@ void SkPDFDevice::drawBitmapRect(const SkBitmap& bm,
 
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {
     SkASSERT(!bm.drawsNothing());
-    auto r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
+    SkRect r = SkRect::MakeXYWH(x, y, bm.width(), bm.height());
     this->internalDrawImageRect(SkKeyedImage(bm), nullptr, r, paint, SkMatrix::I());
 }
 
@@ -1238,16 +1207,15 @@ void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 
 void SkPDFDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                                const SkPaint&) {
-    if (this->hasEmptyClip()) {
-        return;
-    }
     // TODO: implement drawVertices
 }
 
-void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemoryWStream* content) {
+static void draw_form_xobject(SkTHashSet<SkPDFIndirectReference>* xObjectResources,
+                              SkPDFIndirectReference xObject,
+                              SkDynamicMemoryWStream* content) {
     SkASSERT(xObject);
     SkPDFWriteResourceName(content, SkPDFResourceType::kXObject,
-                           add_resource(fXObjectResources, xObject));
+                           add_resource(*xObjectResources, xObject));
     content->writeText(" Do\n");
 }
 
@@ -1283,7 +1251,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
     if (!content.needSource()) {
         return;
     }
-    this->drawFormXObject(pdfDevice->makeFormXObjectFromDevice(), content.stream());
+    draw_form_xobject(&fXObjectResources, pdfDevice->makeFormXObjectFromDevice(), content.stream());
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
@@ -1428,7 +1396,7 @@ void SkPDFDevice::drawFormXObjectWithMask(SkPDFIndirectReference xObject,
     this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
             sMask, invertClip, SkPDFGraphicState::kAlpha_SMaskMode,
             fDocument), content.stream());
-    this->drawFormXObject(xObject, content.stream());
+    draw_form_xobject(&fXObjectResources, xObject, content.stream());
     this->clearMaskOnGraphicState(content.stream());
 }
 
@@ -1635,7 +1603,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
         if (shape == nullptr || blendMode == SkBlendMode::kDstOut ||
                 blendMode == SkBlendMode::kSrcATop) {
             ScopedContentEntry content(this, nullptr, SkMatrix::I(), stockPaint);
-            this->drawFormXObject(dst, content.stream());
+            draw_form_xobject(&fXObjectResources, dst, content.stream());
             return;
         } else {
             blendMode = SkBlendMode::kClear;
@@ -1675,7 +1643,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             blendMode == SkBlendMode::kDstATop) {
         ScopedContentEntry content(this, nullptr, SkMatrix::I(), stockPaint);
         if (content) {
-            this->drawFormXObject(srcFormXObject, content.stream());
+            draw_form_xobject(&fXObjectResources, srcFormXObject, content.stream());
         }
         if (blendMode == SkBlendMode::kSrc) {
             return;
@@ -1683,7 +1651,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
     } else if (blendMode == SkBlendMode::kSrcATop) {
         ScopedContentEntry content(this, nullptr, SkMatrix::I(), stockPaint);
         if (content) {
-            this->drawFormXObject(dst, content.stream());
+            draw_form_xobject(&fXObjectResources, dst, content.stream());
         }
     }
 
@@ -1979,7 +1947,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         fDocument->fPDFBitmapMap.set(key, pdfimage);
     }
     SkASSERT(pdfimage != SkPDFIndirectReference());
-    this->drawFormXObject(pdfimage, content.stream());
+    draw_form_xobject(&fXObjectResources, pdfimage, content.stream());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
