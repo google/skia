@@ -200,6 +200,21 @@ GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix) {
     }
 }
 
+GrQuadType GrQuadTypeForPoints(const SkPoint pts[4], const SkMatrix& matrix) {
+    if (matrix.hasPerspective()) {
+        return GrQuadType::kPerspective;
+    }
+    // If 'pts' was formed by SkRect::toQuad() and not transformed further, it is safe to use the
+    // quad type derived from 'matrix'. Otherwise don't waste any more time and assume kStandard
+    // (most general 2D quad).
+    if ((pts[0].fY == pts[3].fY && pts[1].fY == pts[2].fY) &&
+        (pts[0].fX == pts[1].fX && pts[2].fX == pts[3].fX)) {
+        return GrQuadTypeForTransformedRect(matrix);
+    } else {
+        return GrQuadType::kStandard;
+    }
+}
+
 GrQuad GrQuad::MakeFromRect(const SkRect& rect, const SkMatrix& m) {
     Sk4f x, y;
     SkMatrix::TypeMask tm = m.getType();
