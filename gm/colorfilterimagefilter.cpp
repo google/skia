@@ -259,8 +259,8 @@ template <typename Maker> void do_mixershader(SkCanvas* canvas, Maker&& maker) {
 
 DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
     do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
-        auto sh = SkShader::MakeBlend(mode, a, b);
-        return SkShader::MakeLerp(t, a, sh);
+        auto sh = SkShaders::Blend(mode, a, b);
+        return SkShaders::Lerp(t, a, sh);
     });
 }
 
@@ -268,13 +268,6 @@ DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
 
 DEF_SIMPLE_GM(mixershader2, canvas, 800, 700) {
     do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
-        // Use mixers to simulate MakeCompose(a, b, mode, t)
-        auto blender = SkMixer::MakeBlend(mode);
-        auto mx = SkMixer::MakeLerp(t)->makeMerge(SkMixer::MakeFirst(), blender);
-        if (true) {
-            auto data = mx->serialize();
-            mx = SkMixerBase::Deserialize(data->data(), data->size());
-        }
-        return SkShader::MakeMixer(a, b, mx);
+        return SkShaders::Lerp(t, a, SkShaders::Blend(mode, a, b));
     });
 }

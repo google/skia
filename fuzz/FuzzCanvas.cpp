@@ -204,10 +204,10 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
         case 0:
             return nullptr;
         case 1:
-            return SkShader::MakeEmptyShader();
+            return SkShaders::Empty();
         case 2:
             fuzz->next(&color);
-            return SkShader::MakeColorShader(color);
+            return SkShaders::Color(color);
         case 3:
             img = make_fuzz_image(fuzz);
             fuzz->nextRange(&tmX, 0, SkTileMode::kLastTileMode);
@@ -238,7 +238,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             shader1 = make_fuzz_shader(fuzz, depth - 1);  // limit recursion.
             shader2 = make_fuzz_shader(fuzz, depth - 1);
             fuzz->nextRange(&blendMode, 0, SkBlendMode::kLastMode);
-            return SkShader::MakeComposeShader(std::move(shader1), std::move(shader2), blendMode);
+            return SkShaders::Blend(blendMode, std::move(shader1), std::move(shader2));
         case 8: {
             auto pic = make_fuzz_picture(fuzz, depth - 1);
             bool useTile;

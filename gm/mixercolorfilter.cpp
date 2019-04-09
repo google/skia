@@ -179,8 +179,7 @@ protected:
         paint.setShader(sh2);
         canvas->drawRect(r, paint);
 
-        auto mixer = SkMixer::MakeShaderLerp(sh2);  // MakeLerp(0.5)
-        auto sh = SkShader::MakeMixer(fS0, fS1, mixer);
+        auto sh = SkShaders::Lerp(sh2, fS0, fS1);
         canvas->translate(SIZE + 10.0f, 0);
         paint.setShader(sh);
         canvas->drawRect(r, paint);
