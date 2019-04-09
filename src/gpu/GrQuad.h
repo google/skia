@@ -38,6 +38,9 @@ static const int kGrQuadTypeCount = static_cast<int>(GrQuadType::kLast) + 1;
 // quadType() is only provided on Gr[Persp]Quad in debug builds, production code should use this
 // to efficiently determine quad types.
 GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix);
+// Perform minimal analysis of 'pts' (which are suitable for MakeFromSkQuad), and determine a
+// quad type that will be as minimally general as possible.
+GrQuadType GrQuadTypeForPoints(const SkPoint pts[4], const SkMatrix& matrix);
 
 // Resolve disagreements between the overall requested AA type and the per-edge quad AA flags.
 // knownQuadType must have come from GrQuadTypeForTransformedRect with the matrix that created the

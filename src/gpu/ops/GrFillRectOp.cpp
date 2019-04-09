@@ -401,15 +401,12 @@ std::unique_ptr<GrDrawOp> MakePerEdgeQuad(GrRecordingContext* context,
                                           const SkPoint quad[4],
                                           const SkPoint localQuad[4],
                                           const GrUserStencilSettings* stencilSettings) {
-    // With arbitrary quads, the quad types are limited to kStandard or kPerspective (unless we
-    // analyzed the points, but callers have more knowledge and should've just use the appropriate
-    // factory, so assume they can't be rectilinear or simpler)
-    GrQuadType deviceType = viewMatrix.hasPerspective() ? GrQuadType::kPerspective
-                                                        : GrQuadType::kStandard;
+    GrQuadType deviceType = GrQuadTypeForPoints(quad, viewMatrix);
+    GrQuadType localType = GrQuadTypeForPoints(localQuad ? localQuad : quad, SkMatrix::I());
     return FillRectOp::Make(context, std::move(paint), aaType, edgeAA, stencilSettings,
                             GrPerspQuad::MakeFromSkQuad(quad, viewMatrix), deviceType,
                             GrPerspQuad::MakeFromSkQuad(localQuad ? localQuad : quad,
-                                                        SkMatrix::I()), GrQuadType::kStandard);
+                                                        SkMatrix::I()), localType);
 }
 
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,

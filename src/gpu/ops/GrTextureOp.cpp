@@ -149,9 +149,9 @@ public:
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         GrPerspQuad grDstQuad = GrPerspQuad::MakeFromSkQuad(dstQuad, viewMatrix);
-        GrQuadType dstQuadType = viewMatrix.hasPerspective() ? GrQuadType::kPerspective
-                                                             : GrQuadType::kStandard;
+        GrQuadType dstQuadType = GrQuadTypeForPoints(dstQuad, viewMatrix);
         GrPerspQuad grSrcQuad = GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I());
+        GrQuadType srcQuadType = GrQuadTypeForPoints(srcQuad, SkMatrix::I());
 
         // If constraint remains fast, the value in srcRect will be ignored since srcQuads provides
         // the local coordinates and a domain won't be used.
@@ -166,7 +166,7 @@ public:
         // Pass domain as srcRect if provided, but send srcQuad as a GrPerspQuad for local coords
         return pool->allocate<TextureOp>(
                 std::move(proxy), filter, color, grDstQuad, dstQuadType, srcRect, constraint,
-                &grSrcQuad, GrQuadType::kStandard, aaType, aaFlags,
+                &grSrcQuad, srcQuadType, aaType, aaFlags,
                 std::move(textureColorSpaceXform));
     }
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
@@ -340,10 +340,9 @@ private:
             auto quad = set[p].fDstClipQuad == nullptr ?
                     GrPerspQuad::MakeFromRect(set[p].fDstRect, ctm) :
                     GrPerspQuad::MakeFromSkQuad(set[p].fDstClipQuad, ctm);
-            GrQuadType quadType = GrQuadTypeForTransformedRect(ctm);
-            if (set[p].fDstClipQuad && quadType != GrQuadType::kPerspective) {
-                quadType = GrQuadType::kStandard;
-            }
+            GrQuadType quadType =
+                    set[p].fDstClipQuad ? GrQuadTypeForPoints(set[p].fDstClipQuad, ctm)
+                                        : GrQuadTypeForTransformedRect(ctm);
 
             bounds.joinPossiblyEmptyRect(quad.bounds(quadType));
             GrQuadAAFlags aaFlags;
@@ -381,7 +380,7 @@ private:
                 SkPoint srcQuad[4];
                 GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClipQuad, srcQuad, 4);
                 fSrcQuads.push_back(GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
-                                    GrQuadType::kStandard);
+                                    GrQuadTypeForPoints(srcQuad, SkMatrix::I()));
                 srcQuadIndex = fSrcQuads.count() - 1;
             }
             fQuads.push_back(quad, quadType,
