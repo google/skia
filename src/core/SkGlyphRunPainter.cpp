@@ -333,9 +333,6 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         SkFont fallbackFont{runFont};
         fallbackFont.setSize(fallbackTextSize);
 
-        // No sub-pixel needed. The transform to the screen will take care of sub-pixel positioning.
-        fallbackFont.setSubpixel(false);
-
         // The scale factor to go from strike size to the source size for glyphs.
         SkScalar fallbackTextScale = runFontTextSize / fallbackTextSize;
 
