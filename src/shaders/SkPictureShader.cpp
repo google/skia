@@ -137,7 +137,7 @@ SkPictureShader::~SkPictureShader() {
 sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
                                       const SkMatrix* localMatrix, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
-        return SkShader::MakeEmptyShader();
+        return SkShaders::Empty();
     }
     return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
 }
@@ -214,7 +214,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 
     const SkISize tileSize = scaledSize.toCeil();
     if (tileSize.isEmpty()) {
-        return SkShader::MakeEmptyShader();
+        return SkShaders::Empty();
     }
 
     // The actual scale, compensating for rounding & clamping.

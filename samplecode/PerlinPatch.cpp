@@ -149,7 +149,7 @@ protected:
         SkScalar scaleFreq = 2.0;
         fShader1 = SkPerlinNoiseShader::MakeImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
                                                              fSeed);
-        fShaderCompose = SkShader::MakeComposeShader(fShader0, fShader1, SkBlendMode::kSrcOver);
+        fShaderCompose = SkShaders::Blend(SkBlendMode::kSrcOver, fShader0, fShader1);
 
         paint.setShader(fShaderCompose);
 

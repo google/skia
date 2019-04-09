@@ -15,11 +15,11 @@
 #include "SkGradientShader.h"
 
 static sk_sp<SkShader> make_opaque_color() {
-    return SkShader::MakeColorShader(0xFFFF0000);
+    return SkShaders::Color(0xFFFF0000);
 }
 
 static sk_sp<SkShader> make_alpha_color() {
-    return SkShader::MakeColorShader(0x80FF0000);
+    return SkShaders::Color(0x80FF0000);
 }
 
 static sk_sp<SkColorFilter> make_cf_null() {
@@ -108,9 +108,9 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
 
     for (const auto& c4 : colors) {
         sk_sp<SkShader> shaders[] {
-            SkShader::MakeColorShader(c4, nullptr),
-            SkShader::MakeColorShader(c4, srgb),
-            SkShader::MakeColorShader(c4, spin),
+            SkShaders::Color(c4, nullptr),
+            SkShaders::Color(c4, srgb),
+            SkShaders::Color(c4, spin),
         };
 
         canvas->save();

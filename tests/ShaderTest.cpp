@@ -60,10 +60,9 @@ DEF_TEST(ComposeShaderSingle, reporter) {
     SkCanvas canvas(srcBitmap);
     SkPaint p;
     p.setShader(
-        SkShader::MakeComposeShader(
-        SkShader::MakeEmptyShader(),
-        SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f),
-        SkBlendMode::kClear));
+        SkShaders::Blend(SkBlendMode::kClear,
+        SkShaders::Empty(),
+        SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f)));
     SkRRect rr;
     SkVector rd[] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
     rr.setRectRadii({0, 0, 0, 0}, rd);

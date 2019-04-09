@@ -62,7 +62,7 @@ protected:
                       break;
                   case 2:
                       SkPaint paint;
-                      paint.setShader(SkShader::MakeColorShader(color));
+                      paint.setShader(SkShaders::Color(color));
                       surface->getCanvas()->drawPaint(paint);
                       break;
               }

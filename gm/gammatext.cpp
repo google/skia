@@ -99,7 +99,7 @@ static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,
     SkPaint paint;
     paint.setColor(color);
     canvas->drawString(text, 10, 20, font, paint);
-    paint.setShader(SkShader::MakeColorShader(paint.getColor()));
+    paint.setShader(SkShaders::Color(paint.getColor()));
     canvas->drawString(text, 10, 40, font, paint);
     paint.setShader(shader);
     canvas->drawString(text, 10, 60, font, paint);

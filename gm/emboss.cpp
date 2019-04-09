@@ -64,7 +64,7 @@ protected:
             SkBlurMask::ConvertRadiusToSigma(4),
             { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 128, 16*2 }));
         paint.setColorFilter(nullptr);
-        paint.setShader(SkShader::MakeColorShader(SK_ColorBLUE));
+        paint.setShader(SkShaders::Color(SK_ColorBLUE));
         paint.setDither(true);
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
                            SkIntToScalar(30), paint);

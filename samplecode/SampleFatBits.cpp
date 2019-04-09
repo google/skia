@@ -106,7 +106,7 @@ public:
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
         fShader0 = ToolUtils::create_checkerboard_shader(0xFFDDDDDD, 0xFFFFFFFF, zoom);
-        fShader1 = SkShader::MakeColorShader(SK_ColorWHITE);
+        fShader1 = SkShaders::Color(SK_ColorWHITE);
         fShader = fShader0;
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);

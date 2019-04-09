@@ -761,7 +761,7 @@ DEF_TEST(Picture_getRecordingCanvas, r) {
 DEF_TEST(MiniRecorderLeftHanging, r) {
     // Any shader or other ref-counted effect will do just fine here.
     SkPaint paint;
-    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));
+    paint.setShader(SkShaders::Color(SK_ColorRED));
 
     SkMiniRecorder rec;
     REPORTER_ASSERT(r, rec.drawRect(SkRect::MakeWH(20,30), paint));

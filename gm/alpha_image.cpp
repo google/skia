@@ -43,7 +43,7 @@ DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {
     canvas->drawImage(image.get(), 16, 16, &paint);
 
     paint.setColorFilter(nullptr);
-    paint.setShader(SkShader::MakeColorShader(SK_ColorCYAN));
+    paint.setShader(SkShaders::Color(SK_ColorCYAN));
     canvas->drawImage(image.get(), 144, 16, &paint);
 
     paint.setColorFilter(make_color_filter());

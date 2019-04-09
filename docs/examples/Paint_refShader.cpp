@@ -5,7 +5,7 @@
 REG_FIDDLE(Paint_refShader, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    SkPaint paint1, paint2;
-   paint1.setShader(SkShader::MakeEmptyShader());
+   paint1.setShader(SkShaders::Empty());
    SkDebugf("shader unique: %s\n", paint1.getShader()->unique() ? "true" : "false");
    paint2.setShader(paint1.refShader());
    SkDebugf("shader unique: %s\n", paint1.getShader()->unique() ? "true" : "false");

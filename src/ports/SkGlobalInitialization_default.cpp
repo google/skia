@@ -82,6 +82,7 @@
         SK_REGISTER_FLATTENABLE(SkColorShader);
         SK_REGISTER_FLATTENABLE(SkShader_Blend);
         SK_REGISTER_FLATTENABLE(SkShader_Lerp);
+        SK_REGISTER_FLATTENABLE(SkShader_LerpRed);
         SK_REGISTER_FLATTENABLE(SkEmptyShader);
         SK_REGISTER_FLATTENABLE(SkLocalMatrixShader);
         SK_REGISTER_FLATTENABLE(SkPictureShader);

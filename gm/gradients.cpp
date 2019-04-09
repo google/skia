@@ -1004,19 +1004,18 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
         sk_sp<SkShader> sweep2 = SkGradientShader::MakeSweep(center.x(), center.y(), colors, pos,
                                                              SK_ARRAY_COUNT(colors), 0, &m);
 
-        sk_sp<SkShader> sweep(SkShader::MakeComposeShader(sweep1, sweep2, SkBlendMode::kExclusion));
+        sk_sp<SkShader> sweep(SkShaders::Blend(SkBlendMode::kExclusion, sweep1, sweep2));
 
         SkScalar radialPos[] = { 0, .02f, .02f, .04f, .04f, .08f, .08f, .16f, .16f, .31f, .31f,
                                  .62f, .62f, 1, 1, 1 };
         static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(radialPos),
                       "color/pos size mismatch");
 
-        return SkShader::MakeComposeShader(sweep,
-                                           SkGradientShader::MakeRadial(center, 100, colors,
-                                                                        radialPos,
-                                                                        SK_ARRAY_COUNT(radialPos),
-                                                                        SkTileMode::kClamp),
-                                           SkBlendMode::kExclusion);
+        return SkShaders::Blend(SkBlendMode::kExclusion, sweep,
+                                SkGradientShader::MakeRadial(center, 100, colors,
+                                                             radialPos,
+                                                             SK_ARRAY_COUNT(radialPos),
+                                                             SkTileMode::kClamp));
     });
 }
 

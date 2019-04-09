@@ -20,10 +20,9 @@ protected:
     const char* onGetName() override { return "mixer-lerp"; }
 
     void onDelayedSetup() override {
-        auto s0 = SkShader::MakeColorShader(SK_ColorRED);
-        auto s1 = SkShader::MakeColorShader(SK_ColorBLUE);
-        auto mx = SkMixer::MakeShaderLerp(SkShader::MakeColorShader(0xFF880000));
-        fShader = SkShader::MakeMixer(s0, s1, mx);
+        auto s0 = SkShaders::Color(SK_ColorRED);
+        auto s1 = SkShaders::Color(SK_ColorBLUE);
+        fShader = SkShaders::Lerp(SkShaders::Color(0xFF880000), s0, s1);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
