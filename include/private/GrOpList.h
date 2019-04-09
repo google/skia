@@ -113,16 +113,6 @@ protected:
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
 
-    virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
-
-    bool isUsed(GrSurfaceProxy* proxy) const {
-        if (proxy == fTarget.get()) {
-            return true;
-        }
-
-        return this->onIsUsed(proxy);
-    }
-
     void addDependency(GrOpList* dependedOn);
     void addDependent(GrOpList* dependent);
     SkDEBUGCODE(bool isDependedent(const GrOpList* dependent) const;)
