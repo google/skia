@@ -610,21 +610,6 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     }
 }
 
-bool GrRenderTargetOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
-    bool used = false;
-
-    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p) {
-        if (p == proxyToCheck) {
-            used = true;
-        }
-    };
-    for (const OpChain& recordedOp : fOpChains) {
-        recordedOp.visitProxies(visit, GrOp::VisitorType::kOther);
-    }
-
-    return used;
-}
-
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
