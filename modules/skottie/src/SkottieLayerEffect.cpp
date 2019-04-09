@@ -322,6 +322,77 @@ sk_sp<sksg::RenderNode> AttachGaussianBlurLayerEffect(const skjson::ArrayValue& 
     return sksg::ImageFilterEffect::Make(std::move(layer), std::move(blur_effect));
 }
 
+sk_sp<sksg::RenderNode> AttachLevelsLayerEffect(const skjson::ArrayValue& jprops,
+                                                const AnimationBuilder* abuilder,
+                                                AnimatorScope* ascope,
+                                                sk_sp<sksg::RenderNode> layer) {
+    enum : size_t {
+        kChannel_Index        = 0,
+        // ???                = 1,
+        kInputBlack_Index     = 2,
+        kInputWhite_Index     = 3,
+        kGamma_Index          = 4,
+        kOutputBlack_Index    = 5,
+        kOutputWhite_Index    = 6,
+        kClipToOutBlack_Index = 7,
+        kClipToOutWhite_Index = 8,
+
+        kMax_Index        = kClipToOutWhite_Index,
+    };
+
+    if (jprops.size() <= kMax_Index) {
+        return nullptr;
+    }
+
+    const skjson::ObjectValue*    channel_prop = jprops[       kChannel_Index];
+    const skjson::ObjectValue*     iblack_prop = jprops[    kInputBlack_Index];
+    const skjson::ObjectValue*     iwhite_prop = jprops[    kInputWhite_Index];
+    const skjson::ObjectValue*      gamma_prop = jprops[         kGamma_Index];
+    const skjson::ObjectValue*     oblack_prop = jprops[   kOutputBlack_Index];
+    const skjson::ObjectValue*     owhite_prop = jprops[   kOutputWhite_Index];
+    const skjson::ObjectValue* clip_black_prop = jprops[kClipToOutBlack_Index];
+    const skjson::ObjectValue* clip_white_prop = jprops[kClipToOutWhite_Index];
+
+    if (!channel_prop || !iblack_prop || !iwhite_prop || !gamma_prop ||
+        !oblack_prop || !owhite_prop || !clip_black_prop || !clip_white_prop) {
+        return nullptr;
+    }
+
+    auto filter = sksg::LevelsColorFilter::Make(std::move(layer));
+
+    abuilder->bindProperty<ScalarValue>((*channel_prop)["v"], ascope,
+        [filter](const ScalarValue& channel) {
+            // TODO
+            filter->setChannels(sksg::LevelsColorFilter::kR_Channel |
+                                sksg::LevelsColorFilter::kG_Channel |
+                                sksg::LevelsColorFilter::kB_Channel);
+        });
+    abuilder->bindProperty<ScalarValue>((*iblack_prop)["v"], ascope,
+        [filter](const ScalarValue& ib) {
+            filter->setInBlack(ib);
+        });
+    abuilder->bindProperty<ScalarValue>((*iwhite_prop)["v"], ascope,
+        [filter](const ScalarValue& iw) {
+            filter->setInWhite(iw);
+        });
+    abuilder->bindProperty<ScalarValue>((*oblack_prop)["v"], ascope,
+        [filter](const ScalarValue& ob) {
+            filter->setOutBlack(ob);
+        });
+    abuilder->bindProperty<ScalarValue>((*owhite_prop)["v"], ascope,
+        [filter](const ScalarValue& ow) {
+            filter->setOutWhite(ow);
+        });
+    abuilder->bindProperty<ScalarValue>((*gamma_prop)["v"], ascope,
+        [filter](const ScalarValue& g) {
+            filter->setGamma(g);
+        });
+
+    // TODO: clip
+
+    return filter;
+}
+
 using EffectBuilderT = sk_sp<sksg::RenderNode> (*)(const skjson::ArrayValue&,
                                                    const AnimationBuilder*,
                                                    AnimatorScope*,
@@ -359,9 +430,11 @@ EffectBuilderT FindEffectBuilder(const AnimationBuilder* abuilder,
     // Try a name-based lookup.
 
     if (const skjson::StringValue* mn = jeffect["mn"]) {
-        // Just gradient ramp for now.
         if (!strcmp(mn->begin(), "ADBE Ramp")) {
             return AttachGradientLayerEffect;
+        }
+        if (!strcmp(mn->begin(), "ADBE Easy Levels2")) {
+            return AttachLevelsLayerEffect;
         }
     }
 

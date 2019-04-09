@@ -92,6 +92,44 @@ private:
     using INHERITED = ColorFilter;
 };
 
+
+class LevelsColorFilter final : public ColorFilter {
+public:
+    ~LevelsColorFilter() override;
+
+    static sk_sp<LevelsColorFilter> Make(sk_sp<RenderNode> child);
+
+    enum : uint32_t {
+        // These match the SkColor masks.
+        kA_Channel = 0xffu << 24,
+        kR_Channel = 0xffu << 16,
+        kG_Channel = 0xffu <<  8,
+        kB_Channel = 0xffu <<  0,
+    };
+
+    SG_ATTRIBUTE(Channels, uint32_t, fChannels)
+    SG_ATTRIBUTE(InBlack ,    float, fInBlack )
+    SG_ATTRIBUTE(InWhite ,    float, fInWhite )
+    SG_ATTRIBUTE(OutBlack,    float, fOutBlack)
+    SG_ATTRIBUTE(OutWhite,    float, fOutWhite)
+    SG_ATTRIBUTE(Gamma   ,    float, fGamma   )
+
+protected:
+    sk_sp<SkColorFilter> onRevalidateFilter() override;
+
+private:
+    explicit LevelsColorFilter(sk_sp<RenderNode>);
+
+    uint32_t fChannels = kA_Channel | kR_Channel | kG_Channel | kB_Channel;
+    float    fInBlack  = 0,
+             fInWhite  = 0,
+             fOutBlack = 0,
+             fOutWhite = 0,
+             fGamma    = 1;
+
+    using INHERITED = ColorFilter;
+};
+
 } // namespace sksg
 
 #endif // SkSGColorFilter_DEFINED

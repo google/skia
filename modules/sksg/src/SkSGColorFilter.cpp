@@ -205,4 +205,37 @@ sk_sp<SkColorFilter> GradientColorFilter::onRevalidateFilter() {
     return SkColorFilters::Lerp(fWeight, nullptr, std::move(gradientCF));
 }
 
+sk_sp<LevelsColorFilter> LevelsColorFilter::Make(sk_sp<RenderNode> child) {
+    return child ? sk_sp<LevelsColorFilter>(new LevelsColorFilter(std::move(child)))
+                 : nullptr;
+}
+
+LevelsColorFilter::LevelsColorFilter(sk_sp<RenderNode> child) : INHERITED(std::move(child)) {}
+
+LevelsColorFilter::~LevelsColorFilter() = default;
+
+sk_sp<SkColorFilter> LevelsColorFilter::onRevalidateFilter() {
+    const auto i0 = SkTPin(fInBlack,  0.0f, 1.0f),
+               i1 = SkTPin(fInWhite,    i0, 1.0f),
+               o0 = SkTPin(fOutBlack, 0.0f, 1.0f),
+               o1 = SkTPin(fOutWhite, 0.0f, 1.0f),
+            gamma = 1 / SkTMax(fGamma, 0.0f);
+
+    // TODO: gamma
+
+    uint8_t lut[256];
+
+    if (fChannels) {
+        for (size_t i = 0; i < 256; ++i) {
+            const auto t = (i / 255.0f - i0) / (i1 - i0);
+            lut[i] = (o0 + std::pow(t, gamma) * (o1 - o0)) * 255;
+        }
+    }
+
+    return SkTableColorFilter::MakeARGB(fChannels & kA_Channel ? lut : nullptr,
+                                        fChannels & kR_Channel ? lut : nullptr,
+                                        fChannels & kG_Channel ? lut : nullptr,
+                                        fChannels & kB_Channel ? lut : nullptr);
+}
+
 } // namespace sksg
