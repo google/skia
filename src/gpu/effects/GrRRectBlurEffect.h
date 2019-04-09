@@ -100,9 +100,6 @@ public:
 
         return mask;
     }
-    float sigma() const { return fSigma; }
-    const SkRect& rect() const { return fRect; }
-    float cornerRadius() const { return fCornerRadius; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
                                                      float sigma,
@@ -112,16 +109,20 @@ public:
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }
+    float sigma;
+    SkRect rect;
+    float cornerRadius;
+    TextureSampler ninePatchSampler;
 
 private:
     GrRRectBlurEffect(float sigma, SkRect rect, float cornerRadius,
                       sk_sp<GrTextureProxy> ninePatchSampler)
             : INHERITED(kGrRRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , fSigma(sigma)
-            , fRect(rect)
-            , fCornerRadius(cornerRadius)
-            , fNinePatchSampler(std::move(ninePatchSampler)) {
+            , sigma(sigma)
+            , rect(rect)
+            , cornerRadius(cornerRadius)
+            , ninePatchSampler(std::move(ninePatchSampler)) {
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -129,10 +130,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    float fSigma;
-    SkRect fRect;
-    float fCornerRadius;
-    TextureSampler fNinePatchSampler;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

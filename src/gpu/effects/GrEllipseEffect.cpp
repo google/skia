@@ -22,19 +22,19 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrEllipseEffect& _outer = args.fFp.cast<GrEllipseEffect>();
         (void)_outer;
-        auto edgeType = _outer.edgeType();
+        auto edgeType = _outer.edgeType;
         (void)edgeType;
-        auto center = _outer.center();
+        auto center = _outer.center;
         (void)center;
-        auto radii = _outer.radii();
+        auto radii = _outer.radii;
         (void)radii;
         prevRadii = float2(-1.0);
         medPrecision = !sk_Caps.floatIs32Bits;
-        fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       "ellipse");
+        ellipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                      "ellipse");
         if (medPrecision) {
-            fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType,
-                                                         "scale");
+            scaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType,
+                                                        "scale");
         }
         fragBuilder->codeAppendf(
                 "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool medPrecision = "
@@ -45,33 +45,32 @@ public:
                 "1.1755e-38);\n}\nfloat approx_dist = implicit * inversesqrt(grad_dot);\n@if "
                 "(medPrecision) {\n    approx_dist *= %s.x;\n}\nhalf alpha;\n@switch ",
                 prevRadii.fX, prevRadii.fY, (medPrecision ? "true" : "false"),
-                args.fUniformHandler->getUniformCStr(fEllipseVar),
-                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "float2(0)",
-                args.fUniformHandler->getUniformCStr(fEllipseVar),
-                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar)
-                                    : "float2(0)");
+                args.fUniformHandler->getUniformCStr(ellipseVar),
+                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
+                args.fUniformHandler->getUniformCStr(ellipseVar),
+                scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)");
         fragBuilder->codeAppendf(
                 "(%d) {\n    case 0:\n        alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n        "
                 "break;\n    case 1:\n        alpha = clamp(0.5 - half(approx_dist), 0.0, 1.0);\n  "
                 "      break;\n    case 2:\n        alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n       "
                 " break;\n    case 3:\n        alpha = clamp(0.5 + half(approx_dist), 0.0, 1.0);\n "
                 "       break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
-                (int)_outer.edgeType(), args.fOutputColor, args.fInputColor);
+                (int)_outer.edgeType, args.fOutputColor, args.fInputColor);
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrEllipseEffect& _outer = _proc.cast<GrEllipseEffect>();
-        auto edgeType = _outer.edgeType();
+        auto edgeType = _outer.edgeType;
         (void)edgeType;
-        auto center = _outer.center();
+        auto center = _outer.center;
         (void)center;
-        auto radii = _outer.radii();
+        auto radii = _outer.radii;
         (void)radii;
-        UniformHandle& ellipse = fEllipseVar;
+        UniformHandle& ellipse = ellipseVar;
         (void)ellipse;
-        UniformHandle& scale = fScaleVar;
+        UniformHandle& scale = scaleVar;
         (void)scale;
 
         if (radii != prevRadii || center != prevCenter) {
@@ -102,29 +101,29 @@ private:
     SkPoint prevCenter = float2(0);
     SkPoint prevRadii = float2(0);
     bool medPrecision = false;
-    UniformHandle fEllipseVar;
-    UniformHandle fScaleVar;
+    UniformHandle ellipseVar;
+    UniformHandle scaleVar;
 };
 GrGLSLFragmentProcessor* GrEllipseEffect::onCreateGLSLInstance() const {
     return new GrGLSLEllipseEffect();
 }
 void GrEllipseEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fEdgeType);
+    b->add32((int32_t)edgeType);
 }
 bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrEllipseEffect& that = other.cast<GrEllipseEffect>();
     (void)that;
-    if (fEdgeType != that.fEdgeType) return false;
-    if (fCenter != that.fCenter) return false;
-    if (fRadii != that.fRadii) return false;
+    if (edgeType != that.edgeType) return false;
+    if (center != that.center) return false;
+    if (radii != that.radii) return false;
     return true;
 }
 GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         : INHERITED(kGrEllipseEffect_ClassID, src.optimizationFlags())
-        , fEdgeType(src.fEdgeType)
-        , fCenter(src.fCenter)
-        , fRadii(src.fRadii) {}
+        , edgeType(src.edgeType)
+        , center(src.center)
+        , radii(src.radii) {}
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));
 }

@@ -23,14 +23,14 @@ public:
         const GrBlurredEdgeFragmentProcessor& _outer =
                 args.fFp.cast<GrBlurredEdgeFragmentProcessor>();
         (void)_outer;
-        auto mode = _outer.mode();
+        auto mode = _outer.mode;
         (void)mode;
         fragBuilder->codeAppendf(
                 "half factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
                 "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
                 "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
                 "half4(factor);\n",
-                args.fInputColor, (int)_outer.mode(), args.fOutputColor);
+                args.fInputColor, (int)_outer.mode, args.fOutputColor);
     }
 
 private:
@@ -42,18 +42,18 @@ GrGLSLFragmentProcessor* GrBlurredEdgeFragmentProcessor::onCreateGLSLInstance() 
 }
 void GrBlurredEdgeFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                            GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fMode);
+    b->add32((int32_t)mode);
 }
 bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrBlurredEdgeFragmentProcessor& that = other.cast<GrBlurredEdgeFragmentProcessor>();
     (void)that;
-    if (fMode != that.fMode) return false;
+    if (mode != that.mode) return false;
     return true;
 }
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         const GrBlurredEdgeFragmentProcessor& src)
         : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags())
-        , fMode(src.fMode) {}
+        , mode(src.mode) {}
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
 }

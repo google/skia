@@ -16,23 +16,22 @@
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Mode { kGaussian = 0, kSmoothStep = 1 };
-    const Mode& mode() const { return fMode; }
     static std::unique_ptr<GrFragmentProcessor> Make(Mode mode) {
         return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
+    Mode mode;
 
 private:
     GrBlurredEdgeFragmentProcessor(Mode mode)
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
-            , fMode(mode) {}
+            , mode(mode) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    Mode fMode;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

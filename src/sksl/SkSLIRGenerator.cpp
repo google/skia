@@ -268,6 +268,18 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
         baseType->kind() == Type::Kind::kMatrix_Kind) {
         fErrors.error(decl.fOffset, "'in' variables may not have matrix type");
     }
+    if (decl.fModifiers.fLayout.fWhen.length() && fKind != Program::kFragmentProcessor_Kind &&
+        fKind != Program::kPipelineStage_Kind) {
+        fErrors.error(decl.fOffset, "'when' is only permitted within fragment processors");
+    }
+    if (decl.fModifiers.fLayout.fKey) {
+        if (fKind != Program::kFragmentProcessor_Kind && fKind != Program::kPipelineStage_Kind) {
+            fErrors.error(decl.fOffset, "'key' is only permitted within fragment processors");
+        }
+        if ((decl.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0) {
+            fErrors.error(decl.fOffset, "'key' is not permitted on 'uniform' variables");
+        }
+    }
     for (const auto& varDecl : decl.fVars) {
         if (decl.fModifiers.fLayout.fLocation == 0 && decl.fModifiers.fLayout.fIndex == 0 &&
             (decl.fModifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&

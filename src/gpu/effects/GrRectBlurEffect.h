@@ -61,8 +61,6 @@ public:
 
         return blurProfile;
     }
-    const SkRect& rect() const { return fRect; }
-    float sigma() const { return fSigma; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
                                                      const GrShaderCaps& caps, const SkRect& rect,
@@ -96,15 +94,18 @@ public:
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
+    SkRect rect;
+    float sigma;
+    TextureSampler blurProfile;
 
 private:
     GrRectBlurEffect(SkRect rect, float sigma, sk_sp<GrTextureProxy> blurProfile,
                      GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , fRect(rect)
-            , fSigma(sigma)
-            , fBlurProfile(std::move(blurProfile), samplerParams) {
+            , rect(rect)
+            , sigma(sigma)
+            , blurProfile(std::move(blurProfile), samplerParams) {
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -112,9 +113,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    SkRect fRect;
-    float fSigma;
-    TextureSampler fBlurProfile;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

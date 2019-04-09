@@ -26,6 +26,7 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
     if (fCompiler.errorCount()) {
         SkDebugf("%s\n", fCompiler.errorText().c_str());
     }
+    printf("%s\n", sksl);
     SkASSERT(fBaseProgram);
     SkASSERT(!fCompiler.errorCount());
     for (const auto& e : *fBaseProgram) {
