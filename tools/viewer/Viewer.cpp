@@ -13,6 +13,8 @@
 #include "GMSlide.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
+#include "GrPersistentCacheUtils.h"
 #include "ImageSlide.h"
 #include "ParticlesSlide.h"
 #include "Resources.h"
@@ -28,6 +30,7 @@
 #include "SkOSPath.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkPictureRecorder.h"
+#include "SkReader32.h"
 #include "SkScan.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -35,6 +38,7 @@
 #include "SkTo.h"
 #include "SlideDir.h"
 #include "SvgSlide.h"
+#include "SkWriter32.h"
 #include "ToolUtils.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
@@ -42,6 +46,7 @@
 #include <map>
 
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"  // For ImGui support of std::string
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "SkottieSlide.h"
@@ -274,6 +279,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
+    displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
+    displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
@@ -1477,6 +1484,54 @@ void Viewer::drawImGui() {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
         ImGui::ShowDemoWindow(&fShowImGuiTestWindow);
+    }
+
+    bool showShadersWindow = true;
+    if (showShadersWindow) {
+        if (ImGui::Begin("Shaders")) {
+            if (ImGui::Button("Reset")) {
+                fCachedGLSL.reset();
+                fPersistentCache.reset();
+                fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Load")) {
+                fCachedGLSL.reset();
+                auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
+                                             int hitCount) {
+                    CachedGLSL& entry(fCachedGLSL.push_back());
+                    entry.fKey = key;
+                    SkReader32 reader(data->data(), data->size());
+                    GrPersistentCacheUtils::UnpackCachedGLSL(reader, &entry.fInputs, entry.fShader);
+                };
+                fPersistentCache.foreach(collectShaders);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Save")) {
+                fPersistentCache.reset();
+                fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                for (const auto& entry : fCachedGLSL) {
+                    SkWriter32 writer;
+                    GrPersistentCacheUtils::PackCachedGLSL(writer, entry.fInputs, entry.fShader);
+                    auto data = writer.snapshotAsData();
+                    fPersistentCache.store(*entry.fKey, *data);
+                }
+            }
+
+            for (int i = 0; i < fCachedGLSL.count(); ++i) {
+                ImGui::PushID(i);
+                if (ImGui::TreeNode("<Insert Key>")) {
+                    ImGui::InputTextMultiline("VP", &fCachedGLSL[i].fShader[kVertex_GrShaderType],
+                                              ImVec2(-1.0f, ImGui::GetTextLineHeight() * 20.0f));
+                    ImGui::InputTextMultiline("FP", &fCachedGLSL[i].fShader[kFragment_GrShaderType],
+                                              ImVec2(-1.0f, ImGui::GetTextLineHeight() * 20.0f));
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+            }
+
+            ImGui::End();
+        }
     }
 
     if (fShowImGuiDebugWindow) {
