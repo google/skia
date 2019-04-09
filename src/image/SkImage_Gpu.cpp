@@ -210,6 +210,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     }
 
     const SkRect rect = SkRect::MakeIWH(size.width(), size.height());
+    printf("SkImage_Gpu::ConvertYUVATexturesToRGB\n");
     if (!RenderYUVAToRGBA(ctx, renderTargetContext, rect, yuvColorSpace, nullptr,
                           tempTextureProxies, yuvaIndices)) {
         return nullptr;
@@ -244,6 +245,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
         return nullptr;
     }
 
+    printf("SkImage::MakeFromYUVATexturesCopy\n");
     return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
                                                  imageSize, imageOrigin, renderTargetContext.get());
 }
@@ -276,6 +278,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
         return nullptr;
     }
 
+    printf("SkImage::MakeFromYUVATexturesCopyWithExternalBackend\n");
     return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
                                                  imageSize, imageOrigin, renderTargetContext.get());
 }

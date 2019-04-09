@@ -373,10 +373,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     paint.addColorFragmentProcessor(std::move(fp));
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
-
-    // DDL TODO: in the promise image version we must not flush here
-    ctx->priv().flush(renderTargetContext->asSurfaceProxy());
-
+    printf("skipping flush\n");
     return true;
 }
 
