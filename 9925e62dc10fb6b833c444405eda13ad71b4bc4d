@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29f1deac_e408fe37",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 3076,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-09T18:39:33Z",
+      "side": 1,
+      "message": "I think we should either assert that aaType is not kMSAA in the MakeFooOp() factories or move the check from GrRenderTargetContext to MakeFooOp() and return null if it is kMSAA.",
+      "range": {
+        "startLine": 3076,
+        "startChar": 55,
+        "endLine": 3076,
+        "endChar": 71
+      },
+      "revId": "9925e62dc10fb6b833c444405eda13ad71b4bc4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
