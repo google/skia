@@ -400,6 +400,10 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kRGB_888_GrPixelConfig];
     info->fFlags = ConfigInfo::kTextureable_Flag;
 
+    // RG_88 uses RG8Unorm
+    info = &fConfigTable[kRG_88_GrPixelConfig];
+    info->fFlags = ConfigInfo::kTextureable_Flag;
+
     // BGRA_8888 uses BGRA8Unorm
     info = &fConfigTable[kBGRA_8888_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
@@ -561,7 +565,9 @@ static GrPixelConfig get_yuva_config(GrMTLPixelFormat grFormat) {
         case MTLPixelFormatR8Unorm:
             return kAlpha_8_as_Red_GrPixelConfig;
             break;
-        // TODO: Add RG_88 format here
+        case MTLPixelFormatRG8Unorm:
+            return kRG_88_GrPixelConfig;
+            break;
         case MTLPixelFormatRGBA8Unorm:
             return kRGBA_8888_GrPixelConfig;
             break;

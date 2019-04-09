@@ -886,7 +886,7 @@ protected:
                             yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
-                        int counterMod = counter % 3;
+                        int counterMod = 2;//counter % 3;
                         switch (counterMod) {
                         case 0:
                             fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
