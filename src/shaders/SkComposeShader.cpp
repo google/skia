@@ -187,29 +187,11 @@ bool SkShader_LerpRed::onAppendStages(const SkStageRec& rec) const {
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "GrRecordingContext.h"
-#include "effects/GrSkSLFP.h"
-
-static std::unique_ptr<GrFragmentProcessor>
-sksl_mixer_fp(const GrFPArgs& args, int index, const char* sksl, sk_sp<SkData> inputs,
-              std::unique_ptr<GrFragmentProcessor> fp1,
-              std::unique_ptr<GrFragmentProcessor> fp2,
-              std::unique_ptr<GrFragmentProcessor> fp3 = nullptr)
-{
-    std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(args.fContext, index, "Runtime Mixer", sksl,
-                                                      inputs ? inputs->data() : nullptr,
-                                                      inputs ? inputs->size() : 0,
-                                                      SkSL::Program::kMixer_Kind);
-    result->addChild(std::move(fp1));
-    result->addChild(std::move(fp2));
-    if (fp3) {
-        result->addChild(std::move(fp3));
-    }
-    return std::move(result);
-}
+#include "effects/GrComposeLerpEffect.h"
+#include "effects/GrComposeLerpRedEffect.h"
 
 static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
-    return shader ? as_SB(shader)->asFragmentProcessor(args)
-    : nullptr;//GrConstColorProcessor::Make(args, );
+    return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;
 }
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(const GrFPArgs& args) const {
@@ -225,41 +207,16 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(const G
 std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(const GrFPArgs& args) const {
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
-    if (!fpA || !fpB) {
-        return nullptr;
-    }
-
-    static int index = GrSkSLFP::NewIndex();
-    return sksl_mixer_fp(args,
-                         index,
-                         "in uniform float weight;"
-                         "void main(half4 input1, half4 input2) {"
-                         "    sk_OutColor = mix(input1, input2, half(weight));"
-                         "}",
-                         SkData::MakeWithCopy(&fWeight, sizeof(float)),
-                         std::move(fpA),
-                         std::move(fpB),
-                         nullptr);
+    return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkShader_LerpRed::asFragmentProcessor(const GrFPArgs& args) const {
     auto fpA = as_fp(args, fDst.get());
     auto fpB = as_fp(args, fSrc.get());
     auto red = as_SB(fRed)->asFragmentProcessor(args);
-    if (!fpA || !fpB || !red) {
+    if (!red) {
         return nullptr;
     }
-
-    static int index = GrSkSLFP::NewIndex();
-    return sksl_mixer_fp(args,
-                         index,
-                         "in fragmentProcessor lerpControl;"
-                         "void main(half4 input1, half4 input2) {"
-                         "    sk_OutColor = mix(input1, input2, process(lerpControl).r);"
-                         "}",
-                         nullptr,
-                         std::move(fpA),
-                         std::move(fpB),
-                         std::move(red));
+    return GrComposeLerpRedEffect::Make(std::move(fpA), std::move(fpB), std::move(red));
 }
 #endif

@@ -37,6 +37,8 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.fp",
   "$_src/gpu/effects/GrCircleBlurFragmentProcessor.fp",
   "$_src/gpu/effects/GrCircleEffect.fp",
+  "$_src/gpu/effects/GrComposeLerpEffect.fp",
+  "$_src/gpu/effects/GrComposeLerpRedEffect.fp",
   "$_src/gpu/effects/GrConfigConversionEffect.fp",
   "$_src/gpu/effects/GrConstColorProcessor.fp",
   "$_src/gpu/effects/GrEllipseEffect.fp",
