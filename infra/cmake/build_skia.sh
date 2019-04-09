@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This assumes it is being run inside a docker container of emsdk-base
+# This assumes it is being run inside a docker container of emsdk-release
 # and a Skia checkout has been mounted at /SRC and the output directory
 # has been mounted at /OUT
 
