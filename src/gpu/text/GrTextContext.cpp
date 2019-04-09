@@ -172,9 +172,7 @@ SkFont GrTextContext::InitDistanceFieldFont(const SkFont& font,
     dfFont.setEdging(SkFont::Edging::kAntiAlias);
     dfFont.setForceAutoHinting(false);
     dfFont.setHinting(kNormal_SkFontHinting);
-
-    // The sub-pixel position will always happen when transforming to the screen.
-    dfFont.setSubpixel(false);
+    dfFont.setSubpixel(true);
     return dfFont;
 }
 
