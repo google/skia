@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97ce1214_3cffe49e",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-09T18:38:52Z",
+      "side": 1,
+      "message": "GL_RGBA?",
+      "range": {
+        "startLine": 193,
+        "startChar": 85,
+        "endLine": 193,
+        "endChar": 92
+      },
+      "revId": "88e55c591442b0788941ea47feb80450226c8ff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
