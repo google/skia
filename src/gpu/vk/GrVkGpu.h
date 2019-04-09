@@ -213,11 +213,8 @@ private:
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height, GrColorType,
                             GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) override;
-    // TODO(bsalomon)
     size_t onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                GrColorType, GrGpuBuffer* transferBuffer, size_t offset) override {
-        return 0;
-    }
+                                GrColorType, GrGpuBuffer* transferBuffer, size_t offset) override;
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
