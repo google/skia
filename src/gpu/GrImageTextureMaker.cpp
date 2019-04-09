@@ -92,13 +92,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     const GrSamplerState::Filter* filterOrNullForBicubic) {
 
     // Check simple cases to see if we need to fall back to flattening the image
-    // TODO: See if we can relax this -- for example, if filterConstraint
-    //       is kYes_FilterConstraint we still may not need a TextureDomain
-    //       in some cases. Or allow YUVtoRGBEffect to take a wrap mode to
-    //       handle ClampToBorder when a decal is needed.
-    if (!textureMatrix.isIdentity() || kNo_FilterConstraint != filterConstraint ||
-        !coordsLimitedToConstraintRect || !filterOrNullForBicubic ||
-        this->domainNeedsDecal()) {
+    if (!textureMatrix.isIdentity() || !filterOrNullForBicubic) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,
                                                         filterConstraint,
                                                         coordsLimitedToConstraintRect,
@@ -113,8 +107,22 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         filter = GrSamplerState::Filter::kBilerp;
     }
 
+    SkRect domain;
+    DomainMode domainMode =
+            DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
+                                fImage->fProxies[0].get(), filterOrNullForBicubic, &domain);
+
+    GrTextureDomain::Mode wrapMode;
+    if (domainMode == kNoDomain_DomainMode) {
+        wrapMode = GrTextureDomain::kIgnore_Mode;
+    } else if (this->domainNeedsDecal()) {
+        wrapMode = GrTextureDomain::kDecal_Mode;
+    } else {
+        wrapMode = GrTextureDomain::kClamp_Mode;
+    }
+
     auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
-                                     fImage->fYUVColorSpace, filter);
+                                     fImage->fYUVColorSpace, filter); //, domain, wrapMode);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
                                            fImage->alphaType(), fImage->colorSpace());

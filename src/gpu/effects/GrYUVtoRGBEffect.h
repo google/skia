@@ -12,15 +12,20 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrTextureDomain.h"
 
 #include "SkYUVAIndex.h"
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
+    // The domain supported by this effect is more limited than the general GrTextureDomain due
+    // to the multi-planar, varying resolution images that it has to sample. If 'domain' is provided
+    // it is the Y planes domain, pre-insetting for bilerp, and only clamping is supported.
     static std::unique_ptr<GrFragmentProcessor> Make(const sk_sp<GrTextureProxy> proxies[],
                                                      const SkYUVAIndex indices[4],
                                                      SkYUVColorSpace yuvColorSpace,
-                                                     GrSamplerState::Filter filterMode);
+                                                     GrSamplerState::Filter filterMode,
+                                                     const SkRect* domain = nullptr);
 #ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
@@ -35,13 +40,28 @@ public:
 private:
     GrYUVtoRGBEffect(const sk_sp<GrTextureProxy> proxies[], const SkSize scales[],
                      const GrSamplerState::Filter filterModes[], int numPlanes,
-                     const SkYUVAIndex yuvaIndices[4], SkYUVColorSpace yuvColorSpace)
+                     const SkYUVAIndex yuvaIndices[4], SkYUVColorSpace yuvColorSpace,
+                     const SkRect* domain)
             : INHERITED(kGrYUVtoRGBEffect_ClassID, kNone_OptimizationFlags)
+            , fHasDomain(domain != nullptr)
             , fYUVColorSpace(yuvColorSpace) {
         for (int i = 0; i < numPlanes; ++i) {
+            SkMatrix planeMatrix = SkMatrix::MakeScale(scales[i].width(), scales[i].height());
+            if (domain) {
+                SkRect scaledDomain = planeMatrix.mapRect(*domain);
+                if (filterModes[i] != GrSamplerState::Filter::kNearest) {
+                    scaledDomain.inset(0.5f, 0.5f);
+                }
+                SkDebugf("Scaled domain %d: [%.2f %.2f %.2f %.2f]\n",
+                    i, scaledDomain.fLeft, scaledDomain.fTop, scaledDomain.fRight, scaledDomain.fBottom);
+                fDomains[i] = scaledDomain;
+            } else {
+                fDomains[i] = SkRect::MakeEmpty();
+            }
+
             fSamplers[i].reset(std::move(proxies[i]),
                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filterModes[i]));
-            fSamplerTransforms[i] = SkMatrix::MakeScale(scales[i].width(), scales[i].height());
+            fSamplerTransforms[i] = planeMatrix;
             fSamplerCoordTransforms[i] =
                     GrCoordTransform(fSamplerTransforms[i], fSamplers[i].proxy());
         }
@@ -62,6 +82,8 @@ private:
     TextureSampler   fSamplers[4];
     SkMatrix44       fSamplerTransforms[4];
     GrCoordTransform fSamplerCoordTransforms[4];
+    SkRect           fDomains[4];
+    bool             fHasDomain;
     SkYUVAIndex      fYUVAIndices[4];
     SkYUVColorSpace  fYUVColorSpace;
 
