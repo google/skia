@@ -22,7 +22,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrConfigConversionEffect& _outer = args.fFp.cast<GrConfigConversionEffect>();
         (void)_outer;
-        auto pmConversion = _outer.pmConversion();
+        auto pmConversion = _outer.pmConversion;
         (void)pmConversion;
 
         fragBuilder->forceHighPrecision();
@@ -31,7 +31,7 @@ public:
                 "%s.xyz = floor((%s.xyz * %s.w) * 255.0 + 0.5) / 255.0;\n        break;\n    case "
                 "1:\n        %s.xyz = %s.w <= 0.0 ? half3(0.0) : floor((%s.xyz / %s.w) * 255.0 + "
                 "0.5) / 255.0;\n        break;\n}\n",
-                args.fOutputColor, args.fInputColor, (int)_outer.pmConversion(), args.fOutputColor,
+                args.fOutputColor, args.fInputColor, (int)_outer.pmConversion, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor);
     }
@@ -45,17 +45,17 @@ GrGLSLFragmentProcessor* GrConfigConversionEffect::onCreateGLSLInstance() const 
 }
 void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fPmConversion);
+    b->add32((int32_t)pmConversion);
 }
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConfigConversionEffect& that = other.cast<GrConfigConversionEffect>();
     (void)that;
-    if (fPmConversion != that.fPmConversion) return false;
+    if (pmConversion != that.pmConversion) return false;
     return true;
 }
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)
         : INHERITED(kGrConfigConversionEffect_ClassID, src.optimizationFlags())
-        , fPmConversion(src.fPmConversion) {}
+        , pmConversion(src.pmConversion) {}
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(*this));
 }

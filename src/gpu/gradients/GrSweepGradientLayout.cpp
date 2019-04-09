@@ -22,14 +22,14 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSweepGradientLayout& _outer = args.fFp.cast<GrSweepGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix();
+        auto gradientMatrix = _outer.gradientMatrix;
         (void)gradientMatrix;
-        auto bias = _outer.bias();
+        auto bias = _outer.bias;
         (void)bias;
-        auto scale = _outer.scale();
+        auto scale = _outer.scale;
         (void)scale;
-        fBiasVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "bias");
-        fScaleVar =
+        biasVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "bias");
+        scaleVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "scale");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
@@ -39,8 +39,8 @@ public:
                 "half4(t, 1.0, 0.0, 0.0);\n",
                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(fBiasVar),
-                args.fUniformHandler->getUniformCStr(fScaleVar), args.fOutputColor);
+                sk_TransformedCoords2D_0.c_str(), args.fUniformHandler->getUniformCStr(biasVar),
+                args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
     }
 
 private:
@@ -48,22 +48,22 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrSweepGradientLayout& _outer = _proc.cast<GrSweepGradientLayout>();
         {
-            float biasValue = _outer.bias();
-            if (fBiasPrev != biasValue) {
-                fBiasPrev = biasValue;
-                pdman.set1f(fBiasVar, biasValue);
+            float biasValue = _outer.bias;
+            if (biasPrev != biasValue) {
+                biasPrev = biasValue;
+                pdman.set1f(biasVar, biasValue);
             }
-            float scaleValue = _outer.scale();
-            if (fScalePrev != scaleValue) {
-                fScalePrev = scaleValue;
-                pdman.set1f(fScaleVar, scaleValue);
+            float scaleValue = _outer.scale;
+            if (scalePrev != scaleValue) {
+                scalePrev = scaleValue;
+                pdman.set1f(scaleVar, scaleValue);
             }
         }
     }
-    float fBiasPrev = SK_FloatNaN;
-    float fScalePrev = SK_FloatNaN;
-    UniformHandle fBiasVar;
-    UniformHandle fScaleVar;
+    float biasPrev = SK_FloatNaN;
+    float scalePrev = SK_FloatNaN;
+    UniformHandle biasVar;
+    UniformHandle scaleVar;
 };
 GrGLSLFragmentProcessor* GrSweepGradientLayout::onCreateGLSLInstance() const {
     return new GrGLSLSweepGradientLayout();
@@ -73,17 +73,17 @@ void GrSweepGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrSweepGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSweepGradientLayout& that = other.cast<GrSweepGradientLayout>();
     (void)that;
-    if (fGradientMatrix != that.fGradientMatrix) return false;
-    if (fBias != that.fBias) return false;
-    if (fScale != that.fScale) return false;
+    if (gradientMatrix != that.gradientMatrix) return false;
+    if (bias != that.bias) return false;
+    if (scale != that.scale) return false;
     return true;
 }
 GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         : INHERITED(kGrSweepGradientLayout_ClassID, src.optimizationFlags())
-        , fGradientMatrix(src.fGradientMatrix)
-        , fBias(src.fBias)
-        , fScale(src.fScale)
-        , fCoordTransform0(src.fCoordTransform0) {
+        , fCoordTransform0(src.fCoordTransform0)
+        , gradientMatrix(src.gradientMatrix)
+        , bias(src.bias)
+        , scale(src.scale) {
     this->addCoordTransform(&fCoordTransform0);
 }
 std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::clone() const {

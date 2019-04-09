@@ -23,24 +23,24 @@ public:
         const GrTwoPointConicalGradientLayout& _outer =
                 args.fFp.cast<GrTwoPointConicalGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix();
+        auto gradientMatrix = _outer.gradientMatrix;
         (void)gradientMatrix;
-        auto type = _outer.type();
+        auto type = _outer.type;
         (void)type;
-        auto isRadiusIncreasing = _outer.isRadiusIncreasing();
+        auto isRadiusIncreasing = _outer.isRadiusIncreasing;
         (void)isRadiusIncreasing;
-        auto isFocalOnCircle = _outer.isFocalOnCircle();
+        auto isFocalOnCircle = _outer.isFocalOnCircle;
         (void)isFocalOnCircle;
-        auto isWellBehaved = _outer.isWellBehaved();
+        auto isWellBehaved = _outer.isWellBehaved;
         (void)isWellBehaved;
-        auto isSwapped = _outer.isSwapped();
+        auto isSwapped = _outer.isSwapped;
         (void)isSwapped;
-        auto isNativelyFocal = _outer.isNativelyFocal();
+        auto isNativelyFocal = _outer.isNativelyFocal;
         (void)isNativelyFocal;
-        auto focalParams = _outer.focalParams();
+        auto focalParams = _outer.focalParams;
         (void)focalParams;
-        fFocalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                           "focalParams");
+        focalParamsVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+                                                          "focalParams");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "float2 p = %s;\nfloat t = -1.0;\nhalf v = 1.0;\n@switch (%d) {\n    case 1:\n     "
@@ -50,10 +50,10 @@ public:
                 "0:\n        {\n            half r0 = %s.x;\n            @if (%s) {\n              "
                 "  t = length(p) - float(r0);\n            } else {\n                t = "
                 "-length(p) - float(r0);\n       ",
-                sk_TransformedCoords2D_0.c_str(), (int)_outer.type(),
-                args.fUniformHandler->getUniformCStr(fFocalParamsVar),
-                args.fUniformHandler->getUniformCStr(fFocalParamsVar),
-                (_outer.isRadiusIncreasing() ? "true" : "false"));
+                sk_TransformedCoords2D_0.c_str(), (int)_outer.type,
+                args.fUniformHandler->getUniformCStr(focalParamsVar),
+                args.fUniformHandler->getUniformCStr(focalParamsVar),
+                (_outer.isRadiusIncreasing ? "true" : "false"));
         fragBuilder->codeAppendf(
                 "     }\n        }\n        break;\n    case 2:\n        {\n            half invR1 "
                 "= %s.x;\n            half fx = %s.y;\n            float x_t = -1.0;\n            "
@@ -62,12 +62,11 @@ public:
                 "              float temp = p.x * p.x - p.y * p.y;\n                if (temp >= "
                 "0.0) {\n                    @if (%s || !%s) {\n                        x_t = "
                 "-sqrt(temp) - p.x * float(invR1)",
-                args.fUniformHandler->getUniformCStr(fFocalParamsVar),
-                args.fUniformHandler->getUniformCStr(fFocalParamsVar),
-                (_outer.isFocalOnCircle() ? "true" : "false"),
-                (_outer.isWellBehaved() ? "true" : "false"),
-                (_outer.isSwapped() ? "true" : "false"),
-                (_outer.isRadiusIncreasing() ? "true" : "false"));
+                args.fUniformHandler->getUniformCStr(focalParamsVar),
+                args.fUniformHandler->getUniformCStr(focalParamsVar),
+                (_outer.isFocalOnCircle ? "true" : "false"),
+                (_outer.isWellBehaved ? "true" : "false"), (_outer.isSwapped ? "true" : "false"),
+                (_outer.isRadiusIncreasing ? "true" : "false"));
         fragBuilder->codeAppendf(
                 ";\n                    } else {\n                        x_t = sqrt(temp) - p.x * "
                 "float(invR1);\n                    }\n                }\n            }\n          "
@@ -76,16 +75,16 @@ public:
                 "{\n                    t = x_t;\n                } else {\n                    t "
                 "= x_t + float(fx);\n                }\n            } else {\n                @if "
                 "(%s) {\n              ",
-                (_outer.isWellBehaved() ? "true" : "false"),
-                (_outer.isRadiusIncreasing() ? "true" : "false"),
-                (_outer.isNativelyFocal() ? "true" : "false"),
-                (_outer.isNativelyFocal() ? "true" : "false"));
+                (_outer.isWellBehaved ? "true" : "false"),
+                (_outer.isRadiusIncreasing ? "true" : "false"),
+                (_outer.isNativelyFocal ? "true" : "false"),
+                (_outer.isNativelyFocal ? "true" : "false"));
         fragBuilder->codeAppendf(
                 "      t = -x_t;\n                } else {\n                    t = -x_t + "
                 "float(fx);\n                }\n            }\n            @if (%s) {\n            "
                 "    t = 1.0 - t;\n            }\n        }\n        break;\n}\n%s = "
                 "half4(half(t), v, 0.0, 0.0);\n",
-                (_outer.isSwapped() ? "true" : "false"), args.fOutputColor);
+                (_outer.isSwapped ? "true" : "false"), args.fOutputColor);
     }
 
 private:
@@ -94,53 +93,53 @@ private:
         const GrTwoPointConicalGradientLayout& _outer =
                 _proc.cast<GrTwoPointConicalGradientLayout>();
         {
-            const SkPoint& focalParamsValue = _outer.focalParams();
-            if (fFocalParamsPrev != focalParamsValue) {
-                fFocalParamsPrev = focalParamsValue;
-                pdman.set2f(fFocalParamsVar, focalParamsValue.fX, focalParamsValue.fY);
+            const SkPoint& focalParamsValue = _outer.focalParams;
+            if (focalParamsPrev != focalParamsValue) {
+                focalParamsPrev = focalParamsValue;
+                pdman.set2f(focalParamsVar, focalParamsValue.fX, focalParamsValue.fY);
             }
         }
     }
-    SkPoint fFocalParamsPrev = SkPoint::Make(SK_FloatNaN, SK_FloatNaN);
-    UniformHandle fFocalParamsVar;
+    SkPoint focalParamsPrev = SkPoint::Make(SK_FloatNaN, SK_FloatNaN);
+    UniformHandle focalParamsVar;
 };
 GrGLSLFragmentProcessor* GrTwoPointConicalGradientLayout::onCreateGLSLInstance() const {
     return new GrGLSLTwoPointConicalGradientLayout();
 }
 void GrTwoPointConicalGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                             GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fType);
-    b->add32((int32_t)fIsRadiusIncreasing);
-    b->add32((int32_t)fIsFocalOnCircle);
-    b->add32((int32_t)fIsWellBehaved);
-    b->add32((int32_t)fIsSwapped);
-    b->add32((int32_t)fIsNativelyFocal);
+    b->add32((int32_t)type);
+    b->add32((int32_t)isRadiusIncreasing);
+    b->add32((int32_t)isFocalOnCircle);
+    b->add32((int32_t)isWellBehaved);
+    b->add32((int32_t)isSwapped);
+    b->add32((int32_t)isNativelyFocal);
 }
 bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTwoPointConicalGradientLayout& that = other.cast<GrTwoPointConicalGradientLayout>();
     (void)that;
-    if (fGradientMatrix != that.fGradientMatrix) return false;
-    if (fType != that.fType) return false;
-    if (fIsRadiusIncreasing != that.fIsRadiusIncreasing) return false;
-    if (fIsFocalOnCircle != that.fIsFocalOnCircle) return false;
-    if (fIsWellBehaved != that.fIsWellBehaved) return false;
-    if (fIsSwapped != that.fIsSwapped) return false;
-    if (fIsNativelyFocal != that.fIsNativelyFocal) return false;
-    if (fFocalParams != that.fFocalParams) return false;
+    if (gradientMatrix != that.gradientMatrix) return false;
+    if (type != that.type) return false;
+    if (isRadiusIncreasing != that.isRadiusIncreasing) return false;
+    if (isFocalOnCircle != that.isFocalOnCircle) return false;
+    if (isWellBehaved != that.isWellBehaved) return false;
+    if (isSwapped != that.isSwapped) return false;
+    if (isNativelyFocal != that.isNativelyFocal) return false;
+    if (focalParams != that.focalParams) return false;
     return true;
 }
 GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         const GrTwoPointConicalGradientLayout& src)
         : INHERITED(kGrTwoPointConicalGradientLayout_ClassID, src.optimizationFlags())
-        , fGradientMatrix(src.fGradientMatrix)
-        , fType(src.fType)
-        , fIsRadiusIncreasing(src.fIsRadiusIncreasing)
-        , fIsFocalOnCircle(src.fIsFocalOnCircle)
-        , fIsWellBehaved(src.fIsWellBehaved)
-        , fIsSwapped(src.fIsSwapped)
-        , fIsNativelyFocal(src.fIsNativelyFocal)
-        , fFocalParams(src.fFocalParams)
-        , fCoordTransform0(src.fCoordTransform0) {
+        , fCoordTransform0(src.fCoordTransform0)
+        , gradientMatrix(src.gradientMatrix)
+        , type(src.type)
+        , isRadiusIncreasing(src.isRadiusIncreasing)
+        , isFocalOnCircle(src.isFocalOnCircle)
+        , isWellBehaved(src.isWellBehaved)
+        , isSwapped(src.isSwapped)
+        , isNativelyFocal(src.isNativelyFocal)
+        , focalParams(src.focalParams) {
     this->addCoordTransform(&fCoordTransform0);
 }
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {

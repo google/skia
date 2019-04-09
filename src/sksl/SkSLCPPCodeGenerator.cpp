@@ -101,7 +101,7 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
             default:
                 SkASSERT(false);
         }
-        fFormatArgs.push_back("_outer." + String(var->fName) + "_index() " + op + " 0 ? \"true\" "
+        fFormatArgs.push_back("_outer." + String(var->fName) + "_index " + op + " 0 ? \"true\" "
                               ": \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
@@ -321,7 +321,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             } else if (SectionAndParameterHelper::IsParameter(ref.fVariable)) {
                 String name(ref.fVariable.fName);
                 this->writeRuntimeValue(ref.fVariable.fType, ref.fVariable.fModifiers.fLayout,
-                                        String::printf("_outer.%s()", name.c_str()).c_str());
+                                        String::printf("_outer.%s", name.c_str()).c_str());
             } else {
                 this->write(ref.fVariable.fName);
             }
@@ -360,7 +360,7 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
 
         const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
         const Variable& var = ((const VariableReference&) *access.fBase).fVariable;
-        String cppAccess = String::printf("_outer.childProcessor(_outer.%s_index()).%s()",
+        String cppAccess = String::printf("_outer.childProcessor(_outer.%s_index).%s()",
                                           String(var.fName).c_str(),
                                           String(field.fName).c_str());
 
@@ -442,9 +442,9 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         String childName = "_child" + to_string(index);
         addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
-            addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index() >= 0) {\n    ");
+            addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
         }
-        addExtraEmitCodeLine("this->emitChild(_outer." + String(child.fName) + "_index()" +
+        addExtraEmitCodeLine("this->emitChild(_outer." + String(child.fName) + "_index" +
                              inputArg + ", &" + childName + ", args);");
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             // Null FPs are not emitted, but their output can still be referenced in dependent
@@ -846,7 +846,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
                 const char* name = nameString.c_str();
                 if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
                     is_accessible(*decl.fVar)) {
-                    this->writef("        auto %s = _outer.%s();\n"
+                    this->writef("        auto %s = _outer.%s;\n"
                                  "        (void) %s;\n",
                                  name, name, name);
                 }
@@ -918,12 +918,12 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 // Use AccessType since that will match the return type of _outer's public API.
                 String valueType = HCodeGenerator::AccessType(fContext, u->fType,
                                                               u->fModifiers.fLayout);
-                this->writef("%s%s %s = _outer.%s();\n",
+                this->writef("%s%s %s = _outer.%s;\n",
                              indent.c_str(), valueType.c_str(), valueVar.c_str(), name);
             } else {
                 // Not tracked and the mapper only needs to use the value once
                 // so send it a safe expression instead of the variable name
-                valueVar.appendf("(_outer.%s())", name);
+                valueVar.appendf("(_outer.%s)", name);
             }
 
             if (isTracked) {
@@ -979,7 +979,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                                          fullName);
                             wroteProcessor = true;
                         }
-                        this->writef("        auto %s = _outer.%s();\n"
+                        this->writef("        auto %s = _outer.%s;\n"
                                      "        (void) %s;\n",
                                      name, name, name);
                     }
@@ -1023,6 +1023,12 @@ void CPPCodeGenerator::writeClone() {
         this->writef("%s::%s(const %s& src)\n"
                      ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
+        const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+        for (size_t i = 0; i < transforms.size(); ++i) {
+            const Section& s = *transforms[i];
+            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
+            this->writef("\n, %s(src.%s)", fieldName.c_str(), fieldName.c_str());
+        }
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
             if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
@@ -1034,12 +1040,6 @@ void CPPCodeGenerator::writeClone() {
                              fieldName.c_str(),
                              fieldName.c_str());
             }
-        }
-        const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
-        for (size_t i = 0; i < transforms.size(); ++i) {
-            const Section& s = *transforms[i];
-            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
-            this->writef("\n, %s(src.%s)", fieldName.c_str(), fieldName.c_str());
         }
         this->writef(" {\n");
         int samplerCount = 0;
@@ -1105,6 +1105,9 @@ void CPPCodeGenerator::writeGetKey() {
         }
         switch (param->fModifiers.fLayout.fKey) {
             case Layout::kKey_Key:
+                if (param->fModifiers.fLayout.fWhen.size()) {
+                    this->writef("if (%s) ", param->fModifiers.fLayout.fWhen.c_str());
+                }
                 if (param->fType == *fContext.fFloat4x4_Type) {
                     ABORT("no automatic key handling for float4x4\n");
                 } else if (param->fType == *fContext.fFloat2_Type) {

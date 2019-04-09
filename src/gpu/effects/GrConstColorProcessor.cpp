@@ -22,21 +22,20 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrConstColorProcessor& _outer = args.fFp.cast<GrConstColorProcessor>();
         (void)_outer;
-        auto color = _outer.color();
+        auto color = _outer.color;
         (void)color;
-        auto mode = _outer.mode();
+        auto mode = _outer.mode;
         (void)mode;
-        fColorVar =
+        colorVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
                 "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
                 "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "
                 "break;\n}\n",
-                (int)_outer.mode(), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(fColorVar), args.fOutputColor,
-                args.fInputColor, args.fUniformHandler->getUniformCStr(fColorVar),
+                (int)_outer.mode, args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar),
+                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(colorVar),
                 args.fOutputColor, args.fInputColor,
-                args.fUniformHandler->getUniformCStr(fColorVar));
+                args.fUniformHandler->getUniformCStr(colorVar));
     }
 
 private:
@@ -44,34 +43,34 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrConstColorProcessor& _outer = _proc.cast<GrConstColorProcessor>();
         {
-            const SkPMColor4f& colorValue = _outer.color();
-            if (fColorPrev != colorValue) {
-                fColorPrev = colorValue;
-                pdman.set4fv(fColorVar, 1, colorValue.vec());
+            const SkPMColor4f& colorValue = _outer.color;
+            if (colorPrev != colorValue) {
+                colorPrev = colorValue;
+                pdman.set4fv(colorVar, 1, colorValue.vec());
             }
         }
     }
-    SkPMColor4f fColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    UniformHandle fColorVar;
+    SkPMColor4f colorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    UniformHandle colorVar;
 };
 GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
     return new GrGLSLConstColorProcessor();
 }
 void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fMode);
+    b->add32((int32_t)mode);
 }
 bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrConstColorProcessor& that = other.cast<GrConstColorProcessor>();
     (void)that;
-    if (fColor != that.fColor) return false;
-    if (fMode != that.fMode) return false;
+    if (color != that.color) return false;
+    if (mode != that.mode) return false;
     return true;
 }
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
         : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags())
-        , fColor(src.fColor)
-        , fMode(src.fMode) {}
+        , color(src.color)
+        , mode(src.mode) {}
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(*this));
 }

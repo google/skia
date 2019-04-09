@@ -23,108 +23,108 @@ public:
         const GrUnrolledBinaryGradientColorizer& _outer =
                 args.fFp.cast<GrUnrolledBinaryGradientColorizer>();
         (void)_outer;
-        auto intervalCount = _outer.intervalCount();
+        auto intervalCount = _outer.intervalCount;
         (void)intervalCount;
-        auto scale0_1 = _outer.scale0_1();
+        auto scale0_1 = _outer.scale0_1;
         (void)scale0_1;
-        auto scale2_3 = _outer.scale2_3();
+        auto scale2_3 = _outer.scale2_3;
         (void)scale2_3;
-        auto scale4_5 = _outer.scale4_5();
+        auto scale4_5 = _outer.scale4_5;
         (void)scale4_5;
-        auto scale6_7 = _outer.scale6_7();
+        auto scale6_7 = _outer.scale6_7;
         (void)scale6_7;
-        auto scale8_9 = _outer.scale8_9();
+        auto scale8_9 = _outer.scale8_9;
         (void)scale8_9;
-        auto scale10_11 = _outer.scale10_11();
+        auto scale10_11 = _outer.scale10_11;
         (void)scale10_11;
-        auto scale12_13 = _outer.scale12_13();
+        auto scale12_13 = _outer.scale12_13;
         (void)scale12_13;
-        auto scale14_15 = _outer.scale14_15();
+        auto scale14_15 = _outer.scale14_15;
         (void)scale14_15;
-        auto bias0_1 = _outer.bias0_1();
+        auto bias0_1 = _outer.bias0_1;
         (void)bias0_1;
-        auto bias2_3 = _outer.bias2_3();
+        auto bias2_3 = _outer.bias2_3;
         (void)bias2_3;
-        auto bias4_5 = _outer.bias4_5();
+        auto bias4_5 = _outer.bias4_5;
         (void)bias4_5;
-        auto bias6_7 = _outer.bias6_7();
+        auto bias6_7 = _outer.bias6_7;
         (void)bias6_7;
-        auto bias8_9 = _outer.bias8_9();
+        auto bias8_9 = _outer.bias8_9;
         (void)bias8_9;
-        auto bias10_11 = _outer.bias10_11();
+        auto bias10_11 = _outer.bias10_11;
         (void)bias10_11;
-        auto bias12_13 = _outer.bias12_13();
+        auto bias12_13 = _outer.bias12_13;
         (void)bias12_13;
-        auto bias14_15 = _outer.bias14_15();
+        auto bias14_15 = _outer.bias14_15;
         (void)bias14_15;
-        auto thresholds1_7 = _outer.thresholds1_7();
+        auto thresholds1_7 = _outer.thresholds1_7;
         (void)thresholds1_7;
-        auto thresholds9_13 = _outer.thresholds9_13();
+        auto thresholds9_13 = _outer.thresholds9_13;
         (void)thresholds9_13;
-        fScale0_1Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                        "scale0_1");
+        scale0_1Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                       "scale0_1");
         if (intervalCount > 1) {
-            fScale2_3Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "scale2_3");
+            scale2_3Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                           "scale2_3");
         }
         if (intervalCount > 2) {
-            fScale4_5Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "scale4_5");
+            scale4_5Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                           "scale4_5");
         }
         if (intervalCount > 3) {
-            fScale6_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "scale6_7");
+            scale6_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                           "scale6_7");
         }
         if (intervalCount > 4) {
-            fScale8_9Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                            kFloat4_GrSLType, "scale8_9");
+            scale8_9Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                           "scale8_9");
         }
         if (intervalCount > 5) {
-            fScale10_11Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kFloat4_GrSLType, "scale10_11");
+            scale10_11Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "scale10_11");
         }
         if (intervalCount > 6) {
-            fScale12_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kFloat4_GrSLType, "scale12_13");
+            scale12_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "scale12_13");
         }
         if (intervalCount > 7) {
-            fScale14_15Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kFloat4_GrSLType, "scale14_15");
+            scale14_15Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "scale14_15");
         }
-        fBias0_1Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                       "bias0_1");
+        bias0_1Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                      "bias0_1");
         if (intervalCount > 1) {
-            fBias2_3Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           "bias2_3");
+            bias2_3Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                          "bias2_3");
         }
         if (intervalCount > 2) {
-            fBias4_5Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           "bias4_5");
+            bias4_5Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                          "bias4_5");
         }
         if (intervalCount > 3) {
-            fBias6_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           "bias6_7");
+            bias6_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                          "bias6_7");
         }
         if (intervalCount > 4) {
-            fBias8_9Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
-                                                           "bias8_9");
+            bias8_9Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
+                                                          "bias8_9");
         }
         if (intervalCount > 5) {
-            fBias10_11Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kFloat4_GrSLType, "bias10_11");
+            bias10_11Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "bias10_11");
         }
         if (intervalCount > 6) {
-            fBias12_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kFloat4_GrSLType, "bias12_13");
+            bias12_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "bias12_13");
         }
         if (intervalCount > 7) {
-            fBias14_15Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kFloat4_GrSLType, "bias14_15");
+            bias14_15Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                            kFloat4_GrSLType, "bias14_15");
         }
-        fThresholds1_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kHalf4_GrSLType, "thresholds1_7");
-        fThresholds9_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kHalf4_GrSLType, "thresholds9_13");
+        thresholds1_7Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                            "thresholds1_7");
+        thresholds9_13Var = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kHalf4_GrSLType, "thresholds9_13");
         fragBuilder->codeAppendf(
                 "half t = %s.x;\nfloat4 scale, bias;\nif (%d <= 4 || t < %s.w) {\n    if (%d <= 2 "
                 "|| t < %s.y) {\n        if (%d <= 1 || t < %s.x) {\n            scale = %s;\n     "
@@ -133,51 +133,51 @@ public:
                 "scale = %s;\n            bias = %s;\n        } else {\n            scale = %s;\n  "
                 "          bias = %s;\n        }\n    }\n} else {\n    if (%d <= 6 || t < %s.y) "
                 "{\n        if (%d <= 5 || t <",
-                args.fInputColor, _outer.intervalCount(),
-                args.fUniformHandler->getUniformCStr(fThresholds1_7Var), _outer.intervalCount(),
-                args.fUniformHandler->getUniformCStr(fThresholds1_7Var), _outer.intervalCount(),
-                args.fUniformHandler->getUniformCStr(fThresholds1_7Var),
-                args.fUniformHandler->getUniformCStr(fScale0_1Var),
-                args.fUniformHandler->getUniformCStr(fBias0_1Var),
-                fScale2_3Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale2_3Var)
-                                       : "float4(0)",
-                fBias2_3Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias2_3Var)
+                args.fInputColor, _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
+                args.fUniformHandler->getUniformCStr(thresholds1_7Var),
+                args.fUniformHandler->getUniformCStr(scale0_1Var),
+                args.fUniformHandler->getUniformCStr(bias0_1Var),
+                scale2_3Var.isValid() ? args.fUniformHandler->getUniformCStr(scale2_3Var)
                                       : "float4(0)",
-                _outer.intervalCount(), args.fUniformHandler->getUniformCStr(fThresholds1_7Var),
-                fScale4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale4_5Var)
-                                       : "float4(0)",
-                fBias4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias4_5Var)
+                bias2_3Var.isValid() ? args.fUniformHandler->getUniformCStr(bias2_3Var)
+                                     : "float4(0)",
+                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds1_7Var),
+                scale4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(scale4_5Var)
                                       : "float4(0)",
-                fScale6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale6_7Var)
-                                       : "float4(0)",
-                fBias6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias6_7Var)
+                bias4_5Var.isValid() ? args.fUniformHandler->getUniformCStr(bias4_5Var)
+                                     : "float4(0)",
+                scale6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(scale6_7Var)
                                       : "float4(0)",
-                _outer.intervalCount(), args.fUniformHandler->getUniformCStr(fThresholds9_13Var),
-                _outer.intervalCount());
+                bias6_7Var.isValid() ? args.fUniformHandler->getUniformCStr(bias6_7Var)
+                                     : "float4(0)",
+                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                _outer.intervalCount);
         fragBuilder->codeAppendf(
                 " %s.x) {\n            scale = %s;\n            bias = %s;\n        } else {\n     "
                 "       scale = %s;\n            bias = %s;\n        }\n    } else {\n        if "
                 "(%d <= 7 || t < %s.z) {\n            scale = %s;\n            bias = %s;\n        "
                 "} else {\n            scale = %s;\n            bias = %s;\n        }\n    "
                 "}\n}\n%s = half4(float(t) * scale + bias);\n",
-                args.fUniformHandler->getUniformCStr(fThresholds9_13Var),
-                fScale8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale8_9Var)
-                                       : "float4(0)",
-                fBias8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias8_9Var)
+                args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                scale8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(scale8_9Var)
                                       : "float4(0)",
-                fScale10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale10_11Var)
-                                         : "float4(0)",
-                fBias10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias10_11Var)
+                bias8_9Var.isValid() ? args.fUniformHandler->getUniformCStr(bias8_9Var)
+                                     : "float4(0)",
+                scale10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(scale10_11Var)
                                         : "float4(0)",
-                _outer.intervalCount(), args.fUniformHandler->getUniformCStr(fThresholds9_13Var),
-                fScale12_13Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale12_13Var)
-                                         : "float4(0)",
-                fBias12_13Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias12_13Var)
+                bias10_11Var.isValid() ? args.fUniformHandler->getUniformCStr(bias10_11Var)
+                                       : "float4(0)",
+                _outer.intervalCount, args.fUniformHandler->getUniformCStr(thresholds9_13Var),
+                scale12_13Var.isValid() ? args.fUniformHandler->getUniformCStr(scale12_13Var)
                                         : "float4(0)",
-                fScale14_15Var.isValid() ? args.fUniformHandler->getUniformCStr(fScale14_15Var)
-                                         : "float4(0)",
-                fBias14_15Var.isValid() ? args.fUniformHandler->getUniformCStr(fBias14_15Var)
+                bias12_13Var.isValid() ? args.fUniformHandler->getUniformCStr(bias12_13Var)
+                                       : "float4(0)",
+                scale14_15Var.isValid() ? args.fUniformHandler->getUniformCStr(scale14_15Var)
                                         : "float4(0)",
+                bias14_15Var.isValid() ? args.fUniformHandler->getUniformCStr(bias14_15Var)
+                                       : "float4(0)",
                 args.fOutputColor);
     }
 
@@ -187,128 +187,128 @@ private:
         const GrUnrolledBinaryGradientColorizer& _outer =
                 _proc.cast<GrUnrolledBinaryGradientColorizer>();
         {
-            pdman.set4fv(fScale0_1Var, 1, (_outer.scale0_1()).vec());
-            if (fScale2_3Var.isValid()) {
-                pdman.set4fv(fScale2_3Var, 1, (_outer.scale2_3()).vec());
+            pdman.set4fv(scale0_1Var, 1, (_outer.scale0_1).vec());
+            if (scale2_3Var.isValid()) {
+                pdman.set4fv(scale2_3Var, 1, (_outer.scale2_3).vec());
             }
-            if (fScale4_5Var.isValid()) {
-                pdman.set4fv(fScale4_5Var, 1, (_outer.scale4_5()).vec());
+            if (scale4_5Var.isValid()) {
+                pdman.set4fv(scale4_5Var, 1, (_outer.scale4_5).vec());
             }
-            if (fScale6_7Var.isValid()) {
-                pdman.set4fv(fScale6_7Var, 1, (_outer.scale6_7()).vec());
+            if (scale6_7Var.isValid()) {
+                pdman.set4fv(scale6_7Var, 1, (_outer.scale6_7).vec());
             }
-            if (fScale8_9Var.isValid()) {
-                pdman.set4fv(fScale8_9Var, 1, (_outer.scale8_9()).vec());
+            if (scale8_9Var.isValid()) {
+                pdman.set4fv(scale8_9Var, 1, (_outer.scale8_9).vec());
             }
-            if (fScale10_11Var.isValid()) {
-                pdman.set4fv(fScale10_11Var, 1, (_outer.scale10_11()).vec());
+            if (scale10_11Var.isValid()) {
+                pdman.set4fv(scale10_11Var, 1, (_outer.scale10_11).vec());
             }
-            if (fScale12_13Var.isValid()) {
-                pdman.set4fv(fScale12_13Var, 1, (_outer.scale12_13()).vec());
+            if (scale12_13Var.isValid()) {
+                pdman.set4fv(scale12_13Var, 1, (_outer.scale12_13).vec());
             }
-            if (fScale14_15Var.isValid()) {
-                pdman.set4fv(fScale14_15Var, 1, (_outer.scale14_15()).vec());
+            if (scale14_15Var.isValid()) {
+                pdman.set4fv(scale14_15Var, 1, (_outer.scale14_15).vec());
             }
-            pdman.set4fv(fBias0_1Var, 1, (_outer.bias0_1()).vec());
-            if (fBias2_3Var.isValid()) {
-                pdman.set4fv(fBias2_3Var, 1, (_outer.bias2_3()).vec());
+            pdman.set4fv(bias0_1Var, 1, (_outer.bias0_1).vec());
+            if (bias2_3Var.isValid()) {
+                pdman.set4fv(bias2_3Var, 1, (_outer.bias2_3).vec());
             }
-            if (fBias4_5Var.isValid()) {
-                pdman.set4fv(fBias4_5Var, 1, (_outer.bias4_5()).vec());
+            if (bias4_5Var.isValid()) {
+                pdman.set4fv(bias4_5Var, 1, (_outer.bias4_5).vec());
             }
-            if (fBias6_7Var.isValid()) {
-                pdman.set4fv(fBias6_7Var, 1, (_outer.bias6_7()).vec());
+            if (bias6_7Var.isValid()) {
+                pdman.set4fv(bias6_7Var, 1, (_outer.bias6_7).vec());
             }
-            if (fBias8_9Var.isValid()) {
-                pdman.set4fv(fBias8_9Var, 1, (_outer.bias8_9()).vec());
+            if (bias8_9Var.isValid()) {
+                pdman.set4fv(bias8_9Var, 1, (_outer.bias8_9).vec());
             }
-            if (fBias10_11Var.isValid()) {
-                pdman.set4fv(fBias10_11Var, 1, (_outer.bias10_11()).vec());
+            if (bias10_11Var.isValid()) {
+                pdman.set4fv(bias10_11Var, 1, (_outer.bias10_11).vec());
             }
-            if (fBias12_13Var.isValid()) {
-                pdman.set4fv(fBias12_13Var, 1, (_outer.bias12_13()).vec());
+            if (bias12_13Var.isValid()) {
+                pdman.set4fv(bias12_13Var, 1, (_outer.bias12_13).vec());
             }
-            if (fBias14_15Var.isValid()) {
-                pdman.set4fv(fBias14_15Var, 1, (_outer.bias14_15()).vec());
+            if (bias14_15Var.isValid()) {
+                pdman.set4fv(bias14_15Var, 1, (_outer.bias14_15).vec());
             }
-            pdman.set4fv(fThresholds1_7Var, 1,
-                         reinterpret_cast<const float*>(&(_outer.thresholds1_7())));
-            pdman.set4fv(fThresholds9_13Var, 1,
-                         reinterpret_cast<const float*>(&(_outer.thresholds9_13())));
+            pdman.set4fv(thresholds1_7Var, 1,
+                         reinterpret_cast<const float*>(&(_outer.thresholds1_7)));
+            pdman.set4fv(thresholds9_13Var, 1,
+                         reinterpret_cast<const float*>(&(_outer.thresholds9_13)));
         }
     }
-    UniformHandle fScale0_1Var;
-    UniformHandle fScale2_3Var;
-    UniformHandle fScale4_5Var;
-    UniformHandle fScale6_7Var;
-    UniformHandle fScale8_9Var;
-    UniformHandle fScale10_11Var;
-    UniformHandle fScale12_13Var;
-    UniformHandle fScale14_15Var;
-    UniformHandle fBias0_1Var;
-    UniformHandle fBias2_3Var;
-    UniformHandle fBias4_5Var;
-    UniformHandle fBias6_7Var;
-    UniformHandle fBias8_9Var;
-    UniformHandle fBias10_11Var;
-    UniformHandle fBias12_13Var;
-    UniformHandle fBias14_15Var;
-    UniformHandle fThresholds1_7Var;
-    UniformHandle fThresholds9_13Var;
+    UniformHandle scale0_1Var;
+    UniformHandle scale2_3Var;
+    UniformHandle scale4_5Var;
+    UniformHandle scale6_7Var;
+    UniformHandle scale8_9Var;
+    UniformHandle scale10_11Var;
+    UniformHandle scale12_13Var;
+    UniformHandle scale14_15Var;
+    UniformHandle bias0_1Var;
+    UniformHandle bias2_3Var;
+    UniformHandle bias4_5Var;
+    UniformHandle bias6_7Var;
+    UniformHandle bias8_9Var;
+    UniformHandle bias10_11Var;
+    UniformHandle bias12_13Var;
+    UniformHandle bias14_15Var;
+    UniformHandle thresholds1_7Var;
+    UniformHandle thresholds9_13Var;
 };
 GrGLSLFragmentProcessor* GrUnrolledBinaryGradientColorizer::onCreateGLSLInstance() const {
     return new GrGLSLUnrolledBinaryGradientColorizer();
 }
 void GrUnrolledBinaryGradientColorizer::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fIntervalCount);
+    b->add32((int32_t)intervalCount);
 }
 bool GrUnrolledBinaryGradientColorizer::onIsEqual(const GrFragmentProcessor& other) const {
     const GrUnrolledBinaryGradientColorizer& that = other.cast<GrUnrolledBinaryGradientColorizer>();
     (void)that;
-    if (fIntervalCount != that.fIntervalCount) return false;
-    if (fScale0_1 != that.fScale0_1) return false;
-    if (fScale2_3 != that.fScale2_3) return false;
-    if (fScale4_5 != that.fScale4_5) return false;
-    if (fScale6_7 != that.fScale6_7) return false;
-    if (fScale8_9 != that.fScale8_9) return false;
-    if (fScale10_11 != that.fScale10_11) return false;
-    if (fScale12_13 != that.fScale12_13) return false;
-    if (fScale14_15 != that.fScale14_15) return false;
-    if (fBias0_1 != that.fBias0_1) return false;
-    if (fBias2_3 != that.fBias2_3) return false;
-    if (fBias4_5 != that.fBias4_5) return false;
-    if (fBias6_7 != that.fBias6_7) return false;
-    if (fBias8_9 != that.fBias8_9) return false;
-    if (fBias10_11 != that.fBias10_11) return false;
-    if (fBias12_13 != that.fBias12_13) return false;
-    if (fBias14_15 != that.fBias14_15) return false;
-    if (fThresholds1_7 != that.fThresholds1_7) return false;
-    if (fThresholds9_13 != that.fThresholds9_13) return false;
+    if (intervalCount != that.intervalCount) return false;
+    if (scale0_1 != that.scale0_1) return false;
+    if (scale2_3 != that.scale2_3) return false;
+    if (scale4_5 != that.scale4_5) return false;
+    if (scale6_7 != that.scale6_7) return false;
+    if (scale8_9 != that.scale8_9) return false;
+    if (scale10_11 != that.scale10_11) return false;
+    if (scale12_13 != that.scale12_13) return false;
+    if (scale14_15 != that.scale14_15) return false;
+    if (bias0_1 != that.bias0_1) return false;
+    if (bias2_3 != that.bias2_3) return false;
+    if (bias4_5 != that.bias4_5) return false;
+    if (bias6_7 != that.bias6_7) return false;
+    if (bias8_9 != that.bias8_9) return false;
+    if (bias10_11 != that.bias10_11) return false;
+    if (bias12_13 != that.bias12_13) return false;
+    if (bias14_15 != that.bias14_15) return false;
+    if (thresholds1_7 != that.thresholds1_7) return false;
+    if (thresholds9_13 != that.thresholds9_13) return false;
     return true;
 }
 GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
         const GrUnrolledBinaryGradientColorizer& src)
         : INHERITED(kGrUnrolledBinaryGradientColorizer_ClassID, src.optimizationFlags())
-        , fIntervalCount(src.fIntervalCount)
-        , fScale0_1(src.fScale0_1)
-        , fScale2_3(src.fScale2_3)
-        , fScale4_5(src.fScale4_5)
-        , fScale6_7(src.fScale6_7)
-        , fScale8_9(src.fScale8_9)
-        , fScale10_11(src.fScale10_11)
-        , fScale12_13(src.fScale12_13)
-        , fScale14_15(src.fScale14_15)
-        , fBias0_1(src.fBias0_1)
-        , fBias2_3(src.fBias2_3)
-        , fBias4_5(src.fBias4_5)
-        , fBias6_7(src.fBias6_7)
-        , fBias8_9(src.fBias8_9)
-        , fBias10_11(src.fBias10_11)
-        , fBias12_13(src.fBias12_13)
-        , fBias14_15(src.fBias14_15)
-        , fThresholds1_7(src.fThresholds1_7)
-        , fThresholds9_13(src.fThresholds9_13) {}
+        , intervalCount(src.intervalCount)
+        , scale0_1(src.scale0_1)
+        , scale2_3(src.scale2_3)
+        , scale4_5(src.scale4_5)
+        , scale6_7(src.scale6_7)
+        , scale8_9(src.scale8_9)
+        , scale10_11(src.scale10_11)
+        , scale12_13(src.scale12_13)
+        , scale14_15(src.scale14_15)
+        , bias0_1(src.bias0_1)
+        , bias2_3(src.bias2_3)
+        , bias4_5(src.bias4_5)
+        , bias6_7(src.bias6_7)
+        , bias8_9(src.bias8_9)
+        , bias10_11(src.bias10_11)
+        , bias12_13(src.bias12_13)
+        , bias14_15(src.bias14_15)
+        , thresholds1_7(src.thresholds1_7)
+        , thresholds9_13(src.thresholds9_13) {}
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrUnrolledBinaryGradientColorizer(*this));
 }
