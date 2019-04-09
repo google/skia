@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3dbd2b0_e5f14240",
+        "filename": "experimental/wasm-skp-debugger/externs.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-09T11:06:34Z",
+      "side": 1,
+      "message": "I\u0027m pretty sure you don\u0027t need most of these .prototype externs\n\nNowhere in your JS do I see DebuggerView.SkpDebugPlayer.prototype.loadSkp \u003d [something],\nso this extern won\u0027t ever be used.\n\nloadSKP is defined in your bindings.cpp, so you having it on line 33 should be sufficient.\n\nIf this is not the case, then *I* have a big misunderstanding of externs.",
+      "revId": "eaf231684bfacd95d4ad4ecefaf66d255015b29d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
