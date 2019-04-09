@@ -22,7 +22,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRadialGradientLayout& _outer = args.fFp.cast<GrRadialGradientLayout>();
         (void)_outer;
-        auto gradientMatrix = _outer.gradientMatrix();
+        auto gradientMatrix = _outer.gradientMatrix;
         (void)gradientMatrix;
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf("half t = half(length(%s));\n%s = half4(t, 1.0, 0.0, 0.0);\n",
@@ -41,13 +41,13 @@ void GrRadialGradientLayout::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrRadialGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRadialGradientLayout& that = other.cast<GrRadialGradientLayout>();
     (void)that;
-    if (fGradientMatrix != that.fGradientMatrix) return false;
+    if (gradientMatrix != that.gradientMatrix) return false;
     return true;
 }
 GrRadialGradientLayout::GrRadialGradientLayout(const GrRadialGradientLayout& src)
         : INHERITED(kGrRadialGradientLayout_ClassID, src.optimizationFlags())
-        , fGradientMatrix(src.fGradientMatrix)
-        , fCoordTransform0(src.fCoordTransform0) {
+        , fCoordTransform0(src.fCoordTransform0)
+        , gradientMatrix(src.gradientMatrix) {
     this->addCoordTransform(&fCoordTransform0);
 }
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::clone() const {

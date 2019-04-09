@@ -22,12 +22,12 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrAARectEffect& _outer = args.fFp.cast<GrAARectEffect>();
         (void)_outer;
-        auto edgeType = _outer.edgeType();
+        auto edgeType = _outer.edgeType;
         (void)edgeType;
-        auto rect = _outer.rect();
+        auto rect = _outer.rect;
         (void)rect;
         prevRect = float4(-1.0);
-        fRectUniformVar = args.fUniformHandler->addUniform(
+        rectUniformVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat4_GrSLType, "rectUniform");
         fragBuilder->codeAppendf(
                 "float4 prevRect = float4(%f, %f, %f, %f);\nhalf alpha;\n@switch (%d) {\n    case "
@@ -41,18 +41,18 @@ public:
                 prevRect.top(),
                 prevRect.right(),
                 prevRect.bottom(),
-                (int)_outer.edgeType(),
-                args.fUniformHandler->getUniformCStr(fRectUniformVar),
-                args.fUniformHandler->getUniformCStr(fRectUniformVar),
-                args.fUniformHandler->getUniformCStr(fRectUniformVar),
-                args.fUniformHandler->getUniformCStr(fRectUniformVar),
-                args.fUniformHandler->getUniformCStr(fRectUniformVar),
-                args.fUniformHandler->getUniformCStr(fRectUniformVar));
+                (int)_outer.edgeType,
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                args.fUniformHandler->getUniformCStr(rectUniformVar),
+                args.fUniformHandler->getUniformCStr(rectUniformVar));
         fragBuilder->codeAppendf(
                 "max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n}\n@if (%d == 2 || %d == 3) {\n    "
                 "alpha = 1.0 - alpha;\n}\n%s = %s * alpha;\n",
-                (int)_outer.edgeType(),
-                (int)_outer.edgeType(),
+                (int)_outer.edgeType,
+                (int)_outer.edgeType,
                 args.fOutputColor,
                 args.fInputColor);
     }
@@ -61,11 +61,11 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrAARectEffect& _outer = _proc.cast<GrAARectEffect>();
-        auto edgeType = _outer.edgeType();
+        auto edgeType = _outer.edgeType;
         (void)edgeType;
-        auto rect = _outer.rect();
+        auto rect = _outer.rect;
         (void)rect;
-        UniformHandle& rectUniform = fRectUniformVar;
+        UniformHandle& rectUniform = rectUniformVar;
         (void)rectUniform;
 
         const SkRect& newRect = GrProcessorEdgeTypeIsAA(edgeType) ? rect.makeInset(.5f, .5f) : rect;
@@ -75,26 +75,26 @@ private:
         }
     }
     SkRect prevRect = float4(0);
-    UniformHandle fRectUniformVar;
+    UniformHandle rectUniformVar;
 };
 GrGLSLFragmentProcessor* GrAARectEffect::onCreateGLSLInstance() const {
     return new GrGLSLAARectEffect();
 }
 void GrAARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {
-    b->add32((int32_t)fEdgeType);
+    b->add32((int32_t)edgeType);
 }
 bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAARectEffect& that = other.cast<GrAARectEffect>();
     (void)that;
-    if (fEdgeType != that.fEdgeType) return false;
-    if (fRect != that.fRect) return false;
+    if (edgeType != that.edgeType) return false;
+    if (rect != that.rect) return false;
     return true;
 }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
         : INHERITED(kGrAARectEffect_ClassID, src.optimizationFlags())
-        , fEdgeType(src.fEdgeType)
-        , fRect(src.fRect) {}
+        , edgeType(src.edgeType)
+        , rect(src.rect) {}
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAARectEffect(*this));
 }

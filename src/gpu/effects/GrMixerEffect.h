@@ -45,12 +45,9 @@ public:
                    c1 = (this->numChildProcessors() > 1)
                                 ? ConstantOutputForConstantInput(this->childProcessor(1), input)
                                 : input;
-        return {c0.fR + (c1.fR - c0.fR) * fWeight, c0.fG + (c1.fG - c0.fG) * fWeight,
-                c0.fB + (c1.fB - c0.fB) * fWeight, c0.fA + (c1.fA - c0.fA) * fWeight};
+        return {c0.fR + (c1.fR - c0.fR) * weight, c0.fG + (c1.fG - c0.fG) * weight,
+                c0.fB + (c1.fB - c0.fB) * weight, c0.fA + (c1.fA - c0.fA) * weight};
     }
-    int fp0_index() const { return fFp0_index; }
-    int fp1_index() const { return fFp1_index; }
-    float weight() const { return fWeight; }
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp0,
                                                      std::unique_ptr<GrFragmentProcessor>
                                                              fp1,
@@ -61,6 +58,9 @@ public:
     GrMixerEffect(const GrMixerEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MixerEffect"; }
+    int fp0_index = -1;
+    int fp1_index = -1;
+    float weight;
 
 private:
     GrMixerEffect(std::unique_ptr<GrFragmentProcessor> fp0,
@@ -68,12 +68,12 @@ private:
                           fp1,
                   float weight)
             : INHERITED(kGrMixerEffect_ClassID, (OptimizationFlags)OptFlags(fp0, fp1))
-            , fWeight(weight) {
+            , weight(weight) {
         SkASSERT(fp0);
-        fFp0_index = this->numChildProcessors();
+        fp0_index = this->numChildProcessors();
         this->registerChildProcessor(std::move(fp0));
         if (fp1) {
-            fFp1_index = this->numChildProcessors();
+            fp1_index = this->numChildProcessors();
             this->registerChildProcessor(std::move(fp1));
         }
     }
@@ -81,9 +81,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fFp0_index = -1;
-    int fFp1_index = -1;
-    float fWeight;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

@@ -22,27 +22,27 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRectBlurEffect& _outer = args.fFp.cast<GrRectBlurEffect>();
         (void)_outer;
-        auto rect = _outer.rect();
+        auto rect = _outer.rect;
         (void)rect;
-        auto sigma = _outer.sigma();
+        auto sigma = _outer.sigma;
         (void)sigma;
         highPrecision = ((((abs(rect.left()) > 16000.0 || abs(rect.top()) > 16000.0) ||
                            abs(rect.right()) > 16000.0) ||
                           abs(rect.bottom()) > 16000.0) ||
                          abs(rect.right() - rect.left()) > 16000.0) ||
                         abs(rect.bottom() - rect.top()) > 16000.0;
-        fRectVar =
+        rectVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType, "rect");
         if (!highPrecision) {
-            fProxyRectHalfVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                                 kHalf4_GrSLType, "proxyRectHalf");
+            proxyRectHalfVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                kHalf4_GrSLType, "proxyRectHalf");
         }
         if (highPrecision) {
-            fProxyRectFloatVar = args.fUniformHandler->addUniform(
+            proxyRectFloatVar = args.fUniformHandler->addUniform(
                     kFragment_GrShaderFlag, kFloat4_GrSLType, "proxyRectFloat");
         }
-        fProfileSizeVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                           "profileSize");
+        profileSizeVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                          "profileSize");
         fragBuilder->codeAppendf(
                 "/* key */ bool highPrecision = %s;\n@if (highPrecision) {\n    float2 "
                 "translatedPos = sk_FragCoord.xy - %s.xy;\n    float width = %s.z - %s.x;\n    "
@@ -51,15 +51,15 @@ public:
                 "1.0);\n    float2 wh = smallDims - float2(center, center);\n    half hcoord = "
                 "half((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / float(%s));\n    half "
                 "hlookup = texture(%s, float2(float(hcoord), 0.5)).",
-                (highPrecision ? "true" : "false"), args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                (highPrecision ? "true" : "false"), args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str());
         fragBuilder->codeAppendf(
                 "%s.w;\n    half vcoord = half((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) "
@@ -70,27 +70,27 @@ public:
                 "%s);\n    half center = 2.0 * floor(%s / 2.0 + 0.25) - 1.0;\n    half2 wh = "
                 "smallDims - half2(center, center);\n    half ",
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fRectVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar));
+                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(rectVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar));
         fragBuilder->codeAppendf(
                 "hcoord = (abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x) / %s;\n    half "
                 "hlookup = texture(%s, float2(float(hcoord), 0.5)).%s.w;\n    half vcoord = "
                 "(abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y) / %s;\n    half vlookup = "
                 "texture(%s, float2(float(vcoord), 0.5)).%s.w;\n    %s = (%s * hlookup) * "
                 "vlookup;\n}\n",
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fUniformHandler->getUniformCStr(fProfileSizeVar),
+                args.fUniformHandler->getUniformCStr(profileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fOutputColor, args.fInputColor);
@@ -100,28 +100,28 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
-        { pdman.set4fv(fRectVar, 1, reinterpret_cast<const float*>(&(_outer.rect()))); }
-        UniformHandle& rect = fRectVar;
+        { pdman.set4fv(rectVar, 1, reinterpret_cast<const float*>(&(_outer.rect))); }
+        UniformHandle& rect = rectVar;
         (void)rect;
-        auto sigma = _outer.sigma();
+        auto sigma = _outer.sigma;
         (void)sigma;
         GrSurfaceProxy& blurProfileProxy = *_outer.textureSampler(0).proxy();
         GrTexture& blurProfile = *blurProfileProxy.peekTexture();
         (void)blurProfile;
-        UniformHandle& proxyRectHalf = fProxyRectHalfVar;
+        UniformHandle& proxyRectHalf = proxyRectHalfVar;
         (void)proxyRectHalf;
-        UniformHandle& proxyRectFloat = fProxyRectFloatVar;
+        UniformHandle& proxyRectFloat = proxyRectFloatVar;
         (void)proxyRectFloat;
-        UniformHandle& profileSize = fProfileSizeVar;
+        UniformHandle& profileSize = profileSizeVar;
         (void)profileSize;
 
         pdman.set1f(profileSize, SkScalarCeilToScalar(6 * sigma));
     }
     bool highPrecision = false;
-    UniformHandle fProxyRectHalfVar;
-    UniformHandle fProxyRectFloatVar;
-    UniformHandle fProfileSizeVar;
-    UniformHandle fRectVar;
+    UniformHandle proxyRectHalfVar;
+    UniformHandle proxyRectFloatVar;
+    UniformHandle profileSizeVar;
+    UniformHandle rectVar;
 };
 GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRectBlurEffect();
@@ -131,23 +131,23 @@ void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();
     (void)that;
-    if (fRect != that.fRect) return false;
-    if (fSigma != that.fSigma) return false;
-    if (fBlurProfile != that.fBlurProfile) return false;
+    if (rect != that.rect) return false;
+    if (sigma != that.sigma) return false;
+    if (blurProfile != that.blurProfile) return false;
     return true;
 }
 GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
-        , fRect(src.fRect)
-        , fSigma(src.fSigma)
-        , fBlurProfile(src.fBlurProfile) {
+        , rect(src.rect)
+        , sigma(src.sigma)
+        , blurProfile(src.blurProfile) {
     this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(*this));
 }
 const GrFragmentProcessor::TextureSampler& GrRectBlurEffect::onTextureSampler(int index) const {
-    return IthTextureSampler(index, fBlurProfile);
+    return IthTextureSampler(index, blurProfile);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 #if GR_TEST_UTILS

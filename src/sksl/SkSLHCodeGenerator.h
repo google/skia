@@ -42,7 +42,7 @@ public:
     static String AccessType(const Context& context, const Type& type, const Layout& layout);
 
     static String FieldName(const char* varName) {
-        return String::printf("f%c%s", toupper(varName[0]), varName + 1);
+        return String(varName);
     }
 
     static String CoordTransformName(const String& arg, int index) {
