@@ -22,10 +22,6 @@ class SkMixer;
 struct SkStageRec;
 class SkString;
 
-#ifndef SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
-#define SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
-#endif
-
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in
  *  a paint, they are called with the "src" colors, and return new colors, which
