@@ -98,51 +98,59 @@ static void exit_with_failure() {
     exit(1);
 }
 
+struct Result {
+    enum { Ok, Skip, Fail} status;
+    SkString               failure;
+};
+static const Result ok = {Result::Ok,   {}},
+                  skip = {Result::Skip, {}};
+
+template <typename... Args>
+static Result fail(const char* why, Args... args) {
+    return { Result::Fail, SkStringPrintf(why, args...) };
+}
+
+
 struct Source {
     SkString                               name;
     SkISize                                size;
-    std::function<void(GrContextOptions*)> tweak;
-    std::function<bool(SkCanvas*)>         draw;  // true -> ok, false -> skip;
-                                                  // failures should exit_with_failure()
+    std::function<Result(SkCanvas*)>       draw;
+    std::function<void(GrContextOptions*)> tweak = [](GrContextOptions*){};
 };
 
 static Source gm_source(std::shared_ptr<skiagm::GM> gm) {
     return {
-        SkString{gm->getName()},
-        gm->getISize(),
-        [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
-        [gm](SkCanvas* canvas) {
+        .name  = SkString{gm->getName()},
+        .size  = gm->getISize(),
+        .tweak = [gm](GrContextOptions* options) { gm->modifyGrContextOptions(options); },
+        .draw  = [gm](SkCanvas* canvas) {
             SkString err;
             switch (gm->draw(canvas, &err)) {
-                case skiagm::DrawResult::kOk:   return true;
-                case skiagm::DrawResult::kSkip: break;
-                case skiagm::DrawResult::kFail:
-                    fprintf(stderr, "Drawing GM %s failed: %s\n", gm->getName(), err.c_str());
-                    exit_with_failure();
+                case skiagm::DrawResult::kOk:   break;
+                case skiagm::DrawResult::kSkip: return skip;
+                case skiagm::DrawResult::kFail: return fail(err.c_str());
             }
-            return false;
+            return ok;
         },
     };
 }
 
 static Source picture_source(SkString name, sk_sp<SkPicture> pic) {
     return {
-        name,
-        pic->cullRect().roundOut().size(),
-        [](GrContextOptions*) {},
-        [pic](SkCanvas* canvas) {
+        .name = name,
+        .size = pic->cullRect().roundOut().size(),
+        .draw = [pic](SkCanvas* canvas) {
             canvas->drawPicture(pic);
-            return true;
+            return ok;
         },
     };
 }
 
 static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
     return {
-        name,
-        codec->dimensions(),
-        [](GrContextOptions*) {},
-        [codec](SkCanvas* canvas) {
+        .name = name,
+        .size = codec->dimensions(),
+        .draw = [codec](SkCanvas* canvas) {
             SkImageInfo info = codec->getInfo();
             if (FLAGS_decodeToDst) {
                 info = canvas->imageInfo().makeWH(info.width(),
@@ -151,41 +159,36 @@ static Source codec_source(SkString name, std::shared_ptr<SkCodec> codec) {
 
             SkBitmap bm;
             bm.allocPixels(info);
-
             switch (auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes())) {
                 case SkCodec::kSuccess:
                 case SkCodec::kErrorInInput:
                 case SkCodec::kIncompleteInput:
                     canvas->drawBitmap(bm, 0,0);
-                    return true;
-                default:
-                    fprintf(stderr, "SkCodec::getPixels failed: %d.", result);
-                    exit_with_failure();
+                    break;
+                default: return fail("codec->getPixels() failed: %d\n", result);
             }
-            return false;
+            return ok;
         },
     };
 }
 
 static Source svg_source(SkString name, sk_sp<SkSVGDOM> svg) {
     return {
-        name,
-        svg->containerSize().isEmpty() ? SkISize{1000,1000}
-                                       : svg->containerSize().toCeil(),
-        [](GrContextOptions*) {},
-        [svg](SkCanvas* canvas) {
+        .name = name,
+        .size = svg->containerSize().isEmpty() ? SkISize{1000,1000}
+                                               : svg->containerSize().toCeil(),
+        .draw = [svg](SkCanvas* canvas) {
             svg->render(canvas);
-            return true;
+            return ok;
         },
     };
 }
 
 static Source skottie_source(SkString name, sk_sp<skottie::Animation> animation) {
     return {
-        name,
-        {1000,1000},
-        [](GrContextOptions*) {},
-        [animation](SkCanvas* canvas) {
+        .name = name,
+        .size = {1000,1000},
+        .draw = [animation](SkCanvas* canvas) {
             canvas->clear(SK_ColorWHITE);
 
             // Draw frames in a shuffled order to exercise nonlinear frame progression.
@@ -209,7 +212,7 @@ static Source skottie_source(SkString name, sk_sp<skottie::Animation> animation)
                 animation->seek(t);
                 animation->render(canvas);
             }
-            return true;
+            return ok;
         },
     };
 }
@@ -509,6 +512,18 @@ int main(int argc, char** argv) {
         const SkImageInfo info = unsized_info.makeWH(source.size.width(),
                                                      source.size.height());
 
+        auto draw = [&source](SkCanvas* canvas) {
+            Result result = source.draw(canvas);
+            switch (result.status) {
+                case Result::Ok:   break;
+                case Result::Skip: return false;
+                case Result::Fail:
+                    fprintf(stderr, "%s failed: %s\n", source.name.c_str(), result.failure.c_str());
+                    exit_with_failure();
+            }
+            return true;
+        };
+
         GrContextOptions options = baseOptions;
         source.tweak(&options);
         GrContextFactory factory(options);  // N.B. factory must outlive image
@@ -518,19 +533,18 @@ int main(int argc, char** argv) {
         const char*    ext = ".png";
         switch (backend) {
             case kCPU_Backend:
-                image = draw_with_cpu(source.draw, info);
+                image = draw_with_cpu(draw, info);
                 break;
             case kSKP_Backend:
-                blob = draw_as_skp(source.draw, info);
+                blob = draw_as_skp(draw, info);
                 ext  = ".skp";
                 break;
             case kPDF_Backend:
-                blob = draw_as_pdf(source.draw, info, source.name);
+                blob = draw_as_pdf(draw, info, source.name);
                 ext  = ".pdf";
                 break;
             default:
-                image = draw_with_gpu(source.draw, info,
-                                      (GrContextFactory::ContextType)backend, &factory);
+                image = draw_with_gpu(draw, info, (GrContextFactory::ContextType)backend, &factory);
                 break;
         }
 
