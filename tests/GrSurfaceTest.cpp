@@ -33,7 +33,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = 1;
-    sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(
+        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
@@ -45,7 +46,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
-    sk_sp<GrTexture> tex1 = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrTexture> tex1 = resourceProvider->createTexture(
+        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
@@ -114,7 +116,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fConfig = config;
             desc.fSampleCnt = 1;
 
-            sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            sk_sp<GrSurface> tex = resourceProvider->createTexture(
+                desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
             bool ict = caps->isConfigTexturable(desc.fConfig);
             REPORTER_ASSERT(reporter, SkToBool(tex) == ict,
                             "config:%d, tex:%d, isConfigTexturable:%d", config, SkToBool(tex), ict);
@@ -131,14 +134,16 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                              caps->mipMapSupport()));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+                                                  GrResourceProvider::Flags::kNoPendingIO);
             bool isRenderable = caps->isConfigRenderable(config);
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
                             isRenderable);
 
             desc.fSampleCnt = 2;
-            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+                                                  GrResourceProvider::Flags::kNoPendingIO);
             isRenderable = SkToBool(caps->getRenderTargetSampleCount(2, config));
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                             "config:%d, tex:%d, isRenderable:%d", config, SkToBool(tex),
@@ -371,7 +376,8 @@ static sk_sp<GrTexture> make_normal_texture(GrContext* context, bool renderable)
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = desc.fHeight = 10;
     desc.fFlags = renderable ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-    return context->priv().resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+    return context->priv().resourceProvider()->createTexture(
+        desc, SkBudgeted::kNo, GrResourceProvider::Flags::kNoPendingIO);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {

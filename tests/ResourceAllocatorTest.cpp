@@ -317,9 +317,11 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     auto callback = [fit, desc](GrResourceProvider* resourceProvider) {
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
-            texture = resourceProvider->createApproxTexture(desc, GrResourceProvider::Flags::kNone);
+            texture = resourceProvider->createApproxTexture(
+                desc, GrResourceProvider::Flags::kNoPendingIO);
         } else {
-            texture = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            texture = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+                                                      GrResourceProvider::Flags::kNoPendingIO);
         }
         return GrSurfaceProxy::LazyInstantiationResult(std::move(texture));
     };
@@ -335,45 +337,43 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
     GrResourceCache* resourceCache = ctxInfo.grContext()->priv().getResourceCache();
-    for (auto explicitlyAllocating : {false, true}) {
-        resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(explicitlyAllocating);
-        ProxyParams texParams;
-        texParams.fFit = SkBackingFit::kExact;
-        texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
-        texParams.fColorType = kRGBA_8888_SkColorType;
-        texParams.fIsRT = false;
-        texParams.fSampleCnt = 1;
-        texParams.fSize = 100;
-        texParams.fBudgeted = SkBudgeted::kNo;
-        ProxyParams rtParams = texParams;
-        rtParams.fIsRT = true;
-        auto proxyProvider = context->priv().proxyProvider();
-        auto caps = context->priv().caps();
-        auto p0 = make_lazy(proxyProvider, caps, texParams, true);
-        auto p1 = make_lazy(proxyProvider, caps, texParams, false);
-        texParams.fFit = rtParams.fFit = SkBackingFit::kApprox;
-        auto p2 = make_lazy(proxyProvider, caps, rtParams, true);
-        auto p3 = make_lazy(proxyProvider, caps, rtParams, false);
+    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
+    ProxyParams texParams;
+    texParams.fFit = SkBackingFit::kExact;
+    texParams.fOrigin = kTopLeft_GrSurfaceOrigin;
+    texParams.fColorType = kRGBA_8888_SkColorType;
+    texParams.fIsRT = false;
+    texParams.fSampleCnt = 1;
+    texParams.fSize = 100;
+    texParams.fBudgeted = SkBudgeted::kNo;
+    ProxyParams rtParams = texParams;
+    rtParams.fIsRT = true;
+    auto proxyProvider = context->priv().proxyProvider();
+    auto caps = context->priv().caps();
+    auto p0 = make_lazy(proxyProvider, caps, texParams, true);
+    auto p1 = make_lazy(proxyProvider, caps, texParams, false);
+    texParams.fFit = rtParams.fFit = SkBackingFit::kApprox;
+    auto p2 = make_lazy(proxyProvider, caps, rtParams, true);
+    auto p3 = make_lazy(proxyProvider, caps, rtParams, false);
 
-        GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
-        {
-            GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
-            alloc.addInterval(p0.get(), 0, 1);
-            alloc.addInterval(p1.get(), 0, 1);
-            alloc.addInterval(p2.get(), 0, 1);
-            alloc.addInterval(p3.get(), 0, 1);
-            alloc.incOps();
-            alloc.markEndOfOpList(0);
-            int startIndex, stopIndex;
-            GrResourceAllocator::AssignError error;
-            alloc.assign(&startIndex, &stopIndex, &error);
-        }
-        deinstantiateTracker.deinstantiateAllProxies();
-        REPORTER_ASSERT(reporter, !p0->isInstantiated());
-        REPORTER_ASSERT(reporter, p1->isInstantiated());
-        REPORTER_ASSERT(reporter, !p2->isInstantiated());
-        REPORTER_ASSERT(reporter, p3->isInstantiated());
+    GrDeinstantiateProxyTracker deinstantiateTracker(resourceCache);
+    {
+        GrResourceAllocator alloc(resourceProvider, &deinstantiateTracker SkDEBUGCODE(, 1));
+        alloc.addInterval(p0.get(), 0, 1);
+        alloc.addInterval(p1.get(), 0, 1);
+        alloc.addInterval(p2.get(), 0, 1);
+        alloc.addInterval(p3.get(), 0, 1);
+        alloc.incOps();
+        alloc.markEndOfOpList(0);
+        int startIndex, stopIndex;
+        GrResourceAllocator::AssignError error;
+        alloc.assign(&startIndex, &stopIndex, &error);
     }
+    deinstantiateTracker.deinstantiateAllProxies();
+    REPORTER_ASSERT(reporter, !p0->isInstantiated());
+    REPORTER_ASSERT(reporter, p1->isInstantiated());
+    REPORTER_ASSERT(reporter, !p2->isInstantiated());
+    REPORTER_ASSERT(reporter, p3->isInstantiated());
 }
 
 // Set up so there are two opLists that need to be flushed but the resource allocator thinks
