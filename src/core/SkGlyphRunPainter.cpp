@@ -401,10 +401,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
         if (useSDFT) {
 
-            // Translate all glyphs to the origin.
-            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
-            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
-
             // Setup distance field runPaint and text ratio
             SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(runPaint);
             SkScalar cacheToSourceScale;
@@ -430,7 +426,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             int glyphCount = 0;
             const SkPoint* positionCursor = glyphRun.positions().data();
             for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint glyphSourcePosition = *positionCursor++;
+                SkPoint glyphSourcePosition = origin + *positionCursor++;
                 const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
 
                 if (glyph.isEmpty()) {
@@ -473,10 +469,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
         } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
 
-            // Translate all glyphs to the origin.
-            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
-            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
-
             // setup our std runPaint, in hopes of getting hits in the cache
             SkPaint pathPaint{runPaint};
             SkFont pathFont{runFont};
@@ -501,7 +493,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             int glyphCount = 0;
             const SkPoint* positionCursor = glyphRun.positions().data();
             for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint glyphSourcePosition = *positionCursor++;
+                SkPoint glyphSourcePosition = origin + *positionCursor++;
 
                 // Use outline from {0, 0} because all transforms including subpixel translation
                 // happen during drawing.
