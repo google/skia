@@ -316,10 +316,37 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMC
     invA += invA >> 7;
     SkASSERT(invA < 256);  // We've should have already handled alpha == 0 externally.
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    // The generic implementation computes (src*alpha + (color<<8) + 128) >> 8.
+    // Rewriting this as ((alpha * ((src<<8) + 0x80FF/alpha)) >> 16) + color
+    // can use _mm_mulhi to remove the final shift and _mm_unpack to remove the
+    // initial src shift/bias. This ultimately shaves off 2 insns from the inner
+    // loop. It returns the same results in all cases.
+    unsigned bias = 0x80FF / invA;
+    // Split up the bias so the low part can be cheaply interleaved.
+    __m128i biasLo = _mm_set1_epi8(bias & 0xFF);
+    __m128i biasHi = _mm_set1_epi8(bias >> 8);
+    __m128i invA8 = _mm_set1_epi16(invA);
+    __m128i color4 = _mm_set1_epi32(color);
+
+    Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
+        // Add the high bits of the bias.
+        __m128i srcBiasHi = _mm_add_epi8(src4.fVec, biasHi);
+        // Shift the source and interleave in the low bits of the bias.
+        __m128i lo = _mm_unpacklo_epi8(biasLo, srcBiasHi);
+        __m128i hi = _mm_unpackhi_epi8(biasLo, srcBiasHi);
+        // Multiply the biased source by the alpha, keeping only the high part.
+        lo = _mm_mulhi_epu16(lo, invA8);
+        hi = _mm_mulhi_epu16(hi, invA8);
+        // Narrow/combine the results and add the blended color.
+        return Sk4px(_mm_add_epi8(_mm_packus_epi16(lo, hi), color4));
+    });
+#else
     Sk16h colorHighAndRound = (Sk4px::DupPMColor(color).widen() << 8) + Sk16h(128);
     Sk16b invA_16x(invA);
 
     Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
         return (src4 * invA_16x).addNarrowHi(colorHighAndRound);
     });
+#endif
 }
