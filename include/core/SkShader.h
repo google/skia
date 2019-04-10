@@ -21,7 +21,6 @@ class SkBitmap;
 class SkColorFilter;
 class SkColorSpace;
 class SkImage;
-class SkMixer;
 class SkPath;
 class SkPicture;
 class SkRasterPipeline;
@@ -209,8 +208,6 @@ public:
      *  If weight is NaN then this returns nullptr, otherwise lerp is clamped to [0..1].
      */
     static sk_sp<SkShader> MakeLerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src);
-
-    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, sk_sp<SkMixer>);
 #endif
 
 #ifdef SK_SUPPORT_LEGACY_BITMAPSHADER_FACTORY
