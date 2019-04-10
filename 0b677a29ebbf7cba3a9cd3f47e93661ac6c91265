@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "617d039f_87c72a47",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-10T19:12:50Z",
+      "side": 1,
+      "message": "I\u0027m trying to emulate a client building a \"maximally useful\" Skia shared library (minus modules, which are more complex). I think this is the simplest way to approximate that?",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 227,
+        "endChar": 0
+      },
+      "revId": "0b677a29ebbf7cba3a9cd3f47e93661ac6c91265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
