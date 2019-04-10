@@ -8,6 +8,7 @@
 #ifndef SkBlitRow_opts_DEFINED
 #define SkBlitRow_opts_DEFINED
 
+#include "Sk4px.h"
 #include "SkColorData.h"
 #include "SkMSAN.h"
 
@@ -39,6 +40,20 @@
 #endif
 
 namespace SK_OPTS_NS {
+
+// Blend constant color over count src pixels, writing into dst.
+inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
+    unsigned invA = 255 - SkGetPackedA32(color);
+    invA += invA >> 7;
+    SkASSERT(0 < invA && invA < 256);  // We handle alpha == 0 or alpha == 255 specially.
+
+    Sk16h colorHighAndRound = (Sk4px::DupPMColor(color).widen() << 8) + Sk16h(128);
+    Sk16b invA_16x(invA);
+
+    Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
+        return (src4 * invA_16x).addNarrowHi(colorHighAndRound);
+    });
+}
 
 #if defined(SK_ARM_HAS_NEON)
 
