@@ -15,27 +15,11 @@ in uniform half      weight;
 
     static OptimizationFlags OptFlags(const std::unique_ptr<GrFragmentProcessor>& fp0,
                                       const std::unique_ptr<GrFragmentProcessor>& fp1) {
-        auto get_flags = [](const std::unique_ptr<GrFragmentProcessor>& fp) {
-            auto flags = kNone_OptimizationFlags;
-
-            if (fp->compatibleWithCoverageAsAlpha()) {
-                flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-            }
-
-            if (fp->preservesOpaqueInput()) {
-                flags |= kPreservesOpaqueInput_OptimizationFlag;
-            }
-
-            if (fp->hasConstantOutputForConstantInput()) {
-                flags |= kConstantOutputForConstantInput_OptimizationFlag;
-            }
-
-            return flags;
-        };
-
-        const auto fp0_flags = get_flags(fp0);
-
-        return fp1 ? (fp0_flags & get_flags(fp1)) : fp0_flags;
+        auto flags = ProcessorOptimizationFlags(fp0.get());
+        if (fp1) {
+            flags &= ProcessorOptimizationFlags(fp1.get());
+        }
+        return flags;
     }
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
