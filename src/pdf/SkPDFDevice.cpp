@@ -505,7 +505,9 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     if (!content) {
         return;
     }
-    this->addSMaskGraphicState(std::move(maskDevice), content.stream());
+    this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
+            maskDevice->makeFormXObjectFromDevice(dstMaskBounds, true), false,
+            SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), content.stream());
     SkPDFUtils::AppendRectangle(SkRect::Make(dstMaskBounds), content.stream());
     SkPDFUtils::PaintPath(SkPaint::kFill_Style, path.getFillType(), content.stream());
     this->clearMaskOnGraphicState(content.stream());
@@ -513,13 +515,6 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
 
 void SkPDFDevice::setGraphicState(SkPDFIndirectReference gs, SkDynamicMemoryWStream* content) {
     SkPDFUtils::ApplyGraphicState(add_resource(fGraphicStateResources, gs), content);
-}
-
-void SkPDFDevice::addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice,
-                                       SkDynamicMemoryWStream* contentStream) {
-    this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
-            maskDevice->makeFormXObjectFromDevice(true), false,
-            SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), contentStream);
 }
 
 void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream) {
@@ -1112,8 +1107,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     return true;
 }
 
-
-SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
+SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(SkIRect bounds, bool alpha) {
     SkMatrix inverseTransform = SkMatrix::I();
     if (!fInitialTransform.isIdentity()) {
         if (!fInitialTransform.invert(&inverseTransform)) {
@@ -1125,13 +1119,18 @@ SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
 
     SkPDFIndirectReference xobject =
         SkPDFMakeFormXObject(fDocument, this->content(),
-                             SkPDFMakeArray(0, 0, this->width(), this->height()),
+                             SkPDFMakeArray(bounds.left(), bounds.top(),
+                                            bounds.right(), bounds.bottom()),
                              this->makeResourceDict(), inverseTransform, colorSpace);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging
     // it back in later.
     this->reset();
     return xobject;
+}
+
+SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
+    return this->makeFormXObjectFromDevice(SkIRect{0, 0, this->width(), this->height()}, alpha);
 }
 
 void SkPDFDevice::drawFormXObjectWithMask(SkPDFIndirectReference xObject,
@@ -1540,17 +1539,16 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
         {
             SkCanvas canvas(maskDevice);
+            // This clip prevents the mask image shader from covering
+            // entire device if unnecessary.
+            canvas.clipRect(this->cs().bounds(this->bounds()));
+            canvas.concat(ctm);
             if (paint->getMaskFilter()) {
-                // This clip prevents the mask image shader from covering
-                // entire device if unnecessary.
-                canvas.clipRect(this->cs().bounds(this->bounds()));
-                canvas.concat(ctm);
                 SkPaint tmpPaint;
                 tmpPaint.setShader(mask->makeShader(&transform));
                 tmpPaint.setMaskFilter(sk_ref_sp(paint->getMaskFilter()));
                 canvas.drawRect(dst, tmpPaint);
             } else {
-                canvas.concat(ctm);
                 if (src && !is_integral(*src)) {
                     canvas.clipRect(dst);
                 }
@@ -1558,6 +1556,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                 canvas.drawImage(mask, 0, 0);
             }
         }
+        SkIRect maskDeviceBounds = maskDevice->cs().bounds(maskDevice->bounds()).roundOut();
         if (!ctm.isIdentity() && paint->getShader()) {
             transform_shader(paint.writable(), ctm); // Since we are using identity matrix.
         }
@@ -1565,7 +1564,9 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         if (!content) {
             return;
         }
-        this->addSMaskGraphicState(std::move(maskDevice), content.stream());
+        this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
+                maskDevice->makeFormXObjectFromDevice(maskDeviceBounds, true), false,
+                SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), content.stream());
         SkPDFUtils::AppendRectangle(SkRect::Make(this->size()), content.stream());
         SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kWinding_FillType, content.stream());
         this->clearMaskOnGraphicState(content.stream());
