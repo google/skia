@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "7d9d939b_6c4581a6",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-10T19:21:57Z",
+      "side": 1,
+      "message": "Do we also want to test MSVC?",
+      "range": {
+        "startLine": 114,
+        "startChar": 13,
+        "endLine": 114,
+        "endChar": 18
+      },
+      "revId": "ea15fd109f3873e6ce3be3b66e06d3b125a7e158",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1c73619_e75a3a2b",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 4
