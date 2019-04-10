@@ -112,7 +112,7 @@ DEF_TEST(SkVx, r) {
     REPORTER_ASSERT(r, all(  rcp(float2{2,3}) < float2{1.0f,0.5f}));
     REPORTER_ASSERT(r, all(rsqrt(float2{2,3}) < float2{1.0f,1.0f}));
 
-    REPORTER_ASSERT(r, all(cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
+    REPORTER_ASSERT(r, all(skvx::cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
 
     float buf[] = {1,2,3,4,5,6};
     REPORTER_ASSERT(r, all(float4::Load(buf) == float4{1,2,3,4}));
@@ -128,10 +128,11 @@ DEF_TEST(SkVx, r) {
 
     REPORTER_ASSERT(r, all(mad(float4{1,2,3,4}, 2.0f, 3.0f) == float4{5,7,9,11}));
 
-    REPORTER_ASSERT(r, all(shuffle<2,1,0,3>        (float4{1,2,3,4}) == float4{3,2,1,4}));
-    REPORTER_ASSERT(r, all(shuffle<2,1>            (float4{1,2,3,4}) == float2{3,2}));
-    REPORTER_ASSERT(r, all(shuffle<2,1,2,1,2,1,2,1>(float4{1,2,3,4}) == float8{3,2,3,2,3,2,3,2}));
-    REPORTER_ASSERT(r, all(shuffle<3,3,3,3>        (float4{1,2,3,4}) == float4{4,4,4,4}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<2,1,0,3>        (float4{1,2,3,4}) == float4{3,2,1,4}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<2,1>            (float4{1,2,3,4}) == float2{3,2}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<3,3,3,3>        (float4{1,2,3,4}) == float4{4,4,4,4}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<2,1,2,1,2,1,2,1>(float4{1,2,3,4})
+                           == float8{3,2,3,2,3,2,3,2}));
 
     // Test that mixed types can be used where they make sense.  Mostly about ergonomics.
     REPORTER_ASSERT(r, all(float4{1,2,3,4} < 5));

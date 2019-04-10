@@ -107,7 +107,6 @@ struct Vec<1,T> {
 #endif
 
 // Helps tamp down on the repetitive boilerplate.
-#define SI                                 static inline
 #define SIT   template <       typename T> static inline
 #define SINT  template <int N, typename T> static inline
 #define SINTU template <int N, typename T, typename U, \
@@ -115,7 +114,7 @@ struct Vec<1,T> {
               static inline
 
 template <typename D, typename S>
-SI D bit_pun(S s) {
+static inline D bit_pun(S s) {
     static_assert(sizeof(D) == sizeof(S), "");
     D d;
     memcpy(&d, &s, sizeof(D));
@@ -160,7 +159,7 @@ SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
 
         // For some reason some (new!) versions of GCC cannot seem to deduce N in the generic
         // to_vec<N,T>() below for N=4 and T=float.  This workaround seems to help...
-        SI Vec<4,float> to_vec(VExt<4,float> v) { return bit_pun<Vec<4,float>>(v); }
+        static inline Vec<4,float> to_vec(VExt<4,float> v) { return bit_pun<Vec<4,float>>(v); }
     #endif
 
     SINT VExt<N,T> to_vext(Vec<N,T> v) { return bit_pun<VExt<N,T>>(v); }
@@ -368,20 +367,14 @@ SINTU Vec<N,T>& operator|=(Vec<N,T>& x, U y) { return (x = x | Vec<N,T>(y)); }
 SINT Vec<N,T>& operator<<=(Vec<N,T>& x, int bits) { return (x = x << bits); }
 SINT Vec<N,T>& operator>>=(Vec<N,T>& x, int bits) { return (x = x >> bits); }
 
-}  // namespace skvx
-
-// These next few routines take extra template arguments that prevent
-// argument-dependent lookup.  They must live outside the skvx namespace,
-// but since they operate only on skvx::Vec, that shouldn't be a big deal.
-
 // cast() Vec<N,S> to Vec<N,D>, as if applying a C-cast to each lane.
 template <typename D, typename S>
-SI skvx::Vec<1,D> cast(skvx::Vec<1,S> src) { return (D)src.val; }
+static inline Vec<1,D> cast(Vec<1,S> src) { return (D)src.val; }
 
 template <typename D, int N, typename S>
-SI skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
+static inline Vec<N,D> cast(Vec<N,S> src) {
 #if !defined(SKNX_NO_SIMD) && defined(__clang__)
-    return skvx::to_vec(__builtin_convertvector(skvx::to_vext(src), skvx::VExt<N,D>));
+    return to_vec(__builtin_convertvector(to_vext(src), VExt<N,D>));
 #else
     return join(cast<D>(src.lo), cast<D>(src.hi));
 #endif
@@ -395,57 +388,62 @@ SI skvx::Vec<N,D> cast(skvx::Vec<N,S> src) {
 //    shuffle<3,3,3,3>        (rgba) ~> {A,A,A,A}
 // The only real restriction is that the output also be a legal N=power-of-two sknx::Vec.
 template <int... Ix, int N, typename T>
-SI skvx::Vec<sizeof...(Ix),T> shuffle(skvx::Vec<N,T> x) {
+static inline Vec<sizeof...(Ix),T> shuffle(Vec<N,T> x) {
     return { x[Ix]... };
 }
 
 #if !defined(SKNX_NO_SIMD)
-namespace skvx {
     // Platform-specific specializations and overloads can now drop in here.
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
-    SI Vec<4,float> sqrt(Vec<4,float> x) {
-        return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
-    }
-    SI Vec<4,float> rsqrt(Vec<4,float> x) {
-        return bit_pun<Vec<4,float>>(_mm_rsqrt_ps(bit_pun<__m128>(x)));
-    }
-    SI Vec<4,float> rcp(Vec<4,float> x) {
-        return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
-    }
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+        static inline Vec<4,float> sqrt(Vec<4,float> x) {
+            return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
+        }
+        static inline Vec<4,float> rsqrt(Vec<4,float> x) {
+            return bit_pun<Vec<4,float>>(_mm_rsqrt_ps(bit_pun<__m128>(x)));
+        }
+        static inline Vec<4,float> rcp(Vec<4,float> x) {
+            return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
+        }
 
-    SI Vec<2,float>  sqrt(Vec<2,float> x) { return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x))); }
-    SI Vec<2,float> rsqrt(Vec<2,float> x) { return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x))); }
-    SI Vec<2,float>   rcp(Vec<2,float> x) { return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x))); }
-#endif
+        static inline Vec<2,float>  sqrt(Vec<2,float> x) {
+            return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x)));
+        }
+        static inline Vec<2,float> rsqrt(Vec<2,float> x) {
+            return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x)));
+        }
+        static inline Vec<2,float>   rcp(Vec<2,float> x) {
+            return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x)));
+        }
+    #endif
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
-    SI Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
-        return bit_pun<Vec<4,float>>(_mm_blendv_ps(bit_pun<__m128>(e),
-                                                   bit_pun<__m128>(t),
-                                                   bit_pun<__m128>(c)));
-    }
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
-    SI Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
-        return bit_pun<Vec<4,float>>(_mm_or_ps(_mm_and_ps   (bit_pun<__m128>(c),
-                                                             bit_pun<__m128>(t)),
-                                               _mm_andnot_ps(bit_pun<__m128>(c),
-                                                             bit_pun<__m128>(e))));
-    }
-#elif defined(SK_ARM_HAS_NEON)
-    SI Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
-        return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
-                                               bit_pun<float32x4_t>(t),
-                                               bit_pun<float32x4_t>(e)));
-    }
-#endif
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        static inline Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+            return bit_pun<Vec<4,float>>(_mm_blendv_ps(bit_pun<__m128>(e),
+                                                       bit_pun<__m128>(t),
+                                                       bit_pun<__m128>(c)));
+        }
+    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+        static inline Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+            return bit_pun<Vec<4,float>>(_mm_or_ps(_mm_and_ps   (bit_pun<__m128>(c),
+                                                                 bit_pun<__m128>(t)),
+                                                   _mm_andnot_ps(bit_pun<__m128>(c),
+                                                                 bit_pun<__m128>(e))));
+        }
+    #elif defined(SK_ARM_HAS_NEON)
+        static inline Vec<4,float> if_then_else(Vec<4,int> c, Vec<4,float> t, Vec<4,float> e) {
+            return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
+                                                   bit_pun<float32x4_t>(t),
+                                                   bit_pun<float32x4_t>(e)));
+        }
+    #endif
+
+#endif  // !defined(SKNX_NO_SIMD)
 
 }  // namespace skvx
-#endif  // !defined(SKNX_NO_SIMD)
 
 #undef SINTU
 #undef SINT
 #undef SIT
-#undef SI
 
 #endif//SKVX_DEFINED
