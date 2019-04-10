@@ -372,3 +372,15 @@ void SkPDFUtils::Base85Encode(std::unique_ptr<SkStreamAsset> stream, SkDynamicMe
     }
 }
 #endif //  SK_PDF_BASE85_BINARY
+
+void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
+    SkScalar values[6];
+    if (!matrix.asAffine(values)) {
+        SkMatrix::SetAffineIdentity(values);
+    }
+    for (SkScalar v : values) {
+        SkPDFUtils::AppendScalar(v, content);
+        content->writeText(" ");
+    }
+    content->writeText("cm\n");
+}

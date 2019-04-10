@@ -131,6 +131,7 @@ bool ToBitmap(const SkImage* img, SkBitmap* dst);
 void Base85Encode(std::unique_ptr<SkStreamAsset> src, SkDynamicMemoryWStream* dst);
 #endif //  SK_PDF_BASE85_BINARY
 
+void AppendTransform(const SkMatrix&, SkWStream*);
 }  // namespace SkPDFUtils
 
 #endif
