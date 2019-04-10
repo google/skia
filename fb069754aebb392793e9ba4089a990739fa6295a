@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c95be0bc_d1e00728",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-10T22:46:47Z",
+      "side": 1,
+      "message": "why an int? seems like this should still be a size_t?",
+      "range": {
+        "startLine": 619,
+        "startChar": 4,
+        "endLine": 619,
+        "endChar": 7
+      },
+      "revId": "fb069754aebb392793e9ba4089a990739fa6295a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4171b3f7_d8d5acfe",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-10T22:46:47Z",
+      "side": 1,
+      "message": "Can this \u0027else\u0027 case be commented or asserted somehow?",
+      "revId": "fb069754aebb392793e9ba4089a990739fa6295a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
