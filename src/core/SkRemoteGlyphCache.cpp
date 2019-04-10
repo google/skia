@@ -609,10 +609,14 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 
 
 // This version of glyphMetrics only adds entries to result if their data need to be sent to the
-// GPU process.
-SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics(
-        const SkGlyphID glyphIDs[], const SkPoint positions[], size_t n, SkGlyphPos result[]) {
-
+// GPU process. As a result, empty glyphs will be sent so that the GPU code can lookup the glyph
+// and detect that it is empty.
+SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::prepareForDrawing(
+        const SkGlyphID glyphIDs[],
+        const SkPoint positions[],
+        size_t n,
+        int maxDimension,
+        SkGlyphPos results[]) {
     size_t glyphsToSendCount = 0;
     for (size_t i = 0; i < n; i++) {
         SkPoint glyphPos = positions[i];
@@ -633,15 +637,40 @@ SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics(
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
 
-            result[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+            if (glyphPtr->maxDimension() <= maxDimension) {
+
+                // The mask/SDF will fit in the cache.
+                // TODO: no need to do this once code base converted over to bulk.
+                results[glyphsToSendCount++] = {i, glyphPtr, glyphPos};
+            } else if (glyphPtr->fMaskFormat != SkMask::kARGB32_Format) {
+
+                // The glyph is too big for the atlas, but it is not color, so it is handled with a
+                // path.
+                if (glyphPtr->fPathData == nullptr) {
+
+                    // Never checked for a path before. Add the path now.
+                    auto path = const_cast<SkGlyph&>(*glyphPtr).addPath(fContext.get(), &fAlloc);
+                    if (path != nullptr) {
+
+                        // A path was added make sure to send it to the GPU.
+                        fCachedGlyphPaths.add(glyphPtr->getPackedID());
+                        fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
+                    }
+                }
+            } else {
+
+                // This will be handled by the fallback strike.
+                SkASSERT(glyphPtr->maxDimension() > maxDimension
+                         && glyphPtr->fMaskFormat == SkMask::kARGB32_Format);
+            }
 
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
             fCachedGlyphImages.add(packedGlyphID);
             fPendingGlyphImages.push_back(packedGlyphID);
         }
-    }
 
-    return SkSpan<const SkGlyphPos>{result, glyphsToSendCount};
+    }
+    return SkSpan<const SkGlyphPos>(results, glyphsToSendCount);
 }
 
 // SkStrikeClient -----------------------------------------

@@ -233,17 +233,34 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
-SkSpan<const SkGlyphPos> SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
-                                                const SkPoint positions[],
-                                                size_t n,
-                                                SkGlyphPos result[]) {
+SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
+                                                     const SkPoint positions[],
+                                                     size_t n,
+                                                     int maxDimension,
+                                                     SkGlyphPos result[]) {
     size_t drawableGlyphCount = 0;
     for (size_t i = 0; i < n; i++) {
-        SkPoint glyphPos = positions[i];
-        if (SkScalarsAreFinite(glyphPos.x(), glyphPos.y())) {
-            const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], glyphPos);
+        SkPoint position = positions[i];
+        if (SkScalarsAreFinite(position.x(), position.y())) {
+            // This assumes that the strike has no sub-pixel positioning for glyphs that are
+            // transformed from source space to device space.
+            const SkGlyph& glyph = this->getGlyphMetrics(glyphIDs[i], position);
             if (!glyph.isEmpty()) {
-                result[drawableGlyphCount++] = {i, &glyph, glyphPos};
+                result[drawableGlyphCount++] = {i, &glyph, position};
+                if (glyph.maxDimension() <= maxDimension) {
+
+                    // Glyph fits in the atlas, good to go.
+                    this->findImage(glyph);
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+
+                    // The out of atlas glyph is not color so we can draw it using paths.
+                    this->findPath(glyph);
+                } else {
+
+                    // This will be handled by the fallback strike.
+                    SkASSERT(glyph.maxDimension() > maxDimension
+                             && glyph.fMaskFormat == SkMask::kARGB32_Format);
+                }
             }
         }
     }

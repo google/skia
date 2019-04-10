@@ -306,10 +306,13 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *runFont.getTypefaceOrDefault());
 
-        SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(fARGBGlyphsIDs.data(),
-                                                                     fARGBPositions.data(),
-                                                                     fARGBGlyphsIDs.size(),
-                                                                     fGlyphPos);
+        SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                fARGBGlyphsIDs.data(),
+                fARGBPositions.data(),
+                fARGBGlyphsIDs.size(),
+                SkStrikeCommon::kSkSideTooBigForAtlas,
+                fGlyphPos);
+
         if (process) {
             process->processDeviceFallback(glyphPosSpan, strike.get());
         }
@@ -552,13 +555,21 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.postTranslate(rounding.x(), rounding.y());
             mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
-            SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(
-                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), fGlyphPos);
+            // Lookup all the glyphs from the cache.
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(),
+                    fPositions,
+                    glyphRun.runSize(),
+                    SkStrikeCommon::kSkSideTooBigForAtlas,
+                    fGlyphPos);
 
+            // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.
             size_t glyphsWithMaskCount = 0;
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 const SkPoint position = glyphPos.position;
+
+                // Able to position glyph?
                 if (!SkScalarsAreFinite(position.x(), position.y())) {
                     continue;
                 }
