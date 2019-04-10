@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dac2aba_780d4d7e",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-10T14:41:19Z",
+      "side": 1,
+      "message": "I\u0027m not sure it\u0027s better to just put the floats in the key. From the CPU side we push four fp32 values to the API but in the shader it\u0027s a half4.",
+      "range": {
+        "startLine": 1128,
+        "startChar": 0,
+        "endLine": 1137,
+        "endChar": 83
+      },
+      "revId": "77213bfa11c74ae95bb5d91e1bdae887a8ef4bd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
