@@ -241,5 +241,5 @@ private:
     int32_t fOffset;
 };
 
-}  // namespace
+}  // namespace SkSL
 #endif
