@@ -1,4 +1,10 @@
+arcs_as_paths
 drawbitmaprect
 drawbitmaprect-imagerect
+etc1
+ovals_as_paths
 p3
+perlinnoise
+radial_gradient_precision
 skbug1719
+zero_length_paths_aa
