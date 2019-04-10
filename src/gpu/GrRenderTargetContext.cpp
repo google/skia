@@ -1235,11 +1235,11 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
         op = GrFillRRectOp::Make(
                 fContext, aaType, viewMatrix, rrect, *this->caps(), std::move(paint));
     }
-    if (!op) {
+    if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeRRectOp(
-                fContext, std::move(paint), aaType, viewMatrix, rrect, stroke,
-                this->caps()->shaderCaps());
+                fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
+
     }
     if (op) {
         this->addDrawOp(*clip, std::move(op));
@@ -1470,7 +1470,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         return false;
     }
 
-    if (SkRRectPriv::IsCircle(*inner) && SkRRectPriv::IsCircle(*outer)) {
+    if (GrAAType::kCoverage == aaType && SkRRectPriv::IsCircle(*inner)
+                                      && SkRRectPriv::IsCircle(*outer)) {
         auto outerR = outer->width() / 2.f;
         auto innerR = inner->width() / 2.f;
         auto cx = outer->getBounds().fLeft + outerR;
@@ -1481,7 +1482,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             auto circleBounds = SkRect::MakeLTRB(cx - avgR, cy - avgR, cx + avgR, cy + avgR);
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             stroke.setStrokeStyle(outerR - innerR);
-            auto op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), aaType, viewMatrix,
+            auto op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix,
                                                   circleBounds, GrStyle(stroke, nullptr),
                                                   this->caps()->shaderCaps());
             if (op) {
@@ -1642,18 +1643,18 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         // inside the oval's inner diamond). Given these optimizations, it's a clear win to draw
         // ovals the exact same way we do round rects.
         //
-        // However, we still don't draw true circles as round rects, because it can cause perf
-        // regressions on some platforms as compared to the dedicated circle Op.
-        if (!SkScalarNearlyEqual(oval.height(), oval.width())) {
+        // However, we still don't draw true circles as round rects in coverage mode, because it can
+        // cause perf regressions on some platforms as compared to the dedicated circle Op.
+        if (GrAAType::kCoverage != aaType || oval.height() != oval.width()) {
             assert_alive(paint);
             op = GrFillRRectOp::Make(fContext, aaType, viewMatrix, SkRRect::MakeOval(oval),
                                      *this->caps(), std::move(paint));
         }
     }
-    if (!op) {
+    if (!op && GrAAType::kCoverage == aaType) {
         assert_alive(paint);
-        op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), aaType, viewMatrix, oval,
-                                         style, this->caps()->shaderCaps());
+        op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
+                                         this->caps()->shaderCaps());
     }
     if (op) {
         this->addDrawOp(clip, std::move(op));
@@ -1683,23 +1684,23 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(aa);
-    const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-    std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(fContext,
-                                                              std::move(paint),
-                                                              aaType,
-                                                              viewMatrix,
-                                                              oval,
-                                                              startAngle,
-                                                              sweepAngle,
-                                                              useCenter,
-                                                              style,
-                                                              shaderCaps);
-    if (op) {
-        this->addDrawOp(clip, std::move(op));
-        return;
+    if (GrAAType::kCoverage == aaType) {
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
+        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(fContext,
+                                                                  std::move(paint),
+                                                                  viewMatrix,
+                                                                  oval,
+                                                                  startAngle,
+                                                                  sweepAngle,
+                                                                  useCenter,
+                                                                  style,
+                                                                  shaderCaps);
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+            return;
+        }
+        assert_alive(paint);
     }
-    assert_alive(paint);
-
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
             GrShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
