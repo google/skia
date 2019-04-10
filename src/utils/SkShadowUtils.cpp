@@ -25,7 +25,7 @@
 #include <new>
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
-#include "effects/GrBlurredEdgeFragmentProcessor.h"
+#include "effects/generated/GrBlurredEdgeFragmentProcessor.h"
 #endif
 
 /**

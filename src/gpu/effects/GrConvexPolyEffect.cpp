@@ -7,8 +7,8 @@
 
 #include "GrConvexPolyEffect.h"
 #include "SkPathPriv.h"
-#include "effects/GrAARectEffect.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrAARectEffect.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

@@ -72,7 +72,7 @@ bool SkShader_Mixer::onAppendStages(const SkStageRec& rec) const {
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 /////////////////////////////////////////////////////////////////////

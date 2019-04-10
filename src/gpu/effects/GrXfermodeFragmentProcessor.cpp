@@ -7,8 +7,8 @@
 
 #include "GrXfermodeFragmentProcessor.h"
 
-#include "GrConstColorProcessor.h"
 #include "GrFragmentProcessor.h"
+#include "generated/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

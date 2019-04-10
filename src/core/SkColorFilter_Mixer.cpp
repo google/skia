@@ -84,7 +84,7 @@ bool SkColorFilter_Mixer::onAppendStages(const SkStageRec& rec,
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 /////////////////////////////////////////////////////////////////////

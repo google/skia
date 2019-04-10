@@ -474,7 +474,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 #if GR_TEST_UTILS
 
-#include "GrConstColorProcessor.h"
+#include "generated/GrConstColorProcessor.h"
 #include "GrContext.h"
 #include "SkArithmeticImageFilter.h"
 

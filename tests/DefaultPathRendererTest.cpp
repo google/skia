@@ -28,7 +28,7 @@
 #include "SkRefCnt.h"
 #include "SkStrokeRec.h"
 #include "Test.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 
 #include <utility>
 

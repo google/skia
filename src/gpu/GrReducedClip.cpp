@@ -22,7 +22,7 @@
 #include "GrUserStencilSettings.h"
 #include "SkClipOpPriv.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
-#include "effects/GrAARectEffect.h"
+#include "effects/generated/GrAARectEffect.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrRRectEffect.h"
 

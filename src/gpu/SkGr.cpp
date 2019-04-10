@@ -37,7 +37,7 @@
 #include "SkTemplates.h"
 #include "SkTraceEvent.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "effects/GrSkSLFP.h"

@@ -9,10 +9,10 @@
 
 #include "GrProxyProvider.h"
 #include "GrShaderCaps.h"
-#include "GrSimpleTextureEffect.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "SkFloatingPoint.h"
+#include "generated/GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

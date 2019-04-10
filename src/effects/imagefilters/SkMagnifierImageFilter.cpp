@@ -21,7 +21,7 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrTexture.h"
-#include "effects/GrMagnifierEffect.h"
+#include "effects/generated/GrMagnifierEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

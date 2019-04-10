@@ -15,7 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrRecordingContext.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "effects/GrSkSLFP.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 

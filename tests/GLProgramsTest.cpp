@@ -25,7 +25,7 @@
 
 #include "ops/GrDrawOp.h"
 
-#include "effects/GrConfigConversionEffect.h"
+#include "effects/generated/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
