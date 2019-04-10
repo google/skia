@@ -372,6 +372,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/generated/GrMagnifierEffect.h",
   "$_src/gpu/effects/generated/GrMixerEffect.cpp",
   "$_src/gpu/effects/generated/GrMixerEffect.h",
+  "$_src/gpu/effects/generated/GrOverrideInputFragmentProcessor.cpp",
+  "$_src/gpu/effects/generated/GrOverrideInputFragmentProcessor.h",
   "$_src/gpu/effects/generated/GrPremulInputFragmentProcessor.cpp",
   "$_src/gpu/effects/generated/GrPremulInputFragmentProcessor.h",
   "$_src/gpu/effects/generated/GrRectBlurEffect.cpp",
