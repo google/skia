@@ -146,6 +146,7 @@ private:
 
     // Set alpha to true if making a transparency group form x-objects.
     SkPDFIndirectReference makeFormXObjectFromDevice(bool alpha = false);
+    SkPDFIndirectReference makeFormXObjectFromDevice(SkIRect bbox, bool alpha = false);
 
     void drawFormXObjectWithMask(SkPDFIndirectReference xObject,
                                  SkPDFIndirectReference sMask,
@@ -186,7 +187,6 @@ private:
 
     bool handleInversePath(const SkPath& origPath, const SkPaint& paint, bool pathIsMutable);
 
-    void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
     void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
     void setGraphicState(SkPDFIndirectReference gs, SkDynamicMemoryWStream*);
     void drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemoryWStream*);
