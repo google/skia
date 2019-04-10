@@ -610,13 +610,12 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
 
 // This version of glyphMetrics only adds entries to result if their data need to be sent to the
 // GPU process.
-size_t SkStrikeServer::SkGlyphCacheState::glyphMetrics(
+SkSpan<const SkGlyphPos> SkStrikeServer::SkGlyphCacheState::glyphMetrics(
         const SkGlyphID glyphIDs[], const SkPoint positions[], size_t n, SkGlyphPos result[]) {
 
     size_t glyphsToSendCount = 0;
-    const SkPoint* posCursor = positions;
     for (size_t i = 0; i < n; i++) {
-        SkPoint glyphPos = *posCursor++;
+        SkPoint glyphPos = positions[i];
         SkGlyphID glyphID = glyphIDs[i];
         SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, glyphPos);
         SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
@@ -642,7 +641,7 @@ size_t SkStrikeServer::SkGlyphCacheState::glyphMetrics(
         }
     }
 
-    return glyphsToSendCount;
+    return SkSpan<const SkGlyphPos>{result, glyphsToSendCount};
 }
 
 // SkStrikeClient -----------------------------------------
