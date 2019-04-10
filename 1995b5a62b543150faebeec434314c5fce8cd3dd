@@ -22,6 +22,30 @@
       "revId": "1995b5a62b543150faebeec434314c5fce8cd3dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92446bf8_302be52e",
+        "filename": "modules/sksg/include/SkSGColorFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-10T18:19:28Z",
+      "side": 1,
+      "message": "Yeah, we could have implemented this in Skottie, and expose a more general sksg::TableColorFilter at this level.\n\nThere\u0027s an efficiency downside to that: under the current Skottie architecture, each animated property is being pushed to SG independently - so if e.g. two levels-related properties are being animated, we may end up re-computing and pushing the table twice per tick.  To fix we\u0027d need two separate update-props/sync-to-SG passes - which is doable but I\u0027ve been kicking that refactor down the road so far.\n\nI don\u0027t have a strong opinion about native Skia, but since it devolves to a table CF and I don\u0027t trust the semantics to be stabilized yet I\u0027m leaning on the non-native side.",
+      "parentUuid": "f9997378_670cbe0c",
+      "range": {
+        "startLine": 109,
+        "startChar": 6,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "1995b5a62b543150faebeec434314c5fce8cd3dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
