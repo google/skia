@@ -489,9 +489,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~^DDLOperatorEqTest$",
-      "~^WritePixelsNonTexture_Gpu$",
       "--nonativeFonts",
       "--verbose"
     ],
