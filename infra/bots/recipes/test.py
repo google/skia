@@ -761,11 +761,6 @@ def dm_flags(api, bot):
     # skia:7603
     match.append('~^GrMeshTest$')
 
-  if 'Metal' in bot:
-    # skia:8243
-    match.append('~^DDLOperatorEqTest$')
-    match.append('~^WritePixelsNonTexture_Gpu$')
-
   if 'Wuffs' in api.vars.extra_tokens:
     # skia:8750
     blacklist(['_', 'tests', '_', 'Codec_partial'])
