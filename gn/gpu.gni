@@ -355,6 +355,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrMixerEffect.h",
   "$_src/gpu/effects/GrOvalEffect.cpp",
   "$_src/gpu/effects/GrOvalEffect.h",
+  "$_src/gpu/effects/GrOverrideInputFragmentProcessor.cpp",
+  "$_src/gpu/effects/GrOverrideInputFragmentProcessor.h",
   "$_src/gpu/effects/GrPorterDuffXferProcessor.cpp",
   "$_src/gpu/effects/GrPorterDuffXferProcessor.h",
   "$_src/gpu/effects/GrPremulInputFragmentProcessor.cpp",
