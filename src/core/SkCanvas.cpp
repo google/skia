@@ -2849,6 +2849,11 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkCanvas::ImageSetEntry::ImageSetEntry() = default;
+SkCanvas::ImageSetEntry::~ImageSetEntry() = default;
+SkCanvas::ImageSetEntry::ImageSetEntry(const ImageSetEntry&) = default;
+SkCanvas::ImageSetEntry& SkCanvas::ImageSetEntry::operator=(const ImageSetEntry&) = default;
+
 SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
                                        const SkRect& dstRect, int matrixIndex, float alpha,
                                        unsigned aaFlags, bool hasClip)
