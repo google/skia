@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc7a071c_c4004996",
+        "filename": "modules/particles/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-10T20:17:14Z",
+      "side": 1,
+      "message": "are these all !(is_win \u0026\u0026 is_component_build) ?",
+      "range": {
+        "startLine": 7,
+        "startChar": 26,
+        "endLine": 7,
+        "endChar": 45
+      },
+      "revId": "9e86bbcd985149645b02548823b3ed018bec052d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
