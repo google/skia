@@ -22,6 +22,30 @@
       "revId": "10943d78e149844a48e7e601ab262fa699fa02fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d93ced9_3b1c0406",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-10T17:33:53Z",
+      "side": 1,
+      "message": "This is just a misc fix.",
+      "parentUuid": "b17623fd_2ede4ea5",
+      "range": {
+        "startLine": 568,
+        "startChar": 39,
+        "endLine": 568,
+        "endChar": 48
+      },
+      "revId": "10943d78e149844a48e7e601ab262fa699fa02fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
