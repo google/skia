@@ -6,7 +6,7 @@
 import("../../gn/skia.gni")
 
 declare_args() {
-  skia_enable_skottie = true
+  skia_enable_skottie = !(is_win && is_component_build)
 }
 
 if (skia_enable_skottie) {
