@@ -112,6 +112,10 @@ private:
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
         return true;
     }
+    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
+        // arbitrary
+        return GrSizeAlignUp(GrColorTypeBytesPerPixel(bufferColorType), 4);
+    }
 
     static const int kMaxSampleCnt = 16;
 

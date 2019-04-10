@@ -85,6 +85,10 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const override {
+        // Transfer buffers not yet supported.
+        return 0;
+    }
 
     struct ConfigInfo {
         ConfigInfo() : fFlags(0) {}
