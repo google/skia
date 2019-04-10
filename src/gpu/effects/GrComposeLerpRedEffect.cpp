@@ -36,11 +36,10 @@ public:
         }
         SkString _child2("_child2");
         this->emitChild(_outer.lerp_index, &_child2, args);
-        fragBuilder->codeAppendf(
-                "%s = mix(%s ? %s : %s, %s ? %s : %s, %s.x);\n%s = half4(1.0, 0.0, 1.0, 1.0);\n",
-                args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false", _child0.c_str(),
-                args.fInputColor, _outer.child2_index >= 0 ? "true" : "false", _child1.c_str(),
-                args.fInputColor, _child2.c_str(), args.fOutputColor);
+        fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, %s.x);\n", args.fOutputColor,
+                                 _outer.child1_index >= 0 ? "true" : "false", _child0.c_str(),
+                                 args.fInputColor, _outer.child2_index >= 0 ? "true" : "false",
+                                 _child1.c_str(), args.fInputColor, _child2.c_str());
     }
 
 private:
