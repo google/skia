@@ -204,6 +204,22 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                     ERRORF(reporter, "Failed to get GrVkImageInfo");
                 }
 #endif
+#ifdef SK_METAL
+            } else if (GrBackendApi::kMetal == genBackendTex.backend()) {
+                GrMtlTextureInfo genImageInfo;
+                GrMtlTextureInfo origImageInfo;
+                if (genBackendTex.getMtlTextureInfo(&genImageInfo) &&
+                    backendTex.getMtlTextureInfo(&origImageInfo)) {
+                    if (willUseMips && GrMipMapped::kNo == mipMapped) {
+                        // We did a copy so the texture IDs should be different
+                        REPORTER_ASSERT(reporter, origImageInfo.fTexture != genImageInfo.fTexture);
+                    } else {
+                        REPORTER_ASSERT(reporter, origImageInfo.fTexture == genImageInfo.fTexture);
+                    }
+                } else {
+                    ERRORF(reporter, "Failed to get GrMtlTextureInfo");
+                }
+#endif
             } else {
                 REPORTER_ASSERT(reporter, false);
             }
