@@ -63,7 +63,8 @@ public:
      *  child.
      */
     static std::unique_ptr<GrFragmentProcessor> OverrideInput(std::unique_ptr<GrFragmentProcessor>,
-                                                              const SkPMColor4f&);
+                                                              const SkPMColor4f&,
+                                                              bool useUniform = true);
 
     /**
      *  Returns a fragment processor that premuls the input before calling the passed in fragment
@@ -291,6 +292,11 @@ protected:
 
     OptimizationFlags optimizationFlags() const {
         return static_cast<OptimizationFlags>(kAll_OptimizationFlags & fFlags);
+    }
+
+    /** Useful when you can't call fp->optimizationFlags() on a base class object from a subclass.*/
+    static OptimizationFlags ProcessorOptimizationFlags(const GrFragmentProcessor* fp) {
+        return fp->optimizationFlags();
     }
 
     /**

@@ -1106,7 +1106,7 @@ void CPPCodeGenerator::writeGetKey() {
         switch (param->fModifiers.fLayout.fKey) {
             case Layout::kKey_Key:
                 if (param->fModifiers.fLayout.fWhen.size()) {
-                    this->writef("if (%s) ", param->fModifiers.fLayout.fWhen.c_str());
+                    this->writef("if (%s) {", param->fModifiers.fLayout.fWhen.c_str());
                 }
                 if (param->fType == *fContext.fFloat4x4_Type) {
                     ABORT("no automatic key handling for float4x4\n");
@@ -1124,9 +1124,23 @@ void CPPCodeGenerator::writeGetKey() {
                                  HCodeGenerator::FieldName(name).c_str());
                     this->writef("    b->add32(%s.height());\n",
                                  HCodeGenerator::FieldName(name).c_str());
+                } else if (param->fType == *fContext.fHalf4_Type) {
+                    this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    uint16_t green = SkFloatToHalf(%s.fG);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    uint16_t blue = SkFloatToHalf(%s.fB);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->writef("    uint16_t alpha = SkFloatToHalf(%s.fA);\n",
+                                 HCodeGenerator::FieldName(name).c_str());
+                    this->write("    b->add32(((uint32_t)red << 16) | green);\n");
+                    this->write("    b->add32(((uint32_t)blue << 16) | alpha);\n");
                 } else {
                     this->writef("    b->add32((int32_t) %s);\n",
                                  HCodeGenerator::FieldName(name).c_str());
+                }
+                if (param->fModifiers.fLayout.fWhen.size()) {
+                    this->write("}");
                 }
                 break;
             case Layout::kIdentity_Key:

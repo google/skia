@@ -257,6 +257,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                           args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;
+    } else if (args.fInputColorIsOpaque) {
+        return GrFragmentProcessor::OverrideInput(std::move(inner), SK_PMColor4fWHITE, false);
     }
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
 }

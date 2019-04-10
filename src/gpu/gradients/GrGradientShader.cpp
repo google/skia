@@ -236,7 +236,9 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         // Unexpected tile mode
         return nullptr;
     }
-
+    if (args.fInputColorIsOpaque) {
+        return GrFragmentProcessor::OverrideInput(std::move(master), SK_PMColor4fWHITE, false);
+    }
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(master));
 }
 
