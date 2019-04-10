@@ -13,6 +13,7 @@
 #include "GrMtlPipelineStateBuilder.h"
 #include "GrMtlRenderTarget.h"
 #include "GrRenderTargetPriv.h"
+#include "GrTexturePriv.h"
 
 GrMtlGpuRTCommandBuffer::GrMtlGpuRTCommandBuffer(
         GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
@@ -133,6 +134,38 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     SK_BEGIN_AUTORELEASE_BLOCK
     if (!meshCount) {
         return;
+    }
+
+    auto prepareSampledImage = [&](GrTexture* texture, GrSamplerState::Filter filter) {
+        // Check if we need to regenerate any mip maps
+        if (GrSamplerState::Filter::kMipMap == filter &&
+            (texture->width() != 1 || texture->height() != 1)) {
+            SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
+            if (texture->texturePriv().mipMapsAreDirty()) {
+                fGpu->regenerateMipMapLevels(texture);
+            }
+        }
+    };
+
+    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
+        for (int m = 0, i = 0; m < meshCount; ++m) {
+            for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
+                auto texture = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
+                prepareSampledImage(texture, primProc.textureSampler(s).samplerState().filter());
+            }
+        }
+    } else {
+        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
+            prepareSampledImage(texture, primProc.textureSampler(i).samplerState().filter());
+        }
+    }
+    GrFragmentProcessor::Iter iter(pipeline);
+    while (const GrFragmentProcessor* fp = iter.next()) {
+        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
+            const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
+            prepareSampledImage(sampler.peekTexture(), sampler.samplerState().filter());
+        }
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();

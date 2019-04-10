@@ -119,6 +119,11 @@ GrGpuTextureCommandBuffer* GrMtlGpu::getCommandBuffer(GrTexture* texture,
 }
 
 void GrMtlGpu::submit(GrGpuCommandBuffer* buffer) {
+    GrMtlGpuRTCommandBuffer* mtlRTCmdBuffer =
+            reinterpret_cast<GrMtlGpuRTCommandBuffer*>(buffer->asRTCommandBuffer());
+    if (mtlRTCmdBuffer) {
+        mtlRTCmdBuffer->submit();
+    }
     delete buffer;
 }
 
@@ -437,17 +442,15 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
 
     GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     if (mipLevels > 1) {
-        mipMapsStatus = texels[0].fPixels ? GrMipMapsStatus::kValid : GrMipMapsStatus::kDirty;
-#ifdef SK_DEBUG
-        for (int i = 1; i < mipLevels; ++i) {
-            if (mipMapsStatus == GrMipMapsStatus::kValid) {
-                SkASSERT(texels[i].fPixels);
-            } else {
-                SkASSERT(!texels[i].fPixels);
+        mipMapsStatus = GrMipMapsStatus::kValid;
+        for (int i = 0; i < mipLevels; ++i) {
+            if (!texels[i].fPixels) {
+                mipMapsStatus = GrMipMapsStatus::kDirty;
+                break;
             }
         }
-#endif
     }
+
     if (renderTarget) {
         tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
                                                                      desc, texDesc, mipMapsStatus);
@@ -574,7 +577,21 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 }
 
 bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
-    return false; // TODO
+    GrMtlTexture* grMtlTexture = static_cast<GrMtlTexture*>(texture);
+    id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
+
+    // Automatic mipmap generation is only supported by color-renderable formats
+    if (!fMtlCaps->isConfigRenderable(texture->config()) &&
+        // We have pixel configs marked as textureable-only that use RGBA8 as the internal format
+        MTLPixelFormatRGBA8Unorm != mtlTexture.pixelFormat) {
+        return false;
+    }
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [this->commandBuffer() blitCommandEncoder];
+    [blitCmdEncoder generateMipmapsForTexture: mtlTexture];
+    [blitCmdEncoder endEncoding];
+
+    return true;
 }
 
 #if GR_TEST_UTILS
