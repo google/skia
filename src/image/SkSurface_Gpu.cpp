@@ -51,7 +51,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
     surface->getDevice()->flushAndSignalSemaphores(SkSurface::BackendSurfaceAccess::kNoAccess,
-                                                   SkSurface::kNone_FlushFlags, 0, nullptr);
+                                                   kNone_GrFlushFlags, 0, nullptr);
     GrRenderTargetContext* rtc = surface->getDevice()->accessRenderTargetContext();
     return rtc->accessRenderTarget();
 }
@@ -158,7 +158,7 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTargetContext()->discard();
 }
 
-GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, FlushFlags flags,
+GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, GrFlushFlags flags,
                                              int numSemaphores,
                                              GrBackendSemaphore signalSemaphores[]) {
     return fDevice->flushAndSignalSemaphores(access, flags, numSemaphores, signalSemaphores);
