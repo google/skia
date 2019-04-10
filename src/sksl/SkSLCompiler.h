@@ -88,6 +88,9 @@ public:
 
     ~Compiler() override;
 
+    Compiler(const Compiler&) = delete;
+    Compiler& operator=(const Compiler&) = delete;
+
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
