@@ -209,6 +209,18 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_vulkan':        'false',
       'skia_use_zlib':          'false',
     })
+  if 'DLL' in extra_tokens:
+    args.update({
+      'is_component_build': 'true',
+      'is_official_build':  'true',
+
+      'skia_use_system_expat':         'false',
+      'skia_use_system_icu':           'false',
+      'skia_use_system_libjpeg_turbo': 'false',
+      'skia_use_system_libpng':        'false',
+      'skia_use_system_libwebp':       'false',
+      'skia_use_system_zlib':          'false',
+    })
   if 'NoGPU' in extra_tokens:
     args['skia_enable_gpu'] = 'false'
   if 'Shared' in extra_tokens:
