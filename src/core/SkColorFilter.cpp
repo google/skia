@@ -7,7 +7,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorFilter.h"
-#include "SkColorFilter_Mixer.h"
 #include "SkColorFilterPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
@@ -509,7 +508,6 @@ void SkColorFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkModeColorFilter);
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
     SK_REGISTER_FLATTENABLE(SkMixerColorFilter);
-    SK_REGISTER_FLATTENABLE(SkColorFilter_Mixer);
 #if SK_SUPPORT_GPU
     SK_REGISTER_FLATTENABLE(SkRuntimeColorFilter);
 #endif

@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorPriv.h"
-#include "SkMixer.h"
 #include "SkShader.h"
 
 #include "SkBlurImageFilter.h"
@@ -263,8 +262,6 @@ DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
         return SkShaders::Lerp(t, a, sh);
     });
 }
-
-#include "SkMixerBase.h"
 
 DEF_SIMPLE_GM(mixershader2, canvas, 800, 700) {
     do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {

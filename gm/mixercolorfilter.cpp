@@ -112,7 +112,6 @@ private:
 DEF_GM( return new MixerCFGM(SkSize::Make(200, 250), 5); )
 
 #include "Resources.h"
-#include "SkMixer.h"
 
 static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
     auto img = GetResourceAsImage(path);
@@ -194,35 +193,3 @@ private:
     using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShaderMixerGM; )
-
-static void draw_rect(SkCanvas* c, const SkRect& r, const SkPaint& p, SkScalar x, SkScalar y) {
-    c->save();
-    c->translate(x, y);
-    c->drawRect(r, p);
-    c->restore();
-}
-
-DEF_SIMPLE_GM(mixercolorfilter, canvas, 768, 512) {
-    auto cf0 = MakeTintColorFilter(0xff300000, 0xffa00000);  // red tint
-    auto cf1 = MakeTintColorFilter(0xff003000, 0xff00a000);  // green tint
-
-    SkRect r = { 0, 0, 256, 256 };
-
-    SkPaint p;
-    p.setShader(make_resource_shader("images/mandrill_256.png", 256));
-
-    draw_rect(canvas, r, p,   0,   0);
-    p.setColorFilter(cf0);
-    draw_rect(canvas, r, p, 256,   0);
-    p.setColorFilter(cf1);
-    draw_rect(canvas, r, p, 512,   0);
-
-    auto mx = SkMixer::MakeLerp(0.5f);
-
-    p.setColorFilter(SkColorFilters::Mixer(mx, cf0, cf1));
-    draw_rect(canvas, r, p,   0, 256);
-    p.setColorFilter(SkColorFilters::Mixer(mx, cf0, nullptr));
-    draw_rect(canvas, r, p, 256, 256);
-    p.setColorFilter(SkColorFilters::Mixer(mx, nullptr, cf1));
-    draw_rect(canvas, r, p, 512, 256);
-}

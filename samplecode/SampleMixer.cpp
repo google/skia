@@ -98,7 +98,6 @@ DEF_SAMPLE( return new MixerView; )
 //////////////////////////////////////////////////////////////////////////////
 
 #include "SkMaskFilter.h"
-#include "SkMixer.h"
 #include "SkSurface.h"
 
 static sk_sp<SkShader> make_resource_shader(const char path[], int size) {
