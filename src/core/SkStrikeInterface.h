@@ -71,7 +71,7 @@ public:
     virtual SkStrikeSpec strikeSpec() const = 0;
 
     // glyphMetrics writes its results to result, but only returns a subspan of result.
-    virtual size_t glyphMetrics(
+    virtual SkSpan<const SkGlyphPos> glyphMetrics(
             const SkGlyphID[], const SkPoint[], size_t n, SkGlyphPos result[]) = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool decideCouldDrawFromPath(const SkGlyph& glyph) = 0;
