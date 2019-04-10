@@ -14,6 +14,7 @@
 #include "SkClipStackDevice.h"
 #include "SkData.h"
 #include "SkKeyedImage.h"
+#include "SkPDFGraphicStackState.h"
 #include "SkPDFTypes.h"
 #include "SkPaint.h"
 #include "SkRect.h"
@@ -104,17 +105,6 @@ public:
     SkISize size() const { return this->imageInfo().dimensions(); }
     SkIRect bounds() const { return this->imageInfo().bounds(); }
 
-    // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
-    // later being our representation of an object in the PDF file.
-    struct GraphicStateEntry {
-        SkMatrix fMatrix = SkMatrix::I();
-        uint32_t fClipStackGenID = SkClipStack::kWideOpenGenID;
-        SkColor4f fColor = {0, 0, 0, 1};
-        SkScalar fTextScaleX = 1;  // Zero means we don't care what the value is.
-        int fShaderIndex = -1;
-        int fGraphicStateIndex = -1;
-    };
-
     void DrawGlyphRunAsPath(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset);
 
     const SkMatrix& initialTransform() const { return fInitialTransform; }
@@ -147,22 +137,7 @@ private:
     SkDynamicMemoryWStream fContent;
     SkDynamicMemoryWStream fContentBuffer;
     bool fNeedsExtraSave = false;
-    struct GraphicStackState {
-        GraphicStackState(SkDynamicMemoryWStream* s = nullptr);
-        void updateClip(const SkClipStack* clipStack, const SkIRect& bounds);
-        void updateMatrix(const SkMatrix& matrix);
-        void updateDrawingState(const SkPDFDevice::GraphicStateEntry& state);
-        void push();
-        void pop();
-        void drainStack();
-        SkPDFDevice::GraphicStateEntry* currentEntry() { return &fEntries[fStackDepth]; }
-        // Must use stack for matrix, and for clip, plus one for no matrix or clip.
-        static constexpr int kMaxStackDepth = 2;
-        SkPDFDevice::GraphicStateEntry fEntries[kMaxStackDepth + 1];
-        int fStackDepth = 0;
-        SkDynamicMemoryWStream* fContentStream;
-    };
-    GraphicStackState fActiveStackState;
+    SkPDFGraphicStackState fActiveStackState;
     SkPDFDocument* fDocument;
 
     ////////////////////////////////////////////////////////////////////////////
