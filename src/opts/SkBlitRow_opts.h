@@ -8,6 +8,7 @@
 #ifndef SkBlitRow_opts_DEFINED
 #define SkBlitRow_opts_DEFINED
 
+#include "SkVx.h"
 #include "SkColorData.h"
 #include "SkMSAN.h"
 
@@ -39,6 +40,38 @@
 #endif
 
 namespace SK_OPTS_NS {
+
+// Blend constant color over count src pixels, writing into dst.
+inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
+    constexpr int N = 8;  // 4, 16 also reasonable choices
+    using U32 = skvx::Vec<  N, uint32_t>;
+    using U16 = skvx::Vec<4*N, uint16_t>;
+    using U8  = skvx::Vec<4*N, uint8_t>;
+
+    auto kernel = [color](U32 src) {
+        unsigned invA = 255 - SkGetPackedA32(color);
+        invA += invA >> 7;
+        SkASSERT(0 < invA && invA < 256);  // We handle alpha == 0 or alpha == 255 specially.
+
+        // (src * invA + (color << 8) + 128) >> 8
+        // Should all fit in 16 bits.
+        // TODO(mtklein): can we do src * invA with umull on ARM?
+        U16 s = skvx::cast<uint16_t>(skvx::bit_pun<U8>(src)),
+            c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
+            d = (s * invA + (c << 8) + 128)>>8;
+        return skvx::bit_pun<U32>(skvx::cast<uint8_t>(d));
+    };
+
+    while (count >= N) {
+        kernel(U32::Load(src)).store(dst);
+        src   += N;
+        dst   += N;
+        count -= N;
+    }
+    while (count --> 0) {
+        *dst++ = kernel(U32{*src++})[0];
+    }
+}
 
 #if defined(SK_ARM_HAS_NEON)
 
