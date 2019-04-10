@@ -205,4 +205,75 @@ sk_sp<SkColorFilter> GradientColorFilter::onRevalidateFilter() {
     return SkColorFilters::Lerp(fWeight, nullptr, std::move(gradientCF));
 }
 
+sk_sp<LevelsColorFilter> LevelsColorFilter::Make(sk_sp<RenderNode> child) {
+    return child ? sk_sp<LevelsColorFilter>(new LevelsColorFilter(std::move(child)))
+                 : nullptr;
+}
+
+LevelsColorFilter::LevelsColorFilter(sk_sp<RenderNode> child) : INHERITED(std::move(child)) {}
+
+LevelsColorFilter::~LevelsColorFilter() = default;
+
+sk_sp<SkColorFilter> LevelsColorFilter::onRevalidateFilter() {
+    if (!fChannels) {
+        return nullptr;
+    }
+
+    auto in_0 = SkTPin(fInBlack,  0.0f, 1.0f),
+         in_1 = SkTPin(fInWhite,  0.0f, 1.0f),
+        out_0 = SkTPin(fOutBlack, 0.0f, 1.0f),
+        out_1 = SkTPin(fOutWhite, 0.0f, 1.0f),
+            g = 1 / SkTMax(fGamma, 0.0f);
+
+    float clip[] = {0, 1};
+    if (fClipBlack) {
+        const auto idx = fOutBlack <= fOutWhite ? 0 : 1;
+        clip[idx] = out_0;
+    }
+    if (fClipWhite) {
+        const auto idx = fOutBlack <= fOutWhite ? 1 : 0;
+        clip[idx] = out_1;
+    }
+    SkASSERT(clip[0] <= clip[1]);
+
+    auto dIn  =  in_1 -  in_0,
+         dOut = out_1 - out_0;
+
+    if (SkScalarNearlyZero(dIn)) {
+        // Degenerate dIn == 0 makes the arithmetic below explode.
+        //
+        // We could specialize the builder to deal with that case, or we could just
+        // nudge by epsilon to make it all work.  The latter approach is simpler
+        // and doesn't have any noticeable downsides.
+        //
+        // Also nudge in_0 towards 0.5, in case it was sqashed against an extremity.
+        // This allows for some abrupt transition when the output interval is not
+        // collapsed, and produces results closer to AE.
+        static constexpr auto kEpsilon = 2 * SK_ScalarNearlyZero;
+        dIn  += std::copysign(kEpsilon, dIn);
+        in_0 += std::copysign(kEpsilon, .5f - in_0);
+        SkASSERT(!SkScalarNearlyZero(dIn));
+    }
+
+    uint8_t lut[256];
+
+    auto t =      -in_0 / dIn,
+        dT = 1 / 255.0f / dIn;
+
+    // TODO: is linear gamma common-enough to warrant a fast path?
+    for (size_t i = 0; i < 256; ++i) {
+        const auto out = out_0 + dOut * std::pow(std::max(t, 0.0f), g);
+        SkASSERT(!SkScalarIsNaN(out));
+
+        lut[i] = static_cast<uint8_t>(std::round(SkTPin(out, clip[0], clip[1]) * 255));
+
+        t += dT;
+    }
+
+    return SkTableColorFilter::MakeARGB(fChannels & kA_Channel ? lut : nullptr,
+                                        fChannels & kR_Channel ? lut : nullptr,
+                                        fChannels & kG_Channel ? lut : nullptr,
+                                        fChannels & kB_Channel ? lut : nullptr);
+}
+
 } // namespace sksg

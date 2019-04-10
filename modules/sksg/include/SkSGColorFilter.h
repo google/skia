@@ -92,6 +92,60 @@ private:
     using INHERITED = ColorFilter;
 };
 
+/**
+ * Levels color correction effect.
+ *
+ * Maps the selected channels from [inBlack...inWhite] to [outBlack, outWhite],
+ * based on a gamma exponent.
+ *
+ * For [i0..i1] -> [o0..o1]:
+ *
+ *   c' = o0 + (o1 - o0) * ((c - i0) / (i1 - i0)) ^ G
+ *
+ * The output is optionally clipped to the output range.
+ *
+ * In/out intervals are clampped to [0..1].  Inversion is allowed.
+ */
+class LevelsColorFilter final : public ColorFilter {
+public:
+    ~LevelsColorFilter() override;
+
+    static sk_sp<LevelsColorFilter> Make(sk_sp<RenderNode> child);
+
+    enum : uint32_t {
+        kA_Channel = 1 << 0,
+        kR_Channel = 1 << 1,
+        kG_Channel = 1 << 2,
+        kB_Channel = 1 << 3,
+    };
+
+    SG_ATTRIBUTE(Channels , uint32_t, fChannels )
+    SG_ATTRIBUTE(InBlack  ,    float, fInBlack  )
+    SG_ATTRIBUTE(InWhite  ,    float, fInWhite  )
+    SG_ATTRIBUTE(OutBlack ,    float, fOutBlack )
+    SG_ATTRIBUTE(OutWhite ,    float, fOutWhite )
+    SG_ATTRIBUTE(Gamma    ,    float, fGamma    )
+    SG_ATTRIBUTE(ClipBlack,     bool, fClipBlack)
+    SG_ATTRIBUTE(ClipWhite,     bool, fClipWhite)
+
+protected:
+    sk_sp<SkColorFilter> onRevalidateFilter() override;
+
+private:
+    explicit LevelsColorFilter(sk_sp<RenderNode>);
+
+    uint32_t fChannels  = kA_Channel | kR_Channel | kG_Channel | kB_Channel;
+    float    fInBlack   = 0,
+             fInWhite   = 1,
+             fOutBlack  = 0,
+             fOutWhite  = 1,
+             fGamma     = 1;
+    bool     fClipBlack = true,
+             fClipWhite = true;
+
+    using INHERITED = ColorFilter;
+};
+
 } // namespace sksg
 
 #endif // SkSGColorFilter_DEFINED
