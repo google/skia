@@ -16,6 +16,24 @@
       "revId": "934179a1a42bc4d208333519b43766c25eb467c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "470b44fe_2b47abdb",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-10T17:57:05Z",
+      "side": 1,
+      "message": "That makes it hard for clients to use this as a bitfield unless we also provide all the logical operator overloads.",
+      "parentUuid": "f516dae3_44fc66f1",
+      "revId": "934179a1a42bc4d208333519b43766c25eb467c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
