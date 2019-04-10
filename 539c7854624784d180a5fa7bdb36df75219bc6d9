@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "822a58e4_b0c79b38",
+        "filename": "src/gpu/effects/GrOverrideInputFragmentProcessor.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-10T18:13:04Z",
+      "side": 1,
+      "message": "Two questions:\n1) Why the lambda here? Looks like this pattern is used in other FPs that have multiple children?\n2) We have essentially this logic in a bunch of places. Maybe we should just put a helper someehere? Sometimes exactly like this, sometimes obfuscated (see line 329 of GrXfermodeFragmentProcessor.cpp)",
+      "revId": "539c7854624784d180a5fa7bdb36df75219bc6d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
