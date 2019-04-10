@@ -8,6 +8,7 @@
 #ifndef SkBlitRow_opts_DEFINED
 #define SkBlitRow_opts_DEFINED
 
+#include "SkVx.h"
 #include "SkColorData.h"
 #include "SkMSAN.h"
 
@@ -39,6 +40,37 @@
 #endif
 
 namespace SK_OPTS_NS {
+
+template <int N>
+static inline void blit_row_color32_kernel(SkPMColor* dst, const SkPMColor* src, SkPMColor color) {
+    unsigned invA = 255 - SkGetPackedA32(color);
+    invA += invA >> 7;
+    SkASSERT(0 < invA && invA < 256);  // We handle alpha == 0 or alpha == 255 specially.
+
+    using U32 = skvx::Vec<  N, uint32_t>;
+    using U16 = skvx::Vec<4*N, uint16_t>;
+    using U8  = skvx::Vec<4*N, uint8_t>;
+
+    // (src * invA + (color << 8) + 128) >> 8
+    // Should all fit in 16 bits.
+    U16 s = skvx::cast<uint16_t>(U8::Load(src)),
+        c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
+        d = (s * invA + (c << 8) + 128)>>8;
+    skvx::cast<uint8_t>(d).store(dst);
+}
+
+// Blend constant color over count src pixels, writing into dst.
+inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
+    while (count >= 8) {
+        blit_row_color32_kernel<8>(dst,src,color);
+        src   += 8;
+        dst   += 8;
+        count -= 8;
+    }
+    while (count --> 0) {
+        blit_row_color32_kernel<1>(dst++,src++,color);
+    }
+}
 
 #if defined(SK_ARM_HAS_NEON)
 
