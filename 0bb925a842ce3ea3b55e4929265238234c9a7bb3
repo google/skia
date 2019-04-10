@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "543773f7_4a7a0a6a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-10T18:34:26Z",
+      "side": 1,
+      "message": "Add the bulk call to show the use.",
+      "parentUuid": "47180891_7b1f2ec6",
+      "range": {
+        "startLine": 568,
+        "startChar": 69,
+        "endLine": 568,
+        "endChar": 70
+      },
+      "revId": "0bb925a842ce3ea3b55e4929265238234c9a7bb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08288c1c_2c2872da",
         "filename": "src/core/SkStrikeInterface.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "0bb925a842ce3ea3b55e4929265238234c9a7bb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d40b9093_7613d383",
+        "filename": "src/core/SkStrikeInterface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-10T18:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08288c1c_2c2872da",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 7
+      },
+      "revId": "0bb925a842ce3ea3b55e4929265238234c9a7bb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
