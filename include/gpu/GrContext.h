@@ -268,8 +268,16 @@ public:
      * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
      * any of the semaphores. However, any pending commands to the context will still be flushed.
      */
+    GrSemaphoresSubmitted flush(GrFlushFlags flags, int numSemaphores,
+                                GrBackendSemaphore signalSemaphores[]);
+
+    /**
+     * Deprecated.
+     */
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
-                                                   GrBackendSemaphore signalSemaphores[]);
+                                                   GrBackendSemaphore signalSemaphores[]) {
+        return this->flush(kNone_GrFlushFlags, numSemaphores, signalSemaphores);
+    }
 
     // Provides access to functions that aren't part of the public API.
     GrContextPriv priv();

@@ -1628,11 +1628,11 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 
 void SkGpuDevice::flush() {
     this->flushAndSignalSemaphores(SkSurface::BackendSurfaceAccess::kNoAccess,
-                                   SkSurface::kNone_FlushFlags, 0, nullptr);
+                                   kNone_GrFlushFlags, 0, nullptr);
 }
 
 GrSemaphoresSubmitted SkGpuDevice::flushAndSignalSemaphores(SkSurface::BackendSurfaceAccess access,
-                                                            SkSurface::FlushFlags flags,
+                                                            GrFlushFlags flags,
                                                             int numSemaphores,
                                                             GrBackendSemaphore signalSemaphores[]) {
     ASSERT_SINGLE_OWNER

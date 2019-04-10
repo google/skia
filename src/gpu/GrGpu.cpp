@@ -420,7 +420,7 @@ int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget, const GrPi
 
 GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
                                          SkSurface::BackendSurfaceAccess access,
-                                         SkSurface::FlushFlags flags, int numSemaphores,
+                                         GrFlushFlags flags, int numSemaphores,
                                          GrBackendSemaphore backendSemaphores[]) {
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();

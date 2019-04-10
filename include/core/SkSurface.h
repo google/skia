@@ -713,12 +713,6 @@ public:
         kPresent,   //!< back-end surface will be used for presenting to screen
     };
 
-    enum FlushFlags {
-        kNone_FlushFlags = 0,
-        // flush will wait till all submitted GPU work is finished before returning.
-        kSyncCpu_FlushFlag = 0x1,
-    };
-
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
         After issuing all commands, signalSemaphores of count numSemaphores are signaled by the GPU.
         The work that is submitted to the GPU will be dependent on the BackendSurfaceAccess that is
@@ -758,7 +752,7 @@ public:
         @param signalSemaphores  array of semaphore containers
         @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
     */
-    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, FlushFlags flags,
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
                                 int numSemaphores, GrBackendSemaphore signalSemaphores[]);
 
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
