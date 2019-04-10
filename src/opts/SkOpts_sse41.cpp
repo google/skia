@@ -8,11 +8,12 @@
 #include "SkOpts.h"
 
 #define SK_OPTS_NS sse41
-#include "SkRasterPipeline_opts.h"
 #include "SkBlitRow_opts.h"
+#include "SkRasterPipeline_opts.h"
 
 namespace SkOpts {
     void Init_sse41() {
+        blit_row_color32     = sse41::blit_row_color32;
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
 
     #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
