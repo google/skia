@@ -9,15 +9,13 @@ declare_args() {
   skia_enable_skottie = true
 }
 
-config("public_config") {
-  if (skia_enable_skottie) {
+if (skia_enable_skottie) {
+  config("public_config") {
     defines = [ "SK_ENABLE_SKOTTIE" ]
     include_dirs = [ "include" ]
   }
-}
 
-component("skottie") {
-  if (skia_enable_skottie) {
+  component("skottie") {
     check_includes = false
     import("skottie.gni")
     public_configs = [ ":public_config" ]
@@ -30,15 +28,13 @@ component("skottie") {
       "../skshaper",
     ]
   }
-}
 
-if (defined(is_skia_standalone)) {
-  config("utils_config") {
-    include_dirs = [ "utils" ]
-  }
-  source_set("utils") {
-    check_includes = false
-    if (skia_enable_skottie) {
+  if (defined(is_skia_standalone)) {
+    config("utils_config") {
+      include_dirs = [ "utils" ]
+    }
+    source_set("utils") {
+      check_includes = false
       testonly = true
 
       public_configs = [ ":utils_config" ]
@@ -51,11 +47,9 @@ if (defined(is_skia_standalone)) {
         "../..:skia",
       ]
     }
-  }
 
-  if (skia_enable_tools) {
-    source_set("tests") {
-      if (skia_enable_skottie) {
+    if (skia_enable_tools) {
+      source_set("tests") {
         testonly = true
 
         configs += [
@@ -72,10 +66,8 @@ if (defined(is_skia_standalone)) {
           "../..:skia",
         ]
       }
-    }
 
-    source_set("fuzz") {
-      if (skia_enable_skottie) {
+      source_set("fuzz") {
         check_includes = false
         testonly = true
 
@@ -102,30 +94,28 @@ if (defined(is_skia_standalone)) {
           ":skottie",
         ]
       }
-    }
 
-    source_set("tool") {
-      check_includes = false
-      testonly = true
+      source_set("tool") {
+        check_includes = false
+        testonly = true
 
-      configs += [ "../..:skia_private" ]
-      sources = [
-        "src/SkottieTool.cpp",
-      ]
+        configs += [ "../..:skia_private" ]
+        sources = [
+          "src/SkottieTool.cpp",
+        ]
 
-      deps = [
-        "../..:flags",
-        "../..:skia",
-      ]
+        deps = [
+          "../..:flags",
+          "../..:skia",
+        ]
 
-      public_deps = [
-        ":skottie",
-        ":utils",
-      ]
-    }
+        public_deps = [
+          ":skottie",
+          ":utils",
+        ]
+      }
 
-    source_set("gm") {
-      if (skia_enable_skottie) {
+      source_set("gm") {
         check_includes = false
         testonly = true
 
@@ -146,5 +136,16 @@ if (defined(is_skia_standalone)) {
         ]
       }
     }
+  }
+} else {
+  group("skottie") {
+  }
+  group("fuzz") {
+  }
+  group("gm") {
+  }
+  group("tests") {
+  }
+  group("utils") {
   }
 }

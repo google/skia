@@ -23,14 +23,17 @@
 #include "SkPictureRecorder.h"
 #include "SkSVGDOM.h"
 #include "SkTHash.h"
-#include "Skottie.h"
-#include "SkottieUtils.h"
 #include "ToolUtils.h"
 #include "gm.h"
 #include <chrono>
 #include <functional>
 #include <stdio.h>
 #include <stdlib.h>
+
+#if defined(SK_ENABLE_SKOTTIE)
+    #include "Skottie.h"
+    #include "SkottieUtils.h"
+#endif
 
 using sk_gpu_test::GrContextFactory;
 
@@ -171,6 +174,7 @@ static void init(Source* source, sk_sp<SkSVGDOM> svg) {
     };
 }
 
+#if defined(SK_ENABLE_SKOTTIE)
 static void init(Source* source, sk_sp<skottie::Animation> animation) {
     source->size = {1000,1000};
     source->draw = [animation](SkCanvas* canvas) {
@@ -200,7 +204,7 @@ static void init(Source* source, sk_sp<skottie::Animation> animation) {
         return ok;
     };
 }
-
+#endif
 
 static sk_sp<SkImage> draw_with_cpu(std::function<bool(SkCanvas*)> draw,
                                     SkImageInfo info) {
@@ -401,7 +405,9 @@ int main(int argc, char** argv) {
                     init(source, svg);
                     continue;
                 }
-            } else if (name.endsWith(".json")) {
+            }
+#if defined(SK_ENABLE_SKOTTIE)
+            else if (name.endsWith(".json")) {
                 const SkString dir  = SkOSPath::Dirname(name.c_str());
                 if (sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
                         .setResourceProvider(skottie_utils::FileResourceProvider::Make(dir))
@@ -409,7 +415,9 @@ int main(int argc, char** argv) {
                     init(source, animation);
                     continue;
                 }
-            } else if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
+            }
+#endif
+            else if (std::shared_ptr<SkCodec> codec = SkCodec::MakeFromData(blob)) {
                 init(source, codec);
                 continue;
             }
