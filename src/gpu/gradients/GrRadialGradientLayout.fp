@@ -20,7 +20,7 @@ void main() {
 
 @header {
     #include "SkRadialGradient.h"
-    #include "GrGradientShader.h"
+    #include "../GrGradientShader.h"
 }
 
 // The radial gradient never rejects a pixel so it doesn't change opacity

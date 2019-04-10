@@ -17,7 +17,7 @@
 #include "SkMipMap.h"
 #include "SkRectPriv.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,

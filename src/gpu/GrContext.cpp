@@ -25,7 +25,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTaskGroup.h"
 #include "SkTraceMemoryDump.h"
-#include "effects/GrConfigConversionEffect.h"
+#include "effects/generated/GrConfigConversionEffect.h"
 #include "effects/GrSkSLFP.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextBlobCache.h"

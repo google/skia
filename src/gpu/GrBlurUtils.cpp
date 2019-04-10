@@ -18,7 +18,7 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrStyle.h"
 #include "GrTextureProxy.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 
 #include "SkDraw.h"
 #include "SkGr.h"

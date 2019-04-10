@@ -7,18 +7,18 @@
 
 #include "GrGradientShader.h"
 
-#include "GrClampedGradientEffect.h"
-#include "GrTiledGradientEffect.h"
+#include "generated/GrClampedGradientEffect.h"
+#include "generated/GrTiledGradientEffect.h"
 
-#include "GrLinearGradientLayout.h"
-#include "GrRadialGradientLayout.h"
-#include "GrSweepGradientLayout.h"
-#include "GrTwoPointConicalGradientLayout.h"
+#include "generated/GrLinearGradientLayout.h"
+#include "generated/GrRadialGradientLayout.h"
+#include "generated/GrSweepGradientLayout.h"
+#include "generated/GrTwoPointConicalGradientLayout.h"
 
-#include "GrDualIntervalGradientColorizer.h"
-#include "GrSingleIntervalGradientColorizer.h"
-#include "GrTextureGradientColorizer.h"
-#include "GrUnrolledBinaryGradientColorizer.h"
+#include "generated/GrDualIntervalGradientColorizer.h"
+#include "generated/GrSingleIntervalGradientColorizer.h"
+#include "generated/GrTextureGradientColorizer.h"
+#include "generated/GrUnrolledBinaryGradientColorizer.h"
 #include "GrGradientBitmapCache.h"
 
 #include "GrCaps.h"

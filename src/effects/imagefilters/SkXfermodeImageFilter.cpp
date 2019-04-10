@@ -23,9 +23,9 @@
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "effects/GrTextureDomain.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 #include "SkGr.h"
 #endif
 #include "SkClipOpPriv.h"

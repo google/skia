@@ -105,7 +105,7 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
 #include "GrColorSpaceInfo.h"
 #include "GrColorSpaceXform.h"
 #include "SkGr.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const GrFPArgs& args) const {

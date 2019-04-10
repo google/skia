@@ -20,7 +20,7 @@
 
 #include "SkBitmap.h"
 #include "SkPointPriv.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {

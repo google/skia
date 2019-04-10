@@ -126,7 +126,7 @@ void main() {
 
 @header {
     #include "SkTwoPointConicalGradient.h"
-    #include "GrGradientShader.h"
+    #include "../GrGradientShader.h"
 }
 
 // The 2 point conical gradient can reject a pixel so it does change opacity

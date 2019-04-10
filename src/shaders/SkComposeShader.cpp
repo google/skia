@@ -184,11 +184,11 @@ bool SkShader_LerpRed::onAppendStages(const SkStageRec& rec) const {
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "GrRecordingContext.h"
-#include "effects/GrComposeLerpEffect.h"
-#include "effects/GrComposeLerpRedEffect.h"
+#include "effects/generated/GrComposeLerpEffect.h"
+#include "effects/generated/GrComposeLerpRedEffect.h"
 
 static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
     return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;

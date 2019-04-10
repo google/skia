@@ -23,7 +23,7 @@
 #include "SkMaskFilterBase.h"
 #include "SkYUVAIndex.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 
 namespace {

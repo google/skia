@@ -22,7 +22,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
-#include "effects/GrMixerEffect.h"
+#include "effects/generated/GrMixerEffect.h"
 #endif
 
 bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {

@@ -13,7 +13,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "effects/GrLumaColorFilterEffect.h"
+#include "effects/generated/GrLumaColorFilterEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif

@@ -18,7 +18,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTextureProxy.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 #include "ops/GrFillRectOp.h"
 
 // Basic test of Ganesh's ETC1 support

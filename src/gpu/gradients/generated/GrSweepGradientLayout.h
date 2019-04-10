@@ -13,7 +13,7 @@
 #include "SkTypes.h"
 
 #include "SkSweepGradient.h"
-#include "GrGradientShader.h"
+#include "../GrGradientShader.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrSweepGradientLayout : public GrFragmentProcessor {

@@ -14,7 +14,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrFillRectOp.h"
 

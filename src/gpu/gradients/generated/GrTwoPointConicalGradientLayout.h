@@ -13,7 +13,7 @@
 #include "SkTypes.h"
 
 #include "SkTwoPointConicalGradient.h"
-#include "GrGradientShader.h"
+#include "../GrGradientShader.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrTwoPointConicalGradientLayout : public GrFragmentProcessor {
