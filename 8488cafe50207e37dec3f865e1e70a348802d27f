@@ -22,6 +22,30 @@
       "revId": "8488cafe50207e37dec3f865e1e70a348802d27f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1faeec43_1db0a08d",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-10T18:13:49Z",
+      "side": 1,
+      "message": "Oh, good catch.  Done.",
+      "parentUuid": "01e8ae1d_21577911",
+      "range": {
+        "startLine": 372,
+        "startChar": 14,
+        "endLine": 372,
+        "endChar": 20
+      },
+      "revId": "8488cafe50207e37dec3f865e1e70a348802d27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
