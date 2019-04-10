@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01e8ae1d_21577911",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-10T18:10:49Z",
+      "side": 1,
+      "message": "Since cast is now inside skvx namespace, should we drop these prefixes?",
+      "range": {
+        "startLine": 372,
+        "startChar": 14,
+        "endLine": 372,
+        "endChar": 20
+      },
+      "revId": "8488cafe50207e37dec3f865e1e70a348802d27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
