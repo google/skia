@@ -493,22 +493,11 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     return true;
 }
 
-size_t GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                     GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                                     size_t offset) {
+bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                   GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                                   size_t offset) {
     SkASSERT(surface);
     SkASSERT(transferBuffer);
-
-    size_t rowBytes;
-    size_t offsetAlignment;
-    if (!this->vkCaps().transferFromBufferRequirements(bufferColorType, width, &rowBytes,
-                                                       &offsetAlignment)) {
-        return 0;
-    }
-
-    if (offset % offsetAlignment || offset + height * rowBytes > transferBuffer->size()) {
-        return 0;
-    }
 
     GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
 
@@ -541,12 +530,7 @@ size_t GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
     VkBufferImageCopy region;
     memset(&region, 0, sizeof(VkBufferImageCopy));
     region.bufferOffset = offset;
-    // We're assuming that GrVkCaps made the row bytes tight.
-    region.bufferRowLength = 0;
-#ifdef SK_DEBUG
-    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
-    SkASSERT(rowBytes == width * (size_t)bpp);
-#endif
+    region.bufferRowLength = width;
     region.bufferImageHeight = 0;
     region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     region.imageOffset = { left, top, 0 };
@@ -572,7 +556,7 @@ size_t GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
     // The caller is responsible for syncing.
     this->submitCommandBuffer(kSkip_SyncQueue);
 
-    return rowBytes;
+    return true;
 }
 
 void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,

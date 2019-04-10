@@ -224,21 +224,16 @@ public:
     bool transferBufferSupport() const { return fTransferBufferSupport; }
 
     /**
-     * Gets the requirements to use GrGpu::transferPixelsFrom for a given GrColorType. To check
-     * whether a pixels as GrColorType can be read for a given surface see
-     * supportedReadPixelsColorType() and surfaceSupportsReadPixels().
+     * Gets the alignment requirement for the buffer offset used with GrGpu::transferPixelsFrom for
+     * a given GrColorType. To check whether a pixels as GrColorType can be read for a given surface
+     * see supportedReadPixelsColorType() and surfaceSupportsReadPixels().
      *
      * @param bufferColorType The color type of the pixel data that will be stored in the transfer
      *                        buffer.
-     * @param width  The number of color values per row that will be stored in the buffer.
-     * @param rowBytes The number of bytes per row that will be used in the transfer buffer.
-     * @param alignment The required alignment of the offset into the transfer buffer passed
-     *                         to GrGpu::transferPixelsFrom.
-     * @return true if transferPixelFrom is supported, false otherwise. If false then rowBytes and
-     * alignment are not updated.
+     * @return minimum required alignment for the buffer offset or zero if reading to the color type
+     *         is not supported.
      */
-    bool transferFromBufferRequirements(GrColorType bufferColorType, int width, size_t* rowBytes,
-                                        size_t* offsetAlignment) const;
+    size_t transferFromOffsetAlignment(GrColorType bufferColorType) const;
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -426,8 +421,7 @@ private:
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
-    virtual bool onTransferFromBufferRequirements(GrColorType bufferColorType, int width,
-                                                  size_t* rowBytes, size_t* offsetAlignment) const;
+    virtual size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.

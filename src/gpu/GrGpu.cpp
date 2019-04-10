@@ -330,11 +330,13 @@ bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, i
     return false;
 }
 
-size_t GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                 GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
-                                 size_t offset) {
+bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                               size_t offset) {
     SkASSERT(surface);
     SkASSERT(transferBuffer);
+    SkASSERT(this->caps()->transferFromOffsetAlignment(bufferColorType));
+    SkASSERT(offset % this->caps()->transferFromOffsetAlignment(bufferColorType) == 0);
 
     // We require that the write region is contained in the texture
     SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -344,12 +346,12 @@ size_t GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int widt
     }
 
     this->handleDirtyContext();
-    if (auto result = this->onTransferPixelsFrom(surface, left, top, width, height, bufferColorType,
-                                                 transferBuffer, offset)) {
+    if (this->onTransferPixelsFrom(surface, left, top, width, height, bufferColorType,
+                                   transferBuffer, offset)) {
         fStats.incTransfersFromSurface();
-        return result;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {

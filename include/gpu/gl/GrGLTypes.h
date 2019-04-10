@@ -68,6 +68,7 @@ typedef unsigned char GrGLubyte;
 typedef unsigned short GrGLushort;
 typedef unsigned int GrGLuint;
 typedef uint64_t GrGLuint64;
+typedef unsigned short int GrGLhalf;
 typedef float GrGLfloat;
 typedef float GrGLclampf;
 typedef double GrGLdouble;

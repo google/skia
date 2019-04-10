@@ -212,21 +212,16 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     const int kPartialWidth = 10;
     const int kPartialHeight = 2;
 
-    size_t fullBufferRowBytes;
-    size_t partialBufferRowBytes;
-    size_t fullBufferOffsetAlignment;
-    size_t partialBufferOffsetAlignment;
-
-    SkAssertResult(context->priv().caps()->transferFromBufferRequirements(
-            colorType, kTextureWidth, &fullBufferRowBytes, &fullBufferOffsetAlignment));
-    SkAssertResult(context->priv().caps()->transferFromBufferRequirements(
-            colorType, kPartialWidth, &partialBufferRowBytes, &partialBufferOffsetAlignment));
+    size_t bpp = GrColorTypeBytesPerPixel(readColorType);
+    size_t fullBufferRowBytes = kTextureWidth * bpp;
+    size_t partialBufferRowBytes = kPartialWidth * bpp;
+    size_t offsetAlignment = context->priv().caps()->transferFromOffsetAlignment(readColorType);
+    SkASSERT(offsetAlignment);
 
     size_t bufferSize = fullBufferRowBytes * kTextureHeight;
     // Arbitrary starting offset for the partial read.
-    size_t partialReadOffset = GrSizeAlignUp(11, partialBufferOffsetAlignment);
-    bufferSize =
-            SkTMax(bufferSize, partialReadOffset + partialBufferRowBytes * partialBufferRowBytes);
+    size_t partialReadOffset = GrSizeAlignUp(11, offsetAlignment);
+    bufferSize = SkTMax(bufferSize, partialReadOffset + partialBufferRowBytes * kPartialHeight);
 
     sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(
             bufferSize, GrGpuBufferType::kXferGpuToCpu, kDynamic_GrAccessPattern));
@@ -269,10 +264,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
         //////////////////////////
         // transfer full data
-        auto bufferRowBytes = gpu->transferPixelsFrom(
-                tex.get(), 0, 0, kTextureWidth, kTextureHeight, readColorType, buffer.get(), 0);
-        REPORTER_ASSERT(reporter, bufferRowBytes = fullBufferRowBytes);
-        if (!bufferRowBytes) {
+        bool result = gpu->transferPixelsFrom(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+                                              readColorType, buffer.get(), 0);
+        if (!result) {
+            ERRORF(reporter, "transferPixelsFrom failed.");
             continue;
         }
         ++expectedTransferCnt;
@@ -291,17 +286,17 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                                                                  kTextureWidth,
                                                                  kTextureHeight,
                                                                  textureDataRowBytes,
-                                                                 bufferRowBytes,
+                                                                 fullBufferRowBytes,
                                                                  readColorType != colorType));
         buffer->unmap();
 
         ///////////////////////
         // Now test a partial read at an offset into the buffer.
-        bufferRowBytes = gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop,
-                                                 kPartialWidth, kPartialHeight, readColorType,
-                                                 buffer.get(), partialReadOffset);
-        REPORTER_ASSERT(reporter, bufferRowBytes = partialBufferRowBytes);
-        if (!bufferRowBytes) {
+        result = gpu->transferPixelsFrom(tex.get(), kPartialLeft, kPartialTop, kPartialWidth,
+                                         kPartialHeight, readColorType, buffer.get(),
+                                         partialReadOffset);
+        if (!result) {
+            ERRORF(reporter, "transferPixelsFrom failed.");
             continue;
         }
         ++expectedTransferCnt;
@@ -325,7 +320,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                                                                  kPartialWidth,
                                                                  kPartialHeight,
                                                                  textureDataRowBytes,
-                                                                 bufferRowBytes,
+                                                                 partialBufferRowBytes,
                                                                  readColorType != colorType));
         buffer->unmap();
     }

@@ -3259,3 +3259,44 @@ GrBackendFormat GrGLCaps::getBackendFormatFromGrColorType(GrColorType ct,
     return GrBackendFormat::MakeGL(this->configSizedInternalFormat(config), GR_GL_TEXTURE_2D);
 }
 
+size_t GrGLCaps::onTransferFromOffsetAlignment(GrColorType bufferColorType) const {
+    // This implementation is highly coupled with decisions made in initConfigTable and GrGLGpu's
+    // read pixels implementation and may not be correct for all types. TODO(bsalomon): This will be
+    // cleaned up/unified as part of removing GrPixelConfig.
+    // There are known problems with 24 vs 32 bit BPP with this color type. Just fail for now.
+    if (GrColorType::kRGB_888x == bufferColorType) {
+        return 0;
+    }
+    auto config = GrColorTypeToPixelConfig(bufferColorType, GrSRGBEncoded::kNo);
+    // This switch is derived from a table titled "Pixel data type parameter values and the
+    // corresponding GL data types" in the OpenGL spec (Table 8.2 in OpenGL 4.5).
+    switch (fConfigTable[config].fFormats.fExternalType) {
+        case GR_GL_UNSIGNED_BYTE:                   return sizeof(GrGLubyte);
+        case GR_GL_BYTE:                            return sizeof(GrGLbyte);
+        case GR_GL_UNSIGNED_SHORT:                  return sizeof(GrGLushort);
+        case GR_GL_SHORT:                           return sizeof(GrGLshort);
+        case GR_GL_UNSIGNED_INT:                    return sizeof(GrGLuint);
+        case GR_GL_INT:                             return sizeof(GrGLint);
+        case GR_GL_HALF_FLOAT:                      return sizeof(GrGLhalf);
+        case GR_GL_FLOAT:                           return sizeof(GrGLfloat);
+        case GR_GL_UNSIGNED_SHORT_5_6_5:            return sizeof(GrGLushort);
+        case GR_GL_UNSIGNED_SHORT_4_4_4_4:          return sizeof(GrGLushort);
+        case GR_GL_UNSIGNED_SHORT_5_5_5_1:          return sizeof(GrGLushort);
+        case GR_GL_UNSIGNED_INT_2_10_10_10_REV:     return sizeof(GrGLuint);
+#if 0  // GL types we currently don't use. Here for future reference.
+        case GR_GL_UNSIGNED_BYTE_3_3_2:             return sizeof(GrGLubyte);
+        case GR_GL_UNSIGNED_BYTE_2_3_3_REV:         return sizeof(GrGLubyte);
+        case GR_GL_UNSIGNED_SHORT_5_6_5_REV:        return sizeof(GrGLushort);
+        case GR_GL_UNSIGNED_SHORT_4_4_4_4_REV:      return sizeof(GrGLushort);
+        case GR_GL_UNSIGNED_SHORT_1_5_5_5_REV:      return sizeof(GrGLushort);
+        case GR_GL_UNSIGNED_INT_8_8_8_8:            return sizeof(GrGLuint);
+        case GR_GL_UNSIGNED_INT_8_8_8_8_REV:        return sizeof(GrGLuint);
+        case GR_GL_UNSIGNED_INT_10_10_10_2:         return sizeof(GrGLuint);
+        case GR_GL_UNSIGNED_INT_24_8:               return sizeof(GrGLuint);
+        case GR_GL_UNSIGNED_INT_10F_11F_11F_REV:    return sizeof(GrGLuint);
+        case GR_GL_UNSIGNED_INT_5_9_9_9_REV:        return sizeof(GrGLuint);
+        case GR_GL_FLOAT_32_UNSIGNED_INT_24_8_REV:  return sizeof(GrGLuint);
+#endif
+        default:                                    return 0;
+    }
+}
