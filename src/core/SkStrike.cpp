@@ -233,11 +233,10 @@ const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
-size_t SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
-                              const SkPoint positions[],
-                              size_t n,
-                              SkGlyphPos result[]) {
-
+SkSpan<const SkGlyphPos> SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
+                                                const SkPoint positions[],
+                                                size_t n,
+                                                SkGlyphPos result[]) {
     size_t drawableGlyphCount = 0;
     const SkPoint* posCursor = positions;
     for (size_t i = 0; i < n; i++) {
@@ -250,7 +249,7 @@ size_t SkStrike::glyphMetrics(const SkGlyphID glyphIDs[],
         }
     }
 
-    return drawableGlyphCount;
+    return SkSpan<const SkGlyphPos>{result, drawableGlyphCount};
 }
 
 #include "../pathops/SkPathOpsCubic.h"

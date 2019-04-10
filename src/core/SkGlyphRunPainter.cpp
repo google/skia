@@ -306,13 +306,13 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *runFont.getTypefaceOrDefault());
 
-        size_t drawableGlyphCount = strike->glyphMetrics(fARGBGlyphsIDs.data(),
-                                                         fARGBPositions.data(),
-                                                         fARGBGlyphsIDs.size(),
-                                                         fGlyphPos);
+        SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(fARGBGlyphsIDs.data(),
+                                                                     fARGBPositions.data(),
+                                                                     fARGBGlyphsIDs.size(),
+                                                                     fGlyphPos);
         if (process) {
             process->processDeviceFallback(
-                    SkSpan<const SkGlyphPos>{fGlyphPos, drawableGlyphCount},
+                    glyphPosSpan,
                     strike.get());
         }
 
@@ -555,12 +555,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.postTranslate(rounding.x(), rounding.y());
             mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
-            size_t drawableGlyphCount = strike->glyphMetrics(
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(
                     glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), fGlyphPos);
 
             size_t glyphsWithMaskCount = 0;
-            for (size_t i = 0; i < drawableGlyphCount; i++) {
-                SkGlyphPos glyphPos = fGlyphPos[i];
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 const SkPoint position = glyphPos.position;
                 if (!SkScalarsAreFinite(position.x(), position.y())) {
