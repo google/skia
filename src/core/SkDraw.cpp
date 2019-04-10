@@ -991,12 +991,14 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         r.round(&mask.fBounds);
 
         // set the mask's bounds to the transformed bitmap-bounds,
-        // clipped to the actual device
+        // clipped to the actual device and further limited by the clip bounds
         {
             SkIRect    devBounds;
             devBounds.set(0, 0, fDst.width(), fDst.height());
             // need intersect(l, t, r, b) on irect
-            if (!mask.fBounds.intersect(devBounds)) {
+            if (fRC->isEmpty() ||
+                !devBounds.intersect(fRC->getBounds().makeOutset(1, 1)) ||
+                !mask.fBounds.intersect(devBounds)) {
                 return;
             }
         }
