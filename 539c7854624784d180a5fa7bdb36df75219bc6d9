@@ -16,6 +16,24 @@
       "revId": "539c7854624784d180a5fa7bdb36df75219bc6d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13c37d21_95c0dff7",
+        "filename": "src/gpu/effects/GrOverrideInputFragmentProcessor.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-10T19:02:36Z",
+      "side": 1,
+      "message": "1) Yeah, I just cargo-culted that when I first wrote this .fp file a while back and just never thought to remove the lambda.\n\n2) Did this, I think.\n\n3) I think beyond just cargo-culting, this was a placeholder and is different logic than the old effect it is replacing. I\u0027m not sure what I was thinking - I made the original .fp file a while back to demo the key stuff I wanted to for Ethan. The new code reflects what the old effect did.",
+      "parentUuid": "822a58e4_b0c79b38",
+      "revId": "539c7854624784d180a5fa7bdb36df75219bc6d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
