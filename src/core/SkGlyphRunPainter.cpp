@@ -306,14 +306,12 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *runFont.getTypefaceOrDefault());
 
-        size_t drawableGlyphCount = strike->glyphMetrics(fARGBGlyphsIDs.data(),
-                                                         fARGBPositions.data(),
-                                                         fARGBGlyphsIDs.size(),
-                                                         fGlyphPos);
+        SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(fARGBGlyphsIDs.data(),
+                                                                     fARGBPositions.data(),
+                                                                     fARGBGlyphsIDs.size(),
+                                                                     fGlyphPos);
         if (process) {
-            process->processDeviceFallback(
-                    SkSpan<const SkGlyphPos>{fGlyphPos, drawableGlyphCount},
-                    strike.get());
+            process->processDeviceFallback(glyphPosSpan, strike.get());
         }
 
     } else {
@@ -352,11 +350,10 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fStrikeCache->findOrCreateScopedStrike(
                         *ad.getDesc(), effects, *fallbackFont.getTypefaceOrDefault());
 
-        SkPoint* posCursor = fARGBPositions.data();
         int glyphCount = 0;
         for (size_t i = 0; i < fARGBGlyphsIDs.size(); i++) {
             SkGlyphID glyphID = fARGBGlyphsIDs[i];
-            SkPoint pos = *posCursor++;
+            SkPoint pos = fARGBPositions[i];
             const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
             fGlyphPos[glyphCount++] = {i, &glyph, pos};
         }
@@ -555,12 +552,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             mapping.postTranslate(rounding.x(), rounding.y());
             mapping.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
-            size_t drawableGlyphCount = strike->glyphMetrics(
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->glyphMetrics(
                     glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), fGlyphPos);
 
             size_t glyphsWithMaskCount = 0;
-            for (size_t i = 0; i < drawableGlyphCount; i++) {
-                SkGlyphPos glyphPos = fGlyphPos[i];
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 const SkPoint position = glyphPos.position;
                 if (!SkScalarsAreFinite(position.x(), position.y())) {
