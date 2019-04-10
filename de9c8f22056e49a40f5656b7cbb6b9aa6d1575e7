@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a548b7e_6ec919bf",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-10T15:14:42Z",
+      "side": 1,
+      "message": "If we need this check at this point (not sure), we would want it for all branches, so we could move it to the top of this function.",
+      "range": {
+        "startLine": 999,
+        "startChar": 16,
+        "endLine": 999,
+        "endChar": 19
+      },
+      "revId": "de9c8f22056e49a40f5656b7cbb6b9aa6d1575e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f28f15b8_fca4f0a9",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-10T15:14:42Z",
+      "side": 1,
+      "message": "can the device bounds ever not intersect the RC? Seems like that could be an assert.",
+      "range": {
+        "startLine": 1000,
+        "startChar": 27,
+        "endLine": 1000,
+        "endChar": 36
+      },
+      "revId": "de9c8f22056e49a40f5656b7cbb6b9aa6d1575e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
