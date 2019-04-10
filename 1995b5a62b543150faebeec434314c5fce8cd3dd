@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9997378_670cbe0c",
+        "filename": "modules/sksg/include/SkSGColorFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-10T17:50:48Z",
+      "side": 1,
+      "message": "Interesting to put this at the SG level (this new ColorFilter)\n- can it be done entirely at the skottie level?\n- should it be a native skia filter?",
+      "range": {
+        "startLine": 109,
+        "startChar": 6,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "1995b5a62b543150faebeec434314c5fce8cd3dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
