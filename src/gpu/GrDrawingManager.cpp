@@ -208,7 +208,7 @@ void GrDrawingManager::freeGpuResources() {
 // MDB TODO: make use of the 'proxy' parameter.
 GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
                                               SkSurface::BackendSurfaceAccess access,
-                                              SkSurface::FlushFlags flags,
+                                              GrFlushFlags flags,
                                               int numSemaphores,
                                               GrBackendSemaphore backendSemaphores[]) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
@@ -219,7 +219,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
 
     SkDEBUGCODE(this->validate());
 
-    if (SkSurface::kNone_FlushFlags == flags && !numSemaphores && proxy && !fDAG.isUsed(proxy)) {
+    if (kNone_GrFlushFlags == flags && !numSemaphores && proxy && !fDAG.isUsed(proxy)) {
         return GrSemaphoresSubmitted::kNo;
     }
 
@@ -442,7 +442,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         (*numOpListsExecuted)++;
         if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
             flushState->gpu()->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                           SkSurface::kNone_FlushFlags, 0, nullptr);
+                                           kNone_GrFlushFlags, 0, nullptr);
             *numOpListsExecuted = 0;
         }
     }
@@ -460,7 +460,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         (*numOpListsExecuted)++;
         if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
             flushState->gpu()->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                           SkSurface::kNone_FlushFlags, 0, nullptr);
+                                           kNone_GrFlushFlags, 0, nullptr);
             *numOpListsExecuted = 0;
         }
     }
@@ -479,7 +479,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 }
 
 GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
-        GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access, SkSurface::FlushFlags flags,
+        GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access, GrFlushFlags flags,
         int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
@@ -759,7 +759,7 @@ void GrDrawingManager::flushIfNecessary() {
     auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
         this->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                    SkSurface::kNone_FlushFlags, 0, nullptr);
+                    kNone_GrFlushFlags, 0, nullptr);
         resourceCache->purgeAsNeeded();
     }
 }

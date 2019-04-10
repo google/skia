@@ -514,7 +514,7 @@ void VulkanWindowContext::swapBuffers() {
     GrBackendSemaphore beSemaphore;
     beSemaphore.initVulkan(backbuffer->fRenderSemaphore);
 
-    surface->flush(SkSurface::BackendSurfaceAccess::kPresent, SkSurface::kNone_FlushFlags,
+    surface->flush(SkSurface::BackendSurfaceAccess::kPresent, kNone_GrFlushFlags,
                    1, &beSemaphore);
 
     // Submit present operation to present queue

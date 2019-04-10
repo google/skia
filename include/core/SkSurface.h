@@ -713,12 +713,6 @@ public:
         kPresent,   //!< back-end surface will be used for presenting to screen
     };
 
-    enum FlushFlags {
-        kNone_FlushFlags = 0,
-        // flush will wait till all submitted GPU work is finished before returning.
-        kSyncCpu_FlushFlag = 0x1,
-    };
-
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
         After issuing all commands, signalSemaphores of count numSemaphores are signaled by the GPU.
         The work that is submitted to the GPU will be dependent on the BackendSurfaceAccess that is
@@ -758,35 +752,21 @@ public:
         @param signalSemaphores  array of semaphore containers
         @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
     */
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
+                                int numSemaphores, GrBackendSemaphore signalSemaphores[]);
+
+    /** The below enum and flush call are deprected
+     */
+
+    enum FlushFlags {
+        kNone_FlushFlags = 0,
+        // flush will wait till all submitted GPU work is finished before returning.
+        kSyncCpu_FlushFlag = 0x1,
+    };
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, FlushFlags flags,
                                 int numSemaphores, GrBackendSemaphore signalSemaphores[]);
 
-    /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
-        After issuing all commands, signalSemaphores of count numSemaphores semaphores
-        are signaled by the GPU.
-
-        For each GrBackendSemaphore in signalSemaphores:
-        if GrBackendSemaphore is initialized, the GPU back-end uses the semaphore as is;
-        otherwise, a new semaphore is created and initializes GrBackendSemaphore.
-
-        The caller must delete the semaphores created and returned in signalSemaphores.
-        GrBackendSemaphore can be deleted as soon as this function returns.
-
-        If the back-end API is OpenGL only uninitialized backend semaphores are supported.
-
-        If the back-end API is Vulkan semaphores may be initialized or uninitialized.
-        If uninitialized, created semaphores are valid only with the VkDevice
-        with which they were created.
-
-        If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
-        add any semaphores to signal on the GPU; the caller should not instruct the GPU
-        to wait on any of the semaphores.
-
-        Pending surface commands are flushed regardless of the return result.
-
-        @param numSemaphores     size of signalSemaphores array
-        @param signalSemaphores  array of semaphore containers
-        @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
+    /** Deprecated.
     */
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);

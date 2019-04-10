@@ -407,7 +407,7 @@ public:
      * if the surface has MSAA it will be resolved.
      */
     GrSemaphoresSubmitted prepareForExternalIO(SkSurface::BackendSurfaceAccess access,
-                                               SkSurface::FlushFlags flags, int numSemaphores,
+                                               GrFlushFlags flags, int numSemaphores,
                                                GrBackendSemaphore backendSemaphores[]);
 
     /**

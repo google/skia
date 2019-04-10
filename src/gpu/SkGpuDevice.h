@@ -121,7 +121,7 @@ public:
 
     void flush() override;
     GrSemaphoresSubmitted flushAndSignalSemaphores(SkSurface::BackendSurfaceAccess access,
-                                                   SkSurface::FlushFlags flags,
+                                                   GrFlushFlags flags,
                                                    int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
