@@ -8,11 +8,15 @@
 #include "SkOpts.h"
 
 #define SK_OPTS_NS hsw
+#include "SkBlitRow_opts.h"
 #include "SkRasterPipeline_opts.h"
 #include "SkUtils_opts.h"
 
 namespace SkOpts {
     void Init_hsw() {
+        blit_row_color32     = hsw::blit_row_color32;
+        blit_row_s32a_opaque = hsw::blit_row_s32a_opaque;
+
     #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
         SK_RASTER_PIPELINE_STAGES(M)
         just_return_highp = (StageFn)SK_OPTS_NS::just_return;
