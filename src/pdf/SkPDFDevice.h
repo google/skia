@@ -184,8 +184,6 @@ private:
                                     const SkPath& origPath,
                                     const SkPaint& paint);
 
-    bool handleInversePath(const SkPath& origPath, const SkPaint& paint, bool pathIsMutable);
-
     void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
     void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
     void setGraphicState(SkPDFIndirectReference gs, SkDynamicMemoryWStream*);
