@@ -46,6 +46,30 @@
       "revId": "1995b5a62b543150faebeec434314c5fce8cd3dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34aa16e1_28851148",
+        "filename": "modules/sksg/include/SkSGColorFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-04-10T19:50:05Z",
+      "side": 1,
+      "message": "OK, I moved the impl to a Skottie adapter.  Smells better to me, so I\u0027ll land this version if no objections.",
+      "parentUuid": "92446bf8_302be52e",
+      "range": {
+        "startLine": 109,
+        "startChar": 6,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "1995b5a62b543150faebeec434314c5fce8cd3dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
