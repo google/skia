@@ -20,7 +20,6 @@ class SkMatrix;
 struct SkRect;
 class SkRRect;
 class SkStrokeRec;
-enum class GrAAType : unsigned int;
 
 /*
  * This namespace wraps helper functions that draw ovals, rrects, and arcs (filled & stroked)
@@ -29,7 +28,6 @@ class GrOvalOpFactory {
 public:
     static std::unique_ptr<GrDrawOp> MakeOvalOp(GrRecordingContext*,
                                                 GrPaint&&,
-                                                GrAAType aaType,
                                                 const SkMatrix&,
                                                 const SkRect& oval,
                                                 const GrStyle& style,
@@ -37,7 +35,6 @@ public:
 
     static std::unique_ptr<GrDrawOp> MakeRRectOp(GrRecordingContext*,
                                                  GrPaint&&,
-                                                 GrAAType aaType,
                                                  const SkMatrix&,
                                                  const SkRRect&,
                                                  const SkStrokeRec&,
@@ -45,7 +42,6 @@ public:
 
     static std::unique_ptr<GrDrawOp> MakeArcOp(GrRecordingContext*,
                                                GrPaint&&,
-                                               GrAAType aaType,
                                                const SkMatrix&,
                                                const SkRect& oval,
                                                SkScalar startAngle,
