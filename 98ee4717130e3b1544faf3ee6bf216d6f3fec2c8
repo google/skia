@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0c97583_7f8b0c13",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-10T18:04:44Z",
+      "side": 1,
+      "message": "I agree these line breaks are silly. I\u0027m just doing what gn format wanted.",
+      "revId": "98ee4717130e3b1544faf3ee6bf216d6f3fec2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
