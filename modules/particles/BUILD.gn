@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_enable_particles = true
+  skia_enable_particles = !(is_win && is_component_build)
 }
 
 import("../../gn/skia.gni")
