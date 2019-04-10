@@ -34,6 +34,24 @@
       "revId": "934179a1a42bc4d208333519b43766c25eb467c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab747715_d66ccfe0",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-10T18:56:16Z",
+      "side": 1,
+      "message": "Okay leaving as is with enum",
+      "parentUuid": "470b44fe_2b47abdb",
+      "revId": "934179a1a42bc4d208333519b43766c25eb467c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
