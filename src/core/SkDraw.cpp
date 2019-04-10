@@ -965,6 +965,11 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
+    // nothing to draw
+    if (fRC->isEmpty()) {
+        return;
+    }
+
     if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint)) {
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
@@ -991,10 +996,11 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         r.round(&mask.fBounds);
 
         // set the mask's bounds to the transformed bitmap-bounds,
-        // clipped to the actual device
+        // clipped to the actual device and further limited by the clip bounds
         {
-            SkIRect    devBounds;
-            devBounds.set(0, 0, fDst.width(), fDst.height());
+            SkASSERT(fDst.bounds().contains(fRC->getBounds()));
+            SkIRect devBounds = fDst.bounds();
+            devBounds.intersect(fRC->getBounds().makeOutset(1, 1));
             // need intersect(l, t, r, b) on irect
             if (!mask.fBounds.intersect(devBounds)) {
                 return;
