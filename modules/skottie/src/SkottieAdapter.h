@@ -19,6 +19,7 @@ class BlurImageFilter;
 class Color;
 class Draw;
 class DropShadowImageFilter;
+class ExternalColorFilter;
 class Gradient;
 class Group;
 class LinearGradient;
@@ -327,6 +328,30 @@ private:
     void apply();
 
     const sk_sp<sksg::BlurImageFilter> fBlur;
+};
+
+class LevelsEffectAdapter final : public SkNVRefCnt<LevelsEffectAdapter> {
+public:
+    explicit LevelsEffectAdapter(sk_sp<sksg::RenderNode> child);
+    ~LevelsEffectAdapter();
+
+    // 1: RGB, 2: R, 3: G, 4: B, 5: A
+    ADAPTER_PROPERTY(  Channel, SkScalar, 1)
+    ADAPTER_PROPERTY(  InBlack, SkScalar, 0)
+    ADAPTER_PROPERTY(  InWhite, SkScalar, 1)
+    ADAPTER_PROPERTY( OutBlack, SkScalar, 0)
+    ADAPTER_PROPERTY( OutWhite, SkScalar, 1)
+    ADAPTER_PROPERTY(    Gamma, SkScalar, 1)
+    // 1: clip, 2,3: don't clip
+    ADAPTER_PROPERTY(ClipBlack, SkScalar, 1)
+    ADAPTER_PROPERTY(ClipWhite, SkScalar, 1)
+
+    const sk_sp<sksg::ExternalColorFilter>& root() const { return fEffect; }
+
+private:
+    void apply();
+
+    sk_sp<sksg::ExternalColorFilter> fEffect;
 };
 
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
