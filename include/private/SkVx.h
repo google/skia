@@ -165,21 +165,21 @@ SINT Vec<2*N,T> join(Vec<N,T> lo, Vec<N,T> hi) {
     SINT VExt<N,T> to_vext(Vec<N,T> v) { return bit_pun<VExt<N,T>>(v); }
     SINT Vec <N,T> to_vec(VExt<N,T> v) { return bit_pun<Vec <N,T>>(v); }
 
-    SINT Vec<N,T> operator+(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) + to_vext(y)); }
-    SINT Vec<N,T> operator-(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) - to_vext(y)); }
-    SINT Vec<N,T> operator*(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) * to_vext(y)); }
-    SINT Vec<N,T> operator/(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) / to_vext(y)); }
+    SINT Vec<N,T> operator+(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) + to_vext(y)); }
+    SINT Vec<N,T> operator-(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) - to_vext(y)); }
+    SINT Vec<N,T> operator*(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) * to_vext(y)); }
+    SINT Vec<N,T> operator/(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) / to_vext(y)); }
 
-    SINT Vec<N,T> operator^(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) ^ to_vext(y)); }
-    SINT Vec<N,T> operator&(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) & to_vext(y)); }
-    SINT Vec<N,T> operator|(Vec<N,T> x, Vec<N,T> y) { return to_vec(to_vext(x) | to_vext(y)); }
+    SINT Vec<N,T> operator^(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) ^ to_vext(y)); }
+    SINT Vec<N,T> operator&(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) & to_vext(y)); }
+    SINT Vec<N,T> operator|(Vec<N,T> x, Vec<N,T> y) { return to_vec<N,T>(to_vext(x) | to_vext(y)); }
 
-    SINT Vec<N,T> operator!(Vec<N,T> x) { return to_vec(!to_vext(x)); }
-    SINT Vec<N,T> operator-(Vec<N,T> x) { return to_vec(-to_vext(x)); }
-    SINT Vec<N,T> operator~(Vec<N,T> x) { return to_vec(~to_vext(x)); }
+    SINT Vec<N,T> operator!(Vec<N,T> x) { return to_vec<N,T>(!to_vext(x)); }
+    SINT Vec<N,T> operator-(Vec<N,T> x) { return to_vec<N,T>(-to_vext(x)); }
+    SINT Vec<N,T> operator~(Vec<N,T> x) { return to_vec<N,T>(~to_vext(x)); }
 
-    SINT Vec<N,T> operator<<(Vec<N,T> x, int bits) { return to_vec(to_vext(x) << bits); }
-    SINT Vec<N,T> operator>>(Vec<N,T> x, int bits) { return to_vec(to_vext(x) >> bits); }
+    SINT Vec<N,T> operator<<(Vec<N,T> x, int bits) { return to_vec<N,T>(to_vext(x) << bits); }
+    SINT Vec<N,T> operator>>(Vec<N,T> x, int bits) { return to_vec<N,T>(to_vext(x) >> bits); }
 
     SINT Vec<N,M<T>> operator==(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) == to_vext(y)); }
     SINT Vec<N,M<T>> operator!=(Vec<N,T> x, Vec<N,T> y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) != to_vext(y)); }
