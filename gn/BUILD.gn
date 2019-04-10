@@ -296,6 +296,10 @@ config("warnings") {
       # Probably only triggers when /EHsc is enabled.
       "/wd4291",  # no matching operator delete found;
                   # memory will not be freed if initialization throws an exception
+
+      # These only show up in shared builds:
+      "/wd4251",  # class 'type' needs to have dll-interface to be used by clients of class 'type2'
+      "/wd4275",  # non dll-interface class 'base' used as base for dll-interface class 'derived'
     ]
   } else {
     cflags += [
