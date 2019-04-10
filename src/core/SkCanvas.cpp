@@ -2849,6 +2849,9 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkCanvas::ImageSetEntry::ImageSetEntry() {}
+SkCanvas::ImageSetEntry::~ImageSetEntry() {}
+
 SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
                                        const SkRect& dstRect, int matrixIndex, float alpha,
                                        unsigned aaFlags, bool hasClip)
@@ -2867,6 +2870,27 @@ SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect&
                 , fDstRect(dstRect)
                 , fAlpha(alpha)
                 , fAAFlags(aaFlags) {}
+
+SkCanvas::ImageSetEntry::ImageSetEntry(const ImageSetEntry& that)
+                : fImage(that.fImage)
+                , fSrcRect(that.fSrcRect)
+                , fDstRect(that.fDstRect)
+                , fMatrixIndex(that.fMatrixIndex)
+                , fAlpha(that.fAlpha)
+                , fAAFlags(that.fAAFlags)
+                , fHasClip(that.fHasClip) {
+}
+
+SkCanvas::ImageSetEntry& SkCanvas::ImageSetEntry::operator=(const ImageSetEntry& that) {
+    fImage       = that.fImage;
+    fSrcRect     = that.fSrcRect;
+    fDstRect     = that.fDstRect;
+    fMatrixIndex = that.fMatrixIndex;
+    fAlpha       = that.fAlpha;
+    fAAFlags     = that.fAAFlags;
+    fHasClip     = that.fHasClip;
+    return *this;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

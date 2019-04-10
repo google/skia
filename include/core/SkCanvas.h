@@ -1813,7 +1813,10 @@ public:
         ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
                       float alpha, unsigned aaFlags);
 
-        ImageSetEntry() = default;
+        ImageSetEntry();
+        ~ImageSetEntry();
+        ImageSetEntry(const ImageSetEntry&);
+        ImageSetEntry& operator=(const ImageSetEntry&);
 
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
