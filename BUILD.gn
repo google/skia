@@ -1679,14 +1679,11 @@ if (skia_enable_tools) {
       "modules/skottie",
       "modules/skottie:gm",
       "modules/sksg",
+      "modules/skshaper",
     ]
     public_deps = [
       ":gpu_tool_utils",
     ]
-    if (skia_enable_skshaper) {
-      deps += [ "modules/skshaper" ]
-      defines = [ "SK_USING_SKSHAPER" ]
-    }
   }
 
   import("gn/tests.gni")
@@ -1706,6 +1703,7 @@ if (skia_enable_tools) {
       ":tool_utils",
       "modules/skottie:tests",
       "modules/sksg:tests",
+      "modules/skshaper",
       "//third_party/libpng",
       "//third_party/libwebp",
       "//third_party/zlib",
@@ -1713,10 +1711,6 @@ if (skia_enable_tools) {
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
-    if (skia_enable_skshaper) {
-      deps += [ "modules/skshaper" ]
-      defines = [ "SK_USING_SKSHAPER" ]
-    }
   }
 
   import("gn/bench.gni")
@@ -2341,9 +2335,9 @@ if (skia_enable_tools) {
   if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
     test_app("fiddle_examples") {
       sources = [
+        "tools/fiddle/all_examples.cpp",
         "tools/fiddle/examples.cpp",
         "tools/fiddle/examples.h",
-        "tools/fiddle/all_examples.cpp",
       ]
       include_dirs = [ "tools" ]
       if (is_win) {
