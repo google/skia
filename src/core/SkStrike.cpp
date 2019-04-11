@@ -248,11 +248,9 @@ SkSpan<const SkGlyphPos> SkStrike::prepareForDrawing(const SkGlyphID glyphIDs[],
             if (!glyph.isEmpty()) {
                 result[drawableGlyphCount++] = {i, &glyph, position};
                 if (glyph.maxDimension() <= maxDimension) {
-
                     // Glyph fits in the atlas, good to go.
                     this->findImage(glyph);
                 } else if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-
                     // The out of atlas glyph is not color so we can draw it using paths.
                     this->findPath(glyph);
                 } else {
