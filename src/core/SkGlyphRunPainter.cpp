@@ -403,7 +403,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
         }
 
         if (useSDFT) {
-
             // Translate all glyphs to the origin.
             SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
             translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
@@ -430,38 +429,44 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fStrikeCache->findOrCreateScopedStrike(
                             *ad.getDesc(), effects, *dfFont.getTypefaceOrDefault());
 
-            int glyphCount = 0;
-            for (size_t i = 0; i < glyphRun.runSize(); i++) {
-                SkGlyphID glyphID = glyphRun.glyphsIDs()[i];
-                SkPoint glyphSourcePosition = fPositions[i];
-                const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
+                    SkStrikeCommon::kSkSideTooBigForAtlas, fGlyphPos);
 
+            size_t glyphsWithMaskCount = 0;
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
                 if (glyph.isEmpty()) {
                     // do nothing
                 } else if (glyph.fMaskFormat == SkMask::kSDF_Format
                            && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
-                    fGlyphPos[glyphCount++] = {i, &glyph, glyphSourcePosition};
+                    // SDF mask will work.
+                    fGlyphPos[glyphsWithMaskCount++] = glyphPos;
                 } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
                            && strike->decideCouldDrawFromPath(glyph)) {
-                    fPaths.push_back({i, &glyph, glyphSourcePosition});
+                    // If not color but too big, use a path.
+                    fPaths.push_back(glyphPos);
                 } else {
-                    addFallback(glyph, glyphSourcePosition);
+                    // If no path, or it is color, then fallback.
+                    addFallback(glyph, position);
                 }
             }
 
             if (process) {
-                if (glyphCount > 0) {
-                    bool hasWCoord = viewMatrix.hasPerspective()
-                                     || options.fDistanceFieldVerticesAlwaysHaveW;
-                    process->processSourceSDFT(
-                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
-                            strike.get(),
-                            runFont,
-                            cacheToSourceScale,
-                            minScale,
-                            maxScale,
-                            hasWCoord);
-                }
+                bool hasWCoord =
+                        viewMatrix.hasPerspective() || options.fDistanceFieldVerticesAlwaysHaveW;
+
+                // processSourceSDFT must be called even if there are no glyphs to make sure runs
+                // are set correctly.
+                process->processSourceSDFT(
+                        SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount},
+                        strike.get(),
+                        runFont,
+                        cacheToSourceScale,
+                        minScale,
+                        maxScale,
+                        hasWCoord);
 
                 if (!fPaths.empty()) {
                     process->processSourcePaths(
