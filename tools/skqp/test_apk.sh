@@ -34,7 +34,8 @@ fi
 
 TDIR="$(mktemp -d "${TMPDIR:-/tmp}/skqp_report.XXXXXXXXXX")"
 
-adb install -r "$APK" || exit 2
+adb uninstall org.skia.skqp
+adb install "$APK" || exit 2
 adb logcat -c
 
 adb logcat TestRunner org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" &
