@@ -460,7 +460,7 @@ def GenTests(api):
 
     if 'ChromeOS' in builder:
       test += api.step_data(
-          'read chromeos ip',
+          'read ssh_machine.json',
           stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
 
     yield test
