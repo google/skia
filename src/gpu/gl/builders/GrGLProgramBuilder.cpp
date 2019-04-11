@@ -176,9 +176,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         }
     } else {
         // source cache
-        SkWriter32 writer;
-        GrPersistentCacheUtils::PackCachedGLSL(writer, inputs, glsl);
-        auto data = writer.snapshotAsData();
+        auto data = GrPersistentCacheUtils::PackCachedGLSL(inputs, glsl);
         this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
     }
 }
@@ -219,10 +217,9 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     bool cached = fCached.get() != nullptr;
     SkSL::String glsl[kGrShaderTypeCount];
     if (cached) {
-        SkReader32 reader(fCached->data(), fCached->size());
-
         if (fGpu->glCaps().programBinarySupport()) {
             // binary cache hit, just hand the binary to GL
+            SkReader32 reader(fCached->data(), fCached->size());
             reader.read(&inputs, sizeof(inputs));
             GrGLsizei length = reader.readInt();
             const void* binary = reader.skip(length);
@@ -244,7 +241,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             }
         } else {
             // source cache hit, we don't need to compile the SkSL->GLSL
-            GrPersistentCacheUtils::UnpackCachedGLSL(reader, &inputs, glsl);
+            GrPersistentCacheUtils::UnpackCachedGLSL(fCached.get(), &inputs, glsl);
         }
     }
     if (!cached || !fGpu->glCaps().programBinarySupport()) {
