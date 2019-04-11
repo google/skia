@@ -389,7 +389,11 @@ static inline Vec<N,D> cast(Vec<N,S> src) {
 // The only real restriction is that the output also be a legal N=power-of-two sknx::Vec.
 template <int... Ix, int N, typename T>
 static inline Vec<sizeof...(Ix),T> shuffle(Vec<N,T> x) {
+#if !defined(SKNX_NO_SIMD) && defined(__clang__)
+    return to_vec<sizeof...(Ix),T>(__builtin_shufflevector(to_vext(x), to_vext(x), Ix...));
+#else
     return { x[Ix]... };
+#endif
 }
 
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
