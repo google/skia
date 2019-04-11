@@ -392,6 +392,23 @@ static inline Vec<sizeof...(Ix),T> shuffle(Vec<N,T> x) {
     return { x[Ix]... };
 }
 
+// div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.
+template <int N>
+static inline Vec<N,uint8_t> div255(Vec<N,uint16_t> x) {
+    return cast<uint8_t>( (x+127)/255 );
+}
+
+// approx_scale(x,y) approximates div255(cast<uint16_t>(x)*cast<uint16_t>(y)) within a bit,
+// and is always perfect when x or y is 0 or 255.
+template <int N>
+static inline Vec<N,uint8_t> approx_scale(Vec<N,uint8_t> x, Vec<N,uint8_t> y) {
+    // All of (x*y+x)/256, (x*y+y)/256, and (x*y+255)/256 meet the criteria above.
+    // We happen to have historically picked (x*y+x)/256.
+    auto X = cast<uint16_t>(x),
+         Y = cast<uint16_t>(y);
+    return cast<uint8_t>( (X*Y+X)/256 );
+}
+
 #if !defined(SKNX_NO_SIMD)
     // Platform-specific specializations and overloads can now drop in here.
 
