@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Sk4px.h"
 #include "SkBlitRow.h"
 #include "SkColorData.h"
 #include "SkOpts.h"
 #include "SkUtils.h"
+#include "SkVx.h"
 
 // Everyone agrees memcpy() is the best way to do this.
 static void blit_row_s32_opaque(SkPMColor* dst,
@@ -312,14 +312,33 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMC
         case 255: sk_memset32(dst, color, count);               return;
     }
 
-    unsigned invA = 255 - SkGetPackedA32(color);
-    invA += invA >> 7;
-    SkASSERT(invA < 256);  // We've should have already handled alpha == 0 externally.
+    const int N = 8;  // 4, 16 also reasonable choices.
+    using U32 = skvx::Vec<N, uint32_t>;
 
-    Sk16h colorHighAndRound = (Sk4px::DupPMColor(color).widen() << 8) + Sk16h(128);
-    Sk16b invA_16x(invA);
+    auto kernel = [color](U32 src) {
+        using U16 = skvx::Vec<4*N, uint16_t>;
+        using U8  = skvx::Vec<4*N, uint8_t>;
 
-    Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
-        return (src4 * invA_16x).addNarrowHi(colorHighAndRound);
-    });
+        unsigned invA = 255 - SkGetPackedA32(color);
+        invA += invA >> 7;
+        SkASSERT(0 < invA && invA < 256);  // We handle alpha == 0 or alpha == 255 specially.
+
+        // (src * invA + (color << 8) + 128) >> 8
+        // Should all fit in 16 bits.
+        // TODO(mtklein): use mull for src*invA on ARM to widen and multiply in one step?
+        U16 s = skvx::cast<uint16_t>(skvx::bit_pun<U8>(src)),
+            c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
+            d = (s * invA + (c << 8) + 128)>>8;
+        return skvx::bit_pun<U32>(skvx::cast<uint8_t>(d));
+    };
+
+    while (count >= N) {
+        kernel(U32::Load(src)).store(dst);
+        src   += N;
+        dst   += N;
+        count -= N;
+    }
+    while (count --> 0) {
+        *dst++ = kernel(U32{*src++})[0];
+    }
 }
