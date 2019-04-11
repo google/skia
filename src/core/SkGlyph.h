@@ -150,6 +150,10 @@ public:
     // fImage, fPath, fID, fMaskFormat fields.
     void zeroMetrics();
 
+    bool hasImage() const {
+        return fImage != nullptr;
+    }
+
     SkMask mask() const;
 
     SkMask mask(SkPoint position) const;
