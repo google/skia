@@ -662,7 +662,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
             break;
         case Token::NEQ:
             if (b.fLeft->fType.kind() == Type::kVector_Kind) {
-                this->write("!all");
+                this->write("any");
                 needParens = true;
             }
             break;
