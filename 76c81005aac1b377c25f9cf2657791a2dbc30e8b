@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aa19c026_063a3af5",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-11T20:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b223b4e_2266494f",
+      "range": {
+        "startLine": 46,
+        "startChar": 61,
+        "endLine": 46,
+        "endChar": 85
+      },
+      "revId": "76c81005aac1b377c25f9cf2657791a2dbc30e8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "124b7f6c_d505033f",
         "filename": "include/utils/SkPaintFilterCanvas.h",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-04-11T19:58:54Z",
       "side": 1,
       "message": "Think it\u0027s clearer to pass by SkPaint*?",
+      "range": {
+        "startLine": 55,
+        "startChar": 26,
+        "endLine": 55,
+        "endChar": 34
+      },
+      "revId": "76c81005aac1b377c25f9cf2657791a2dbc30e8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5a22381_2bca913d",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-11T20:01:37Z",
+      "side": 1,
+      "message": "No, because I don\u0027t want to document that the pointer won\u0027t be nullptr just so the *one* call site doesn\u0027t look like pass-by-value.",
+      "parentUuid": "124b7f6c_d505033f",
       "range": {
         "startLine": 55,
         "startChar": 26,
