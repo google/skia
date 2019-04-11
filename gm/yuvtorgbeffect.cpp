@@ -9,6 +9,7 @@
 
 #include "gm.h"
 
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
@@ -249,4 +250,133 @@ private:
 };
 
 DEF_GM(return new YUVNV12toRGBEffect;)
+
+//////////////////////////////////////////////////////////////////////////////
+
+// This GM tests domain clamping on YUV multiplanar images where the U and V
+// planes have different resolution from Y. See skbug:8959
+
+class YUVtoRGBDomainEffect : public GpuGM {
+public:
+    YUVtoRGBDomainEffect() {
+        this->setBGColor(0xFFFFFFFF);
+    }
+
+protected:
+    SkString onShortName() override {
+        return SkString("yuv_to_rgb_domain_effect");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make((YSIZE + kTestPad) * 3 + kDrawPad, (YSIZE + kTestPad) * 2 + kDrawPad);
+    }
+
+    void onOnceBeforeDraw() override {
+        SkBitmap bmp[3];
+        SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
+        bmp[0].allocPixels(yinfo);
+        SkImageInfo uinfo = SkImageInfo::MakeA8(USIZE, USIZE);
+        bmp[1].allocPixels(uinfo);
+        SkImageInfo vinfo = SkImageInfo::MakeA8(VSIZE, VSIZE);
+        bmp[2].allocPixels(vinfo);
+
+        unsigned char* pixels[3];
+        for (int i = 0; i < 3; ++i) {
+            pixels[i] = (unsigned char*)bmp[i].getPixels();
+        }
+
+        int innerColor[] = {149, 43, 21};
+        int outerColor[] = {128, 128, 128};
+
+        for (int i = 0; i < 3; ++i) {
+            for (int y = 0; y < bmp[i].height(); ++y) {
+                for (int x = 0; x < bmp[i].width(); ++x) {
+                    SkScalar u = (x + 0.5f) / bmp[i].width();
+                    SkScalar v = (y + 0.5f) / bmp[i].height();
+                    if (u >= 0.25f && u <= 0.75f && v >= 0.25f && v <= 0.75f) {
+                        pixels[i][y * bmp[i].rowBytes() + x] = innerColor[i];
+                    } else {
+                        pixels[i][y * bmp[i].rowBytes() + x] = outerColor[i];
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            fImage[i] = SkImage::MakeFromBitmap(bmp[i]);
+        }
+    }
+
+    DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                      SkCanvas* canvas, SkString* errorMsg) override {
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+        sk_sp<GrTextureProxy> proxies[3];
+
+        for (int i = 0; i < 3; ++i) {
+            proxies[i] = proxyProvider->createTextureProxy(fImage[i], kNone_GrSurfaceFlags, 1,
+                                                           SkBudgeted::kYes, SkBackingFit::kExact);
+            if (!proxies[i]) {
+                *errorMsg = "Failed to create proxy";
+                return DrawResult::kFail;
+            }
+        }
+
+        // Draw a 2x2 grid of the YUV images.
+        // Rows = kNearest, kBilerp, Cols = No clamp, clamp
+        static const GrSamplerState::Filter kFilters[] = {
+                GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kBilerp };
+        static const SkRect kGreenRect = SkRect::MakeLTRB(
+                0.25f * YSIZE, 0.25f * YSIZE, 0.75f * YSIZE, 0.75f * YSIZE);
+
+        SkYUVAIndex yuvaIndices[4] = {
+            { SkYUVAIndex::kY_Index, SkColorChannel::kR },
+            { SkYUVAIndex::kU_Index, SkColorChannel::kR },
+            { SkYUVAIndex::kV_Index, SkColorChannel::kR },
+            { -1, SkColorChannel::kA }
+        };
+        SkRect rect = SkRect::MakeWH(YSIZE, YSIZE);
+
+        SkScalar y = kDrawPad + kTestPad;
+        for (uint32_t i = 0; i < SK_ARRAY_COUNT(kFilters); ++i) {
+            SkScalar x = kDrawPad + kTestPad;
+
+            for (uint32_t j = 0; j < 2; ++j) {
+                SkMatrix ctm = SkMatrix::MakeTrans(x, y);
+                ctm.postScale(10.f, 10.f);
+
+                SkRect domain = kGreenRect;
+                if (kFilters[i] == GrSamplerState::Filter::kNearest) {
+                    // Make a very small inset for nearest-neighbor filtering so that 0.5px
+                    // centers round out beyond the green pixels.
+                    domain.inset(0.01f, 0.01f);
+                }
+
+                const SkRect* domainPtr = j > 0 ? &domain : nullptr;
+                std::unique_ptr<GrFragmentProcessor> fp(GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
+                        kJPEG_SkYUVColorSpace, kFilters[i], SkMatrix::I(), domainPtr));
+                if (fp) {
+                    GrPaint grPaint;
+                    grPaint.addColorFragmentProcessor(std::move(fp));
+                    renderTargetContext->drawRect(
+                            GrNoClip(), std::move(grPaint), GrAA::kYes, ctm, rect);
+                }
+                x += rect.width() + kTestPad;
+            }
+
+            y += rect.height() + kTestPad;
+        }
+
+        return DrawResult::kOk;
+     }
+
+private:
+    sk_sp<SkImage> fImage[3];
+
+    static constexpr SkScalar kDrawPad = 10.f;
+    static constexpr SkScalar kTestPad = 10.f;
+
+    typedef GM INHERITED;
+};
+
+DEF_GM(return new YUVtoRGBDomainEffect;)
 }
