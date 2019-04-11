@@ -382,6 +382,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // YUVA images can be stored in multiple images with different plane resolutions, so this
     // uses an effect to combine them dynamically on the GPU. This is done before requesting a
     // pinned texture proxy because YUV images force-flatten to RGBA in that scenario.
+    SkDebugf("draw image, yuva: %d\n", as_IB(image)->isYUVA());
     if (as_IB(image)->isYUVA()) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());

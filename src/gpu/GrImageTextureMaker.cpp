@@ -92,13 +92,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
     const GrSamplerState::Filter* filterOrNullForBicubic) {
 
     // Check simple cases to see if we need to fall back to flattening the image
-    // TODO: See if we can relax this -- for example, if filterConstraint
-    //       is kYes_FilterConstraint we still may not need a TextureDomain
-    //       in some cases. Or allow YUVtoRGBEffect to take a wrap mode to
-    //       handle ClampToBorder when a decal is needed.
-    if (!textureMatrix.isIdentity() || kNo_FilterConstraint != filterConstraint ||
-        !coordsLimitedToConstraintRect || !filterOrNullForBicubic ||
-        this->domainNeedsDecal()) {
+    SkDebugf("is texture identity: %d\n", textureMatrix.isIdentity());
+    if (!filterOrNullForBicubic || this->domainNeedsDecal()) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,
                                                         filterConstraint,
                                                         coordsLimitedToConstraintRect,
@@ -113,8 +108,16 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         filter = GrSamplerState::Filter::kBilerp;
     }
 
+    // Cannot rely on GrTextureProducer's domain infrastructure since we need to calculate domain's
+    // per plane, which may be different.
+    const SkRect* domain = nullptr;
+    // if (filterConstraint == GrTextureProducer::kYes_FilterConstraint) {
+        domain = &constraintRect;
+    // }
+    SkDebugf("constraint: %d, limited: %d\n", filterConstraint, coordsLimitedToConstraintRect);
+
     auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
-                                     fImage->fYUVColorSpace, filter);
+                                     fImage->fYUVColorSpace, filter, textureMatrix, domain);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
                                            fImage->alphaType(), fImage->colorSpace());
