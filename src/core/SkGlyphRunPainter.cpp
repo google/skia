@@ -187,23 +187,35 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             // The sub-pixel position will always happen when transforming to the screen.
             pathFont.setSubpixel(false);
 
-            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                pathFont, pathPaint, props,
-                                fScalerContextFlags, SkMatrix::I());
+            SkAutoDescriptor ad;
+            SkScalerContextEffects effects;
+            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
+                                                                  pathPaint,
+                                                                  props,
+                                                                  fScalerContextFlags,
+                                                                  SkMatrix::I(),
+                                                                  &ad,
+                                                                  &effects);
+
+            SkScopedStrike strike =
+                    fStrikeCache->findOrCreateScopedStrike(
+                            *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
+
+            auto glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
 
             SkTDArray<SkPathPos> pathsAndPositions;
-            pathsAndPositions.setReserve(runSize);
-            SkPoint* positionCursor = fPositions;
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                SkPoint position = *positionCursor++;
-                if (check_glyph_position(position)) {
-                    const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
-                    if (!glyph.isEmpty()) {
-                        const SkPath* path = pathCache->findPath(glyph);
-                        if (path != nullptr) {
-                            pathsAndPositions.push_back(SkPathPos{path, position});
-                        }
-                    }
+            pathsAndPositions.setReserve(glyphPosSpan.size());
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
+                if (check_glyph_position(position)
+                    && !glyph.isEmpty()
+                    && glyph.fMaskFormat != SkMask::kARGB32_Format
+                    && strike->decideCouldDrawFromPath(glyph))
+                {
+                    // Only draw a path if it exists, and this is not a color glyph.
+                    pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
                 }
             }
 
