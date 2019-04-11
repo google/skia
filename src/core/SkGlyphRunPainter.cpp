@@ -138,27 +138,6 @@ static bool check_glyph_position(SkPoint position) {
              lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)));
 }
 
-static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* image) {
-    SkMask mask;
-    int left = SkScalarFloorToInt(position.fX);
-    int top  = SkScalarFloorToInt(position.fY);
-
-    left += glyph.fLeft;
-    top  += glyph.fTop;
-
-    int right   = left + glyph.fWidth;
-    int bottom  = top  + glyph.fHeight;
-
-    mask.fBounds.set(left, top, right, bottom);
-    SkASSERT(!mask.fBounds.isEmpty());
-
-    mask.fImage    = (uint8_t*)image;
-    mask.fRowBytes = glyph.rowBytes();
-    mask.fFormat   = static_cast<SkMask::Format>(glyph.fMaskFormat);
-
-    return mask;
-}
-
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         const BitmapDevicePainter* bitmapDevice) {
@@ -216,30 +195,39 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     SkSpan<const SkPathPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
                     textScale, pathPaint);
         } else {
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                        runFont, runPaint, props,
-                                        fScalerContextFlags, deviceMatrix);
+            SkAutoDescriptor ad;
+            SkScalerContextEffects effects;
+
+            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+                    runFont, runPaint, props, fScalerContextFlags, deviceMatrix, &ad,
+                    &effects);
+
+            SkTypeface* typeface = runFont.getTypefaceOrDefault();
+            SkScopedStrike strike =
+                    fStrikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
             matrix.preTranslate(origin.x(), origin.y());
-            SkPoint rounding = cache->rounding();
+            SkPoint rounding = strike->rounding();
             matrix.postTranslate(rounding.x(), rounding.y());
             matrix.mapPoints(fPositions, glyphRun.positions().data(), runSize);
 
+            SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
+                    std::numeric_limits<int>::max(), fGlyphPos);
+
             SkTDArray<SkMask> masks;
-            masks.setReserve(runSize);
-            const SkPoint* positionCursor = fPositions;
-            for (auto glyphID : glyphRun.glyphsIDs()) {
-                auto position = *positionCursor++;
-                if (check_glyph_position(position)) {
-                    const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, position);
-                    const void* image;
-                    if (!glyph.isEmpty() && (image = cache->findImage(glyph))) {
-                        masks.push_back(create_mask(glyph, position, image));
-                    }
+            masks.setReserve(glyphPosSpan.size());
+
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
+                if (check_glyph_position(position) && !glyph.isEmpty()) {
+                    masks.push_back(glyph.mask(position));
                 }
             }
+
             bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, runPaint);
         }
     }
