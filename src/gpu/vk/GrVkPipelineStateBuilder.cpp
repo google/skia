@@ -117,8 +117,7 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    SkReader32 reader(cached.data(), cached.size());
-    GrPersistentCacheUtils::UnpackCachedSPIRV(reader, shaders, inputs);
+    GrPersistentCacheUtils::UnpackCachedSPIRV(&cached, shaders, inputs);
 
     SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                fVS,
@@ -151,9 +150,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[]) {
     Desc* desc = static_cast<Desc*>(this->desc());
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
-    SkWriter32 writer;
-    GrPersistentCacheUtils::PackCachedSPIRV(writer, shaders, inputs);
-    auto data = writer.snapshotAsData();
+    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedSPIRV(shaders, inputs);
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 

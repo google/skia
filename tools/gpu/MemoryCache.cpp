@@ -89,10 +89,9 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
         writer.appendS32(it->second.fHitCount);
         writer.endArray();
 
-        SkReader32 reader(it->second.fData->data(), it->second.fData->size());
         SkSL::Program::Inputs inputsIgnored;
         SkSL::String glsl[kGrShaderTypeCount];
-        GrPersistentCacheUtils::UnpackCachedGLSL(reader, &inputsIgnored, glsl);
+        GrPersistentCacheUtils::UnpackCachedGLSL(it->second.fData.get(), &inputsIgnored, glsl);
 
         SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(),
                                            extensions[kFragment_GrShaderType]);
