@@ -13,6 +13,8 @@
 #include "GMSlide.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
+#include "GrPersistentCacheUtils.h"
 #include "ImageSlide.h"
 #include "ParticlesSlide.h"
 #include "Resources.h"
@@ -20,10 +22,12 @@
 #include "SampleSlide.h"
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
+#include "SkData.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
+#include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaintFilterCanvas.h"
@@ -42,6 +46,7 @@
 #include <map>
 
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"  // For ImGui support of std::string
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "SkottieSlide.h"
@@ -274,6 +279,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
+    displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
+    displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
@@ -1942,6 +1949,64 @@ void Viewer::drawImGui() {
                 if (ImGui::DragFloat("Speed", &speed, 0.1f)) {
                     fAnimTimer.setSpeed(speed);
                 }
+            }
+
+            if (Window::kNativeGL_BackendType == fBackendType &&
+                ImGui::CollapsingHeader("Shaders")) {
+                // To re-load shaders from the currently active programs, we flush all caches on one
+                // frame, then set a flag to poll the cache on the next frame.
+                static bool gLoadPending = false;
+                if (gLoadPending) {
+                    auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
+                                                 int hitCount) {
+                        CachedGLSL& entry(fCachedGLSL.push_back());
+                        entry.fKey = key;
+                        SkMD5 hash;
+                        hash.write(key->bytes(), key->size());
+                        SkMD5::Digest digest = hash.finish();
+                        for (int i = 0; i < 16; ++i) {
+                            entry.fKeyString.appendf("%02x", digest.data[i]);
+                        }
+
+                        GrPersistentCacheUtils::UnpackCachedGLSL(data.get(), &entry.fInputs,
+                                                                 entry.fShader);
+                    };
+                    fCachedGLSL.reset();
+                    fPersistentCache.foreach(collectShaders);
+                    gLoadPending = false;
+                }
+
+                if (ImGui::Button("Load")) {
+                    fPersistentCache.reset();
+                    // TODO: This function abandons all GL programs, so we end up leaking. Add a
+                    // private API that actually deletes the programs instead?
+                    fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                    gLoadPending = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Save")) {
+                    fPersistentCache.reset();
+                    fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                    for (const auto& entry : fCachedGLSL) {
+                        auto data = GrPersistentCacheUtils::PackCachedGLSL(entry.fInputs,
+                                                                           entry.fShader);
+                        fPersistentCache.store(*entry.fKey, *data);
+                    }
+                }
+
+                ImGui::BeginChild("##ScrollingRegion");
+                for (auto& entry : fCachedGLSL) {
+                    if (ImGui::TreeNode(entry.fKeyString.c_str())) {
+                        // Full width, and a reasonable amount of space for each shader.
+                        ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 20.0f);
+                        ImGui::InputTextMultiline("##VP", &entry.fShader[kVertex_GrShaderType],
+                                                  boxSize);
+                        ImGui::InputTextMultiline("##FP", &entry.fShader[kFragment_GrShaderType],
+                                                  boxSize);
+                        ImGui::TreePop();
+                    }
+                }
+                ImGui::EndChild();
             }
         }
         if (paramsChanged) {

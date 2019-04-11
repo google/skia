@@ -16,5 +16,6 @@ third_party("imgui") {
     "../externals/imgui/imgui_demo.cpp",
     "../externals/imgui/imgui_draw.cpp",
     "../externals/imgui/imgui_widgets.cpp",
+    "../externals/imgui/misc/cpp/imgui_stdlib.cpp",
   ]
 }
