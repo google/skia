@@ -505,32 +505,38 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     fStrikeCache->findOrCreateScopedStrike(
                             *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
 
-            int glyphCount = 0;
-            for (size_t i = 0; i < glyphRun.runSize(); i++) {
-                SkGlyphID glyphID = glyphRun.glyphsIDs()[i];
-                SkPoint glyphSourcePosition = fPositions[i];
+            auto glyphPosSpan = strike->prepareForDrawing(
+                    glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
 
-                // Use outline from {0, 0} because all transforms including subpixel translation
-                // happen during drawing.
-                const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, {0, 0});
+            // As opposed to SDF and mask, path handling puts paths in fGlyphPos instead of fPaths.
+            int glyphsWithPathCount = 0;
+            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                const SkGlyph& glyph = *glyphPos.glyph;
+                SkPoint position = glyphPos.position;
                 if (glyph.isEmpty()) {
                     // do nothing
                 } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
                            && strike->decideCouldDrawFromPath(glyph)) {
-                    fGlyphPos[glyphCount++] = {i, &glyph, glyphSourcePosition};
+
+                    // Place paths in fGlyphPos
+                    fGlyphPos[glyphsWithPathCount++] = glyphPos;
                 } else {
-                    addFallback(glyph, glyphSourcePosition);
+
+                    // Handle color.
+                    addFallback(glyph, position);
                 }
             }
 
             if (process) {
-                if (glyphCount > 0) {
-                    process->processSourcePaths(
-                            SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphCount)},
-                            strike.get(),
-                            strikeToSourceRatio);
-                }
+
+                // processSourcePaths must be called even if there are no glyphs to make sure runs
+                // are set correctly.
+                process->processSourcePaths(
+                        SkSpan<const SkGlyphPos>{fGlyphPos, SkTo<size_t>(glyphsWithPathCount)},
+                        strike.get(),
+                        strikeToSourceRatio);
             }
+
             // fGlyphPos will be reused here.
             if (!fARGBGlyphsIDs.empty()) {
                 this->processARGBFallback(maxFallbackDimension * strikeToSourceRatio,
@@ -585,6 +591,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
 
             if (process) {
+
                 // processDeviceMasks must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processDeviceMasks(
@@ -594,6 +601,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     process->processDevicePaths(SkSpan<const SkGlyphPos>{fPaths});
                 }
             }
+
             // fGlyphPos will be reused here.
             if (!fARGBGlyphsIDs.empty()) {
                 this->processARGBFallback(maxFallbackDimension / viewMatrix.getMaxScale(),
