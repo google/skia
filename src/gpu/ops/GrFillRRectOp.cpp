@@ -662,7 +662,7 @@ class GrFillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 
         // If x,y == 0, then we are drawing a triangle that does not track an arc.
-        f->codeAppendf("if (float2(0) != %s.xy) {", arcCoord.fsIn());
+        f->codeAppendf("if (!(float2(0) == %s.xy)) {", arcCoord.fsIn());
         f->codeAppendf(    "float fn = dot(%s.xy, %s.xy) - 1;", arcCoord.fsIn(), arcCoord.fsIn());
         if (GrAAType::kMSAA == proc.fAAType) {
             using ScopeFlags = GrGLSLFPFragmentBuilder::ScopeFlags;
