@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6332c67e_7646be83",
+        "filename": "src/utils/SkCharToGlyphCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-04-11T21:50:19Z",
+      "side": 1,
+      "message": "You are rearranging the f1616 with every insert. How about if you have the unichar grow from\n0 to n, and have the glyph array grow backwards from 2n to n+1. Then you can have space in the middle that you can grow in a chunky kind of way. And the addressing would be if you find a unichar at i then the glyph would be at n - i - 1.\n\nYou could use this same trick for 32 to 16 also.",
+      "range": {
+        "startLine": 54,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 39
+      },
+      "revId": "4d68f840e171f36a10686f715665908a64ef67fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
