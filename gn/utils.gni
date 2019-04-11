@@ -22,7 +22,7 @@ skia_utils_public = [
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
-  
+
   #mac
   "$_include/utils/mac/SkCGUtils.h",
 ]
@@ -38,6 +38,8 @@ skia_utils_sources = [
   "$_src/utils/SkCanvasStack.h",
   "$_src/utils/SkCanvasStack.cpp",
   "$_src/utils/SkCanvasStateUtils.cpp",
+  "$_src/utils/SkCharToGlyphCache.cpp",
+  "$_src/utils/SkCharToGlyphCache.h",
   "$_src/utils/SkDashPath.cpp",
   "$_src/utils/SkDashPathPriv.h",
   "$_src/utils/SkEventTracer.cpp",
