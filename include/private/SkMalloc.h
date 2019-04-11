@@ -124,4 +124,13 @@ static inline void* sk_careful_memcpy(void* dst, const void* src, size_t len) {
     return dst;
 }
 
+static inline void* sk_careful_memmove(void* dst, const void* src, size_t len) {
+    // When we pass >0 len we had better already be passing valid pointers.
+    // So we just need to skip calling memcpy when len == 0.
+    if (len) {
+        memmove(dst,src,len);
+    }
+    return dst;
+}
+
 #endif  // SkMalloc_DEFINED

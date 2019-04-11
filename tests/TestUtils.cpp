@@ -182,3 +182,28 @@ bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
     dst->prepend("data:image/png;base64,");
     return true;
 }
+
+#include "SkCharToGlyphCache.h"
+
+static SkGlyphID hash_to_glyph(uint32_t value) {
+    return SkToU16(((value >> 16) ^ value) & 0xFFFF);
+}
+
+static void test_range(skiatest::Reporter* reporter, SkCharToGlyphCache* cache,
+                       SkUnichar from, SkUnichar to) {
+    for (SkUnichar c = from; c <= to; ++c) {
+        int index = cache->findGlyphIndex(c);
+        REPORTER_ASSERT(reporter, index < 0);
+        SkGlyphID glyph = hash_to_glyph(c);
+        cache->insertCharAndGlyph(~index, c, glyph);
+        index = cache->findGlyphIndex(c);
+        REPORTER_ASSERT(reporter, (unsigned)index == glyph);
+    }
+}
+
+DEF_TEST(chartoglyph_cache, reporter) {
+    SkCharToGlyphCache c;
+
+    test_range(reporter, &c, 'A', 'Z');
+    test_range(reporter, &c, 'A' + 100*1000, 'Z' + 100*1000);
+}
