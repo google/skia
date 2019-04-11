@@ -20,6 +20,22 @@ void SkGlyph::toMask(SkMask* mask) const {
     mask->fFormat = static_cast<SkMask::Format>(fMaskFormat);
 }
 
+SkMask SkGlyph::mask(SkPoint position) const {
+    // findImage had to be called.
+    SkASSERT(fImage != nullptr);
+
+    // getMetrics had to be called.
+    SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+
+    SkMask mask;
+    mask.fImage = (uint8_t*)fImage;
+    mask.fBounds.set(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
+    mask.fBounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));
+    mask.fRowBytes = this->rowBytes();
+    mask.fFormat = static_cast<SkMask::Format>(fMaskFormat);
+    return mask;
+}
+
 void SkGlyph::zeroMetrics() {
     fAdvanceX = 0;
     fAdvanceY = 0;
@@ -119,4 +135,3 @@ SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
     }
     return this->path();
 }
-
