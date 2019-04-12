@@ -120,6 +120,8 @@ void GrOpFlushState::recordDraw(
     bool firstDraw = fDraws.begin() == fDraws.end();
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
+
+#if 0
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
         for (int i = 0; i < gp->numTextureSamplers(); ++i) {
             fixedDynamicState->fPrimitiveProcessorTextures[i]->addPendingRead();
@@ -131,6 +133,8 @@ void GrOpFlushState::recordDraw(
             dynamicStateArrays->fPrimitiveProcessorTextures[i]->addPendingRead();
         }
     }
+#endif
+
     draw.fGeometryProcessor = std::move(gp);
     draw.fFixedDynamicState = fixedDynamicState;
     draw.fDynamicStateArrays = dynamicStateArrays;
@@ -189,6 +193,7 @@ GrAtlasManager* GrOpFlushState::atlasManager() const {
 //////////////////////////////////////////////////////////////////////////////
 
 GrOpFlushState::Draw::~Draw() {
+#if 0
     if (fFixedDynamicState && fFixedDynamicState->fPrimitiveProcessorTextures) {
         for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
             fFixedDynamicState->fPrimitiveProcessorTextures[i]->completedRead();
@@ -201,4 +206,5 @@ GrOpFlushState::Draw::~Draw() {
             textures[i]->completedRead();
         }
     }
+#endif
 }

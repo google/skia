@@ -25,15 +25,16 @@ uint32_t GrOpList::CreateUniqueID() {
 }
 
 GrOpList::GrOpList(GrResourceProvider* resourceProvider, sk_sp<GrOpMemoryPool> opMemoryPool,
-                   GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+                   sk_sp<GrSurfaceProxy> surfaceProxy, GrAuditTrail* auditTrail)
         : fOpMemoryPool(std::move(opMemoryPool))
         , fAuditTrail(auditTrail)
         , fUniqueID(CreateUniqueID())
         , fFlags(0) {
     SkASSERT(fOpMemoryPool);
-    fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
+    fTarget.setProxy(std::move(surfaceProxy));
     fTarget.get()->setLastOpList(this);
 
+#if 0
     if (resourceProvider && !resourceProvider->explicitlyAllocateGPUResources()) {
         // MDB TODO: remove this! We are currently moving to having all the ops that target
         // the RT as a dest (e.g., clear, etc.) rely on the opList's 'fTarget' pointer
@@ -45,6 +46,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider, sk_sp<GrOpMemoryPool> o
     }
 
     fTarget.markPendingIO();
+#endif
 }
 
 GrOpList::~GrOpList() {

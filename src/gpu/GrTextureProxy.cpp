@@ -51,22 +51,22 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantia
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-        , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
+        , fMipMapped(fTarget1->asTexture()->texturePriv().mipMapped())
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
-    if (fTarget->getUniqueKey().isValid()) {
-        fProxyProvider = fTarget->asTexture()->getContext()->priv().proxyProvider();
-        fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget);
+    if (fTarget1->getUniqueKey().isValid()) {
+        fProxyProvider = fTarget1->asTexture()->getContext()->priv().proxyProvider();
+        fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget1.get());
     }
 }
 
 GrTextureProxy::~GrTextureProxy() {
     // Due to the order of cleanup the GrSurface this proxy may have wrapped may have gone away
     // at this point. Zero out the pointer so the cache invalidation code doesn't try to use it.
-    fTarget = nullptr;
+    fTarget1 = nullptr;
 
     // In DDL-mode, uniquely keyed proxies keep their key even after their originating
-    // proxy provider has gone away. In that case there is noone to send the invalid key
+    // proxy provider has gone away. In that case there is no one to send the invalid key
     // message to (Note: in this case we don't want to remove its cached resource).
     if (fUniqueKey.isValid() && fProxyProvider) {
         fProxyProvider->processInvalidUniqueKey(fUniqueKey, this,
@@ -88,8 +88,8 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider,
         return false;
     }
 
-    SkASSERT(!fTarget->asRenderTarget());
-    SkASSERT(fTarget->asTexture());
+    SkASSERT(!fTarget1->asRenderTarget());
+    SkASSERT(fTarget1->asTexture());
     return true;
 }
 
@@ -116,7 +116,7 @@ void GrTextureProxyPriv::setDeferredUploader(std::unique_ptr<GrDeferredProxyUplo
 
 void GrTextureProxyPriv::scheduleUpload(GrOpFlushState* flushState) {
     // The texture proxy's contents may already have been uploaded or instantiation may have failed
-    if (fTextureProxy->fDeferredUploader && fTextureProxy->fTarget) {
+    if (fTextureProxy->fDeferredUploader && fTextureProxy->fTarget1) {
         fTextureProxy->fDeferredUploader->scheduleUpload(flushState, fTextureProxy);
     }
 }
@@ -154,11 +154,11 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUnique
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
 
-    if (fTarget && fSyncTargetKey) {
-        if (!fTarget->getUniqueKey().isValid()) {
-            fTarget->resourcePriv().setUniqueKey(key);
+    if (fTarget1 && fSyncTargetKey) {
+        if (!fTarget1->getUniqueKey().isValid()) {
+            fTarget1->resourcePriv().setUniqueKey(key);
         }
-        SkASSERT(fTarget->getUniqueKey() == key);
+        SkASSERT(fTarget1->getUniqueKey() == key);
     }
 
     fUniqueKey = key;

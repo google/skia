@@ -27,120 +27,11 @@ class GrSurfaceProxyPriv;
 class GrTextureOpList;
 class GrTextureProxy;
 
-// This class replicates the functionality GrIORef<GrSurface> but tracks the
-// utilitization for later resource allocation (for the deferred case) and
-// forwards on the utilization in the wrapped case
-class GrIORefProxy : public SkNoncopyable {
+class GrIORefProxy : public SkRefCnt {
 public:
-    void ref() const {
-        this->validate();
-
-        ++fRefCnt;
-        if (fTarget) {
-            fTarget->ref();
-        }
-    }
-
-    void unref() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->unref();
-        }
-
-        --fRefCnt;
-        this->didRemoveRefOrPendingIO();
-    }
-
-#ifdef SK_DEBUG
-    bool isUnique_debugOnly() const { // For asserts.
-        SkASSERT(fRefCnt >= 0 && fPendingWrites >= 0 && fPendingReads >= 0);
-        return 1 == fRefCnt + fPendingWrites + fPendingReads;
-    }
-#endif
-
-    void release() {
-        // The proxy itself may still have multiple refs. It can be owned by an SkImage and multiple
-        // SkDeferredDisplayLists at the same time if we are using DDLs.
-        SkASSERT(0 == fPendingReads);
-        SkASSERT(0 == fPendingWrites);
-
-        // In the current hybrid world, the proxy and backing surface are ref/unreffed in
-        // synchrony. Each ref we've added or removed to the proxy was mirrored to the backing
-        // surface. Though, that backing surface could be owned by other proxies as well. Remove
-        // a ref from the backing surface for each ref the proxy has since we are about to remove
-        // our pointer to the surface. If this proxy is reinstantiated then all the proxy's refs
-        // get transferred to the (possibly new) backing surface.
-        for (int refs = fRefCnt; refs; --refs) {
-            fTarget->unref();
-        }
-        fTarget = nullptr;
-    }
-
-    void validate() const {
-#ifdef SK_DEBUG
-        SkASSERT(fRefCnt >= 0);
-        SkASSERT(fPendingReads >= 0);
-        SkASSERT(fPendingWrites >= 0);
-        SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 1);
-
-        if (fTarget) {
-            // The backing GrSurface can have more refs than the proxy if the proxy
-            // started off wrapping an external resource (that came in with refs).
-            // The GrSurface should never have fewer refs than the proxy however.
-            SkASSERT(fTarget->fRefCnt >= fRefCnt);
-            SkASSERT(fTarget->fPendingReads >= fPendingReads);
-            SkASSERT(fTarget->fPendingWrites >= fPendingWrites);
-        }
-#endif
-    }
-
-    int32_t getBackingRefCnt_TestOnly() const;
-    int32_t getPendingReadCnt_TestOnly() const;
-    int32_t getPendingWriteCnt_TestOnly() const;
-
-    void addPendingRead() const {
-        this->validate();
-
-        ++fPendingReads;
-        if (fTarget) {
-            fTarget->addPendingRead();
-        }
-    }
-
-    void completedRead() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->completedRead();
-        }
-
-        --fPendingReads;
-        this->didRemoveRefOrPendingIO();
-    }
-
-    void addPendingWrite() const {
-        this->validate();
-
-        ++fPendingWrites;
-        if (fTarget) {
-            fTarget->addPendingWrite();
-        }
-    }
-
-    void completedWrite() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->completedWrite();
-        }
-
-        --fPendingWrites;
-        this->didRemoveRefOrPendingIO();
-    }
 
 protected:
-    GrIORefProxy() : fTarget(nullptr), fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
+    GrIORefProxy() : fTarget1(nullptr), fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
     GrIORefProxy(sk_sp<GrSurface> surface) : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {
         // Since we're manually forwarding on refs & unrefs we don't want sk_sp doing
         // anything extra.
@@ -195,31 +86,18 @@ protected:
         return SkToBool(fPendingWrites | fPendingReads);
     }
 
-    bool internalHasPendingWrite() const {
-        if (fTarget) {
-            return fTarget->internalHasPendingWrite();
-        }
+    void validate() const { }
 
-        return SkToBool(fPendingWrites);
+    void release() {
+        fTarget1 = nullptr;
     }
 
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
-    GrSurface* fTarget;
+    sk_sp<GrSurface> fTarget1;
 
 private:
-    // This class is used to manage conversion of refs to pending reads/writes.
-    template <typename> friend class GrProxyRef;
-
-    void didRemoveRefOrPendingIO() const {
-        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
-            delete this;
-        }
-    }
-
-    mutable int32_t fRefCnt;
-    mutable int32_t fPendingReads;
-    mutable int32_t fPendingWrites;
+    typedef SkRefCnt INHERITED;
 };
 
 class GrSurfaceProxy : public GrIORefProxy {
@@ -277,7 +155,7 @@ public:
     };
 
     LazyState lazyInstantiationState() const {
-        if (fTarget || !SkToBool(fLazyInstantiateCallback)) {
+        if (fTarget1 || !SkToBool(fLazyInstantiateCallback)) {
             return LazyState::kNot;
         } else {
             if (fWidth <= 0) {
@@ -373,8 +251,8 @@ public:
     UniqueID uniqueID() const { return fUniqueID; }
 
     UniqueID underlyingUniqueID() const {
-        if (fTarget) {
-            return UniqueID(fTarget->uniqueID());
+        if (fTarget1) {
+            return UniqueID(fTarget1->uniqueID());
         }
 
         return fUniqueID;
@@ -403,19 +281,19 @@ public:
     virtual GrRenderTargetProxy* asRenderTargetProxy() { return nullptr; }
     virtual const GrRenderTargetProxy* asRenderTargetProxy() const { return nullptr; }
 
-    bool isInstantiated() const { return SkToBool(fTarget); }
+    bool isInstantiated() const { return SkToBool(fTarget1.get()); }
 
     // If the proxy is already instantiated, return its backing GrTexture; if not, return null.
-    GrSurface* peekSurface() const { return fTarget; }
+    GrSurface* peekSurface() const { return fTarget1.get(); }
 
     // If this is a texture proxy and the proxy is already instantiated, return its backing
     // GrTexture; if not, return null.
-    GrTexture* peekTexture() const { return fTarget ? fTarget->asTexture() : nullptr; }
+    GrTexture* peekTexture() const { return fTarget1 ? fTarget1->asTexture() : nullptr; }
 
     // If this is a render target proxy and the proxy is already instantiated, return its backing
     // GrRenderTarget; if not, return null.
     GrRenderTarget* peekRenderTarget() const {
-        return fTarget ? fTarget->asRenderTarget() : nullptr;
+        return fTarget1 ? fTarget1->asRenderTarget() : nullptr;
     }
 
     /**
@@ -445,8 +323,8 @@ public:
      */
     size_t gpuMemorySize() const {
         SkASSERT(LazyState::kFully != this->lazyInstantiationState());
-        if (fTarget) {
-            return fTarget->gpuMemorySize();
+        if (fTarget1) {
+            return fTarget1->gpuMemorySize();
         }
         if (kInvalidGpuMemorySize == fGpuMemorySize) {
             fGpuMemorySize = this->onUninstantiatedGpuMemorySize();
@@ -507,19 +385,6 @@ protected:
     virtual ~GrSurfaceProxy();
 
     friend class GrSurfaceProxyPriv;
-
-    // Methods made available via GrSurfaceProxyPriv
-    int32_t getProxyRefCnt() const {
-        return this->internalGetProxyRefCnt();
-    }
-
-    bool hasPendingIO() const {
-        return this->internalHasPendingIO();
-    }
-
-    bool hasPendingWrite() const {
-        return this->internalHasPendingWrite();
-    }
 
     void computeScratchKey(GrScratchKey*) const;
 
