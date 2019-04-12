@@ -34,7 +34,9 @@ public:
     void onDiscard() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, GrFlushFlags flags,
                                   int numSemaphores,
-                                  GrBackendSemaphore signalSemaphores[]) override;
+                                  GrBackendSemaphore signalSemaphores[],
+                                  GrGpuFinishedProc finishedProc,
+                                  GrGpuFinishedContext finishedContext) override;
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) override;

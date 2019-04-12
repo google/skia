@@ -100,7 +100,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
                       SkMatrix::I(), invPath, style);
 
         rtc->prepareForExternalIO(SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  kNone_GrFlushFlags, 0, nullptr);
+                                  kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
     }
 
     {
