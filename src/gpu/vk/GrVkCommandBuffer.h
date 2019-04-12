@@ -313,7 +313,9 @@ public:
     void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
                        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
                        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
-    bool finished(const GrVkGpu* gpu) const;
+    bool finished(const GrVkGpu* gpu);
+
+    void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
     void recycleSecondaryCommandBuffers();
 
@@ -336,6 +338,7 @@ private:
 
     SkTArray<GrVkSecondaryCommandBuffer*, true> fSecondaryCommandBuffers;
     VkFence                                     fSubmitFence;
+    SkTArray<sk_sp<GrRefCntedCallback>>         fFinishedProcs;
 
     typedef GrVkCommandBuffer INHERITED;
 };

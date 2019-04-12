@@ -1742,7 +1742,8 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
 
 GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
         SkSurface::BackendSurfaceAccess access, GrFlushFlags flags, int numSemaphores,
-        GrBackendSemaphore backendSemaphores[]) {
+        GrBackendSemaphore backendSemaphores[], GrGpuFinishedProc finishedProc,
+        GrGpuFinishedContext finishedContext) {
     ASSERT_SINGLE_OWNER
     if (fContext->priv().abandoned()) {
         return GrSemaphoresSubmitted::kNo;
@@ -1753,7 +1754,9 @@ GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
     return this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get(),
                                                                access, flags,
                                                                numSemaphores,
-                                                               backendSemaphores);
+                                                               backendSemaphores,
+                                                               finishedProc,
+                                                               finishedContext);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,

@@ -221,7 +221,8 @@ private:
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access, GrFlushFlags flags,
-                       bool insertedSemaphores) override;
+                       bool insertedSemaphores, GrGpuFinishedProc finishedProc,
+                       GrGpuFinishedContext finishedContext) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
@@ -229,7 +230,8 @@ private:
     // fSemaphoreToSignal, we will add those signal semaphores to the submission of this command
     // buffer. If this GrVkGpu object has any semaphores in fSemaphoresToWaitOn, we will add those
     // wait semaphores to the submission of this command buffer.
-    void submitCommandBuffer(SyncQueue sync);
+    void submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
+                             GrGpuFinishedContext finishedContext = nullptr);
 
     void internalResolveRenderTarget(GrRenderTarget*, bool requiresSubmit);
 

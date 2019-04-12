@@ -408,7 +408,9 @@ public:
      */
     GrSemaphoresSubmitted prepareForExternalIO(SkSurface::BackendSurfaceAccess access,
                                                GrFlushFlags flags, int numSemaphores,
-                                               GrBackendSemaphore backendSemaphores[]);
+                                               GrBackendSemaphore backendSemaphores[],
+                                               GrGpuFinishedProc finishedProc,
+                                               GrGpuFinishedContext finishedContext);
 
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in

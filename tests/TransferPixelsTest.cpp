@@ -279,7 +279,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
         // TODO(bsalomon): caps to know if the map() is synchronous and skip the flush if so.
         gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                         kSyncCpu_GrFlushFlag, 0, nullptr);
+                         kSyncCpu_GrFlushFlag, 0, nullptr, nullptr, nullptr);
 
         const auto* map = reinterpret_cast<const GrColor*>(buffer->map());
         REPORTER_ASSERT(reporter, map);
@@ -308,7 +308,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
         // TODO(bsalomon): caps to know if the map() is synchronous and skip the flush if so.
         gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                         kSyncCpu_GrFlushFlag, 0, nullptr);
+                         kSyncCpu_GrFlushFlag, 0, nullptr, nullptr, nullptr);
 
         map = reinterpret_cast<const GrColor*>(buffer->map());
         REPORTER_ASSERT(reporter, map);

@@ -581,7 +581,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     }
 
     rtc->prepareForExternalIO(SkSurface::BackendSurfaceAccess::kNoAccess,
-                              kNone_GrFlushFlags, 0, nullptr);
+                              kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
 
     SkBitmap readBack;
     readBack.allocN32Pixels(kFinalWidth, kFinalHeight);

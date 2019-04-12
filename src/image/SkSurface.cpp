@@ -244,12 +244,16 @@ void SkSurface::prepareForExternalIO() {
 }
 
 void SkSurface::flush() {
-    asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr);
+    asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr,
+                        nullptr, nullptr);
 }
 
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, GrFlushFlags flags,
-                                       int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
-    return asSB(this)->onFlush(access, flags, numSemaphores, signalSemaphores);
+                                       int numSemaphores, GrBackendSemaphore signalSemaphores[],
+                                       GrGpuFinishedProc finishedProc,
+                                       GrGpuFinishedContext finishedContext) {
+    return asSB(this)->onFlush(access, flags, numSemaphores, signalSemaphores, finishedProc,
+                               finishedContext);
 }
 
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, FlushFlags flags,
@@ -261,7 +265,7 @@ GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, FlushFlags f
 GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
                                                           GrBackendSemaphore signalSemaphores[]) {
     return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags,
-                               numSemaphores, signalSemaphores);
+                               numSemaphores, signalSemaphores, nullptr, nullptr);
 }
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {

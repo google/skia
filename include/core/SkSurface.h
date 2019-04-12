@@ -746,18 +746,26 @@ public:
 
         Pending surface commands are flushed regardless of the return result.
 
+        If a finishedProc is provided, the finishedProc will be called when all work submitted to
+        the gpu from this flush call and all previous flush calls has finished on the GPU. If the
+        flush call fails due to an error and nothing ends up getting sent to the GPU, the finished
+        proc is called immediately.
+
         @param access            type of access the call will do on the backend object after flush
         @param flags             flush options
         @param numSemaphores     size of signalSemaphores array
         @param signalSemaphores  array of semaphore containers
+        @param finishedProc      proc called after gpu work from flush has finished
+        @param finishedContext   context passed into call to finishedProc
         @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
     */
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
-                                int numSemaphores, GrBackendSemaphore signalSemaphores[]);
+                                int numSemaphores, GrBackendSemaphore signalSemaphores[],
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr);
 
     /** The below enum and flush call are deprected
      */
-
     enum FlushFlags {
         kNone_FlushFlags = 0,
         // flush will wait till all submitted GPU work is finished before returning.

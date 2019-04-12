@@ -82,7 +82,9 @@ public:
      */
     virtual GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, GrFlushFlags flags,
                                           int numSemaphores,
-                                          GrBackendSemaphore signalSemaphores[]) {
+                                          GrBackendSemaphore signalSemaphores[],
+                                          GrGpuFinishedProc finishedProc,
+                                          GrGpuFinishedContext finishedContext) {
         return GrSemaphoresSubmitted::kNo;
     }
 
