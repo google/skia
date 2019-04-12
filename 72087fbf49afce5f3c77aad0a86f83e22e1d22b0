@@ -46,6 +46,30 @@
       "revId": "72087fbf49afce5f3c77aad0a86f83e22e1d22b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3732c8e3_25d606b1",
+        "filename": "infra/bots/recipe_modules/flavor/resources/read_ssh_machine_json.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-12T14:44:41Z",
+      "side": 1,
+      "message": "I think I was referring to non-trivial ones; in a recipe replacement, just reading a file shouldn\u0027t need to be a separate script (inline or external) at all.  In this case, I think we can replace this with self.m.file.read_text, eg: https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/flavor/default.py#144",
+      "parentUuid": "5da54ec2_1394ebb2",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "72087fbf49afce5f3c77aad0a86f83e22e1d22b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
