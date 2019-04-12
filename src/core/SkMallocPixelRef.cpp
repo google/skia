@@ -54,9 +54,8 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeDirect(const SkImageInfo& info,
 }
 
 
-sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
-                                              const SkImageInfo& info,
-                                              size_t requestedRowBytes) {
+sk_sp<SkPixelRef> SkMallocPixelRef::MakeZeroed(const SkImageInfo& info,
+                                               size_t rowBytes) {
     size_t rowBytes = requestedRowBytes;
     if (rowBytes == 0) {
         rowBytes = info.minRowBytes();
@@ -73,22 +72,13 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
             return nullptr;
         }
     }
-    void* addr = allocProc(size);
+    void* addr = sk_calloc_canfail(size);
     if (nullptr == addr) {
         return nullptr;
     }
 
     return sk_sp<SkPixelRef>(new SkMallocPixelRef(info, addr, rowBytes,
                                                   sk_free_releaseproc, nullptr));
-}
-
-sk_sp<SkPixelRef> SkMallocPixelRef::MakeAllocate(const SkImageInfo& info, size_t rowBytes) {
-    return MakeUsing(sk_malloc_canfail, info, rowBytes);
-}
-
-sk_sp<SkPixelRef> SkMallocPixelRef::MakeZeroed(const SkImageInfo& info,
-                                               size_t rowBytes) {
-    return MakeUsing(sk_calloc_canfail, info, rowBytes);
 }
 
 static void sk_data_releaseproc(void*, void* dataPtr) {
