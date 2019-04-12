@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ca873e8c_40c599c9",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "I was going to add a comment to MakeFromYUVATexturesCopy() that the flattening is intentional, but it turns out it was already documented :P",
+      "parentUuid": "000e6fb8_c038305c",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c21e28b_a3f9559b",
         "filename": "gm/wacky_yuv_formats.cpp",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75bdda0c_218910eb",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 975,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c21e28b_a3f9559b",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "58754114_426ba8a9",
+        "filename": "gm/yuvtorgbeffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f37119e8_e5511edb",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70708730_40e8768e",
         "filename": "gm/yuvtorgbeffect.cpp",
         "patchSetId": 7
@@ -67,6 +121,24 @@
       "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e34138a_27b7ef17",
+        "filename": "gm/yuvtorgbeffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "70708730_40e8768e",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +188,54 @@
     },
     {
       "key": {
+        "uuid": "ed3a0bbe_6e866275",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef493807_1aab3622",
+      "range": {
+        "startLine": 23,
+        "startChar": 19,
+        "endLine": 23,
+        "endChar": 26
+      },
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a98268a5_30a3fbe6",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "Improved comment clarity.",
+      "parentUuid": "d53c1ac1_f84af62f",
+      "range": {
+        "startLine": 23,
+        "startChar": 34,
+        "endLine": 23,
+        "endChar": 47
+      },
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "662e9835_f92d0d5c",
         "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
         "patchSetId": 7
@@ -133,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "fd8e0cb0_e47debb7",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "We can\u0027t specify bicubic with these parameters; that is handled in the GrYUVImageTextureMaker, which does check for bicubic and flattens the image in those cases.\n\nAdded an assert that mipmapping isn\u0027t used with a domain. Will downgrade mipmap requests to bilerp when a domain is provided.",
+      "parentUuid": "662e9835_f92d0d5c",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "05254fe4_46396ee5",
         "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
         "patchSetId": 7
@@ -147,6 +285,24 @@
       "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9127dda_c5bba0d8",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T19:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05254fe4_46396ee5",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
