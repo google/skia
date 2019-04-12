@@ -56,15 +56,20 @@ GrGLGpu::ProgramCache::~ProgramCache() {
 }
 
 void GrGLGpu::ProgramCache::abandon() {
+    fMap.foreach([](std::unique_ptr<Entry>* e) {
+        (*e)->fProgram->abandon();
+    });
+
+    this->reset();
+}
+
+void GrGLGpu::ProgramCache::reset() {
 #ifdef PROGRAM_CACHE_STATS
     fTotalRequests = 0;
     fCacheMisses = 0;
     fHashMisses = 0;
 #endif
 
-    fMap.foreach([](std::unique_ptr<Entry>* e) {
-        (*e)->fProgram->abandon();
-    });
     fMap.reset();
 }
 

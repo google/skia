@@ -13,6 +13,8 @@
 #include "GMSlide.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
+#include "GrPersistentCacheUtils.h"
 #include "ImageSlide.h"
 #include "ParticlesSlide.h"
 #include "Resources.h"
@@ -20,10 +22,12 @@
 #include "SampleSlide.h"
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
+#include "SkData.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
+#include "SkMD5.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaintFilterCanvas.h"
@@ -42,6 +46,7 @@
 #include <map>
 
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"  // For ImGui support of std::string
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "SkottieSlide.h"
@@ -274,6 +279,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
+    displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
+    displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
@@ -1482,6 +1489,8 @@ void Viewer::drawImGui() {
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
         DisplayParams params = fWindow->getRequestedDisplayParams();
         bool paramsChanged = false;
+        const GrContext* ctx = fWindow->getGrContext();
+
         if (ImGui::Begin("Tools", &fShowImGuiDebugWindow,
                          ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
             if (ImGui::CollapsingHeader("Backend")) {
@@ -1507,7 +1516,6 @@ void Viewer::drawImGui() {
                     });
                 }
 
-                const GrContext* ctx = fWindow->getGrContext();
                 bool* wire = &params.fGrContextOptions.fWireframeMode;
                 if (ctx && ImGui::Checkbox("Wireframe Mode", wire)) {
                     paramsChanged = true;
@@ -1938,6 +1946,85 @@ void Viewer::drawImGui() {
                 float speed = fAnimTimer.getSpeed();
                 if (ImGui::DragFloat("Speed", &speed, 0.1f)) {
                     fAnimTimer.setSpeed(speed);
+                }
+            }
+
+            if (Window::kNativeGL_BackendType == fBackendType &&
+                ImGui::CollapsingHeader("Shaders")) {
+                // To re-load shaders from the currently active programs, we flush all caches on one
+                // frame, then set a flag to poll the cache on the next frame.
+                static bool gLoadPending = false;
+                if (gLoadPending) {
+                    auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
+                                                 int hitCount) {
+                        CachedGLSL& entry(fCachedGLSL.push_back());
+                        entry.fKey = key;
+                        SkMD5 hash;
+                        hash.write(key->bytes(), key->size());
+                        SkMD5::Digest digest = hash.finish();
+                        for (int i = 0; i < 16; ++i) {
+                            entry.fKeyString.appendf("%02x", digest.data[i]);
+                        }
+
+                        GrPersistentCacheUtils::UnpackCachedGLSL(data.get(), &entry.fInputs,
+                                                                 entry.fShader);
+                    };
+                    fCachedGLSL.reset();
+                    fPersistentCache.foreach(collectShaders);
+                    gLoadPending = false;
+                }
+
+                // Defer actually doing the load/save logic so that we can trigger a save when we
+                // start or finish hovering on a tree node in the list below:
+                bool doLoad = ImGui::Button("Load"); ImGui::SameLine();
+                bool doSave = ImGui::Button("Save");
+
+                ImGui::BeginChild("##ScrollingRegion");
+                for (auto& entry : fCachedGLSL) {
+                    bool inTreeNode = ImGui::TreeNode(entry.fKeyString.c_str());
+                    bool hovered = ImGui::IsItemHovered();
+                    if (hovered != entry.fHovered) {
+                        // Force a save to patch the highlight shader in/out
+                        entry.fHovered = hovered;
+                        doSave = true;
+                    }
+                    if (inTreeNode) {
+                        // Full width, and a reasonable amount of space for each shader.
+                        ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 20.0f);
+                        ImGui::InputTextMultiline("##VP", &entry.fShader[kVertex_GrShaderType],
+                                                  boxSize);
+                        ImGui::InputTextMultiline("##FP", &entry.fShader[kFragment_GrShaderType],
+                                                  boxSize);
+                        ImGui::TreePop();
+                    }
+                }
+                ImGui::EndChild();
+
+                if (doLoad) {
+                    fPersistentCache.reset();
+                    fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                    gLoadPending = true;
+                }
+                if (doSave) {
+                    // The hovered item (if any) gets a special shader to make it identifiable
+                    SkSL::String highlight = ctx->priv().caps()->shaderCaps()->versionDeclString();
+                    highlight.append("out vec4 sk_FragColor;\n"
+                                     "void main() { sk_FragColor = vec4(1, 0, 1, 0.5); }");
+
+                    fPersistentCache.reset();
+                    fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
+                    for (auto& entry : fCachedGLSL) {
+                        SkSL::String backup = entry.fShader[kFragment_GrShaderType];
+                        if (entry.fHovered) {
+                            entry.fShader[kFragment_GrShaderType] = highlight;
+                        }
+
+                        auto data = GrPersistentCacheUtils::PackCachedGLSL(entry.fInputs,
+                                                                           entry.fShader);
+                        fPersistentCache.store(*entry.fKey, *data);
+
+                        entry.fShader[kFragment_GrShaderType] = backup;
+                    }
                 }
             }
         }

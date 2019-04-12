@@ -27,6 +27,10 @@ public:
     MemoryCache() = default;
     MemoryCache(const MemoryCache&) = delete;
     MemoryCache& operator=(const MemoryCache&) = delete;
+    void reset() {
+        fCacheMissCnt = 0;
+        fMap.clear();
+    }
 
     sk_sp<SkData> load(const SkData& key) override;
     void store(const SkData& key, const SkData& data) override;
@@ -34,6 +38,13 @@ public:
     void resetNumCacheMisses() { fCacheMissCnt = 0; }
 
     void writeShadersToDisk(const char* path, GrBackendApi backend);
+
+    template <typename Fn>
+    void foreach(Fn&& fn) {
+        for (auto it = fMap.begin(); it != fMap.end(); ++it) {
+            fn(it->first.fKey, it->second.fData, it->second.fHitCount);
+        }
+    }
 
 private:
     struct Key {

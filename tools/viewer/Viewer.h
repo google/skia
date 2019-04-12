@@ -10,9 +10,12 @@
 
 #include "AnimTimer.h"
 #include "ImGuiLayer.h"
+#include "MemoryCache.h"
 #include "SkExecutor.h"
 #include "SkFont.h"
 #include "SkScan.h"
+#include "ir/SkSLProgram.h"
+#include "SkSLString.h"
 #include "Slide.h"
 #include "StatsLayer.h"
 #include "TouchGesture.h"
@@ -22,6 +25,7 @@
 #include "sk_app/Window.h"
 
 class SkCanvas;
+class SkData;
 
 class Viewer : public sk_app::Application, sk_app::Window::Layer {
 public:
@@ -183,7 +187,19 @@ private:
     SkFont fFont;
     SkFontFields fFontOverrides;
     bool fPixelGeometryOverrides = false;
-};
 
+    struct CachedGLSL {
+        bool                fHovered = false;
+
+        sk_sp<const SkData> fKey;
+        SkString            fKeyString;
+
+        SkSL::Program::Inputs fInputs;
+        SkSL::String fShader[kGrShaderTypeCount];
+    };
+
+    sk_gpu_test::MemoryCache fPersistentCache;
+    SkTArray<CachedGLSL>     fCachedGLSL;
+};
 
 #endif

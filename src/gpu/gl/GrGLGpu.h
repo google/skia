@@ -149,7 +149,7 @@ public:
 
     const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
 
-    void resetShaderCacheForTesting() const override { fProgramCache->abandon(); }
+    void resetShaderCacheForTesting() const override { fProgramCache->reset(); }
 
     void testingOnly_flushGpuAndSync() override;
 #endif
@@ -314,6 +314,7 @@ private:
         ~ProgramCache();
 
         void abandon();
+        void reset();
         GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin,
                                 const GrPrimitiveProcessor&,
                                 const GrTextureProxy* const primProcProxies[],
