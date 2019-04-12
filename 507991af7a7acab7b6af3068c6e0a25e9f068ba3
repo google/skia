@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58cd76b3_9933aee5",
+        "filename": "src/core/SkBlitter_ARGB32.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-12T13:00:51Z",
+      "side": 1,
+      "message": "Is there any way to abstract these control loops, it seems like this part of the blend functions will be the same, just the kernel that\u0027s different?",
+      "range": {
+        "startLine": 1178,
+        "startChar": 4,
+        "endLine": 1178,
+        "endChar": 18
+      },
+      "revId": "507991af7a7acab7b6af3068c6e0a25e9f068ba3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
