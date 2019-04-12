@@ -105,7 +105,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, 0);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, 0);
     if (!pr) {
         return nullptr;
     }

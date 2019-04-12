@@ -418,14 +418,14 @@ public:
     bool setInfo(const SkImageInfo& imageInfo, size_t rowBytes = 0);
 
     /** \enum SkBitmap::AllocFlags
-        AllocFlags provides the option to zero pixel memory when allocated.
+        AllocFlags is obsolete.  We always zero pixel memory when allocated.
     */
     enum AllocFlags {
-        kZeroPixels_AllocFlag = 1 << 0, //!< zero pixel memory
+        kZeroPixels_AllocFlag = 1 << 0, //!< zero pixel memory.  No effect.  This is the default.
     };
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
-        memory. If flags is kZeroPixels_AllocFlag, memory is zeroed.
+        memory. Memory is zeroed.
 
         Returns false and calls reset() if SkImageInfo could not be set, or memory could
         not be allocated, or memory could not optionally be zeroed.
@@ -433,11 +433,7 @@ public:
         On most platforms, allocating pixel memory may succeed even though there is
         not sufficient memory to hold pixels; allocation does not take place
         until the pixels are written to. The actual behavior depends on the platform
-        implementation of malloc(), if flags is zero, and calloc(), if flags is
-        kZeroPixels_AllocFlag.
-
-        flags set to kZeroPixels_AllocFlag offers equal or better performance than
-        subsequently calling eraseColor() with SK_ColorTRANSPARENT.
+        implementation of calloc().
 
         @param info   contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @param flags  kZeroPixels_AllocFlag, or zero
@@ -446,7 +442,7 @@ public:
     bool SK_WARN_UNUSED_RESULT tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
-        memory. If flags is kZeroPixels_AllocFlag, memory is zeroed.
+        memory. Memory is zeroed.
 
         Aborts execution if SkImageInfo could not be set, or memory could
         not be allocated, or memory could not optionally
@@ -456,11 +452,7 @@ public:
         On most platforms, allocating pixel memory may succeed even though there is
         not sufficient memory to hold pixels; allocation does not take place
         until the pixels are written to. The actual behavior depends on the platform
-        implementation of malloc(), if flags is zero, and calloc(), if flags is
-        kZeroPixels_AllocFlag.
-
-        flags set to kZeroPixels_AllocFlag offers equal or better performance than
-        subsequently calling eraseColor() with SK_ColorTRANSPARENT.
+        implementation of calloc().
 
         @param info   contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @param flags  kZeroPixels_AllocFlag, or zero

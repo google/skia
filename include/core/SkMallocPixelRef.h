@@ -34,16 +34,11 @@ public:
      *  If rowBytes is > 0, then it will be respected, or NULL will be returned
      *  if rowBytes is invalid for the specified info.
      *
-     *  All pixel bytes are left uninitialized.
+     *  All pixel bytes are zeroed.
      *
      *  Returns NULL on failure.
      */
     static sk_sp<SkPixelRef> MakeAllocate(const SkImageInfo&, size_t rowBytes);
-
-    /**
-     *  Identical to MakeAllocate, except all pixel bytes are zeroed.
-     */
-    static sk_sp<SkPixelRef> MakeZeroed(const SkImageInfo&, size_t rowBytes);
 
     /**
      *  Return a new SkMallocPixelRef with the provided pixel storage and
@@ -73,11 +68,6 @@ protected:
     ~SkMallocPixelRef() override;
 
 private:
-    // Uses alloc to implement NewAllocate or NewZeroed.
-    static sk_sp<SkPixelRef> MakeUsing(void*(*alloc)(size_t),
-                                       const SkImageInfo&,
-                                       size_t rowBytes);
-
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
 
