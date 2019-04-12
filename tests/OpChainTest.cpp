@@ -208,7 +208,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           &tracker);
                 GrRenderTargetOpList opList(context->priv().resourceProvider(),
                                             sk_ref_sp(context->priv().opMemoryPool()),
-                                            proxy->asRenderTargetProxy(),
+                                            sk_ref_sp(proxy->asRenderTargetProxy()),
                                             context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
                 std::fill_n(result, result_width(), -1);
