@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b04efc91_f02b1161",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-12T19:18:35Z",
+      "side": 1,
+      "message": "So this is equivalent to \n\nthis-\u003etoMask(\u0026mask);\nmask.fBounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));\n\nThere appear to be 7 users of toMask, all of which could stand to use the return a value version (but none of which want a position offset). In any event, it seems unfortunate to have the duplication?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 60
+      },
+      "revId": "d99c6008d2a5dbcc38404e3868eeae7638a4a71c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
