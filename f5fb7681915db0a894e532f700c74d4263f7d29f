@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "756f9076_360f862f",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-12T18:25:21Z",
+      "side": 1,
+      "message": "This finished function is really a finished? function in the sense we are just asking the command buffer it is done. So we only want to reset the array (which will unref/call the finished procs) when the command buffer is done on the gpu.",
+      "parentUuid": "a15e77c3_c06c15aa",
+      "revId": "f5fb7681915db0a894e532f700c74d4263f7d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb7b4362_6d598537",
         "filename": "src/gpu/vk/GrVkResourceProvider.h",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "f5fb7681915db0a894e532f700c74d4263f7d29f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08fb0ab0_21e3086f",
+        "filename": "src/gpu/vk/GrVkResourceProvider.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-12T18:25:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb7b4362_6d598537",
+      "range": {
+        "startLine": 95,
+        "startChar": 15,
+        "endLine": 95,
+        "endChar": 18
+      },
+      "revId": "f5fb7681915db0a894e532f700c74d4263f7d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
