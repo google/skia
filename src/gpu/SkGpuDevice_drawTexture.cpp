@@ -284,7 +284,8 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
 
     // Check for optimization to drop the src rect constraint when on bilerp.
     if (filterMode && GrSamplerState::Filter::kBilerp == *filterMode &&
-        GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect) {
+        GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect &&
+        !producer->hasMixedResolutions()) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
         if (can_ignore_bilerp_constraint(*producer, src, combinedMatrix, rtc->fsaaType())) {

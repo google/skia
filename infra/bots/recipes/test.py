@@ -443,7 +443,8 @@ def dm_flags(api, bot):
                        'fontmgr_bounds',
                        'fontmgr_match',
                        'fontmgr_iter',
-                       'imagemasksubset']
+                       'imagemasksubset',
+                       'wacky_yuv_formats_domain']
 
   # skia:5589
   bad_serialize_gms.extend(['bitmapfilters',
