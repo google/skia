@@ -187,22 +187,6 @@ protected:
         return fRefCnt;
     }
 
-    bool internalHasPendingIO() const {
-        if (fTarget) {
-            return fTarget->internalHasPendingIO();
-        }
-
-        return SkToBool(fPendingWrites | fPendingReads);
-    }
-
-    bool internalHasPendingWrite() const {
-        if (fTarget) {
-            return fTarget->internalHasPendingWrite();
-        }
-
-        return SkToBool(fPendingWrites);
-    }
-
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
@@ -511,14 +495,6 @@ protected:
     // Methods made available via GrSurfaceProxyPriv
     int32_t getProxyRefCnt() const {
         return this->internalGetProxyRefCnt();
-    }
-
-    bool hasPendingIO() const {
-        return this->internalHasPendingIO();
-    }
-
-    bool hasPendingWrite() const {
-        return this->internalHasPendingWrite();
     }
 
     void computeScratchKey(GrScratchKey*) const;
