@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a15e77c3_c06c15aa",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T17:13:36Z",
+      "side": 1,
+      "message": "Should we be resetting these on exit everywhere ?",
+      "revId": "f5fb7681915db0a894e532f700c74d4263f7d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb7b4362_6d598537",
+        "filename": "src/gpu/vk/GrVkResourceProvider.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T17:13:36Z",
+      "side": 1,
+      "message": "add the ?",
+      "range": {
+        "startLine": 95,
+        "startChar": 15,
+        "endLine": 95,
+        "endChar": 18
+      },
+      "revId": "f5fb7681915db0a894e532f700c74d4263f7d29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
