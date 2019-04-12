@@ -104,12 +104,6 @@ std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
-sk_sp<SkColorFilter> SkColorFilter::MakeModeFilter(SkColor color, SkBlendMode mode) {
-    return SkColorFilters::Blend(color, mode);
-}
-#endif
-
 sk_sp<SkColorFilter> SkColorFilters::Blend(SkColor color, SkBlendMode mode) {
     if (!SkIsValidMode(mode)) {
         return nullptr;

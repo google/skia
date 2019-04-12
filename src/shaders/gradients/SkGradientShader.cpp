@@ -473,11 +473,7 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
             }
         }
         info->fColorCount = fColorCount;
-#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
-        info->fTileMode = (SkShader::TileMode)fTileMode;
-#else
         info->fTileMode = fTileMode;
-#endif
         info->fGradientFlags = fGradFlags;
     }
 }

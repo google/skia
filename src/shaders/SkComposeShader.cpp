@@ -16,16 +16,6 @@
 #include "SkWriteBuffer.h"
 #include "SkString.h"
 
-#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
-sk_sp<SkShader> SkShader::MakeBlend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
-    return SkShaders::Blend(mode, std::move(dst), std::move(src));
-}
-
-sk_sp<SkShader> SkShader::MakeLerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
-    return SkShaders::Lerp(weight, std::move(dst), std::move(src));
-}
-#endif
-
 sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
     switch (mode) {
         case SkBlendMode::kClear: return Color(0);
