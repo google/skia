@@ -265,6 +265,9 @@ enum GrFlushFlags {
     kSyncCpu_GrFlushFlag = 0x1,
 };
 
+typedef void* GrGpuFinishedContext;
+typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
+
 /**
  * Enum used as return value when flush with semaphores so the client knows whether the semaphores
  * were submitted to GPU or not.
