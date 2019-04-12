@@ -202,12 +202,6 @@ std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentP
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_FACTORIES
-sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
-    return SkColorFilters::MatrixRowMajor255(array);
-}
-#endif
-
 sk_sp<SkColorFilter> SkColorFilters::MatrixRowMajor255(const float array[20]) {
     if (!SkScalarsAreFinite(array, 20)) {
         return nullptr;

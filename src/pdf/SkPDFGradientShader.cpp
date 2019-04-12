@@ -873,13 +873,7 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
                                          const SkIRect& bbox) {
     SkPDFGradientShader::Key key = {
          SkShader::kNone_GradientType,
-         {0, nullptr, nullptr, {{0, 0}, {0, 0}}, {0, 0},
-#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
-             SkShader::kClamp_TileMode,
-#else
-             SkTileMode::kClamp,
-#endif
-             0},
+         {0, nullptr, nullptr, {{0, 0}, {0, 0}}, {0, 0}, SkTileMode::kClamp, 0},
          nullptr,
          nullptr,
          canvasTransform,

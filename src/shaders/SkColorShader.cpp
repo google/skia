@@ -34,11 +34,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
             info->fColors[0] = fColor;
         }
         info->fColorCount = 1;
-#ifdef SK_SUPPORT_LEGACY_TILEMODE_ENUM
-        info->fTileMode = SkShader::kRepeat_TileMode;
-#else
         info->fTileMode = SkTileMode::kRepeat;
-#endif
     }
     return kColor_GradientType;
 }
@@ -70,12 +66,6 @@ void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-
-#ifdef SK_SUPPORT_LEGACY_SHADER_FACTORIES
-sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorSpace> space) {
-    return SkShaders::Color(color, std::move(space));
-}
-#endif
 
 sk_sp<SkShader> SkShaders::Color(const SkColor4f& color, sk_sp<SkColorSpace> space) {
     if (!SkScalarsAreFinite(color.vec(), 4)) {
