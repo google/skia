@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "000e6fb8_c038305c",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "Should we have a bug like \"SkImage::MakeFromYUVATexturesCopy always flattens to RGB!!!!\" ?",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c21e28b_a3f9559b",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 975,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "We could just always use bilinear sampling",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f37119e8_e5511edb",
+        "filename": "gm/yuvtorgbeffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "Could this be rewritten as:\n\nfor (int i \u003d 0; i \u003c 3; ++i) {\n   bmp[i].erase(outerColor[i]);\n   bmp[i].erase(innerColor[i], \u003cthe inner IRect\u003e);\n}",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70708730_40e8768e",
+        "filename": "gm/yuvtorgbeffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "If we keep this, can we just put an \"unsigned char* pixels \u003d (unsigned char*)bmp[i].getPixels();\" here and rm the \"pixels[3]\" array ?",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef493807_1aab3622",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "plane\u0027s",
+      "range": {
+        "startLine": 23,
+        "startChar": 19,
+        "endLine": 23,
+        "endChar": 26
+      },
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d53c1ac1_f84af62f",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "already pre-inset if bilerp is being used ?",
+      "range": {
+        "startLine": 23,
+        "startChar": 34,
+        "endLine": 23,
+        "endChar": 47
+      },
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "662e9835_f92d0d5c",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "shouldn\u0027t we have an assert somewhere that we\u0027re never using bicubic sampling ?\nSimilarly, are their some asserts we need to add re mipmapping w/ domains ?",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05254fe4_46396ee5",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-12T13:38:02Z",
+      "side": 1,
+      "message": "// inset here by ....\n\n?",
+      "revId": "449d7f5d43cc9656658dd54fae4258dc6e49cb9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
