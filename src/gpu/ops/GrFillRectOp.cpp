@@ -299,8 +299,6 @@ private:
     void addQuad(const GrPerspQuad& deviceQuad, const GrPerspQuad& localQuad,
                  GrQuadType localQuadType, const SkPMColor4f& color, GrQuadAAFlags edgeAA,
                  GrAAType aaType) {
-        SkASSERT(deviceQuad.quadType() <= fDeviceQuads.quadType());
-
         // The new quad's aa type should be the same as the first quad's or none, except when the
         // first quad's aa type was already downgraded to none, in which case the stored type must
         // be lifted to back to the requested type.
