@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_enable_particles = !(is_win && is_component_build)
+  skia_enable_particles = true
 }
 
 import("../../gn/skia.gni")
@@ -24,7 +24,6 @@ static_library("particles") {
       "../..:skia",
     ]
     sources = skia_particle_sources
-    sources += [ "../../src/utils/SkTextUtils.cpp" ]
     configs += [ "../../:skia_private" ]
   }
 }
