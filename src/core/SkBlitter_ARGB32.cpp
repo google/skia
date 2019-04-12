@@ -1155,18 +1155,35 @@ void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
 static void blend_row_A8(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
     auto mask = (const uint8_t*)vmask;
 
+#ifdef SK_SUPPORT_LEGACY_A8_MASKBLITTER
+    for (int i = 0; i < n; ++i) {
+        if (mask[i]) {
+            dst[i] = SkBlendARGB32(src[i], dst[i], mask[i]);
+        }
+    }
+#else
     Sk4px::MapDstSrcAlpha(n, dst, src, mask, [](const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
         const auto s_aa = s.approxMulDiv255(aa);
         return s_aa + d.approxMulDiv255(s_aa.alphas().inv());
     });
+#endif
 }
 
 static void blend_row_A8_opaque(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
     auto mask = (const uint8_t*)vmask;
 
+#ifdef SK_SUPPORT_LEGACY_A8_MASKBLITTER
+    for (int i = 0; i < n; ++i) {
+        if (int m = mask[i]) {
+            m += (m >> 7);
+            dst[i] = SkAlphaMulQ(src[i], m) + SkAlphaMulQ(dst[i], 256 - m);
+        }
+    }
+#else
     Sk4px::MapDstSrcAlpha(n, dst, src, mask, [](const Sk4px& d, const Sk4px& s, const Sk4px& aa) {
         return (s * aa + d * aa.inv()).div255();
     });
+#endif
 }
 
 static void blend_row_lcd16(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
