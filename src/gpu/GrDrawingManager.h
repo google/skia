@@ -76,7 +76,9 @@ public:
                                                       SkSurface::BackendSurfaceAccess access,
                                                       GrFlushFlags flags,
                                                       int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[]);
+                                                      GrBackendSemaphore backendSemaphores[],
+                                                      GrGpuFinishedProc finishedProc,
+                                                      GrGpuFinishedContext finishedContext);
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
@@ -155,7 +157,9 @@ private:
                                 SkSurface::BackendSurfaceAccess access,
                                 GrFlushFlags flags,
                                 int numSemaphores,
-                                GrBackendSemaphore backendSemaphores[]);
+                                GrBackendSemaphore backendSemaphores[],
+                                GrGpuFinishedProc finishedProc,
+                                GrGpuFinishedContext finishedContext);
 
     SkDEBUGCODE(void validate() const);
 
