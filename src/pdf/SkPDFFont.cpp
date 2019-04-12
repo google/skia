@@ -560,8 +560,7 @@ struct ImageAndOffset {
 };
 static ImageAndOffset to_image(SkGlyphID gid, SkStrike* cache) {
     (void)cache->findImage(cache->getGlyphIDMetrics(gid));
-    SkMask mask;
-    cache->getGlyphIDMetrics(gid).toMask(&mask);
+    SkMask mask = cache->getGlyphIDMetrics(gid).mask();
     if (!mask.fImage) {
         return {nullptr, {0, 0}};
     }

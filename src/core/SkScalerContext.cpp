@@ -244,10 +244,10 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     }
 
     if (fMaskFilter) {
-        SkMask      src, dst;
+        SkMask      src = glyph->mask(),
+                    dst;
         SkMatrix    matrix;
 
-        glyph->toMask(&src);
         fRec.getMatrixFrom2x2(&matrix);
 
         src.fImage = nullptr;  // only want the bounds from the filter
@@ -521,9 +521,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         generateImage(*glyph);
     } else {
         SkPath devPath;
-        SkMask mask;
+        SkMask mask = glyph->mask();
 
-        glyph->toMask(&mask);
         if (!this->internalGetPath(glyph->getPackedID(), &devPath)) {
             generateImage(*glyph);
         } else {
@@ -534,13 +533,12 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     }
 
     if (fMaskFilter) {
-        SkMask      srcM, dstM;
-        SkMatrix    matrix;
-
         // the src glyph image shouldn't be 3D
         SkASSERT(SkMask::k3D_Format != glyph->fMaskFormat);
 
-        glyph->toMask(&srcM);
+        SkMask      srcM = glyph->mask(),
+                    dstM;
+        SkMatrix    matrix;
 
         fRec.getMatrixFrom2x2(&matrix);
 
