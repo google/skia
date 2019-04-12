@@ -464,8 +464,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                     return;
                 }
 
-                SkMask mask;
-                glyph.toMask(&mask);
+                SkMask mask = glyph.mask();
 #ifdef SK_SHOW_TEXT_BLIT_COVERAGE
                 memset(mask.fImage, 0x80, mask.fBounds.height() * mask.fRowBytes);
 #endif
@@ -579,8 +578,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             // If no scaling needed, directly copy glyph bitmap.
             if (bitmapTransform.isIdentity()) {
-                SkMask dstMask;
-                glyph.toMask(&dstMask);
+                SkMask dstMask = glyph.mask();
                 copyFTBitmap(face->glyph->bitmap, dstMask);
                 break;
             }
@@ -648,8 +646,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
             // If the destination is BW or LCD, convert from A8.
             if (SkMask::kBW_Format == maskFormat) {
                 // Copy the A8 dstBitmap into the A1 glyph.fImage.
-                SkMask dstMask;
-                glyph.toMask(&dstMask);
+                SkMask dstMask = glyph.mask();
                 packA8ToA1(dstMask, dstBitmap.getAddr8(0, 0), dstBitmap.rowBytes());
             } else if (SkMask::kLCD16_Format == maskFormat) {
                 // Copy the A8 dstBitmap into the LCD16 glyph.fImage.

@@ -11,29 +11,22 @@
 #include "SkMakeUnique.h"
 #include "SkScalerContext.h"
 
-void SkGlyph::toMask(SkMask* mask) const {
-    SkASSERT(mask);
-
-    mask->fImage = (uint8_t*)fImage;
-    mask->fBounds.set(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
-    mask->fRowBytes = this->rowBytes();
-    mask->fFormat = static_cast<SkMask::Format>(fMaskFormat);
-}
-
-SkMask SkGlyph::mask(SkPoint position) const {
-    // findImage had to be called.
-    SkASSERT(fImage != nullptr);
-
+SkMask SkGlyph::mask() const {
     // getMetrics had to be called.
     SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
 
     SkMask mask;
     mask.fImage = (uint8_t*)fImage;
     mask.fBounds.set(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
-    mask.fBounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));
     mask.fRowBytes = this->rowBytes();
     mask.fFormat = static_cast<SkMask::Format>(fMaskFormat);
     return mask;
+}
+
+SkMask SkGlyph::mask(SkPoint position) const {
+    SkMask answer = this->mask();
+    answer.fBounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));
+    return answer;
 }
 
 void SkGlyph::zeroMetrics() {
