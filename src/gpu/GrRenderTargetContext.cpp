@@ -535,6 +535,9 @@ static bool crop_filled_rect(int width, int height, const GrClip& clip,
         if (!rect->intersects(clipBounds)) {
             return false;
         }
+        // localRect is force-sorted after clipping, so this is a sanity check to make sure callers
+        // aren't intentionally using inverted local rectangles.
+        SkASSERT(localRect->isSorted());
         const SkScalar dx = localRect->width() / rect->width();
         const SkScalar dy = localRect->height() / rect->height();
         if (clipBounds.fLeft > rect->fLeft) {
@@ -553,6 +556,9 @@ static bool crop_filled_rect(int width, int height, const GrClip& clip,
             localRect->fBottom -= (rect->fBottom - clipBounds.fBottom) * dy;
             rect->fBottom = clipBounds.fBottom;
         }
+        // Ensure local coordinates remain sorted after clipping. If the original dstRect was very
+        // large, numeric precision can invert the localRect
+        localRect->sort();
         return true;
     }
 
