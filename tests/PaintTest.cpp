@@ -47,15 +47,6 @@ static size_t uni_to_utf32(const SkUnichar src[], void* dst, int count) {
     return count * sizeof(SkUnichar);
 }
 
-static int find_first_zero(const uint16_t glyphs[], int count) {
-    for (int i = 0; i < count; ++i) {
-        if (0 == glyphs[i]) {
-            return i;
-        }
-    }
-    return count;
-}
-
 DEF_TEST(Paint_cmap, reporter) {
     // need to implement charsToGlyphs on other backends (e.g. linux, win)
     // before we can run this tests everywhere
@@ -94,12 +85,9 @@ DEF_TEST(Paint_cmap, reporter) {
             uint16_t    glyphs0[NGLYPHS], glyphs1[NGLYPHS];
 
             int nglyphs = font.textToGlyphs(dst, len, gRec[k].fEncoding, glyphs0, NGLYPHS);
-            int first = face->charsToGlyphs(dst, (SkTypeface::Encoding)gRec[k].fEncoding,
-                                            glyphs1, NGLYPHS);
-            int index = find_first_zero(glyphs1, NGLYPHS);
+            face->charsToGlyphs(dst, gRec[k].fEncoding, glyphs1, NGLYPHS);
 
             REPORTER_ASSERT(reporter, NGLYPHS == nglyphs);
-            REPORTER_ASSERT(reporter, index == first);
             REPORTER_ASSERT(reporter, 0 == memcmp(glyphs0, glyphs1, NGLYPHS * sizeof(uint16_t)));
         }
     }

@@ -150,10 +150,10 @@ void TestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal)
     *isLocal = false;
 }
 
-int TestSVGTypeface::onCharsToGlyphs(const void* chars,
-                                     Encoding    encoding,
-                                     uint16_t    glyphs[],
-                                     int         glyphCount) const {
+void TestSVGTypeface::onCharsToGlyphs(const void* chars,
+                                      SkTextEncoding encoding,
+                                      SkGlyphID glyphs[],
+                                      int glyphCount) const {
     auto utf8  = (const char*)chars;
     auto utf16 = (const uint16_t*)chars;
     auto utf32 = (const SkUnichar*)chars;
@@ -161,16 +161,16 @@ int TestSVGTypeface::onCharsToGlyphs(const void* chars,
     for (int i = 0; i < glyphCount; i++) {
         SkUnichar ch;
         switch (encoding) {
-            case kUTF8_Encoding: ch = SkUTF8_NextUnichar(&utf8); break;
-            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch = *utf32++; break;
+            case SkTextEncoding::kUTF8: ch = SkUTF8_NextUnichar(&utf8); break;
+            case SkTextEncoding::kUTF16: ch = SkUTF16_NextUnichar(&utf16); break;
+            case SkTextEncoding::kUTF32: ch = *utf32++; break;
+            case SkTextEncoding::kGlyphID: SK_ABORT("unexpected enum");
         }
         if (glyphs) {
             SkGlyphID* g = fCMap.find(ch);
             glyphs[i]    = g ? *g : 0;
         }
     }
-    return glyphCount;
 }
 
 void TestSVGTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fName; }
