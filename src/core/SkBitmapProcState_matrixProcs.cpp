@@ -50,8 +50,14 @@ static inline bool can_truncate_to_fixed_for_decal(SkFixed fx,
         return false;
     }
 
-    // Promote to 64bit (48.16) to avoid overflow.
-    const uint64_t lastFx = fx + sk_64_mul(dx, count - 1);
+    // Promote to 64bit (48.16) to avoid overflow,
+    // and see if th result fits back into 16.16.
+    //
+    // The last fx we really care about is fx + dx*(count-1), but since we'll
+    // technically fx += dx count times, some UBSAN bots notice the (harmless)
+    // overflow possible in the last iteration if we test fx + dx*(count-1).
+    // Instead test the full fx + dx*count.  Not a big deal.
+    const uint64_t lastFx = fx + sk_64_mul(dx, count);
 
     return SkTFitsIn<int32_t>(lastFx) && (unsigned)SkFixedFloorToInt(SkTo<int32_t>(lastFx)) < max;
 }
