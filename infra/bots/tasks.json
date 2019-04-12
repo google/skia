@@ -631,12 +631,6 @@
         "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
-    "Housekeeper-Nightly-Bookmaker": {
-      "tasks": [
-        "Housekeeper-Nightly-Bookmaker"
-      ],
-      "trigger": "nightly"
-    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "tasks": [
         "Housekeeper-Nightly-RecreateSKPs_Canary"
@@ -659,11 +653,6 @@
     "Housekeeper-PerCommit": {
       "tasks": [
         "Housekeeper-PerCommit"
-      ]
-    },
-    "Housekeeper-PerCommit-Bookmaker": {
-      "tasks": [
-        "Housekeeper-PerCommit-Bookmaker"
       ]
     },
     "Housekeeper-PerCommit-BundleRecipes": {
@@ -1332,11 +1321,13 @@
       ]
     },
     "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
       "tasks": [
         "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
       ]
     },
     "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
       "tasks": [
         "Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
       ]
@@ -2616,16 +2607,19 @@
       ]
     },
     "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
       "tasks": [
         "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
       ]
     },
     "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
       "tasks": [
         "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41"
       ]
     },
     "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
       "tasks": [
         "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
       ]
@@ -3318,7 +3312,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -3443,7 +3437,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -3582,7 +3576,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -3716,7 +3710,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -3841,7 +3835,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -3966,7 +3960,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4091,7 +4085,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4216,7 +4210,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4341,7 +4335,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4480,7 +4474,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4614,7 +4608,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4739,7 +4733,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4864,7 +4858,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -4989,7 +4983,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5114,7 +5108,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5239,7 +5233,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5364,7 +5358,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5489,7 +5483,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5586,7 +5580,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5680,7 +5674,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5802,7 +5796,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -5927,7 +5921,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6056,7 +6050,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6181,7 +6175,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6306,7 +6300,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6431,7 +6425,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6556,7 +6550,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6684,7 +6678,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6813,7 +6807,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -6942,7 +6936,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7071,7 +7065,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7205,7 +7199,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7334,7 +7328,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7473,7 +7467,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7602,7 +7596,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7731,7 +7725,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7860,7 +7854,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -7994,7 +7988,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8123,7 +8117,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8252,7 +8246,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8381,7 +8375,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8510,7 +8504,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8639,7 +8633,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8768,7 +8762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -8901,7 +8895,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -9036,7 +9030,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9165,7 +9159,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9290,7 +9284,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9419,7 +9413,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9548,7 +9542,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9677,7 +9671,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9806,7 +9800,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -9935,7 +9929,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10064,7 +10058,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10198,7 +10192,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10327,7 +10321,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10456,7 +10450,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10585,7 +10579,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10713,7 +10707,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -10842,7 +10836,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -10971,7 +10965,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -11100,7 +11094,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -11229,7 +11223,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -11358,7 +11352,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -11487,7 +11481,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -11616,7 +11610,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -11746,7 +11740,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11875,7 +11869,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12004,7 +11998,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12133,7 +12127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12257,7 +12251,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12381,7 +12375,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12505,7 +12499,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12629,7 +12623,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12753,7 +12747,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12877,7 +12871,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13001,7 +12995,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13125,7 +13119,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -18298,8 +18292,9 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
-        "pool:Skia"
+        "os:Debian-9.8",
+        "pool:Skia",
+        "docker_installed:true"
       ],
       "env_prefixes": {
         "PATH": [
@@ -18400,7 +18395,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -18503,7 +18498,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -18606,7 +18601,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -18709,7 +18704,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -18812,7 +18807,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -18915,7 +18910,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -19042,7 +19037,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19191,121 +19186,6 @@
         "perf"
       ]
     },
-    "Housekeeper-Nightly-Bookmaker": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.17.1.chromium15"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "bookmaker",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-Nightly-Bookmaker\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-IsolateGoDeps"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 7200000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
-    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "caches": [
         {
@@ -19402,7 +19282,7 @@
       ],
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.4"
+        "os:Debian-9.8"
       ],
       "env_prefixes": {
         "PATH": [
@@ -19520,7 +19400,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19642,7 +19522,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19763,7 +19643,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -19783,121 +19663,6 @@
       "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "service_account": "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Housekeeper-PerCommit-Bookmaker": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:96f81e737868d43124b4661cf1c325296ca04944"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.17.1.chromium15"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        }
-      ],
-      "command": [
-        "./kitchen${EXECUTABLE_SUFFIX}",
-        "cook",
-        "-checkout-dir",
-        "recipe_bundle",
-        "-mode",
-        "swarming",
-        "-luci-system-account",
-        "system",
-        "-cache-dir",
-        "cache",
-        "-temp-dir",
-        "tmp",
-        "-known-gerrit-host",
-        "android.googlesource.com",
-        "-known-gerrit-host",
-        "boringssl.googlesource.com",
-        "-known-gerrit-host",
-        "chromium.googlesource.com",
-        "-known-gerrit-host",
-        "dart.googlesource.com",
-        "-known-gerrit-host",
-        "fuchsia.googlesource.com",
-        "-known-gerrit-host",
-        "go.googlesource.com",
-        "-known-gerrit-host",
-        "llvm.googlesource.com",
-        "-known-gerrit-host",
-        "skia.googlesource.com",
-        "-known-gerrit-host",
-        "webrtc.googlesource.com",
-        "-output-result-json",
-        "${ISOLATED_OUTDIR}/build_result_filename",
-        "-workdir",
-        ".",
-        "-recipe",
-        "bookmaker",
-        "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-PerCommit-Bookmaker\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
-        "-logdog-annotation-url",
-        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-IsolateGoDeps"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 7200000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
-      },
-      "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-BundleRecipes": {
       "cipd_packages": [
@@ -19931,7 +19696,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -20019,7 +19784,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highcpu-64",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -20150,7 +19915,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -20189,7 +19954,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "isolate": "empty.isolate"
@@ -20212,7 +19977,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "isolate": "empty.isolate"
@@ -20235,7 +20000,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "isolate": "empty.isolate"
@@ -20258,7 +20023,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "isolate": "empty.isolate"
@@ -20281,7 +20046,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "isolate": "empty.isolate"
@@ -20304,7 +20069,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "isolate": "empty.isolate"
@@ -20405,7 +20170,7 @@
       ],
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.4"
+        "os:Debian-9.8"
       ],
       "env_prefixes": {
         "PATH": [
@@ -27593,7 +27358,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -27705,7 +27470,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -27822,7 +27587,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -27934,7 +27699,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28051,7 +27816,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28163,7 +27928,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28275,7 +28040,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28387,7 +28152,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28504,7 +28269,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28616,7 +28381,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28728,7 +28493,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28840,7 +28605,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -28951,7 +28716,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29062,7 +28827,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30334,7 +30099,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30431,7 +30196,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30528,7 +30293,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30626,7 +30391,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -30739,7 +30504,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30851,7 +30616,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33779,7 +33544,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -33896,7 +33661,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34013,7 +33778,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34125,7 +33890,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34242,7 +34007,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34359,7 +34124,7 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34477,7 +34242,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34593,7 +34358,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34709,7 +34474,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34825,7 +34590,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34941,7 +34706,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35057,7 +34822,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36648,7 +36413,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36764,7 +36529,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36880,7 +36645,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36996,7 +36761,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37112,7 +36877,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37228,7 +36993,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37344,7 +37109,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37460,7 +37225,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37576,7 +37341,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37692,7 +37457,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37808,7 +37573,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37924,7 +37689,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38040,7 +37805,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38156,7 +37921,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38272,7 +38037,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38388,7 +38153,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38504,7 +38269,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38620,7 +38385,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38736,7 +38501,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38852,7 +38617,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -38968,7 +38733,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39084,7 +38849,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39200,7 +38965,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39316,7 +39081,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39432,7 +39197,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39548,7 +39313,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39664,7 +39429,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39780,7 +39545,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -39896,7 +39661,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40012,7 +39777,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40128,7 +39893,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40244,7 +40009,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40360,7 +40125,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40476,7 +40241,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40592,7 +40357,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40708,7 +40473,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40824,7 +40589,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -40940,7 +40705,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -51602,7 +51367,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -51714,7 +51479,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -51831,7 +51596,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -51943,7 +51708,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52060,7 +51825,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52172,7 +51937,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52284,7 +52049,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52396,7 +52161,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52508,7 +52273,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52625,7 +52390,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52737,7 +52502,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52849,7 +52614,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -52961,7 +52726,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53073,7 +52838,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53185,7 +52950,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53297,7 +53062,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53414,7 +53179,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53525,7 +53290,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53636,7 +53401,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53748,7 +53513,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -53860,7 +53625,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55729,7 +55494,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55826,7 +55591,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55923,7 +55688,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56020,7 +55785,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56117,7 +55882,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56214,7 +55979,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56312,7 +56077,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -56411,7 +56176,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia",
         "docker_installed:true"
       ],
@@ -56524,7 +56289,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56636,7 +56401,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56748,7 +56513,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -56860,7 +56625,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "machine_type:n1-standard-16",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61839,7 +61604,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -61955,7 +61720,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62066,7 +61831,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62182,7 +61947,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62293,7 +62058,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62409,7 +62174,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62530,7 +62295,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62646,7 +62411,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62762,7 +62527,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62873,7 +62638,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -62989,7 +62754,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63105,7 +62870,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63226,7 +62991,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63342,7 +63107,7 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63463,7 +63228,7 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63574,7 +63339,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63690,7 +63455,7 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63807,7 +63572,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63923,7 +63688,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64039,7 +63804,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64155,7 +63920,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64271,7 +64036,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64387,7 +64152,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66253,7 +66018,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i7-5557U",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66369,7 +66134,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66485,7 +66250,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66601,7 +66366,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66717,7 +66482,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66833,7 +66598,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -66949,7 +66714,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67065,7 +66830,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67181,7 +66946,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67297,7 +67062,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67413,7 +67178,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67529,7 +67294,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67645,7 +67410,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67761,7 +67526,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67877,7 +67642,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -67993,7 +67758,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68109,7 +67874,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68225,7 +67990,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68341,7 +68106,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68457,7 +68222,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-25.20.100.6444",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68573,7 +68338,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68689,7 +68454,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68805,7 +68570,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -68921,7 +68686,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69037,7 +68802,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69153,7 +68918,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69269,7 +69034,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69385,7 +69150,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69501,7 +69266,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69617,7 +69382,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69733,7 +69498,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69849,7 +69614,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -69965,7 +69730,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70081,7 +69846,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70197,7 +69962,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70313,7 +70078,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-24.20.13001.1010",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70429,7 +70194,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70545,7 +70310,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70661,7 +70426,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70777,7 +70542,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -70893,7 +70658,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -71009,7 +70774,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-25.21.14.1634",
-        "os:Windows-10-17763.195",
+        "os:Windows-10-17763.379",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75312,7 +75077,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75407,7 +75172,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75502,7 +75267,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75597,7 +75362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75697,7 +75462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75797,7 +75562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75897,7 +75662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -75997,7 +75762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76097,7 +75862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76197,7 +75962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76297,7 +76062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76397,7 +76162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76497,7 +76262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76597,7 +76362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76697,7 +76462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76797,7 +76562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76897,7 +76662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -76997,7 +76762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77097,7 +76862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77197,7 +76962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77297,7 +77062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77397,7 +77162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77497,7 +77262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77597,7 +77362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77697,7 +77462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77797,7 +77562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77897,7 +77662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77997,7 +77762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78097,7 +77862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78197,7 +77962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78297,7 +78062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78397,7 +78162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78497,7 +78262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78597,7 +78362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78697,7 +78462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78797,7 +78562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78897,7 +78662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -78997,7 +78762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79097,7 +78862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79197,7 +78962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79297,7 +79062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79397,7 +79162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79497,7 +79262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79597,7 +79362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79697,7 +79462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79797,7 +79562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79897,7 +79662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -79997,7 +79762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80097,7 +79862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80197,7 +79962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80297,7 +80062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80397,7 +80162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80497,7 +80262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80597,7 +80362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80697,7 +80462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80797,7 +80562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80897,7 +80662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -80997,7 +80762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81097,7 +80862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81197,7 +80962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81297,7 +81062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81397,7 +81162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81497,7 +81262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81597,7 +81362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81697,7 +81462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81797,7 +81562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81897,7 +81662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -81997,7 +81762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82097,7 +81862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82197,7 +81962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82297,7 +82062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82397,7 +82162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82497,7 +82262,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82597,7 +82362,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82697,7 +82462,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82797,7 +82562,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82897,7 +82662,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -82997,7 +82762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83097,7 +82862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83197,7 +82962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83302,7 +83067,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83407,7 +83172,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83512,7 +83277,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83617,7 +83382,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83722,7 +83487,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83827,7 +83592,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -83932,7 +83697,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84037,7 +83802,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84142,7 +83907,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84247,7 +84012,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84352,7 +84117,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84457,7 +84222,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84562,7 +84327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84667,7 +84432,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84772,7 +84537,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84877,7 +84642,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -84982,7 +84747,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85087,7 +84852,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85192,7 +84957,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85297,7 +85062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85402,7 +85167,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85507,7 +85272,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85612,7 +85377,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85717,7 +85482,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85822,7 +85587,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -85927,7 +85692,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86032,7 +85797,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86137,7 +85902,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86242,7 +86007,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86347,7 +86112,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86452,7 +86217,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86557,7 +86322,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86662,7 +86427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86762,7 +86527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86862,7 +86627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -86962,7 +86727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87062,7 +86827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87162,7 +86927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87262,7 +87027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87362,7 +87127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87462,7 +87227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87562,7 +87327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87662,7 +87427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87762,7 +87527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87862,7 +87627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -87962,7 +87727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88062,7 +87827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88162,7 +87927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88262,7 +88027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88362,7 +88127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88462,7 +88227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88562,7 +88327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88662,7 +88427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88762,7 +88527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88862,7 +88627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -88962,7 +88727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89062,7 +88827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89162,7 +88927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89262,7 +89027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89362,7 +89127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89462,7 +89227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89562,7 +89327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89662,7 +89427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89762,7 +89527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89862,7 +89627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -89962,7 +89727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90062,7 +89827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90162,7 +89927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90262,7 +90027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90362,7 +90127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90462,7 +90227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90562,7 +90327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90662,7 +90427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90762,7 +90527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90862,7 +90627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -90962,7 +90727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91062,7 +90827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91162,7 +90927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91262,7 +91027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91362,7 +91127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91462,7 +91227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91562,7 +91327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91662,7 +91427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91762,7 +91527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91862,7 +91627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -91962,7 +91727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92062,7 +91827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92162,7 +91927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92262,7 +92027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92362,7 +92127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92462,7 +92227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92562,7 +92327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92662,7 +92427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92762,7 +92527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92862,7 +92627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -92962,7 +92727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93062,7 +92827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93162,7 +92927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93262,7 +93027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93362,7 +93127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93462,7 +93227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93562,7 +93327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93662,7 +93427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93762,7 +93527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93862,7 +93627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -93962,7 +93727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94062,7 +93827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94162,7 +93927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94262,7 +94027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94362,7 +94127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94462,7 +94227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94562,7 +94327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94662,7 +94427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94762,7 +94527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94862,7 +94627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -94962,7 +94727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95062,7 +94827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95162,7 +94927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95262,7 +95027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95362,7 +95127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95462,7 +95227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95562,7 +95327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95662,7 +95427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95762,7 +95527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95862,7 +95627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -95962,7 +95727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96062,7 +95827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96162,7 +95927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96262,7 +96027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96362,7 +96127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96462,7 +96227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96562,7 +96327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96662,7 +96427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96762,7 +96527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96862,7 +96627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -96962,7 +96727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97062,7 +96827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97162,7 +96927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97262,7 +97027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97362,7 +97127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97462,7 +97227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97562,7 +97327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97662,7 +97427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97762,7 +97527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97862,7 +97627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -97962,7 +97727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98062,7 +97827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98162,7 +97927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98262,7 +98027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98362,7 +98127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98462,7 +98227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98562,7 +98327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98662,7 +98427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98762,7 +98527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98862,7 +98627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -98962,7 +98727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99062,7 +98827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99162,7 +98927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99262,7 +99027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99362,7 +99127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99462,7 +99227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99562,7 +99327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99662,7 +99427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99762,7 +99527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99862,7 +99627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -99962,7 +99727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100062,7 +99827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100162,7 +99927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100262,7 +100027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100362,7 +100127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100462,7 +100227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100562,7 +100327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100662,7 +100427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100762,7 +100527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100862,7 +100627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -100962,7 +100727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101062,7 +100827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101162,7 +100927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101262,7 +101027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101362,7 +101127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101462,7 +101227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101562,7 +101327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101662,7 +101427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101762,7 +101527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101862,7 +101627,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -101962,7 +101727,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102062,7 +101827,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102162,7 +101927,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102262,7 +102027,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102367,7 +102132,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102472,7 +102237,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102577,7 +102342,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102682,7 +102447,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102787,7 +102552,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102892,7 +102657,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -102997,7 +102762,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103102,7 +102867,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103207,7 +102972,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103312,7 +103077,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103417,7 +103182,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103522,7 +103287,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103627,7 +103392,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103732,7 +103497,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103837,7 +103602,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -103942,7 +103707,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104047,7 +103812,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104152,7 +103917,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104257,7 +104022,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104362,7 +104127,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104467,7 +104232,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104572,7 +104337,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104677,7 +104442,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104782,7 +104547,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104887,7 +104652,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -104992,7 +104757,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105097,7 +104862,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105202,7 +104967,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105307,7 +105072,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105412,7 +105177,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105517,7 +105282,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105622,7 +105387,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105727,7 +105492,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105832,7 +105597,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -105937,7 +105702,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106042,7 +105807,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106147,7 +105912,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106252,7 +106017,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106357,7 +106122,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106462,7 +106227,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106567,7 +106332,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106672,7 +106437,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106777,7 +106542,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106882,7 +106647,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -106987,7 +106752,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107092,7 +106857,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107197,7 +106962,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107302,7 +107067,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107407,7 +107172,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107512,7 +107277,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107617,7 +107382,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107722,7 +107487,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107827,7 +107592,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -107932,7 +107697,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108037,7 +107802,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108142,7 +107907,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108247,7 +108012,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108352,7 +108117,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108457,7 +108222,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108562,7 +108327,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108667,7 +108432,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108772,7 +108537,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108877,7 +108642,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -108982,7 +108747,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109087,7 +108852,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109192,7 +108957,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109297,7 +109062,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109402,7 +109167,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109507,7 +109272,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109612,7 +109377,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109717,7 +109482,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109822,7 +109587,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -109927,7 +109692,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110032,7 +109797,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110137,7 +109902,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110242,7 +110007,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110347,7 +110112,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110452,7 +110217,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110557,7 +110322,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110662,7 +110427,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110767,7 +110532,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110872,7 +110637,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -110977,7 +110742,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111082,7 +110847,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111187,7 +110952,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111292,7 +111057,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111397,7 +111162,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111502,7 +111267,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111602,7 +111367,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111702,7 +111467,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111802,7 +111567,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -111902,7 +111667,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -112002,7 +111767,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -112102,7 +111867,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -112202,7 +111967,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-highmem-2",
-        "os:Debian-9.4",
+        "os:Debian-9.8",
         "pool:Skia"
       ],
       "env_prefixes": {
