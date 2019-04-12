@@ -763,11 +763,15 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
             maxCoverage = compute_nested_quad_vertices(
                     aaFlags, spec.deviceQuadType() <= GrQuadType::kRectilinear, &inner, &outer,
                     &geomDomain);
+        } else if (spec.requiresGeometryDomain()) {
+            // The quad itself wouldn't need a geometric domain, but the batch does, so set the
+            // domain to the bounds of the X/Y coords. Since it's non-AA, this won't actually be
+            // evaluated by the shader, but make sure not to upload uninitialized data.
+            geomDomain.fLeft = outer.fX.min();
+            geomDomain.fRight = outer.fX.max();
+            geomDomain.fTop = outer.fY.min();
+            geomDomain.fBottom = outer.fY.max();
         }
-        // NOTE: could provide an even more optimized tessellation function for axis-aligned
-        // rects since the positions can be outset by constants without doing vector math,
-        // except it must handle identifying the winding of the quad vertices if the transform
-        // applied a mirror, etc. The current 2D case is already adequately fast.
 
         // Write two quads for inner and outer, inner will use the
         write_quad(&vb, spec, mode, maxCoverage, color4f, geomDomain, domain, inner);
