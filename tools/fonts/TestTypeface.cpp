@@ -132,10 +132,10 @@ void TestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) co
     *isLocal = false;
 }
 
-int TestTypeface::onCharsToGlyphs(const void* chars,
-                                  Encoding    encoding,
-                                  SkGlyphID   glyphs[],
-                                  int         glyphCount) const {
+void TestTypeface::onCharsToGlyphs(const void* chars,
+                                   SkTextEncoding encoding,
+                                   SkGlyphID glyphs[],
+                                   int glyphCount) const {
     auto utf8  = (const char*)chars;
     auto utf16 = (const uint16_t*)chars;
     auto utf32 = (const SkUnichar*)chars;
@@ -143,15 +143,15 @@ int TestTypeface::onCharsToGlyphs(const void* chars,
     for (int i = 0; i < glyphCount; ++i) {
         SkUnichar ch;
         switch (encoding) {
-            case kUTF8_Encoding: ch = SkUTF8_NextUnichar(&utf8); break;
-            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch = *utf32++; break;
+            case SkTextEncoding::kUTF8: ch = SkUTF8_NextUnichar(&utf8); break;
+            case SkTextEncoding::kUTF16: ch = SkUTF16_NextUnichar(&utf16); break;
+            case SkTextEncoding::kUTF32: ch = *utf32++; break;
+            case SkTextEncoding::kGlyphID: SK_ABORT("unexpected enum");
         }
         if (glyphs) {
             glyphs[i] = fTestFont->glyphForUnichar(ch);
         }
     }
-    return glyphCount;
 }
 
 void TestTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fTestFont->fName; }
@@ -181,8 +181,7 @@ protected:
 
     uint16_t generateCharToGlyph(SkUnichar uni) override {
         uint16_t glyph;
-        (void)this->getTestTypeface()->onCharsToGlyphs(
-                (const void*)&uni, SkTypeface::kUTF32_Encoding, &glyph, 1);
+        this->getTestTypeface()->onCharsToGlyphs(&uni, SkTextEncoding::kUTF32, &glyph, 1);
         return glyph;
     }
 
