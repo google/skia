@@ -46,12 +46,10 @@ public:
                                                          bool managedOpList = true);
     sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
 
-    // The caller automatically gets a ref on the returned opList. It must
-    // be balanced by an unref call.
     // A managed opList is controlled by the drawing manager (i.e., sorted & flushed with the
-    // other). An unmanaged one is created and used by the onFlushCallback.
-    sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managedOpList);
-    sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
+    // others). An unmanaged one is created and used by the onFlushCallback.
+    sk_sp<GrRenderTargetOpList> newRTOpList(sk_sp<GrRenderTargetProxy>, bool managedOpList);
+    sk_sp<GrTextureOpList> newTextureOpList(sk_sp<GrTextureProxy>);
 
     GrRecordingContext* getContext() { return fContext; }
 
