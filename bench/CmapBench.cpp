@@ -14,42 +14,34 @@ enum {
     NGLYPHS = 100
 };
 
-typedef void (*TypefaceProc)(int loops, const SkFont&, const void* text, size_t len,
+typedef void (*TypefaceProc)(int loops, const SkFont&, const SkUnichar*, size_t len,
                              int glyphCount);
 
-static void textToGlyphs_proc(int loops, const SkFont& font, const void* text, size_t len,
+static void textToGlyphs_proc(int loops, const SkFont& font, const SkUnichar* text, size_t len,
                               int glyphCount) {
     uint16_t glyphs[NGLYPHS];
     SkASSERT(glyphCount <= NGLYPHS);
 
     for (int i = 0; i < loops; ++i) {
-        font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, NGLYPHS);
+        font.textToGlyphs(text, len, kUTF32_SkTextEncoding, glyphs, NGLYPHS);
     }
 }
 
-static void charsToGlyphs_proc(int loops, const SkFont& font, const void* text,
+static void charsToGlyphs_proc(int loops, const SkFont& font, const SkUnichar* text,
                                size_t len, int glyphCount) {
     uint16_t glyphs[NGLYPHS];
     SkASSERT(glyphCount <= NGLYPHS);
 
     SkTypeface* face = font.getTypefaceOrDefault();
     for (int i = 0; i < loops; ++i) {
-        face->charsToGlyphs(text, SkTypeface::kUTF8_Encoding, glyphs, glyphCount);
-    }
-}
-
-static void charsToGlyphsNull_proc(int loops, const SkFont& font, const void* text,
-                                   size_t len, int glyphCount) {
-    SkTypeface* face = font.getTypefaceOrDefault();
-    for (int i = 0; i < loops; ++i) {
-        face->charsToGlyphs(text, SkTypeface::kUTF8_Encoding, nullptr, glyphCount);
+        face->unicharsToGlyphs(text, glyphCount, glyphs);
     }
 }
 
 class CMAPBench : public Benchmark {
     TypefaceProc fProc;
     SkString     fName;
-    char         fText[NGLYPHS];
+    SkUnichar    fText[NGLYPHS];
     SkFont       fFont;
 
 public:
@@ -82,4 +74,3 @@ private:
 
 DEF_BENCH( return new CMAPBench(textToGlyphs_proc, "paint_textToGlyphs"); )
 DEF_BENCH( return new CMAPBench(charsToGlyphs_proc, "face_charsToGlyphs"); )
-DEF_BENCH( return new CMAPBench(charsToGlyphsNull_proc, "face_charsToGlyphs_null"); )
