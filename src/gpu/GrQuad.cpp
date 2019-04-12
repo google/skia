@@ -9,84 +9,6 @@
 
 #include "GrTypesPriv.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Functions for identifying the quad type from its coordinates, which are kept debug-only since
-// production code should rely on the matrix to derive the quad type more efficiently. These are
-// useful in asserts that the quad type is as expected.
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-// Allow some tolerance from floating point matrix transformations, but SkScalarNearlyEqual doesn't
-// support comparing infinity, and coords_form_rect should return true for infinite edges
-#define NEARLY_EQUAL(f1, f2) (f1 == f2 || SkScalarNearlyEqual(f1, f2, 1e-5f))
-// Similarly, support infinite rectangles by looking at the sign of infinities
-static bool dot_nearly_zero(const SkVector& e1, const SkVector& e2) {
-    static constexpr auto dot = SkPoint::DotProduct;
-    static constexpr auto sign = SkScalarSignAsScalar;
-
-    SkScalar dotValue = dot(e1, e2);
-    if (SkScalarIsNaN(dotValue)) {
-        // Form vectors from the signs of infinities, and check their dot product
-        dotValue = dot({sign(e1.fX), sign(e1.fY)}, {sign(e2.fX), sign(e2.fY)});
-    }
-
-    return SkScalarNearlyZero(dotValue, 1e-3f);
-}
-
-// This is not the most performance critical function; code using GrQuad should rely on the faster
-// quad type from matrix path, so this will only be called as part of SkASSERT.
-static bool coords_form_rect(const float xs[4], const float ys[4]) {
-    return (NEARLY_EQUAL(xs[0], xs[1]) && NEARLY_EQUAL(xs[2], xs[3]) &&
-            NEARLY_EQUAL(ys[0], ys[2]) && NEARLY_EQUAL(ys[1], ys[3])) ||
-           (NEARLY_EQUAL(xs[0], xs[2]) && NEARLY_EQUAL(xs[1], xs[3]) &&
-            NEARLY_EQUAL(ys[0], ys[1]) && NEARLY_EQUAL(ys[2], ys[3]));
-}
-
-static bool coords_rectilinear(const float xs[4], const float ys[4]) {
-    SkVector e0{xs[1] - xs[0], ys[1] - ys[0]}; // connects to e1 and e2(repeat)
-    SkVector e1{xs[3] - xs[1], ys[3] - ys[1]}; // connects to e0(repeat) and e3
-    SkVector e2{xs[0] - xs[2], ys[0] - ys[2]}; // connects to e0 and e3(repeat)
-    SkVector e3{xs[2] - xs[3], ys[2] - ys[3]}; // connects to e1(repeat) and e2
-
-    e0.normalize();
-    e1.normalize();
-    e2.normalize();
-    e3.normalize();
-
-    return dot_nearly_zero(e0, e1) && dot_nearly_zero(e1, e3) &&
-           dot_nearly_zero(e2, e0) && dot_nearly_zero(e3, e2);
-}
-
-GrQuadType GrQuad::quadType() const {
-    // Since GrQuad applies any perspective information at construction time, there's only two
-    // types to choose from.
-    if (coords_form_rect(fX, fY)) {
-        return GrQuadType::kRect;
-    } else if (coords_rectilinear(fX, fY)) {
-        return GrQuadType::kRectilinear;
-    } else {
-        return GrQuadType::kStandard;
-    }
-}
-
-GrQuadType GrPerspQuad::quadType() const {
-    if (this->hasPerspective()) {
-        return GrQuadType::kPerspective;
-    } else {
-        // Rect or standard quad, can ignore w since they are all ones
-        if (coords_form_rect(fX, fY)) {
-            return GrQuadType::kRect;
-        } else if (coords_rectilinear(fX, fY)) {
-            return GrQuadType::kRectilinear;
-        } else {
-            return GrQuadType::kStandard;
-        }
-    }
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 static bool aa_affects_rect(float ql, float qt, float qr, float qb) {
     return !SkScalarIsInt(ql) || !SkScalarIsInt(qr) || !SkScalarIsInt(qt) || !SkScalarIsInt(qb);
 }
@@ -239,7 +161,6 @@ GrQuad GrQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& matrix) {
 }
 
 bool GrQuad::aaHasEffectOnRect() const {
-    SkASSERT(this->quadType() == GrQuadType::kRect);
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
 
@@ -275,7 +196,6 @@ GrPerspQuad GrPerspQuad::MakeFromSkQuad(const SkPoint pts[4], const SkMatrix& ma
 }
 
 bool GrPerspQuad::aaHasEffectOnRect() const {
-    SkASSERT(this->quadType() == GrQuadType::kRect);
     // If rect, ws must all be 1s so no need to divide
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
