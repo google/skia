@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6811d0d8_6949796d",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-12T14:25:27Z",
+      "side": 1,
+      "message": "If we\u0027re making up new API to transition to anyway, we should have a count of bytes available in chars here like every other API so we can get rid of the last few users of the unsafe SkUTFx_NextUnichar calls.",
+      "range": {
+        "startLine": 191,
+        "startChar": 23,
+        "endLine": 191,
+        "endChar": 40
+      },
+      "revId": "4319ca0fab200df42213522ab27ee89e89c8200e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
