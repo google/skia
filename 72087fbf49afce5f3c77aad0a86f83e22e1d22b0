@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0abf5bb2_502e9a2b",
+        "filename": "infra/bots/recipe_modules/flavor/resources/read_ssh_machine_json.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-12T11:25:50Z",
+      "side": 1,
+      "message": "Nit: this is small enough that it could be an inline script. Is there a reason to make it standalone?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "72087fbf49afce5f3c77aad0a86f83e22e1d22b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
