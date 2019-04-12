@@ -105,10 +105,6 @@ def GenTests(api):
       api.test(buildername) +
       api.properties(**defaultProps(buildername))
     )
-    if 'Chromebook' in buildername and not 'Build' in buildername:
-      test += api.step_data(
-          'read chromeos ip',
-          stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
     if 'Chromecast' in buildername:
       test += api.step_data(
           'read chromecast ip',

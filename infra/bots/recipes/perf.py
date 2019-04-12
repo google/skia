@@ -458,11 +458,6 @@ def GenTests(api):
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
 
-    if 'ChromeOS' in builder:
-      test += api.step_data(
-          'read chromeos ip',
-          stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
-
     yield test
 
   builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All'
