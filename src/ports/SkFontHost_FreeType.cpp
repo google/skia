@@ -1582,37 +1582,20 @@ static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
     return gProcs[enc];
 }
 
-int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
-                                         uint16_t glyphs[], int glyphCount) const
+void SkTypeface_FreeType::onCharsToGlyphs(const void* chars, SkTextEncoding encoding,
+                                          SkGlyphID glyphs[], int glyphCount) const
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
-        if (glyphs) {
-            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-        }
-        return 0;
+        sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        return;
     }
 
     EncodingProc next_uni_proc = find_encoding_proc(encoding);
 
-    if (nullptr == glyphs) {
-        for (int i = 0; i < glyphCount; ++i) {
-            if (0 == FT_Get_Char_Index(face, next_uni_proc(&chars))) {
-                return i;
-            }
-        }
-        return glyphCount;
-    } else {
-        int first = glyphCount;
-        for (int i = 0; i < glyphCount; ++i) {
-            unsigned id = FT_Get_Char_Index(face, next_uni_proc(&chars));
-            glyphs[i] = SkToU16(id);
-            if (0 == id && i < first) {
-                first = i;
-            }
-        }
-        return first;
+    for (int i = 0; i < glyphCount; ++i) {
+        glyphs[i] = SkToU16(FT_Get_Char_Index(face, next_uni_proc(&chars)));
     }
 }
 

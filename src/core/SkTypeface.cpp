@@ -57,12 +57,9 @@ protected:
         return nullptr;
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const override {
-        if (glyphs && glyphCount > 0) {
-            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-        }
-        return 0;
+    void onCharsToGlyphs(const void* chars, SkTextEncoding encoding, SkGlyphID glyphs[],
+                         int glyphCount) const override {
+        sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
     }
     int onCountGlyphs() const override { return 0; }
     int onGetUPEM() const override { return 0; }
@@ -285,23 +282,22 @@ std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
-int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
-                              uint16_t glyphs[], int glyphCount) const {
-    if (glyphCount <= 0) {
-        return 0;
+void SkTypeface::charsToGlyphs(const void* chars, SkTextEncoding encoding,
+                               SkGlyphID glyphs[], int glyphCount) const {
+    if (glyphCount <= 0 || !glyphs || !chars) {
+        return;
     }
-    if (nullptr == chars || (unsigned)encoding > kUTF32_Encoding) {
-        if (glyphs) {
-            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-        }
-        return 0;
+    if (encoding == SkTextEncoding::kGlyphID) {
+        memcpy(glyphs, chars, (size_t)glyphCount * sizeof(SkGlyphID));
+        return;
     }
-    return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
+    this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
 SkGlyphID SkTypeface::unicharToGlyph(SkUnichar uni) const {
-    SkGlyphID glyphs[1];
-    return this->onCharsToGlyphs(&uni, kUTF32_Encoding, glyphs, 1) == 1 ? glyphs[0] : 0;
+    SkGlyphID glyphs[1] = { 0 };
+    this->onCharsToGlyphs(&uni, SkTextEncoding::kUTF32, glyphs, 1);
+    return glyphs[0];
 }
 
 int SkTypeface::countGlyphs() const {
