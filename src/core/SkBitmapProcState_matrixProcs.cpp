@@ -22,6 +22,7 @@
  *  The decal_ functions require that
  *  1. dx > 0
  *  2. [fx, fx+dx, fx+2dx, fx+3dx, ... fx+(count-1)dx] are all <= maxX
+ *  (For silly technical reasons we check all the way up to fx + count*dx.)
  *
  *  In addition, we use SkFractionalInt to keep more fractional precision than
  *  just SkFixed, so we will abort the decal_ call if dx is very small, since
@@ -50,8 +51,14 @@ static inline bool can_truncate_to_fixed_for_decal(SkFixed fx,
         return false;
     }
 
-    // Promote to 64bit (48.16) to avoid overflow.
-    const uint64_t lastFx = fx + sk_64_mul(dx, count - 1);
+    // We want to see if the last fx we'll consider fits in 16.16.
+    // Promote to 64bit (48.16) temporarily to test.
+    //
+    // The last fx we really care about is fx + dx*(count-1), but since we'll
+    // technically fx += dx count times, some UBSAN bots notice the (harmless)
+    // overflow possible in the last iteration if we test fx + dx*(count-1).
+    // Instead test the full final fx, fx + dx*count.  Not a big deal.
+    const uint64_t lastFx = fx + sk_64_mul(dx, count);
 
     return SkTFitsIn<int32_t>(lastFx) && (unsigned)SkFixedFloorToInt(SkTo<int32_t>(lastFx)) < max;
 }
