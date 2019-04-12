@@ -41,7 +41,7 @@ const (
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
-	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
+	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
 	DEFAULT_OS_MAC       = "Mac-10.13.6"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
@@ -66,7 +66,6 @@ const (
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
 
-	SERVICE_ACCOUNT_BOOKMAKER          = "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_COMPILE            = "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_HOUSEKEEPER        = "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_RECREATE_SKPS      = "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -361,9 +360,7 @@ func dockerGceDimensions() []string {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if strings.Contains(jobName, "Bookmaker") {
-		return "Build-Debian9-GCC-x86_64-Release"
-	} else if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
+	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
 		task_os := parts["os"]
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
@@ -449,11 +446,13 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        DEFAULT_OS_MAC,
+			"Mac10.13":   DEFAULT_OS_MAC,
+			"Mac10.14":   "Mac-10.14.3",
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-17763.195",
+			"Win10":      "Windows-10-17763.379",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -521,7 +520,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Please update defaultSwarmDimensions for SKQP::Emulator %s %s.", parts["os"], parts["model"])
 			}
 			d["cpu"] = "x86-64-i5-7260U"
-			d["os"] = "Debian-9.4"
+			d["os"] = DEFAULT_OS_DEBIAN
 			// KVM means Kernel-based Virtual Machine, that is, can this vm virtualize commands
 			// For us, this means, can we run an x86 android emulator on it.
 			// kjlubick tried running this on GCE, but it was a bit too slow on the large install.
@@ -592,7 +591,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				}
 				if parts["os"] == "Ubuntu18" && parts["cpu_or_gpu_value"] == "QuadroP400" {
 					// Ubuntu18 has a slightly newer GPU driver.
-					gpu = "10de:1cb3-390.87"
+					gpu = "10de:1cb3-415.27"
 				}
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
@@ -636,8 +635,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return dockerGceDimensions()
 			}
 			if parts["role"] == "BuildStats" {
-				// Doesn't require a lot of resources
-				return linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+				// Doesn't require a lot of resources, but some steps require docker
+				return dockerGceDimensions()
 			}
 			// Use many-core machines for Build tasks.
 			return linuxGceDimensions(MACHINE_TYPE_LARGE)
@@ -962,18 +961,6 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	usesGit(task, name)
-	b.MustAddTask(name, task)
-	return name
-}
-
-// bookmaker generates a Bookmaker task. Returns the name of the last task
-// in the generated chain of tasks, which the Job should add as a dependency.
-func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
-	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
-	task.Caches = append(task.Caches, CACHES_WORKDIR...)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
-	task.Dependencies = append(task.Dependencies, compileTaskName, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
-	timeout(task, 2*time.Hour)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1346,9 +1333,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		priority = 1
 		deps = append(deps, presubmit(b, name))
 	}
-	if strings.Contains(name, "Bookmaker") {
-		deps = append(deps, bookmaker(b, name, compileTaskName))
-	}
 
 	// Common assets needed by the remaining bots.
 
@@ -1400,6 +1384,14 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// Calmbench bots.
 	if parts["role"] == "Calmbench" {
 		deps = append(deps, calmbench(b, name, parts, compileTaskName, compileParentName))
+	}
+
+	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
+	if strings.Contains(name, "Valgrind") {
+		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the
+		// same score as other tasks with a blamelist of 1 commit, when we have insufficient bot
+		// capacity to run more frequently.
+		priority = 0.085
 	}
 
 	// BuildStats bots. This computes things like binary size.

@@ -443,8 +443,6 @@ def PostUploadHook(cl, change, output_api):
   * Adds 'No-Try: true' if the CL contains only docs changes.
   * Adds 'No-Tree-Checks: true' for non master branch changes since they do not
     need to be gated on the master branch's tree.
-  * Adds 'No-Try: true' for non master branch changes since trybots do not yet
-    work on them.
   * Adds 'No-Presubmit: true' for non master branch changes since those don't
     run the presubmit checks.
   """
@@ -507,13 +505,6 @@ def PostUploadHook(cl, change, output_api):
                 'Branch changes do not need to rely on the master branch\'s '
                 'tree status. Automatically added \'No-Tree-Checks: true\' to '
                 'the CL\'s description'))
-      if not _FooterExists(footers, 'No-Try', 'true'):
-        new_description_lines.append('No-Try: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Trybots do not yet work for non-master branches. '
-                'Automatically added \'No-Try: true\' to the CL\'s '
-                'description'))
       if not _FooterExists(footers, 'No-Presubmit', 'true'):
         new_description_lines.append('No-Presubmit: true')
         results.append(
