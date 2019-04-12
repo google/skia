@@ -22,6 +22,30 @@
       "revId": "72087fbf49afce5f3c77aad0a86f83e22e1d22b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5da54ec2_1394ebb2",
+        "filename": "infra/bots/recipe_modules/flavor/resources/read_ssh_machine_json.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-12T14:39:14Z",
+      "side": 1,
+      "message": "Ok, I must have misunderstood something you said previously. I thought when we had a conversation about this, you suggested that all the inline python scripts should be moved to separate files.",
+      "parentUuid": "0abf5bb2_502e9a2b",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "72087fbf49afce5f3c77aad0a86f83e22e1d22b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
