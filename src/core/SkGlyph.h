@@ -152,8 +152,6 @@ public:
 
     void toMask(SkMask* mask) const;
 
-    SkMask mask(SkPoint position) const;
-
     SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
 
     SkPath* path() const {
