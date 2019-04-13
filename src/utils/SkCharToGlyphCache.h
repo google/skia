@@ -47,13 +47,12 @@ public:
     }
 
 private:
-    // If the unichar is <= 16bits, store keys and values (planar) in the same array
-    // [keys...][values...]
-    SkTDArray<uint16_t> f1616;
+    SkTDArray<uint16_t> fKey16;
+    SkTDArray<uint16_t> fValue16;
 
-    // If the unichar is > 16bits, use these two arrays: 32bit key, 16bit value
-    SkTDArray<int32_t>   fKey32;
-    SkTDArray<uint16_t>  fValue16;
+    // If the unichar is > 0xFFFF, use these
+    SkTDArray<uint32_t>   fKey32;
+    SkTDArray<uint16_t>  fValue32;
 
     void validate() const;
 };

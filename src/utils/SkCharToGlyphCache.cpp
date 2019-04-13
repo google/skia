@@ -8,42 +8,48 @@
 #include "SkCharToGlyphCache.h"
 #include "../private/SkTFitsIn.h"
 
-// TODO: consider faster ways to search big arrays
-//       bsearch
-//       slope-based (since we can compute a slope from first and last values)
-//
-//       Also, consider adding sentinels to key arrays so we don't have to check that
-//       index is in rage.
-//
-template <typename T> int find_index(const T* base, int count, T value) {
-    for (int index = 0; index < count; ++index) {
+constexpr uint16_t k16BitSentinel = 0xFFFF;
+constexpr uint32_t k32BitSentinel = 0xFFFFFFFF;
+
+static bool use_16bit_keys(uint32_t uni) {
+    return uni < k16BitSentinel;
+}
+
+template <typename T> int find_index(const T* base, int count, uint32_t value) {
+    SkASSERT(count > 0 && value < base[count - 1]);
+    int index;
+    for (index = 0;; ++index) {
+        SkASSERT(index <= count);
         if (value <= base[index]) {
             if (value < base[index]) {
                 index = ~index; // not found
             }
-            return index;
+            break;
         }
     }
-    return ~count;    // append at the end
+    return index;
 }
 
-SkCharToGlyphCache::SkCharToGlyphCache() {}
+SkCharToGlyphCache::SkCharToGlyphCache() {
+    *fKey16.append() = k16BitSentinel; *fValue16.append() = 0;
+    *fKey32.append() = k32BitSentinel; *fValue32.append() = 0;
+}
 
 SkCharToGlyphCache::~SkCharToGlyphCache() {}
 
 int SkCharToGlyphCache::findGlyphIndex(SkUnichar unichar) const {
     int index;
-    if (SkTFitsIn<uint16_t>(unichar)) {
-        int count = f1616.count() >> 1;
-        index = find_index(f1616.begin(), count, SkToU16(unichar));
+    if (use_16bit_keys(unichar)) {
+        int count = fKey16.count();
+        index = find_index(fKey16.begin(), count, unichar);
         if (index >= 0) {
-            return f1616[count + index];
+            return fValue16[index];
         }
     } else {
         int count = fKey32.count();
         index = find_index(fKey32.begin(), count, unichar);
         if (index >= 0) {
-            return fValue16[index];
+            return fValue32[index];
         }
     }
     SkASSERT(index < 0);
@@ -51,44 +57,36 @@ int SkCharToGlyphCache::findGlyphIndex(SkUnichar unichar) const {
 }
 
 void SkCharToGlyphCache::insertCharAndGlyph(int index, SkUnichar unichar, SkGlyphID glyph) {
-    if (SkTFitsIn<uint16_t>(unichar)) {
-        // count is the logical count, since our array is really two arrays back-to-back
-        size_t count = f1616.size() >> 1;
-        SkASSERT((unsigned)index <= count);
+    if (use_16bit_keys(unichar)) {
+        SkASSERT(fKey16.size() == fValue16.size());
+        SkASSERT((unsigned)index <= fKey16.size());
 
-        f1616.setCount(f1616.size() + 2); // make room for key and value
-        uint16_t* base = f1616.begin();
-
-        // now slide twice, to make room for the new key and value
-        uint16_t* src = base + count + index;
-        size_t    amt = count - index;
-        sk_careful_memmove(src + 2, src, amt * sizeof(uint16_t));
-
-        src = base + index;
-        amt = count;
-        sk_careful_memmove(src + 1, src, amt * sizeof(uint16_t));
-
-        // now store the new values
-        base[index] = SkToU16(unichar);
-        base[count + 1 + index] = glyph;
+        *fKey16.insert(index) = SkToU16(unichar);
+        *fValue16.insert(index) = glyph;
     } else {
-        SkASSERT(fKey32.size() == fValue16.size());
+        SkASSERT(fKey32.size() == fValue32.size());
         SkASSERT((unsigned)index <= fKey32.size());
 
         *fKey32.insert(index) = unichar;
-        *fValue16.insert(index) = glyph;
+        *fValue32.insert(index) = glyph;
     }
     this->validate();
 }
 
 void SkCharToGlyphCache::validate() const {
 #ifdef SK_DEBUG
-    SkASSERT((f1616.count() & 1) == 0);
-    for (int i = 1; i < f1616.count() >> 1; ++i) {
-        SkASSERT(f1616[i - 1] < f1616[i]);
+    SkASSERT(fKey16.size() == fValue16.size());
+    SkASSERT(fKey16.size() > 0 &&
+             fKey16.end()[-1] == k16BitSentinel &&
+             fValue16.end()[-1] == 0);
+    for (int i = 1; i < fKey32.count(); ++i) {
+        SkASSERT(fKey16[i - 1] < fKey16[i]);
     }
 
-    SkASSERT(fKey32.size() == fValue16.size());
+    SkASSERT(fKey32.size() == fValue32.size());
+    SkASSERT(fKey32.size() > 0 &&
+             fKey32.end()[-1] == k32BitSentinel &&
+             fValue32.end()[-1] == 0);
     for (int i = 1; i < fKey32.count(); ++i) {
         SkASSERT(fKey32[i - 1] < fKey32[i]);
     }
