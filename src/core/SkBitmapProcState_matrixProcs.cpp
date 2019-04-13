@@ -56,23 +56,24 @@ static inline bool can_truncate_to_fixed_for_decal(SkFixed fx,
     return SkTFitsIn<int32_t>(lastFx) && (unsigned)SkFixedFloorToInt(SkTo<int32_t>(lastFx)) < max;
 }
 
-
 // When not filtering, we store 32-bit y, 16-bit x, 16-bit x, 16-bit x, ...
 // When filtering we write out 32-bit encodings, pairing 14.4 x0 with 14-bit x1.
 
 // The clamp routines may try to fall into one of these unclamped decal fast-paths.
 // (Only clamp works in the right coordinate space to check for decal.)
 static void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
-    for (; count >= 2; count -= 2) {
+    // can_truncate_to_fixed_for_decal() checked only that stepping fx+=dx count-1
+    // times doesn't overflow fx, so we take unusual care not to step count times.
+    for (; count > 2; count -= 2) {
         *dst++ = pack_two_shorts( (fx +  0) >> 16,
                                   (fx + dx) >> 16);
         fx += dx+dx;
     }
 
-    auto xx = (uint16_t*)dst;
-    while (count --> 0) {
-        *xx++ = SkToU16(fx >> 16);
-        fx += dx;
+    SkASSERT(count <= 2);
+    switch (count) {
+        case 2: ((uint16_t*)dst)[1] = SkToU16((fx + dx) >> 16);
+        case 1: ((uint16_t*)dst)[0] = SkToU16((fx +  0) >> 16);
     }
 }
 
