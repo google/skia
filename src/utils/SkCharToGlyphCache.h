@@ -55,6 +55,12 @@ private:
     SkTDArray<int32_t>   fKey32;
     SkTDArray<uint16_t>  fValue16;
 
+    int findGlyphIndex2(SkUnichar c) const;
+    void insertCharAndGlyph2(int index, SkUnichar, SkGlyphID);
+
+    SkTDArray<int32_t>   fK32;
+    SkTDArray<uint16_t>  fV16;
+
     void validate() const;
 };
 
