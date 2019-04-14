@@ -918,16 +918,6 @@ static bool too_big_for_lcd(const SkScalerContextRec& rec, bool checkPost2x2) {
     }
 }
 
-// if linear-text is on, then we force hinting to be off (since that's sort of
-// the point of linear-text.
-static SkFontHinting computeHinting(const SkFont& font) {
-    SkFontHinting h = (SkFontHinting)font.getHinting();
-    if (font.isLinearMetrics()) {
-        h = kNo_SkFontHinting;
-    }
-    return h;
-}
-
 // The only reason this is not file static is because it needs the context of SkScalerContext to
 // access SkPaint::computeLuminanceColor.
 void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint,
@@ -1048,8 +1038,15 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     }
     rec->fFlags = SkToU16(flags);
 
+    // if linear-text is on, then we force hinting to be off (since that's sort of
+    // the point of linear-text.
+    SkFontHinting hinting = (SkFontHinting)font.getHinting();
+    if (font.isLinearMetrics()) {
+        hinting = kNo_SkFontHinting;
+    }
+
     // these modify fFlags, so do them after assigning fFlags
-    rec->setHinting(computeHinting(font));
+    rec->setHinting(hinting);
 
     rec->setLuminanceColor(SkPaintPriv::ComputeLuminanceColor(paint));
 
