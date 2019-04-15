@@ -45,10 +45,17 @@ SkClipStack::Element::Element(const Element& that) {
 
 SkClipStack::Element::~Element() {
 #if SK_SUPPORT_GPU
+#if 0
     for (int i = 0; i < fKeysToInvalidate.count(); ++i) {
         fProxyProvider->processInvalidUniqueKey(fKeysToInvalidate[i], nullptr,
                                                 GrProxyProvider::InvalidateGPUResource::kYes);
     }
+#else
+    for (int i = 0; i < fKeysToInvalidate.count(); ++i) {
+        GrUniqueKeyInvalidatedMessage msg(fKeysToInvalidate[i], fContextUniqueID);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+    }
+#endif
 #endif
 }
 
