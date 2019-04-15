@@ -41,9 +41,36 @@
 
 namespace SK_OPTS_NS {
 
+#if defined(SK_ARM_HAS_NEON)
+    // With NEON we can do u8*u8 -> u16 in one instruction, mull (mul-long).
+    // TODO(mtklein): I wish I could make this a bit prettier and still get ideal codegen.
+    // We need versions at N=4 and N=16, but of course the instruction works best at N=8.  :)
+    static inline skvx::Vec<4,uint16_t> mull(skvx::Vec<4,uint8_t> x, skvx::Vec<4,uint8_t> y) {
+        uint8x8_t X = skvx::to_vext(skvx::join(x,x)),
+                  Y = skvx::to_vext(skvx::join(y,y));
+        return skvx::to_vec<8,uint16_t>( vmull_u8(X,Y) ).lo;
+    }
+    static inline skvx::Vec<16,uint16_t> mull(skvx::Vec<16,uint8_t> x, skvx::Vec<16,uint8_t> y) {
+        uint16x8_t lo = vmull_u8( skvx::to_vext(x.lo), skvx::to_vext(y.lo) ),
+                   hi = vmull_u8( skvx::to_vext(x.hi), skvx::to_vext(y.hi) );
+        // TODO: why can't I get skvx::join() to generate the same code as this?
+        skvx::Vec<16,uint16_t> r;
+        memcpy(&r.lo, &lo, sizeof(lo));
+        memcpy(&r.hi, &hi, sizeof(hi));
+        return r;
+    }
+#else
+    // Nothing special when we don't have NEON... just cast up to 16-bit and multiply.
+    template <int N>
+    static inline skvx::Vec<N,uint16_t> mull(skvx::Vec<N,uint8_t> x, skvx::Vec<N,uint8_t> y) {
+        return skvx::cast<uint16_t>(x)
+             * skvx::cast<uint16_t>(y);
+    }
+#endif
+
 // Blend constant color over count src pixels, writing into dst.
 inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
-    constexpr int N = 8;  // 4, 16 also reasonable choices
+    constexpr int N = 4;  // 8, 16 also reasonable choices
     using U32 = skvx::Vec<  N, uint32_t>;
     using U16 = skvx::Vec<4*N, uint16_t>;
     using U8  = skvx::Vec<4*N, uint8_t>;
@@ -55,10 +82,10 @@ inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, Sk
 
         // (src * invA + (color << 8) + 128) >> 8
         // Should all fit in 16 bits.
-        // TODO(mtklein): can we do src * invA with umull on ARM?
-        U16 s = skvx::cast<uint16_t>(skvx::bit_pun<U8>(src)),
-            c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
-            d = (s * invA + (c << 8) + 128)>>8;
+        U8 s = skvx::bit_pun<U8>(src),
+           a = U8(invA);
+        U16 c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
+            d = (mull(s,a) + (c << 8) + 128)>>8;
         return skvx::bit_pun<U32>(skvx::cast<uint8_t>(d));
     };
 
