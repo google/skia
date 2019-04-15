@@ -212,6 +212,7 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
         SkBlendMode::kSaturation, // 13:'saturation'
         SkBlendMode::kColor,      // 14:'color'
         SkBlendMode::kLuminosity, // 15:'luminosity'
+        SkBlendMode::kPlus,       // 16:'add'
     };
 
     const auto bm_index = ParseDefault<size_t>(jobject["bm"], 0);
