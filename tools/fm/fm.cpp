@@ -3,6 +3,7 @@
 
 #include "CommandLineFlags.h"
 #include "CommonFlags.h"
+#include "CrashHandler.h"
 #include "EventTracingPriv.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
@@ -94,11 +95,6 @@ static bool parse_flag(const CommandLineFlags::StringArray& flag,
         fprintf(stderr, "    --%s %s\n", flag_name, entry.label);
     }
     return false;
-}
-
-static void exit_with_failure() {
-    // TODO: dump stack trace, debug trap, print currently running job, etc?
-    exit(1);
 }
 
 struct Result {
@@ -350,6 +346,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
+    SetupCrashHandler();
 
     if (FLAGS_cpuDetect) {
         SkGraphics::Init();
@@ -503,6 +500,7 @@ int main(int argc, char** argv) {
     for (auto source : sources) {
         const auto start = std::chrono::steady_clock::now();
         fprintf(stdout, "%50s", source.name.c_str());
+        fflush(stdout);
 
         const SkImageInfo info = unsized_info.makeWH(source.size.width(),
                                                      source.size.height());
@@ -513,8 +511,7 @@ int main(int argc, char** argv) {
                 case Result::Ok:   break;
                 case Result::Skip: return false;
                 case Result::Fail:
-                    fprintf(stderr, "%s failed: %s\n", source.name.c_str(), result.failure.c_str());
-                    exit_with_failure();
+                    SK_ABORT(result.failure.c_str());
             }
             return true;
         };
@@ -550,8 +547,7 @@ int main(int argc, char** argv) {
 
         SkBitmap bitmap;
         if (image && !image->asLegacyBitmap(&bitmap)) {
-            fprintf(stderr, "SkImage::asLegacyBitmap() failed.\n");
-            exit_with_failure();
+            SK_ABORT("SkImage::asLegacyBitmap() failed.");
         }
 
         HashAndEncode hashAndEncode{bitmap};
@@ -577,8 +573,7 @@ int main(int argc, char** argv) {
             if (image) {
                 if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
                                               FLAGS_key, FLAGS_properties)) {
-                    fprintf(stderr, "Could not write to %s.\n", path.c_str());
-                    exit_with_failure();
+                    SK_ABORT("Could not write .png.");
                 }
             } else {
                 SkFILEWStream file(path.c_str());
