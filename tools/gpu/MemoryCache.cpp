@@ -8,9 +8,11 @@
 #include "GrPersistentCacheUtils.h"
 #include "MemoryCache.h"
 #include "SkBase64.h"
-#include "SkJSONWriter.h"
 #include "SkMD5.h"
-#include "SkTHash.h"
+
+#if defined(SK_VULKAN)
+#include "vk/GrVkGpu.h"
+#endif
 
 // Change this to 1 to log cache hits/misses/stores using SkDebugf.
 #define LOG_MEMORY_CACHE 0
@@ -59,47 +61,53 @@ void MemoryCache::store(const SkData& key, const SkData& data) {
 }
 
 void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
-    if (GrBackendApi::kOpenGL != api) {
-        // TODO: Add SPIRV support, too.
+    if (GrBackendApi::kOpenGL != api && GrBackendApi::kVulkan != api) {
         return;
     }
 
-    // Default extensions detected by the Mali Offline Compiler
-    const char* extensions[kGrShaderTypeCount] = { "vert", "geom", "frag" };
-
-    // For now, we only dump fragment shaders. They are the biggest factor in performance, and
-    // the shaders for other stages tend to be heavily reused.
-    SkString jsonPath = SkStringPrintf("%s/%s.json", path, extensions[kFragment_GrShaderType]);
-    SkFILEWStream jsonFile(jsonPath.c_str());
-    SkJSONWriter writer(&jsonFile, SkJSONWriter::Mode::kPretty);
-    writer.beginArray();
-
     for (auto it = fMap.begin(); it != fMap.end(); ++it) {
         SkMD5 hash;
-        hash.write(it->first.fKey->bytes(), it->first.fKey->size());
+        size_t bytesToHash = it->first.fKey->size();
+#if defined(SK_VULKAN)
+        if (GrBackendApi::kVulkan == api) {
+            // Vulkan stores two kinds of data in the cache (shaders and pipelines). The last four
+            // bytes of the key identify which one we have. We only want to extract shaders.
+            // Additionally, we don't want to hash the tag bytes, so we get the same keys as GL,
+            // which is good for cross-checking code generation and performance.
+            GrVkGpu::PersistentCacheKeyType vkKeyType;
+            SkASSERT(bytesToHash >= sizeof(vkKeyType));
+            bytesToHash -= sizeof(vkKeyType);
+            memcpy(&vkKeyType, it->first.fKey->bytes() + bytesToHash, sizeof(vkKeyType));
+            if (vkKeyType != GrVkGpu::kShader_PersistentCacheKeyType) {
+                continue;
+            }
+        }
+#endif
+        hash.write(it->first.fKey->bytes(), bytesToHash);
         SkMD5::Digest digest = hash.finish();
         SkString md5;
         for (int i = 0; i < 16; ++i) {
             md5.appendf("%02x", digest.data[i]);
         }
 
-        // Write [ hash, hitCount ] to JSON digest
-        writer.beginArray(nullptr, false);
-        writer.appendString(md5.c_str());
-        writer.appendS32(it->second.fHitCount);
-        writer.endArray();
+        SkSL::Program::Inputs inputsIgnored[kGrShaderTypeCount];
+        SkSL::String shaders[kGrShaderTypeCount];
+        const SkData* data = it->second.fData.get();
+        const char* ext;
+        if (GrBackendApi::kOpenGL == api) {
+            ext = "frag";
+            GrPersistentCacheUtils::UnpackCachedGLSL(data, inputsIgnored, shaders);
+        } else if (GrBackendApi::kVulkan == api) {
+            // Even with the SPIR-V switches, it seems like we must use .spv, or malisc tries to
+            // run glslang on the input.
+            ext = "spv";
+            GrPersistentCacheUtils::UnpackCachedSPIRV(data, shaders, inputsIgnored);
+        }
 
-        SkSL::Program::Inputs inputsIgnored;
-        SkSL::String glsl[kGrShaderTypeCount];
-        GrPersistentCacheUtils::UnpackCachedGLSL(it->second.fData.get(), &inputsIgnored, glsl);
-
-        SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(),
-                                           extensions[kFragment_GrShaderType]);
+        SkString filename = SkStringPrintf("%s/%s.%s", path, md5.c_str(), ext);
         SkFILEWStream file(filename.c_str());
-        file.write(glsl[kFragment_GrShaderType].c_str(), glsl[kFragment_GrShaderType].size());
+        file.write(shaders[kFragment_GrShaderType].c_str(), shaders[kFragment_GrShaderType].size());
     }
-
-    writer.endArray();
 }
 
 }  // namespace sk_gpu_test
