@@ -1654,7 +1654,10 @@ if (skia_enable_tools) {
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
       libs += [ "Foundation.framework" ]
+    } else if (is_win) {
+      libs += [ "DbgHelp.lib" ]
     }
+
     defines = []
     if (skia_tools_require_resources) {
       defines += [ "SK_TOOLS_REQUIRE_RESOURCES" ]
