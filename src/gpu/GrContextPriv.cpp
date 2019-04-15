@@ -198,12 +198,12 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
                                       kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
 }
 
-void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
+void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
-    fContext->drawingManager()->prepareSurfaceForExternalIO(proxy,
+    fContext->drawingManager()->flushSurface(proxy,
             SkSurface::BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr,
             nullptr, nullptr);
 }

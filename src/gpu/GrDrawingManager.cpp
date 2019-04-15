@@ -492,11 +492,10 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     return anyOpListsExecuted;
 }
 
-GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
+GrSemaphoresSubmitted GrDrawingManager::flushSurface(
         GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access, GrFlushFlags flags,
         int numSemaphores, GrBackendSemaphore backendSemaphores[],
-        GrGpuFinishedProc finishedProc,
-        GrGpuFinishedContext finishedContext) {
+        GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }

@@ -247,7 +247,7 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     GrTexture* texture = proxy->peekTexture();
     if (texture) {
         if (flushPendingGrContextIO) {
-            direct->priv().prepareSurfaceForExternalIO(proxy.get());
+            direct->priv().flushSurface(proxy.get());
         }
         if (origin) {
             *origin = proxy->origin();

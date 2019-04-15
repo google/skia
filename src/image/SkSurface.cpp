@@ -239,10 +239,6 @@ GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess acce
     return asSB(this)->onGetBackendRenderTarget(access);
 }
 
-void SkSurface::prepareForExternalIO() {
-    this->flush();
-}
-
 void SkSurface::flush() {
     asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr,
                         nullptr, nullptr);

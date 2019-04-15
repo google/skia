@@ -184,7 +184,7 @@ public:
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
-    void prepareSurfaceForExternalIO(GrSurfaceProxy*);
+    void flushSurface(GrSurfaceProxy*);
 
    /**
     * These flags can be used with the read/write pixels functions below.

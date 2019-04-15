@@ -70,13 +70,13 @@ public:
 
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
-    GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
-                                                      SkSurface::BackendSurfaceAccess access,
-                                                      GrFlushFlags flags,
-                                                      int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[],
-                                                      GrGpuFinishedProc finishedProc,
-                                                      GrGpuFinishedContext finishedContext);
+    GrSemaphoresSubmitted flushSurface(GrSurfaceProxy*,
+                                       SkSurface::BackendSurfaceAccess access,
+                                       GrFlushFlags flags,
+                                       int numSemaphores,
+                                       GrBackendSemaphore backendSemaphores[],
+                                       GrGpuFinishedProc finishedProc,
+                                       GrGpuFinishedContext finishedContext);
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
