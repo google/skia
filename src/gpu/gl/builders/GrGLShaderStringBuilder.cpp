@@ -33,13 +33,13 @@ static void print_source_lines_with_numbers(const char* source,
 }
 
 // Prints shaders one line at the time. This ensures they don't get truncated by the adb log.
-static void print_sksl_line_by_line(const char** skslStrings, int* lengths, int count,
+static void print_sksl_line_by_line(const SkSL::String& sksl,
                                     std::function<void(const char*)> println = [](const char* ln) {
                                         SkDebugf("%s\n", ln);
                                     }) {
-    SkSL::String sksl = GrSKSLPrettyPrint::PrettyPrint(skslStrings, lengths, count, false);
+    SkSL::String pretty = GrSKSLPrettyPrint::PrettyPrint(sksl);
     println("SKSL:");
-    print_source_lines_with_numbers(sksl.c_str(), println);
+    print_source_lines_with_numbers(pretty.c_str(), println);
 }
 
 static void print_glsl_line_by_line(const SkSL::String& glsl,
@@ -61,7 +61,7 @@ void print_shader_banner(GrGLenum type) {
 }
 
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum type,
-                                            const char** skslStrings, int* lengths, int count,
+                                            const SkSL::String& sksl,
                                             const SkSL::Program::Settings& settings,
                                             SkSL::String* glsl) {
     // Trace event for shader preceding driver compilation
@@ -69,7 +69,7 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
     TRACE_EVENT_CATEGORY_GROUP_ENABLED("skia.gpu", &traceShader);
     if (traceShader) {
         SkString shaderDebugString;
-        print_sksl_line_by_line(skslStrings, lengths, count, [&](const char* ln) {
+        print_sksl_line_by_line(sksl, [&](const char* ln) {
             shaderDebugString.append(ln);
             shaderDebugString.append("\n");
         });
@@ -78,14 +78,6 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
                              TRACE_STR_COPY(shaderDebugString.c_str()));
     }
 
-    SkSL::String sksl;
-#ifdef SK_DEBUG
-    sksl = GrSKSLPrettyPrint::PrettyPrint(skslStrings, lengths, count, false);
-#else
-    for (int i = 0; i < count; i++) {
-        sksl.append(skslStrings[i], lengths[i]);
-    }
-#endif
     SkSL::Compiler* compiler = context.compiler();
     std::unique_ptr<SkSL::Program> program;
     SkSL::Program::Kind programKind;
@@ -98,14 +90,14 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
     program = compiler->convertProgram(programKind, sksl, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
         SkDebugf("SKSL compilation error\n----------------------\n");
-        print_sksl_line_by_line(skslStrings, lengths, count);
+        print_sksl_line_by_line(sksl);
         SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
         SkDEBUGFAIL("SKSL compilation failed!\n");
         return nullptr;
     }
     if (gPrintSKSL) {
         print_shader_banner(type);
-        print_sksl_line_by_line(skslStrings, lengths, count);
+        print_sksl_line_by_line(sksl);
     }
     return program;
 }
@@ -175,11 +167,11 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     return shaderId;
 }
 
-void GrGLPrintShader(const GrGLContext& context, GrGLenum type, const char** skslStrings,
-                     int* lengths, int count, const SkSL::Program::Settings& settings) {
-    print_sksl_line_by_line(skslStrings, lengths, count);
+void GrGLPrintShader(const GrGLContext& context, GrGLenum type, const SkSL::String& sksl,
+                     const SkSL::Program::Settings& settings) {
+    print_sksl_line_by_line(sksl);
     SkSL::String glsl;
-    if (GrSkSLtoGLSL(context, type, skslStrings, lengths, count, settings, &glsl)) {
+    if (GrSkSLtoGLSL(context, type, sksl, settings, &glsl)) {
         print_glsl_line_by_line(glsl);
     }
 }

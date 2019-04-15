@@ -253,9 +253,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             }
             std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(gpu()->glContext(),
                                                              GR_GL_FRAGMENT_SHADER,
-                                                             fFS.fCompilerStrings.begin(),
-                                                             fFS.fCompilerStringLengths.begin(),
-                                                             fFS.fCompilerStrings.count(),
+                                                             fFS.fCompilerString,
                                                              settings,
                                                              &glsl[kFragment_GrShaderType]);
             if (!fs) {
@@ -281,9 +279,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
                                                              GR_GL_VERTEX_SHADER,
-                                                             fVS.fCompilerStrings.begin(),
-                                                             fVS.fCompilerStringLengths.begin(),
-                                                             fVS.fCompilerStrings.count(),
+                                                             fVS.fCompilerString,
                                                              settings,
                                                              &glsl[kVertex_GrShaderType]);
             if (!vs) {
@@ -311,9 +307,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 std::unique_ptr<SkSL::Program> gs;
                 gs = GrSkSLtoGLSL(gpu()->glContext(),
                                   GR_GL_GEOMETRY_SHADER,
-                                  fGS.fCompilerStrings.begin(),
-                                  fGS.fCompilerStringLengths.begin(),
-                                  fGS.fCompilerStrings.count(),
+                                  fGS.fCompilerString,
                                   settings,
                                   &glsl[kGeometry_GrShaderType]);
                 if (!gs) {
@@ -338,24 +332,19 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 SkDebugf("VS:\n");
                 GrGLPrintShader(fGpu->glContext(),
                                 GR_GL_VERTEX_SHADER,
-                                fVS.fCompilerStrings.begin(),
-                                fVS.fCompilerStringLengths.begin(),
-                                fVS.fCompilerStrings.count(),
+                                fVS.fCompilerString,
                                 settings);
                 if (primProc.willUseGeoShader()) {
                     SkDebugf("\nGS:\n");
                     GrGLPrintShader(fGpu->glContext(),
                                     GR_GL_GEOMETRY_SHADER,
-                                    fGS.fCompilerStrings.begin(),
-                                    fGS.fCompilerStringLengths.begin(),
-                                    fGS.fCompilerStrings.count(), settings);
+                                    fGS.fCompilerString,
+                                    settings);
                 }
                 SkDebugf("\nFS:\n");
                 GrGLPrintShader(fGpu->glContext(),
                                 GR_GL_FRAGMENT_SHADER,
-                                fFS.fCompilerStrings.begin(),
-                                fFS.fCompilerStringLengths.begin(),
-                                fFS.fCompilerStrings.count(),
+                                fFS.fCompilerString,
                                 settings);
                 return nullptr;
             }

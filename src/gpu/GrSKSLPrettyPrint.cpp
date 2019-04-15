@@ -13,10 +13,8 @@ class GLSLPrettyPrint {
 public:
     GLSLPrettyPrint() {}
 
-    SkSL::String prettify(const char** strings, int* lengths, int count, bool countlines) {
-        fCountlines = countlines;
+    SkSL::String prettify(const SkSL::String& string) {
         fTabs = 0;
-        fLinecount = 1;
         fFreshline = true;
 
         // If a string breaks while in the middle 'parse until' we need to continue parsing on the
@@ -26,73 +24,70 @@ public:
 
         int parensDepth = 0;
 
-        // number 1st line
-        this->lineNumbering();
-        for (int i = 0; i < count; i++) {
-            // setup pretty state
-            fIndex = 0;
-            fLength = lengths[i];
-            fInput = strings[i];
+        // setup pretty state
+        fIndex = 0;
+        fLength = string.length();
+        fInput = string.c_str();
 
-            while (fLength > fIndex) {
-                /* the heart and soul of our prettification algorithm.  The rules should hopefully
-                 * be self explanatory.  For '#' and '//' tokens we parse until we reach a newline.
-                 *
-                 * For long style comments like this one, we search for the ending token.  We also
-                 * preserve whitespace in these comments WITH THE CAVEAT that we do the newlines
-                 * ourselves.  This allows us to remain in control of line numbers, and matching
-                 * tabs Existing tabs in the input string are copied over too, but this will look
-                 *  funny
-                 *
-                 * '{' and '}' are handled in basically the same way.  We add a newline if we aren't
-                 * on a fresh line, dirty the line, then add a second newline, ie braces are always
-                 * on their own lines indented properly.  The one funkiness here is structs print
-                 * with the semicolon on its own line.  Its not a problem for a glsl compiler though
-                 *
-                 * '(' and ')' are basically ignored, except as a sign we need to ignore ';' ala
-                 * in for loops.
-                 *
-                 * ';' means add a new line
-                 *
-                 * '\t' and '\n' are ignored in general parsing for backwards compatability with
-                 * existing shader code and we also have a special case for handling whitespace
-                 * at the beginning of fresh lines.
-                 *
-                 * Otherwise just add the new character to the pretty string, indenting if
-                 * necessary.
-                 */
-                if (fInParseUntilNewline) {
-                    this->parseUntilNewline();
-                } else if (fInParseUntil) {
-                    this->parseUntil(fInParseUntilToken);
-                } else if (this->hasToken("#") || this->hasToken("//")) {
-                    this->parseUntilNewline();
-                } else if (this->hasToken("/*")) {
-                    this->parseUntil("*/");
-                } else if ('{' == fInput[fIndex]) {
-                    this->newline();
-                    this->appendChar('{');
-                    fTabs++;
-                    this->newline();
-                } else if ('}' == fInput[fIndex]) {
-                    fTabs--;
-                    this->newline();
-                    this->appendChar('}');
-                    this->newline();
-                } else if (this->hasToken(")")) {
-                    parensDepth--;
-                } else if (this->hasToken("(")) {
-                    parensDepth++;
-                } else if (!parensDepth && this->hasToken(";")) {
-                    this->newline();
-                } else if ('\t' == fInput[fIndex] || '\n' == fInput[fIndex] ||
-                           (fFreshline && ' ' == fInput[fIndex])) {
-                    fIndex++;
-                } else {
-                    this->appendChar(fInput[fIndex]);
-                }
+        while (fLength > fIndex) {
+            /* the heart and soul of our prettification algorithm.  The rules should hopefully
+             * be self explanatory.  For '#' and '//' tokens we parse until we reach a newline.
+             *
+             * For long style comments like this one, we search for the ending token.  We also
+             * preserve whitespace in these comments WITH THE CAVEAT that we do the newlines
+             * ourselves.  This allows us to remain in control of line numbers, and matching
+             * tabs Existing tabs in the input string are copied over too, but this will look
+             *  funny
+             *
+             * '{' and '}' are handled in basically the same way.  We add a newline if we aren't
+             * on a fresh line, dirty the line, then add a second newline, ie braces are always
+             * on their own lines indented properly.  The one funkiness here is structs print
+             * with the semicolon on its own line.  Its not a problem for a glsl compiler though
+             *
+             * '(' and ')' are basically ignored, except as a sign we need to ignore ';' ala
+             * in for loops.
+             *
+             * ';' means add a new line
+             *
+             * '\t' and '\n' are ignored in general parsing for backwards compatability with
+             * existing shader code and we also have a special case for handling whitespace
+             * at the beginning of fresh lines.
+             *
+             * Otherwise just add the new character to the pretty string, indenting if
+             * necessary.
+             */
+            if (fInParseUntilNewline) {
+                this->parseUntilNewline();
+            } else if (fInParseUntil) {
+                this->parseUntil(fInParseUntilToken);
+            } else if (this->hasToken("#") || this->hasToken("//")) {
+                this->parseUntilNewline();
+            } else if (this->hasToken("/*")) {
+                this->parseUntil("*/");
+            } else if ('{' == fInput[fIndex]) {
+                this->newline();
+                this->appendChar('{');
+                fTabs++;
+                this->newline();
+            } else if ('}' == fInput[fIndex]) {
+                fTabs--;
+                this->newline();
+                this->appendChar('}');
+                this->newline();
+            } else if (this->hasToken(")")) {
+                parensDepth--;
+            } else if (this->hasToken("(")) {
+                parensDepth++;
+            } else if (!parensDepth && this->hasToken(";")) {
+                this->newline();
+            } else if ('\t' == fInput[fIndex] || '\n' == fInput[fIndex] ||
+                        (fFreshline && ' ' == fInput[fIndex])) {
+                fIndex++;
+            } else {
+                this->appendChar(fInput[fIndex]);
             }
         }
+
         return fPretty;
     }
 
@@ -171,18 +166,11 @@ private:
         if (!fFreshline) {
             fFreshline = true;
             fPretty.append("\n");
-            this->lineNumbering();
         }
     }
 
-    void lineNumbering() {
-        if (fCountlines) {
-            fPretty.appendf("%4d\t", fLinecount++);
-        }
-    }
-
-    bool fCountlines, fFreshline;
-    int fTabs, fLinecount;
+    bool fFreshline;
+    int fTabs;
     size_t fIndex, fLength;
     const char* fInput;
     SkSL::String fPretty;
@@ -193,9 +181,9 @@ private:
     const char* fInParseUntilToken;
 };
 
-SkSL::String PrettyPrint(const char** strings, int* lengths, int count, bool countlines) {
+SkSL::String PrettyPrint(const SkSL::String& string) {
     GLSLPrettyPrint pp;
-    return pp.prettify(strings, lengths, count, countlines);
+    return pp.prettify(string);
 }
 
 }  // namespace GrSKSLPrettyPrint

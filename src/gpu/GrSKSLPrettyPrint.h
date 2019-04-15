@@ -10,7 +10,7 @@
 #include "SkSLString.h"
 
 namespace GrSKSLPrettyPrint {
-SkSL::String PrettyPrint(const char** strings, int* lengths, int count, bool countlines);
+SkSL::String PrettyPrint(const SkSL::String& string);
 };
 
 #endif

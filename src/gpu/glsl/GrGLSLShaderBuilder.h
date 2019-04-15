@@ -11,6 +11,7 @@
 #include "GrAllocator.h"
 #include "GrShaderVar.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "SkSLString.h"
 #include "SkTDArray.h"
 
 #include <stdarg.h>
@@ -194,8 +195,6 @@ protected:
 
     void nextStage() {
         fShaderStrings.push_back();
-        fCompilerStrings.push_back(this->code().c_str());
-        fCompilerStringLengths.push_back((int)this->code().size());
         fCodeIndex++;
     }
 
@@ -230,8 +229,7 @@ protected:
     };
 
     GrGLSLProgramBuilder* fProgramBuilder;
-    SkSTArray<kPrealloc, const char*, true> fCompilerStrings;
-    SkSTArray<kPrealloc, int, true> fCompilerStringLengths;
+    SkSL::String fCompilerString;
     SkSTArray<kPrealloc, SkString> fShaderStrings;
     SkString fCode;
     SkString fFunctions;
