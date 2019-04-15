@@ -177,14 +177,20 @@ public:
          * This is used to purge any GPU resource cache items that become unreachable when
          * the element is destroyed because their key is based on this element's gen ID.
          */
-        void addResourceInvalidationMessage(GrProxyProvider* proxyProvider,
+        void addResourceInvalidationMessage(uint32_t contextUniqueID,
+                                            GrProxyProvider* proxyProvider,
                                             const GrUniqueKey& key) const {
             SkASSERT(proxyProvider);
 
-            if (!fProxyProvider) {
-                fProxyProvider = proxyProvider;
+            if (!fContextUniqueID) {
+                fContextUniqueID = contextUniqueID;
             }
-            SkASSERT(fProxyProvider == proxyProvider);
+            SkASSERT(fContextUniqueID == contextUniqueID);
+
+            if (!fProxyProvider1) {
+                fProxyProvider1 = proxyProvider;
+            }
+            SkASSERT(fProxyProvider1 == proxyProvider);
 
             fKeysToInvalidate.push_back(key);
         }
@@ -219,7 +225,8 @@ public:
 
         uint32_t fGenID;
 #if SK_SUPPORT_GPU
-        mutable GrProxyProvider*      fProxyProvider = nullptr;
+        mutable uint32_t              fContextUniqueID = 0;
+        mutable GrProxyProvider*      fProxyProvider1 = nullptr;
         mutable SkTArray<GrUniqueKey> fKeysToInvalidate;
 #endif
         Element(int saveCount) {
