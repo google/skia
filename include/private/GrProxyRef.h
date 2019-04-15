@@ -12,6 +12,34 @@
 #include "GrTextureProxy.h"
 #include "GrTypesPriv.h"
 
+#if 1
+template <typename T> class GrProxyRef {
+public:
+    GrProxyRef() = default;
+    GrProxyRef(const GrProxyRef&) = delete;
+    GrProxyRef& operator=(const GrProxyRef&) = delete;
+
+    GrProxyRef(sk_sp<T> proxy) { this->setProxy(std::move(proxy)); }
+
+    ~GrProxyRef() { this->reset(); }
+
+    void setProxy(sk_sp<T> proxy) { fProxy = std::move(proxy); }
+    sk_sp<T> proxy() const { return fProxy; }
+
+    T* get() const { return fProxy.get(); }
+
+    void reset() { fProxy.reset(); }
+
+    void removeRef() {
+        SkASSERT(fProxy);
+        fProxy.reset();
+    }
+
+private:
+    sk_sp<T> fProxy;
+};
+
+#else
 /**
  * Helper for owning a ref and/or pending IO on a GrSurfaceProxy. This is useful when ownership
  * must transform from ref'ed to pending IO when the owner is recorded into a GrOpList.
@@ -57,6 +85,7 @@ public:
         is called. */
     void reset() {
         if (fPendingIO) {
+#if 0
             SkASSERT(fProxy);
             switch (fIOType) {
                 case kRead_GrIOType:
@@ -70,6 +99,7 @@ public:
                     fProxy->completedWrite();
                     break;
             }
+#endif
             fPendingIO = false;
         }
         if (fOwnRef) {
@@ -90,6 +120,7 @@ public:
         SkASSERT(!fPendingIO);
         SkASSERT(fProxy);
         fPendingIO = true;
+#if 0
         switch (fIOType) {
             case kRead_GrIOType:
                 fProxy->addPendingRead();
@@ -102,6 +133,7 @@ public:
                 fProxy->addPendingWrite();
                 break;
         }
+#endif
     }
 
     /** Called when the program element/draw state is no longer owned by GrOpList-client code.
@@ -144,6 +176,7 @@ private:
     mutable bool    fPendingIO = false;
     GrIOType        fIOType = kRead_GrIOType;
 };
+#endif
 
 using GrSurfaceProxyRef = GrProxyRef<GrSurfaceProxy>;
 using GrTextureProxyRef = GrProxyRef<GrTextureProxy>;

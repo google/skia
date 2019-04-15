@@ -53,7 +53,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+        , fSampleCnt(fTarget1->asRenderTarget()->numStencilSamples())
         , fNeedsStencil(false)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
 }
@@ -73,8 +73,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider,
                                GrMipMapped::kNo, nullptr, dontForceNoPendingIO)) {
         return false;
     }
-    SkASSERT(fTarget->asRenderTarget());
-    SkASSERT(!fTarget->asTexture());
+    SkASSERT(fTarget1->asRenderTarget());
+    SkASSERT(!fTarget1->asTexture());
     return true;
 }
 
@@ -106,11 +106,11 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {
-    if (!fTarget) {
+    if (!fTarget1) {
         return false;
     }
 
-    return fTarget->resourcePriv().refsWrappedObjects();
+    return fTarget1->resourcePriv().refsWrappedObjects();
 }
 
 #ifdef SK_DEBUG

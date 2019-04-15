@@ -37,7 +37,7 @@
 #include <algorithm>
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
-    return SkToBool(fTarget);
+    return SkToBool(fTarget1);
 }
 
 bool GrRenderTargetContext::isWrapped_ForTesting() const {

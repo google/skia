@@ -90,6 +90,7 @@ bool GrFragmentProcessor::instantiate(GrResourceProvider* resourceProvider) cons
 }
 
 void GrFragmentProcessor::markPendingExecution() const {
+#if 0
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
         auto* ref = this->textureSampler(i).proxyRef();
         ref->markPendingIO();
@@ -98,6 +99,7 @@ void GrFragmentProcessor::markPendingExecution() const {
     for (int i = 0; i < this->numChildProcessors(); ++i) {
         this->childProcessor(i).markPendingExecution();
     }
+#endif
 }
 
 int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
@@ -519,7 +521,7 @@ GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
 
 void GrFragmentProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
                                                 const GrSamplerState& samplerState) {
-    fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
+    fProxyRef.setProxy(std::move(proxy));
     fSamplerState = samplerState;
     fSamplerState.setFilterMode(SkTMin(samplerState.filter(), this->proxy()->highestFilterMode()));
 }
@@ -527,7 +529,7 @@ void GrFragmentProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
 void GrFragmentProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
                                                 GrSamplerState::Filter filterMode,
                                                 GrSamplerState::WrapMode wrapXAndY) {
-    fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
+    fProxyRef.setProxy(std::move(proxy));
     filterMode = SkTMin(filterMode, this->proxy()->highestFilterMode());
     fSamplerState = GrSamplerState(wrapXAndY, filterMode);
 }

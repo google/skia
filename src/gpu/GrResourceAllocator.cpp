@@ -298,7 +298,7 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
             // If the proxy has an actual live ref on it that means someone wants to retain its
             // contents. In that case we cannot recycle it (until the external holder lets
             // go of it).
-            if (0 == temp->proxy()->priv().getProxyRefCnt()) {
+            if (temp->proxy()->unique()) {
                 this->recycleSurface(std::move(surface));
             }
         }
