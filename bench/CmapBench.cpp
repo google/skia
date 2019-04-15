@@ -65,35 +65,25 @@ static void findcache_proc(const Rec& r) {
     }
 }
 
-namespace {
-class UnicharGen {
-    SkUnichar fU;
-    const int fStep;
-public:
-    UnicharGen(int step) : fU(0), fStep(step) {}
-
-    SkUnichar next() {
-        fU += fStep;
-        return fU;
-    }
-};
-}
-
 class CMAPBench : public Benchmark {
     TypefaceProc fProc;
     SkString     fName;
     SkUnichar    fText[NGLYPHS];
     SkFont       fFont;
     SkCharToGlyphCache fCache;
+    int          fCount;
 
 public:
-    CMAPBench(TypefaceProc proc, const char name[]) {
-        fProc = proc;
-        fName.printf("cmap_%s", name);
+    CMAPBench(TypefaceProc proc, const char name[], int count) {
+        SkASSERT(count <= NGLYPHS);
 
-        UnicharGen gen(3);
-        for (int i = 0; i < NGLYPHS; ++i) {
-            fText[i] = gen.next();
+        fProc = proc;
+        fName.printf("%s_%d", name, count);
+        fCount = count;
+
+        SkRandom rand;
+        for (int i = 0; i < count; ++i) {
+            fText[i] = rand.nextU() & 0xFFFF;
             fCache.addCharAndGlyph(fText[i], i);
         }
         fFont.setTypeface(SkTypeface::MakeDefault());
@@ -109,7 +99,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        fProc({fCache, loops, fFont, fText, NGLYPHS});
+        fProc({fCache, loops, fFont, fText, fCount});
     }
 
 private:
@@ -119,7 +109,16 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new CMAPBench(textToGlyphs_proc, "font_charToGlyph"); )
-DEF_BENCH( return new CMAPBench(charsToGlyphs_proc, "face_charToGlyph"); )
-DEF_BENCH( return new CMAPBench(addcache_proc, "addcache_charToGlyph"); )
-DEF_BENCH( return new CMAPBench(findcache_proc, "findcache_charToGlyph"); )
+constexpr int SMALL = 10;
+
+DEF_BENCH( return new CMAPBench(textToGlyphs_proc, "font_charToGlyph", SMALL); )
+DEF_BENCH( return new CMAPBench(charsToGlyphs_proc, "face_charToGlyph", SMALL); )
+DEF_BENCH( return new CMAPBench(addcache_proc, "addcache_charToGlyph", SMALL); )
+DEF_BENCH( return new CMAPBench(findcache_proc, "findcache_charToGlyph", SMALL); )
+
+constexpr int BIG = 100;
+
+DEF_BENCH( return new CMAPBench(textToGlyphs_proc, "font_charToGlyph", BIG); )
+DEF_BENCH( return new CMAPBench(charsToGlyphs_proc, "face_charToGlyph", BIG); )
+DEF_BENCH( return new CMAPBench(addcache_proc, "addcache_charToGlyph", BIG); )
+DEF_BENCH( return new CMAPBench(findcache_proc, "findcache_charToGlyph", BIG); )
