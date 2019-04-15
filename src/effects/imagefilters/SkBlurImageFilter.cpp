@@ -259,8 +259,8 @@ static int calculate_buffer(int window) {
 //   This is all encapsulated in the processValue function below.
 //
 using Pass0And1 = Sk4u[2];
-// The would be dLeft parameter is assumed to be 0.
-static void blur_one_direction(Sk4u* buffer, int window,
+// The would be dstLeft parameter is assumed to be 0.
+static void blur_one_direction(Sk4u* buffer, SkBlurImageFilter::TileMode tileMode, int window,
                                int srcLeft, int srcRight, int dstRight,
                                const uint32_t* src, int srcXStride, int srcYStride, int srcH,
                                      uint32_t* dst, int dstXStride, int dstYStride) {
@@ -450,8 +450,8 @@ static sk_sp<SkSpecialImage> copy_image_with_bounds(
                                           dst, &source->props());
 }
 
-// TODO: Implement CPU backend for different fTileMode.
 static sk_sp<SkSpecialImage> cpu_blur(
+        SkBlurImageFilter::TileMode tileMode,
         SkVector sigma,
         SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
@@ -540,7 +540,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
         intermediateDst = static_cast<uint32_t *>(dst.getPixels());
 
         blur_one_direction(
-                buffer, windowW,
+                buffer, tileMode, windowW,
                 srcBounds.left(), srcBounds.right(), dstBounds.right(),
                 static_cast<uint32_t *>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
                 intermediateSrc, 1, intermediateRowBytesAsPixels);
@@ -548,7 +548,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
 
     if (windowH > 1) {
         blur_one_direction(
-                buffer, windowH,
+                buffer, tileMode, windowH,
                 srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                 intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
                 intermediateDst, dst.rowBytesAsPixels(), 1);
@@ -605,7 +605,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     } else
 #endif
     {
-        result = cpu_blur(sigma, source, input, inputBounds, dstBounds);
+        result = cpu_blur(fTileMode, sigma, source, input, inputBounds, dstBounds);
     }
 
     // Return the resultOffset if the blur succeeded.
