@@ -16,6 +16,24 @@
       "revId": "f8c14db13f8eb0755f7465a158197184e5707b26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa52bb2a_7d975784",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-15T11:25:24Z",
+      "side": 0,
+      "message": "Yeah, that makes sense.",
+      "parentUuid": "b7e2b538_31eed46a",
+      "revId": "f8c14db13f8eb0755f7465a158197184e5707b26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
