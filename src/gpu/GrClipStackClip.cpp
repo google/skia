@@ -335,7 +335,8 @@ static void add_invalidate_on_pop_message(GrRecordingContext* context,
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     while (const Element* element = iter.prev()) {
         if (element->getGenID() == clipGenID) {
-            element->addResourceInvalidationMessage(proxyProvider, clipMaskKey);
+            element->addResourceInvalidationMessage(context->priv().contextID(),
+                                                    proxyProvider, clipMaskKey);
             return;
         }
     }
