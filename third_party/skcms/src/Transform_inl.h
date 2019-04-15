@@ -107,13 +107,12 @@ SI D cast(const S& v) {
     return (D)v;
 #elif defined(__clang__)
     return __builtin_convertvector(v, D);
-#elif N == 4
-    return D{v[0],v[1],v[2],v[3]};
-#elif N == 8
-    return D{v[0],v[1],v[2],v[3], v[4],v[5],v[6],v[7]};
-#elif N == 16
-    return D{v[0],v[1],v[ 2],v[ 3], v[ 4],v[ 5],v[ 6],v[ 7],
-             v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]};
+#else
+    D d;
+    for (int i = 0; i < N; i++) {
+        d[i] = v[i];
+    }
+    return d;
 #endif
 }
 
