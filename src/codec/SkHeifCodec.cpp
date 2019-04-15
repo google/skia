@@ -332,6 +332,15 @@ SkSampler* SkHeifCodec::getSampler(bool createIfNecessary) {
     return fSwizzler.get();
 }
 
+bool SkHeifCodec::onRewind() {
+    fSwizzler.reset(nullptr);
+    fSwizzleSrcRow = nullptr;
+    fColorXformSrcRow = nullptr;
+    fStorage.reset();
+
+    return true;
+}
+
 SkCodec::Result SkHeifCodec::onStartScanlineDecode(
         const SkImageInfo& dstInfo, const Options& options) {
     // TODO: For now, just decode the whole thing even when there is a subset.

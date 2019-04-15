@@ -43,6 +43,8 @@ protected:
 
     bool conversionSupported(const SkImageInfo&, bool, bool) override;
 
+    bool onRewind() override;
+
 private:
     /*
      * Creates an instance of the decoder
