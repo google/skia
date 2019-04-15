@@ -1032,8 +1032,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
+//DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
+//DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:

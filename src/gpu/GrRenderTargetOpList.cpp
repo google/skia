@@ -562,7 +562,7 @@ bool GrRenderTargetOpList::resetForFullscreenClear() {
     // track the wait ops separately from normal ops, we have to avoid clearing out any ops.
     if (this->isEmpty() || (!fTarget.get()->asRenderTargetProxy()->needsStencil() && !fHasWaitOp)) {
         this->deleteOps();
-        fDeferredProxies.reset();
+        fDeferredProxies1.reset();
 
         // If the opList is using a render target which wraps a vulkan command buffer, we can't do a
         // clear load since we cannot change the render pass that we are using. Thus we fall back to
@@ -627,31 +627,31 @@ bool GrRenderTargetOpList::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
 
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
-    for (int i = 0; i < fDeferredProxies.count(); ++i) {
-        SkASSERT(!fDeferredProxies[i]->isInstantiated());
+    for (int i = 0; i < fDeferredProxies1.count(); ++i) {
+        SkASSERT(!fDeferredProxies1[i]->isInstantiated());
         // We give all the deferred proxies a write usage at the very start of flushing. This
         // locks them out of being reused for the entire flush until they are read - and then
         // they can be recycled. This is a bit unfortunate because a flush can proceed in waves
         // with sub-flushes. The deferred proxies only need to be pinned from the start of
         // the sub-flush in which they appear.
-        alloc->addInterval(fDeferredProxies[i], 0, 0);
+        alloc->addInterval(fDeferredProxies1[i], 0, 0, false);
     }
 
     // Add the interval for all the writes to this opList's target
     if (fOpChains.count()) {
         unsigned int cur = alloc->curOp();
 
-        alloc->addInterval(fTarget.get(), cur, cur + fOpChains.count() - 1);
+        alloc->addInterval(fTarget.get(), cur, cur + fOpChains.count() - 1, true);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp());
+        alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp(), true);
         alloc->incOps();
     }
 
     auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p, alloc->curOp(), alloc->curOp() SkDEBUGCODE(, fTarget.get() == p));
+        alloc->addInterval(p, alloc->curOp(), alloc->curOp(), true SkDEBUGCODE(, fTarget.get() == p));
     };
     for (const OpChain& recordedOp : fOpChains) {
         // only diff from the GrTextureOpList version

@@ -56,7 +56,7 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end, bool refItMan
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
@@ -86,6 +86,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                 SkASSERT(intvl->end() <= start && intvl->end() <= end);
             }
 #endif
+            if (refItMan) {
+                intvl->incRefs();
+            }
             intvl->extendEnd(end);
             return;
         }
@@ -94,11 +97,15 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             newIntvl = fFreeIntervalList;
             fFreeIntervalList = newIntvl->next();
             newIntvl->setNext(nullptr);
-            newIntvl->resetTo(proxy, start, end);
+            newIntvl->resetTo1(proxy, start, end);
         } else {
             newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
         }
 
+        newIntvl->resetRef();
+        if (refItMan) {
+            newIntvl->incRefs();
+        }
         fIntvlList.insertByIncreasingStart(newIntvl);
         fIntvlHash.add(newIntvl);
     }
@@ -299,7 +306,10 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
             // contents. In that case we cannot recycle it (until the external holder lets
             // go of it).
             if (0 == temp->proxy()->priv().getProxyRefCnt()) {
+                SkASSERT(temp->fRefs == temp->proxy()->tot());
                 this->recycleSurface(std::move(surface));
+            } else {
+                SkASSERT(temp->fRefs < temp->proxy()->tot());
             }
         }
 
