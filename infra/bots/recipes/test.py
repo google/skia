@@ -196,6 +196,10 @@ def dm_flags(api, bot):
                  'angle_d3d9_es2',
                  'angle_gl_es2',
                  'angle_d3d11_es3']
+      if 'LenovoYogaC630' in bot:
+        # LenovoYogaC630 only supports D3D11, not GL.
+        configs = ['angle_d3d11_es2',
+                   'angle_d3d11_es3']
       if sample_count is not '':
         configs.append('angle_d3d11_es2_msaa' + sample_count)
         configs.append('angle_d3d11_es3_msaa' + sample_count)
@@ -768,6 +772,10 @@ def dm_flags(api, bot):
     # skia:8762
     blacklist(['_', 'tests', '_', 'Codec_gif'])
 
+  if 'LenovoYogaC630' in bot and 'ANGLE' in api.vars.extra_tokens:
+    # skia:8976
+    blacklist(['_', 'tests', '_', 'GrDefaultPathRendererTest'])
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
@@ -1050,6 +1058,7 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
+  'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC',
@@ -1083,7 +1092,7 @@ def GenTests(api):
       api.step_data('get swarming task id',
           stdout=api.raw_io.output('123456'))
     )
-    if 'Win' in builder:
+    if 'Win' in builder and not 'LenovoYogaC630' in builder:
       test += api.platform('win', 64)
 
     if 'Chromecast' in builder:
