@@ -58,8 +58,8 @@ func processTest(testName string, imgUrls []string, output string) (bool, error)
 		return false, nil
 	}
 	output_directory := path.Join(output, testName)
-	var img_max image.NRGBA
-	var img_min image.NRGBA
+	var img_max image.NRGBA64
+	var img_min image.NRGBA64
 	for _, url := range imgUrls {
 		resp, err := http.Get(url)
 		if err != nil {
@@ -71,9 +71,9 @@ func processTest(testName string, imgUrls []string, output string) (bool, error)
 			return false, err
 		}
 		if img_max.Rect.Max.X == 0 {
-			// N.B. img_max.Pix may alias img.Pix (if they're already NRGBA).
-			img_max = toNrgba(img)
-			img_min = copyNrgba(img_max)
+			// N.B. img_max.Pix may alias img.Pix (if they're already NRGBA64).
+			img_max = toNrgba64(img)
+			img_min = copyNrgba64(img_max)
 			continue
 		}
 		w := img.Bounds().Max.X - img.Bounds().Min.X
@@ -81,8 +81,8 @@ func processTest(testName string, imgUrls []string, output string) (bool, error)
 		if img_max.Rect.Max.X != w || img_max.Rect.Max.Y != h {
 			return false, errors.New("size mismatch")
 		}
-		img_nrgba := toNrgba(img)
-		for i, value := range img_nrgba.Pix {
+		img_nrgba64 := toNrgba64(img)
+		for i, value := range img_nrgba64.Pix {
 			if value > img_max.Pix[i] {
 				img_max.Pix[i] = value
 			} else if value < img_min.Pix[i] {
@@ -138,19 +138,19 @@ func writePngToFile(path string, img image.Image) error {
 	return png.Encode(file, img)
 }
 
-// to_nrgb() may return a shallow copy of img if it's already NRGBA.
-func toNrgba(img image.Image) image.NRGBA {
+// to_nrgb() may return a shallow copy of img if it's already NRGBA64.
+func toNrgba64(img image.Image) image.NRGBA64 {
 	switch v := img.(type) {
-	case *image.NRGBA:
+	case *image.NRGBA64:
 		return *v
 	}
-	nimg := *image.NewNRGBA(img.Bounds())
+	nimg := *image.NewNRGBA64(img.Bounds())
 	draw.Draw(&nimg, img.Bounds(), img, image.Point{0, 0}, draw.Src)
 	return nimg
 }
 
-func copyNrgba(src image.NRGBA) image.NRGBA {
-	dst := image.NRGBA{make([]uint8, len(src.Pix)), src.Stride, src.Rect}
+func copyNrgba64(src image.NRGBA64) image.NRGBA64 {
+	dst := image.NRGBA64{make([]uint8, len(src.Pix)), src.Stride, src.Rect}
 	copy(dst.Pix, src.Pix)
 	return dst
 }

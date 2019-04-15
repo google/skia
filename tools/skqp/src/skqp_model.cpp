@@ -90,7 +90,8 @@ static SkBitmap decode(sk_sp<SkData> data) {
         SkISize size = codec->getInfo().dimensions();
         SkASSERT(!size.isEmpty());
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(),
-                                             skqp::kColorType, skqp::kAlphaType);
+                                             skqp::kColorType, skqp::kAlphaType,
+                                             SkColorSpace::MakeSRGB());
         bitmap.allocPixels(info);
         if (SkCodec::kSuccess != codec->getPixels(bitmap.pixmap())) {
             bitmap.reset();
