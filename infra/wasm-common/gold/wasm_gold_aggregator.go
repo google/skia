@@ -24,17 +24,15 @@ import (
 	"path"
 	"strings"
 	"sync"
-
-	"go.skia.org/infra/golden/go/goldingestion"
-	"go.skia.org/infra/golden/go/jsonio"
 )
 
 // This allows us to use upload_dm_results.py out of the box
-const JSON_FILENAME = "dm.json"
+const KEYS_FILENAME = "keys.json"
 
 var (
-	outDir = flag.String("out_dir", "/OUT/", "location to dump the Gold JSON and pngs")
-	port   = flag.String("port", "8081", "Port to listen on.")
+	outDir      = flag.String("out_dir", "/OUT/", "location to dump the Gold JSON and pngs")
+	port        = flag.String("port", "8081", "Port to listen on.")
+	goldctlPath = flag.String("goldctl_path", "/opt/goldctl", "location of the goldctl binary")
 
 	botId            = flag.String("bot_id", "", "swarming bot id (deprecated/unused)")
 	browser          = flag.String("browser", "Chrome", "Browser Key")
@@ -46,8 +44,8 @@ var (
 	hostOS           = flag.String("host_os", "Debian9", "OS Key")
 	issue            = flag.Int64("issue", 0, "issue (if tryjob)")
 	patchset         = flag.Int64("patchset", 0, "patchset (if tryjob)")
-	taskId           = flag.String("task_id", "", "swarming task id")
 	sourceType       = flag.String("source_type", "pathkit", "Gold Source type, like pathkit,canvaskit")
+	taskId           = flag.String("task_id", "", "swarming task id")
 )
 
 // Received from the JS side.
@@ -60,21 +58,46 @@ type reportBody struct {
 	TestName string `json:"test_name"`
 }
 
-// The keys to be used at the top level for all Results.
-var defaultKeys map[string]string
-
-// contains all the results reported in through report_gold_data
-var results []*jsonio.Result
-var resultsMutex sync.Mutex
+// not sure if goldctl is thread safe
+var goldctlMutex sync.Mutex
 
 func main() {
 	flag.Parse()
+
+	// check that goldctl is available
+
+	if _, err := os.Open(*goldctlPath); err != nil {
+		log.Fatalf("Cannot locate goldctl - did you specify it? %s\n%s", *goldctlPath, err)
+		return
+	}
+
+	if err := writeInitialKeys(); err != nil {
+		log.Fatalf("could not initialize goldctl - initial JSON error: %s", err)
+		return
+	}
+
+	http.HandleFunc("/report_gold_data", reporter)
+	http.HandleFunc("/dump_json", dumpJSON)
+
+	fmt.Printf("Waiting for gold ingestion on port %s\n", *port)
+
+	log.Fatal(http.ListenAndServe(":"+*port, nil))
+}
+
+func writeInitialKeys() error {
+	p := path.Join(*outDir, KEYS_FILENAME)
+	outputFile, err := createOutputFile(p)
+	defer outputFile.Close()
+	if err != nil {
+		return fmt.Errorf("Could not open json file on disk: %s", err)
+	}
 
 	cpuGPU := "CPU"
 	if strings.Index(*builder, "-GPU-") != -1 {
 		cpuGPU = "GPU"
 	}
-	defaultKeys = map[string]string{
+	// The keys to be used at the top level for all Results.
+	defaultKeys := map[string]string{
 		"arch":              "WASM",
 		"browser":           *browser,
 		"compiled_language": *compiledLanguage,
@@ -86,14 +109,12 @@ func main() {
 		"source_type":       *sourceType,
 	}
 
-	results = []*jsonio.Result{}
-
-	http.HandleFunc("/report_gold_data", reporter)
-	http.HandleFunc("/dump_json", dumpJSON)
-
-	fmt.Printf("Waiting for gold ingestion on port %s\n", *port)
-
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	enc := json.NewEncoder(outputFile)
+	enc.SetIndent("", "  ") // Make it human readable.
+	if err := enc.Encode(defaultKeys); err != nil {
+		return fmt.Errorf("Could not write json to disk: %s", err)
+	}
+	return nil
 }
 
 // reporter handles when the client reports a test has Gold output.
@@ -131,18 +152,9 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resultsMutex.Lock()
- 	defer resultsMutex.Unlock()
-	results = append(results, &jsonio.Result{
-		Digest: hash,
-		Key: map[string]string{
-			"name":   testOutput.TestName,
-			"config": testOutput.OutputType,
-		},
-		Options: map[string]string{
-			"ext": "png",
-		},
-	})
+	goldctlMutex.Lock()
+	defer goldctlMutex.Unlock()
+	fmt.Printf("executing goldctl imgtest add %s\n", hash)
 }
 
 // createOutputFile creates a file and set permissions correctly.
@@ -165,42 +177,15 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST accepted", 400)
 		return
 	}
-
-	p := path.Join(*outDir, JSON_FILENAME)
-	outputFile, err := createOutputFile(p)
-	defer outputFile.Close()
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Could not open json file on disk", 500)
-		return
-	}
-
-	dmresults := goldingestion.DMResults{
-		GoldResults: &jsonio.GoldResults{
-			BuildBucketID: *buildBucketID,
-			Builder:       *builder,
-			GitHash:       *gitHash,
-			Issue:         *issue,
-			Key:           defaultKeys,
-			Patchset:      *patchset,
-			Results:       results,
-			TaskID:        *taskId,
-		},
-	}
-
-	enc := json.NewEncoder(outputFile)
-	enc.SetIndent("", "  ") // Make it human readable.
-	if err := enc.Encode(&dmresults); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Could not write json to disk", 500)
-		return
-	}
-	fmt.Println("JSON Written")
+	goldctlMutex.Lock()
+	defer goldctlMutex.Unlock()
+	fmt.Println("executing goldctl finalize")
 }
 
 // writeBase64EncodedPNG writes a PNG to disk and returns the md5 of the
 // decoded PNG bytes and any error. This hash is what will be used as
-// the gold digest and the file name.
+// the file name. goldctl will re-hash it for the "official"
+// hash for use in Gold, which may not be the same as this one.
 func writeBase64EncodedPNG(data string) (string, error) {
 	// data starts with something like data:image/png;base64,[data]
 	// https://en.wikipedia.org/wiki/Data_URI_scheme
