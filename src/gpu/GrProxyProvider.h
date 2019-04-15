@@ -189,9 +189,9 @@ public:
      * Fully lazy proxies have unspecified width and height. Methods that rely on those values
      * (e.g., width, height, getBoundsRect) should be avoided.
      */
-    static sk_sp<GrTextureProxy> MakeFullyLazyProxy(LazyInstantiateCallback&&,
-                                                    const GrBackendFormat&, Renderable,
-                                                    GrSurfaceOrigin, GrPixelConfig, const GrCaps&);
+    static sk_sp<GrTextureProxy> MakeFullyLazyProxy(
+            LazyInstantiateCallback&&, const GrBackendFormat&, Renderable, GrSurfaceOrigin,
+            GrPixelConfig, const GrCaps&, int sampleCnt = 1);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.

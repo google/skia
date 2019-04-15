@@ -749,21 +749,21 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
             vkSCB));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallback&& callback,
-                                                          const GrBackendFormat& format,
-                                                          Renderable renderable,
-                                                          GrSurfaceOrigin origin,
-                                                          GrPixelConfig config,
-                                                          const GrCaps& caps) {
+sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(
+        LazyInstantiateCallback&& callback, const GrBackendFormat& format, Renderable renderable,
+        GrSurfaceOrigin origin, GrPixelConfig config, const GrCaps& caps, int sampleCnt) {
     GrSurfaceDesc desc;
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNoPendingIO;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        if (sampleCnt > 1 && caps.usesMixedSamples()) {
+            surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
+        }
     }
     desc.fWidth = -1;
     desc.fHeight = -1;
     desc.fConfig = config;
-    desc.fSampleCnt = 1;
+    desc.fSampleCnt = sampleCnt;
 
     return sk_sp<GrTextureProxy>(
             (Renderable::kYes == renderable)
