@@ -26,15 +26,6 @@
 #include "GrFragmentProcessor.h"
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
-SkMatrix SkShader::getLocalMatrix() const {
-    return as_SB(this)->getLocalMatrix();
-}
-sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix* localMatrix) const {
-    return as_SB(this)->makeAsALocalMatrixShader(localMatrix);
-}
-#endif
-
 SkShaderBase::SkShaderBase(const SkMatrix* localMatrix)
     : fLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I()) {
     // Pre-cache so future calls to fLocalMatrix.getType() are threadsafe.

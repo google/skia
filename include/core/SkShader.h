@@ -127,14 +127,6 @@ public:
      */
     sk_sp<SkShader> makeWithColorFilter(sk_sp<SkColorFilter>) const;
 
-    //////////////////////////////////////////////////////////////////////////
-    //  Factory methods for stock shaders
-
-#ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
-    SkMatrix getLocalMatrix() const;
-    sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
-#endif
-
 private:
     SkShader() = default;
     friend class SkShaderBase;
