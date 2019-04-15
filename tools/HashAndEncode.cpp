@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "HashAndEncode.h"
+#include "PngTool.h"
 #include "SkICC.h"
 #include "SkString.h"
-#include "png.h"
 
 static constexpr skcms_TransferFunction k2020_TF =
     {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
@@ -87,25 +87,6 @@ bool HashAndEncode::writePngTo(const char* path,
     if (!fPixels) {
         return false;
     }
-
-    FILE* f = fopen(path, "wb");
-    if (!f) {
-        return false;
-    }
-
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png) {
-        fclose(f);
-        return false;
-    }
-
-    png_infop info = png_create_info_struct(png);
-    if (!info) {
-        png_destroy_write_struct(&png, &info);
-        fclose(f);
-        return false;
-    }
-
     SkString description;
     description.append("Key: ");
     for (int i = 0; i < key.count(); i++) {
@@ -117,43 +98,18 @@ bool HashAndEncode::writePngTo(const char* path,
     }
     description.appendf("MD5: %s", md5);
 
-    png_text text[2];
-    text[0].key  = (png_charp)"Author";
-    text[0].text = (png_charp)"DM unified Rec.2020";
-    text[0].compression = PNG_TEXT_COMPRESSION_NONE;
-    text[1].key  = (png_charp)"Description";
-    text[1].text = (png_charp)description.c_str();
-    text[1].compression = PNG_TEXT_COMPRESSION_NONE;
-    png_set_text(png, info, text, SK_ARRAY_COUNT(text));
-
-    png_init_io(png, f);
-    png_set_IHDR(png, info, (png_uint_32)fSize.width()
-                          , (png_uint_32)fSize.height()
-                          , 16/*bits per channel*/
-                          , PNG_COLOR_TYPE_RGB_ALPHA
-                          , PNG_INTERLACE_NONE
-                          , PNG_COMPRESSION_TYPE_DEFAULT
-                          , PNG_FILTER_TYPE_DEFAULT);
-
-    // Fastest encoding and decoding, at slight file size cost is no filtering, compression 1.
-    png_set_filter(png, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
-    png_set_compression_level(png, 1);
-
     static const sk_sp<SkData> profile = SkWriteICCProfile(k2020_TF, SkNamedGamut::kRec2020);
-    png_set_iCCP(png, info,
-                 "Rec.2020",
-                 0/*compression type... no idea what options are available here*/,
-                 (png_const_bytep)profile->data(),
-                 (png_uint_32)    profile->size());
 
-    png_write_info(png, info);
-    for (int y = 0; y < fSize.height(); y++) {
-        png_write_row(png, (png_bytep)(fPixels.get() + y*fSize.width()));
-    }
-    png_write_end(png, info);
-
-    png_destroy_write_struct(&png, &info);
-    fclose(f);
-    return true;
+    PngTool::WriteOptions options;
+    options.iccName = "Rec.2020";
+    options.iccData = profile->data();
+    options.iccDataLength = profile->size();
+    options.author = "DM unified Rec.2020";
+    options.description = description.c_str();
+    options.fast = true;
+    PngTool::Pixmap pixmap = {(unsigned char*)fPixels.get(),
+                              (unsigned)fSize.width(),
+                              (unsigned)fSize.height(),
+                              16, PngTool::ColorType::kRGBA};
+    return PngTool::Write(path, pixmap, options);
 }
-
