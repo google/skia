@@ -328,7 +328,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
         return sk_ref_sp(this);
     }
 
-#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+#if defined(NTDDI_WIN10_RS3)
 
     SkTScopedComPtr<IDWriteFontFace5> fontFace5;
 

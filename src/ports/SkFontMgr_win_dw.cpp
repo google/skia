@@ -972,7 +972,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamArgs(std::unique_ptr<Sk
                 continue;
             }
 
-#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+#if defined(NTDDI_WIN10_RS3)
 
             SkTScopedComPtr<IDWriteFontFace5> fontFace5;
             if (SUCCEEDED(fontFace->QueryInterface(&fontFace5)) && fontFace5->HasVariations()) {
