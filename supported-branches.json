@@ -13,16 +13,16 @@
       "owner": "hcm@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m73",
-      "owner": "hcm@google.com"
-    },
-    {
       "ref": "refs/heads/skqp/dev",
       "owner": "halcanary@google.com"
     },
     {
       "ref": "refs/heads/skqp/release",
       "owner": "halcanary@google.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m75",
+      "owner": "borenet@google.com"
     }
   ]
 }
