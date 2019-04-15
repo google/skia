@@ -14,23 +14,27 @@ if len(sys.argv) != 3:
 compiler = sys.argv[1]
 folder = sys.argv[2]
 
-FRAG_JSON = os.path.join(folder, 'frag.json')
+stats = {}
 
-with open(FRAG_JSON) as f:
-    frags = json.load(f)
-
-if not frags:
-    print 'No JSON data'
-    sys.exit(1)
-
-for fragAndCount in frags:
-    source = os.path.join(folder, fragAndCount[0] + '.frag')
+for filename in os.listdir(folder):
+    basename, ext = os.path.splitext(filename)
+    if ext not in ['.frag', '.spv']:
+        continue
+    cmdline = [compiler]
+    if ext == '.spv':
+        cmdline.extend(['-f', '-p'])
+    cmdline.append(os.path.join(folder, filename))
     try:
-        output = subprocess.check_output([compiler, source])
+        output = subprocess.check_output(cmdline)
     except subprocess.CalledProcessError:
         continue
+    stats.setdefault(basename, {})
     for line in output.splitlines():
         if line.startswith('Instructions Emitted'):
             inst = line.split(':')[1].split()
-            print '{0} {1} {2} {3} {4}'.format(
-                fragAndCount[0], fragAndCount[1], inst[0], inst[1], inst[2])
+            stats[basename][ext] = inst
+
+for k, v in stats.iteritems():
+    gl = v.get('.frag', ['', '', ''])
+    vk = v.get('.spv', ['', '', ''])
+    print '{0},{1},{2},{3},{4},{5},{6}'.format(k, gl[0], gl[1], gl[2], vk[0], vk[1], vk[2])
