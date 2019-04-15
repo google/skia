@@ -1066,3 +1066,7 @@ DEF_TEST(Matrix_maprects, r) {
         }
     }
 }
+
+DEF_TEST(Matrix_Ctor, r) {
+    REPORTER_ASSERT(r, SkMatrix{} == SkMatrix::I());
+}

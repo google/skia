@@ -33,6 +33,16 @@ SK_BEGIN_REQUIRE_DENSE
 class SK_API SkMatrix {
 public:
 
+    /** Creates an identity SkMatrix:
+
+            | 1 0 0 |
+            | 0 1 0 |
+            | 0 0 1 |
+    */
+    constexpr SkMatrix()
+        : fMat{1,0,0, 0,1,0, 0,0,1}
+        , fTypeMask{kIdentity_Mask} {}
+
     /** Sets SkMatrix to scale by (sx, sy). Returned matrix is:
 
             | sx  0  0 |
