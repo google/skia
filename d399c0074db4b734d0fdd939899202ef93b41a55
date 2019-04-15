@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b6fdca5_bc7753ef",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-15T17:00:42Z",
+      "side": 1,
+      "message": "Is there no general use case for this? It seems like it could go in SkVx, in the specializations section? It\u0027s almost just an overloaded operator* except for the widening of the types. But you\u0027ve got a better sense of how all of this fits together, so if this is the better spot and/or fits with how you want the SkVx.h, then that is fine by me.",
+      "range": {
+        "startLine": 44,
+        "startChar": 1,
+        "endLine": 44,
+        "endChar": 28
+      },
+      "revId": "d399c0074db4b734d0fdd939899202ef93b41a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
