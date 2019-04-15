@@ -185,11 +185,15 @@ public:
 
     ~TextureOp() override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
+#if 0
             if (fFinalized) {
                 fProxies[p].fProxy->completedRead();
             } else {
+#endif
                 fProxies[p].fProxy->unref();
+#if 0
             }
+#endif
         }
     }
 
@@ -234,6 +238,7 @@ public:
             const GrCaps& caps, const GrAppliedClip*, GrFSAAType, GrClampType clampType) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
+#if 0
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy->addPendingRead();
             fProxies[p].fProxy->unref();
@@ -244,6 +249,7 @@ public:
             auto colorType = GrQuadPerEdgeAA::MinColorType(info.fColor, clampType, caps);
             fColorType = SkTMax(fColorType, static_cast<unsigned>(colorType));
         }
+#endif
         return GrProcessorSet::EmptySetAnalysis();
     }
 

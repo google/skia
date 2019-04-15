@@ -50,8 +50,8 @@ public:
     // be balanced by an unref call.
     // A managed opList is controlled by the drawing manager (i.e., sorted & flushed with the
     // other). An unmanaged one is created and used by the onFlushCallback.
-    sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managedOpList);
-    sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
+    sk_sp<GrRenderTargetOpList> newRTOpList(sk_sp<GrRenderTargetProxy> rtp, bool managedOpList);
+    sk_sp<GrTextureOpList> newTextureOpList(sk_sp<GrTextureProxy> textureProxy);
 
     GrRecordingContext* getContext() { return fContext; }
 
