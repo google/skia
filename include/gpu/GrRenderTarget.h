@@ -108,6 +108,8 @@ public:
     GrRenderTargetPriv renderTargetPriv();
     const GrRenderTargetPriv renderTargetPriv() const;
 
+    SkDEBUGCODE(bool debugOnly_hasStencilAttachment() const { return fStencilAttachment.get(); })
+
 protected:
     GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrStencilAttachment* = nullptr);
     ~GrRenderTarget() override;
