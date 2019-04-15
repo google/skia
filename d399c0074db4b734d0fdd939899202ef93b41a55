@@ -22,6 +22,30 @@
       "revId": "d399c0074db4b734d0fdd939899202ef93b41a55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "256a84e9_3383f29f",
+        "filename": "src/opts/SkBlitRow_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-15T18:07:05Z",
+      "side": 1,
+      "message": "I\u0027m struggling right now to write this in a way that can be expressed as special-case + general-case that gets as good code generation as we get from this mess.  Still haven\u0027t given up, and if I do work it out, I\u0027ll definitely move it to be skvx::mull(), or maybe even operator* for uint8_t, yeah.  It\u0027s almost always a bug to want to do u8 * u8 -\u003e u8.",
+      "parentUuid": "7b6fdca5_bc7753ef",
+      "range": {
+        "startLine": 44,
+        "startChar": 1,
+        "endLine": 44,
+        "endChar": 28
+      },
+      "revId": "d399c0074db4b734d0fdd939899202ef93b41a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
