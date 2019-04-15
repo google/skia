@@ -1007,15 +1007,8 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
                                const GrGLInterface* gli) {
     // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case. We only use mixed samples if the stencil-and-cover path
-    // renderer is available and enabled; no other path renderers support this feature.
-    if (fMultisampleDisableSupport &&
-        this->shaderCaps()->dualSourceBlendingSupport() &&
-        this->shaderCaps()->pathRenderingSupport()
-#if GR_TEST_UTILS
-        && (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover)
-#endif
-        ) {
+    // samples in every corner case.
+    if (fMultisampleDisableSupport && this->shaderCaps()->dualSourceBlendingSupport()) {
         fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
                             ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
     }
