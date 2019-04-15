@@ -213,6 +213,9 @@ DEF_TEST(chartoglyph_cache, reporter) {
         SkGlyphID glyph = hash_to_glyph(c);
 
         int index = cache.findGlyphIndex(c);
+        if (index >= 0) {
+            index = cache.findGlyphIndex(c);
+        }
         REPORTER_ASSERT(reporter, index < 0);
         cache.insertCharAndGlyph(~index, c, glyph);
 
@@ -221,6 +224,9 @@ DEF_TEST(chartoglyph_cache, reporter) {
             c = gen2.next();
             glyph = hash_to_glyph(c);
             index = cache.findGlyphIndex(c);
+            if ((unsigned)index != glyph) {
+                index = cache.findGlyphIndex(c);
+            }
             REPORTER_ASSERT(reporter, (unsigned)index == glyph);
         }
     }
