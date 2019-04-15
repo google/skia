@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "066b75b7_fd6ee5df",
+        "filename": "tools/gpu/MemoryCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-15T13:08:41Z",
+      "side": 1,
+      "message": "should we assert or so something if those 4 bytes match the key for the pipelineCache and not a shader. I know how it is set up know we don\u0027t cache the pipelineCache in our tool but in the future if things do it would be nice to at least assert so we know we need to fix something.",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 39
+      },
+      "revId": "1447115ca0d29e58438b8a492f1e0009c99c843a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
