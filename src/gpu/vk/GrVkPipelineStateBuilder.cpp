@@ -72,15 +72,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     Desc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
-    SkString shaderString;
-    for (int i = 0; i < builder.fCompilerStrings.count(); ++i) {
-        if (builder.fCompilerStrings[i]) {
-            shaderString.append(builder.fCompilerStrings[i]);
-            shaderString.append("\n");
-        }
-    }
-
-    if (!GrCompileVkShaderModule(fGpu, shaderString.c_str(), stage, shaderModule,
+    if (!GrCompileVkShaderModule(fGpu, builder.fCompilerString.c_str(), stage, shaderModule,
                                  stageInfo, settings, outSPIRV, outInputs)) {
         return false;
     }

@@ -64,16 +64,8 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
         SkSL::Program::Kind kind,
         const SkSL::Program::Settings& settings,
         GrProgramDesc* desc) {
-    SkString shaderString;
-    for (int i = 0; i < builder.fCompilerStrings.count(); ++i) {
-        if (builder.fCompilerStrings[i]) {
-            shaderString.append(builder.fCompilerStrings[i]);
-            shaderString.append("\n");
-        }
-    }
-
     SkSL::Program::Inputs inputs;
-    id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shaderString.c_str(),
+    id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, builder.fCompilerString.c_str(),
                                                              kind, settings, &inputs);
     if (shaderLibrary == nil) {
         return nil;
