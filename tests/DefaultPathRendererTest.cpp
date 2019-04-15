@@ -99,8 +99,8 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
         rtc->drawPath(GrNoClip(), std::move(paint), GrAA::kNo,
                       SkMatrix::I(), invPath, style);
 
-        rtc->prepareForExternalIO(SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
+        rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess,
+                   kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
     }
 
     {

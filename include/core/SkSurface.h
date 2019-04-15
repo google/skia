@@ -696,10 +696,6 @@ public:
     */
     const SkSurfaceProps& props() const { return fProps; }
 
-    /** Deprecated.
-    */
-    void prepareForExternalIO();
-
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
 
         Skia flushes as needed, so it is not necessary to call this if Skia manages
