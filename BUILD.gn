@@ -1854,12 +1854,22 @@ if (skia_enable_tools) {
       sources = [
         "tools/HashAndEncode.cpp",
         "tools/HashAndEncode.h",
+        "tools/PngTool.cpp",
+        "tools/PngTool.h",
       ]
       deps = [
         ":flags",
         ":skia",
         "//third_party/libpng",
       ]
+    }
+    test_app("add_icc_to_png") {
+      sources = [
+        "tools/PngTool.cpp",
+        "tools/PngTool.h",
+        "tools/add_icc_to_png.cpp",
+      ]
+      deps = [ "//third_party/libpng" ]
     }
     test_app("fm") {
       sources = [

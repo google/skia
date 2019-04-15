@@ -22,7 +22,9 @@ env GIT_SYNC_DEPS_QUIET=1 python tools/git-sync-deps
 O='out/ndebug'
 mkdir -p $O
 bin/gn gen $O --args='cc="clang" cxx="clang++" is_debug=false'
-ninja -C $O jitter_gms list_gpu_unit_tests
+ninja -C $O jitter_gms list_gpu_unit_tests add_icc_to_png
+find platform_tools/android/apps/skqp/src/main/assets/gmkb -name '*.png' -print -exec \
+    $O/add_icc_to_png Rec.2020 resources/icc_profiles/rec2020.icc {} {} \;
 $O/jitter_gms tools/skqp/bad_gms.txt
 python tools/skqp/make_rendertests_list.py
 rm 'bad.txt' 'good.txt'
