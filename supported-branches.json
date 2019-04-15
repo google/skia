@@ -23,6 +23,10 @@
     {
       "ref": "refs/heads/skqp/release",
       "owner": "halcanary@google.com"
+    },
+    {
+      "ref": "refs/heads/my-fake-branch",
+      "owner": "borenet@google.com"
     }
   ]
 }
