@@ -156,6 +156,11 @@
             frame.AddrStack.Offset = c->Rsp;
             frame.AddrFrame.Offset = c->Rbp;
             const DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
+        #elif defined(_M_ARM64)
+            frame.AddrPC.Offset    = c->Pc;
+            frame.AddrStack.Offset = c->Sp;
+            frame.AddrFrame.Offset = c->Fp;
+            const DWORD machineType = IMAGE_FILE_MACHINE_ARM64;
         #endif
 
             while (StackWalk64(machineType,
