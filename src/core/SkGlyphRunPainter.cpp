@@ -183,6 +183,15 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             auto glyphPosSpan = strike->prepareForDrawing(
                     glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
 
+            SkScalar maxFallbackDimension{-SK_ScalarInfinity};
+            auto addFallback = [this, &maxFallbackDimension]
+                    (const SkGlyph& glyph, SkPoint sourcePosition) {
+                maxFallbackDimension = std::max(maxFallbackDimension,
+                                                SkIntToScalar(glyph.maxDimension()));
+                fARGBGlyphsIDs.push_back(glyph.getGlyphID());
+                fARGBPositions.push_back(sourcePosition);
+            };
+
             SkTDArray<SkPathPos> pathsAndPositions;
             pathsAndPositions.setReserve(glyphPosSpan.size());
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
@@ -196,14 +205,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     // Only draw a path if it exists, and this is not a color glyph.
                     pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
                 } else {
-                    // TODO: this is here to have chrome layout tests pass. Remove this when
-                    //  fallback for CPU works.
-                    if (check_glyph_position(position)
-                        && !glyph.isEmpty()
-                        && strike->decideCouldDrawFromPath(glyph))
-                    {
-                        pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
-                    }
+                    addFallback(glyph, position);
                 }
             }
 
@@ -215,6 +217,46 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             bitmapDevice->paintPaths(
                     SkSpan<const SkPathPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
                     textScale, pathPaint);
+
+            if (!fARGBGlyphsIDs.empty()) {
+                SkAutoDescriptor ad;
+                SkScalerContextEffects effects;
+
+                SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+                        runFont, runPaint, props, fScalerContextFlags, deviceMatrix, &ad,
+                        &effects);
+
+                SkTypeface* typeface = runFont.getTypefaceOrDefault();
+                SkScopedStrike strike =
+                        fStrikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
+
+                // Add rounding and origin.
+                SkMatrix matrix = deviceMatrix;
+                matrix.preTranslate(origin.x(), origin.y());
+                SkPoint rounding = strike->rounding();
+                matrix.postTranslate(rounding.x(), rounding.y());
+                matrix.mapPoints(fPositions, fARGBPositions.data(), fARGBGlyphsIDs.size());
+
+                SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
+                       fARGBGlyphsIDs.data(), fARGBPositions.data(), fARGBGlyphsIDs.size(),
+                        std::numeric_limits<int>::max(), fGlyphPos);
+
+                SkTDArray<SkMask> masks;
+                masks.setReserve(glyphPosSpan.size());
+
+                for (const SkGlyphPos& glyphPos : glyphPosSpan) {
+                    const SkGlyph& glyph = *glyphPos.glyph;
+                    SkPoint position = glyphPos.position;
+                    // The glyph could have dimensions (!isEmpty()), but still may have no bits if
+                    // the width is too wide. So check that there really is an image.
+                    if (check_glyph_position(position) && !glyph.isEmpty() && glyph.hasImage()) {
+                        masks.push_back(glyph.mask(position));
+                    }
+                }
+
+                bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, runPaint);
+
+            }
         } else {
             SkAutoDescriptor ad;
             SkScalerContextEffects effects;
