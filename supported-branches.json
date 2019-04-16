@@ -5,15 +5,19 @@
       "owner": "skiabot@google.com"
     },
     {
+      "ref": "refs/heads/%!s(MISSING)",
+      "owner": "hcm@google.com"
+    },
+    {
       "ref": "refs/heads/android/next-release",
       "owner": "djsollen@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m74",
+      "ref": "refs/heads/chrome/m73",
       "owner": "hcm@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m73",
+      "ref": "refs/heads/chrome/m74",
       "owner": "hcm@google.com"
     },
     {
