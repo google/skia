@@ -91,17 +91,13 @@ int GrRenderTargetPriv::numStencilBits() const {
     return this->getStencilAttachment()->bits();
 }
 
-int GrRenderTargetPriv::getSamplePatternKey(const GrPipeline& pipeline) const {
+int GrRenderTargetPriv::getSamplePatternKey() const {
     SkASSERT(fRenderTarget->fSampleCnt > 1);
     if (GrSamplePatternDictionary::kInvalidSamplePatternKey == fRenderTarget->fSamplePatternKey) {
         fRenderTarget->fSamplePatternKey =
-                fRenderTarget->getGpu()->findOrAssignSamplePatternKey(fRenderTarget, pipeline);
+                fRenderTarget->getGpu()->findOrAssignSamplePatternKey(fRenderTarget);
     }
     SkASSERT(GrSamplePatternDictionary::kInvalidSamplePatternKey
                      != fRenderTarget->fSamplePatternKey);
-    // Verify we always have the same sample pattern key every time this is called, regardless of
-    // pipeline state.
-    SkASSERT(fRenderTarget->getGpu()->findOrAssignSamplePatternKey(fRenderTarget, pipeline)
-                     == fRenderTarget->fSamplePatternKey);
     return fRenderTarget->fSamplePatternKey;
 }

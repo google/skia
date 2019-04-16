@@ -3931,11 +3931,8 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 }
 
 void GrGLGpu::querySampleLocations(
-        GrRenderTarget* renderTarget, const GrStencilSettings& stencilSettings,
-        SkTArray<SkPoint>* sampleLocations) {
-    this->flushStencil(stencilSettings);
-    this->flushHWAAState(renderTarget, true);
-    this->flushRenderTarget(static_cast<GrGLRenderTarget*>(renderTarget));
+        GrRenderTarget* renderTarget, SkTArray<SkPoint>* sampleLocations) {
+    this->flushRenderTargetNoColorWrites(static_cast<GrGLRenderTarget*>(renderTarget));
 
     int effectiveSampleCnt;
     GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, &effectiveSampleCnt);

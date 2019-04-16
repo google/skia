@@ -278,10 +278,7 @@ public:
     // Queries the per-pixel HW sample locations for the given render target, and then finds or
     // assigns a key that uniquely identifies the sample pattern. The actual sample locations can be
     // retrieved with retrieveSampleLocations().
-    //
-    // NOTE: The pipeline argument is required in order for us to flush draw state prior to querying
-    // multisample info. The pipeline itself is not expected to affect sample locations.
-    int findOrAssignSamplePatternKey(GrRenderTarget*, const GrPipeline&);
+    int findOrAssignSamplePatternKey(GrRenderTarget*);
 
     // Retrieves the per-pixel HW sample locations for the given sample pattern key, and, as a
     // by-product, the actual number of samples in use. (This may differ from the number of samples
@@ -498,8 +495,7 @@ private:
 
     // Queries the effective number of samples in use by the hardware for the given render target,
     // and queries the individual sample locations.
-    virtual void querySampleLocations(
-            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) = 0;
+    virtual void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) = 0;
 
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;

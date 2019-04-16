@@ -231,7 +231,7 @@ bool GrProgramDesc::Build(
 
     if (processorFeatures & GrProcessor::CustomFeatures::kSampleLocations) {
         SkASSERT(pipeline.isHWAntialiasState());
-        b.add32(renderTarget->renderTargetPriv().getSamplePatternKey(pipeline));
+        b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
     }
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------

@@ -131,8 +131,7 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
-    void querySampleLocations(
-            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) override {
+    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override {
         SkASSERT(!this->caps()->sampleLocationsSupport());
         SK_ABORT("Sample locations not yet implemented for Metal.");
     }
