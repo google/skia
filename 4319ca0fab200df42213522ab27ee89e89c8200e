@@ -22,6 +22,30 @@
       "revId": "4319ca0fab200df42213522ab27ee89e89c8200e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1844166c_526c35a9",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-16T10:10:22Z",
+      "side": 1,
+      "message": "New api just takes utf32",
+      "parentUuid": "6811d0d8_6949796d",
+      "range": {
+        "startLine": 191,
+        "startChar": 23,
+        "endLine": 191,
+        "endChar": 40
+      },
+      "revId": "4319ca0fab200df42213522ab27ee89e89c8200e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
