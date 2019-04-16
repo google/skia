@@ -369,6 +369,18 @@ void GrVkResourceProvider::checkCommandBuffers() {
     }
 }
 
+void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
+        GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> procRef(new GrRefCntedCallback(finishedProc, finishedContext));
+    for (int i = 0; i < fActiveCommandPools.count(); ++i) {
+        GrVkCommandPool* pool = fActiveCommandPools[i];
+        if (!pool->isOpen()) {
+            GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
+            buffer->addFinishedProc(procRef);
+        }
+    }
+}
+
 const GrVkResource* GrVkResourceProvider::findOrCreateStandardUniformBufferResource() {
     const GrVkResource* resource = nullptr;
     int count = fAvailableUniformBufferResources.count();

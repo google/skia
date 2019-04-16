@@ -316,11 +316,17 @@ GrGpuTextureCommandBuffer* GrVkGpu::getCommandBuffer(GrTexture* texture, GrSurfa
     return fCachedTexCommandBuffer.get();
 }
 
-void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
+void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
+                                  GrGpuFinishedContext finishedContext) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->end(this);
     fCmdPool->close();
     fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, fSemaphoresToSignal, fSemaphoresToWaitOn);
+
+    if (finishedProc) {
+        // Make sure this is called after closing the current command pool
+        fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
+    }
 
     // We must delete and drawables that have been waitint till submit for us to destroy.
     fDrawables.reset();
@@ -1804,7 +1810,8 @@ void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
 }
 
 void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access,
-                            SkSurface::FlushFlags flags, bool insertedSemaphore) {
+                            GrFlushFlags flags, bool insertedSemaphore,
+                            GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext) {
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
     if (proxy && access == SkSurface::BackendSurfaceAccess::kPresent) {
@@ -1819,10 +1826,10 @@ void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAcce
         }
         image->prepareForPresent(this);
     }
-    if (flags & SkSurface::kSyncCpu_FlushFlag) {
-        this->submitCommandBuffer(kForce_SyncQueue);
+    if (flags & kSyncCpu_GrFlushFlag) {
+        this->submitCommandBuffer(kForce_SyncQueue, finishedProc, finishedContext);
     } else {
-        this->submitCommandBuffer(kSkip_SyncQueue);
+        this->submitCommandBuffer(kSkip_SyncQueue, finishedProc, finishedContext);
     }
 }
 

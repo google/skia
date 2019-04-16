@@ -670,7 +670,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     texContext->writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), 0, 0);
 
     drawingManager->flush(proxy.get(), SkSurface::BackendSurfaceAccess::kNoAccess,
-                          SkSurface::kSyncCpu_FlushFlag, 0, nullptr);
+                          kSyncCpu_GrFlushFlag, 0, nullptr, nullptr, nullptr);
 
     return image;
 }

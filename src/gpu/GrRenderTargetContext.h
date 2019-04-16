@@ -407,8 +407,10 @@ public:
      * if the surface has MSAA it will be resolved.
      */
     GrSemaphoresSubmitted prepareForExternalIO(SkSurface::BackendSurfaceAccess access,
-                                               SkSurface::FlushFlags flags, int numSemaphores,
-                                               GrBackendSemaphore backendSemaphores[]);
+                                               GrFlushFlags flags, int numSemaphores,
+                                               GrBackendSemaphore backendSemaphores[],
+                                               GrGpuFinishedProc finishedProc,
+                                               GrGpuFinishedContext finishedContext);
 
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in

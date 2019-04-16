@@ -174,11 +174,21 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                       SkSurface::FlushFlags flags, bool insertedSemaphores) override {
-        if (flags & SkSurface::kSyncCpu_FlushFlag) {
+                       GrFlushFlags flags, bool insertedSemaphores,
+                       GrGpuFinishedProc finishedProc,
+                       GrGpuFinishedContext finishedContext) override {
+        if (flags & kSyncCpu_GrFlushFlag) {
             this->submitCommandBuffer(kForce_SyncQueue);
+            if (finishedProc) {
+                finishedProc(finishedContext);
+            }
         } else {
             this->submitCommandBuffer(kSkip_SyncQueue);
+            // TODO: support finishedProc to actually be called when the GPU is done with the work
+            // and not immediately.
+            if (finishedProc) {
+                finishedProc(finishedContext);
+            }
         }
     }
 

@@ -74,9 +74,11 @@ public:
 
     GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
                                                       SkSurface::BackendSurfaceAccess access,
-                                                      SkSurface::FlushFlags flags,
+                                                      GrFlushFlags flags,
                                                       int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[]);
+                                                      GrBackendSemaphore backendSemaphores[],
+                                                      GrGpuFinishedProc finishedProc,
+                                                      GrGpuFinishedContext finishedContext);
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
@@ -151,9 +153,11 @@ private:
 
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 SkSurface::BackendSurfaceAccess access,
-                                SkSurface::FlushFlags flags,
+                                GrFlushFlags flags,
                                 int numSemaphores,
-                                GrBackendSemaphore backendSemaphores[]);
+                                GrBackendSemaphore backendSemaphores[],
+                                GrGpuFinishedProc finishedProc,
+                                GrGpuFinishedContext finishedContext);
 
     SkDEBUGCODE(void validate() const);
 

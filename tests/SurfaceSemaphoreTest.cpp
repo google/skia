@@ -144,7 +144,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 #endif
 
     if (flushContext) {
-        mainCtx->flushAndSignalSemaphores(2, semaphores.get());
+        mainCtx->flush(kNone_GrFlushFlags, 2, semaphores.get());
     } else {
         mainSurface->flushAndSignalSemaphores(2, semaphores.get());
     }
