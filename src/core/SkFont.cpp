@@ -170,46 +170,6 @@ SkGlyphID SkFont::unicharToGlyph(SkUnichar uni) const {
     return this->getTypefaceOrDefault()->unicharToGlyph(uni);
 }
 
-void SkFont::unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
-    this->getTypefaceOrDefault()->unicharsToGlyphs(uni, count, glyphs);
-}
-
-class SkConvertToUTF32 {
-public:
-    SkConvertToUTF32() {}
-
-    const SkUnichar* convert(const void* text, size_t byteLength, SkTextEncoding encoding) {
-        const SkUnichar* uni;
-        switch (encoding) {
-            case SkTextEncoding::kUTF8: {
-                uni = fStorage.reset(byteLength);
-                const char* ptr = (const char*)text;
-                const char* end = ptr + byteLength;
-                for (int i = 0; ptr < end; ++i) {
-                    fStorage[i] = SkUTF::NextUTF8(&ptr, end);
-                }
-            } break;
-            case SkTextEncoding::kUTF16: {
-                uni = fStorage.reset(byteLength);
-                const uint16_t* ptr = (const uint16_t*)text;
-                const uint16_t* end = ptr + (byteLength >> 1);
-                for (int i = 0; ptr < end; ++i) {
-                    fStorage[i] = SkUTF::NextUTF16(&ptr, end);
-                }
-            } break;
-            case SkTextEncoding::kUTF32:
-                uni = (const SkUnichar*)text;
-                break;
-            default:
-                SK_ABORT("unexpected enum");
-        }
-        return uni;
-    }
-
-private:
-    SkAutoSTMalloc<256, SkUnichar> fStorage;
-};
-
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkGlyphID glyphs[], int maxGlyphCount) const {
     if (0 == byteLength) {
@@ -223,15 +183,26 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
         return count;
     }
 
-    if (encoding == SkTextEncoding::kGlyphID) {
-        memcpy(glyphs, text, count << 1);
-        return count;
+    // TODO: unify/eliminate SkTypeface::Encoding with SkTextEncoding
+    SkTypeface::Encoding typefaceEncoding;
+    switch (encoding) {
+        case kUTF8_SkTextEncoding:
+            typefaceEncoding = SkTypeface::kUTF8_Encoding;
+            break;
+        case kUTF16_SkTextEncoding:
+            typefaceEncoding = SkTypeface::kUTF16_Encoding;
+            break;
+        case kUTF32_SkTextEncoding:
+            typefaceEncoding = SkTypeface::kUTF32_Encoding;
+            break;
+        default:
+            SkASSERT(kGlyphID_SkTextEncoding == encoding);
+            // we can early exit, since we already have glyphIDs
+            memcpy(glyphs, text, count << 1);
+            return count;
     }
 
-    SkConvertToUTF32 storage;
-    const SkUnichar* uni = storage.convert(text, byteLength, encoding);
-
-    this->getTypefaceOrDefault()->unicharsToGlyphs(uni, count, glyphs);
+    (void) this->getTypefaceOrDefault()->charsToGlyphs(text, typefaceEncoding, glyphs,count);
     return count;
 }
 

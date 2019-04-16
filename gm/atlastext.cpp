@@ -33,14 +33,12 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
     auto atlas_font = SkAtlasTextFont::Make(typeface, size);
     int cnt = SkUTF::CountUTF8(text.c_str(), text.size());
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
+    typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(), cnt);
 
     // Using a paint to get the positions for each glyph.
     SkFont font;
     font.setSize(size);
     font.setTypeface(std::move(typeface));
-
-    font.textToGlyphs(text.c_str(), text.size(), SkTextEncoding::kUTF8, glyphs.get(), cnt);
-
     std::unique_ptr<SkScalar[]> widths(new SkScalar[cnt]);
     font.getWidths(glyphs.get(), cnt, widths.get());
 

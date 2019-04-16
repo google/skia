@@ -742,7 +742,8 @@ protected:
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
-    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
+    int onCharsToGlyphs(const void* chars, Encoding,
+                        uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
 
     void* onGetCTFontRef() const override { return (void*)fFontRef.get(); }
@@ -2332,7 +2333,9 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = fIsFromStream;
 }
 
-void SkTypeface_Mac::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                    uint16_t glyphs[], int glyphCount) const
+{
     // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points:
     // When a surrogate pair is detected, the glyph index used is the index of the high surrogate.
     // It is documented that if a mapping is unavailable, the glyph will be set to 0.
@@ -2340,38 +2343,81 @@ void SkTypeface_Mac::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID
     SkAutoSTMalloc<1024, UniChar> charStorage;
     const UniChar* src; // UniChar is a UTF-16 16-bit code unit.
     int srcCount;
-    const SkUnichar* utf32 = reinterpret_cast<const SkUnichar*>(uni);
-    UniChar* utf16 = charStorage.reset(2 * count);
-    src = utf16;
-    for (int i = 0; i < count; ++i) {
-        utf16 += SkUTF::ToUTF16(utf32[i], utf16);
+    switch (encoding) {
+        case kUTF8_Encoding: {
+            const char* utf8 = reinterpret_cast<const char*>(chars);
+            UniChar* utf16 = charStorage.reset(2 * glyphCount);
+            src = utf16;
+            for (int i = 0; i < glyphCount; ++i) {
+                SkUnichar uni = SkUTF8_NextUnichar(&utf8);
+                utf16 += SkUTF::ToUTF16(uni, utf16);
+            }
+            srcCount = SkToInt(utf16 - src);
+            break;
+        }
+        case kUTF16_Encoding: {
+            src = reinterpret_cast<const UniChar*>(chars);
+            int extra = 0;
+            for (int i = 0; i < glyphCount; ++i) {
+                if (SkUTF16_IsLeadingSurrogate(src[i + extra])) {
+                    ++extra;
+                }
+            }
+            srcCount = glyphCount + extra;
+            break;
+        }
+        case kUTF32_Encoding: {
+            const SkUnichar* utf32 = reinterpret_cast<const SkUnichar*>(chars);
+            UniChar* utf16 = charStorage.reset(2 * glyphCount);
+            src = utf16;
+            for (int i = 0; i < glyphCount; ++i) {
+                utf16 += SkUTF::ToUTF16(utf32[i], utf16);
+            }
+            srcCount = SkToInt(utf16 - src);
+            break;
+        }
     }
-    srcCount = SkToInt(utf16 - src);
 
-    // If there are any non-bmp code points, the provided 'glyphs' storage will be inadequate.
+    // If glyphs is nullptr, CT still needs glyph storage for finding the first failure.
+    // Also, if there are any non-bmp code points, the provided 'glyphs' storage will be inadequate.
     SkAutoSTMalloc<1024, uint16_t> glyphStorage;
     uint16_t* macGlyphs = glyphs;
-    if (srcCount > count) {
+    if (nullptr == macGlyphs || srcCount > glyphCount) {
         macGlyphs = glyphStorage.reset(srcCount);
     }
 
-    CTFontGetGlyphsForCharacters(fFontRef.get(), src, macGlyphs, srcCount);
+    bool allEncoded = CTFontGetGlyphsForCharacters(fFontRef.get(), src, macGlyphs, srcCount);
 
     // If there were any non-bmp, then copy and compact.
-    // If all are bmp, 'glyphs' already contains the compact glyphs.
-    // If some are non-bmp, copy and compact into 'glyphs'.
-    if (srcCount > count) {
-        SkASSERT(glyphs != macGlyphs);
+    // If 'glyphs' is nullptr, then compact glyphStorage in-place.
+    // If all are bmp and 'glyphs' is non-nullptr, 'glyphs' already contains the compact glyphs.
+    // If some are non-bmp and 'glyphs' is non-nullptr, copy and compact into 'glyphs'.
+    uint16_t* compactedGlyphs = glyphs;
+    if (nullptr == compactedGlyphs) {
+        compactedGlyphs = macGlyphs;
+    }
+    if (srcCount > glyphCount) {
         int extra = 0;
-        for (int i = 0; i < count; ++i) {
-            glyphs[i] = macGlyphs[i + extra];
+        for (int i = 0; i < glyphCount; ++i) {
+            compactedGlyphs[i] = macGlyphs[i + extra];
             if (SkUTF16_IsLeadingSurrogate(src[i + extra])) {
                 ++extra;
             }
         }
-    } else {
-        SkASSERT(glyphs == macGlyphs);
     }
+
+    if (allEncoded) {
+        return glyphCount;
+    }
+
+    // If we got false, then we need to manually look for first failure.
+    for (int i = 0; i < glyphCount; ++i) {
+        if (0 == compactedGlyphs[i]) {
+            return i;
+        }
+    }
+    // Odd to get here, as we expected CT to have returned true up front.
+    return glyphCount;
 }
 
 int SkTypeface_Mac::onCountGlyphs() const {

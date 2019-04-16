@@ -52,9 +52,78 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = SkToBool(fDWriteFontFileLoader.get());
 }
 
-void DWriteFontTypeface::onCharsToGlyphs(const SkUnichar uni[], int count,
-                                         SkGlyphID glyphs[]) const {
-    fDWriteFontFace->GetGlyphIndices((const UINT32*)uni, count, glyphs);
+static SkUnichar next_utf8(const void** chars) {
+    return SkUTF8_NextUnichar((const char**)chars);
+}
+
+static SkUnichar next_utf16(const void** chars) {
+    return SkUTF16_NextUnichar((const uint16_t**)chars);
+}
+
+static SkUnichar next_utf32(const void** chars) {
+    const SkUnichar** uniChars = (const SkUnichar**)chars;
+    SkUnichar uni = **uniChars;
+    *uniChars += 1;
+    return uni;
+}
+
+typedef SkUnichar (*EncodingProc)(const void**);
+
+static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
+    static const EncodingProc gProcs[] = {
+        next_utf8, next_utf16, next_utf32
+    };
+    SkASSERT((size_t)enc < SK_ARRAY_COUNT(gProcs));
+    return gProcs[enc];
+}
+
+int DWriteFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                        uint16_t glyphs[], int glyphCount) const
+{
+    if (nullptr == glyphs) {
+        EncodingProc next_ucs4_proc = find_encoding_proc(encoding);
+        for (int i = 0; i < glyphCount; ++i) {
+            const SkUnichar c = next_ucs4_proc(&chars);
+            BOOL exists;
+            fDWriteFont->HasCharacter(c, &exists);
+            if (!exists) {
+                return i;
+            }
+        }
+        return glyphCount;
+    }
+
+    switch (encoding) {
+    case SkTypeface::kUTF8_Encoding:
+    case SkTypeface::kUTF16_Encoding: {
+        static const int scratchCount = 256;
+        UINT32 scratch[scratchCount];
+        EncodingProc next_ucs4_proc = find_encoding_proc(encoding);
+        for (int baseGlyph = 0; baseGlyph < glyphCount; baseGlyph += scratchCount) {
+            int glyphsLeft = glyphCount - baseGlyph;
+            int limit = SkTMin(glyphsLeft, scratchCount);
+            for (int i = 0; i < limit; ++i) {
+                scratch[i] = next_ucs4_proc(&chars);
+            }
+            fDWriteFontFace->GetGlyphIndices(scratch, limit, &glyphs[baseGlyph]);
+        }
+        break;
+    }
+    case SkTypeface::kUTF32_Encoding: {
+        const UINT32* utf32 = reinterpret_cast<const UINT32*>(chars);
+        fDWriteFontFace->GetGlyphIndices(utf32, glyphCount, glyphs);
+        break;
+    }
+    default:
+        SK_ABORT("Invalid Text Encoding");
+    }
+
+    for (int i = 0; i < glyphCount; ++i) {
+        if (0 == glyphs[i]) {
+            return i;
+        }
+    }
+    return glyphCount;
 }
 
 int DWriteFontTypeface::onCountGlyphs() const {

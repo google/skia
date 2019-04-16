@@ -182,8 +182,11 @@ void SkRandomTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal
     fProxy->getFontDescriptor(desc, isLocal);
 }
 
-void SkRandomTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID glyphs[]) const {
-    fProxy->unicharsToGlyphs(uni, count, glyphs);
+int SkRandomTypeface::onCharsToGlyphs(const void* chars,
+                                      Encoding    encoding,
+                                      uint16_t    glyphs[],
+                                      int         glyphCount) const {
+    return fProxy->charsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
 int SkRandomTypeface::onCountGlyphs() const { return fProxy->countGlyphs(); }

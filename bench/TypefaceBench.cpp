@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "Benchmark.h"
-#include "SkFont.h"
+#include "SkFontTypes.h"
 #include "SkMakeUnique.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
@@ -238,12 +238,12 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkFont font(fTypeface);
         // Do more loops to reduce variance.
         for (int i = 0; i < loops * 3; ++i) {
             for (auto& line : fLines) {
-                font.textToGlyphs(line->utf.data(), line->utf.size(), fEncoding,
-                                  fGlyphIds.data(), line->glyphCount);
+                fTypeface->charsToGlyphs(line->utf.data(),
+                                  (SkTypeface::Encoding)fEncoding, fGlyphIds.data(),
+                                  line->glyphCount);
             }
         }
     }
