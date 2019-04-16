@@ -107,7 +107,13 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                       SkSurface::FlushFlags flags, bool insertedSemaphores) override {}
+                       GrFlushFlags flags, bool insertedSemaphores,
+                       GrGpuFinishedProc finishedProc,
+                       GrGpuFinishedContext finishedContext) override {
+        if (finishedProc) {
+            finishedProc(finishedContext);
+        }
+    }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

@@ -290,7 +290,9 @@ private:
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                       SkSurface::FlushFlags flags, bool insertedSemaphores) override;
+                       GrFlushFlags flags, bool insertedSemaphores,
+                       GrGpuFinishedProc finishedProc,
+                       GrGpuFinishedContext finishedContext) override;
 
     bool copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                            GrSurface* src, GrSurfaceOrigin srcOrigin,
