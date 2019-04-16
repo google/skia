@@ -39,6 +39,14 @@ public:
      */
     virtual bool isConstant() const { return false; }
 
+    /**
+     *  Returns true if the shader is guaranteed to produce only opaque
+     *  colors, subject to the SkPaint using the shader to apply an opaque
+     *  alpha value. Subclasses should override this to allow some
+     *  optimizations.
+     */
+    virtual bool isOpaque() const { return false; }
+
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
     enum Flags {

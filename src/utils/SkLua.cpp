@@ -1033,11 +1033,6 @@ static const char* gradtype2string(SkShader::GradientType t) {
     return gNames[t];
 }
 
-static int lshader_isOpaque(lua_State* L) {
-    SkShader* shader = get_ref<SkShader>(L, 1);
-    return shader && shader->isOpaque();
-}
-
 static int lshader_isAImage(lua_State* L) {
     SkShader* shader = get_ref<SkShader>(L, 1);
     if (shader) {
@@ -1093,7 +1088,6 @@ static int lshader_gc(lua_State* L) {
 }
 
 static const struct luaL_Reg gSkShader_Methods[] = {
-    { "isOpaque",       lshader_isOpaque },
     { "isAImage",       lshader_isAImage },
     { "asAGradient",    lshader_asAGradient },
     { "__gc",           lshader_gc },

@@ -9,7 +9,7 @@
 #include "SkColorFilterShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 
 #if SK_SUPPORT_GPU
@@ -42,7 +42,7 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     if (!as_SB(fShader)->appendStages(rec)) {
         return false;
     }
-    fFilter->appendStages(rec, fShader->isOpaque());
+    fFilter->appendStages(rec, as_SB(fShader)->isOpaque());
     return true;
 }
 

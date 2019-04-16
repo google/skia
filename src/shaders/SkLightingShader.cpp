@@ -307,7 +307,7 @@ std::unique_ptr<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(c
 ////////////////////////////////////////////////////////////////////////////
 
 bool SkLightingShaderImpl::isOpaque() const {
-    return (fDiffuseShader ? fDiffuseShader->isOpaque() : false);
+    return (fDiffuseShader ? as_SB(fDiffuseShader)->isOpaque() : false);
 }
 
 SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
