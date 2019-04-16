@@ -319,22 +319,18 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     const GrBackendFormat format =
             context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     // Validate that GrFPs work correctly without an input.
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-                 context->priv().makeDeferredRenderTargetContext(format,
-                                                                 SkBackingFit::kExact,
-                                                                 kRenderTargetWidth,
-                                                                 kRenderTargetHeight,
-                                                                 kRGBA_8888_GrPixelConfig,
-                                                                 nullptr));
-    if (!renderTargetContext) {
-        SkDebugf("Could not allocate a renderTargetContext");
-        return false;
-    }
-
     int fpFactoryCnt = GrFragmentProcessorTestFactory::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
+            auto renderTargetContext(context->priv().makeDeferredRenderTargetContext(
+                    format, SkBackingFit::kExact, kRenderTargetWidth, kRenderTargetHeight,
+                    kRGBA_8888_GrPixelConfig, nullptr));
+            if (!renderTargetContext) {
+                SkDebugf("Could not allocate a renderTargetContext");
+                return false;
+            }
+
             GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
 
             GrPaint paint;
