@@ -13,9 +13,12 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"sort"
 	"strings"
@@ -53,6 +56,34 @@ func clampU8(v int) uint8 {
 	return uint8(v)
 }
 
+func pipeToTempFile(input io.Reader) (string, error) {
+	f, err := ioutil.TempFile("", "tempfile*.png")
+	defer f.Close()
+	if err != nil {
+		return "", err
+	}
+	_, err = io.Copy(f, input)
+	if err != nil {
+		return "", err
+	}
+	return f.Name(), nil
+}
+
+func toSRGB(input io.Reader) (image.Image, error) {
+	name, err := pipeToTempFile(input)
+	defer os.Remove(name)
+	err = exec.Command("to_srgb", name).Run()
+	if err != nil {
+		return nil, err
+	}
+	f, err := os.Open(name)
+	defer f.Close()
+	if err != nil {
+		return nil, err
+	}
+	return png.Decode(f)
+}
+
 func processTest(testName string, imgUrls []string, output string) (bool, error) {
 	if strings.ContainsRune(testName, '/') {
 		return false, nil
@@ -65,7 +96,7 @@ func processTest(testName string, imgUrls []string, output string) (bool, error)
 		if err != nil {
 			return false, err
 		}
-		img, err := png.Decode(resp.Body)
+		img, err := toSRGB(resp.Body)
 		resp.Body.Close()
 		if err != nil {
 			return false, err
@@ -108,7 +139,7 @@ func processTest(testName string, imgUrls []string, output string) (bool, error)
 
 type LockedStringList struct {
 	List []string
-	mux sync.Mutex
+	mux  sync.Mutex
 }
 
 func (l *LockedStringList) add(v string) {
@@ -116,7 +147,6 @@ func (l *LockedStringList) add(v string) {
 	defer l.mux.Unlock()
 	l.List = append(l.List, v)
 }
-
 
 func readMetaJsonFile(filename string) ([]search.ExportTestRecord, error) {
 	file, err := os.Open(filename)
@@ -188,7 +218,7 @@ func main() {
 			}
 		}
 		wg.Add(1)
-		go func(testName string, imgUrls []string, output string, results* LockedStringList) {
+		go func(testName string, imgUrls []string, output string, results *LockedStringList) {
 			defer wg.Done()
 			success, err := processTest(testName, imgUrls, output)
 			if err != nil {

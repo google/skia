@@ -1233,6 +1233,15 @@ if (skia_enable_tools) {
     ]
   }
 
+  executable("to_srgb") {
+    libs = []
+    sources = [
+      "tools/to_srgb.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
   if (target_cpu == "x64") {
     executable("fiddle") {
       check_includes = false
