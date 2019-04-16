@@ -150,27 +150,11 @@ void TestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal)
     *isLocal = false;
 }
 
-int TestSVGTypeface::onCharsToGlyphs(const void* chars,
-                                     Encoding    encoding,
-                                     uint16_t    glyphs[],
-                                     int         glyphCount) const {
-    auto utf8  = (const char*)chars;
-    auto utf16 = (const uint16_t*)chars;
-    auto utf32 = (const SkUnichar*)chars;
-
-    for (int i = 0; i < glyphCount; i++) {
-        SkUnichar ch;
-        switch (encoding) {
-            case kUTF8_Encoding: ch = SkUTF8_NextUnichar(&utf8); break;
-            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch = *utf32++; break;
-        }
-        if (glyphs) {
-            SkGlyphID* g = fCMap.find(ch);
-            glyphs[i]    = g ? *g : 0;
-        }
+void TestSVGTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+    for (int i = 0; i < count; i++) {
+        SkGlyphID* g = fCMap.find(uni[i]);
+        glyphs[i]    = g ? *g : 0;
     }
-    return glyphCount;
 }
 
 void TestSVGTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fName; }
