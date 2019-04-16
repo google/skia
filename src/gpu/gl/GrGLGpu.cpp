@@ -4267,13 +4267,19 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
 }
 
 void GrGLGpu::onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                            SkSurface::FlushFlags flags, bool insertedSemaphore) {
+                            GrFlushFlags flags, bool insertedSemaphore,
+                            GrGpuFinishedProc finishedProc,
+                            GrGpuFinishedContext finishedContext) {
     // If we inserted semaphores during the flush, we need to call GLFlush.
     if (insertedSemaphore) {
         GL_CALL(Flush());
     }
-    if (flags & SkSurface::kSyncCpu_FlushFlag) {
+    if (flags & kSyncCpu_GrFlushFlag) {
         GL_CALL(Finish());
+    }
+    // TODO: We should have GL actually wait until the GPU has finished work on the GPU.
+    if (finishedProc) {
+        finishedProc(finishedContext);
     }
 }
 

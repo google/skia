@@ -577,13 +577,15 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
         }
         SkASSERT(!err);
 
+        fFinishedProcs.reset();
+
         // Destroy the fence
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
         fSubmitFence = VK_NULL_HANDLE;
     }
 }
 
-bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
+bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) {
     SkASSERT(!fIsActive);
     if (VK_NULL_HANDLE == fSubmitFence) {
         return true;
@@ -592,6 +594,7 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
     VkResult err = GR_VK_CALL(gpu->vkInterface(), GetFenceStatus(gpu->device(), fSubmitFence));
     switch (err) {
         case VK_SUCCESS:
+            fFinishedProcs.reset();
             return true;
 
         case VK_NOT_READY:
@@ -604,6 +607,10 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
     }
 
     return false;
+}
+
+void GrVkPrimaryCommandBuffer::addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc) {
+    fFinishedProcs.push_back(std::move(finishedProc));
 }
 
 void GrVkPrimaryCommandBuffer::onReleaseResources(GrVkGpu* gpu) {
