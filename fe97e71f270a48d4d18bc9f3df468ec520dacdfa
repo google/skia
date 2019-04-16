@@ -88,6 +88,30 @@
     },
     {
       "key": {
+        "uuid": "e5d9c02e_f483bdbd",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:59:32Z",
+      "side": 1,
+      "message": "Never mind, for some reason I was thinking this is looking at the supported-branches.json rather than \u0027git ls-remote\u0027.",
+      "parentUuid": "595ec744_96a7ab22",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 78
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de5712c2_cf06f14b",
         "filename": "tools/chrome_release_branch.py",
         "patchSetId": 2
