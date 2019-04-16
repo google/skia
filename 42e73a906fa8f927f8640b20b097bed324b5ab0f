@@ -22,6 +22,30 @@
       "revId": "42e73a906fa8f927f8640b20b097bed324b5ab0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d979bb2_17eb30c2",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1845,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-16T18:36:07Z",
+      "side": 1,
+      "message": "It\u0027s pre-existing (from above), except that I mis-spelled GetGlyphIndicesW a long time ago. If we revert it\u0027ll still exist. I just copied it down here so we wouldn\u0027t lose this little piece of useless history trivia.",
+      "parentUuid": "66cbd8db_f769a1c0",
+      "range": {
+        "startLine": 1832,
+        "startChar": 4,
+        "endLine": 1845,
+        "endChar": 78
+      },
+      "revId": "42e73a906fa8f927f8640b20b097bed324b5ab0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
