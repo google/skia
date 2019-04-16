@@ -811,18 +811,10 @@ SkAxisAlignment SkScalerContextRec::computeAxisAlignmentForHText() const {
     return kNone_SkAxisAlignment;
 }
 
-#ifdef SK_ENABLE_LEGACY_TEXT_COLOR
-void SkScalerContextRec::setLuminanceColor(SkColor c) {
-    fLumBits = SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c));
-}
-#else
 void SkScalerContextRec::setLuminanceColor(SkColor c) {
     fLumBits = SkMaskGamma::CanonicalColor(
             SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c)));
 }
-#endif
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
