@@ -191,17 +191,15 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 if (check_glyph_position(position)
                     && !glyph.isEmpty()
                     && glyph.fMaskFormat != SkMask::kARGB32_Format
-                    && strike->decideCouldDrawFromPath(glyph))
+                    && glyph.hasPath())
                 {
                     // Only draw a path if it exists, and this is not a color glyph.
                     pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
                 } else {
                     // TODO: this is here to have chrome layout tests pass. Remove this when
                     //  fallback for CPU works.
-                    if (check_glyph_position(position)
-                        && !glyph.isEmpty()
-                        && strike->decideCouldDrawFromPath(glyph))
-                    {
+                    strike->generatePath(glyph);
+                    if (check_glyph_position(position) && !glyph.isEmpty() && glyph.hasPath()) {
                         pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
                     }
                 }
@@ -452,8 +450,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                            && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
                     // SDF mask will work.
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
-                           && strike->decideCouldDrawFromPath(glyph)) {
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format && glyph.hasPath()) {
                     // If not color but too big, use a path.
                     fPaths.push_back(glyphPos);
                 } else {
@@ -529,8 +526,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 SkPoint position = glyphPos.position;
                 if (glyph.isEmpty()) {
                     // do nothing
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
-                           && strike->decideCouldDrawFromPath(glyph)) {
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format && glyph.hasPath()) {
                     // Place paths in fGlyphPos
                     fGlyphPos[glyphsWithPathCount++] = glyphPos;
                 } else {
@@ -592,8 +588,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
                 if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format
-                           && strike->decideCouldDrawFromPath(glyph)) {
+                } else if (glyph.fMaskFormat != SkMask::kARGB32_Format && glyph.hasPath()) {
                     fPaths.push_back(glyphPos);
                 } else {
                     addFallback(glyph, origin + glyphRun.positions()[glyphPos.index]);
