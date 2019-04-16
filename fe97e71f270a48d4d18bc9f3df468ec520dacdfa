@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "798790e8_c1d52ebf",
+        "filename": "tools/chrome_release_branch",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T18:44:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24700124_7ee12cc8",
+      "range": {
+        "startLine": 10,
+        "startChar": 31,
+        "endLine": 10,
+        "endChar": 37
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "15a15e0b_d0c00ce0",
         "filename": "tools/chrome_release_branch.py",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "d38acade_1808081f",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T18:44:14Z",
+      "side": 1,
+      "message": "Sure, I could do that.  I figured Heather should be the owner for these branches, but if she\u0027s the one who\u0027s running the script then either way works.",
+      "parentUuid": "15a15e0b_d0c00ce0",
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4ea25e3_b655a5e6",
         "filename": "tools/chrome_release_branch.py",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2019-04-16T14:55:42Z",
       "side": 1,
       "message": "nit: Why shlex.split rather than just line.split()?",
+      "range": {
+        "startLine": 27,
+        "startChar": 10,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d8b24b2_793559c0",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T18:44:14Z",
+      "side": 1,
+      "message": "\u003e\u003e\u003e \u00277f96681b7f082d9306f14a33d40730c3465cdfdb        refs/heads/chrome/m39\u0027.split(\u0027 \u0027)\n[\u00277f96681b7f082d9306f14a33d40730c3465cdfdb\u0027, \u0027\u0027, \u0027\u0027, \u0027\u0027, \u0027\u0027, \u0027\u0027, \u0027\u0027, \u0027\u0027, \u0027refs/heads/chrome/m39\u0027]\n\nAlso shlex.split handles all forms of whitespace, so I don\u0027t have to think about whether \"git ls-remote\" uses tabs or spaces.",
+      "parentUuid": "e4ea25e3_b655a5e6",
       "range": {
         "startLine": 27,
         "startChar": 10,
@@ -135,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "f0dedfbd_64b292f3",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T18:44:14Z",
+      "side": 1,
+      "message": "We do that in tools/go.py.  I guess an alternative would be to build the new-branch executable, package in CIPD, and have this script download it if needed.",
+      "parentUuid": "de5712c2_cf06f14b",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 38
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea8b8fdf_9aef13e8",
         "filename": "tools/infra/go.py",
         "patchSetId": 2
@@ -149,6 +239,24 @@
       "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d31f3e20_2a85c981",
+        "filename": "tools/infra/go.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T18:44:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea8b8fdf_9aef13e8",
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -184,6 +292,24 @@
       "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "127d1066_5bc2df92",
+        "filename": "tools/infra/go.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T18:44:14Z",
+      "side": 1,
+      "message": "Apparently I had it backward: https://dave.cheney.net/2013/06/14/you-dont-need-to-set-goroot-really\nGOROOT is NOT required, and GOPATH is.",
+      "parentUuid": "3d3f5eee_057ee276",
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
