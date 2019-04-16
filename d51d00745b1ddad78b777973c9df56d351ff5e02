@@ -22,6 +22,30 @@
       "revId": "d51d00745b1ddad78b777973c9df56d351ff5e02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aac8ed3a_4534b1ca",
+        "filename": "src/gpu/effects/GrDisableColorXP.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-16T01:29:48Z",
+      "side": 0,
+      "message": "The singleton instance can\u0027t be constexpr anymore, since we allocate an XP in the constructor.",
+      "parentUuid": "ab10794f_5c1d6869",
+      "range": {
+        "startLine": 61,
+        "startChar": 11,
+        "endLine": 61,
+        "endChar": 20
+      },
+      "revId": "d51d00745b1ddad78b777973c9df56d351ff5e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
