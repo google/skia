@@ -267,8 +267,7 @@ protected:
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    int onCharsToGlyphs(const void* chars, Encoding encoding,
-                        uint16_t glyphs[], int glyphCount) const override;
+    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
@@ -1971,8 +1970,8 @@ private:
 };
 #define SkAutoHDC(...) SK_REQUIRE_LOCAL_VAR(SkAutoHDC)
 
-int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
-                                     uint16_t userGlyphs[], int glyphCount) const
+void LogFontTypeface::onCharsToGlyphs(const void* chars, SkTextEncoding encoding,
+                                      SkGlyphID glyphs[], int glyphCount) const
 {
     SkAutoHDC hdc(fLogFont);
 
@@ -1985,25 +1984,15 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     }
     bool Ox1FHack = !(tm.tmPitchAndFamily & TMPF_VECTOR) /*&& winVer < Vista */;
 
-    SkAutoSTMalloc<256, uint16_t> scratchGlyphs;
-    uint16_t* glyphs;
-    if (userGlyphs != nullptr) {
-        glyphs = userGlyphs;
-    } else {
-        glyphs = scratchGlyphs.reset(glyphCount);
-    }
-
     SCRIPT_CACHE sc = 0;
     switch (encoding) {
-    case SkTypeface::kUTF8_Encoding: {
+    case SkTextEncoding::kUTF8: {
         static const int scratchCount = 256;
         WCHAR scratch[scratchCount];
         int glyphIndex = 0;
         const char* currentUtf8 = reinterpret_cast<const char*>(chars);
         SkUnichar currentChar = 0;
-        if (glyphCount) {
-            currentChar = SkUTF8_NextUnichar(&currentUtf8);
-        }
+        currentChar = SkUTF8_NextUnichar(&currentUtf8);
         while (glyphIndex < glyphCount) {
             // Try a run of bmp.
             int glyphsLeft = SkTMin(glyphCount - glyphIndex, scratchCount);
@@ -2032,7 +2021,7 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         }
         break;
     }
-    case SkTypeface::kUTF16_Encoding: {
+    case SkTextEncoding::kUTF16: {
         int glyphIndex = 0;
         const WCHAR* currentUtf16 = reinterpret_cast<const WCHAR*>(chars);
         while (glyphIndex < glyphCount) {
@@ -2057,7 +2046,7 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         }
         break;
     }
-    case SkTypeface::kUTF32_Encoding: {
+    case SkTextEncoding::kUTF32: {
         static const int scratchCount = 256;
         WCHAR scratch[scratchCount];
         int glyphIndex = 0;
@@ -2091,13 +2080,6 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     if (sc) {
         ::ScriptFreeCache(&sc);
     }
-
-    for (int i = 0; i < glyphCount; ++i) {
-        if (0 == glyphs[i]) {
-            return i;
-        }
-    }
-    return glyphCount;
 }
 
 int LogFontTypeface::onCountGlyphs() const {
