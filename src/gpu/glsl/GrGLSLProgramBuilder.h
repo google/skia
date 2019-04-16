@@ -42,7 +42,7 @@ public:
     GrPixelConfig config() const { return fRenderTarget->config(); }
     int effectiveSampleCnt() const {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations(fPipeline).count();
+        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
     }
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrPipeline& pipeline() const { return fPipeline; }
