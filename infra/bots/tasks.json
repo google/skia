@@ -3168,14 +3168,14 @@
         "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ]
     },
-    "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All": {
+    "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All": {
       "tasks": [
-        "Upload-Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All"
+        "Upload-Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All"
       ]
     },
-    "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE": {
+    "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE": {
       "tasks": [
-        "Upload-Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE"
+        "Upload-Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE"
       ]
     },
     "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
@@ -74158,7 +74158,7 @@
         "test"
       ]
     },
-    "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All": {
+    "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -74235,13 +74235,13 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Win-MSVC-arm64-Debug"
+        "Build-Win-MSVC-arm64-Release"
       ],
       "dimensions": [
         "cpu:arm64-64-Snapdragon850",
@@ -74269,7 +74269,7 @@
         "test"
       ]
     },
-    "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE": {
+    "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE": {
       "caches": [
         {
           "name": "vpython",
@@ -74346,13 +74346,13 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Win-MSVC-arm64-Debug-ANGLE"
+        "Build-Win-MSVC-arm64-Release-ANGLE"
       ],
       "dimensions": [
         "gpu:Adreno630",
@@ -113568,7 +113568,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All": {
+    "Upload-Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -113635,13 +113635,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Debug-All"
+        "Test-Win10-MSVC-LenovoYogaC630-CPU-Snapdragon850-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -113668,7 +113668,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE": {
+    "Upload-Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE": {
       "caches": [
         {
           "name": "vpython",
@@ -113735,13 +113735,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE"
+        "Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Release-All-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
