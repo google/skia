@@ -127,13 +127,31 @@ struct Vec<1,T> {
                         typename=typename std::enable_if<std::is_convertible<U,T>::value>::type> \
               static inline
 
-template <typename D, typename S>
-static inline D bit_pun(const S& s) {
-    static_assert(sizeof(D) == sizeof(S), "");
+// bit_cast can be used two ways:
+//   1) pass a type D that's the same size as the source to bit-cast the entire thing; or
+//   2) pass an element type D to pun the source to a vector of elements of type D.
+//
+//  So, e.g., pun1 and pun2 are exactly equivalent:
+//    using F = skvx::Vec<4, float>;
+//    using I = skvx::Vec<4, int>;
+//
+//    F f = ...;
+//    I pun1 = skvx::bit_cast<I>(f),
+//      pun2 = skvx::bit_cast<int>(f);
+//
+template <typename D, typename S,
+          typename=typename std::enable_if<sizeof(D)==sizeof(S)>::type>
+static inline D bit_cast(const S& s) {
     D d;
     memcpy(&d, &s, sizeof(D));
     return d;
 }
+template <typename D, typename S,
+          typename=typename std::enable_if<sizeof(D)<sizeof(S) && sizeof(S)%sizeof(D)==0>::type>
+static inline Vec<sizeof(S)/sizeof(D), D> bit_cast(const S& s) {
+    return bit_cast<Vec<sizeof(S)/sizeof(D), D>>(s);
+}
+
 
 // Translate from a value type T to its corresponding Mask, the result of a comparison.
 template <typename T> struct Mask { using type = T; };
@@ -173,11 +191,11 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
 
         // For some reason some (new!) versions of GCC cannot seem to deduce N in the generic
         // to_vec<N,T>() below for N=4 and T=float.  This workaround seems to help...
-        static inline Vec<4,float> to_vec(VExt<4,float> v) { return bit_pun<Vec<4,float>>(v); }
+        static inline Vec<4,float> to_vec(VExt<4,float> v) { return bit_cast<float>(v); }
     #endif
 
-    SINT VExt<N,T> to_vext(const Vec<N,T>& v) { return bit_pun<VExt<N,T>>(v); }
-    SINT Vec <N,T> to_vec(const VExt<N,T>& v) { return bit_pun<Vec <N,T>>(v); }
+    SINT VExt<N,T> to_vext(const Vec<N,T>& v) { return bit_cast<VExt<N,T>>(v); }
+    SINT Vec <N,T> to_vec(const VExt<N,T>& v) { return bit_cast<Vec <N,T>>(v); }
 
     SINT Vec<N,T> operator+(const Vec<N,T>& x, const Vec<N,T>& y) { return to_vec<N,T>(to_vext(x) + to_vext(y)); }
     SINT Vec<N,T> operator-(const Vec<N,T>& x, const Vec<N,T>& y) { return to_vec<N,T>(to_vext(x) - to_vext(y)); }
@@ -195,12 +213,12 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
     SINT Vec<N,T> operator<<(const Vec<N,T>& x, int bits) { return to_vec<N,T>(to_vext(x) << bits); }
     SINT Vec<N,T> operator>>(const Vec<N,T>& x, int bits) { return to_vec<N,T>(to_vext(x) >> bits); }
 
-    SINT Vec<N,M<T>> operator==(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) == to_vext(y)); }
-    SINT Vec<N,M<T>> operator!=(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) != to_vext(y)); }
-    SINT Vec<N,M<T>> operator<=(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) <= to_vext(y)); }
-    SINT Vec<N,M<T>> operator>=(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) >= to_vext(y)); }
-    SINT Vec<N,M<T>> operator< (const Vec<N,T>& x, const Vec<N,T>& y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) <  to_vext(y)); }
-    SINT Vec<N,M<T>> operator> (const Vec<N,T>& x, const Vec<N,T>& y) { return bit_pun<Vec<N,M<T>>>(to_vext(x) >  to_vext(y)); }
+    SINT Vec<N,M<T>> operator==(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_cast<M<T>>(to_vext(x) == to_vext(y)); }
+    SINT Vec<N,M<T>> operator!=(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_cast<M<T>>(to_vext(x) != to_vext(y)); }
+    SINT Vec<N,M<T>> operator<=(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_cast<M<T>>(to_vext(x) <= to_vext(y)); }
+    SINT Vec<N,M<T>> operator>=(const Vec<N,T>& x, const Vec<N,T>& y) { return bit_cast<M<T>>(to_vext(x) >= to_vext(y)); }
+    SINT Vec<N,M<T>> operator< (const Vec<N,T>& x, const Vec<N,T>& y) { return bit_cast<M<T>>(to_vext(x) <  to_vext(y)); }
+    SINT Vec<N,M<T>> operator> (const Vec<N,T>& x, const Vec<N,T>& y) { return bit_cast<M<T>>(to_vext(x) >  to_vext(y)); }
 
 #else
 
@@ -261,9 +279,9 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
 
 // N == 1 scalar implementations.
 SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<1,T>& e) {
-    auto t_bits = bit_pun<M<T>>(t),
-         e_bits = bit_pun<M<T>>(e);
-    return bit_pun<T>( (cond.val & t_bits) | (~cond.val & e_bits) );
+    auto t_bits = bit_cast<M<T>>(t),
+         e_bits = bit_cast<M<T>>(e);
+    return bit_cast<T>( (cond.val & t_bits) | (~cond.val & e_bits) );
 }
 
 SIT bool any(const Vec<1,T>& x) { return x.val != 0; }
@@ -467,13 +485,13 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
 
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
         static inline Vec<4,float> sqrt(const Vec<4,float>& x) {
-            return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
+            return bit_cast<float>(_mm_sqrt_ps(bit_cast<__m128>(x)));
         }
         static inline Vec<4,float> rsqrt(const Vec<4,float>& x) {
-            return bit_pun<Vec<4,float>>(_mm_rsqrt_ps(bit_pun<__m128>(x)));
+            return bit_cast<float>(_mm_rsqrt_ps(bit_cast<__m128>(x)));
         }
         static inline Vec<4,float> rcp(const Vec<4,float>& x) {
-            return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
+            return bit_cast<float>(_mm_rcp_ps(bit_cast<__m128>(x)));
         }
 
         static inline Vec<2,float>  sqrt(const Vec<2,float>& x) {
@@ -491,26 +509,26 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
         static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
                                                 const Vec<4,float>& t,
                                                 const Vec<4,float>& e) {
-            return bit_pun<Vec<4,float>>(_mm_blendv_ps(bit_pun<__m128>(e),
-                                                       bit_pun<__m128>(t),
-                                                       bit_pun<__m128>(c)));
+            return bit_cast<float>(_mm_blendv_ps(bit_cast<__m128>(e),
+                                                 bit_cast<__m128>(t),
+                                                 bit_cast<__m128>(c)));
         }
     #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
         static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
                                                 const Vec<4,float>& t,
                                                 const Vec<4,float>& e) {
-            return bit_pun<Vec<4,float>>(_mm_or_ps(_mm_and_ps   (bit_pun<__m128>(c),
-                                                                 bit_pun<__m128>(t)),
-                                                   _mm_andnot_ps(bit_pun<__m128>(c),
-                                                                 bit_pun<__m128>(e))));
+            return bit_cast<float>(_mm_or_ps(_mm_and_ps   (bit_cast<__m128>(c),
+                                                           bit_cast<__m128>(t)),
+                                             _mm_andnot_ps(bit_cast<__m128>(c),
+                                                           bit_cast<__m128>(e))));
         }
     #elif defined(SK_ARM_HAS_NEON)
         static inline Vec<4,float> if_then_else(const Vec<4,int  >& c,
                                                 const Vec<4,float>& t,
                                                 const Vec<4,float>& e) {
-            return bit_pun<Vec<4,float>>(vbslq_f32(bit_pun<uint32x4_t> (c),
-                                                   bit_pun<float32x4_t>(t),
-                                                   bit_pun<float32x4_t>(e)));
+            return bit_cast<float>(vbslq_f32(bit_cast<uint32x4_t> (c),
+                                             bit_cast<float32x4_t>(t),
+                                             bit_cast<float32x4_t>(e)));
         }
     #endif
 

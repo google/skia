@@ -57,6 +57,19 @@ DEF_TEST(SkVx, r) {
     static_assert(sizeof(byte8) == 8, "");
 
     {
+        int4 intsA = skvx::bit_cast<int4>(float4(1.0f)),
+             intsB = skvx::bit_cast<int> (float4(1.0f));
+
+        REPORTER_ASSERT(r, all(intsA == 0x3f800000));
+        REPORTER_ASSERT(r, all(intsB == 0x3f800000));
+
+        byte16 bytesA = skvx::bit_cast<byte16> (intsA),
+               bytesB = skvx::bit_cast<uint8_t>(intsB);
+
+        REPORTER_ASSERT(r, all(bytesA == bytesB));
+    }
+
+    {
         int4 mask = float4{1,2,3,4} < float4{1,2,4,8};
         REPORTER_ASSERT(r, mask[0] == int32_t( 0));
         REPORTER_ASSERT(r, mask[1] == int32_t( 0));
