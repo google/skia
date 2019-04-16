@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be464937_960e67db",
+        "filename": "tests/GLProgramsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-16T17:10:55Z",
+      "side": 1,
+      "message": "The assert found a legitimate bug in this test, since we sometimes tried to add a stencil op after the RT had been instantiated without stencil.",
+      "revId": "2297309c702646dc561eff2d172985e3480f1f47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
