@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcd68dac_66e348b6",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T19:05:20Z",
+      "side": 1,
+      "message": "\u003e Undefined variable \u0027sys\u0027.\n\u003e This check could give false positives when there are wildcard imports\n\u003e (from module import *). It is recommended to avoid wildcard imports; see\n\u003e https://www.python.org/dev/peps/pep-0008/#imports.\n\u003e To disable, add: # pylint: disable\u003dundefined-variable\n\nPlease Fix",
+      "parentUuid": "3c189c7d_0266eed7",
+      "revId": "1ef98abf9ea8da06fb911a80f9b03bc66233943d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

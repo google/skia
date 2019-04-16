@@ -131,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "4d0d1216_3ef852e2",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T19:05:20Z",
+      "side": 1,
+      "message": "\u003e\u003e\u003e \u00277f96681b7f082d9306f14a33d40730c3465cdfdb        refs/heads/chrome/m39\u0027.split()\n[\u00277f96681b7f082d9306f14a33d40730c3465cdfdb\u0027, \u0027refs/heads/chrome/m39\u0027]",
+      "parentUuid": "7d8b24b2_793559c0",
+      "range": {
+        "startLine": 27,
+        "startChar": 10,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "595ec744_96a7ab22",
         "filename": "tools/chrome_release_branch.py",
         "patchSetId": 2
@@ -222,6 +246,30 @@
       "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4adb1794_639ebf65",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T19:05:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f0dedfbd_64b292f3",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 38
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
