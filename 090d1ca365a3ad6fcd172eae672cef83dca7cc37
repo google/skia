@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c6dd9b7_9827052b",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-16T17:18:08Z",
+      "side": 1,
+      "message": "minor, but it\u0027d be nice if these two lines agreed about how to access fTarget (fTarget or peekRenderTarget)",
+      "range": {
+        "startLine": 56,
+        "startChar": 1,
+        "endLine": 57,
+        "endChar": 92
+      },
+      "revId": "090d1ca365a3ad6fcd172eae672cef83dca7cc37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
