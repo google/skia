@@ -16,9 +16,10 @@ using double2 = skvx::Vec<2,double>;
 using double4 = skvx::Vec<4,double>;
 using double8 = skvx::Vec<8,double>;
 
-using byte2 = skvx::Vec<2,uint8_t>;
-using byte4 = skvx::Vec<4,uint8_t>;
-using byte8 = skvx::Vec<8,uint8_t>;
+using byte2  = skvx::Vec< 2,uint8_t>;
+using byte4  = skvx::Vec< 4,uint8_t>;
+using byte8  = skvx::Vec< 8,uint8_t>;
+using byte16 = skvx::Vec<16,uint8_t>;
 
 using int2 = skvx::Vec<2,int32_t>;
 using int4 = skvx::Vec<4,int32_t>;
@@ -165,5 +166,16 @@ DEF_TEST(SkVx, r) {
                 REPORTER_ASSERT(r, got == want);
             }
         }
+    }
+
+    for (int x = 0; x < 256; x++)
+    for (int y = 0; y < 256; y++) {
+        uint16_t xy = x*y;
+
+        // Make sure to cover implementation cases N=8, N<8, and N>8.
+        REPORTER_ASSERT(r, all(mull(byte2 (x), byte2 (y)) == xy));
+        REPORTER_ASSERT(r, all(mull(byte4 (x), byte4 (y)) == xy));
+        REPORTER_ASSERT(r, all(mull(byte8 (x), byte8 (y)) == xy));
+        REPORTER_ASSERT(r, all(mull(byte16(x), byte16(y)) == xy));
     }
 }
