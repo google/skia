@@ -10,7 +10,6 @@
 
 #include "SkCanvasVirtualEnforcer.h"
 #include "SkNWayCanvas.h"
-#include "SkTLazy.h"
 
 class SkAndroidFrameworkUtils;
 

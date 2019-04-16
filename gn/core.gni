@@ -86,7 +86,6 @@ skia_core_public = [
   "$_include/core/SkSurfaceCharacterization.h",
   "$_include/core/SkSurfaceProps.h",
   "$_include/core/SkSwizzle.h",
-  "$_include/core/SkTLazy.h",
   "$_include/core/SkTextBlob.h",
   "$_include/core/SkTime.h",
   "$_include/core/SkTraceMemoryDump.h",
@@ -371,6 +370,7 @@ skia_core_sources = [
   "$_src/core/SkTime.cpp",
 
   "$_src/core/SkThreadID.cpp",
+  "$_src/core/SkTLazy.h",
   "$_src/core/SkTLList.h",
   "$_src/core/SkTLS.cpp",
   "$_src/core/SkTMultiMap.h",
