@@ -40,8 +40,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fCrossContextTextureSupport = true;
     fHalfFloatVertexAttributeSupport = true;
 
-    fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
-    fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
     fTransferBufferSupport = true;
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
@@ -515,7 +513,7 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     // from the get go. There is no hard data to suggest this is faster or slower.
     fBufferMapThreshold = 0;
 
-    fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
+    fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag | kAsyncRead_MapFlag;
 
     fOversizedStencilSupport = true;
 

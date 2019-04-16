@@ -175,6 +175,12 @@ static SkString map_flags_to_string(uint32_t flags) {
             str.append(" full");
         }
         SkDEBUGCODE(flags &= ~GrCaps::kSubset_MapFlag);
+        if (GrCaps::kAsyncRead_MapFlag & flags) {
+            str.append(" async_read");
+        } else {
+            str.append(" sync_read");
+        }
+        SkDEBUGCODE(flags &= ~GrCaps::kAsyncRead_MapFlag);
     }
     SkASSERT(0 == flags); // Make sure we handled all the flags.
     return str;
