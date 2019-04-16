@@ -575,7 +575,7 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
 //
 // A key reason for no path is the fact that the glyph is a color image or is a bitmap only
 // font.
-bool SkStrikeServer::SkGlyphCacheState::decideCouldDrawFromPath(const SkGlyph& glyph) {
+void SkStrikeServer::SkGlyphCacheState::generatePath(const SkGlyph& glyph) {
 
     // Check to see if we have processed this glyph for a path before.
     if (glyph.fPathData == nullptr) {
@@ -587,11 +587,8 @@ bool SkStrikeServer::SkGlyphCacheState::decideCouldDrawFromPath(const SkGlyph& g
             // A path was added make sure to send it to the GPU.
             fCachedGlyphPaths.add(glyph.getPackedID());
             fPendingGlyphPaths.push_back(glyph.getPackedID());
-            return true;
         }
     }
-
-    return glyph.path() != nullptr;
 }
 
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,

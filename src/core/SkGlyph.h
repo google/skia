@@ -165,6 +165,16 @@ public:
         return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
     }
 
+    bool hasPath() const {
+        // Need to have called getMetrics before calling findPath.
+        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+
+        // Find path must have been called to use this call.
+        SkASSERT(fPathData != nullptr);
+
+        return fPathData != nullptr && fPathData->fHasPath;
+    }
+
     int maxDimension() const {
         // width and height are only defined if a metrics call was made.
         SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);

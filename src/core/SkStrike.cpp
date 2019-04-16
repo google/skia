@@ -450,8 +450,8 @@ void SkStrike::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
-bool SkStrike::decideCouldDrawFromPath(const SkGlyph& glyph) {
-    return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
+void SkStrike::generatePath(const SkGlyph& glyph) {
+    if (!glyph.isEmpty()) { this->findPath(glyph); }
 }
 
 void SkStrike::onAboutToExitScope() { }

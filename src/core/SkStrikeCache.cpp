@@ -44,8 +44,8 @@ public:
         return fStrike.prepareForDrawing(glyphIDs, positions, n, maxDimension, results);
     }
 
-    bool decideCouldDrawFromPath(const SkGlyph& glyph) override {
-        return fStrike.decideCouldDrawFromPath(glyph);
+    void generatePath(const SkGlyph& glyph) override {
+        fStrike.generatePath(glyph);
     }
 
     const SkDescriptor& getDescriptor() const override {
