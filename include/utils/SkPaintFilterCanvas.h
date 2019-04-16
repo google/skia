@@ -38,8 +38,6 @@ public:
     }
 
 protected:
-    /** DEPRECATED */
-    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const;
     /**
      *  Called with the paint that will be used to draw the specified type.
      *  The implementation may modify the paint as they wish.
@@ -51,7 +49,7 @@ protected:
      *        To also filter encapsulated paints (e.g. SkPicture, SkTextBlob), clients may need to
      *        override the relevant methods (i.e. drawPicture, drawTextBlob).
      */
-    virtual bool onFilter(SkPaint& paint) const;
+    virtual bool onFilter(SkPaint& paint) const = 0;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
