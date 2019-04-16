@@ -46,6 +46,7 @@ if (skia_use_system_libpng) {
       sources += [
         "../externals/libpng/arm/arm_init.c",
         "../externals/libpng/arm/filter_neon_intrinsics.c",
+        "../externals/libpng/arm/palette_neon_intrinsics.c",
       ]
     }
 
