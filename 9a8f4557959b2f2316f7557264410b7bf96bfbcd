@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ff8ed23_d7eba0bb",
+        "filename": "tests/FontHostTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-16T16:04:46Z",
+      "side": 1,
+      "message": "seems we need to remove this comment as well? The purpose of this test was to make sure SkFont::textToGlyphs agreed with SkTypeface::charsToGlyphs (one used to go through the scaler context, and one throught the typeface code).",
+      "revId": "9a8f4557959b2f2316f7557264410b7bf96bfbcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
