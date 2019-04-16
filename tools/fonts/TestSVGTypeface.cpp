@@ -199,10 +199,6 @@ protected:
 
     unsigned generateGlyphCount() override { return this->getTestSVGTypeface()->countGlyphs(); }
 
-    uint16_t generateCharToGlyph(SkUnichar u) override {
-        return this->getTestSVGTypeface()->unicharToGlyph(u);
-    }
-
     bool generateAdvance(SkGlyph* glyph) override {
         this->getTestSVGTypeface()->getAdvance(glyph);
 

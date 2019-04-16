@@ -504,7 +504,6 @@ public:
 
 protected:
     unsigned generateGlyphCount() override;
-    uint16_t generateCharToGlyph(SkUnichar uni) override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
@@ -1033,11 +1032,6 @@ FT_Error SkScalerContext_FreeType::setupSize() {
 
 unsigned SkScalerContext_FreeType::generateGlyphCount() {
     return fFace->num_glyphs;
-}
-
-uint16_t SkScalerContext_FreeType::generateCharToGlyph(SkUnichar uni) {
-    SkAutoMutexAcquire  ac(gFTMutex);
-    return SkToU16(FT_Get_Char_Index( fFace, uni ));
 }
 
 bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
