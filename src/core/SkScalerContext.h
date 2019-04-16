@@ -264,15 +264,6 @@ public:
     // DEPRECATED
     bool isVertical() const { return false; }
 
-    /** Return the corresponding glyph for the specified unichar. Since contexts
-        may be chained (under the hood), the glyphID that is returned may in
-        fact correspond to a different font/context. In that case, we use the
-        base-glyph-count to know how to translate back into local glyph space.
-     */
-    uint16_t charToGlyphID(SkUnichar uni) {
-        return generateCharToGlyph(uni);
-    }
-
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
@@ -384,11 +375,6 @@ protected:
 
     /** Returns the number of glyphs in the font. */
     virtual unsigned generateGlyphCount() = 0;
-
-    /** Returns the glyph id for the given unichar.
-     *  If there is no 1:1 mapping from the unichar to a glyph id, returns 0.
-     */
-    virtual uint16_t generateCharToGlyph(SkUnichar unichar) = 0;
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
