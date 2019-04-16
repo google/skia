@@ -16,7 +16,9 @@
 //
 // We've also fixed a few of the caveats that used to make SkNx awkward to work
 // with across translation units.  skvx::Vec<N,T> always has N*sizeof(T) size
-// and alignof(T) alignment and is safe to use across translation units freely.
+// and alignment and is safe to use across translation units freely.
+//
+// (Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.)
 
 #include "SkTypes.h"         // SK_CPU_SSE_LEVEL*, etc.
 #include <algorithm>         // std::min, std::max
@@ -38,8 +40,9 @@ namespace skvx {
 // This gives Vec a consistent ABI, letting them pass between files compiled with
 // different instruction sets (e.g. SSE2 and AVX2) without fear of ODR violation.
 template <int N, typename T>
-struct Vec {
+struct alignas(N * sizeof(T)) Vec {
     static_assert((N & (N-1)) == 0, "N must be a power of 2.");
+    static_assert(sizeof(T) == alignof(T), "What kind of crazy T is this?");
 
     Vec<N/2,T> lo, hi;
 
