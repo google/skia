@@ -54,7 +54,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin 
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-        , fNeedsStencil(false)
+        , fNeedsStencil(this->peekRenderTarget()->renderTargetPriv().getStencilAttachment())
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
 }
 
