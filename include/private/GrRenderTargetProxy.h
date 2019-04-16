@@ -37,7 +37,10 @@ public:
     /*
      * When instantiated does this proxy require a stencil buffer?
      */
-    void setNeedsStencil() { fNeedsStencil = true; }
+    void setNeedsStencil() {
+        SkASSERT(fNeedsStencil || !this->isInstantiated());
+        fNeedsStencil = true;
+    }
     bool needsStencil() const { return fNeedsStencil; }
 
     /**
