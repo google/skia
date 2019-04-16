@@ -217,11 +217,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(info.colorType());
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
+    SkColorType ct = info.colorType();
     if (!this->caps()->isConfigTexturable(config)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
@@ -231,6 +227,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         copy8888.setImmutable();
         srcImage = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
         config = kRGBA_8888_GrPixelConfig;
+        ct = kRGBA_8888_SkColorType;
+    }
+
+    GrBackendFormat format = this->caps()->getBackendFormatFromColorType(ct);
+    if (!format.isValid()) {
+        return nullptr;
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
