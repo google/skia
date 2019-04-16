@@ -472,7 +472,7 @@ optional("fontmgr_fuchsia") {
 }
 
 optional("fontmgr_wasm") {
-  enabled = target_cpu == "wasm"
+  enabled = !skia_enable_fontmgr_empty && target_cpu == "wasm"
 
   deps = [
     ":typeface_freetype",
@@ -1107,6 +1107,7 @@ if (target_cpu == "wasm") {
       "include/private",
       "src/gpu",
       "src/core",
+      "src/sksl",
       "src/shaders",
       "src/utils",
       "tools",
