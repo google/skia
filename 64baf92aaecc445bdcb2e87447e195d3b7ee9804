@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23ceca03_1070e654",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1834,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-16T18:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f553f8ba_71cac110",
+      "range": {
+        "startLine": 1834,
+        "startChar": 39,
+        "endLine": 1834,
+        "endChar": 47
+      },
+      "revId": "64baf92aaecc445bdcb2e87447e195d3b7ee9804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
