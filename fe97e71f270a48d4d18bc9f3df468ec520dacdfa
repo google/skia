@@ -155,6 +155,30 @@
     },
     {
       "key": {
+        "uuid": "25b5d24e_4235a575",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T19:16:48Z",
+      "side": 1,
+      "message": "I had no idea that split() with no argument did that!",
+      "parentUuid": "4d0d1216_3ef852e2",
+      "range": {
+        "startLine": 27,
+        "startChar": 10,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "595ec744_96a7ab22",
         "filename": "tools/chrome_release_branch.py",
         "patchSetId": 2

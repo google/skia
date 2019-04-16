@@ -17,6 +17,42 @@
       "revId": "1ef98abf9ea8da06fb911a80f9b03bc66233943d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e0c5a25_bd0809d4",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T19:16:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcd68dac_66e348b6",
+      "revId": "1ef98abf9ea8da06fb911a80f9b03bc66233943d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea6d3a0e_a1d971ae",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-04-16T19:16:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eeedc479_e709485d",
+      "revId": "1ef98abf9ea8da06fb911a80f9b03bc66233943d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
