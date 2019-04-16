@@ -2,6 +2,132 @@
   "comments": [
     {
       "key": {
+        "uuid": "24700124_7ee12cc8",
+        "filename": "tools/chrome_release_branch",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "nit: -u for all python commands, or set env var to do the same",
+      "range": {
+        "startLine": 10,
+        "startChar": 31,
+        "endLine": 10,
+        "endChar": 37
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15a15e0b_d0c00ce0",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "Maybe use \"${USER}@google.com\"?",
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ea25e3_b655a5e6",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "nit: Why shlex.split rather than just line.split()?",
+      "range": {
+        "startLine": 27,
+        "startChar": 10,
+        "endLine": 27,
+        "endChar": 21
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "595ec744_96a7ab22",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "I must be missing something here. Why would the new branch be included in branches? Why would there be len(branches)\u003eSUPPORTED_CHROME_BRANCHES?",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 78
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de5712c2_cf06f14b",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "Is there a way we can do this that doesn\u0027t assume GOPATH is set and $GOPATH/bin is in $PATH? Or check if that\u0027s the case and give a useful error?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 38
+      },
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea8b8fdf_9aef13e8",
+        "filename": "tools/infra/go.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "Can we also check that $GOPATH/bin is in PATH? (Or alternatively, add a function here to get the full path to a binary compiled by \u0027go get\u0027.)",
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0c2998a5_ae2f0f71",
         "filename": "tools/infra/go.py",
         "patchSetId": 2
@@ -17,6 +143,23 @@
       "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d3f5eee_057ee276",
+        "filename": "tools/infra/go.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-16T14:55:42Z",
+      "side": 1,
+      "message": "Did you mean to check for GOPATH?",
+      "revId": "fe97e71f270a48d4d18bc9f3df468ec520dacdfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
