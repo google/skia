@@ -31,20 +31,6 @@ private:
     bool fShouldDraw;
 };
 
-bool SkPaintFilterCanvas::onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const {
-    SK_ABORT("Not reached");
-    return false;
-}
-
-bool SkPaintFilterCanvas::onFilter(SkPaint& paint) const {
-    SkTCopyOnFirstWrite<SkPaint> p(paint);
-    bool shouldDraw = this->onFilter(&p, kPicture_Type);
-    if (p.get() != &paint) {
-        paint = *p;
-    }
-    return shouldDraw;
-}
-
 SkPaintFilterCanvas::SkPaintFilterCanvas(SkCanvas *canvas)
     : SkCanvasVirtualEnforcer<SkNWayCanvas>(canvas->imageInfo().width(),
                                               canvas->imageInfo().height()) {
