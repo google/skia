@@ -20,7 +20,7 @@ class GrDeinstantiateProxyTracker;
 class GrResourceProvider;
 
 // Print out explicit allocation information
-#define GR_ALLOCATION_SPEW 0
+#define GR_ALLOCATION_SPEW 1
 
 // Print out information about interval creation
 #define GR_TRACK_INTERVAL_CREATION 0
@@ -57,7 +57,7 @@ public:
 
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, bool refItMan
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     enum class AssignError {
@@ -73,6 +73,7 @@ public:
     // amount of GPU resources required.
     bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
+    void markSticky();
     void markEndOfOpList(int opListIndex);
 
 #if GR_ALLOCATION_SPEW
@@ -106,6 +107,17 @@ private:
 
     class Interval {
     public:
+        bool sticky() const { return fSticky; }
+        mutable bool fSticky = false;
+        void markSticky() const { fSticky = true;}
+        int fRefs = -1;
+        void resetRef() {
+            fRefs = 0;
+        }
+        void incRefs() {
+            fRefs++;
+        }
+
         Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
             : fProxy(proxy)
             , fProxyID(proxy->uniqueID().asUInt())
@@ -120,9 +132,10 @@ private:
 #endif
         }
 
-        void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
+        // Used when recycling an interval
+        void resetTo1(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
             SkASSERT(proxy);
-            SkASSERT(!fNext);
+            SkASSERT(!fProxy && !fNext);
 
             fProxy = proxy;
             fProxyID = proxy->uniqueID().asUInt();

@@ -108,7 +108,7 @@ protected:
     GrLoadOp              fStencilLoadOp  = GrLoadOp::kLoad;
 
     // List of texture proxies whose contents are being prepared on a worker thread
-    SkTArray<GrTextureProxy*, true> fDeferredProxies;
+    SkTArray<GrTextureProxy*, true> fDeferredProxies1;
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals

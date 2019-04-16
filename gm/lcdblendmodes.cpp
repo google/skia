@@ -66,12 +66,14 @@ protected:
 
         SkCanvas* surfCanvas = surface->getCanvas();
         this->drawColumn(surfCanvas, SK_ColorBLACK, SK_ColorWHITE, false);
+#if 0
         surfCanvas->translate(SkIntToScalar(kColWidth), 0);
         this->drawColumn(surfCanvas, SK_ColorWHITE, SK_ColorBLACK, false);
         surfCanvas->translate(SkIntToScalar(kColWidth), 0);
         this->drawColumn(surfCanvas, SK_ColorGREEN, SK_ColorMAGENTA, false);
         surfCanvas->translate(SkIntToScalar(kColWidth), 0);
         this->drawColumn(surfCanvas, SK_ColorCYAN, SK_ColorMAGENTA, true);
+#endif
 
         SkPaint surfPaint;
         surfPaint.setBlendMode(SkBlendMode::kSrcOver);
@@ -80,6 +82,7 @@ protected:
 
     void drawColumn(SkCanvas* canvas, SkColor backgroundColor, SkColor textColor, bool useGrad) {
         const SkBlendMode gModes[] = {
+#if 0
             SkBlendMode::kClear,
             SkBlendMode::kSrc,
             SkBlendMode::kDst,
@@ -90,7 +93,9 @@ protected:
             SkBlendMode::kSrcOut,
             SkBlendMode::kDstOut,
             SkBlendMode::kSrcATop,
+#endif
             SkBlendMode::kDstATop,
+#if 0
             SkBlendMode::kXor,
             SkBlendMode::kPlus,
             SkBlendMode::kModulate,
@@ -109,6 +114,7 @@ protected:
             SkBlendMode::kSaturation,
             SkBlendMode::kColor,
             SkBlendMode::kLuminosity,
+#endif
         };
         // Draw background rect
         SkPaint backgroundPaint;
