@@ -25,7 +25,6 @@ public:
 
 protected:
     unsigned generateGlyphCount() override;
-    uint16_t generateCharToGlyph(SkUnichar) override;
     bool     generateAdvance(SkGlyph*) override;
     void     generateMetrics(SkGlyph*) override;
     void     generateImage(const SkGlyph&) override;
@@ -51,10 +50,6 @@ RandomScalerContext::RandomScalerContext(sk_sp<SkRandomTypeface>       face,
 }
 
 unsigned RandomScalerContext::generateGlyphCount() { return fProxy->getGlyphCount(); }
-
-uint16_t RandomScalerContext::generateCharToGlyph(SkUnichar uni) {
-    return fProxy->charToGlyphID(uni);
-}
 
 bool RandomScalerContext::generateAdvance(SkGlyph* glyph) { return fProxy->generateAdvance(glyph); }
 

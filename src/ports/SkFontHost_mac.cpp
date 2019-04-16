@@ -906,7 +906,6 @@ public:
 
 protected:
     unsigned generateGlyphCount(void) override;
-    uint16_t generateCharToGlyph(SkUnichar uni) override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
@@ -1125,23 +1124,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
 unsigned SkScalerContext_Mac::generateGlyphCount(void) {
     return fGlyphCount;
-}
-
-uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni) {
-    AUTO_CG_LOCK();
-
-    CGGlyph cgGlyph[2];
-    UniChar theChar[2]; // UniChar is a UTF-16 16-bit code unit.
-
-    // Get the glyph
-    size_t numUniChar = SkUTF::ToUTF16(uni, theChar);
-    SkASSERT(sizeof(CGGlyph) <= sizeof(uint16_t));
-
-    // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points:
-    // When a surrogate pair is detected, the glyph index used is the index of the high surrogate.
-    // It is documented that if a mapping is unavailable, the glyph will be set to 0.
-    CTFontGetGlyphsForCharacters(fCTFont.get(), theChar, cgGlyph, numUniChar);
-    return cgGlyph[0];
 }
 
 bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {

@@ -374,13 +374,6 @@ unsigned SkScalerContext_DW::generateGlyphCount() {
     return fGlyphCount;
 }
 
-uint16_t SkScalerContext_DW::generateCharToGlyph(SkUnichar uni) {
-    uint16_t index = 0;
-    UINT32* uniPtr = reinterpret_cast<UINT32*>(&uni);
-    this->getDWriteTypeface()->fDWriteFontFace->GetGlyphIndices(uniPtr, 1, &index);
-    return index;
-}
-
 bool SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;

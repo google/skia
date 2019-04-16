@@ -828,9 +828,6 @@ protected:
     unsigned generateGlyphCount() override {
         return 0;
     }
-    uint16_t generateCharToGlyph(SkUnichar uni) override {
-        return 0;
-    }
     bool generateAdvance(SkGlyph* glyph) override {
         glyph->zeroMetrics();
         return true;

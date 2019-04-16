@@ -31,7 +31,6 @@ public:
 
 protected:
     unsigned generateGlyphCount() override;
-    uint16_t generateCharToGlyph(SkUnichar) override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;

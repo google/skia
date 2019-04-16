@@ -179,13 +179,6 @@ protected:
 
     unsigned generateGlyphCount() override { return this->getTestTypeface()->onCountGlyphs(); }
 
-    uint16_t generateCharToGlyph(SkUnichar uni) override {
-        uint16_t glyph;
-        (void)this->getTestTypeface()->onCharsToGlyphs(
-                (const void*)&uni, SkTypeface::kUTF32_Encoding, &glyph, 1);
-        return glyph;
-    }
-
     bool generateAdvance(SkGlyph* glyph) override {
         this->getTestTypeface()->getAdvance(glyph);
 
