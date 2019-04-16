@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eea49878_1ebbcf1e",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-16T17:47:48Z",
+      "side": 1,
+      "message": "nit: \u0027space\u0027 then \u0027(\u0027",
+      "range": {
+        "startLine": 454,
+        "startChar": 6,
+        "endLine": 454,
+        "endChar": 8
+      },
+      "revId": "4daa01a49f5eb170a92f59a53ebddd67e10fa215",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
