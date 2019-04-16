@@ -10,21 +10,32 @@
 
 #include "../private/SkMacros.h"
 #include "SkBlendMode.h"
+#include "SkColor.h"
 #include "SkClipOp.h"
 #include "SkDeque.h"
 #include "SkFontTypes.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPoint.h"
 #include "SkRasterHandleAllocator.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkScalar.h"
+#include "SkSize.h"
+#include "SkString.h"
 #include "SkSurfaceProps.h"
+#include "SkTypes.h"
 #include "SkVertices.h"
+
+#include <cstring>
+#include <memory>
 
 class GrContext;
 class GrRenderTargetContext;
-class SkAndroidFrameworkUtils;
 class SkBaseDevice;
 class SkBitmap;
 class SkData;
-class SkDraw;
 class SkDrawable;
 struct SkDrawShadowRec;
 class SkFont;
