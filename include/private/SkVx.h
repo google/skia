@@ -16,7 +16,10 @@
 //
 // We've also fixed a few of the caveats that used to make SkNx awkward to work
 // with across translation units.  skvx::Vec<N,T> always has N*sizeof(T) size
-// and alignof(T) alignment and is safe to use across translation units freely.
+// and alignment[1][2] and is safe to use across translation units freely.
+//
+// [1] Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.
+// [2] Some compilers barf if we try to use N*sizeof(T), so instead we leave them at T.
 
 #include "SkTypes.h"         // SK_CPU_SSE_LEVEL*, etc.
 #include <algorithm>         // std::min, std::max
@@ -31,6 +34,16 @@
     #include <arm_neon.h>
 #endif
 
+#if !defined(__clang__) && defined(__GNUC__) && defined(__mips64)
+    // GCC 7 hits an internal compiler error when targeting MIPS64.
+    #define SKVX_ALIGNMENT
+#elif !defined(__clang__) && defined(_MSC_VER) && defined(_M_IX86)
+    // Our SkVx unit tests fail when built by MSVC for 32-bit x86.
+    #define SKVX_ALIGNMENT
+#else
+    #define SKVX_ALIGNMENT alignas(N * sizeof(T))
+#endif
+
 
 namespace skvx {
 
@@ -38,8 +51,9 @@ namespace skvx {
 // This gives Vec a consistent ABI, letting them pass between files compiled with
 // different instruction sets (e.g. SSE2 and AVX2) without fear of ODR violation.
 template <int N, typename T>
-struct Vec {
-    static_assert((N & (N-1)) == 0, "N must be a power of 2.");
+struct SKVX_ALIGNMENT Vec {
+    static_assert((N & (N-1)) == 0,        "N must be a power of 2.");
+    static_assert(sizeof(T) >= alignof(T), "What kind of crazy T is this?");
 
     Vec<N/2,T> lo, hi;
 
@@ -507,5 +521,6 @@ static inline Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,u
 #undef SINTU
 #undef SINT
 #undef SIT
+#undef SKVX_ALIGNMENT
 
 #endif//SKVX_DEFINED
