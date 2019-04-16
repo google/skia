@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab10794f_5c1d6869",
+        "filename": "src/gpu/effects/GrDisableColorXP.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-16T01:09:43Z",
+      "side": 0,
+      "message": "is this constexpr not needed anymore?",
+      "range": {
+        "startLine": 61,
+        "startChar": 11,
+        "endLine": 61,
+        "endChar": 20
+      },
+      "revId": "d51d00745b1ddad78b777973c9df56d351ff5e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
