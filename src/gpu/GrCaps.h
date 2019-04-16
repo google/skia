@@ -114,11 +114,13 @@ public:
      * textures allows partial mappings or full mappings.
      */
     enum MapFlags {
-        kNone_MapFlags   = 0x0,       //<! Cannot map the resource.
+        kNone_MapFlags      = 0x0,   //<! Cannot map the resource.
 
-        kCanMap_MapFlag  = 0x1,       //<! The resource can be mapped. Must be set for any of
-                                      //   the other flags to have meaning.
-        kSubset_MapFlag  = 0x2,       //<! The resource can be partially mapped.
+        kCanMap_MapFlag     = 0x1,   //<! The resource can be mapped. Must be set for any of
+                                     //   the other flags to have meaning.
+        kSubset_MapFlag     = 0x2,   //<! The resource can be partially mapped.
+        kAsyncRead_MapFlag  = 0x4,   //<! Are maps for reading asynchronous WRT GrGpuCommandBuffers
+                                     //   submitted to GrGpu.
     };
 
     uint32_t mapBufferFlags() const { return fMapBufferFlags; }
