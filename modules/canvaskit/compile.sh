@@ -98,10 +98,12 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
+GN_FONT="skia_enable_fontmgr_empty=false"
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s)"
   BUILTIN_FONT=""
+  GN_FONT="skia_enable_fontmgr_empty=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
@@ -173,12 +175,12 @@ echo "Compiling bitcode"
   \
   ${GN_SHAPER} \
   ${GN_GPU} \
+  ${GN_FONT} \
   \
   skia_enable_skshaper=true \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skpicture=true \
-  skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
@@ -191,12 +193,6 @@ echo "Generating final wasm"
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
-#
-# Setting -s USE_WEBGL2=1 does two things:
-#  1. Allows users to try to create a WebGL2 context for use with CanvasKit
-#     (this is not supported, only WebGL1 [initially])
-#  2. Makes WebGL1 work better on some graphics cards (for reasons that aren't
-#     super clear, but might have to do with extensions).
 ${EMCXX} \
     $RELEASE_CONF \
     -Iexperimental \
