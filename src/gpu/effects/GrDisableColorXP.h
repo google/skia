@@ -23,30 +23,24 @@
 #endif
 class GrDisableColorXPFactory : public GrXPFactory {
 public:
-    static const GrDisableColorXPFactory* Get() {
-        static const GrDisableColorXPFactory gDisableColorXPFactory;
-        return &gDisableColorXPFactory;
-    }
-
-    sk_sp<const GrXferProcessor> makeXferProcessor() const { return fXferProcessor; }
+    static const GrXPFactory* Get();
 
 private:
-    GrDisableColorXPFactory();
+    constexpr GrDisableColorXPFactory() {}
 
-    AnalysisProperties analysisProperties(
-            const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage&, const GrCaps&,
-            GrClampType) const override {
+    AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
+                                          const GrProcessorAnalysisCoverage&,
+                                          const GrCaps&,
+                                          GrClampType) const override {
         return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
                AnalysisProperties::kIgnoresInputColor;
     }
 
-    sk_sp<const GrXferProcessor> makeXferProcessor(
-            const GrProcessorAnalysisColor&, GrProcessorAnalysisCoverage, bool hasMixedSamples,
-            const GrCaps&, GrClampType) const override {
-        return this->makeXferProcessor();
-    }
-
-    const sk_sp<const GrXferProcessor> fXferProcessor;
+    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
+                                                   GrProcessorAnalysisCoverage,
+                                                   bool hasMixedSamples,
+                                                   const GrCaps&,
+                                                   GrClampType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
 
@@ -58,5 +52,15 @@ private:
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
+
+inline const GrXPFactory* GrDisableColorXPFactory::Get() {
+    // If this is constructed as static constexpr by cl.exe (2015 SP2) the vtable is null.
+#ifdef SK_BUILD_FOR_WIN
+    static const GrDisableColorXPFactory gDisableColorXPFactory;
+#else
+    static constexpr const GrDisableColorXPFactory gDisableColorXPFactory;
+#endif
+    return &gDisableColorXPFactory;
+}
 
 #endif
