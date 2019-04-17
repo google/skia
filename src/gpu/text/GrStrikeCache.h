@@ -43,7 +43,7 @@ public:
     // draw a clear square.
     // skbug:4143 crbug:510931
     GrGlyph* getGlyph(SkPackedGlyphID packed,
-                      SkStrike* cache) {
+                      SkStrikeInterface* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
             // We could return this to the caller, but in practice it adds code complexity for
@@ -88,8 +88,8 @@ private:
     int fAtlasedGlyphs{0};
     bool fIsAbandoned{false};
 
-    static const SkGlyph& GrToSkGlyph(SkStrike* cache, SkPackedGlyphID id) {
-        return cache->getGlyphIDMetrics(id.code(), id.getSubXFixed(), id.getSubYFixed());
+    static const SkGlyph& GrToSkGlyph(SkStrikeInterface* cache, SkPackedGlyphID id) {
+        return cache->getGlyphMetrics(id.code(), id.getSubXFixed(), id.getSubYFixed());
     }
 
     GrGlyph* generateGlyph(const SkGlyph&);
