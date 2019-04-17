@@ -99,7 +99,7 @@ class GitBranch(object):
 class NewGitCheckout(utils.tmp_dir):
   """Creates a new local checkout of a Git repository."""
 
-  def __init__(self, repository, commit='HEAD'):
+  def __init__(self, repository, local=None):
     """Set parameters for this local copy of a Git repository.
 
     Because this is a new checkout, rather than a reference to an existing
@@ -116,12 +116,14 @@ class NewGitCheckout(utils.tmp_dir):
       repository: URL of the remote repository (e.g.,
           'https://skia.googlesource.com/common') or path to a local repository
           (e.g., '/path/to/repo/.git') to check out a copy of
-      commit: commit hash, branch, or tag within refspec, indicating what point
-          to update the local checkout to
+      local: optional path to an existing copy of the remote repo on local disk.
+          If provided, the initial clone is performed with the local copy as the
+          upstream, then the upstream is switched to the remote repo and the
+          new copy is updated from there.
     """
     super(NewGitCheckout, self).__init__()
     self._repository = repository
-    self._commit = commit
+    self._local = local
 
   @property
   def root(self):
@@ -134,5 +136,14 @@ class NewGitCheckout(utils.tmp_dir):
     Uses the parameters that were passed into the constructor.
     """
     super(NewGitCheckout, self).__enter__()
-    subprocess.check_output(args=['git', 'clone', self._repository, self.root])
+    remote = self._repository
+    if self._local:
+      remote = self._local
+    subprocess.check_output(args=['git', 'clone', remote, self.root])
+    if self._local:
+      subprocess.check_call([
+          'git', 'remote', 'set-url', 'origin', self._repository])
+      subprocess.check_call(['git', 'remote', 'update'])
+      subprocess.check_call(['git', 'checkout', 'master'])
+      subprocess.check_call(['git', 'reset', '--hard', 'origin/master'])
     return self
