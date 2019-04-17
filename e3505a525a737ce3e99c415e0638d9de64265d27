@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aeaaa7e_9978278c",
+        "filename": "src/ports/SkFontMgr_custom.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-17T16:21:18Z",
+      "side": 1,
+      "message": "Is this always non-null?",
+      "range": {
+        "startLine": 215,
+        "startChar": 12,
+        "endLine": 215,
+        "endChar": 18
+      },
+      "revId": "e3505a525a737ce3e99c415e0638d9de64265d27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
