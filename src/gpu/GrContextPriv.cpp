@@ -195,7 +195,7 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     ASSERT_OWNED_PROXY_PRIV(proxy);
 
     fContext->drawingManager()->flush(proxy, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                      kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
+                                      GrFlushInfo());
 }
 
 void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
@@ -204,8 +204,7 @@ void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
     fContext->drawingManager()->flushSurface(proxy,
-            SkSurface::BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr,
-            nullptr, nullptr);
+            SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 }
 
 static bool valid_premul_color_type(GrColorType ct) {

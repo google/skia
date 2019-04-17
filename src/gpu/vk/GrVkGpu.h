@@ -219,9 +219,8 @@ private:
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
-    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access, GrFlushFlags flags,
-                       bool insertedSemaphores, GrGpuFinishedProc finishedProc,
-                       GrGpuFinishedContext finishedContext) override;
+    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+                       const GrFlushInfo&) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all

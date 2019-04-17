@@ -239,26 +239,14 @@ int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::flush() {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-
-    this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
-}
-
-GrSemaphoresSubmitted GrContext::flush(GrFlushFlags flags, int numSemaphores,
-                                       GrBackendSemaphore signalSemaphores[],
-                                       GrGpuFinishedProc finishedProc,
-                                       GrGpuFinishedContext finishedContext) {
+GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
 
     return this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                         flags, numSemaphores, signalSemaphores, finishedProc,
-                                         finishedContext);
+                                         info);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

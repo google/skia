@@ -120,12 +120,7 @@ public:
     sk_sp<SkSpecialImage> snapBackImage(const SkIRect&) override;
 
     void flush() override;
-    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access,
-                                GrFlushFlags flags,
-                                int numSemaphores,
-                                GrBackendSemaphore signalSemaphores[],
-                                GrGpuFinishedProc finishedProc,
-                                GrGpuFinishedContext finishedContext);
+    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&);
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
     bool onAccessPixels(SkPixmap*) override;

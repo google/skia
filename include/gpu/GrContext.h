@@ -245,45 +245,29 @@ public:
     /**
      * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      */
-    void flush();
+    void flush() {
+        this->flush(GrFlushInfo());
+    }
 
     /**
-     * Call to ensure all drawing to the context has been issued to the underlying 3D API. After
-     * issuing all commands, numSemaphore semaphores will be signaled by the gpu. The client passes
-     * in an array of numSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's can
-     * be either initialized or not. If they are initialized, the backend uses the passed in
-     * semaphore. If it is not initialized, a new semaphore is created and the GrBackendSemaphore
-     * object is initialized with that semaphore.
-     *
-     * The client will own and be responsible for deleting the underlying semaphores that are stored
-     * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
-     * themselves can be deleted as soon as this function returns.
-     *
-     * If the backend API is OpenGL only uninitialized GrBackendSemaphores are supported.
-     * If the backend API is Vulkan either initialized or uninitialized semaphores are supported.
-     * If uninitialized, the semaphores which are created will be valid for use only with the
-     * VkDevice with which they were created.
+     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      *
      * If this call returns GrSemaphoresSubmitted::kNo, the GPU backend will not have created or
      * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
-     * any of the semaphores. However, any pending commands to the context will still be flushed.
-     *
-     * If a finishedProc is provided, the finishedProc will be called when all work submitted to the
-     * gpu from this flush call and all previous flush calls has finished on the GPU. If the flush
-     * call fails due to an error and nothing ends up getting sent to the GPU, the finished proc is
-     * called immediately.
+     * any of the semaphores passed in with the GrFlushInfo. However, any pending commands to the
+     * context will still be flushed.
      */
-    GrSemaphoresSubmitted flush(GrFlushFlags flags, int numSemaphores,
-                                GrBackendSemaphore signalSemaphores[],
-                                GrGpuFinishedProc finishedProc = nullptr,
-                                GrGpuFinishedContext finishedContext = nullptr);
+    GrSemaphoresSubmitted flush(const GrFlushInfo&);
 
     /**
      * Deprecated.
      */
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]) {
-        return this->flush(kNone_GrFlushFlags, numSemaphores, signalSemaphores);
+        GrFlushInfo info;
+        info.fNumSemaphores = numSemaphores;
+        info.fSignalSemaphores = signalSemaphores;
+        return this->flush(info);
     }
 
     // Provides access to functions that aren't part of the public API.

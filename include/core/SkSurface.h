@@ -710,7 +710,6 @@ public:
     };
 
     /** Issues pending SkSurface commands to the GPU-backed API and resolves any SkSurface MSAA.
-        After issuing all commands, signalSemaphores of count numSemaphores are signaled by the GPU.
         The work that is submitted to the GPU will be dependent on the BackendSurfaceAccess that is
         passed in.
 
@@ -723,42 +722,20 @@ public:
         the GrVkImageInfo. Additionally, if the original queue was not external or foreign the
         layout of the VkImage will be set to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR.
 
-        For each GrBackendSemaphore in signalSemaphores:
-        if GrBackendSemaphore is initialized, the GPU back-end uses the semaphore as is;
-        otherwise, a new semaphore is created and initializes GrBackendSemaphore.
-
-        The caller must delete the semaphores created and returned in signalSemaphores.
-        GrBackendSemaphore can be deleted as soon as this function returns.
-
-        If the back-end API is OpenGL only uninitialized backend semaphores are supported.
-
-        If the back-end API is Vulkan semaphores may be initialized or uninitialized.
-        If uninitialized, created semaphores are valid only with the VkDevice
-        with which they were created.
+        The GrFlushInfo describes additional options to flush. Please see documentation at
+        GrFlushInfo for more info.
 
         If GrSemaphoresSubmitted::kNo is returned, the GPU back-end did not create or
         add any semaphores to signal on the GPU; the caller should not instruct the GPU
-        to wait on any of the semaphores.
+        to wait on any of the semaphores passed in the GrFlushInfo.
 
         Pending surface commands are flushed regardless of the return result.
 
-        If a finishedProc is provided, the finishedProc will be called when all work submitted to
-        the gpu from this flush call and all previous flush calls has finished on the GPU. If the
-        flush call fails due to an error and nothing ends up getting sent to the GPU, the finished
-        proc is called immediately.
-
-        @param access            type of access the call will do on the backend object after flush
-        @param flags             flush options
-        @param numSemaphores     size of signalSemaphores array
-        @param signalSemaphores  array of semaphore containers
-        @param finishedProc      proc called after gpu work from flush has finished
-        @param finishedContext   context passed into call to finishedProc
-        @return                  one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
+        @param access  type of access the call will do on the backend object after flush
+        @param info    flush options
+        @return        one of: GrSemaphoresSubmitted::kYes, GrSemaphoresSubmitted::kNo
     */
-    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, GrFlushFlags flags,
-                                int numSemaphores, GrBackendSemaphore signalSemaphores[],
-                                GrGpuFinishedProc finishedProc = nullptr,
-                                GrGpuFinishedContext finishedContext = nullptr);
+    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
 
     /** The below enum and flush call are deprected
      */

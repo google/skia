@@ -1876,8 +1876,7 @@ void GrVkGpu::addImageMemoryBarrier(const GrVkResource* resource,
 }
 
 void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAccess access,
-                            GrFlushFlags flags, bool insertedSemaphore,
-                            GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext) {
+                            const GrFlushInfo& info) {
     // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
     // not effect what we do here.
     if (proxy && access == SkSurface::BackendSurfaceAccess::kPresent) {
@@ -1892,10 +1891,10 @@ void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxy, SkSurface::BackendSurfaceAcce
         }
         image->prepareForPresent(this);
     }
-    if (flags & kSyncCpu_GrFlushFlag) {
-        this->submitCommandBuffer(kForce_SyncQueue, finishedProc, finishedContext);
+    if (info.fFlags & kSyncCpu_GrFlushFlag) {
+        this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc, info.fFinishedContext);
     } else {
-        this->submitCommandBuffer(kSkip_SyncQueue, finishedProc, finishedContext);
+        this->submitCommandBuffer(kSkip_SyncQueue, info.fFinishedProc, info.fFinishedContext);
     }
 }
 

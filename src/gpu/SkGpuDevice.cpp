@@ -1631,18 +1631,14 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::flush() {
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr, nullptr,
-                nullptr);
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 }
 
-GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access, GrFlushFlags flags,
-                                         int numSemaphores, GrBackendSemaphore signalSemaphores[],
-                                         GrGpuFinishedProc finishedProc,
-                                         GrGpuFinishedContext finishedContext) {
+GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
+                                         const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
 
-    return fRenderTargetContext->flush(access, flags, numSemaphores, signalSemaphores, finishedProc,
-                                       finishedContext);
+    return fRenderTargetContext->flush(access, info);
 }
 
 bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {

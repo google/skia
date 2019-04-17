@@ -304,10 +304,7 @@ public:
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
     GrSemaphoresSubmitted finishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                                      GrFlushFlags flags, int numSemaphores,
-                                      GrBackendSemaphore backendSemaphores[],
-                                      GrGpuFinishedProc finishedProc,
-                                      GrGpuFinishedContext finishedContext);
+                                      const GrFlushInfo&);
 
     virtual void submit(GrGpuCommandBuffer*) = 0;
 
@@ -549,9 +546,7 @@ private:
                                bool canDiscardOutsideDstRect) = 0;
 
     virtual void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                               GrFlushFlags flags, bool insertedSemaphores,
-                               GrGpuFinishedProc finishedProc,
-                               GrGpuFinishedContext finishedContext) = 0;
+                               const GrFlushInfo&) = 0;
 
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
