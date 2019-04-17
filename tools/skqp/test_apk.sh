@@ -34,7 +34,8 @@ fi
 
 TDIR="$(mktemp -d "${TMPDIR:-/tmp}/skqp_report.XXXXXXXXXX")"
 
-adb install -r "$APK" || exit 2
+adb uninstall org.skia.skqp
+adb install "$APK" || exit 2
 adb logcat -c
 
 adb logcat TestRunner org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" &
@@ -72,7 +73,7 @@ REPORT="${TDIR}/${odir_basename}/report.html"
 if [ -f "$REPORT" ]; then
     grep 'f(.*;' "$REPORT"
     echo "$REPORT"
-    "$(dirname "$0")"/../../bin/sysopen "$REPORT"
+    "$(dirname "$0")"/../../bin/sysopen "$REPORT" > /dev/null 2>&1 &
 else
     echo "$TDIR"
 fi
