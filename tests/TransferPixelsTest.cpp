@@ -272,9 +272,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         }
         ++expectedTransferCnt;
 
+        GrFlushInfo flushInfo;
+        flushInfo.fFlags = kSyncCpu_GrFlushFlag;
         if (context->priv().caps()->mapBufferFlags() & GrCaps::kAsyncRead_MapFlag) {
-            gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                             kSyncCpu_GrFlushFlag, 0, nullptr, nullptr, nullptr);
+            gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
         }
 
         const auto* map = reinterpret_cast<const GrColor*>(buffer->map());
@@ -303,8 +304,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         ++expectedTransferCnt;
 
         if (context->priv().caps()->mapBufferFlags() & GrCaps::kAsyncRead_MapFlag) {
-            gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                             kSyncCpu_GrFlushFlag, 0, nullptr, nullptr, nullptr);
+            gpu->finishFlush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
         }
 
         map = reinterpret_cast<const GrColor*>(buffer->map());
