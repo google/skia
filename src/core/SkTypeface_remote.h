@@ -122,10 +122,8 @@ protected:
         SK_ABORT("Should never be called.");
         return nullptr;
     }
-    int onCharsToGlyphs(const void* chars, Encoding,
-                        uint16_t glyphs[], int glyphCount) const override {
+    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
         SK_ABORT("Should never be called.");
-        return 0;
     }
     int onCountGlyphs() const override {
         return this->glyphCount();
