@@ -123,15 +123,14 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
                                                  GrDeferredUploadTarget* uploadTarget,
                                                  GrStrikeCache* glyphCache,
                                                  GrAtlasManager* fullAtlasManager,
-                                                 SkExclusiveStrikePtr* lazyCache)
+                                                 SkExclusiveStrikePtr* lazyStrike)
         : fResourceProvider(resourceProvider)
         , fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
         , fGlyphCache(glyphCache)
         , fFullAtlasManager(fullAtlasManager)
-        , fLazyCache(lazyCache)
-        , fRun(&blob->fRuns[runIdx])
+        , fLazyStrike(lazyStrike)
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
         , fColor(color) {
     // Compute translation if any
@@ -165,18 +164,15 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
 
-        const SkDescriptor* desc = fSubRun->desc();
+        const SkStrikeSpecStorage& strikeSpec = fSubRun->strikeSpec();
 
-        if (!*fLazyCache || (*fLazyCache)->getDescriptor() != *desc) {
-            SkScalerContextEffects effects;
-            effects.fPathEffect = fRun->fPathEffect.get();
-            effects.fMaskFilter = fRun->fMaskFilter.get();
-            *fLazyCache =
-                SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *fRun->fTypeface);
+        if (!*fLazyStrike || (*fLazyStrike)->getDescriptor() != strikeSpec.descriptor()) {
+            *fLazyStrike =
+                    strikeSpec.findOrCreateExclusiveStrike(SkStrikeCache::GlobalStrikeCache());
         }
 
         if (regenGlyphs) {
-            strike = fGlyphCache->getStrike((*fLazyCache)->getDescriptor());
+            strike = strikeSpec.findOrCreateGrStrike(fGlyphCache);
         } else {
             strike = fSubRun->refStrike();
         }
@@ -197,7 +193,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                 // Get the id from the old glyph, and use the new strike to lookup
                 // the glyph.
                 SkPackedGlyphID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
-                fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fLazyCache->get());
+                fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fLazyStrike->get());
                 SkASSERT(id == fBlob->fGlyphs[glyphOffset]->fPackedID);
             }
             glyph = fBlob->fGlyphs[glyphOffset];
@@ -207,7 +203,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                 GrDrawOpAtlas::ErrorCode code;
                 code = strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
                                               fFullAtlasManager, glyph,
-                                              fLazyCache->get(), fSubRun->maskFormat(),
+                                              fLazyStrike->get(), fSubRun->maskFormat(),
                                               fSubRun->needsTransform());
                 if (GrDrawOpAtlas::ErrorCode::kError == code) {
                     // Something horrible has happened - drop the op

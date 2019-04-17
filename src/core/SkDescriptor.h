@@ -14,7 +14,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkScalerContext.h"
 
-class SkDescriptor : SkNoncopyable {
+class SkDescriptor : public SkNoncopyable {
 public:
     static size_t ComputeOverhead(int entryCount) {
         SkASSERT(entryCount >= 0);
