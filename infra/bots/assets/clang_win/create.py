@@ -18,7 +18,7 @@ import utils
 
 # Copied from CLANG_REVISION here:
 # https://cs.chromium.org/chromium/src/tools/clang/scripts/update.py
-CLANG_REVISION = '352921'
+CLANG_REVISION = '357692'
 CLANG_SUB_REVISION = '1'
 CLANG_PKG_VERSION = '%s-%s' % (CLANG_REVISION, CLANG_SUB_REVISION)
 GS_URL = ('https://commondatastorage.googleapis.com/chromium-browser-clang'
