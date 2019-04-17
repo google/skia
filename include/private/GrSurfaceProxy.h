@@ -187,6 +187,10 @@ protected:
         return fRefCnt;
     }
 
+    int32_t internalGetTotalRefs() const {
+        return fRefCnt + fPendingReads + fPendingWrites;
+    }
+
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
@@ -208,6 +212,11 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    int fFoo = 0;
+
+    void incFoo() { ++fFoo; }
+    void decFoo() { --fFoo; }
+
     /**
      * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
      * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls
@@ -495,6 +504,10 @@ protected:
     // Methods made available via GrSurfaceProxyPriv
     int32_t getProxyRefCnt() const {
         return this->internalGetProxyRefCnt();
+    }
+
+    int32_t getTotalRefs() const {
+        return this->internalGetTotalRefs();
     }
 
     void computeScratchKey(GrScratchKey*) const;
