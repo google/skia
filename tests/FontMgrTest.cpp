@@ -136,8 +136,12 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             return nullptr;
         }
         void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-        void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
-            sk_bzero(glyphs, count * sizeof(glyphs[0]));
+        virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
+            uint16_t glyphs[], int glyphCount) const override {
+            if (glyphs && glyphCount > 0) {
+                sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+            }
+            return 0;
         }
         int onCountGlyphs() const override { return 0; }
         int onGetUPEM() const override { return 0; }

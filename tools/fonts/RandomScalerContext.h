@@ -33,7 +33,10 @@ protected:
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
     void              onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 
-    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
+    int onCharsToGlyphs(const void* chars,
+                        Encoding    encoding,
+                        uint16_t    glyphs[],
+                        int         glyphCount) const override;
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
 

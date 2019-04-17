@@ -1551,17 +1551,62 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 #include "SkUtils.h"
 
-void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
-                                          SkGlyphID glyphs[]) const {
+static SkUnichar next_utf8(const void** chars) {
+    return SkUTF8_NextUnichar((const char**)chars);
+}
+
+static SkUnichar next_utf16(const void** chars) {
+    return SkUTF16_NextUnichar((const uint16_t**)chars);
+}
+
+static SkUnichar next_utf32(const void** chars) {
+    const SkUnichar** uniChars = (const SkUnichar**)chars;
+    SkUnichar uni = **uniChars;
+    *uniChars += 1;
+    return uni;
+}
+
+typedef SkUnichar (*EncodingProc)(const void**);
+
+static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
+    static const EncodingProc gProcs[] = {
+        next_utf8, next_utf16, next_utf32
+    };
+    SkASSERT((size_t)enc < SK_ARRAY_COUNT(gProcs));
+    return gProcs[enc];
+}
+
+int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                         uint16_t glyphs[], int glyphCount) const
+{
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
-        sk_bzero(glyphs, count * sizeof(glyphs[0]));
-        return;
+        if (glyphs) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
     }
 
-    for (int i = 0; i < count; ++i) {
-        glyphs[i] = SkToU16(FT_Get_Char_Index(face, uni[i]));
+    EncodingProc next_uni_proc = find_encoding_proc(encoding);
+
+    if (nullptr == glyphs) {
+        for (int i = 0; i < glyphCount; ++i) {
+            if (0 == FT_Get_Char_Index(face, next_uni_proc(&chars))) {
+                return i;
+            }
+        }
+        return glyphCount;
+    } else {
+        int first = glyphCount;
+        for (int i = 0; i < glyphCount; ++i) {
+            unsigned id = FT_Get_Char_Index(face, next_uni_proc(&chars));
+            glyphs[i] = SkToU16(id);
+            if (0 == id && i < first) {
+                first = i;
+            }
+        }
+        return first;
     }
 }
 
