@@ -67,7 +67,7 @@ Token::Kind remove_assignment(Token::Kind op) {
         case Token::LOGICALOREQ:  return Token::LOGICALOR;
         case Token::LOGICALXOREQ: return Token::LOGICALXOR;
         case Token::LOGICALANDEQ: return Token::LOGICALAND;
-        default: return Token::INVALID;
+        default: return op;
     }
 }
 
