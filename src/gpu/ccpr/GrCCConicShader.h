@@ -22,12 +22,14 @@
  */
 class GrCCConicShader : public GrCCCoverageProcessor::Shader {
 public:
-    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                       const char** outHull4) const override;
+    bool calculatesOwnEdgeCoverage() const override { return true; }
 
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* coverage,
-                        const char* cornerCoverage) override;
+    void emitSetupCode(
+            GrGLSLVertexGeoBuilder*, const char* pts, const char** outHull4) const override;
+
+    void onEmitVaryings(
+            GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code, const char* position,
+            const char* coverage, const char* cornerCoverage, const char* wind) override;
 
     void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
 
