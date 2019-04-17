@@ -57,12 +57,8 @@ protected:
         return nullptr;
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const override {
-        if (glyphs && glyphCount > 0) {
-            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-        }
-        return 0;
+    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
+        sk_bzero(glyphs, count * sizeof(glyphs[0]));
     }
     int onCountGlyphs() const override { return 0; }
     int onGetUPEM() const override { return 0; }
@@ -285,24 +281,48 @@ std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
-int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
-                              uint16_t glyphs[], int glyphCount) const {
-    if (glyphCount <= 0) {
-        return 0;
+void SkTypeface::unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+    if (count > 0 && glyphs && uni) {
+        this->onCharsToGlyphs(uni, count, glyphs);
     }
-    if (nullptr == chars || (unsigned)encoding > kUTF32_Encoding) {
-        if (glyphs) {
-            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-        }
-        return 0;
-    }
-    return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
 SkGlyphID SkTypeface::unicharToGlyph(SkUnichar uni) const {
-    SkGlyphID glyphs[1];
-    return this->onCharsToGlyphs(&uni, kUTF32_Encoding, glyphs, 1) == 1 ? glyphs[0] : 0;
+    SkGlyphID glyphs[1] = { 0 };
+    this->onCharsToGlyphs(&uni, 1, glyphs);
+    return glyphs[0];
 }
+
+#ifdef SK_SUPPORT_LEGACY_CHARSTOGLYPHS
+int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
+                              int glyphCount) const {
+    SkAutoSTMalloc<256, SkUnichar> storage(glyphCount);
+    SkUnichar* uni = storage.get();
+
+    switch (encoding) {
+        case kUTF8_Encoding: {
+            const char* p = (const char*)chars;
+            const char* stop = p + glyphCount * 4;  // conservatively large
+            for (int i = 0; i < glyphCount; ++i) {
+                uni[i] = SkUTF::NextUTF8(&p, stop);
+            }
+            chars = uni;
+        } break;
+        case kUTF16_Encoding: {
+            const uint16_t* p = (const uint16_t*)chars;
+            const uint16_t* stop = p + glyphCount * 2;  // conservatively large
+            for (int i = 0; i < glyphCount; ++i) {
+                uni[i] = SkUTF::NextUTF16(&p, stop);
+            }
+            chars = uni;
+        } break;
+        case kUTF32_Encoding:
+            break;
+    }
+    this->onCharsToGlyphs((const SkUnichar*)chars, glyphCount, glyphs);
+    return glyphCount;
+}
+#endif
 
 int SkTypeface::countGlyphs() const {
     return this->onCountGlyphs();
