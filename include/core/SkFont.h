@@ -302,6 +302,8 @@ public:
     */
     SkGlyphID unicharToGlyph(SkUnichar uni) const;
 
+    void unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const;
+
     /** Returns number of glyphs represented by text.
 
         If encoding is kUTF8_SkTextEncoding, kUTF16_SkTextEncoding, or

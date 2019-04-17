@@ -496,7 +496,8 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
-    glyphTf->charsToGlyphs(s, SkTypeface::kUTF8_Encoding, runBuffer.glyphs, runSize);
+    SkFont(sk_ref_sp(glyphTf)).textToGlyphs(s, strlen(s), SkTextEncoding::kUTF8,
+                                            runBuffer.glyphs, runSize);
 
     SkRect glyphBounds;
     font.getWidths(runBuffer.glyphs, 1, nullptr, &glyphBounds);

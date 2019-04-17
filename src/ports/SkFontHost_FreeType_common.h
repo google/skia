@@ -102,8 +102,7 @@ protected:
     int onGetUPEM() const override;
     bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                      int32_t adjustments[]) const override;
-    int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
-                        int glyphCount) const override;
+    void onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
 
     LocalizedStrings* onCreateFamilyNameIterator() const override;

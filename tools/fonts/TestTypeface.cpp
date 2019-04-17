@@ -132,26 +132,10 @@ void TestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) co
     *isLocal = false;
 }
 
-int TestTypeface::onCharsToGlyphs(const void* chars,
-                                  Encoding    encoding,
-                                  SkGlyphID   glyphs[],
-                                  int         glyphCount) const {
-    auto utf8  = (const char*)chars;
-    auto utf16 = (const uint16_t*)chars;
-    auto utf32 = (const SkUnichar*)chars;
-
-    for (int i = 0; i < glyphCount; ++i) {
-        SkUnichar ch;
-        switch (encoding) {
-            case kUTF8_Encoding: ch = SkUTF8_NextUnichar(&utf8); break;
-            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch = *utf32++; break;
-        }
-        if (glyphs) {
-            glyphs[i] = fTestFont->glyphForUnichar(ch);
-        }
+void TestTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
+    for (int i = 0; i < count; ++i) {
+        glyphs[i] = fTestFont->glyphForUnichar(uni[i]);
     }
-    return glyphCount;
 }
 
 void TestTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fTestFont->fName; }
