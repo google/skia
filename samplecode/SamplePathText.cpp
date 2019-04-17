@@ -12,6 +12,7 @@
 #include "samplecode/Sample.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "tools/ToolUtils.h"
 #include "tools/timer/AnimTimer.h"
@@ -33,7 +34,8 @@ public:
 
     void onOnceBeforeDraw() final {
         SkFont defaultFont;
-        auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(defaultFont);
+        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(defaultFont);
+        auto cache = strikeSpec.findOrCreateExclusiveStrike();
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
