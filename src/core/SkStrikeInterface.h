@@ -68,7 +68,6 @@ public:
     virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkDescriptor& getDescriptor() const = 0;
-    virtual SkStrikeSpec strikeSpec() const = 0;
 
     // prepareForDrawing takes glyphIDs, and position, and returns a list of SkGlyphs and
     // positions where all the data to draw the glyph has been created. The maxDimension
