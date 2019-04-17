@@ -120,9 +120,10 @@ private:
 #endif
         }
 
+        // Used when recycling an interval
         void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
             SkASSERT(proxy);
-            SkASSERT(!fNext);
+            SkASSERT(!fProxy && !fNext);
 
             fProxy = proxy;
             fProxyID = proxy->uniqueID().asUInt();
