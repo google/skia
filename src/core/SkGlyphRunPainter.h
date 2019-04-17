@@ -11,6 +11,7 @@
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphRun.h"
 #include "SkScalerContext.h"
+#include "SkStrikeSpec.h"
 #include "SkSurfaceProps.h"
 #include "SkTextBlobPriv.h"
 
@@ -145,28 +146,26 @@ public:
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
     virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                                    SkStrikeInterface* strike) = 0;
+                                    const SkStrikeSpecStorage& strikeSpec) = 0;
 
     virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                                    SkStrikeInterface* strike, SkScalar cacheToSourceScale) = 0;
+                                    const SkStrikeSpecStorage& strikeSpec) = 0;
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
     virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                                   SkStrikeInterface* strike,
+                                   const SkStrikeSpecStorage& strikeSpec,
                                    const SkFont& runFont,
-                                   SkScalar cacheToSourceScale,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
     virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                                       SkStrikeInterface* strike,
-                                       SkScalar cacheToSourceScale,
+                                       const SkStrikeSpecStorage& strikeSpec,
                                        bool hasW) = 0;
 
     virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                                       SkStrikeInterface* strike) = 0;
+                                       const SkStrikeSpecStorage& strikeSpec) = 0;
 
 };
 

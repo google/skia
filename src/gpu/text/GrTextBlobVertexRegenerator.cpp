@@ -113,6 +113,7 @@ static void regen_texcoords(char* vertex, size_t vertexStride, const GrGlyph* gl
     }
     regen_colors(vertex, vertexStride, hackColor);
 #endif
+#endif
 }
 
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,

@@ -59,7 +59,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     return blob;
 }
 
-void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
+void GrTextBlob::Run::setupFont(const SkStrikeSpecStorage& strikeSpec) {
     fTypeface = sk_ref_sp(&strikeSpec.typeface());
     fPathEffect = sk_ref_sp(strikeSpec.effects().fPathEffect);
     fMaskFilter = sk_ref_sp(strikeSpec.effects().fMaskFilter);
@@ -67,7 +67,7 @@ void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
     SkAutoDescriptor* desc =
             fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
     // Set up the descriptor for possible cache lookups during regen.
-    desc->reset(strikeSpec.desc());
+    desc->reset(strikeSpec.descriptor());
 }
 
 void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,

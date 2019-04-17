@@ -20,6 +20,7 @@
 #include "SkPoint3.h"
 #include "SkRectPriv.h"
 #include "SkStrikeCache.h"
+#include "SkStrikeSpec.h"
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
 
@@ -275,10 +276,10 @@ private:
 
     class SubRun {
     public:
-        SubRun(Run* run, const SkAutoDescriptor& desc, GrColor color)
+        SubRun(Run* run, const SkStrikeSpecStorage& strikeSpec, GrColor color)
             : fColor{color}
             , fRun{run}
-            , fDesc{desc} {}
+            , fStrikeSpec{strikeSpec} {}
 
         // When used with emplace_back, this constructs a SubRun from the last SubRun in an array.
         //SubRun(SkSTArray<1, SubRun>* subRunList)
@@ -373,7 +374,7 @@ private:
             bool argbFallback:1;
         } fFlags{false, false, false, false, false, false};
         Run* const fRun;
-        const SkAutoDescriptor& fDesc;
+        const SkStrikeSpecStorage& fStrikeSpec;
     };  // SubRunInfo
 
     /*
@@ -445,7 +446,7 @@ private:
                                     SkPoint origin,
                                     SkScalar textScale);
 
-        void setupFont(const SkStrikeSpec& strikeSpec);
+        void setupFont(const SkStrikeSpecStorage& strikeSpec);
 
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;
@@ -490,7 +491,7 @@ private:
 
         sk_sp<SkTypeface> fTypeface;
         SkSTArray<1, SubRun> fSubRunInfo;
-        SkAutoDescriptor fDescriptor;
+        SkStrikeSpecStorage fDescriptor;
 
         // Effects from the paint that are used to build a SkScalerContext.
         sk_sp<SkPathEffect> fPathEffect;
@@ -500,7 +501,7 @@ private:
         // though the distance field text and the coloremoji may share the same run, they
         // will have different descriptors.  If fARGBFallbackDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkAutoDescriptor> fARGBFallbackDescriptor;
+        std::unique_ptr<SkStrikeSpecStorage> fARGBFallbackDescriptor;
 
         SkTArray<PathGlyph> fPathGlyphs;
 
@@ -524,28 +525,26 @@ private:
     void startRun(const SkGlyphRun& glyphRun, bool useSDFT) override;
 
     void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                            SkStrikeInterface* strike) override;
+                            const SkStrikeSpecStorage& strikeSpec) override;
 
     void processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                            SkStrikeInterface* strike, SkScalar cacheToSourceScale) override;
+                            const SkStrikeSpecStorage& strikeSpec) override;
 
     void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
     void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                           SkStrikeInterface* strike,
+                           const SkStrikeSpecStorage& strikeSpec,
                            const SkFont& runFont,
-                           SkScalar cacheToSourceScale,
                            SkScalar minScale,
                            SkScalar maxScale,
                            bool hasWCoord) override;
 
     void processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                               SkStrikeInterface* strike,
-                               SkScalar cacheToSourceScale,
+                               const SkStrikeSpecStorage& strikeSpec,
                                bool hasW) override;
 
     void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                               SkStrikeInterface* strike) override;
+                               const SkStrikeSpecStorage& strikeSpec) override;
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
