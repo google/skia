@@ -198,6 +198,10 @@ SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() con
     return fProxy->createFamilyNameIterator();
 }
 
+void SkRandomTypeface::getPostScriptGlyphNames(SkString* names) const {
+    return fProxy->getPostScriptGlyphNames(names);
+}
+
 int SkRandomTypeface::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[],
         int                                            coordinateCount) const {

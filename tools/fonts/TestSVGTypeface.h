@@ -96,6 +96,8 @@ protected:
 
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
 
+    void getPostScriptGlyphNames(SkString*) const override {}
+
     int onCountGlyphs() const override { return fGlyphCount; }
 
     int onGetUPEM() const override { return fUpem; }

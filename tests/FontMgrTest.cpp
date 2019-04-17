@@ -140,6 +140,8 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             sk_bzero(glyphs, count * sizeof(glyphs[0]));
         }
         int onCountGlyphs() const override { return 0; }
+        void getPostScriptGlyphNames(SkString*) const override {}
+        void getGlyphToUnicodeMap(SkUnichar*) const override {}
         int onGetUPEM() const override { return 0; }
         class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
         public:
@@ -156,6 +158,11 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
                 int coordinateCount) const override
         {
             return 0;
+        }
+        int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                           int parameterCount) const override
+        {
+            return -1;
         }
         int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
         size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {

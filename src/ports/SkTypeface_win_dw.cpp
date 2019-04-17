@@ -61,6 +61,8 @@ int DWriteFontTypeface::onCountGlyphs() const {
     return fDWriteFontFace->GetGlyphCount();
 }
 
+void DWriteFontTypeface::getPostScriptGlyphNames(SkString*) const {}
+
 int DWriteFontTypeface::onGetUPEM() const {
     DWRITE_FONT_METRICS metrics;
     fDWriteFontFace->GetMetrics(&metrics);
