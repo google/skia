@@ -8,6 +8,8 @@
 #ifndef SkFontTypes_DEFINED
 #define SkFontTypes_DEFINED
 
+#include "SkTypes.h"
+
 enum class SkTextEncoding {
     kUTF8,      //!< uses bytes to represent UTF-8 or ASCII
     kUTF16,     //!< uses two byte words to represent most of Unicode
@@ -31,5 +33,8 @@ enum class SkFontHinting {
 #define kSlight_SkFontHinting   SkFontHinting::kSlight
 #define kNormal_SkFontHinting   SkFontHinting::kNormal
 #define kFull_SkFontHinting     SkFontHinting::kFull
+
+// remove me once google3 uses IWYU
+#include "SkTypeface.h"
 
 #endif
