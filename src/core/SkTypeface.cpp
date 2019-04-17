@@ -57,8 +57,12 @@ protected:
         return nullptr;
     }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
-        sk_bzero(glyphs, count * sizeof(glyphs[0]));
+    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
+                                uint16_t glyphs[], int glyphCount) const override {
+        if (glyphs && glyphCount > 0) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
     }
     int onCountGlyphs() const override { return 0; }
     int onGetUPEM() const override { return 0; }
@@ -281,29 +285,24 @@ std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
-void SkTypeface::unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
-    if (count > 0 && glyphs && uni) {
-        this->onCharsToGlyphs(uni, count, glyphs);
+int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
+                              uint16_t glyphs[], int glyphCount) const {
+    if (glyphCount <= 0) {
+        return 0;
     }
+    if (nullptr == chars || (unsigned)encoding > kUTF32_Encoding) {
+        if (glyphs) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
+    }
+    return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
 
 SkGlyphID SkTypeface::unicharToGlyph(SkUnichar uni) const {
-    SkGlyphID glyphs[1] = { 0 };
-    this->onCharsToGlyphs(&uni, 1, glyphs);
-    return glyphs[0];
+    SkGlyphID glyphs[1];
+    return this->onCharsToGlyphs(&uni, kUTF32_Encoding, glyphs, 1) == 1 ? glyphs[0] : 0;
 }
-
-#ifdef SK_SUPPORT_LEGACY_CHARSTOGLYPHS
-#include "SkFont.h"
-int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
-                              int glyphCount) const {
-    SkFont font(sk_ref_sp(this));
-    const size_t save_length = glyphCount * 4;
-    int n = font.textToGlyphs(chars, save_length, (SkTextEncoding)encoding, glyphs, glyphCount);
-    SkASSERT(n == glyphCount);
-    return n;
-}
-#endif
 
 int SkTypeface::countGlyphs() const {
     return this->onCountGlyphs();

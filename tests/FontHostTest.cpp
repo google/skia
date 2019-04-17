@@ -69,6 +69,50 @@ static void test_countGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypefac
     }
 }
 
+// The following three are all the same code points in various encodings.
+// a中Яיו𝄞a𠮟
+static uint8_t utf8Chars[] = { 0x61, 0xE4,0xB8,0xAD, 0xD0,0xAF, 0xD7,0x99, 0xD7,0x95, 0xF0,0x9D,0x84,0x9E, 0x61, 0xF0,0xA0,0xAE,0x9F };
+static uint16_t utf16Chars[] = { 0x0061, 0x4E2D, 0x042F, 0x05D9, 0x05D5, 0xD834,0xDD1E, 0x0061, 0xD842,0xDF9F };
+static uint32_t utf32Chars[] = { 0x00000061, 0x00004E2D, 0x0000042F, 0x000005D9, 0x000005D5, 0x0001D11E, 0x00000061, 0x00020B9F };
+
+struct CharsToGlyphs_TestData {
+    const void* chars;
+    int charCount;
+    size_t charsByteLength;
+    SkTypeface::Encoding typefaceEncoding;
+    const char* name;
+} static charsToGlyphs_TestData[] = {
+    { utf8Chars, 8, sizeof(utf8Chars), SkTypeface::kUTF8_Encoding, "Simple UTF-8" },
+    { utf16Chars, 8, sizeof(utf16Chars), SkTypeface::kUTF16_Encoding, "Simple UTF-16" },
+    { utf32Chars, 8, sizeof(utf32Chars), SkTypeface::kUTF32_Encoding, "Simple UTF-32" },
+};
+
+// Test that SkPaint::textToGlyphs agrees with SkTypeface::charsToGlyphs.
+static void test_charsToGlyphs(skiatest::Reporter* reporter, sk_sp<SkTypeface> face) {
+    uint16_t paintGlyphIds[256];
+    uint16_t faceGlyphIds[256];
+
+    for (size_t testIndex = 0; testIndex < SK_ARRAY_COUNT(charsToGlyphs_TestData); ++testIndex) {
+        CharsToGlyphs_TestData& test = charsToGlyphs_TestData[testIndex];
+        SkTextEncoding encoding = static_cast<SkTextEncoding>(test.typefaceEncoding);
+
+        SkFont font(face);
+        font.textToGlyphs(test.chars, test.charsByteLength, encoding,
+                          paintGlyphIds, SK_ARRAY_COUNT(paintGlyphIds));
+
+        face->charsToGlyphs(test.chars, test.typefaceEncoding, faceGlyphIds, test.charCount);
+
+        for (int i = 0; i < test.charCount; ++i) {
+            SkString name;
+            face->getFamilyName(&name);
+            SkString a;
+            a.appendf("%s, paintGlyphIds[%d] = %d, faceGlyphIds[%d] = %d, face = %s",
+                      test.name, i, (int)paintGlyphIds[i], i, (int)faceGlyphIds[i], name.c_str());
+            REPORTER_ASSERT(reporter, paintGlyphIds[i] == faceGlyphIds[i], a.c_str());
+        }
+    }
+}
+
 static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int ttcIndex) {
     int n = SkFontStream::GetTableTags(stream, ttcIndex, nullptr);
     SkAutoTArray<SkFontTableTag> array(n);
@@ -186,6 +230,7 @@ static void test_tables(skiatest::Reporter* reporter) {
             test_tables(reporter, face);
             test_unitsPerEm(reporter, face);
             test_countGlyphs(reporter, face);
+            test_charsToGlyphs(reporter, face);
         }
     }
 }
