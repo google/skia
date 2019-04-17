@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f0e7b28_00b187b9",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-17T19:06:17Z",
+      "side": 1,
+      "message": "Lift this out and only set the flag once?",
+      "revId": "d2ad92b0941d36fdbee320d0527c80873780b69f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
