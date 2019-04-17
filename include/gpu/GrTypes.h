@@ -12,6 +12,8 @@
 #include "SkTypes.h"
 #include "GrConfig.h"
 
+class GrBackendSemaphore;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -267,6 +269,32 @@ enum GrFlushFlags {
 
 typedef void* GrGpuFinishedContext;
 typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
+
+/**
+ * Struct to supply options to flush calls.
+ *
+ * After issuing all commands, fNumSemaphore semaphores will be signaled by the gpu. The client
+ * passes in an array of fNumSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's
+ * can be either initialized or not. If they are initialized, the backend uses the passed in
+ * semaphore. If it is not initialized, a new semaphore is created and the GrBackendSemaphore
+ * object is initialized with that semaphore.
+ *
+ * The client will own and be responsible for deleting the underlying semaphores that are stored
+ * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
+ * themselves can be deleted as soon as this function returns.
+ *
+ * If a finishedProc is provided, the finishedProc will be called when all work submitted to the gpu
+ * from this flush call and all previous flush calls has finished on the GPU. If the flush call
+ * fails due to an error and nothing ends up getting sent to the GPU, the finished proc is called
+ * immediately.
+ */
+struct GrFlushInfo {
+    GrFlushFlags         fFlags = kNone_GrFlushFlags;
+    int                  fNumSemaphores = 0;
+    GrBackendSemaphore*  fSignalSemaphores = nullptr;
+    GrGpuFinishedProc    fFinishedProc = nullptr;
+    GrGpuFinishedContext fFinishedContext = nullptr;
+};
 
 /**
  * Enum used as return value when flush with semaphores so the client knows whether the semaphores
