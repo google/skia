@@ -10,8 +10,8 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCConicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts, const char* wind,
-                                    const char** outHull4) const {
+void GrCCConicShader::emitSetupCode(
+        GrGLSLVertexGeoBuilder* s, const char* pts, const char** outHull4) const {
     // K is distance from the line P2 -> P0. L is distance from the line P0 -> P1, scaled by 2w.
     // M is distance from the line P1 -> P2, scaled by 2w. We do this in a space where P1=0.
     s->declareGlobal(fKLMMatrix);
@@ -25,10 +25,11 @@ void GrCCConicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts, 
     s->declareGlobal(fControlPoint);
     s->codeAppendf("%s = %s[1];", fControlPoint.c_str(), pts);
 
-    // Scale KLM by the inverse Manhattan width of K. This allows K to double as the flat opposite
-    // edge AA. kwidth will not be 0 because we cull degenerate conics on the CPU.
-    s->codeAppendf("float kwidth = 2*bloat * %s * (abs(%s[0].x) + abs(%s[0].y));",
-                   wind, fKLMMatrix.c_str(), fKLMMatrix.c_str());
+    // Scale KLM by the inverse Manhattan width of K, and make sure K is positive. This allows K to
+    // double as the flat opposite edge AA. kwidth will not be 0 because we cull degenerate conics
+    // on the CPU.
+    s->codeAppendf("float kwidth = 2*bloat * (abs(%s[0].x) + abs(%s[0].y)) * sign(%s[0].z);",
+                   fKLMMatrix.c_str(), fKLMMatrix.c_str(), fKLMMatrix.c_str());
     s->codeAppendf("%s *= 1/kwidth;", fKLMMatrix.c_str());
 
     if (outHull4) {
@@ -46,16 +47,15 @@ void GrCCConicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts, 
     }
 }
 
-void GrCCConicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                     GrGLSLVarying::Scope scope, SkString* code,
-                                     const char* position, const char* coverage,
-                                     const char* cornerCoverage) {
-    fKLM_fWind.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addVarying("klm_and_wind", &fKLM_fWind);
+void GrCCConicShader::onEmitVaryings(
+        GrGLSLVaryingHandler* varyingHandler, GrGLSLVarying::Scope scope, SkString* code,
+        const char* position, const char* coverage, const char* cornerCoverage, const char* wind) {
     code->appendf("float3 klm = float3(%s - %s, 1) * %s;",
                   position, fControlPoint.c_str(), fKLMMatrix.c_str());
+    fKLM_fWind.reset(kFloat4_GrSLType, scope);
+    varyingHandler->addVarying("klm_and_wind", &fKLM_fWind);
     code->appendf("%s.xyz = klm;", OutName(fKLM_fWind));
-    code->appendf("%s.w = %s;", OutName(fKLM_fWind), coverage); // coverage == wind.
+    code->appendf("%s.w = %s;", OutName(fKLM_fWind), wind);
 
     fGrad_fCorner.reset(cornerCoverage ? kFloat4_GrSLType : kFloat2_GrSLType, scope);
     varyingHandler->addVarying(cornerCoverage ? "grad_and_corner" : "grad", &fGrad_fCorner);
@@ -63,6 +63,7 @@ void GrCCConicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                   OutName(fGrad_fCorner), fKLMMatrix.c_str());
 
     if (cornerCoverage) {
+        SkASSERT(coverage);
         code->appendf("half hull_coverage;");
         this->calcHullCoverage(code, "klm", OutName(fGrad_fCorner), "hull_coverage");
         code->appendf("%s.zw = half2(hull_coverage, 1) * %s;",
@@ -74,10 +75,10 @@ void GrCCConicShader::onEmitFragmentCode(GrGLSLFPFragmentBuilder* f,
                                          const char* outputCoverage) const {
     this->calcHullCoverage(&AccessCodeString(f), fKLM_fWind.fsIn(), fGrad_fCorner.fsIn(),
                            outputCoverage);
-    f->codeAppendf("%s *= half(%s.w);", outputCoverage, fKLM_fWind.fsIn()); // Wind.
+    f->codeAppendf("%s *= half(%s.w);", outputCoverage, fKLM_fWind.fsIn());  // Wind.
 
     if (kFloat4_GrSLType == fGrad_fCorner.type()) {
-        f->codeAppendf("%s = fma(half(%s.z), half(%s.w), %s);", // Attenuated corner coverage.
+        f->codeAppendf("%s = fma(half(%s.z), half(%s.w), %s);",  // Attenuated corner coverage.
                        outputCoverage, fGrad_fCorner.fsIn(), fGrad_fCorner.fsIn(),
                        outputCoverage);
     }
