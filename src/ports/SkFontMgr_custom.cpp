@@ -206,10 +206,24 @@ SkTypeface* SkFontMgr_Custom::onMatchFamilyStyle(const char familyName[],
 }
 
 SkTypeface* SkFontMgr_Custom::onMatchFamilyStyleCharacter(const char familyName[],
-                                                          const SkFontStyle&,
+                                                          const SkFontStyle& style,
                                                           const char* bcp47[], int bcp47Count,
                                                           SkUnichar character) const
 {
+    for (const sk_sp<SkFontStyleSet_Custom>& family : fFamilies) {
+        sk_sp<SkTypeface> face(family->matchStyle(style));
+        if (face->unicharToGlyph(character)) {
+            return face.release();
+        }
+    }
+
+    for (const sk_sp<SkFontStyleSet_Custom>& family : fFamilies) {
+        for (int j = 0; j < family->fStyles.count(); ++j) {
+            if (family->fStyles[j].get()->unicharToGlyph(character)) {
+                return SkRef(family->fStyles[j].get());
+            }
+        }
+    }
     return nullptr;
 }
 
