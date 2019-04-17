@@ -56,6 +56,8 @@ bool MetalWindowContext_mac::onInitializeContext() {
     if (nil == fMTKView) {
         return false;
     }
+//    fMTKView.paused = YES;
+//    fMTKView.enableSetNeedsDisplay = NO;
 
     fMTKView.autoResizeDrawable = NO;
     fMTKView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;

@@ -65,8 +65,16 @@ void MetalWindowContext::destroyContext() {
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
+        // Block to ensure we don't try to render to a frame that hasn't finished presenting
+        dispatch_semaphore_wait(fInFlightSemaphore, DISPATCH_TIME_FOREVER);
+
+        // TODO: Apple recommends grabbing the drawable (which we're implicitly doing here)
+        // for as little time as possible. I'm not sure it matters for our test apps, but
+        // you can get better throughput by doing any offscreen renders, texture uploads, or
+        // other non-dependant tasks first before grabbing the drawable.
         GrMtlTextureInfo fbInfo;
-        fbInfo.fTexture = [[fMTKView currentDrawable] texture];
+        MTLRenderPassDescriptor* descriptor = fMTKView.currentRenderPassDescriptor;
+        fbInfo.fTexture = [[[descriptor colorAttachments] objectAtIndexedSubscript:0] texture];
 
         GrBackendRenderTarget backendRT(fWidth,
                                         fHeight,
@@ -84,8 +92,6 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
 }
 
 void MetalWindowContext::swapBuffers() {
-    // Block to ensure we don't try to render to a frame that hasn't finished presenting
-    dispatch_semaphore_wait(fInFlightSemaphore, DISPATCH_TIME_FOREVER);
 
     id<MTLCommandBuffer> commandBuffer = [fQueue commandBuffer];
     commandBuffer.label = @"Present";

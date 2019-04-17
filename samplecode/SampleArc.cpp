@@ -189,7 +189,9 @@ protected:
 
     bool onAnimate(const AnimTimer& timer) override {
         SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
-        fAnimatingDrawable->setSweep(angle);
+        if (fAnimatingDrawable) {
+            fAnimatingDrawable->setSweep(angle);
+        }
         return true;
     }
 
