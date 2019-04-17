@@ -29,6 +29,7 @@ public:
                                 const GrPrimitiveProcessor&,
                                 const GrPipeline& pipeline,
                                 const GrStencilSettings&,
+                                GrSurfaceOrigin,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
                                 GrPrimitiveType primitiveType,
