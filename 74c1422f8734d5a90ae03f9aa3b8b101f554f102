@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b0cf9d1_e78f6061",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T16:15:26Z",
+      "side": 1,
+      "message": "info",
+      "range": {
+        "startLine": 734,
+        "startChar": 15,
+        "endLine": 734,
+        "endChar": 18
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62c6a949_ed0376a0",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T16:15:26Z",
+      "side": 1,
+      "message": "fNumSemaphores",
+      "range": {
+        "startLine": 276,
+        "startChar": 31,
+        "endLine": 276,
+        "endChar": 43
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bbcf03f_aded5767",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T16:15:26Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 277,
+        "startChar": 25,
+        "endLine": 277,
+        "endChar": 38
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adbcc275_5b568e38",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T16:15:26Z",
+      "side": 1,
+      "message": "\u003d default ?",
+      "range": {
+        "startLine": 304,
+        "startChar": 18,
+        "endLine": 304,
+        "endChar": 20
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17fae7b8_ad2db35f",
+        "filename": "src/image/SkSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T16:15:26Z",
+      "side": 1,
+      "message": "Why do we need a private version of this ?",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 253,
+        "endChar": 16
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
