@@ -498,10 +498,14 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     auto resourceProvider = direct->priv().resourceProvider();
 
     GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
-    if (proxy->priv().hasPendingIO() || numSemaphores || finishedProc ||
+    if (proxy->priv().hasPendingIO() || numSemaphores ||
         SkToBool(flags & kSyncCpu_GrFlushFlag)) {
         result = this->flush(proxy, access, flags, numSemaphores, backendSemaphores,
                              finishedProc, finishedContext);
+    } else {
+        if (finishedProc) {
+            finishedProc(finishedContext);
+        }
     }
 
     if (!proxy->instantiate(resourceProvider)) {
