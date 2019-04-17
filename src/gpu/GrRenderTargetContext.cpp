@@ -1353,8 +1353,9 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                                              ambientRRect,
                                                              devSpaceAmbientBlur,
                                                              devSpaceInsetWidth);
-        SkASSERT(op);
-        this->addDrawOp(clip, std::move(op));
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+        }
     }
 
     if (SkColorGetA(rec.fSpotColor) > 0) {
