@@ -642,6 +642,10 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
+    if (scaledInsetWidth <= 0) {
+        return nullptr;
+    }
+
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<ShadowCircularRRectOp>(color, bounds,
