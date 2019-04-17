@@ -12,6 +12,7 @@
 #include "include/utils/SkRandom.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "tools/ToolUtils.h"
 
 static constexpr int kScreenWidth = 1500;
@@ -46,7 +47,8 @@ private:
 
     void onDelayedSetup() override {
         SkFont defaultFont;
-        auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(defaultFont);
+        SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(defaultFont);
+        auto cache = strikeSpec.findOrCreateExclusiveStrike();
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
             sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));

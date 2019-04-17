@@ -935,7 +935,8 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
     fPaint.setStyle(SkPaint::kFill_Style);
     fPaint.setPathEffect(nullptr);
 
-    fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(fFont, fPaint);
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(fFont, &fPaint);
+    fCache = strikeSpec.findOrCreateExclusiveStrike();
 
     fPaint.setStyle(prevStyle);
     fPaint.setPathEffect(std::move(prevPE));
