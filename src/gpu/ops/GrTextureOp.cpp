@@ -197,7 +197,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func, VisitorType visitor) const override {
         if (visitor == VisitorType::kAllocatorGather && fCanSkipAllocatorGather) {
-            return;
+            //return;
         }
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             func(fProxies[p].fProxy);
