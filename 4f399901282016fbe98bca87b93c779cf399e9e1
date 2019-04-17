@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b74c1eb3_9635ece8",
+        "filename": "tools/skqp/test_apk.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-17T19:56:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b2f4d035_85d9ed40",
+      "revId": "4f399901282016fbe98bca87b93c779cf399e9e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
