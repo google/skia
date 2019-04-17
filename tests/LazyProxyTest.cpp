@@ -111,7 +111,13 @@ public:
         const char* name() const override { return "LazyProxyTest::Op"; }
         FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
         GrProcessorSet::Analysis finalize(
-                const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
+                const GrCaps&, const GrAppliedClip* clip, GrFSAAType, GrClampType) override {
+            if (clip) {
+                for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
+                    const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
+                    clipFP->markPendingExecution();
+                }
+            }
             return GrProcessorSet::EmptySetAnalysis();
         }
         void onPrepare(GrOpFlushState*) override {}
