@@ -1740,10 +1740,8 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
     this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
-GrSemaphoresSubmitted GrRenderTargetContext::flush(
-        SkSurface::BackendSurfaceAccess access, GrFlushFlags flags, int numSemaphores,
-        GrBackendSemaphore backendSemaphores[], GrGpuFinishedProc finishedProc,
-        GrGpuFinishedContext finishedContext) {
+GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
+                                                   const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     if (fContext->priv().abandoned()) {
         return GrSemaphoresSubmitted::kNo;
@@ -1751,9 +1749,7 @@ GrSemaphoresSubmitted GrRenderTargetContext::flush(
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "prepareForExternalIO", fContext);
 
-    return this->drawingManager()->flushSurface(fRenderTargetProxy.get(), access, flags,
-                                                numSemaphores, backendSemaphores,
-                                                finishedProc, finishedContext);
+    return this->drawingManager()->flushSurface(fRenderTargetProxy.get(), access, info);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
