@@ -135,10 +135,6 @@ SkStrikeCache::~SkStrikeCache() {
     }
 }
 
-SkExclusiveStrikePtr SkStrikeCache::FindStrikeExclusive(const SkDescriptor& desc) {
-    return GlobalStrikeCache()->findStrikeExclusive(desc);
-}
-
 std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         const SkDescriptor& desc,
         const SkScalerContextEffects& effects,
@@ -154,12 +150,6 @@ std::unique_ptr<SkScalerContext> SkStrikeCache::CreateScalerContext(
         scaler = typeface.createScalerContext(effects, &desc, false /* must succeed */);
     }
     return scaler;
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
-        const SkDescriptor& desc, const SkScalerContextEffects& effects, const SkTypeface& typeface)
-{
-    return GlobalStrikeCache()->findOrCreateStrikeExclusive(desc, effects, typeface);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::findOrCreateStrikeExclusive(
@@ -188,51 +178,6 @@ SkScopedStrike SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
         node = this->createStrike(desc, std::move(scaler));
     }
     return SkScopedStrike{node};
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
-        const SkFont& font,
-        const SkPaint& paint,
-        const SkSurfaceProps& surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        const SkMatrix& deviceMatrix)
-{
-    return SkExclusiveStrikePtr(
-            GlobalStrikeCache()->findOrCreateStrike(
-                    font, paint, surfaceProps, scalerContextFlags,deviceMatrix));
-}
-
-auto SkStrikeCache::findOrCreateStrike(
-        const SkFont& font,
-        const SkPaint& paint,
-        const SkSurfaceProps& surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        const SkMatrix& deviceMatrix) -> Node*
-{
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-            font, paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
-
-    auto tf = font.getTypefaceOrDefault();
-
-    return this->findOrCreateStrike(*desc, effects, *tf);
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font) {
-    return FindOrCreateStrikeWithNoDeviceExclusive(font, SkPaint());
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font,
-                                                                            const SkPaint& paint) {
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font, paint,
-                              SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
-                              kFakeGammaAndBoostContrast, SkMatrix::I(), &ad, &effects);
-    auto typeface = font.getTypefaceOrDefault();
-    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
 }
 
 void SkStrikeCache::PurgeAll() {
@@ -416,16 +361,6 @@ bool SkStrikeCache::desperationSearchForPath(
         }
     }
     return false;
-}
-
-SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
-        const SkDescriptor& desc,
-        std::unique_ptr<SkScalerContext> scaler,
-        SkFontMetrics* maybeMetrics,
-        std::unique_ptr<SkStrikePinner> pinner)
-{
-    return GlobalStrikeCache()->createStrikeExclusive(
-            desc, std::move(scaler), maybeMetrics, std::move(pinner));
 }
 
 SkExclusiveStrikePtr SkStrikeCache::createStrikeExclusive(
