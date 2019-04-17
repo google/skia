@@ -19,7 +19,7 @@ static void testing_finished_proc(void* ctx) {
     *count += 1;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(FlushFinishedProcTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
 
     SkImageInfo info =
