@@ -117,6 +117,30 @@
     },
     {
       "key": {
+        "uuid": "3890c88f_0e7a6e4a",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T17:17:33Z",
+      "side": 1,
+      "message": "It is in the CL. In my next set of CLs I want to be able to pass the array of SkImages and SkSurfaces into just the GrContext clear. So in preparation for that I separated the two structs here.",
+      "parentUuid": "66f5fe07_f2042869",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 52
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17fae7b8_ad2db35f",
         "filename": "src/image/SkSurface.cpp",
         "patchSetId": 1
@@ -128,6 +152,30 @@
       "writtenOn": "2019-04-17T16:15:26Z",
       "side": 1,
       "message": "Why do we need a private version of this ?",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 253,
+        "endChar": 16
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "595fbf49_a61b5a43",
+        "filename": "src/image/SkSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T17:17:33Z",
+      "side": 1,
+      "message": "We already us the SkSurface::kSyncCpu_FlushFlag in a client so I need to keep that code path alive until we can update them to use the new API.",
+      "parentUuid": "17fae7b8_ad2db35f",
       "range": {
         "startLine": 253,
         "startChar": 4,
