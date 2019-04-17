@@ -37,6 +37,43 @@ void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     fProxy->priv().assign(std::move(s));
 }
 
+void GrResourceAllocator::determineRecyclability() {
+    for (Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        if (cur->uses() >= cur->proxy()->priv().getTotalRefs()) {
+#if 0
+            SkDebugf("%d: recyclable %d == %d (%d %d %d %d)\n",
+                cur->proxy()->uniqueID().asUInt(),
+                cur->uses(),
+                cur->proxy()->priv().getTotalRefs(),
+                cur->proxy()->fRefCnt,
+                cur->proxy()->fPendingReads,
+                cur->proxy()->fPendingWrites,
+                cur->proxy()->fFoo);
+#endif
+            // All the refs on the proxy are known to the resource allocator thus no one
+            // should be holding onto it outside of Ganesh.
+            SkASSERT(cur->uses() == cur->proxy()->priv().getTotalRefs());
+            cur->markAsRecyclable();
+        }
+#if 1
+        else {
+#if 0
+            SkDebugf("%d: NOT recyclable %d < %d (%d %d %d %d)\n",
+                cur->proxy()->uniqueID().asUInt(),
+                cur->uses(),
+                cur->proxy()->priv().getTotalRefs(),
+                cur->proxy()->fRefCnt,
+                cur->proxy()->fPendingReads,
+                cur->proxy()->fPendingWrites,
+                cur->proxy()->fFoo);
+#endif
+            SkASSERT(cur->uses() == cur->proxy()->fPendingReads + cur->proxy()->fPendingWrites + cur->proxy()->fFoo);
+            SkASSERT(cur->proxy()->fRefCnt - cur->proxy()->fFoo > 0);
+        }
+#endif
+    }
+}
+
 void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
 
@@ -55,7 +92,8 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
+                                      bool actualUse
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
@@ -85,6 +123,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                 SkASSERT(intvl->end() <= start && intvl->end() <= end);
             }
 #endif
+            if (actualUse) {
+                intvl->addUse();
+            }
             intvl->extendEnd(end);
             return;
         }
@@ -98,6 +139,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
         }
 
+        if (actualUse) {
+            newIntvl->addUse();
+        }
         fIntvlList.insertByIncreasingStart(newIntvl);
         fIntvlHash.add(newIntvl);
     }
@@ -294,11 +338,12 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         if (temp->wasAssignedSurface()) {
             sk_sp<GrSurface> surface = temp->detachSurface();
 
-            // If the proxy has an actual live ref on it that means someone wants to retain its
-            // contents. In that case we cannot recycle it (until the external holder lets
-            // go of it).
-            if (0 == temp->proxy()->priv().getProxyRefCnt()) {
+            if (temp->isRecyclable()) {
+                SkASSERT(0 == (temp->proxy()->priv().getProxyRefCnt() - temp->proxy()->fFoo));
+                SkASSERT(temp->uses() == temp->proxy()->priv().getTotalRefs());
                 this->recycleSurface(std::move(surface));
+            } else {
+                SkASSERT(temp->uses() < temp->proxy()->priv().getTotalRefs());
             }
         }
 
@@ -392,7 +437,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
             fActiveIntvls.insertByIncreasingEnd(cur);
 
-            if (fResourceProvider->overBudget()) {
+            if (false) { //fResourceProvider->overBudget()) {
                 // Only force intermediate draws on opList boundaries
                 if (this->onOpListBoundary()) {
                     this->forceIntermediateFlush(stopIndex);
@@ -438,7 +483,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
 
         fActiveIntvls.insertByIncreasingEnd(cur);
 
-        if (fResourceProvider->overBudget()) {
+        if (false) { //fResourceProvider->overBudget()) {
             // Only force intermediate draws on opList boundaries
             if (this->onOpListBoundary()) {
                 this->forceIntermediateFlush(stopIndex);
