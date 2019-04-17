@@ -1808,6 +1808,15 @@ if (skia_enable_tools) {
     }
   }
 
+  test_app("make_skqp_model") {
+    sources = [
+      "tools/skqp/make_skqp_model.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+
   if (target_cpu != "wasm") {
     import("gn/samples.gni")
     test_lib("samples") {
