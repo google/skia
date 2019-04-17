@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "245d76da_c2ad6c5c",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T18:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c371168e_a963b588",
+      "range": {
+        "startLine": 725,
+        "startChar": 68,
+        "endLine": 725,
+        "endChar": 69
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b0cf9d1_e78f6061",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d97a9654_27235ffd",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T18:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b0cf9d1_e78f6061",
+      "range": {
+        "startLine": 734,
+        "startChar": 15,
+        "endLine": 734,
+        "endChar": 18
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a0f0736d_1e54a54c",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T18:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62c6a949_ed0376a0",
+      "range": {
+        "startLine": 276,
+        "startChar": 31,
+        "endLine": 276,
+        "endChar": 43
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3bbcf03f_aded5767",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "04381572_3384644f",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T18:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3bbcf03f_aded5767",
+      "range": {
+        "startLine": 277,
+        "startChar": 25,
+        "endLine": 277,
+        "endChar": 38
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "adbcc275_5b568e38",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 1
@@ -114,6 +210,30 @@
       "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1892c1f3_b1d71ff4",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T18:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "adbcc275_5b568e38",
+      "range": {
+        "startLine": 304,
+        "startChar": 18,
+        "endLine": 304,
+        "endChar": 20
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -176,6 +296,30 @@
       "side": 1,
       "message": "Is that the only planned difference?\n\nMaybe just make the GrContext::flush() take those two arrays separately or in a second struct?",
       "parentUuid": "3890c88f_0e7a6e4a",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 52
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "492734e2_7734fb50",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-04-17T18:56:08Z",
+      "side": 1,
+      "message": "Okay went back to one common struct and will add the external images and surfaces in their own struct in new CL.",
+      "parentUuid": "83dba4c0_53b320c4",
       "range": {
         "startLine": 311,
         "startChar": 0,
