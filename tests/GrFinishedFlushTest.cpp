@@ -37,6 +37,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     // There is no work on the surface so flushing should immediately call the finished proc.
     surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr,
                    testing_finished_proc, (void*)&count);
+    // Workaround flush for older branch
+    ctx->flush(kSyncCpu_GrFlushFlag, 0, nullptr);
 
     REPORTER_ASSERT(reporter, count == 1);
 
@@ -71,6 +73,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
 
     // There is no work on the surface so flushing should immediately call the finished proc.
     ctx->flush(kNone_GrFlushFlags, 0, nullptr, testing_finished_proc, (void*)&count);
+    // Workaround flush for older branch
+    ctx->flush(kSyncCpu_GrFlushFlag, 0, nullptr);
     REPORTER_ASSERT(reporter, count == 4);
 
     count = 0;
@@ -81,6 +85,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest, reporter, ctxInfo) {
     // There is no work to be flushed here so this will return immediately, but make sure the
     // finished call from this proc isn't called till the previous surface flush also is finished.
     ctx->flush(kNone_GrFlushFlags, 0, nullptr, testing_finished_proc, (void*)&count2);
+    // Workaround flush for older branch
+    ctx->flush(kSyncCpu_GrFlushFlag, 0, nullptr);
 
     REPORTER_ASSERT(reporter, count == count2);
 
