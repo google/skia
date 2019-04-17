@@ -28,21 +28,19 @@ sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern)
         : INHERITED(gpu, size, intendedType, accessPattern)
-        , fIsDynamic(accessPattern == kDynamic_GrAccessPattern) {
-    // TODO: We are treating all buffers as static access since we don't have an implementation to
-    // synchronize gpu and cpu access of a resource yet. See comments in GrMtlBuffer::internalMap()
-    // and interalUnmap() for more details.
-    fIsDynamic = false;
-
-    // The managed resource mode is only available for macOS. iOS should use shared.
-    fMtlBuffer = size == 0 ? nil :
-            [gpu->device() newBufferWithLength: size
-                                       options: !fIsDynamic ? MTLResourceStorageModePrivate
+        , fIsDynamic(accessPattern == kDynamic_GrAccessPattern)
+        , fOffset(0) {
+    if (!fIsDynamic) {
+        // The managed resource mode is only available for macOS. iOS should use shared.
+        fMtlBuffer = size == 0 ? nil :
+                [gpu->device() newBufferWithLength: size
+                                           options: !fIsDynamic ? MTLResourceStorageModePrivate
 #ifdef SK_BUILD_FOR_MAC
-                                                            : MTLResourceStorageModeManaged];
+                                                                : MTLResourceStorageModeManaged];
 #else
-                                                            : MTLResourceStorageModeShared];
+                                                                : MTLResourceStorageModeShared];
 #endif
+    }
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
@@ -54,11 +52,13 @@ GrMtlBuffer::~GrMtlBuffer() {
 }
 
 bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
-    if (fMtlBuffer == nil) {
-        return false;
-    }
-    if (srcInBytes > fMtlBuffer.length) {
-        return false;
+    if (!fIsDynamic) {
+        if (fMtlBuffer == nil) {
+            return false;
+        }
+        if (srcInBytes > fMtlBuffer.length) {
+            return false;
+        }
     }
     VALIDATE();
 
@@ -67,7 +67,9 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
         return false;
     }
     SkASSERT(fMappedBuffer);
-    SkASSERT(srcInBytes == fMappedBuffer.length);
+    if (!fIsDynamic) {
+        SkASSERT(srcInBytes == fMappedBuffer.length);
+    }
     memcpy(fMapPtr, src, srcInBytes);
     this->internalUnmap(srcInBytes);
 
@@ -100,29 +102,27 @@ void GrMtlBuffer::onRelease() {
 }
 
 void GrMtlBuffer::internalMap(size_t sizeInBytes) {
-    SkASSERT(fMtlBuffer);
     if (this->wasDestroyed()) {
         return;
     }
     VALIDATE();
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
+        // TODO: which size do I want?
+        fMtlBuffer = this->mtlGpu()->bufferManager().getDynamicAllocation(sizeInBytes, &fOffset);
         // TODO: We will want to decide if we need to create a new buffer here in order to avoid
         // possibly invalidating a buffer which is being used by the gpu.
         fMappedBuffer = fMtlBuffer;
-        fMapPtr = fMappedBuffer.contents;
+        fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
+        SkASSERT(fMtlBuffer);
         SK_BEGIN_AUTORELEASE_BLOCK
         // TODO: We can't ensure that map will only be called once on static access buffers until
         // we actually enable dynamic access.
         // SkASSERT(fMappedBuffer == nil);
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
-#ifdef SK_BUILD_FOR_MAC
-                                                      options: MTLResourceStorageModeManaged];
-#else
                                                       options: MTLResourceStorageModeShared];
-#endif
         fMapPtr = fMappedBuffer.contents;
         SK_END_AUTORELEASE_BLOCK
     }
@@ -141,12 +141,14 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         fMapPtr = nullptr;
         return;
     }
+    if (fIsDynamic) {
 #ifdef SK_BUILD_FOR_MAC
-    // TODO: by calling didModifyRange here we invalidate the buffer. This will cause problems for
-    // dynamic access buffers if they are being used by the gpu.
-    [fMappedBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
+        // TODO: by calling didModifyRange here we invalidate the buffer. This will cause problems
+        // for dynamic access buffers if they are being used by the gpu.
+        // TODO: need to make sure offset and size have valid alignments.
+        [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
 #endif
-    if (!fIsDynamic) {
+    } else {
         SK_BEGIN_AUTORELEASE_BLOCK
         id<MTLBlitCommandEncoder> blitCmdEncoder =
                 [this->mtlGpu()->commandBuffer() blitCommandEncoder];
@@ -179,6 +181,80 @@ void GrMtlBuffer::validate() const {
              this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
              fMappedBuffer.length <= fMtlBuffer.length);
-    SkASSERT(fIsDynamic == false); // TODO: implement synchronization to allow dynamic access.
 }
 #endif
+
+id<MTLBuffer> GrMtlBufferManager::getDynamicAllocation(size_t size, size_t* offset) {
+    static size_t kStandardDynamicBufferSize = 16*1024;
+
+    // create a new buffer if we need to
+    if (fAllocationSize - fNextOffset < size) {
+        size_t allocSize = (size >= kStandardDynamicBufferSize) ? size : kStandardDynamicBufferSize;
+        id<MTLBuffer> buffer;
+        SK_BEGIN_AUTORELEASE_BLOCK
+        buffer = [fGpu->device() newBufferWithLength: allocSize
+#ifdef SK_BUILD_FOR_MAC
+                                             options: MTLResourceStorageModeManaged];
+#else
+                                             options: MTLResourceStorageModeShared];
+#endif
+        SK_END_AUTORELEASE_BLOCK
+        if (nil == buffer) {
+            return nil;
+        }
+
+        if (size >= kStandardDynamicBufferSize) {
+            *offset = 0;
+            return buffer;
+        }
+
+        fBufferAllocation = buffer;
+        fNextOffset = 0;
+        fAllocationSize = kStandardDynamicBufferSize;
+    }
+
+    *offset = fNextOffset;
+    fNextOffset += size;
+    fNextOffset = GrSizeAlignUp(fNextOffset, 256);
+
+    return fBufferAllocation;
+}
+
+void GrMtlBufferManager::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
+                                         const GrMtlBuffer* buffer,
+                                         size_t index) {
+    SkASSERT(index < 4);
+    id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
+    SkASSERT(mtlVertexBuffer);
+    if (fBufferBindings[index] != mtlVertexBuffer) {
+        [encoder setVertexBuffer: mtlVertexBuffer
+                          offset: 0
+                         atIndex: index];
+        fBufferBindings[index] = mtlVertexBuffer;
+    }
+    [encoder setVertexBufferOffset: buffer->offset()
+                           atIndex: index];
+}
+
+void GrMtlBufferManager::setFragmentBuffer(id<MTLRenderCommandEncoder> encoder,
+                                           const GrMtlBuffer* buffer,
+                                           size_t index) {
+    SkASSERT(index < 4);
+    id<MTLBuffer> mtlFragmentBuffer = buffer->mtlBuffer();
+    if (mtlFragmentBuffer) {
+        if (fBufferBindings[index] != mtlFragmentBuffer) {
+            [encoder setFragmentBuffer: mtlFragmentBuffer
+                                offset: 0
+                               atIndex: index];
+            fBufferBindings[index] = mtlFragmentBuffer;
+        }
+        [encoder setFragmentBufferOffset: buffer->offset()
+                                 atIndex: index];
+    }
+}
+
+void GrMtlBufferManager::resetBindings() {
+    for (int i = 0; i < 4; ++i) {
+        fBufferBindings[i] = nil;
+    }
+}
