@@ -42,42 +42,6 @@
 #include "ir/SkSLWhileStatement.h"
 #include "spirv.h"
 
-union ConstantValue {
-    ConstantValue(int64_t i)
-        : fInt(i) {}
-
-    ConstantValue(double d)
-        : fDouble(d) {}
-
-    bool operator==(const ConstantValue& other) const {
-        return fInt == other.fInt;
-    }
-
-    int64_t fInt;
-    double fDouble;
-};
-
-enum class ConstantType {
-    kInt,
-    kUInt,
-    kShort,
-    kUShort,
-    kFloat,
-    kDouble,
-    kHalf,
-};
-
-namespace std {
-
-template <>
-struct hash<std::pair<ConstantValue, ConstantType>> {
-    size_t operator()(const std::pair<ConstantValue, ConstantType>& key) const {
-        return key.first.fInt ^ (int) key.second;
-    }
-};
-
-}
-
 namespace SkSL {
 
 #define kLast_Capability SpvCapabilityMultiViewport
@@ -235,7 +199,7 @@ private:
     void writeMatrixCopy(SpvId id, SpvId src, const Type& srcType, const Type& dstType,
                          OutputStream& out);
 
-    void addColumnEntry(SpvId columnType, Precision precision, std::vector<SpvId>* currentColumn,
+    void addColumnEntry(SpvId columnType, std::vector<SpvId>* currentColumn,
                         std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
                         OutputStream& out);
 
@@ -380,7 +344,10 @@ private:
 
     SpvId fBoolTrue;
     SpvId fBoolFalse;
-    std::unordered_map<std::pair<ConstantValue, ConstantType>, SpvId> fNumberConstants;
+    std::unordered_map<int64_t, SpvId> fIntConstants;
+    std::unordered_map<uint64_t, SpvId> fUIntConstants;
+    std::unordered_map<float, SpvId> fFloatConstants;
+    std::unordered_map<double, SpvId> fDoubleConstants;
     // The constant float2(0, 1), used in swizzling
     SpvId fConstantZeroOneVector = 0;
     bool fSetupFragPosition;
