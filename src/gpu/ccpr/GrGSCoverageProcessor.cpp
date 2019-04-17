@@ -20,7 +20,7 @@ class GrGSCoverageProcessor::Impl : public GrGLSLGeometryProcessor {
 protected:
     Impl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
-    virtual bool hasCoverage() const { return false; }
+    virtual bool hasCoverage(const GrGSCoverageProcessor& proc) const { return false; }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
                  FPCoordTransformIter&& transformIter) final {
@@ -69,9 +69,9 @@ protected:
         SkSTArray<2, GrShaderVar> emitArgs;
         const char* corner = emitArgs.emplace_back("corner", kFloat2_GrSLType).c_str();
         const char* bloatdir = emitArgs.emplace_back("bloatdir", kFloat2_GrSLType).c_str();
-        const char* coverage = nullptr;
-        if (this->hasCoverage()) {
-            coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
+        const char* inputCoverage = nullptr;
+        if (this->hasCoverage(proc)) {
+            inputCoverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
         }
         const char* cornerCoverage = nullptr;
         if (Subpass::kCorners == proc.fSubpass) {
@@ -79,15 +79,26 @@ protected:
         }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
-            if (coverage) {
-                fnBody.appendf("%s *= %s;", coverage, wind.c_str());
+            fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir, corner);
+            const char* coverage = inputCoverage;
+            if (!coverage) {
+                if (!fShader->calculatesOwnEdgeCoverage()) {
+                    // Flat edge opposite the curve. Coverages need full precision since distance
+                    // to the opposite edge can be large.
+                    fnBody.appendf("float coverage = dot(float3(vertexpos, 1), %s);",
+                                   fEdgeDistanceEquation.c_str());
+                } else {
+                    // The "coverage" param should hold only the signed winding value.
+                    fnBody.appendf("float coverage = 1;");
+                }
+                coverage = "coverage";
             }
+            fnBody.appendf("%s *= %s;", coverage, wind.c_str());
             if (cornerCoverage) {
                 fnBody.appendf("%s.x *= %s;", cornerCoverage, wind.c_str());
             }
-            fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir, corner);
             fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
-                                  "vertexpos", coverage ? coverage : wind.c_str(), cornerCoverage);
+                                  "vertexpos", coverage, cornerCoverage, wind.c_str());
             g->emitVertex(&fnBody, "vertexpos", rtAdjust);
             return fnBody;
         }().c_str(), &emitVertexFn);
@@ -100,6 +111,19 @@ protected:
 #endif
         g->defineConstant("bloat", bloat);
 
+        if (!this->hasCoverage(proc) && !fShader->calculatesOwnEdgeCoverage()) {
+            // Determine the amount of coverage to subtract out for the flat edge of the curve.
+            g->declareGlobal(fEdgeDistanceEquation);
+            g->codeAppendf("float2 p0 = pts[0], p1 = pts[%i];", numInputPoints - 1);
+            g->codeAppendf("float2 n = float2(p0.y - p1.y, p1.x - p0.x);");
+            g->codeAppend ("float nwidth = bloat*2 * (abs(n.x) + abs(n.y));");
+            // When nwidth=0, wind must also be 0 (and coverage * wind = 0). So it doesn't matter
+            // what we come up with here as long as it isn't NaN or Inf.
+            g->codeAppend ("n /= (0 != nwidth) ? nwidth : 1;");
+            g->codeAppendf("%s = float3(-n, dot(n, p0) - .5*sign(%s));",
+                           fEdgeDistanceEquation.c_str(), wind.c_str());
+        }
+
         this->onEmitGeometryShader(proc, g, wind, emitVertexFn.c_str());
     }
 
@@ -107,6 +131,7 @@ protected:
                                       const GrShaderVar& wind, const char* emitVertexFn) const = 0;
 
     const std::unique_ptr<Shader> fShader;
+    const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
@@ -125,11 +150,11 @@ class GrGSCoverageProcessor::TriangleHullImpl : public GrGSCoverageProcessor::Im
 public:
     TriangleHullImpl(std::unique_ptr<Shader> shader) : Impl(std::move(shader)) {}
 
-    bool hasCoverage() const override { return true; }
+    bool hasCoverage(const GrGSCoverageProcessor& proc) const override { return true; }
 
     void onEmitGeometryShader(const GrGSCoverageProcessor&, GrGLSLGeometryBuilder* g,
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
-        fShader->emitSetupCode(g, "pts", wind.c_str());
+        fShader->emitSetupCode(g, "pts");
 
         // Visualize the input triangle as upright and equilateral, with a flat base. Paying special
         // attention to wind, we can identify the points as top, bottom-left, and bottom-right.
@@ -224,7 +249,7 @@ public:
     void onEmitGeometryShader(const GrGSCoverageProcessor&, GrGLSLGeometryBuilder* g,
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         const char* hullPts = "pts";
-        fShader->emitSetupCode(g, "pts", wind.c_str(), &hullPts);
+        fShader->emitSetupCode(g, "pts", &hullPts);
 
         // Visualize the input (convex) quadrilateral as a square. Paying special attention to wind,
         // we can identify the points by their corresponding corner.
@@ -288,11 +313,13 @@ class GrGSCoverageProcessor::CornerImpl : public GrGSCoverageProcessor::Impl {
 public:
     CornerImpl(std::unique_ptr<Shader> shader) : Impl(std::move(shader)) {}
 
-    bool hasCoverage() const override { return true; }
+    bool hasCoverage(const GrGSCoverageProcessor& proc) const override {
+        return proc.isTriangles();
+    }
 
     void onEmitGeometryShader(const GrGSCoverageProcessor& proc, GrGLSLGeometryBuilder* g,
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
-        fShader->emitSetupCode(g, "pts", wind.c_str());
+        fShader->emitSetupCode(g, "pts");
 
         g->codeAppendf("int corneridx = sk_InvocationID;");
         if (!proc.isTriangles()) {
@@ -357,16 +384,20 @@ public:
                               "half2(1 + right_coverages[1], 1));",
                            emitVertexFn);
         } else {
-            // Curves are simpler. The first coverage value of -1 means "wind = -wind", and causes
-            // the Shader to erase what it had written previously for the hull. Then, at each vertex
-            // of the corner box, the Shader will calculate the curve's local coverage value,
-            // interpolate it alongside our attenuation parameter, and multiply the two together for
-            // a final coverage value.
-            g->codeAppendf("%s(corner, -crossbloat, -1, half2(1));", emitVertexFn);
-            g->codeAppendf("%s(corner, outbloat, -1, half2(0, attenuation));",
+            // Curves are simpler. Setting "wind = -wind" causes the Shader to erase what it had
+            // written in the previous pass hull. Then, at each vertex of the corner box, the Shader
+            // will calculate the curve's local coverage value, interpolate it alongside our
+            // attenuation parameter, and multiply the two together for a final coverage value.
+            g->codeAppendf("%s = -%s;", wind.c_str(), wind.c_str());
+            if (!fShader->calculatesOwnEdgeCoverage()) {
+                g->codeAppendf("%s = -%s;",
+                               fEdgeDistanceEquation.c_str(), fEdgeDistanceEquation.c_str());
+            }
+            g->codeAppendf("%s(corner, -crossbloat, half2(-1, 1));", emitVertexFn);
+            g->codeAppendf("%s(corner, outbloat, half2(0, attenuation));",
                            emitVertexFn);
-            g->codeAppendf("%s(corner, -outbloat, -1, half2(1));", emitVertexFn);
-            g->codeAppendf("%s(corner, crossbloat, -1, half2(1));", emitVertexFn);
+            g->codeAppendf("%s(corner, -outbloat, half2(-1, 1));", emitVertexFn);
+            g->codeAppendf("%s(corner, crossbloat, half2(-1, 1));", emitVertexFn);
         }
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, proc.isTriangles() ? 3 : 2);
