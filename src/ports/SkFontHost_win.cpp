@@ -269,6 +269,7 @@ protected:
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
+    void getPostScriptGlyphNames(SkString*) const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
@@ -1974,6 +1975,8 @@ int LogFontTypeface::onCountGlyphs() const {
 
     return glyphCount;
 }
+
+void LogFontTypeface::getPostScriptGlyphNames(SkString*) const {}
 
 int LogFontTypeface::onGetUPEM() const {
     HDC hdc = ::CreateCompatibleDC(nullptr);
