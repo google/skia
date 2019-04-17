@@ -906,7 +906,7 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
                                const SkPaint* paint) : fFont(font) {
     SkAssertResult(count >= 0);
 
-    fFont.setLinearMetrics(true);
+    fFont.setHinting(SkFontHinting::kNone);
 
     if (paint) {
         fPaint = *paint;

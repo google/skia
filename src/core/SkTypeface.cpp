@@ -387,7 +387,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     SkFont font;
     font.setTypeface(sk_ref_sp(const_cast<SkTypeface*>(this)));
     font.setSize(textSize);
-    font.setLinearMetrics(true);
+    font.setHinting(SkFontHinting::kNone);
 
     SkScalerContextRec rec;
     SkScalerContextEffects effects;

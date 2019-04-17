@@ -959,7 +959,6 @@ void DrawCommand::MakeJsonPaint(SkJSONWriter&   writer,
 static void MakeJsonFont(const SkFont& font, SkJSONWriter& writer, UrlDataManager& urlDataManager) {
     writer.beginObject();
     store_bool(writer, DEBUGCANVAS_ATTRIBUTE_FAKEBOLDTEXT, font.isEmbolden(), false);
-    store_bool(writer, DEBUGCANVAS_ATTRIBUTE_LINEARTEXT, font.isLinearMetrics(), false);
     store_bool(writer, DEBUGCANVAS_ATTRIBUTE_SUBPIXELTEXT, font.isSubpixel(), false);
     store_bool(writer, DEBUGCANVAS_ATTRIBUTE_EMBEDDEDBITMAPTEXT, font.isEmbeddedBitmaps(), false);
     store_bool(writer, DEBUGCANVAS_ATTRIBUTE_AUTOHINTING, font.isForceAutoHinting(), false);
