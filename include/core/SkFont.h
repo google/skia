@@ -509,7 +509,6 @@ private:
     bool hasSomeAntiAliasing() const;
 
     friend class GrTextBlob;
-    friend class SkCanonicalizeFont;
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
     friend class SkTextBlobCacheDiffCanvas;

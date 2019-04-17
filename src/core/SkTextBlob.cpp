@@ -13,6 +13,7 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkTextToPathIter.h"
 #include "src/core/SkWriteBuffer.h"
@@ -935,7 +936,8 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
     fPaint.setStyle(SkPaint::kFill_Style);
     fPaint.setPathEffect(nullptr);
 
-    fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(fFont, fPaint);
+    SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakeCanonicalized(fFont, &fPaint);
+    fCache = strikeSpec.findOrCreateExclusiveStrike();
 
     fPaint.setStyle(prevStyle);
     fPaint.setPathEffect(std::move(prevPE));
