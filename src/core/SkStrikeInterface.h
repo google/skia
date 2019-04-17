@@ -68,7 +68,6 @@ public:
     virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkDescriptor& getDescriptor() const = 0;
-    virtual SkStrikeSpec strikeSpec() const = 0;
 
     enum PreparationDetail {
         kBoundsOnly,
