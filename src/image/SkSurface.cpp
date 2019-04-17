@@ -240,28 +240,30 @@ GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess acce
 }
 
 void SkSurface::flush() {
-    asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags, 0, nullptr,
-                        nullptr, nullptr);
+    this->flush(BackendSurfaceAccess::kNoAccess, GrSurfaceFlushInfo());
 }
 
-GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, GrFlushFlags flags,
-                                       int numSemaphores, GrBackendSemaphore signalSemaphores[],
-                                       GrGpuFinishedProc finishedProc,
-                                       GrGpuFinishedContext finishedContext) {
-    return asSB(this)->onFlush(access, flags, numSemaphores, signalSemaphores, finishedProc,
-                               finishedContext);
+GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access,
+                                       const GrSurfaceFlushInfo& flushInfo) {
+    return asSB(this)->onFlush(access, flushInfo);
 }
 
 GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, FlushFlags flags,
                                        int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
     GrFlushFlags grFlags = flags == kSyncCpu_FlushFlag ? kSyncCpu_GrFlushFlag : kNone_GrFlushFlags;
-    return this->flush(access, grFlags, numSemaphores, signalSemaphores);
+    GrSurfaceFlushInfo info;
+    info.fFlags = grFlags;
+    info.fNumSemaphores = numSemaphores;
+    info.fSignalSemaphores = signalSemaphores;
+    return this->flush(access, info);
 }
 
 GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
                                                           GrBackendSemaphore signalSemaphores[]) {
-    return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, kNone_GrFlushFlags,
-                               numSemaphores, signalSemaphores, nullptr, nullptr);
+    GrSurfaceFlushInfo info;
+    info.fNumSemaphores = numSemaphores;
+    info.fSignalSemaphores = signalSemaphores;
+    return this->flush(BackendSurfaceAccess::kNoAccess, info);
 }
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {

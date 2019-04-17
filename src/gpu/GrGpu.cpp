@@ -414,33 +414,29 @@ int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
 
 GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
                                          SkSurface::BackendSurfaceAccess access,
-                                         GrFlushFlags flags, int numSemaphores,
-                                         GrBackendSemaphore backendSemaphores[],
-                                         GrGpuFinishedProc finishedProc,
-                                         GrGpuFinishedContext finishedContext) {
+                                         const GrFlushInfo& info) {
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
     if (this->caps()->fenceSyncSupport()) {
-        for (int i = 0; i < numSemaphores; ++i) {
+        for (int i = 0; i < info.fNumSemaphores; ++i) {
             sk_sp<GrSemaphore> semaphore;
-            if (backendSemaphores[i].isInitialized()) {
+            if (info.fSignalSemaphores[i].isInitialized()) {
                 semaphore = resourceProvider->wrapBackendSemaphore(
-                        backendSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillSignal,
+                        info.fSignalSemaphores[i],
+                        GrResourceProvider::SemaphoreWrapType::kWillSignal,
                         kBorrow_GrWrapOwnership);
             } else {
                 semaphore = resourceProvider->makeSemaphore(false);
             }
             this->insertSemaphore(semaphore);
 
-            if (!backendSemaphores[i].isInitialized()) {
-                backendSemaphores[i] = semaphore->backendSemaphore();
+            if (!info.fSignalSemaphores[i].isInitialized()) {
+                info.fSignalSemaphores[i] = semaphore->backendSemaphore();
             }
         }
     }
-    this->onFinishFlush(proxy, access, flags,
-                        (numSemaphores > 0 && this->caps()->fenceSyncSupport()),
-                        finishedProc, finishedContext);
+    this->onFinishFlush(proxy, access, info);
     return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }
