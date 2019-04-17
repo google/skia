@@ -164,6 +164,30 @@
     },
     {
       "key": {
+        "uuid": "83dba4c0_53b320c4",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-17T17:26:10Z",
+      "side": 1,
+      "message": "Is that the only planned difference?\n\nMaybe just make the GrContext::flush() take those two arrays separately or in a second struct?",
+      "parentUuid": "3890c88f_0e7a6e4a",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 52
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17fae7b8_ad2db35f",
         "filename": "src/image/SkSurface.cpp",
         "patchSetId": 1
