@@ -87,6 +87,8 @@ protected:
 
     int onCountGlyphs() const override { return (int)fTestFont->fCharCodesCount; }
 
+    void getPostScriptGlyphNames(SkString*) const override {}
+
     int onGetUPEM() const override { return 2048; }
 
     void                          onGetFamilyName(SkString* familyName) const override;
