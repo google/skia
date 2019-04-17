@@ -66,7 +66,10 @@ public:
             return pool->allocate<Op>(context, proxyProvider, test, nullTexture);
         }
 
-        void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+        void visitProxies(const VisitProxyFunc& func, VisitorType type) const override {
+            if (VisitorType::kAllocatorGather == type) {
+//                fProxy->incFoo();
+            }
             func(fProxy.get());
         }
 
@@ -111,7 +114,13 @@ public:
         const char* name() const override { return "LazyProxyTest::Op"; }
         FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
         GrProcessorSet::Analysis finalize(
-                const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
+                const GrCaps&, const GrAppliedClip* clip, GrFSAAType, GrClampType) override {
+            if (clip) {
+                for (int i = 0; i < clip->numClipCoverageFragmentProcessors(); ++i) {
+                    const GrFragmentProcessor* clipFP = clip->clipCoverageFragmentProcessor(i);
+                    clipFP->markPendingExecution();
+                }
+            }
             return GrProcessorSet::EmptySetAnalysis();
         }
         void onPrepare(GrOpFlushState*) override {}
@@ -154,7 +163,9 @@ public:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return nullptr; }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
         bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
-        const TextureSampler& onTextureSampler(int) const override { return fAccess; }
+        const TextureSampler& onTextureSampler(int) const override {
+            return fAccess;
+        }
 
         GrRecordingContext* const fContext;
         GrProxyProvider* const fProxyProvider;

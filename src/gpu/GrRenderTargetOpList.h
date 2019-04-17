@@ -161,7 +161,7 @@ private:
         GrOp* head() const { return fList.head(); }
 
         GrAppliedClip* appliedClip() const { return fAppliedClip; }
-        const DstProxy& dstProxy() const { return fDstProxy; }
+        const DstProxy& dstProxy() const { return fDstProxy1; }
         const SkRect& bounds() const { return fBounds; }
 
         // Deletes all the ops in the chain via the pool.
@@ -211,7 +211,7 @@ private:
 
         List fList;
         GrProcessorSet::Analysis fProcessorAnalysis;
-        DstProxy fDstProxy;
+        DstProxy fDstProxy1;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
     };
