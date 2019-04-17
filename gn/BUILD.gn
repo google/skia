@@ -38,6 +38,9 @@ config("default") {
   libs = []
 
   if (is_win) {
+    if (is_clang && target_cpu == "arm64") {
+      cflags += [ "--target=arm64-windows" ]
+    }
     cflags += [
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/WX",  # Treat warnings as errors.
