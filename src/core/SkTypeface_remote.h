@@ -118,6 +118,10 @@ protected:
         SK_ABORT("Should never be called.");
     }
 
+    void getPostScriptGlyphNames(SkString*) const override {
+        SK_ABORT("Should never be called.");
+    }
+
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         SK_ABORT("Should never be called.");
         return nullptr;

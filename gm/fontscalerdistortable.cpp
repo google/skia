@@ -58,13 +58,13 @@ protected:
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
                 if (j == 0 && distortable) {
-                    font.setTypeface(sk_sp<SkTypeface>(
-                        distortable->makeClone(
-                            SkFontArguments().setVariationDesignPosition(position))));
+                    sk_sp<SkTypeface> clone = distortable->makeClone(
+                            SkFontArguments().setVariationDesignPosition(position));
+                    font.setTypeface(clone ? std::move(clone) : distortable);
                 } else {
-                    font.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
+                    font.setTypeface(fontMgr->makeFromStream(
                         distortableStream->duplicate(),
-                        SkFontArguments().setVariationDesignPosition(position))));
+                        SkFontArguments().setVariationDesignPosition(position)));
                 }
 
                 SkAutoCanvasRestore acr(canvas, true);

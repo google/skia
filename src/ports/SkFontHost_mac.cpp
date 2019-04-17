@@ -744,6 +744,15 @@ protected:
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
+    void getPostScriptGlyphNames(SkString*) const override {}
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override
+    {
+        return -1;
+    }
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const override {
+        return nullptr;
+    }
 
     void* onGetCTFontRef() const override { return (void*)fFontRef.get(); }
 

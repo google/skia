@@ -40,6 +40,8 @@ protected:
     void                          onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
+    void getPostScriptGlyphNames(SkString*) const override;
+
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
