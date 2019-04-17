@@ -389,18 +389,19 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     }
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
-        size_t size = memoryLayout.size(*type.fields()[i].fType);
-        size_t alignment = memoryLayout.alignment(*type.fields()[i].fType);
-        const Layout& fieldLayout = type.fields()[i].fModifiers.fLayout;
+        const Type::Field& field = type.fields()[i];
+        size_t size = memoryLayout.size(*field.fType);
+        size_t alignment = memoryLayout.alignment(*field.fType);
+        const Layout& fieldLayout = field.fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
                 fErrors.error(type.fOffset,
-                              "offset of field '" + type.fields()[i].fName + "' must be at "
+                              "offset of field '" + field.fName + "' must be at "
                               "least " + to_string((int) offset));
             }
             if (fieldLayout.fOffset % alignment) {
                 fErrors.error(type.fOffset,
-                              "offset of field '" + type.fields()[i].fName + "' must be a multiple"
+                              "offset of field '" + field.fName + "' must be a multiple"
                               " of " + to_string((int) alignment));
             }
             offset = fieldLayout.fOffset;
@@ -410,21 +411,25 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
                 offset += alignment - mod;
             }
         }
-        this->writeInstruction(SpvOpMemberName, resultId, i, type.fields()[i].fName, fNameBuffer);
+        this->writeInstruction(SpvOpMemberName, resultId, i, field.fName, fNameBuffer);
         this->writeLayout(fieldLayout, resultId, i);
-        if (type.fields()[i].fModifiers.fLayout.fBuiltin < 0) {
+        if (field.fModifiers.fLayout.fBuiltin < 0) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i, SpvDecorationOffset,
                                    (SpvId) offset, fDecorationBuffer);
         }
-        if (type.fields()[i].fType->kind() == Type::kMatrix_Kind) {
+        if (field.fType->kind() == Type::kMatrix_Kind) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor,
                                    fDecorationBuffer);
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationMatrixStride,
-                                   (SpvId) memoryLayout.stride(*type.fields()[i].fType),
+                                   (SpvId) memoryLayout.stride(*field.fType),
                                    fDecorationBuffer);
         }
+        if (!field.fType->highPrecision()) {
+            this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i,
+                                   SpvDecorationRelaxedPrecision, fDecorationBuffer);
+        }
         offset += size;
-        Type::Kind kind = type.fields()[i].fType->kind();
+        Type::Kind kind = field.fType->kind();
         if ((kind == Type::kArray_Kind || kind == Type::kStruct_Kind) && offset % alignment != 0) {
             offset += alignment - offset % alignment;
         }
@@ -763,6 +768,7 @@ std::vector<SpvId> SPIRVCodeGenerator::vectorize(
             for (int i = 0; i < vectorSize; i++) {
                 this->writeWord(raw, out);
             }
+            this->writePrecisionModifier(a->fType, vector);
             result.push_back(vector);
         } else {
             result.push_back(raw);
@@ -1132,6 +1138,7 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
         for (int row = 0; row < type.columns(); row++) {
             this->writeWord(row == column ? diagonal : zeroId, out);
         }
+        this->writePrecisionModifier(type, columnId);
     }
     this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(),
                       out);
@@ -1140,6 +1147,7 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
     for (SpvId id : columnIds) {
         this->writeWord(id, out);
     }
+    this->writePrecisionModifier(type, id);
 }
 
 void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcType,
@@ -1170,6 +1178,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
             // we're still inside the src matrix, copy the column
             SpvId srcColumn = this->nextId();
             this->writeInstruction(SpvOpCompositeExtract, srcColumnType, srcColumn, src, i, out);
+            this->writePrecisionModifier(dstType, srcColumn);
             SpvId dstColumn;
             if (srcType.rows() == dstType.rows()) {
                 // columns are equal size, don't need to do anything
@@ -1186,6 +1195,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 for (int i = 0; i < delta; ++i) {
                     this->writeWord(zeroId, out);
                 }
+                this->writePrecisionModifier(dstType, dstColumn);
             }
             else {
                 // dst column is smaller, need to swizzle the src column
@@ -1199,6 +1209,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 for (int i = 0; i < count; i++) {
                     this->writeWord(i, out);
                 }
+                this->writePrecisionModifier(dstType, dstColumn);
             }
             columns[i] = dstColumn;
         } else {
@@ -1211,6 +1222,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 for (int i = 0; i < dstType.rows(); ++i) {
                     this->writeWord(zeroId, out);
                 }
+                this->writePrecisionModifier(dstType, zeroColumn);
             }
             columns[i] = zeroColumn;
         }
@@ -1221,9 +1233,11 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
     for (int i = 0; i < dstType.columns(); i++) {
         this->writeWord(columns[i], out);
     }
+    this->writePrecisionModifier(dstType, id);
 }
 
-void SPIRVCodeGenerator::addColumnEntry(SpvId columnType, std::vector<SpvId>* currentColumn,
+void SPIRVCodeGenerator::addColumnEntry(SpvId columnType, Precision precision,
+                                        std::vector<SpvId>* currentColumn,
                                         std::vector<SpvId>* columnIds,
                                         int* currentCount, int rows, SpvId entry,
                                         OutputStream& out) {
@@ -1241,6 +1255,7 @@ void SPIRVCodeGenerator::addColumnEntry(SpvId columnType, std::vector<SpvId>* cu
             this->writeWord(id, out);
         }
         currentColumn->clear();
+        this->writePrecisionModifier(precision, columnId);
     }
 }
 
@@ -1282,6 +1297,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
         std::vector<SpvId> currentColumn;
         // the total number of scalars represented by currentColumn's entries
         int currentCount = 0;
+        Precision precision = c.fType.highPrecision() ? Precision::kHigh : Precision::kLow;
         for (size_t i = 0; i < arguments.size(); i++) {
             if (currentCount == 0 && c.fArguments[i]->fType.kind() == Type::kVector_Kind &&
                     c.fArguments[i]->fType.columns() == c.fType.rows()) {
@@ -1289,16 +1305,16 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
                 columnIds.push_back(arguments[i]);
             } else {
                 if (c.fArguments[i]->fType.columns() == 1) {
-                    this->addColumnEntry(columnType, &currentColumn, &columnIds, &currentCount,
-                                         rows, arguments[i], out);
+                    this->addColumnEntry(columnType, precision, &currentColumn, &columnIds,
+                                         &currentCount, rows, arguments[i], out);
                 } else {
                     SpvId componentType = this->getType(c.fArguments[i]->fType.componentType());
                     for (int j = 0; j < c.fArguments[i]->fType.columns(); ++j) {
                         SpvId swizzle = this->nextId();
                         this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
                                                arguments[i], j, out);
-                        this->addColumnEntry(columnType, &currentColumn, &columnIds, &currentCount,
-                                             rows, swizzle, out);
+                        this->addColumnEntry(columnType, precision, &currentColumn, &columnIds,
+                                             &currentCount, rows, swizzle, out);
                     }
                 }
             }
@@ -1311,6 +1327,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
             this->writeWord(id, out);
         }
     }
+    this->writePrecisionModifier(c.fType, result);
     return result;
 }
 
@@ -2502,55 +2519,63 @@ SpvId SPIRVCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
+    ConstantType type;
     if (i.fType == *fContext.fInt_Type) {
-        auto entry = fIntConstants.find(i.fValue);
-        if (entry == fIntConstants.end()) {
-            SpvId result = this->nextId();
-            this->writeInstruction(SpvOpConstant, this->getType(i.fType), result, (SpvId) i.fValue,
-                                   fConstantBuffer);
-            fIntConstants[i.fValue] = result;
-            return result;
-        }
-        return entry->second;
-    } else {
-        SkASSERT(i.fType == *fContext.fUInt_Type);
-        auto entry = fUIntConstants.find(i.fValue);
-        if (entry == fUIntConstants.end()) {
-            SpvId result = this->nextId();
-            this->writeInstruction(SpvOpConstant, this->getType(i.fType), result, (SpvId) i.fValue,
-                                   fConstantBuffer);
-            fUIntConstants[i.fValue] = result;
-            return result;
-        }
-        return entry->second;
+        type = ConstantType::kInt;
+    } else if (i.fType == *fContext.fUInt_Type) {
+        type = ConstantType::kUInt;
+    } else if (i.fType == *fContext.fShort_Type) {
+        type = ConstantType::kShort;
+    } else if (i.fType == *fContext.fUShort_Type) {
+        type = ConstantType::kUShort;
     }
+    std::pair<ConstantValue, ConstantType> key(i.fValue, type);
+    auto entry = fNumberConstants.find(key);
+    if (entry == fNumberConstants.end()) {
+        SpvId result = this->nextId();
+        this->writeInstruction(SpvOpConstant, this->getType(i.fType), result, (SpvId) i.fValue,
+                               fConstantBuffer);
+        this->writePrecisionModifier(i.fType, result);
+        fNumberConstants[key] = result;
+        return result;
+    }
+    return entry->second;
 }
 
 SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     if (f.fType != *fContext.fDouble_Type) {
+        ConstantType type;
+        if (f.fType == *fContext.fHalf_Type) {
+            type = ConstantType::kHalf;
+        } else {
+            type = ConstantType::kFloat;
+        }
         float value = (float) f.fValue;
-        auto entry = fFloatConstants.find(value);
-        if (entry == fFloatConstants.end()) {
+        std::pair<ConstantValue, ConstantType> key(f.fValue, type);
+        auto entry = fNumberConstants.find(key);
+        if (entry == fNumberConstants.end()) {
             SpvId result = this->nextId();
             uint32_t bits;
             SkASSERT(sizeof(bits) == sizeof(value));
             memcpy(&bits, &value, sizeof(bits));
             this->writeInstruction(SpvOpConstant, this->getType(f.fType), result, bits,
                                    fConstantBuffer);
-            fFloatConstants[value] = result;
+            this->writePrecisionModifier(f.fType, result);
+            fNumberConstants[key] = result;
             return result;
         }
         return entry->second;
     } else {
-        auto entry = fDoubleConstants.find(f.fValue);
-        if (entry == fDoubleConstants.end()) {
+        std::pair<ConstantValue, ConstantType> key(f.fValue, ConstantType::kDouble);
+        auto entry = fNumberConstants.find(key);
+        if (entry == fNumberConstants.end()) {
             SpvId result = this->nextId();
             uint64_t bits;
             SkASSERT(sizeof(bits) == sizeof(f.fValue));
             memcpy(&bits, &f.fValue, sizeof(bits));
             this->writeInstruction(SpvOpConstant, this->getType(f.fType), result,
                                    bits & 0xffffffff, bits >> 32, fConstantBuffer);
-            fDoubleConstants[f.fValue] = result;
+            fNumberConstants[key] = result;
             return result;
         }
         return entry->second;
