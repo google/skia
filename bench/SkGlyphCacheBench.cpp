@@ -13,6 +13,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "tools/ToolUtils.h"
 
@@ -20,9 +21,10 @@ static void do_font_stuff(SkFont* font) {
     SkPaint defaultPaint;
     for (SkScalar i = 8; i < 64; i++) {
         font->setSize(i);
-        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+        auto strikeSpec = SkStrikeSpecStorage::MakeMask(
                 *font,  defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
                 SkScalerContextFlags::kNone, SkMatrix::I());
+        auto cache = strikeSpec.findOrCreateExclusiveStrike();
         uint16_t glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
             glyphs[c] = font->unicharToGlyph(c);
