@@ -247,8 +247,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         }
     }
     GrVkPipeline* pipeline = resourceProvider.createPipeline(
-            this->renderTarget()->numColorSamples(), fPrimProc, fPipeline, stencil, shaderStageInfo,
-            numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
+            this->renderTarget()->numColorSamples(), fPrimProc, fPipeline, stencil, this->origin(),
+            shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), vertShaderModule,
                                                         nullptr));
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), fragShaderModule,

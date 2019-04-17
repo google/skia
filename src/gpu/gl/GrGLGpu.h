@@ -380,7 +380,7 @@ private:
     // Need not be called if flushRenderTarget is used.
     void flushViewport(const GrGLIRect&);
 
-    void flushStencil(const GrStencilSettings&);
+    void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
 
     // rt is used only if useHWAA is true.
@@ -599,6 +599,7 @@ private:
     TriState                                fMSAAEnabled;
 
     GrStencilSettings                       fHWStencilSettings;
+    GrSurfaceOrigin                         fHWStencilOrigin;
     TriState                                fHWStencilTestEnabled;
 
 

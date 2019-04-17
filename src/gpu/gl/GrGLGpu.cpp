@@ -2047,7 +2047,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
                       glRT->renderTargetPriv().numStencilBits());
     }
-    this->flushStencil(stencil);
+    this->flushStencil(stencil, origin);
     if (pipeline.isScissorEnabled()) {
         static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
         GrScissorState state(fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor);
@@ -2835,28 +2835,25 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 }
 
-void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
+void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings, GrSurfaceOrigin origin) {
     if (stencilSettings.isDisabled()) {
         this->disableStencil();
-    } else if (fHWStencilSettings != stencilSettings) {
+    } else if (fHWStencilSettings != stencilSettings ||
+               (stencilSettings.isTwoSided() && fHWStencilOrigin != origin)) {
         if (kYes_TriState != fHWStencilTestEnabled) {
             GL_CALL(Enable(GR_GL_STENCIL_TEST));
 
             fHWStencilTestEnabled = kYes_TriState;
         }
         if (stencilSettings.isTwoSided()) {
-            set_gl_stencil(this->glInterface(),
-                           stencilSettings.front(),
-                           GR_GL_FRONT);
-            set_gl_stencil(this->glInterface(),
-                           stencilSettings.back(),
-                           GR_GL_BACK);
+            set_gl_stencil(this->glInterface(), stencilSettings.front(origin), GR_GL_FRONT);
+            set_gl_stencil(this->glInterface(), stencilSettings.back(origin), GR_GL_BACK);
         } else {
-            set_gl_stencil(this->glInterface(),
-                           stencilSettings.front(),
-                           GR_GL_FRONT_AND_BACK);
+            set_gl_stencil(
+                    this->glInterface(), stencilSettings.frontAndBack(), GR_GL_FRONT_AND_BACK);
         }
         fHWStencilSettings = stencilSettings;
+        fHWStencilOrigin = origin;
     }
 }
 
