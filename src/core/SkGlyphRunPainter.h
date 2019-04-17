@@ -21,6 +21,7 @@ class GrRenderTargetContext;
 #endif
 
 class SkGlyphRunPainterInterface;
+class SkStrikeSpecStorage;
 
 class SkStrikeCommon {
 public:
@@ -74,9 +75,6 @@ public:
                              const GrTextContext::Options& options,
                              SkGlyphRunPainterInterface* process);
 #endif  // SK_SUPPORT_GPU
-
-    // TODO: Make this the canonical check for Skia.
-    static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
 private:
     SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
@@ -145,28 +143,27 @@ public:
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
     virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                                    SkStrikeInterface* strike) = 0;
+                                    const SkStrikeSpecStorage& strikeSpec) = 0;
 
     virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                                    SkStrikeInterface* strike, SkScalar cacheToSourceScale) = 0;
+                                    const SkStrikeSpecStorage& strikeSpec) = 0;
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
     virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                                   SkStrikeInterface* strike,
+                                   const SkStrikeSpecStorage& strikeSpec,
                                    const SkFont& runFont,
-                                   SkScalar cacheToSourceScale,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
     virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                                       SkStrikeInterface* strike,
-                                       SkScalar cacheToSourceScale,
+                                       const SkStrikeSpecStorage& strikeSpec,
+                                       SkScalar strikeToSourceRatio,
                                        bool hasW) = 0;
 
     virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                                       SkStrikeInterface* strike) = 0;
+                                       const SkStrikeSpecStorage& strikeSpec) = 0;
 
 };
 

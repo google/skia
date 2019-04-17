@@ -69,6 +69,7 @@ public:
 
     SkScalar strikeToSourceRatio() const { return fStrikeToSourceRatio; }
     const SkDescriptor& descriptor() const { return *fAutoDescriptor.getDesc(); }
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
 private:
     void commonSetup(
