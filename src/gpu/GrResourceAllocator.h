@@ -57,7 +57,7 @@ public:
 
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, bool actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     enum class AssignError {
@@ -73,6 +73,7 @@ public:
     // amount of GPU resources required.
     bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
+    void determineRecyclability();
     void markEndOfOpList(int opListIndex);
 
 #if GR_ALLOCATION_SPEW
@@ -120,10 +121,12 @@ private:
 #endif
         }
 
+        // Used when recycling an interval
         void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
             SkASSERT(proxy);
-            SkASSERT(!fNext);
+            SkASSERT(!fProxy && !fNext);
 
+            fUses = 0;
             fProxy = proxy;
             fProxyID = proxy->uniqueID().asUInt();
             fStart = start;
@@ -142,12 +145,19 @@ private:
 
         const GrSurfaceProxy* proxy() const { return fProxy; }
         GrSurfaceProxy* proxy() { return fProxy; }
+
         unsigned int start() const { return fStart; }
         unsigned int end() const { return fEnd; }
+
+        void setNext(Interval* next) { fNext = next; }
         const Interval* next() const { return fNext; }
         Interval* next() { return fNext; }
 
-        void setNext(Interval* next) { fNext = next; }
+        void markAsRecyclable() { fIsRecyclable = true;}
+        bool isRecyclable() const { return fIsRecyclable; }
+
+        void addUse() { fUses++; }
+        int uses() { return fUses; }
 
         void extendEnd(unsigned int newEnd) {
             if (newEnd > fEnd) {
@@ -175,6 +185,8 @@ private:
         unsigned int     fStart;
         unsigned int     fEnd;
         Interval*        fNext;
+        unsigned int     fUses = 0;
+        bool             fIsRecyclable = false;
 
 #if GR_TRACK_INTERVAL_CREATION
         uint32_t        fUniqueID;
@@ -196,6 +208,7 @@ private:
             return !SkToBool(fHead);
         }
         const Interval* peekHead() const { return fHead; }
+        Interval* peekHead() { return fHead; }
         Interval* popHead();
         void insertByIncreasingStart(Interval*);
         void insertByIncreasingEnd(Interval*);
