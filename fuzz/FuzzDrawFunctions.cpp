@@ -138,8 +138,11 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> typeface) {
     font.setEmbolden(b);
     fuzz->next(&b);
     font.setEdging(b ? SkFont::Edging::kAntiAlias : SkFont::Edging::kSubpixelAntiAlias);
-    fuzz->next(&b);
-    font.setLinearMetrics(b);
+
+    SkFontHinting h;
+    fuzz->nextRange(&h, 0, kFull_SkFontHinting);
+    font.setHinting(h);
+
     fuzz->next(&b);
     font.setSubpixel(b);
     fuzz->next(&x);

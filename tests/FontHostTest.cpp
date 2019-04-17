@@ -203,18 +203,14 @@ static void test_advances(skiatest::Reporter* reporter) {
 
     static const struct {
         SkFontHinting   hinting;
-        bool            linear;
         bool            subpixel;
     } settings[] = {
-        { kNo_SkFontHinting,     false, false },
-        { kNo_SkFontHinting,     true,  false },
-        { kNo_SkFontHinting,     false, true  },
-        { kSlight_SkFontHinting, false, false },
-        { kSlight_SkFontHinting, true,  false },
-        { kSlight_SkFontHinting, false, true  },
-        { kNormal_SkFontHinting, false, false },
-        { kNormal_SkFontHinting, true,  false },
-        { kNormal_SkFontHinting, false, true  },
+        { kNo_SkFontHinting,     false },
+        { kNo_SkFontHinting,     true  },
+        { kSlight_SkFontHinting, false },
+        { kSlight_SkFontHinting, true  },
+        { kNormal_SkFontHinting, false },
+        { kNormal_SkFontHinting, true  },
     };
 
     static const struct {
@@ -236,7 +232,6 @@ static void test_advances(skiatest::Reporter* reporter) {
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             font.setHinting(settings[j].hinting);
-            font.setLinearMetrics(settings[j].linear);
             font.setSubpixel(settings[j].subpixel);
 
             for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {

@@ -100,11 +100,20 @@ public:
     */
     bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
 
+#ifdef SK_SUPPORT_LEGACY_LINEARMETRICS
     /** Returns true if text is converted to SkPath before drawing and measuring.
 
         @return  true glyph hints are never applied
     */
     bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
+
+    /** Requests, but does not require, that glyphs are converted to SkPath
+     before drawing and measuring.
+
+     @param linearMetrics  setting for converting glyphs to paths
+     */
+    void setLinearMetrics(bool linearMetrics);
+#endif
 
     /** Returns true if bold is approximated by increasing the stroke width when creating glyph
         bitmaps from outlines.
@@ -133,13 +142,6 @@ public:
         @param subpixel  setting for sub-pixel positioning
     */
     void setSubpixel(bool subpixel);
-
-    /** Requests, but does not require, that glyphs are converted to SkPath
-        before drawing and measuring.
-
-        @param linearMetrics  setting for converting glyphs to paths
-    */
-    void setLinearMetrics(bool linearMetrics);
 
     /** Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
 
@@ -490,7 +492,9 @@ private:
         kForceAutoHinting_PrivFlag      = 1 << 0,
         kEmbeddedBitmaps_PrivFlag       = 1 << 1,
         kSubpixel_PrivFlag              = 1 << 2,
+#ifdef SK_SUPPORT_LEGACY_LINEARMETRICS
         kLinearMetrics_PrivFlag         = 1 << 3,
+#endif
         kEmbolden_PrivFlag              = 1 << 4,
     };
 

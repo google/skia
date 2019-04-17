@@ -54,7 +54,6 @@ public:
         bool fSubpixel = false;
         bool fForceAutoHinting = false;
         bool fEmbeddedBitmaps = false;
-        bool fLinearMetrics = false;
         bool fEmbolden = false;
     };
     struct SkPaintFields {

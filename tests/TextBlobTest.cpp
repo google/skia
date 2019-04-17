@@ -181,7 +181,6 @@ public:
         font.setHinting(kFull_SkFontHinting);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setEmbolden(true);
-        font.setLinearMetrics(true);
         font.setSubpixel(true);
         font.setEmbeddedBitmaps(true);
         font.setForceAutoHinting(true);
@@ -195,7 +194,6 @@ public:
         REPORTER_ASSERT(reporter, defaultFont.getHinting() != font.getHinting());
         REPORTER_ASSERT(reporter, defaultFont.getEdging() != font.getEdging());
         REPORTER_ASSERT(reporter, defaultFont.isEmbolden() != font.isEmbolden());
-        REPORTER_ASSERT(reporter, defaultFont.isLinearMetrics() != font.isLinearMetrics());
         REPORTER_ASSERT(reporter, defaultFont.isSubpixel() != font.isSubpixel());
         REPORTER_ASSERT(reporter,
                         defaultFont.isEmbeddedBitmaps() != font.isEmbeddedBitmaps());

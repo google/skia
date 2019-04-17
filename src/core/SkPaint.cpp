@@ -237,12 +237,14 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed, SkFont* fon
     paint->setDither((f & kDither_PaintFlagForPaint) != 0);
     if (font) {
         font->setEmbolden((f & kFakeBold_PaintFlagForFont) != 0);
-        font->setLinearMetrics((f & kLinear_PaintFlagForFont) != 0);
         font->setSubpixel((f & kSubpixel_PaintFlagForFont) != 0);
         font->setEmbeddedBitmaps((f & kEmbeddedBitmap_PaintFlagForFont) != 0);
         font->setForceAutoHinting((f & kAutoHinting_PaintFlagForFont) != 0);
 
         font->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
+        if (f & kLinear_PaintFlagForFont) {
+            font->setHinting(SkFontHinting::kNone);
+        }
 
         if (f & kAA_PaintFlagForPaint) {
             if (f & kLCD_PaintFlagForFont) {

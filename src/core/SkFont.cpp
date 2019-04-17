@@ -79,9 +79,13 @@ void SkFont::setEmbeddedBitmaps(bool predicate) {
 void SkFont::setSubpixel(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kSubpixel_PrivFlag);
 }
+
+#ifdef SK_SUPPORT_LEGACY_LINEARMETRICS
 void SkFont::setLinearMetrics(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kLinearMetrics_PrivFlag);
 }
+#endif
+
 void SkFont::setEmbolden(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kEmbolden_PrivFlag);
 }
@@ -113,8 +117,7 @@ SkFont SkFont::makeWithSize(SkScalar newSize) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
-    constexpr uint32_t flagsToIgnore = kLinearMetrics_PrivFlag        |
-                                       kEmbeddedBitmaps_PrivFlag      |
+    constexpr uint32_t flagsToIgnore = kEmbeddedBitmaps_PrivFlag      |
                                        kForceAutoHinting_PrivFlag;
 
     fFlags = (fFlags & ~flagsToIgnore) | kSubpixel_PrivFlag;
@@ -145,7 +148,7 @@ public:
         if (paint) {
             fPaint = *paint;
         }
-        if (font.isLinearMetrics() ||
+        if (font.getHinting() == SkFontHinting::kNone ||
             SkDraw::ShouldDrawTextAsPaths(font, fPaint, SkMatrix::I()))
         {
             SkFont* f = fLazyFont.set(font);

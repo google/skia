@@ -223,7 +223,7 @@ const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentSlide(-1)
-    , fRefresh(false)
+    , fRefresh(true)
     , fSaveToSKP(false)
     , fShowSlideDimensions(false)
     , fShowImGuiDebugWindow(false)
@@ -792,8 +792,6 @@ void Viewer::updateTitle() {
     fontFlag(&SkFontFields::fForceAutoHinting, &SkFont::isForceAutoHinting,
              "Force Autohint", "No Force Autohint");
     fontFlag(&SkFontFields::fEmbolden, &SkFont::isEmbolden, "Fake Bold", "No Fake Bold");
-    fontFlag(&SkFontFields::fLinearMetrics, &SkFont::isLinearMetrics,
-             "Linear Metrics", "Non-Linear Metrics");
     fontFlag(&SkFontFields::fEmbeddedBitmaps, &SkFont::isEmbeddedBitmaps,
              "Bitmap Text", "No Bitmap Text");
     fontFlag(&SkFontFields::fSubpixel, &SkFont::isSubpixel, "Subpixel Text", "Pixel Text");
@@ -1153,9 +1151,6 @@ public:
         }
         if (fFontOverrides->fEmbolden) {
             font->writable()->setEmbolden(fFont->isEmbolden());
-        }
-        if (fFontOverrides->fLinearMetrics) {
-            font->writable()->setLinearMetrics(fFont->isLinearMetrics());
         }
         if (fFontOverrides->fSubpixel) {
             font->writable()->setSubpixel(fFont->isSubpixel());
@@ -1762,11 +1757,6 @@ void Viewer::drawImGui() {
                          "Default\0No Fake Bold\0Fake Bold\0\0",
                          &SkFontFields::fEmbolden,
                          &SkFont::isEmbolden, &SkFont::setEmbolden);
-
-                fontFlag("Linear Text",
-                         "Default\0No Linear Text\0Linear Text\0\0",
-                         &SkFontFields::fLinearMetrics,
-                         &SkFont::isLinearMetrics, &SkFont::setLinearMetrics);
 
                 fontFlag("Subpixel Position Glyphs",
                          "Default\0Pixel Text\0Subpixel Text\0\0",

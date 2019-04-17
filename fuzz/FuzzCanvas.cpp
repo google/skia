@@ -881,7 +881,6 @@ static SkFont fuzz_font(Fuzz* fuzz) {
     font.setSize(               make_fuzz_t<SkScalar>(fuzz));
     font.setScaleX(             make_fuzz_t<SkScalar>(fuzz));
     font.setSkewX(              make_fuzz_t<SkScalar>(fuzz));
-    font.setLinearMetrics(      make_fuzz_t<bool>(fuzz));
     font.setSubpixel(           make_fuzz_t<bool>(fuzz));
     font.setEmbeddedBitmaps(    make_fuzz_t<bool>(fuzz));
     font.setForceAutoHinting(   make_fuzz_t<bool>(fuzz));

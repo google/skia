@@ -122,7 +122,7 @@ protected:
         if (fApplyKerning) {
             font.setSubpixel(true);
         } else {
-            font.setLinearMetrics(true);
+            font.setHinting(SkFontHinting::kNone);
         }
 
         SkPaint paint;
