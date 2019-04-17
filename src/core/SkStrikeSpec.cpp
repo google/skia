@@ -7,7 +7,9 @@
 
 #include "src/core/SkStrikeSpec.h"
 
+#include "include/core/SkGraphics.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 
@@ -85,7 +87,7 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakeCanonicalized(
 
     const SkFont* canonicalizedFont = &font;
     SkTLazy<SkFont> pathFont;
-    if (SkDraw::ShouldDrawTextAsPaths(font, canonicalizedPaint, SkMatrix::I())) {
+    if (ShouldDrawAsPath(canonicalizedPaint, font, SkMatrix::I())) {
         canonicalizedFont = pathFont.set(font);
         storage.fStrikeToSourceRatio = pathFont->setupForAsPaths(nullptr);
         canonicalizedPaint.reset();
@@ -102,6 +104,34 @@ SkStrikeSpecStorage SkStrikeSpecStorage::MakeCanonicalized(
 SkStrikeSpecStorage SkStrikeSpecStorage::MakeDefault() {
     SkFont defaultFont;
     return MakeCanonicalized(defaultFont);
+}
+
+bool SkStrikeSpecStorage::ShouldDrawAsPath(
+        const SkPaint& paint, const SkFont& font, const SkMatrix& viewMatrix) {
+
+    // hairline glyphs are fast enough so we don't need to cache them
+    if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
+        return true;
+    }
+
+    // we don't cache perspective
+    if (viewMatrix.hasPerspective()) {
+        return true;
+    }
+
+    SkMatrix textMatrix = SkFontPriv::MakeTextMatrix(font);
+    textMatrix.postConcat(viewMatrix);
+
+    // we have a self-imposed maximum, just for memory-usage sanity
+    SkScalar limit = SkMinScalar(SkGraphics::GetFontCachePointSizeLimit(), 1024);
+    SkScalar maxSizeSquared = limit * limit;
+
+    auto distance = [&textMatrix](int XIndex, int YIndex) {
+        return textMatrix[XIndex] * textMatrix[XIndex] + textMatrix[YIndex] * textMatrix[YIndex];
+    };
+
+    return distance(SkMatrix::kMScaleX, SkMatrix::kMSkewY ) > maxSizeSquared
+        || distance(SkMatrix::kMSkewX,  SkMatrix::kMScaleY) > maxSizeSquared;
 }
 
 SkStrikeSpecStorage SkStrikeSpecStorage::MakePDFVector(const SkTypeface& typeface, int* size) {
