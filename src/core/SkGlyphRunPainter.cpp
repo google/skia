@@ -160,27 +160,11 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         if (ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
-            // setup our std pathPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(runPaint);
-            SkFont  pathFont{runFont};
-            SkScalar textScale = pathFont.setupForAsPaths(&pathPaint);
 
-            // The sub-pixel position will always happen when transforming to the screen.
-            pathFont.setSubpixel(false);
+            SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePath(
+                    runFont, runPaint, props, fScalerContextFlags);
 
-            SkAutoDescriptor ad;
-            SkScalerContextEffects effects;
-            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
-                                                                  pathPaint,
-                                                                  props,
-                                                                  fScalerContextFlags,
-                                                                  SkMatrix::I(),
-                                                                  &ad,
-                                                                  &effects);
-
-            SkScopedStrike strike =
-                    fStrikeCache->findOrCreateScopedStrike(
-                            *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
+            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             auto glyphPosSpan = strike->prepareForDrawing(
                     glyphRun.glyphsIDs().data(),
@@ -214,23 +198,18 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             // The paint we draw paths with must have the same anti-aliasing state as the runFont
             // allowing the paths to have the same edging as the glyph masks.
-            pathPaint = runPaint;
+            SkPaint pathPaint = runPaint;
             pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
 
             bitmapDevice->paintPaths(
                     SkSpan<const SkPathPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
-                    textScale, pathPaint);
+                    strikeSpec.strikeToSourceRatio(), pathPaint);
         } else {
-            SkAutoDescriptor ad;
-            SkScalerContextEffects effects;
+            SkStrikeSpecStorage strikeSpec =
+                    SkStrikeSpecStorage::MakeMask(runFont, runPaint,
+                                                  props, fScalerContextFlags, deviceMatrix);
 
-            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-                    runFont, runPaint, props, fScalerContextFlags, deviceMatrix, &ad,
-                    &effects);
-
-            SkTypeface* typeface = runFont.getTypefaceOrDefault();
-            SkScopedStrike strike =
-                    fStrikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
+            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
@@ -332,7 +311,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
                 fGlyphPos);
 
         if (process) {
-            process->processDeviceFallback(glyphPosSpan, strike.get());
+            process->processDeviceFallback(glyphPosSpan, strikeSpec);
         }
 
     } else {
@@ -375,7 +354,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         if (process) {
             process->processSourceFallback(
                     glyphPosSpan,
-                    strike.get(),
+                    strikeSpec,
                     fallbackTextScale,
                     viewMatrix.hasPerspective());
         }
@@ -461,9 +440,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // are set correctly.
                 process->processSourceSDFT(
                         SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount},
-                        strike.get(),
+                        strikeSpec,
                         runFont,
-                        strikeSpec.strikeToSourceRatio(),
                         minScale,
                         maxScale,
                         hasWCoord);
@@ -471,8 +449,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 if (!fPaths.empty()) {
                     process->processSourcePaths(
                             SkSpan<const SkGlyphPos>{fPaths},
-                            strike.get(),
-                            strikeSpec.strikeToSourceRatio());
+                            strikeSpec);
                 }
             }
 
@@ -520,8 +497,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // are set correctly.
                 process->processSourcePaths(
                         SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithPathCount},
-                        strike.get(),
-                        strikeSpec.strikeToSourceRatio());
+                        strikeSpec);
             }
 
             // fGlyphPos will be reused here.
@@ -576,7 +552,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // processDeviceMasks must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processDeviceMasks(
-                        SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount}, strike.get());
+                        SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount}, strikeSpec);
                 if (!fPaths.empty()) {
                     process->processDevicePaths(SkSpan<const SkGlyphPos>{fPaths});
                 }
@@ -764,7 +740,7 @@ void GrTextBlob::Run::switchSubRunIfNeededAndAppendGlyph(GrGlyph* glyph,
 
     SubRun* subRun = &fSubRunInfo.back();
     if (fInitialized && subRun->maskFormat() != format) {
-        subRun = pushBackSubRun(fDescriptor, fColor);
+        subRun = pushBackSubRun(fStrikeSpec, fColor);
         subRun->setStrike(strike);
     } else if (!fInitialized) {
         subRun->setStrike(strike);
@@ -836,11 +812,11 @@ void GrTextBlob::startRun(const SkGlyphRun& glyphRun, bool useSDFT) {
 }
 
 void GrTextBlob::processDeviceMasks(SkSpan<const SkGlyphPos> masks,
-                                    SkStrikeInterface* strike) {
+                                    const SkStrikeSpecStorage& strikeSpec) {
     Run* run = this->currentRun();
     this->setHasBitmap();
-    run->setupFont(strike->strikeSpec());
-    sk_sp<GrTextStrike> currStrike = fStrikeCache->getStrike(strike->getDescriptor());
+    run->setupFont(strikeSpec);
+    sk_sp<GrTextStrike> currStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
     for (const auto& mask : masks) {
         SkPoint pt{SkScalarFloorToScalar(mask.position.fX),
                    SkScalarFloorToScalar(mask.position.fY)};
@@ -849,13 +825,13 @@ void GrTextBlob::processDeviceMasks(SkSpan<const SkGlyphPos> masks,
 }
 
 void GrTextBlob::processSourcePaths(SkSpan<const SkGlyphPos> paths,
-                                    SkStrikeInterface* strike, SkScalar cacheToSourceScale) {
+                                    const SkStrikeSpecStorage& strikeSpec) {
     Run* run = this->currentRun();
     this->setHasBitmap();
-    run->setupFont(strike->strikeSpec());
+    run->setupFont(strikeSpec);
     for (const auto& path : paths) {
         if (const SkPath* glyphPath = path.glyph->path()) {
-            run->appendPathGlyph(*glyphPath, path.position, cacheToSourceScale,
+            run->appendPathGlyph(*glyphPath, path.position, strikeSpec.strikeToSourceRatio(),
                                  false);
         }
     }
@@ -875,9 +851,8 @@ void GrTextBlob::processDevicePaths(SkSpan<const SkGlyphPos> paths) {
 }
 
 void GrTextBlob::processSourceSDFT(SkSpan<const SkGlyphPos> masks,
-                                   SkStrikeInterface* strike,
+                                   const SkStrikeSpecStorage& strikeSpec,
                                    const SkFont& runFont,
-                                   SkScalar cacheToSourceScale,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) {
@@ -888,40 +863,40 @@ void GrTextBlob::processSourceSDFT(SkSpan<const SkGlyphPos> masks,
             runFont.hasSomeAntiAliasing(),
             hasWCoord);
     this->setMinAndMaxScale(minScale, maxScale);
-    run->setupFont(strike->strikeSpec());
-    sk_sp<GrTextStrike> currStrike = fStrikeCache->getStrike(strike->getDescriptor());
+    run->setupFont(strikeSpec);
+    sk_sp<GrTextStrike> currStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
     for (const auto& mask : masks) {
         run->appendSourceSpaceGlyph(
-                currStrike, *mask.glyph, mask.position, cacheToSourceScale);
+                currStrike, *mask.glyph, mask.position, strikeSpec.strikeToSourceRatio());
     }
 }
 
 void GrTextBlob::processSourceFallback(SkSpan<const SkGlyphPos> masks,
-                                       SkStrikeInterface* strike, SkScalar cacheToSourceScale,
+                                       const SkStrikeSpecStorage& strikeSpec,
+                                       SkScalar strikeToSourceRatio,
                                        bool hasW) {
     Run* run = this->currentRun();
 
     auto subRun = run->initARGBFallback();
-    sk_sp<GrTextStrike> grStrike =
-            fStrikeCache->getStrike(strike->getDescriptor());
+    sk_sp<GrTextStrike> grStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
     subRun->setStrike(grStrike);
     subRun->setHasWCoord(hasW);
 
     this->setHasBitmap();
-    run->setupFont(strike->strikeSpec());
+    run->setupFont(strikeSpec);
     for (const auto& mask : masks) {
         run->appendSourceSpaceGlyph
-                (grStrike, *mask.glyph, mask.position, cacheToSourceScale);
+                (grStrike, *mask.glyph, mask.position, strikeToSourceRatio);
     }
 }
 
 void GrTextBlob::processDeviceFallback(SkSpan<const SkGlyphPos> masks,
-                                       SkStrikeInterface* strike) {
+                                       const SkStrikeSpecStorage& strikeSpec) {
     Run* run = this->currentRun();
     this->setHasBitmap();
-    sk_sp<GrTextStrike> grStrike = fStrikeCache->getStrike(strike->getDescriptor());
+    sk_sp<GrTextStrike> grStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
     auto subRun = run->initARGBFallback();
-    run->setupFont(strike->strikeSpec());
+    run->setupFont(strikeSpec);
     subRun->setStrike(grStrike);
     for (const auto& mask : masks) {
         run->appendDeviceSpaceGlyph(grStrike, *mask.glyph, mask.position);

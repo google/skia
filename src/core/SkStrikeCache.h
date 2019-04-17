@@ -16,7 +16,6 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkStrike.h"
 
-class SkStrike;
 class SkTraceMemoryDump;
 
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
@@ -70,15 +69,8 @@ public:
 
     static SkStrikeCache* GlobalStrikeCache();
 
-    static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
     Node* findAndDetachStrike(const SkDescriptor&);
-
-    static ExclusiveStrikePtr CreateStrikeExclusive(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
-            SkFontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr);
 
     ExclusiveStrikePtr createStrikeExclusive(
             const SkDescriptor& desc,
@@ -91,11 +83,6 @@ public:
             std::unique_ptr<SkScalerContext> scaler,
             SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr);
-
-    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
 
     ExclusiveStrikePtr findOrCreateStrikeExclusive(
             const SkDescriptor& desc,
@@ -131,12 +118,6 @@ public:
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
-
-    // cons up a default paint, which is only needed for patheffects/maskfilter
-    static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont&);
-
-    static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font,
-                                                                      const SkPaint& paint);
 
     static std::unique_ptr<SkScalerContext> CreateScalerContext(
             const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
