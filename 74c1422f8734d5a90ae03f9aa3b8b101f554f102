@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c371168e_a963b588",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T17:24:29Z",
+      "side": 1,
+      "message": "Maybe: Please see documentation at GrSurfaceFlushInfo for more info ?",
+      "range": {
+        "startLine": 725,
+        "startChar": 68,
+        "endLine": 725,
+        "endChar": 69
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b0cf9d1_e78f6061",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 1
@@ -185,6 +208,30 @@
       "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b56086_f3d7e709",
+        "filename": "src/image/SkSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-17T17:24:29Z",
+      "side": 1,
+      "message": "Ack - it just seemed a bit tedious to always be doing this conversion.",
+      "parentUuid": "595fbf49_a61b5a43",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 253,
+        "endChar": 16
+      },
+      "revId": "74c1422f8734d5a90ae03f9aa3b8b101f554f102",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
