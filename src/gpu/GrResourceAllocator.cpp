@@ -37,7 +37,6 @@ void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     fProxy->priv().assign(std::move(s));
 }
 
-
 void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
 
@@ -286,7 +285,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 }
 
 // Remove any intervals that end before the current index. Return their GrSurfaces
-// to the free pool.
+// to the free pool if possible.
 void GrResourceAllocator::expire(unsigned int curIndex) {
     while (!fActiveIntvls.empty() && fActiveIntvls.peekHead()->end() < curIndex) {
         Interval* temp = fActiveIntvls.popHead();
