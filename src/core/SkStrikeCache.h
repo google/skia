@@ -16,7 +16,6 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkStrike.h"
 
-class SkStrike;
 class SkTraceMemoryDump;
 
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
@@ -70,15 +69,7 @@ public:
 
     static SkStrikeCache* GlobalStrikeCache();
 
-    static ExclusiveStrikePtr FindStrikeExclusive(const SkDescriptor&);
     ExclusiveStrikePtr findStrikeExclusive(const SkDescriptor&);
-    Node* findAndDetachStrike(const SkDescriptor&);
-
-    static ExclusiveStrikePtr CreateStrikeExclusive(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
-            SkFontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr);
 
     ExclusiveStrikePtr createStrikeExclusive(
             const SkDescriptor& desc,
@@ -86,23 +77,7 @@ public:
             SkFontMetrics* maybeMetrics = nullptr,
             std::unique_ptr<SkStrikePinner> = nullptr);
 
-    Node* createStrike(
-            const SkDescriptor& desc,
-            std::unique_ptr<SkScalerContext> scaler,
-            SkFontMetrics* maybeMetrics = nullptr,
-            std::unique_ptr<SkStrikePinner> = nullptr);
-
-    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
-
     ExclusiveStrikePtr findOrCreateStrikeExclusive(
-            const SkDescriptor& desc,
-            const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
-
-    Node* findOrCreateStrike(
             const SkDescriptor& desc,
             const SkScalerContextEffects& effects,
             const SkTypeface& typeface);
@@ -118,26 +93,6 @@ public:
                                             const SkScalerContextEffects& effects,
                                             const SkTypeface& typeface) override;
 
-    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
-            const SkFont& font,
-            const SkPaint& paint,
-            const SkSurfaceProps& surfaceProps,
-            SkScalerContextFlags scalerContextFlags,
-            const SkMatrix& deviceMatrix);
-
-    Node* findOrCreateStrike(
-            const SkFont& font,
-            const SkPaint& paint,
-            const SkSurfaceProps& surfaceProps,
-            SkScalerContextFlags scalerContextFlags,
-            const SkMatrix& deviceMatrix);
-
-    // cons up a default paint, which is only needed for patheffects/maskfilter
-    static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont&);
-
-    static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font,
-                                                                      const SkPaint& paint);
-
     static std::unique_ptr<SkScalerContext> CreateScalerContext(
             const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
 
@@ -148,9 +103,6 @@ public:
     // Dump memory usage statistics of all the attaches caches in the process using the
     // SkTraceMemoryDump interface.
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
-
-    // call when a glyphcache is available for caching (i.e. not in use)
-    void attachNode(Node* node);
 
     void purgeAll(); // does not change budget
 
@@ -176,6 +128,17 @@ public:
 #endif
 
 private:
+    Node* findAndDetachStrike(const SkDescriptor&);
+    Node* createStrike(
+            const SkDescriptor& desc,
+            std::unique_ptr<SkScalerContext> scaler,
+            SkFontMetrics* maybeMetrics = nullptr,
+            std::unique_ptr<SkStrikePinner> = nullptr);
+    Node* findOrCreateStrike(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface);
+    void attachNode(Node* node);
 
     // The following methods can only be called when mutex is already held.
     Node* internalGetHead() const SK_REQUIRES(fLock) { return fHead; }
