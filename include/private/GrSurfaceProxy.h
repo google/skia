@@ -52,6 +52,10 @@ public:
         this->didRemoveRefOrPendingIO();
     }
 
+    int tot() const {
+        return fRefCnt + fPendingWrites + fPendingReads;
+    }
+
 #ifdef SK_DEBUG
     bool isUnique_debugOnly() const { // For asserts.
         SkASSERT(fRefCnt >= 0 && fPendingWrites >= 0 && fPendingReads >= 0);
@@ -201,6 +205,7 @@ private:
         }
     }
 
+public:
     mutable int32_t fRefCnt;
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
@@ -208,6 +213,11 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    int fFoo = 0;
+
+    void incFoo() { ++fFoo; }
+    void decFoo() { --fFoo; }
+
     /**
      * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
      * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls
