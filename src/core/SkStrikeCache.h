@@ -16,7 +16,6 @@
 #include "SkSpinlock.h"
 #include "SkTemplates.h"
 
-class SkStrike;
 class SkTraceMemoryDump;
 
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
