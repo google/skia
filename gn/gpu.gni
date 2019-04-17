@@ -375,6 +375,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.h",
   "$_src/gpu/effects/GrYUVtoRGBEffect.cpp",
   "$_src/gpu/effects/GrYUVtoRGBEffect.h",
+  "$_src/gpu/effects/GrOverrideInputFragmentProcessor.cpp",
+  "$_src/gpu/effects/GrOverrideInputFragmentProcessor.h",
 
   # gradients
   "$_src/gpu/gradients/GrDualIntervalGradientColorizer.cpp",
