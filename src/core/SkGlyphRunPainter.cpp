@@ -35,6 +35,104 @@
 #include "SkTDArray.h"
 #include "SkTraceEvent.h"
 
+class SkStrikeSpecStorage {
+public:
+    static SkStrikeSpecStorage MakeMask(
+            const SkFont& font, const SkPaint& paint,
+            const SkSurfaceProps& surfaceProps, SkScalerContextFlags scalerContextFlags,
+            const SkMatrix& deviceMatrix) {
+        SkStrikeSpecStorage storage;
+        SkScalerContextEffects effects;
+
+        SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+                font, paint, surfaceProps, scalerContextFlags, deviceMatrix,
+                &storage.fAutoDescriptor, &effects);
+
+        storage.fMaskFilter = sk_ref_sp(effects.fMaskFilter);
+        storage.fPathEffect = sk_ref_sp(effects.fPathEffect);
+        storage.fTypeface = font.refTypefaceOrDefault();
+
+        return storage;
+    }
+
+    static SkStrikeSpecStorage MakePath(
+            const SkFont& font, const SkPaint& paint, const SkSurfaceProps& surfaceProps,
+            SkScalerContextFlags scalerContextFlags) {
+        SkStrikeSpecStorage storage;
+
+        // setup our std runPaint, in hopes of getting hits in the cache
+        SkPaint pathPaint{paint};
+        SkFont pathFont{font};
+
+        // The factor to get from the size stored in the strike to the size needed for
+        // the source.
+        storage.fStrikeToSourceRatio = pathFont.setupForAsPaths(&pathPaint);
+
+        // The sub-pixel position will always happen when transforming to the screen.
+        pathFont.setSubpixel(false);
+
+        SkScalerContextEffects effects;
+        SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
+                                                              pathPaint,
+                                                              surfaceProps,
+                                                              scalerContextFlags,
+                                                              SkMatrix::I(),
+                                                              &storage.fAutoDescriptor,
+                                                              &effects);
+
+        storage.fMaskFilter = sk_ref_sp(effects.fMaskFilter);
+        storage.fPathEffect = sk_ref_sp(effects.fPathEffect);
+        storage.fTypeface = pathFont.refTypefaceOrDefault();
+
+        return storage;
+    }
+
+#if SK_SUPPORT_GPU
+    static std::tuple<SkStrikeSpecStorage, SkScalar, SkScalar> MakeSDFT(
+            const SkFont& font, const SkPaint& paint, const SkSurfaceProps& surfaceProps,
+            const SkMatrix& deviceMatrix, const GrTextContext::Options& options) {
+        SkStrikeSpecStorage storage;
+
+        SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(paint);
+        SkFont dfFont = GrTextContext::InitDistanceFieldFont(
+                font, deviceMatrix, options, &storage.fStrikeToSourceRatio);
+
+        // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
+        // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
+        SkScalerContextFlags flags = SkScalerContextFlags::kNone;
+
+        SkScalar minScale, maxScale;
+        std::tie(minScale, maxScale) = GrTextContext::InitDistanceFieldMinMaxScale(
+                font.getSize(), deviceMatrix, options);
+
+        SkScalerContextEffects effects;
+        SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+                dfFont, dfPaint, surfaceProps, flags,
+                SkMatrix::I(), &storage.fAutoDescriptor, &effects);
+
+        storage.fMaskFilter = sk_ref_sp(effects.fMaskFilter);
+        storage.fPathEffect = sk_ref_sp(effects.fPathEffect);
+        storage.fTypeface = dfFont.refTypefaceOrDefault();
+
+        return std::tie(storage, minScale, maxScale);
+    }
+#endif
+
+    SkScalar strikeToSourceRatio() const { return fStrikeToSourceRatio; }
+
+    SkScopedStrike findOrCreateScopedStrike(SkStrikeCacheInterface* cache) {
+        SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
+        return cache->findOrCreateScopedStrike(*fAutoDescriptor.getDesc(), effects, *fTypeface);
+    }
+
+private:
+    SkAutoDescriptor fAutoDescriptor;
+    sk_sp<SkMaskFilter> fMaskFilter;
+    sk_sp<SkPathEffect> fPathEffect;
+    sk_sp<SkTypeface> fTypeface;
+    SkScalar fStrikeToSourceRatio{1.0f};
+};
+
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
 
 SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
@@ -411,30 +509,16 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
         if (useSDFT) {
             // Translate all glyphs to the origin.
-            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
-            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
-
-            // Setup distance field runPaint and text ratio
-            SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(runPaint);
-            SkScalar cacheToSourceScale;
-            SkFont dfFont = GrTextContext::InitDistanceFieldFont(
-                    runFont, viewMatrix, options, &cacheToSourceScale);
-
-            // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
-            // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-            SkScalerContextFlags flags = SkScalerContextFlags::kNone;
+            SkMatrix::MakeTrans(origin.x(), origin.y())
+                .mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
             SkScalar minScale, maxScale;
-            std::tie(minScale, maxScale) = GrTextContext::InitDistanceFieldMinMaxScale(
-                    runFont.getSize(), viewMatrix, options);
+            SkStrikeSpecStorage strikeSpec;
+            std::tie(strikeSpec, minScale, maxScale) =
+                    SkStrikeSpecStorage::MakeSDFT(
+                            runFont, runPaint,fDeviceProps, viewMatrix, options);
 
-            SkAutoDescriptor ad;
-            SkScalerContextEffects effects;
-            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-                    dfFont, dfPaint, fDeviceProps, flags, SkMatrix::I(), &ad, &effects);
-            SkScopedStrike strike =
-                    fStrikeCache->findOrCreateScopedStrike(
-                            *ad.getDesc(), effects, *dfFont.getTypefaceOrDefault());
+            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
                     glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(),
@@ -469,52 +553,33 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                         SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithMaskCount},
                         strike.get(),
                         runFont,
-                        cacheToSourceScale,
+                        strikeSpec.strikeToSourceRatio(),
                         minScale,
                         maxScale,
                         hasWCoord);
 
                 if (!fPaths.empty()) {
                     process->processSourcePaths(
-                            SkSpan<const SkGlyphPos>{fPaths}, strike.get(), cacheToSourceScale);
+                            SkSpan<const SkGlyphPos>{fPaths}, strike.get(),
+                            strikeSpec.strikeToSourceRatio());
                 }
             }
 
             // fGlyphPos will be reused here.
             if (!fARGBGlyphsIDs.empty()) {
-                this->processARGBFallback(maxFallbackDimension * cacheToSourceScale,
+                this->processARGBFallback(maxFallbackDimension * strikeSpec.strikeToSourceRatio(),
                                           runPaint, runFont, viewMatrix, process);
             }
         } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
 
             // Translate all glyphs to the origin.
-            SkMatrix translate = SkMatrix::MakeTrans(origin.x(), origin.y());
-            translate.mapPoints(fPositions, glyphRun.positions().data(), glyphRun.runSize());
+            SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
+                    fPositions, glyphRun.positions().data(), glyphRun.runSize());
 
-            // setup our std runPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint{runPaint};
-            SkFont pathFont{runFont};
+            SkStrikeSpecStorage strikeSpec = SkStrikeSpecStorage::MakePath(
+                            runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
-            // The factor to get from the size stored in the strike to the size needed for
-            // the source.
-            SkScalar strikeToSourceRatio = pathFont.setupForAsPaths(&pathPaint);
-
-            // The sub-pixel position will always happen when transforming to the screen.
-            pathFont.setSubpixel(false);
-
-            SkAutoDescriptor ad;
-            SkScalerContextEffects effects;
-            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(pathFont,
-                                                                  pathPaint,
-                                                                  fDeviceProps,
-                                                                  fScalerContextFlags,
-                                                                  SkMatrix::I(),
-                                                                  &ad,
-                                                                  &effects);
-
-            SkScopedStrike strike =
-                    fStrikeCache->findOrCreateScopedStrike(
-                            *ad.getDesc(), effects,*pathFont.getTypefaceOrDefault());
+            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             SkSpan<const SkGlyphPos> glyphPosSpan = strike->prepareForDrawing(
                     glyphRun.glyphsIDs().data(), fPositions, glyphRun.runSize(), 0, fGlyphPos);
@@ -540,26 +605,21 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 process->processSourcePaths(
                         SkSpan<const SkGlyphPos>{fGlyphPos, glyphsWithPathCount},
                         strike.get(),
-                        strikeToSourceRatio);
+                        strikeSpec.strikeToSourceRatio());
             }
 
             // fGlyphPos will be reused here.
             if (!fARGBGlyphsIDs.empty()) {
-                this->processARGBFallback(maxFallbackDimension * strikeToSourceRatio,
+                this->processARGBFallback(maxFallbackDimension * strikeSpec.strikeToSourceRatio(),
                                           runPaint, runFont, viewMatrix, process);
             }
         } else {
 
-            SkAutoDescriptor ad;
-            SkScalerContextEffects effects;
+            SkStrikeSpecStorage strikeSpec =
+                    SkStrikeSpecStorage::MakeMask(runFont, runPaint,
+                            fDeviceProps, fScalerContextFlags, viewMatrix);
 
-            SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-                    runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix, &ad,
-                    &effects);
-
-            SkTypeface* typeface = runFont.getTypefaceOrDefault();
-            SkScopedStrike strike =
-                    fStrikeCache->findOrCreateScopedStrike(*ad.getDesc(), effects, *typeface);
+            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             SkMatrix mapping = viewMatrix;
             mapping.preTranslate(origin.x(), origin.y());
