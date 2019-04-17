@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb8cf962_1de72a71",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-17T15:13:32Z",
+      "side": 1,
+      "message": "nit: _REPO_ROOT",
+      "range": {
+        "startLine": 36,
+        "startChar": 30,
+        "endLine": 36,
+        "endChar": 51
+      },
+      "revId": "b1eef158fd4ad13697ea6b5d75b9051d56029f9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75260241_dcbb296e",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-17T15:13:32Z",
+      "side": 1,
+      "message": "nit: %s % SK_MILESTONE_H",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 53
+      },
+      "revId": "b1eef158fd4ad13697ea6b5d75b9051d56029f9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6230b64e_7f86f2bf",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-17T15:13:32Z",
+      "side": 1,
+      "message": "Did you mean to use the local option here?",
+      "range": {
+        "startLine": 50,
+        "startChar": 7,
+        "endLine": 50,
+        "endChar": 42
+      },
+      "revId": "b1eef158fd4ad13697ea6b5d75b9051d56029f9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "515e91d2_78e890c9",
+        "filename": "tools/chrome_release_branch.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-04-17T15:13:32Z",
+      "side": 1,
+      "message": "nit: maybe spell this out \u0027--set-upstream\u0027",
+      "range": {
+        "startLine": 53,
+        "startChar": 21,
+        "endLine": 53,
+        "endChar": 23
+      },
+      "revId": "b1eef158fd4ad13697ea6b5d75b9051d56029f9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
