@@ -23,6 +23,8 @@ public:
     // depends on the read and write refs (So this method can validly return 0).
     int32_t getProxyRefCnt() const { return fProxy->getProxyRefCnt(); }
 
+    int32_t getTotalRefs() const { return fProxy->getTotalRefs(); }
+
     void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
