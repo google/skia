@@ -3201,7 +3201,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             main = entry.first;
         }
     }
-    SkASSERT(main);
+    if (!main) {
+        fErrors.error(0, "program does not contain a main() function");
+        return;
+    }
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
         if (var->fStorage == Variable::kGlobal_Storage &&
