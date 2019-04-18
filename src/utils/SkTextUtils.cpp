@@ -27,6 +27,8 @@ void SkTextUtils::Draw(SkCanvas* canvas, const void* text, size_t size, SkTextEn
 void SkTextUtils::GetPath(const void* text, size_t length, SkTextEncoding encoding,
                           SkScalar x, SkScalar y, const SkFont& font, SkPath* path) {
     SkAutoToGlyphs ag(font, text, length, encoding);
+    if(ag.count() == 0){return;}
+
     SkAutoTArray<SkPoint> pos(ag.count());
     font.getPos(ag.glyphs(), ag.count(), &pos[0], {x, y});
 
