@@ -2952,6 +2952,12 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
         }
     }
 
+    // The matrix may have a rotation by an odd multiple of 90 degrees.
+    if (!isCircular && viewMatrix.getScaleX() == 0) {
+        std::swap(xRadius, yRadius);
+        std::swap(scaledStroke.fX, scaledStroke.fY);
+    }
+
     // The way the effect interpolates the offset-to-ellipse/circle-center attribute only works on
     // the interior of the rrect if the radii are >= 0.5. Otherwise, the inner rect of the nine-
     // patch will have fractional coverage. This only matters when the interior is actually filled.
