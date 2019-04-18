@@ -906,8 +906,6 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
                                const SkPaint* paint) : fFont(font) {
     SkAssertResult(count >= 0);
 
-    fFont.setLinearMetrics(true);
-
     if (paint) {
         fPaint = *paint;
     }
@@ -915,6 +913,9 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
 
     // can't use our canonical size if we need to apply patheffects
     if (fPaint.getPathEffect() == nullptr) {
+        // If the wrong size is going to be used, don't hint anything.
+        fFont.setHinting(kNo_SkFontHinting);
+        fFont.setSubpixel(true);
         fScale = fFont.getSize() / SkFontPriv::kCanonicalTextSizeForPaths;
         fFont.setSize(SkIntToScalar(SkFontPriv::kCanonicalTextSizeForPaths));
         // Note: fScale can be zero here (even if it wasn't before the divide). It can also

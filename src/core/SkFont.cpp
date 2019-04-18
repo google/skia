@@ -113,8 +113,11 @@ SkFont SkFont::makeWithSize(SkScalar newSize) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
-    constexpr uint32_t flagsToIgnore = kLinearMetrics_PrivFlag        |
-                                       kEmbeddedBitmaps_PrivFlag      |
+    constexpr uint32_t flagsToIgnore =
+#ifdef SK_IGNORE_LINEAR_METRICS_FIX
+                                       kLinearMetrics_PrivFlag   |
+#endif
+                                       kEmbeddedBitmaps_PrivFlag |
                                        kForceAutoHinting_PrivFlag;
 
     fFlags = (fFlags & ~flagsToIgnore) | kSubpixel_PrivFlag;
@@ -145,9 +148,11 @@ public:
         if (paint) {
             fPaint = *paint;
         }
-        if (font.isLinearMetrics() ||
-            SkDraw::ShouldDrawTextAsPaths(font, fPaint, SkMatrix::I()))
-        {
+        if (
+#ifdef SK_IGNORE_LINEAR_METRICS_FIX
+            font.isLinearMetrics() ||
+#endif
+            SkDraw::ShouldDrawTextAsPaths(font, fPaint, SkMatrix::I())) {
             SkFont* f = fLazyFont.set(font);
             fScale = f->setupForAsPaths(nullptr);
             fFont = f;
