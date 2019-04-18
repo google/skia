@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d110f35_e2702490",
+        "filename": "src/sksl/SkSLDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-04-18T15:36:05Z",
+      "side": 1,
+      "message": "Wouldn\u0027t you want to return x in this case? (I\u0027m not exactly clear on the difference between SkASSERT and SkAssertResult",
+      "range": {
+        "startLine": 22,
+        "startChar": 40,
+        "endLine": 22,
+        "endChar": 44
+      },
+      "revId": "434a679c0da30ddd5af80d1a996513651ca4299b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
