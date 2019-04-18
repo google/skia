@@ -15,6 +15,7 @@
 #include "GrPersistentCacheUtils.h"
 #include "GrProgramDesc.h"
 #include "GrShaderCaps.h"
+#include "GrSKSLPrettyPrint.h"
 #include "GrSwizzle.h"
 #include "SkAutoMalloc.h"
 #include "SkATrace.h"
@@ -153,12 +154,15 @@ void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
 
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                                             const SkSL::String glsl[]) {
-    if (!this->gpu()->getContext()->priv().getPersistentCache()) {
+    auto cache = this->gpu()->getContext()->priv().getPersistentCache();
+    if (!cache) {
         return;
     }
+
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
+    sk_sp<SkData> data;
     if (fGpu->glCaps().programBinarySupport()) {
-        // binary cache
+        // Cache program binary
         GrGLsizei length = 0;
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
         if (length > 0) {
@@ -171,13 +175,14 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
             GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary));
             writer.write32(binaryFormat);
 
-            auto data = writer.snapshotAsData();
-            this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
+            data = writer.snapshotAsData();
         }
     } else {
-        // source cache
-        auto data = GrPersistentCacheUtils::PackCachedGLSL(inputs, glsl);
-        this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
+        // Cache GLSL
+        data = GrPersistentCacheUtils::PackCachedGLSL(inputs, glsl);
+    }
+    if (data) {
+        cache->store(*key, *data);
     }
 }
 
@@ -216,6 +221,9 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 #endif
     bool cached = fCached.get() != nullptr;
     SkSL::String glsl[kGrShaderTypeCount];
+#if GR_TEST_UTILS
+    SkSL::String sksl[kGrShaderTypeCount];
+#endif
     if (cached) {
         if (fGpu->glCaps().programBinarySupport()) {
             // binary cache hit, just hand the binary to GL
@@ -239,6 +247,10 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             } else {
                 cached = false;
             }
+#if GR_TEST_UTILS
+        } else if (fGpu->getContext()->priv().options().fCacheSKSL) {
+            GrPersistentCacheUtils::UnpackCachedGLSL(fCached.get(), &inputs, sksl);
+#endif
         } else {
             // source cache hit, we don't need to compile the SkSL->GLSL
             GrPersistentCacheUtils::UnpackCachedGLSL(fCached.get(), &inputs, glsl);
@@ -251,9 +263,15 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             if (fFS.fForceHighPrecision) {
                 settings.fForceHighPrecision = true;
             }
+            SkSL::String* fs_sksl = &fFS.fCompilerString;
+#if GR_TEST_UTILS
+            if (!sksl[kFragment_GrShaderType].empty()) {
+                fs_sksl = &sksl[kFragment_GrShaderType];
+            }
+#endif
             std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(gpu()->glContext(),
                                                              GR_GL_FRAGMENT_SHADER,
-                                                             fFS.fCompilerString,
+                                                             *fs_sksl,
                                                              settings,
                                                              &glsl[kFragment_GrShaderType]);
             if (!fs) {
@@ -277,9 +295,15 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
         if (glsl[kVertex_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
+            SkSL::String* vs_sksl = &fVS.fCompilerString;
+#if GR_TEST_UTILS
+            if (!sksl[kVertex_GrShaderType].empty()) {
+                vs_sksl = &sksl[kVertex_GrShaderType];
+            }
+#endif
             std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
                                                              GR_GL_VERTEX_SHADER,
-                                                             fVS.fCompilerString,
+                                                             *vs_sksl,
                                                              settings,
                                                              &glsl[kVertex_GrShaderType]);
             if (!vs) {
@@ -304,10 +328,16 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         if (primProc.willUseGeoShader()) {
             if (glsl[kGeometry_GrShaderType].empty()) {
                 // Don't have cached GLSL, need to compile SkSL->GLSL
+                SkSL::String* gs_sksl = &fGS.fCompilerString;
+#if GR_TEST_UTILS
+                if (!sksl[kGeometry_GrShaderType].empty()) {
+                    gs_sksl = &sksl[kGeometry_GrShaderType];
+                }
+#endif
                 std::unique_ptr<SkSL::Program> gs;
                 gs = GrSkSLtoGLSL(gpu()->glContext(),
                                   GR_GL_GEOMETRY_SHADER,
-                                  fGS.fCompilerString,
+                                  *gs_sksl,
                                   settings,
                                   &glsl[kGeometry_GrShaderType]);
                 if (!gs) {
@@ -354,6 +384,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     this->cleanupShaders(shadersToDelete);
     if (!cached) {
+#if GR_TEST_UTILS
+        if (fGpu->getContext()->priv().options().fCacheSKSL) {
+            glsl[kFragment_GrShaderType] = GrSKSLPrettyPrint::PrettyPrint(fFS.fCompilerString);
+            glsl[kVertex_GrShaderType] = GrSKSLPrettyPrint::PrettyPrint(fVS.fCompilerString);
+            glsl[kGeometry_GrShaderType] = GrSKSLPrettyPrint::PrettyPrint(fGS.fCompilerString);
+        }
+#endif
         this->storeShaderInCache(inputs, programID, glsl);
     }
     return this->createProgram(programID);
