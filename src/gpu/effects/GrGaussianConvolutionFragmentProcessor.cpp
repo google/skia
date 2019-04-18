@@ -40,10 +40,10 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
             args.fFp.cast<GrGaussianConvolutionFragmentProcessor>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType,
                                                     "ImageIncrement");
     if (ce.useBounds()) {
-        fBoundsUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+        fBoundsUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType,
                                                 "Bounds");
     }
 
@@ -52,7 +52,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
 
-    fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag, kHalf4_GrSLType,
+    fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                  "Kernel", arrayCount);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -64,7 +64,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
     fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
-    fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
+    fragBuilder->codeAppend("float2 coordSampled = float2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
@@ -105,9 +105,9 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                 }
             }
         }
-        fragBuilder->codeAppendf("%s += ", args.fOutputColor);
+        fragBuilder->codeAppendf("%s += half4(", args.fOutputColor);
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coordSampled");
-        fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
+        fragBuilder->codeAppendf(" * %s);\n", kernelIndex.c_str());
         if (GrTextureDomain::kDecal_Mode == ce.mode()) {
             fragBuilder->codeAppend("}");
         }
