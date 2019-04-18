@@ -99,7 +99,8 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         , fCmdBuffer(nil)
         , fCompiler(new SkSL::Compiler())
         , fCopyManager(this)
-        , fResourceProvider(this) {
+        , fResourceProvider(this)
+        , fBufferManager(this) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
 }
