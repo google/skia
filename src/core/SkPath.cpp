@@ -2584,7 +2584,6 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
 
 #else
 
-static int sign(SkScalar x1, SkScalar x2) { SkASSERT(x1 != x2); return x2 < x1; }
 static int sign(SkScalar x) { return x < 0; }
 #define kValueNeverReturnedBySign   2
 
@@ -2613,10 +2612,6 @@ static bool almost_equal(SkScalar compA, SkScalar compB) {
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
 
-static DirChange same_sign(SkScalar curr, SkScalar last, SkScalar prior) {
-    return sign(curr, last) == sign(last, prior) ? kStraight_DirChange : kBackwards_DirChange;
-}
-
 // only valid for a single contour
 struct Convexicator {
 
@@ -2634,13 +2629,11 @@ struct Convexicator {
         fCurrPt = pt;
         if (fPriorPt == fLastPt) {  // should only be true for first non-zero vector
             fFirstPt = pt;
-            fCurrAligned = pt.fX == fLastPt.fX || pt.fY == fLastPt.fY;
         } else if (!this->addVec()) {
             return false;
         }
         fPriorPt = fLastPt;
         fLastPt = fCurrPt;
-        fLastAligned = fCurrAligned;
         return true;
     }
 
@@ -2694,35 +2687,6 @@ struct Convexicator {
 
 private:
     DirChange directionChange() {
-        // if both vectors are axis-aligned, don't do cross product
-        fCurrAligned = fCurrPt.fX == fLastPt.fX || fCurrPt.fY == fLastPt.fY;
-        if (fLastAligned && fCurrAligned) {
-            bool noYChange = fCurrPt.fY == fLastPt.fY && fLastPt.fY == fPriorPt.fY;
-            if (fCurrPt.fX == fLastPt.fX && fLastPt.fX == fPriorPt.fX) {
-                if (noYChange) {
-                    return kStraight_DirChange;
-                }
-                return same_sign(fCurrPt.fY, fLastPt.fY, fPriorPt.fY);
-            }
-            if (!noYChange) { // must be turn to left or right
-                bool flip = fCurrPt.fX != fLastPt.fX;
-                SkASSERT(flip ? fCurrPt.fY == fLastPt.fY &&
-                        fLastPt.fY != fPriorPt.fY && fLastPt.fX == fPriorPt.fX :
-                        fCurrPt.fY != fLastPt.fY &&
-                        fLastPt.fY == fPriorPt.fY && fLastPt.fX != fPriorPt.fX);
-                bool product = flip ? (fCurrPt.fX > fLastPt.fX) != (fLastPt.fY > fPriorPt.fY) :
-                        (fCurrPt.fY > fLastPt.fY) == (fLastPt.fX > fPriorPt.fX);
-                SkDEBUGCODE(SkVector lastV = fLastPt - fPriorPt);
-                SkDEBUGCODE(SkVector curV = fCurrPt - fLastPt);
-                SkDEBUGCODE(SkScalar crossV = SkPoint::CrossProduct(lastV, curV));
-                SkDEBUGCODE(int signV = SkScalarSignAsInt(crossV));
-                SkASSERT(!signV || signV == (product ? 1 : -1));
-                return product ? kRight_DirChange : kLeft_DirChange;
-            }
-            return same_sign(fCurrPt.fX, fLastPt.fX, fPriorPt.fX);
-        }
-        // there are no subtractions above this line; axis aligned paths
-        // are robust and can handle arbitrary values
         SkVector lastVec = fLastPt - fPriorPt;
         SkVector curVec = fCurrPt - fLastPt;
         SkScalar cross = SkPoint::CrossProduct(lastVec, curVec);
@@ -2790,8 +2754,6 @@ private:
     SkPathPriv::FirstDirection   fFirstDirection { SkPathPriv::kUnknown_FirstDirection };
     int                 fReversals { 0 };
     bool                fIsFinite { true };
-    bool                fLastAligned { true };
-    bool                fCurrAligned { true };
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
