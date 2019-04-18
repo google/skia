@@ -2921,6 +2921,9 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
                                    viewMatrix[SkMatrix::kMSkewY] * radii.fY);
     SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX] * radii.fX +
                                    viewMatrix[SkMatrix::kMScaleY] * radii.fY);
+    if (viewMatrix.getScaleX() == 0) {
+       std::swap(xRadius, yRadius);
+    }
 
     SkStrokeRec::Style style = stroke.getStyle();
 
