@@ -2921,7 +2921,6 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
                                    viewMatrix[SkMatrix::kMSkewY] * radii.fY);
     SkScalar yRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewX] * radii.fX +
                                    viewMatrix[SkMatrix::kMScaleY] * radii.fY);
-
     SkStrokeRec::Style style = stroke.getStyle();
 
     // Do (potentially) anisotropic mapping of stroke. Use -1s to indicate fill-only draws.
@@ -2950,6 +2949,11 @@ static std::unique_ptr<GrDrawOp> make_rrect_op(GrRecordingContext* context,
                             SK_ScalarHalf * scaledStroke.fY > yRadius)) {
             return nullptr;
         }
+    }
+    // The matrix may have a rotation by an odd multiple of 90 degrees.
+    if (!isCircular && viewMatrix.getScaleX() == 0) {
+        std::swap(xRadius, yRadius);
+        std::swap(scaledStroke.fX, scaledStroke.fY);
     }
 
     // The way the effect interpolates the offset-to-ellipse/circle-center attribute only works on
