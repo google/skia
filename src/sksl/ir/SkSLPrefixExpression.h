@@ -45,6 +45,21 @@ struct PrefixExpression : public Expression {
         return nullptr;
     }
 
+    double getFVecComponent(int index) const override {
+        SkASSERT(fOperator == Token::Kind::MINUS);
+        return -fOperand->getFVecComponent(index);
+    }
+
+    int64_t getIVecComponent(int index) const override {
+        SkASSERT(fOperator == Token::Kind::MINUS);
+        return -fOperand->getIVecComponent(index);
+    }
+
+    double getMatComponent(int col, int row) const override {
+        SkASSERT(fOperator == Token::Kind::MINUS);
+        return -fOperand->getMatComponent(col, row);
+    }
+
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new PrefixExpression(fOperator, fOperand->clone()));
     }
