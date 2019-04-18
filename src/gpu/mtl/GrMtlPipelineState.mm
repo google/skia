@@ -127,14 +127,12 @@ void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncod
 
 void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     if (fGeometryUniformBuffer) {
-        [renderCmdEncoder setVertexBuffer: fGeometryUniformBuffer->mtlBuffer()
-                                   offset: 0
-                                  atIndex: GrMtlUniformHandler::kGeometryBinding];
+        fGpu->bufferManager().setVertexBuffer(renderCmdEncoder, fGeometryUniformBuffer.get(),
+                                              GrMtlUniformHandler::kGeometryBinding);
     }
     if (fFragmentUniformBuffer) {
-        [renderCmdEncoder setFragmentBuffer: fFragmentUniformBuffer->mtlBuffer()
-                                     offset: 0
-                                    atIndex: GrMtlUniformHandler::kFragBinding];
+        fGpu->bufferManager().setFragmentBuffer(renderCmdEncoder, fFragmentUniformBuffer.get(),
+                                              GrMtlUniformHandler::kFragBinding);
     }
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     for (int index = 0; index < fNumSamplers; ++index) {

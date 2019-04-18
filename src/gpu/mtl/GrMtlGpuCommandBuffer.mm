@@ -234,6 +234,7 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
 
     [fActiveRenderCmdEncoder endEncoding];
     fActiveRenderCmdEncoder = nil;
+    fGpu->bufferManager().resetBindings();
     fCommandBufferInfo.fBounds.join(bounds);
     SK_END_AUTORELEASE_BLOCK
 }
@@ -330,21 +331,17 @@ void GrMtlGpuRTCommandBuffer::bindGeometry(const GrBuffer* vertexBuffer,
         SkASSERT(!vertexBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(vertexBuffer)->isMapped());
 
-        auto mtlVertexBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer)->mtlBuffer();
-        SkASSERT(mtlVertexBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer:mtlVertexBuffer
-                                          offset:0
-                                         atIndex:bufferIndex++];
+        const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(vertexBuffer);
+        fGpu->bufferManager().setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer,
+                                              bufferIndex++);
     }
     if (instanceBuffer) {
         SkASSERT(!instanceBuffer->isCpuBuffer());
         SkASSERT(!static_cast<const GrGpuBuffer*>(instanceBuffer)->isMapped());
 
-        auto mtlInstanceBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer)->mtlBuffer();
-        SkASSERT(mtlInstanceBuffer);
-        [fActiveRenderCmdEncoder setVertexBuffer:mtlInstanceBuffer
-                                          offset:0
-                                         atIndex:bufferIndex++];
+        const GrMtlBuffer* grMtlBuffer = static_cast<const GrMtlBuffer*>(instanceBuffer);
+        fGpu->bufferManager().setVertexBuffer(fActiveRenderCmdEncoder, grMtlBuffer,
+                                              bufferIndex++);
     }
 }
 

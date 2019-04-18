@@ -13,6 +13,7 @@
 #include "GrSemaphore.h"
 #include "GrTexture.h"
 
+#include "GrMtlBuffer.h"
 #include "GrMtlCaps.h"
 #include "GrMtlCopyManager.h"
 #include "GrMtlResourceProvider.h"
@@ -45,6 +46,8 @@ public:
     id<MTLDevice> device() const { return fDevice; }
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
+
+    GrMtlBufferManager& bufferManager() { return fBufferManager; }
 
     id<MTLCommandBuffer> commandBuffer();
 
@@ -222,6 +225,7 @@ private:
     std::unique_ptr<SkSL::Compiler> fCompiler;
     GrMtlCopyManager fCopyManager;
     GrMtlResourceProvider fResourceProvider;
+    GrMtlBufferManager    fBufferManager;
 
     typedef GrGpu INHERITED;
 };
