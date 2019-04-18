@@ -1156,7 +1156,6 @@ void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
     }
 }
 
-#ifndef SK_SUPPORT_LEGACY_A8_MASKBLITTER
 using U32  = skvx::Vec< 4, uint32_t>;
 using U8x4 = skvx::Vec<16, uint8_t>;
 using U8   = skvx::Vec< 4, uint8_t>;
@@ -1184,42 +1183,22 @@ static void drive(SkPMColor* dst, const SkPMColor* src, const uint8_t* cov, int 
         cov++;
     }
 }
-#endif
 
 static void blend_row_A8(SkPMColor* dst, const void* mask, const SkPMColor* src, int n) {
     auto cov = (const uint8_t*)mask;
-
-#ifdef SK_SUPPORT_LEGACY_A8_MASKBLITTER
-    for (int i = 0; i < n; ++i) {
-        if (cov[i]) {
-            dst[i] = SkBlendARGB32(src[i], dst[i], cov[i]);
-        }
-    }
-#else
     drive(dst, src, cov, n, [](U8x4 d, U8x4 s, U8x4 c) {
         U8x4 s_aa  = skvx::approx_scale(s, c),
              alpha = skvx::shuffle<3,3,3,3, 7,7,7,7, 11,11,11,11, 15,15,15,15>(s_aa);
         return s_aa + skvx::approx_scale(d, 255 - alpha);
     });
-#endif
 }
 
 static void blend_row_A8_opaque(SkPMColor* dst, const void* mask, const SkPMColor* src, int n) {
     auto cov = (const uint8_t*)mask;
-
-#ifdef SK_SUPPORT_LEGACY_A8_MASKBLITTER
-    for (int i = 0; i < n; ++i) {
-        if (int c = cov[i]) {
-            c += (c >> 7);
-            dst[i] = SkAlphaMulQ(src[i], c) + SkAlphaMulQ(dst[i], 256 - c);
-        }
-    }
-#else
     drive(dst, src, cov, n, [](U8x4 d, U8x4 s, U8x4 c) {
         return skvx::div255( skvx::cast<uint16_t>(s) * skvx::cast<uint16_t>(  c  )
                            + skvx::cast<uint16_t>(d) * skvx::cast<uint16_t>(255-c));
     });
-#endif
 }
 
 static void blend_row_lcd16(SkPMColor* dst, const void* vmask, const SkPMColor* src, int n) {
