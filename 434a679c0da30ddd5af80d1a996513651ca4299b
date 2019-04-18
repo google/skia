@@ -22,6 +22,30 @@
       "revId": "434a679c0da30ddd5af80d1a996513651ca4299b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac54cd2f_ec03fe2b",
+        "filename": "src/sksl/SkSLDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-04-18T15:49:25Z",
+      "side": 1,
+      "message": "SkASSERT means \"when asserts are enabled, run this expression and freak out if it\u0027s false\".\n\nSkAssertResult means \"run this expression regardless, and when asserts are enabled freak out if it\u0027s false\".\n\nSo they mean exactly the same thing when asserts are enabled.",
+      "parentUuid": "8d110f35_e2702490",
+      "range": {
+        "startLine": 22,
+        "startChar": 40,
+        "endLine": 22,
+        "endChar": 44
+      },
+      "revId": "434a679c0da30ddd5af80d1a996513651ca4299b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
