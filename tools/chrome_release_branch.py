@@ -79,13 +79,16 @@ def update_infra_config(old_branch, new_branch):
   subprocess.check_call(['new-branch',
                          '--branch', new_branch,
                          '--delete', old_branch,
-                         '--owner', owner])
+                         '--owner', owner,
+                         '--exclude-trybots=chromium.*',
+                         '--exclude-trybots=.*Android_Framework.*'])
 
 
 def main():
   if len(sys.argv) != 2:
     print >> sys.stderr, 'Usage: %s <commit hash for branch>' % sys.argv[0]
     sys.exit(1)
+  go.check()
   branch_at = sys.argv[1]
   m = get_current_milestone()
   new_branch = '%s%d' % (CHROME_REF_PREFIX, m)

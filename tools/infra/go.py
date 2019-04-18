@@ -24,7 +24,7 @@ def check():
   try:
     go_exe = subprocess.check_output([WHICH, 'go'])
   except (subprocess.CalledProcessError, OSError):
-    pass
+    go_exe = None
   if not go_exe:
     _fail('Unable to find Golang installation; see '
           'https://golang.org/doc/install')
