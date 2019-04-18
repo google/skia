@@ -1710,6 +1710,11 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     this->onDrawRect(r.makeSorted(), paint);
 }
 
+void SkCanvas::drawClippedToSaveBehind(const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    this->onDrawBehind(paint);
+}
+
 void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (region.isEmpty()) {
@@ -2115,6 +2120,38 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
     while (iter.next()) {
         iter.fDevice->drawRegion(region, looper.paint());
+    }
+
+    LOOPER_END
+}
+
+void SkCanvas::onDrawBehind(const SkPaint& paint) {
+    SkIRect bounds;
+    SkDeque::Iter iter(fMCStack, SkDeque::Iter::kBack_IterStart);
+    for (;;) {
+        const MCRec* rec = (const MCRec*)iter.prev();
+        if (!rec) {
+            return; // no backimages, so nothing to draw
+        }
+        if (rec->fBackImage) {
+            bounds = SkIRect::MakeXYWH(rec->fBackImage->fLoc.fX, rec->fBackImage->fLoc.fY,
+                                       rec->fBackImage->fImage->width(),
+                                       rec->fBackImage->fImage->height());
+            break;
+        }
+    }
+
+    LOOPER_BEGIN(paint, nullptr)
+
+    SkRegion rgn(bounds);
+    while (iter.next()) {
+        SkBaseDevice* dev = iter.fDevice;
+
+        SkMatrix ctm = dev->ctm();
+        dev->save();
+        dev->clipRegion(rgn, SkClipOp::kIntersect);
+        dev->drawPaint(looper.paint());
+        dev->restore(ctm);
     }
 
     LOOPER_END
