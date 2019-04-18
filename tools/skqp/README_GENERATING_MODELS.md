@@ -8,21 +8,19 @@ Skia][1].  Here is how that process works:
 
         COMMIT=origin/master
 
-1.  Get the positively triaged results from Gold:
+    Or use the script to find the best one:
+
+        cd SKIA_SOURCE_DIRECTORY
+        git fetch origin
+        COMMIT=$(python tools/skqp/find_commit_with_best_gold_results.py \
+                 origin/master ^origin/skqp/dev)
+
+1.  Get the positively triaged results from Gold and generate models:
 
         cd SKIA_SOURCE_DIRECTORY
         git fetch origin
         git checkout "$COMMIT"
-        python tools/skqp/get_gold_results.py "${COMMIT}~10" "$COMMIT"
-
-    This will produce a file `meta_YYYMMMDDD_HHHMMMSS_COMMIT_COMMIT.json` in
-    the current directory.
-
-2.  From a checkout of Skia's master branch, execute:
-
-        cd SKIA_SOURCE_DIRECTORY
-        git checkout "$COMMIT"
-        tools/skqp/cut_release META_JSON_FILE
+        python tools/skqp/cut_release.py HEAD~10 HEAD
 
     This will create the following files:
 
@@ -32,9 +30,9 @@ Skia][1].  Here is how that process works:
 
     These three files can be commited to Skia to create a new commit.  Make
     `origin/skqp/dev` a parent of this commit (without merging it in), and
-    push this new commit to `origin/skqp/dev`:
+    push this new commit to `origin/skqp/dev`, using this script:
 
-        tools/skqp/branch_skqp_dev.sh
+        sh tools/skqp/branch_skqp_dev.sh
 
     Review and submit the change:
 
@@ -47,20 +45,18 @@ Skia][1].  Here is how that process works:
 
     (Optional) Test the SkQP APK:
 
-        adb uninstall org.skia.skqp
-        tools/skqp/test_apk.sh LOCATION/skqp-universal-debug.apk
+        tools/skqp/test_apk.sh (LOCATION)/skqp-universal-debug.apk
 
     (Once changes land) Upload the SkQP APK.
 
-        tools/skqp/upload_apk LOCATION/skqp-universal-debug.apk
+        tools/skqp/upload_apk HEAD (LOCATION)/skqp-universal-debug.apk
 
 
-`tools/skqp/cut_release`
-------------------------
+`tools/skqp/cut_release.py`
+---------------------------
 
-This tool will call `make_gmkb.go` to generate the `m{ax,in}.png` files for
-each render test.  Additionaly, a `models.txt` file enumerates all of the
-models.
+This tool will call `make_skqp_model` to generate the `m{ax,in}.png` files for
+each render test.
 
 Then it calls `jitter_gms` to see which render tests pass the jitter test.
 `jitter_gms` respects the `bad_gms.txt` file by ignoring the render tests
@@ -70,7 +66,7 @@ the file `good.txt`, those that fail in the `bad.txt` file.
 Next, the `skqp/rendertests.txt` file is created.  This file lists the render
 tests that will be executed by SkQP.  These are the union of the tests
 enumerated in the `good.txt` and `bad.txt` files.  If the render test is found
-in the `models.txt` file and the `good.txt` file, its per-test threshold is set
+in the `good.txt` file and the model exists, its per-test threshold is set
 to 0 (a later CL can manually change this, if needed).  Otherwise, the
 threshold is set to -1; this indicated that the rendertest will be executed (to
 verify that the driver will not crash), but the output will not be compared
