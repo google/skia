@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c70e06b_6348519f",
+        "filename": "src/utils/SkTextUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-04-18T20:02:05Z",
+      "side": 1,
+      "message": "Skia coding style is K\u0026R: \n\nif (ag.count() \u003d\u003d 0) {\n    return;\n}",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "bf264458ae46f05c8f21e5618113f70288f2aa74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
