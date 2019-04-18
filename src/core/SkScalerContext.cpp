@@ -1025,17 +1025,13 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     if (font.isForceAutoHinting()) {
         flags |= SkScalerContext::kForceAutohinting_Flag;
     }
+    if (font.isLinearMetrics()) {
+        flags |= SkScalerContext::kLinearMetrics_Flag;
+    }
     rec->fFlags = SkToU16(flags);
 
-    // if linear-text is on, then we force hinting to be off (since that's sort of
-    // the point of linear-text.
-    SkFontHinting hinting = (SkFontHinting)font.getHinting();
-    if (font.isLinearMetrics()) {
-        hinting = kNo_SkFontHinting;
-    }
-
     // these modify fFlags, so do them after assigning fFlags
-    rec->setHinting(hinting);
+    rec->setHinting(font.getHinting());
 
     rec->setLuminanceColor(SkPaintPriv::ComputeLuminanceColor(paint));
 

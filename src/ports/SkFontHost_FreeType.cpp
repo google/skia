@@ -845,7 +845,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
     // compute the flags we send to Load_Glyph
-    bool linearMetrics = this->isSubpixel();
+    bool linearMetrics = this->isLinearMetrics();
     {
         FT_Int32 loadFlags = FT_LOAD_DEFAULT;
 

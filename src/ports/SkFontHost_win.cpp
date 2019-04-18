@@ -885,7 +885,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
     glyph->fAdvanceX = (float)((int)gm.gmCellIncX);
     glyph->fAdvanceY = (float)((int)gm.gmCellIncY);
 
-    if (this->isSubpixel()) {
+    if (this->isLinearMetrics()) {
         sk_bzero(&gm, sizeof(gm));
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fHighResMat22);
         if (GDI_ERROR != status) {
