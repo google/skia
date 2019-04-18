@@ -1336,7 +1336,7 @@ static bool determine_binary_type(const Context& context,
     }
     bool isVectorOrMatrix = left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind;
     if (left.kind() == Type::kScalar_Kind && right.kind() == Type::kScalar_Kind &&
-            right.canCoerceTo(left)) {
+        right.canCoerceTo(left)) {
         if (left.priority() > right.priority()) {
             *outLeftType = &left;
             *outRightType = &left;
@@ -1364,7 +1364,7 @@ static bool determine_binary_type(const Context& context,
     if ((left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind) &&
         (right.kind() == Type::kScalar_Kind)) {
         if (determine_binary_type(context, op, left.componentType(), right, outLeftType,
-                                  outRightType, outResultType, false)) {
+                                  outRightType, outResultType, tryFlipped)) {
             *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
             if (!isLogical) {
                 *outResultType = &(*outResultType)->toCompound(context, left.columns(),
