@@ -241,6 +241,7 @@ public:
         // Generate A8 from LCD source (for GDI and CoreGraphics).
         // only meaningful if fMaskFormat is kA8
         kGenA8FromLCD_Flag        = 0x0800, // could be 0x200 (bit meaning dependent on fMaskFormat)
+        kLinearMetrics_Flag       = 0x1000,
     };
 
     // computed values
@@ -259,6 +260,10 @@ public:
 
     bool isSubpixel() const {
         return SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
+    }
+
+     bool isLinearMetrics() const {
+        return SkToBool(fRec.fFlags & kLinearMetrics_Flag);
     }
 
     // DEPRECATED
