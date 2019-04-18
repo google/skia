@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "Resources.h"
 #include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
@@ -5448,4 +5449,20 @@ DEF_TEST(path_last_move_to_index, r) {
     path.offset(0, 5, &(copyPath));                     // <== change buffer copyPath.fPathRef->fPoints but not reset copyPath.fLastMoveToIndex lead to out of bound
 
     copyPath.rConicTo(1, 1, 3, 3, 0.707107f);
+}
+
+DEF_TEST(crbug_950508, r) {
+    auto data = GetResourceAsData("crbug950508.txt");
+    SkString pathStr((const char*)data->bytes(), data->size());
+    SkPath path;
+    SkParsePath::FromSVGString(pathStr.c_str(), &path);
+
+    SkPaint paint;
+    paint.setStrokeWidth(2);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    SkPath stroked;
+    paint.getFillPath(path, &stroked);
+
+    REPORTER_ASSERT(r, stroked.getConvexity() == SkPath::kConcave_Convexity);
 }
