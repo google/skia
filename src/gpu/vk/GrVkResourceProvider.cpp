@@ -96,14 +96,15 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(int numColorSamples,
                                                    const GrPrimitiveProcessor& primProc,
                                                    const GrPipeline& pipeline,
                                                    const GrStencilSettings& stencil,
+                                                   GrSurfaceOrigin origin,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    GrPrimitiveType primitiveType,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, numColorSamples, primProc, pipeline, stencil, shaderStageInfo,
-                                shaderStageCount, primitiveType, compatibleRenderPass, layout,
-                                this->pipelineCache());
+    return GrVkPipeline::Create(
+            fGpu, numColorSamples, primProc, pipeline, stencil, origin, shaderStageInfo,
+            shaderStageCount, primitiveType, compatibleRenderPass, layout, this->pipelineCache());
 }
 
 GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
