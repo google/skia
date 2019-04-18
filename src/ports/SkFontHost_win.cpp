@@ -723,7 +723,7 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
         }
 
         // Create a hires matrix if we need linear metrics.
-        if (this->isSubpixel()) {
+        if (this->isLinearMetrics()) {
             OUTLINETEXTMETRIC otm;
             UINT success = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
             if (0 == success) {
@@ -885,7 +885,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph) {
     glyph->fAdvanceX = (float)((int)gm.gmCellIncX);
     glyph->fAdvanceY = (float)((int)gm.gmCellIncY);
 
-    if (this->isSubpixel()) {
+    if ((fTM.tmPitchAndFamily & TMPF_VECTOR) && this->isLinearMetrics()) {
         sk_bzero(&gm, sizeof(gm));
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fHighResMat22);
         if (GDI_ERROR != status) {

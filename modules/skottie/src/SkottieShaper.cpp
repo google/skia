@@ -53,6 +53,7 @@ public:
         , fShaper(SkShaper::Make()) {
         fFont.setHinting(kNo_SkFontHinting);
         fFont.setSubpixel(true);
+        fFont.setLinearMetrics(true);
         fFont.setEdging(SkFont::Edging::kAntiAlias);
     }
 
