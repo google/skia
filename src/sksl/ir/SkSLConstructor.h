@@ -93,7 +93,7 @@ struct Constructor : public Expression {
         Constructor& c = (Constructor&) other;
         if (c.fType.kind() == Type::kVector_Kind) {
             for (int i = 0; i < fType.columns(); i++) {
-                if (!this->getVecComponent(i).compareConstant(context, c.getVecComponent(i))) {
+                if (!this->getVecComponent(i)->compareConstant(context, *c.getVecComponent(i))) {
                     return false;
                 }
             }
@@ -113,22 +113,22 @@ struct Constructor : public Expression {
         return true;
     }
 
-    const Expression& getVecComponent(int index) const {
+    const Expression* getVecComponent(int index) const {
         SkASSERT(fType.kind() == Type::kVector_Kind);
         if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
-            return *fArguments[0];
+            return fArguments[0].get();
         }
         int current = 0;
         for (const auto& arg : fArguments) {
             SkASSERT(current <= index);
             if (arg->fType.kind() == Type::kScalar_Kind) {
                 if (index == current) {
-                    return *arg;
+                    return arg.get();
                 }
                 current++;
             } else {
                 if (current + arg->fType.columns() > index) {
-                    return ((const Constructor&) *arg).getVecComponent(index - current);
+                    return ((const Constructor&) *arg.get()).getVecComponent(index - current);
                 }
                 current += arg->fType.columns();
             }
@@ -136,15 +136,15 @@ struct Constructor : public Expression {
         ABORT("failed to find vector component %d in %s\n", index, description().c_str());
     }
 
-    double getFVecComponent(int index) const {
-        return this->getVecComponent(index).getConstantFloat();
+    double getFVecComponent(int index) const override {
+        return this->getVecComponent(index)->getConstantFloat();
     }
 
-    int64_t getIVecComponent(int index) const {
-        return this->getVecComponent(index).getConstantInt();
+    int64_t getIVecComponent(int index) const override {
+        return this->getVecComponent(index)->getConstantInt();
     }
 
-    double getMatComponent(int col, int row) const {
+    double getMatComponent(int col, int row) const override {
         SkASSERT(this->isConstant());
         SkASSERT(fType.kind() == Type::kMatrix_Kind);
         SkASSERT(col < fType.columns() && row < fType.rows());

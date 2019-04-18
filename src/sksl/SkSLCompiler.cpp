@@ -529,7 +529,7 @@ bool is_constant(const Expression& expr, double value) {
             Constructor& c = (Constructor&) expr;
             if (c.fType.kind() == Type::kVector_Kind && c.isConstant()) {
                 for (int i = 0; i < c.fType.columns(); ++i) {
-                    if (!is_constant(c.getVecComponent(i), value)) {
+                    if (!is_constant(*c.getVecComponent(i), value)) {
                         return false;
                     }
                 }
