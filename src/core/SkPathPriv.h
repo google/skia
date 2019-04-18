@@ -10,14 +10,6 @@
 
 #include "SkPath.h"
 
-#define SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE 0
-
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
-    #define COLINEAR_DIAGONAL_CONVEXITY kConcave_Convexity
-#else
-    #define COLINEAR_DIAGONAL_CONVEXITY kConvex_Convexity
-#endif
-
 class SkPathPriv {
 public:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
