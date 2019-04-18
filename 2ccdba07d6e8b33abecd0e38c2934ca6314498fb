@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56e99e87_16f67906",
+        "filename": "src/pdf/SkPDFFont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-18T20:06:27Z",
+      "side": 1,
+      "message": "Why not\n\n#ifndef SK_PDF_DONT_EMMIT_TYPE_1_FONTS\n\nit\u0027s a bit confusing as a double negative, but allows users to just define SK_PDF_DONT_EMMIT_TYPE_1_FONTS to drop the support. It also means that you don\u0027t need any ifdefs in SkPDFType1Font.h or .cpp since it doesn\u0027t matter if it gets compiled, the linker will strip if it isn\u0027t needed in a final build (and it should keep compiling anyway).",
+      "range": {
+        "startLine": 656,
+        "startChar": 7,
+        "endLine": 656,
+        "endChar": 34
+      },
+      "revId": "2ccdba07d6e8b33abecd0e38c2934ca6314498fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f6b57ef_8327b62c",
+        "filename": "src/pdf/SkPDFFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-18T20:06:27Z",
+      "side": 1,
+      "message": "isn\u0027t this self inclusion?",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 22
+      },
+      "revId": "2ccdba07d6e8b33abecd0e38c2934ca6314498fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
