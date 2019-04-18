@@ -88,6 +88,7 @@ protected:
             }
             canvas->translate(0, SkIntToScalar(360));
             font.setSubpixel(true);
+            font.setLinearMetrics(true);
         }
         return DrawResult::kOk;
     }

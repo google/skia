@@ -358,7 +358,7 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         }
     }
 
-    if (this->isSubpixel()) {
+    if (this->isLinearMetrics()) {
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
     }
