@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f07fe43b_728adc80",
+        "filename": "tools/skqp/cut_release.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-18T18:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6866a09_2b8e0da5",
+      "revId": "f54ef95061fafaafd83461f4c21697f612861b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32d663d5_79636c02",
+        "filename": "tools/skqp/cut_release.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-18T18:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83a3582c_81249d97",
+      "revId": "f54ef95061fafaafd83461f4c21697f612861b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d79e6b0c_be26c1ea",
+        "filename": "tools/skqp/cut_release.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-18T18:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4a8728c_f1fb1cf5",
+      "revId": "f54ef95061fafaafd83461f4c21697f612861b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e40940c7_cd0bff1b",
+        "filename": "tools/skqp/cut_release.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-18T18:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e36eda4_d35e3ab5",
+      "revId": "f54ef95061fafaafd83461f4c21697f612861b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7298adae_068b8ec8",
+        "filename": "tools/skqp/cut_release.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-18T18:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7d234ff_23367562",
+      "revId": "f54ef95061fafaafd83461f4c21697f612861b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8046df6_aaa08ff9",
+        "filename": "tools/skqp/cut_release.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-04-18T18:59:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0a3e3ce_26835155",
+      "revId": "f54ef95061fafaafd83461f4c21697f612861b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
