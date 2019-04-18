@@ -31,14 +31,6 @@ class GrOpFlushState;
  */
 class GrCCPathProcessor : public GrGeometryProcessor {
 public:
-    enum class InstanceAttribs {
-        kDevBounds,
-        kDevBounds45,
-        kDevToAtlasOffset,
-        kColor
-    };
-    static constexpr int kNumInstanceAttribs = 1 + (int)InstanceAttribs::kColor;
-
     // Helper to offset the 45-degree bounding box returned by GrCCPathParser::parsePath().
     static SkRect MakeOffset45(const SkRect& devBounds45, float dx, float dy) {
         // devBounds45 is in "| 1  -1 | * devCoords" space.
@@ -76,12 +68,6 @@ public:
     const SkISize& atlasSize() const { return fAtlasSize; }
     GrSurfaceOrigin atlasOrigin() const { return fAtlasOrigin; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
-        int idx = static_cast<int>(attribID);
-        SkASSERT(idx >= 0 && idx < static_cast<int>(SK_ARRAY_COUNT(kInstanceAttribs)));
-        return kInstanceAttribs[idx];
-    }
-    const Attribute& getEdgeNormsAttrib() const { return kEdgeNormsAttrib; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
@@ -98,28 +84,36 @@ private:
     GrSurfaceOrigin fAtlasOrigin;
 
     SkMatrix fLocalMatrix;
-    static constexpr Attribute kInstanceAttribs[kNumInstanceAttribs] = {
+    static constexpr Attribute kInstanceAttribs[] = {
             {"devbounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"devbounds45", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"dev_to_atlas_offset", kInt2_GrVertexAttribType, kInt2_GrSLType},
             {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType}
     };
-    static constexpr Attribute kEdgeNormsAttrib = {"edge_norms", kFloat4_GrVertexAttribType,
-                                                                 kFloat4_GrSLType};
+    static constexpr int kColorAttribIdx = 3;
+    static constexpr Attribute kCornersAttrib =
+            {"corners", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+
+    class Impl;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
-inline void GrCCPathProcessor::Instance::set(const SkRect& devBounds, const SkRect& devBounds45,
-                                             const SkIVector& devToAtlasOffset, uint64_t color,
-                                             DoEvenOddFill doEvenOddFill) {
-    if (DoEvenOddFill::kYes == doEvenOddFill) {
-        // "right < left" indicates even-odd fill type.
-        fDevBounds.setLTRB(devBounds.fRight, devBounds.fTop, devBounds.fLeft, devBounds.fBottom);
-    } else {
+inline void GrCCPathProcessor::Instance::set(
+        const SkRect& devBounds, const SkRect& devBounds45, const SkIVector& devToAtlasOffset,
+        uint64_t color, DoEvenOddFill doEvenOddFill) {
+    if (DoEvenOddFill::kNo == doEvenOddFill) {
+        // We cover "nonzero" paths with clockwise triangles, which is the default result from
+        // normal bounding boxes.
         fDevBounds = devBounds;
+        fDevBounds45 = devBounds45;
+    } else {
+        // We cover "even/odd" paths with counterclockwise triangles. Reorder the bounding box
+        // vertices so the output is flipped horizontally.
+        fDevBounds.setLTRB(devBounds.fRight, devBounds.fTop, devBounds.fLeft, devBounds.fBottom);
+        fDevBounds45.setLTRB(
+                devBounds45.fBottom, devBounds45.fRight, devBounds45.fTop, devBounds45.fLeft);
     }
-    fDevBounds45 = devBounds45;
     fDevToAtlasOffset = devToAtlasOffset;
     fColor = color;
 }
