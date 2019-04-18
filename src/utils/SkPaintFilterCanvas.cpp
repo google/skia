@@ -49,6 +49,13 @@ void SkPaintFilterCanvas::onDrawPaint(const SkPaint& paint) {
     }
 }
 
+void SkPaintFilterCanvas::onDrawBehind(const SkPaint& paint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawBehind(apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                                        const SkPaint& paint) {
     AutoPaintFilter apf(this, paint);

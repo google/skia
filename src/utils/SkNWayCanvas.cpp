@@ -147,6 +147,13 @@ void SkNWayCanvas::onDrawPaint(const SkPaint& paint) {
     }
 }
 
+void SkNWayCanvas::onDrawBehind(const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        SkCanvasPriv::DrawBehind(iter.get(), paint);
+    }
+}
+
 void SkNWayCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                                 const SkPaint& paint) {
     Iter iter(fList);
