@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+#include "SkColorSpaceXformSteps.h"
 #include "FakeStreams.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
@@ -19,6 +19,7 @@
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFrontBufferedStream.h"
+#include "SkHalf.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
@@ -56,6 +57,41 @@
     // The parts that are broken are likely not used by Google3.
     #define SK_PNG_DISABLE_TESTS
 #endif
+
+DEF_TEST(testCanvasDrawColorLongBlendMode, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::Make(50, 50, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
+                   SkColorSpace::MakeSRGB()));
+    SkCanvas canvas(bm);
+
+    auto p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+    SkColor4f green = { 0.0f, 1.0f, 0.0f, 1.0f };
+    SkColor4f red =   { 1.0f, 0.0f, 0.0f, 1.0f };
+    SkPaint paint;
+    paint.setColor4f(green, p3.get());
+    canvas.drawPaint(paint);
+    
+    paint.setColor4f(red, p3.get());
+    paint.setBlendMode(SkBlendMode::kPlus);
+    canvas.drawPaint(paint);
+
+    Sk4f rgba = SkHalfToFloat_finite_ftz(*bm.pixmap().addr64(0, 0));
+    SkDebugf("resulting color in SRGB (rgba): %g, %g, %g, %g\n",
+             rgba[0],
+             rgba[1],
+             rgba[2],
+             rgba[3]);
+    SkColor4f result { rgba[0], rgba[1], rgba[2], rgba[3] };
+
+    SkColorSpaceXformSteps steps{sk_srgb_singleton(),          kUnpremul_SkAlphaType,
+                                 p3.get(),                     kUnpremul_SkAlphaType};
+    steps.apply(result.vec());
+    SkDebugf("back to P3 (rgba): %g, %g, %g, %g\n",
+             result.fR,
+             result.fG,
+             result.fB,
+             result.fA);
+}
 
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     SkASSERT(bm.getPixels());
