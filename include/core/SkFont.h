@@ -479,8 +479,7 @@ public:
     */
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
 
-    /** Experimental.
-     *  Dumps fields of the font to SkDebugf. May change its output over time, so clients should
+    /** Dumps fields of the font to SkDebugf. May change its output over time, so clients should
      *  not rely on this for anything specific. Used to aid in debugging.
      */
     void dump() const;
