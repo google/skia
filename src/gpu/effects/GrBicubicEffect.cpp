@@ -65,7 +65,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
      *
      * This is GLSL, so the matrix is column-major (transposed from standard matrix notation).
      */
-    fragBuilder->codeAppend("half4x4 kMitchellCoefficients = half4x4("
+    fragBuilder->codeAppend("float4x4 kMitchellCoefficients = float4x4("
                             " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
                             "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
                             "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
@@ -76,11 +76,11 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     // starting coords are near a texel boundary and accumulations of imgInc would cause us to skip/
     // double hit a texel.
     fragBuilder->codeAppendf("coord /= %s;", imgInc);
-    fragBuilder->codeAppend("half2 f = half2(fract(coord));");
+    fragBuilder->codeAppend("float2 f = float2(fract(coord));");
     fragBuilder->codeAppendf("coord = (coord - f + half2(0.5)) * %s;", imgInc);
-    fragBuilder->codeAppend("half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
-    fragBuilder->codeAppend("half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
-    fragBuilder->codeAppend("half4 rowColors[4];");
+    fragBuilder->codeAppend("float4 wx = kMitchellCoefficients * float4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
+    fragBuilder->codeAppend("float4 wy = kMitchellCoefficients * float4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
+    fragBuilder->codeAppend("float4 rowColors[4];");
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;
@@ -96,10 +96,10 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                                   args.fTexSamplers[0]);
         }
         fragBuilder->codeAppendf(
-            "half4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + wx.w * rowColors[3];",
+            "float4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + wx.w * rowColors[3];",
             y);
     }
-    fragBuilder->codeAppend("half4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
+    fragBuilder->codeAppend("float4 bicubicColor = wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3;");
     // Bicubic can send colors out of range, so clamp to get them back in (source) gamut.
     // The kind of clamp we have to do depends on the alpha type.
     if (kPremul_SkAlphaType == bicubicEffect.alphaType()) {
