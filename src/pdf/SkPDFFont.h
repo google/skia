@@ -7,9 +7,12 @@
 #ifndef SkPDFFont_DEFINED
 #define SkPDFFont_DEFINED
 
+#include "SkPDFFont.h"
+
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkPDFDocument.h"
 #include "SkPDFGlyphUse.h"
+#include "SkPDFType1Font.h"
 #include "SkPDFTypes.h"
 #include "SkStrikeCache.h"
 #include "SkTypeface.h"
@@ -97,6 +100,11 @@ public:
 
     static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface* typeface,
                                                        SkPDFDocument* canon);
+
+    static void PopulateCommonFontDescriptor(SkPDFDict* descriptor,
+                                             const SkAdvancedTypefaceMetrics&,
+                                             uint16_t emSize,
+                                             int16_t defaultWidth);
 
     void emitSubset(SkPDFDocument*) const;
 
