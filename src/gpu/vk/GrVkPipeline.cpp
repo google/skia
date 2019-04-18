@@ -224,8 +224,20 @@ static VkCompareOp stencil_func_to_vk_compare_op(GrStencilTest test) {
     return gTable[(int)test];
 }
 
-static void setup_depth_stencil_state(const GrStencilSettings& stencilSettings,
-                                      VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
+static void setup_stencil_op_state(
+        VkStencilOpState* opState, const GrStencilSettings::Face& stencilFace) {
+    opState->failOp = stencil_op_to_vk_stencil_op(stencilFace.fFailOp);
+    opState->passOp = stencil_op_to_vk_stencil_op(stencilFace.fPassOp);
+    opState->depthFailOp = opState->failOp;
+    opState->compareOp = stencil_func_to_vk_compare_op(stencilFace.fTest);
+    opState->compareMask = stencilFace.fTestMask;
+    opState->writeMask = stencilFace.fWriteMask;
+    opState->reference = stencilFace.fRef;
+}
+
+static void setup_depth_stencil_state(
+        const GrStencilSettings& stencilSettings, GrSurfaceOrigin origin,
+        VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
     memset(stencilInfo, 0, sizeof(VkPipelineDepthStencilStateCreateInfo));
     stencilInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     stencilInfo->pNext = nullptr;
@@ -237,28 +249,12 @@ static void setup_depth_stencil_state(const GrStencilSettings& stencilSettings,
     stencilInfo->depthBoundsTestEnable = VK_FALSE;
     stencilInfo->stencilTestEnable = !stencilSettings.isDisabled();
     if (!stencilSettings.isDisabled()) {
-        // Set front face
-        const GrStencilSettings::Face& front = stencilSettings.front();
-        stencilInfo->front.failOp = stencil_op_to_vk_stencil_op(front.fFailOp);
-        stencilInfo->front.passOp = stencil_op_to_vk_stencil_op(front.fPassOp);
-        stencilInfo->front.depthFailOp = stencilInfo->front.failOp;
-        stencilInfo->front.compareOp = stencil_func_to_vk_compare_op(front.fTest);
-        stencilInfo->front.compareMask = front.fTestMask;
-        stencilInfo->front.writeMask = front.fWriteMask;
-        stencilInfo->front.reference = front.fRef;
-
-        // Set back face
         if (!stencilSettings.isTwoSided()) {
+            setup_stencil_op_state(&stencilInfo->front, stencilSettings.frontAndBack());
             stencilInfo->back = stencilInfo->front;
         } else {
-            const GrStencilSettings::Face& back = stencilSettings.back();
-            stencilInfo->back.failOp = stencil_op_to_vk_stencil_op(back.fFailOp);
-            stencilInfo->back.passOp = stencil_op_to_vk_stencil_op(back.fPassOp);
-            stencilInfo->back.depthFailOp = stencilInfo->front.failOp;
-            stencilInfo->back.compareOp = stencil_func_to_vk_compare_op(back.fTest);
-            stencilInfo->back.compareMask = back.fTestMask;
-            stencilInfo->back.writeMask = back.fWriteMask;
-            stencilInfo->back.reference = back.fRef;
+            setup_stencil_op_state(&stencilInfo->front, stencilSettings.front(origin));
+            setup_stencil_op_state(&stencilInfo->back, stencilSettings.back(origin));
         }
     }
     stencilInfo->minDepthBounds = 0.0f;
@@ -500,13 +496,12 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
-GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, int numColorSamples,
-                                   const GrPrimitiveProcessor& primProc,
-                                   const GrPipeline& pipeline, const GrStencilSettings& stencil,
-                                   VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                   int shaderStageCount, GrPrimitiveType primitiveType,
-                                   VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
-                                   VkPipelineCache cache) {
+GrVkPipeline* GrVkPipeline::Create(
+        GrVkGpu* gpu, int numColorSamples, const GrPrimitiveProcessor& primProc,
+        const GrPipeline& pipeline, const GrStencilSettings& stencil, GrSurfaceOrigin origin,
+        VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
+        GrPrimitiveType primitiveType, VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
+        VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     SkSTArray<16, VkVertexInputAttributeDescription> attributeDesc;
@@ -519,7 +514,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, int numColorSamples,
     setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-    setup_depth_stencil_state(stencil, &depthStencilInfo);
+    setup_depth_stencil_state(stencil, origin, &depthStencilInfo);
 
     VkPipelineViewportStateCreateInfo viewportInfo;
     setup_viewport_scissor_state(&viewportInfo);

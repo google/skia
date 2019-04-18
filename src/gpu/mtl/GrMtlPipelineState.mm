@@ -266,15 +266,17 @@ void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> render
     }
     else {
         MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
-        desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.front());
+        GrSurfaceOrigin origin = fRenderTargetState.fRenderTargetOrigin;
         if (fStencil.isTwoSided()) {
-            desc.backFaceStencil = skia_stencil_to_mtl(fStencil.back());
-            [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front().fRef
-                              backReferenceValue:fStencil.back().fRef];
+            desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.front(origin));
+            desc.backFaceStencil = skia_stencil_to_mtl(fStencil.back(origin));
+            [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front(origin).fRef
+                              backReferenceValue:fStencil.back(origin).fRef];
         }
         else {
+            desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.frontAndBack());
             desc.backFaceStencil = desc.frontFaceStencil;
-            [renderCmdEncoder setStencilReferenceValue:fStencil.front().fRef];
+            [renderCmdEncoder setStencilReferenceValue:fStencil.frontAndBack().fRef];
         }
         id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
         [renderCmdEncoder setDepthStencilState:state];
