@@ -1922,9 +1922,7 @@ public:
     void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                         SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
 
-    /** Experimental.
-
-        Draws null terminated string, with origin at (x, y), using clip, SkMatrix,
+    /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix,
         SkFont font, and SkPaint paint.
 
         This function uses the default character-to-glyph mapping from the
@@ -1953,9 +1951,7 @@ public:
         this->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, paint);
     }
 
-    /** Experimental.
-
-        Draws SkString, with origin at (x, y), using clip, SkMatrix, SkFont font,
+    /** Draws SkString, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
 
         This function uses the default character-to-glyph mapping from the
