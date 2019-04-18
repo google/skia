@@ -28,21 +28,16 @@ sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern)
         : INHERITED(gpu, size, intendedType, accessPattern)
-        , fIsDynamic(accessPattern == kDynamic_GrAccessPattern) {
-    // TODO: We are treating all buffers as static access since we don't have an implementation to
-    // synchronize gpu and cpu access of a resource yet. See comments in GrMtlBuffer::internalMap()
-    // and interalUnmap() for more details.
-    fIsDynamic = false;
-
-    // The managed resource mode is only available for macOS. iOS should use shared.
-    fMtlBuffer = size == 0 ? nil :
-            [gpu->device() newBufferWithLength: size
-                                       options: !fIsDynamic ? MTLResourceStorageModePrivate
-#ifdef SK_BUILD_FOR_MAC
-                                                            : MTLResourceStorageModeManaged];
-#else
-                                                            : MTLResourceStorageModeShared];
-#endif
+        , fIsDynamic(accessPattern == kDynamic_GrAccessPattern)
+        , fOffset(0) {
+    // We'll allocate dynamic buffers when we map them, below.
+    if (!fIsDynamic) {
+        // TODO: newBufferWithBytes: used to work with StorageModePrivate buffers -- seems like
+        // a bug that it no longer does. If that changes we could use that to pre-load the buffer.
+        fMtlBuffer = size == 0 ? nil :
+                [gpu->device() newBufferWithLength: size
+                                           options: MTLResourceStorageModePrivate];
+    }
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
@@ -54,11 +49,13 @@ GrMtlBuffer::~GrMtlBuffer() {
 }
 
 bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
-    if (fMtlBuffer == nil) {
-        return false;
-    }
-    if (srcInBytes > fMtlBuffer.length) {
-        return false;
+    if (!fIsDynamic) {
+        if (fMtlBuffer == nil) {
+            return false;
+        }
+        if (srcInBytes > fMtlBuffer.length) {
+            return false;
+        }
     }
     VALIDATE();
 
@@ -67,7 +64,9 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
         return false;
     }
     SkASSERT(fMappedBuffer);
-    SkASSERT(srcInBytes == fMappedBuffer.length);
+    if (!fIsDynamic) {
+        SkASSERT(srcInBytes == fMappedBuffer.length);
+    }
     memcpy(fMapPtr, src, srcInBytes);
     this->internalUnmap(srcInBytes);
 
@@ -100,29 +99,22 @@ void GrMtlBuffer::onRelease() {
 }
 
 void GrMtlBuffer::internalMap(size_t sizeInBytes) {
-    SkASSERT(fMtlBuffer);
     if (this->wasDestroyed()) {
         return;
     }
     VALIDATE();
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
-        // TODO: We will want to decide if we need to create a new buffer here in order to avoid
-        // possibly invalidating a buffer which is being used by the gpu.
+        fMtlBuffer = this->mtlGpu()->bufferManager().getDynamicAllocation(sizeInBytes, &fOffset);
         fMappedBuffer = fMtlBuffer;
-        fMapPtr = fMappedBuffer.contents;
+        fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
+        SkASSERT(fMtlBuffer);
+        SkASSERT(fMappedBuffer == nil);
         SK_BEGIN_AUTORELEASE_BLOCK
-        // TODO: We can't ensure that map will only be called once on static access buffers until
-        // we actually enable dynamic access.
-        // SkASSERT(fMappedBuffer == nil);
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
-#ifdef SK_BUILD_FOR_MAC
-                                                      options: MTLResourceStorageModeManaged];
-#else
                                                       options: MTLResourceStorageModeShared];
-#endif
         fMapPtr = fMappedBuffer.contents;
         SK_END_AUTORELEASE_BLOCK
     }
@@ -141,12 +133,12 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         fMapPtr = nullptr;
         return;
     }
+    if (fIsDynamic) {
 #ifdef SK_BUILD_FOR_MAC
-    // TODO: by calling didModifyRange here we invalidate the buffer. This will cause problems for
-    // dynamic access buffers if they are being used by the gpu.
-    [fMappedBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
+        // TODO: need to make sure offset and size have valid alignments.
+        [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
 #endif
-    if (!fIsDynamic) {
+    } else {
         SK_BEGIN_AUTORELEASE_BLOCK
         id<MTLBlitCommandEncoder> blitCmdEncoder =
                 [this->mtlGpu()->commandBuffer() blitCommandEncoder];
@@ -163,11 +155,11 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
 }
 
 void GrMtlBuffer::onMap() {
-    this->internalMap(fMtlBuffer.length);
+    this->internalMap(this->size());
 }
 
 void GrMtlBuffer::onUnmap() {
-    this->internalUnmap(fMappedBuffer.length);
+    this->internalUnmap(this->size());
 }
 
 #ifdef SK_DEBUG
@@ -179,6 +171,98 @@ void GrMtlBuffer::validate() const {
              this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
              fMappedBuffer.length <= fMtlBuffer.length);
-    SkASSERT(fIsDynamic == false); // TODO: implement synchronization to allow dynamic access.
 }
 #endif
+
+id<MTLBuffer> GrMtlBufferManager::getDynamicAllocation(size_t size, size_t* offset) {
+    static size_t kSharedDynamicBufferSize = 16*1024;
+
+    // The idea here is that we create a ring buffer which is used for all dynamic allocations
+    // below a certain size. When a dynamic GrMtlBuffer is mapped, it grabs a portion of this
+    // buffer and uses it. On a subsequent map it will grab a different portion of the buffer.
+    // This prevents the buffer from overwriting itself before it's submitted to the command
+    // stream.
+
+    // Create a new buffer if we need to.
+    // If the requested size is larger than the shared buffer size, then we'll
+    // just make the allocation and the owning GrMtlBuffer will manage it (this
+    // only happens with buffers created by GrBufferAllocPool).
+    //
+    // TODO: By sending addCompletedHandler: to MTLCommandBuffer we can track when buffers
+    // are no longer in use and recycle them rather than creating a new one each time.
+    if (fAllocationSize - fNextOffset < size) {
+        size_t allocSize = (size >= kSharedDynamicBufferSize) ? size : kSharedDynamicBufferSize;
+        id<MTLBuffer> buffer;
+        SK_BEGIN_AUTORELEASE_BLOCK
+        buffer = [fGpu->device() newBufferWithLength: allocSize
+#ifdef SK_BUILD_FOR_MAC
+                                             options: MTLResourceStorageModeManaged];
+#else
+                                             options: MTLResourceStorageModeShared];
+#endif
+        SK_END_AUTORELEASE_BLOCK
+        if (nil == buffer) {
+            return nil;
+        }
+
+        if (size >= kSharedDynamicBufferSize) {
+            *offset = 0;
+            return buffer;
+        }
+
+        fBufferAllocation = buffer;
+        fNextOffset = 0;
+        fAllocationSize = kSharedDynamicBufferSize;
+    }
+
+    // Grab the next available block
+    *offset = fNextOffset;
+    fNextOffset += size;
+    // Uniform buffer offsets need to be aligned to the nearest 256-byte boundary.
+    fNextOffset = GrSizeAlignUp(fNextOffset, 256);
+
+    return fBufferAllocation;
+}
+
+void GrMtlBufferManager::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
+                                         const GrMtlBuffer* buffer,
+                                         size_t index) {
+    SkASSERT(index < 4);
+    id<MTLBuffer> mtlVertexBuffer = buffer->mtlBuffer();
+    SkASSERT(mtlVertexBuffer);
+    // Apple recommends using setVertexBufferOffset: when changing the offset
+    // for a currently bound vertex buffer, rather than setVertexBuffer:
+    if (fBufferBindings[index] != mtlVertexBuffer) {
+        [encoder setVertexBuffer: mtlVertexBuffer
+                          offset: 0
+                         atIndex: index];
+        fBufferBindings[index] = mtlVertexBuffer;
+    }
+    [encoder setVertexBufferOffset: buffer->offset()
+                           atIndex: index];
+}
+
+void GrMtlBufferManager::setFragmentBuffer(id<MTLRenderCommandEncoder> encoder,
+                                           const GrMtlBuffer* buffer,
+                                           size_t index) {
+    SkASSERT(index < kNumBindings);
+    id<MTLBuffer> mtlFragmentBuffer = buffer->mtlBuffer();
+    // Apple recommends using setFragmentBufferOffset: when changing the offset
+    // for a currently bound fragment buffer, rather than setFragmentBuffer:
+    if (mtlFragmentBuffer) {
+        if (fBufferBindings[index] != mtlFragmentBuffer) {
+            [encoder setFragmentBuffer: mtlFragmentBuffer
+                                offset: 0
+                               atIndex: index];
+            fBufferBindings[index] = mtlFragmentBuffer;
+        }
+        [encoder setFragmentBufferOffset: buffer->offset()
+                                 atIndex: index];
+    }
+}
+
+void GrMtlBufferManager::resetBindings() {
+    for (size_t i = 0; i < kNumBindings; ++i) {
+        fBufferBindings[i] = nil;
+    }
+}
