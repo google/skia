@@ -54,6 +54,8 @@
 
 namespace SkSL {
 
+struct Swizzle;
+
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding
  * (unoptimized) intermediate representation (IR).
@@ -170,6 +172,7 @@ private:
     void checkValid(const Expression& expr);
     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
     void getConstantInt(const Expression& value, int64_t* out);
+    bool checkSwizzleWrite(const Swizzle& swizzle);
 
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
