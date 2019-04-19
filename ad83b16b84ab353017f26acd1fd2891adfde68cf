@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4c0f296_7b88fcd5",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2690,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-19T17:18:21Z",
+      "side": 1,
+      "message": "The pre-December code had several other features that are still missing today, and I haven\u0027t been able to determine if we\u0027ve regressed any associated bugs:\n\n1) Double-precision cross-product, originally added for 389050 (https://codereview.chromium.org/975523002/)\n\n2) It never considered very short edges to go backwards (after the cross product was determined to be small). Originally added for 412640 (https://codereview.chromium.org/573763002)\n\n3) There was also some logic added in https://skia-review.googlesource.com/c/skia/+/38720/ to fix 755839. This one seemed really specific, and the current unit test DOES return concave, so I think it\u0027s okay?",
+      "revId": "ad83b16b84ab353017f26acd1fd2891adfde68cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

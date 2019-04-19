@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d033b60_c85371cf",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2595,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-04-19T17:18:21Z",
+      "side": 0,
+      "message": "This should have been removed with the previous cleanup CL.",
+      "revId": "cc5d3e09e39410841ba6e8866680257a92ee5205",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
