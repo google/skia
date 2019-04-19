@@ -386,6 +386,10 @@ void DebugCanvas::onDrawPaint(const SkPaint& paint) {
     this->addDrawCommand(new DrawPaintCommand(paint));
 }
 
+void DebugCanvas::onDrawBehind(const SkPaint& paint) {
+    this->addDrawCommand(new DrawBehindCommand(paint));
+}
+
 void DebugCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->addDrawCommand(new DrawPathCommand(path, paint));
 }

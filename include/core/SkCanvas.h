@@ -2420,6 +2420,7 @@ protected:
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
     // that mechanism  will be required to implement the new function.
     virtual void onDrawPaint(const SkPaint& paint);
+    virtual void onDrawBehind(const SkPaint& paint);
     virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
     virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
     virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
@@ -2627,6 +2628,12 @@ private:
      *  @return depth of save state stack before this call was made.
      */
     int only_axis_aligned_saveBehind(const SkRect* subset);
+
+    /**
+     *  Like drawPaint, but magically clipped to the most recent saveBehind buffer rectangle.
+     *  If there is no active saveBehind, then this draws nothing.
+     */
+    void drawClippedToSaveBehind(const SkPaint&);
 
     void resetForNextPicture(const SkIRect& bounds);
 
