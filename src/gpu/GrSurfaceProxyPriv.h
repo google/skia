@@ -23,6 +23,8 @@ public:
     // depends on the read and write refs (So this method can validly return 0).
     int32_t getProxyRefCnt() const { return fProxy->getProxyRefCnt(); }
 
+    int32_t getTotalRefs() const { return fProxy->getTotalRefs(); }
+
     void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
@@ -57,6 +59,9 @@ public:
 
     static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,
                                                             bool needsStencil);
+
+    bool ignoredByResourceAllocator() const { return fProxy->ignoredByResourceAllocator(); }
+    void setIgnoredByResourceAllocator() { fProxy->setIgnoredByResourceAllocator(); }
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
