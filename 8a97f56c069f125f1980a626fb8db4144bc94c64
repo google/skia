@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e556e6c0_914d0cb9",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2956,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-19T11:47:00Z",
+      "side": 1,
+      "message": "no need for a tolerance here? exactly zero?",
+      "range": {
+        "startLine": 2956,
+        "startChar": 34,
+        "endLine": 2956,
+        "endChar": 43
+      },
+      "revId": "8a97f56c069f125f1980a626fb8db4144bc94c64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
