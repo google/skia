@@ -57,6 +57,12 @@ GrResourceAllocator::~GrResourceAllocator() {
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
+    if (proxy->canSkipResourceAllocator()) {
+        return;
+    }
+
+    SkASSERT(!proxy->priv().ignoredByResourceAllocator());
+
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
@@ -341,16 +347,21 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     SkASSERT(outError);
     *outError = AssignError::kNoError;
 
-    fIntvlHash.reset(); // we don't need the interval hash anymore
-    if (fIntvlList.empty()) {
-        return false;          // nothing to render
-    }
-
-    SkASSERT(fCurOpListIndex < fNumOpLists);
     SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
+
+    fIntvlHash.reset(); // we don't need the interval hash anymore
+
+    if (fCurOpListIndex >= fEndOfOpListOpIndices.count()) {
+        return false; // nothing to render
+    }
 
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
+
+    if (fIntvlList.empty()) {
+        fCurOpListIndex = fEndOfOpListOpIndices.count();
+        return true;          // no resources to assign
+    }
 
 #if GR_ALLOCATION_SPEW
     SkDebugf("assigning opLists %d through %d out of %d numOpLists\n",

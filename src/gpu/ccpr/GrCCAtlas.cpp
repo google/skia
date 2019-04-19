@@ -97,6 +97,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                     return GrSurfaceProxy::LazyInstantiationResult(fBackingTexture);
             },
             format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
+
+    fTextureProxy->priv().setIgnoredByResourceAllocator();
 }
 
 GrCCAtlas::~GrCCAtlas() {
