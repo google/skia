@@ -89,6 +89,53 @@ void SkPath::shrinkToFit() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+static void reverse_memcpy(void* dst, const void* src, size_t len) {
+    const char* s = (const char*)src;
+    char* d = (char*)dst;
+    while (len--) {
+        *d++ = *s++;
+    }
+}
+
+SkPathRef::SkPathRef(const SkRect& bounds,
+                     const SkPoint* pts, int ptCount,
+                     const uint8_t* verbs, int verbCount,
+                     const SkScalar* conicWeights, int conicCount,
+                     IsAType isa, int isaStartIndex, unsigned segmentMask) {
+    fBounds = bounds;
+    fPointCnt = ptCount;
+    fVerbCnt = verbCount;
+    fSegmentMask = segmentMask;
+
+    fIsOval = false;
+    fIsRRect = false;
+    // The next two values don't matter unless fIsOval or fIsRRect are true.
+    fRRectOrOvalIsCCW = false;
+    fRRectOrOvalStartIdx = 0xAC;
+    switch (isa) {
+        case kUnknown_IsA: break;
+        case kOval_IsA:
+            fIsOval = true;
+            fRRectOrOvalStartIdx = isaStartIndex;
+            break;
+        case kRRect_IsA:
+            fIsRRect = true;
+            fRRectOrOvalStartIdx = isaStartIndex;
+            break;
+    }
+
+    fFreeSpace = 0;
+    fPoints = (SkPoint*)sk_malloc_throw(ptCount * sizeof(SkPoint) + verbCount);
+    memcpy(fPoints, pts, ptCount * sizeof(SkPoint));
+    reverse_memcpy(fPoints + ptCount, verbs, verbCount);
+    fVerbs = (uint8_t*)(fPoints + ptCount) + verbCount;
+
+    fGenerationID = kEmptyGenID;
+
+    SkDEBUGCODE(fEditorsAttached.store(0);)
+    SkDEBUGCODE(this->validate();)
+}
+
 SkPathRef::~SkPathRef() {
     // Deliberately don't validate() this path ref, otherwise there's no way
     // to read one that's not valid and then free its memory without asserting.

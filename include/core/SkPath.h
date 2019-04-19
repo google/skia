@@ -9,6 +9,7 @@
 #define SkPath_DEFINED
 
 #include "SkMatrix.h"
+#include "SkPathTypes.h"
 #include "../private/SkPathRef.h"
 #include "../private/SkTo.h"
 
@@ -1669,6 +1670,9 @@ public:
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 
 private:
+    SkPath(sk_sp<SkPathRef>, int lastMoveToIndex, SkPathConvexityType, SkPathDirection,
+           SkPathFillType, bool isVolatile);
+
     sk_sp<SkPathRef>               fPathRef;
     int                            fLastMoveToIndex;
     mutable std::atomic<Convexity> fConvexity;

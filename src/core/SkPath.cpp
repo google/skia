@@ -158,6 +158,16 @@ SkPath::SkPath()
     fIsVolatile = false;
 }
 
+SkPath::SkPath(sk_sp<SkPathRef> pr, int lastMoveToIndex, SkPathConvexityType convexity,
+               SkPathDirection dir, SkPathFillType ft, bool isVolatile)
+    : fPathRef(std::move(pr))
+    , fLastMoveToIndex(lastMoveToIndex)
+    , fConvexity((Convexity)convexity)
+    , fFirstDirection((uint8_t)dir)
+    , fFillType((unsigned)ft)
+    , fIsVolatile(isVolatile)
+{}
+
 void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;

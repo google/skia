@@ -578,6 +578,19 @@ private:
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class SkPath;
     friend class SkPathPriv;
+    friend class SkPathBuilder;
+
+    enum IsAType {
+        kUnknown_IsA,
+        kOval_IsA,
+        kRRect_IsA,
+    };
+    SkPathRef(const SkRect& bounds,
+              const SkPoint* pts, int ptCount,
+              const uint8_t* verbs, int verbCount,
+              const SkScalar* conicWeights, int conicCount,
+              IsAType, int isaStartIndex, unsigned segmentMask);
+
 };
 
 #endif
