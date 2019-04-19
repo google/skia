@@ -25,6 +25,7 @@ class GrMtlGpuRTCommandBuffer;
 class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
+class GrMtlCommandBuffer;
 
 namespace SkSL {
     class Compiler;
@@ -49,7 +50,7 @@ public:
 
     GrMtlBufferManager& bufferManager() { return fBufferManager; }
 
-    id<MTLCommandBuffer> commandBuffer();
+    GrMtlCommandBuffer* commandBuffer();
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -220,7 +221,7 @@ private:
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;
 
-    id<MTLCommandBuffer> fCmdBuffer;
+    GrMtlCommandBuffer* fCmdBuffer;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
     GrMtlCopyManager fCopyManager;
