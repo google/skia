@@ -1,6 +1,6 @@
 {
   "name": "esy-skia",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Mirror of skia repo, buildable with esy",
   "directories": {
     "doc": "docs",
