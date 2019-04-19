@@ -272,6 +272,7 @@ static void unref_ft_library() {
         SkASSERT(nullptr != gFTLibrary);
         delete gFTLibrary;
         SkDEBUGCODE(gFTLibrary = nullptr;)
+        SkDebugf("deleting ftlibrary\n");
     }
 }
 
@@ -1551,8 +1552,27 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 #include "SkUtils.h"
 
+// Just made up, so we don't end up storing 1000s of entries
+constexpr int kMaxC2GCacheCount = 512;
+
 void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
                                           SkGlyphID glyphs[]) const {
+    SkAutoMutexAcquire ama(fC2GCacheMutex);
+
+    int i;
+    for (i = 0; i < count; ++i) {
+        SkUnichar c = uni[i];
+        int index = fC2GCache.findGlyphIndex(c);
+        if (index < 0) {
+            break;
+        }
+        glyphs[i] = SkToU16(index);
+    }
+    if (i == count) {
+        // we're done
+        return;
+    }
+
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -1560,8 +1580,19 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
         return;
     }
 
-    for (int i = 0; i < count; ++i) {
-        glyphs[i] = SkToU16(FT_Get_Char_Index(face, uni[i]));
+    for (; i < count; ++i) {
+        SkUnichar c = uni[i];
+        int index = fC2GCache.findGlyphIndex(c);
+        if (index >= 0) {
+            glyphs[i] = SkToU16(index);
+        } else {
+            glyphs[i] = SkToU16(FT_Get_Char_Index(face, c));
+            fC2GCache.insertCharAndGlyph(~index, c, glyphs[i]);
+        }
+    }
+
+    if (fC2GCache.count() > kMaxC2GCacheCount) {
+        fC2GCache.reset();
     }
 }
 
