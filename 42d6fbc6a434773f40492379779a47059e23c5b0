@@ -22,6 +22,30 @@
       "revId": "42d6fbc6a434773f40492379779a47059e23c5b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22393ebc_d05d8ca9",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-04-19T17:31:42Z",
+      "side": 1,
+      "message": "Yeah - didn\u0027t make much sense to convert N to half, just to convert it back to a float again on the next line when working with more floats.",
+      "parentUuid": "0488412c_e9b0c7a6",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 89
+      },
+      "revId": "42d6fbc6a434773f40492379779a47059e23c5b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
