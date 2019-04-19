@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+#include "SkColorSpaceXformSteps.h"
 #include "FakeStreams.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
@@ -19,6 +19,7 @@
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFrontBufferedStream.h"
+#include "SkHalf.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
@@ -56,6 +57,83 @@
     // The parts that are broken are likely not used by Google3.
     #define SK_PNG_DISABLE_TESTS
 #endif
+
+static void dump(const char* prefix, const SkColor4f& color) {
+    SkDebugf("%s (rgba):\t\t%g, %g, %g, %g\n",
+             prefix,
+             color.fR,
+             color.fG,
+             color.fB,
+             color.fA);
+}
+
+static void dump(const char* prefix, const Sk4f& rgba) {
+    SkDebugf("%s (rgba):\t\t%g, %g, %g, %g\n",
+             prefix,
+             rgba[0],
+             rgba[1],
+             rgba[2],
+             rgba[3]);
+}
+
+// SkBlendMode::kPlus
+static SkColor4f add(const SkColor4f& a, const SkColor4f& b) {
+    SkColor4f result;
+    (Sk4f::Load(a.vec()) + Sk4f::Load(b.vec())).store(&result);
+    result.fA = SkTMin(1.0f, result.fA);
+    return result;
+}
+
+DEF_TEST(testCanvasDrawColorLongBlendMode, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::Make(50, 50, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
+                   SkColorSpace::MakeSRGB()));
+    SkCanvas canvas(bm);
+
+    auto p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+    const SkColor4f green = { 0.0f, 1.0f, 0.0f, 1.0f };
+    const SkColor4f red =   { 1.0f, 0.0f, 0.0f, 1.0f };
+
+    SkPaint paint;
+    paint.setColor4f(green, p3.get());
+    canvas.drawPaint(paint);
+
+    const SkColor4f greenSRGB = paint.getColor4f();
+    dump("green P3 -> srgb", greenSRGB);
+    
+    paint.setColor4f(red, p3.get());
+    paint.setBlendMode(SkBlendMode::kPlus);
+    canvas.drawPaint(paint);
+
+    const SkColor4f redSRGB = paint.getColor4f();
+    dump("red P3 -> srgb", redSRGB);
+
+    dump("add them:", add(greenSRGB, redSRGB));
+
+    Sk4f rgba = SkHalfToFloat_finite_ftz(*bm.pixmap().addr64(0, 0));
+    dump("resulting color in SRGB", rgba);
+    dump("div by 2", rgba / 2);
+
+    SkColor4f result { rgba[0], rgba[1], rgba[2], rgba[3] };
+
+    SkColorSpaceXformSteps steps{sk_srgb_singleton(),          kUnpremul_SkAlphaType,
+                                 p3.get(),                     kUnpremul_SkAlphaType};
+    steps.apply(result.vec());
+    dump("back to P3", result);
+
+    SkImageInfo dstInfo = SkImageInfo::Make(
+              1, 1, kRGBA_F16_SkColorType, kUnpremul_SkAlphaType, bm.refColorSpace());
+
+    uint64_t dst;
+    bm.readPixels(dstInfo, &dst, dstInfo.minRowBytes(), 0, 0);
+    rgba = SkHalfToFloat_finite_ftz(dst);
+    dump("readPixels (srgb)", rgba);
+
+    dstInfo = dstInfo.makeColorSpace(p3);
+    bm.readPixels(dstInfo, &dst, dstInfo.minRowBytes(), 0, 0);
+    rgba = SkHalfToFloat_finite_ftz(dst);
+    dump("readPixels (p3)", rgba);
+}
 
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     SkASSERT(bm.getPixels());
