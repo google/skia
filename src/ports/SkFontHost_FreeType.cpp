@@ -1551,6 +1551,9 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 #include "SkUtils.h"
 
+// Just made up, so we don't end up storing 1000s of entries
+constexpr int kMaxC2GCacheCount = 512;
+
 void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
                                           SkGlyphID glyphs[]) const {
     AutoFTAccess fta(this);
@@ -1560,8 +1563,21 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
         return;
     }
 
+    SkAutoMutexAcquire ama(fC2GCacheMutex);
+
     for (int i = 0; i < count; ++i) {
-        glyphs[i] = SkToU16(FT_Get_Char_Index(face, uni[i]));
+        SkUnichar c = uni[i];
+        int index = fC2GCache.findGlyphIndex(c);
+        if (index >= 0) {
+            glyphs[i] = SkToU16(index);
+        } else {
+            glyphs[i] = SkToU16(FT_Get_Char_Index(face, c));
+            fC2GCache.insertCharAndGlyph(~index, c, glyphs[i]);
+        }
+    }
+
+    if (fC2GCache.count() > kMaxC2GCacheCount) {
+        fC2GCache.reset();
     }
 }
 
