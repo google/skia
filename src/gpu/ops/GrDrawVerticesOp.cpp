@@ -38,7 +38,8 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType,
+                                      GrClampType) override;
 
 private:
     enum class ColorArrayType {
@@ -205,8 +206,8 @@ GrDrawOp::FixedFunctionFlags DrawVerticesOp::fixedFunctionFlags() const {
     return fHelper.fixedFunctionFlags();
 }
 
-GrProcessorSet::Analysis DrawVerticesOp::finalize(
-        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) {
+GrProcessorSet::Analysis DrawVerticesOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                                  GrFSAAType fsaaType, GrClampType clampType) {
     GrProcessorAnalysisColor gpColor;
     if (this->requiresPerVertexColors()) {
         gpColor.setToUnknown();
@@ -214,7 +215,7 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
         gpColor.setToConstant(fMeshes.front().fColor);
     }
     auto result = fHelper.finalizeProcessors(
-            caps, clip, fsaaType, GrProcessorAnalysisCoverage::kNone, &gpColor);
+            caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kNone, &gpColor);
     if (gpColor.isConstant(&fMeshes.front().fColor)) {
         fMeshes.front().fIgnoreColors = true;
         fFlags &= ~kRequiresPerVertexColors_Flag;

@@ -31,11 +31,11 @@ class BezierTestOp : public GrMeshDrawOp {
 public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrFSAAType fsaaType, GrClampType clampType) override {
         return fProcessorSet.finalize(
                 fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
-                &GrUserStencilSettings::kUnused, fsaaType, caps, &fColor);
+                &GrUserStencilSettings::kUnused, fsaaType, caps, clampType, &fColor);
     }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
