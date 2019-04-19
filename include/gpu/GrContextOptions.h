@@ -217,6 +217,11 @@ struct SK_API GrContextOptions {
     bool fWireframeMode = false;
 
     /**
+     * Similar to fDisallowGLSLBinaryCaching. If set to true, SkSL shader strings will be cached.
+     */
+    bool fCacheSKSL = false;
+
+    /**
      * Include or exclude specific GPU path renderers.
      */
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
