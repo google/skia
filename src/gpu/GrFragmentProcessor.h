@@ -413,7 +413,7 @@ public:
      * in pending execution state.
      */
     explicit TextureSampler(const TextureSampler& that)
-            : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
+            : fProxyRef(that.fProxyRef.proxy())
             , fSamplerState(that.fSamplerState) {}
 
     TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);

@@ -94,7 +94,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fBudgeted(fTarget->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted
                             ? SkBudgeted::kYes
                             : SkBudgeted::kNo)
-        , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
+        , fUniqueID(fTarget->uniqueID()) // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
@@ -203,9 +203,11 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 
     SkDEBUGCODE(this->validateSurface(surface.get());)
 
-    fTarget = surface.release();
+    fTarget = std::move(surface);
 
+#if 0
     this->INHERITED::transferRefs();
+#endif
 
 #ifdef SK_DEBUG
     if (this->asRenderTargetProxy()) {
@@ -230,7 +232,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         if (uniqueKey && uniqueKey->isValid()) {
             SkASSERT(fTarget->getUniqueKey().isValid() && fTarget->getUniqueKey() == *uniqueKey);
         }
-        return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget, needsStencil);
+        return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget.get(), needsStencil);
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
@@ -323,7 +325,7 @@ int GrSurfaceProxy::worstCaseHeight() const {
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validate(GrContext_Base* context) const {
     if (fTarget) {
-        SkASSERT(fTarget->getContext() == context);
+        SkASSERT(fTarget->getContext()->priv().matches(context));
     }
 
     INHERITED::validate();
@@ -406,7 +408,7 @@ void GrSurfaceProxyPriv::exactify() {
     if (fProxy->fTarget) {
         // The kApprox but already instantiated case. Setting the proxy's width & height to
         // the instantiated width & height could have side-effects going forward, since we're
-        // obliterating the area of interest information. This call (exactify) only used
+        // obliterating the area of interest information. This call (exactify) is only used
         // when converting an SkSpecialImage to an SkImage so the proxy shouldn't be
         // used for additional draws.
         fProxy->fWidth = fProxy->fTarget->width();

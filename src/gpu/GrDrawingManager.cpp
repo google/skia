@@ -101,7 +101,7 @@ void GrDrawingManager::OpListDAG::prepForFlush() {
         SkASSERT(result);
     }
 
-#ifdef SK_DEBUG
+#if 0 //def SK_DEBUG
     // This block checks for any unnecessary splits in the opLists. If two sequential opLists
     // share the same backing GrSurfaceProxy it means the opList was artificially split.
     if (fOpLists.count()) {

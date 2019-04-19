@@ -56,7 +56,7 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         , fDeferredUploader(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
         fProxyProvider = fTarget->asTexture()->getContext()->priv().proxyProvider();
-        fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget);
+        fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget.get());
     }
 }
 
@@ -66,7 +66,7 @@ GrTextureProxy::~GrTextureProxy() {
     fTarget = nullptr;
 
     // In DDL-mode, uniquely keyed proxies keep their key even after their originating
-    // proxy provider has gone away. In that case there is noone to send the invalid key
+    // proxy provider has gone away. In that case there is no one to send the invalid key
     // message to (Note: in this case we don't want to remove its cached resource).
     if (fUniqueKey.isValid() && fProxyProvider) {
         fProxyProvider->processInvalidUniqueKey(fUniqueKey, this,
