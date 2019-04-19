@@ -30,9 +30,9 @@ protected:
         }
         return FixedFunctionFlags::kUsesStencil;
     }
-    GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
-        return this->doProcessorAnalysis(caps, clip, fsaaType);
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrFSAAType fsaaType, GrClampType clampType) override {
+        return this->doProcessorAnalysis(caps, clip, fsaaType, clampType);
     }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
@@ -47,7 +47,7 @@ protected:
     GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
     inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
     const GrProcessorSet::Analysis& doProcessorAnalysis(
-            const GrCaps&, const GrAppliedClip*, GrFSAAType);
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType);
     const GrProcessorSet::Analysis& processorAnalysis() const {
         SkASSERT(fAnalysis.isInitialized());
         return fAnalysis;

@@ -213,7 +213,8 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
         fGeoData[i].fColor = color4f;
     }
     // Atlas text doesn't use MSAA, so no need to handle a GrFSAAType.
-    this->finalize(caps, nullptr /* applied clip */, GrFSAAType::kNone);
+    // Also, no need to support normalized F16 with manual clamp?
+    this->finalize(caps, nullptr /* applied clip */, GrFSAAType::kNone, GrClampType::kAuto);
 }
 
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {

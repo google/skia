@@ -139,7 +139,7 @@ public:
      */
     Analysis finalize(const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage,
                       const GrAppliedClip*, const GrUserStencilSettings*, GrFSAAType, const GrCaps&,
-                      SkPMColor4f* inputColorOverride);
+                      GrClampType, SkPMColor4f* inputColorOverride);
 
     bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 

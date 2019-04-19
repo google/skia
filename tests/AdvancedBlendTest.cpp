@@ -24,7 +24,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
         const GrXPFactory* xpf = GrCustomXfermode::Get(blendMode);
 
         GrXPFactory::AnalysisProperties xpfAnalysis =
-                GrXPFactory::GetAnalysisProperties(xpf, opaque, coverage, caps);
+                GrXPFactory::GetAnalysisProperties(xpf, opaque, coverage, caps, GrClampType::kAuto);
 
         GrPaint paint;
         paint.setXPFactory(xpf);
@@ -33,7 +33,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
         GrProcessorSet::Analysis processorAnalysis =
                 procs.finalize(
                         opaque, coverage, nullptr, &GrUserStencilSettings::kUnused,
-                        GrFSAAType::kNone, caps, &overrideColor);
+                        GrFSAAType::kNone, caps, GrClampType::kAuto, &overrideColor);
 
         if (caps.advancedBlendEquationSupport() &&
                 !caps.isAdvancedBlendEquationBlacklisted(blendEquation)) {

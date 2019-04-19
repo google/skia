@@ -2081,8 +2081,10 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
         this->setNeedsStencil();
     }
 
+    GrClampType clampType = GrPixelConfigClampType(this->colorSpaceInfo().config());
     GrXferProcessor::DstProxy dstProxy;
-    GrProcessorSet::Analysis analysis = op->finalize(*this->caps(), &appliedClip, this->fsaaType());
+    GrProcessorSet::Analysis analysis = op->finalize(
+            *this->caps(), &appliedClip, this->fsaaType(), clampType);
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, *op, &dstProxy)) {
             fContext->priv().opMemoryPool()->release(std::move(op));
