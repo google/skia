@@ -22,6 +22,30 @@
       "revId": "ec013d2eb6ad89322097e9f7c8cf377ad122e274",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b27abe46_d73736e1",
+        "filename": "bench/CompositingImagesBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-04-19T17:05:41Z",
+      "side": 1,
+      "message": "That is a good point; I took this opportunity to add separate transform modes to test pixel-aligned, subpixel, rotated, and perspective tilings.",
+      "parentUuid": "96434252_6ce05100",
+      "range": {
+        "startLine": 29,
+        "startChar": 74,
+        "endLine": 30,
+        "endChar": 17
+      },
+      "revId": "ec013d2eb6ad89322097e9f7c8cf377ad122e274",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
