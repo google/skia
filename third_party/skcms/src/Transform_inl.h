@@ -43,6 +43,9 @@
 #if !defined(USING_AVX2)     && defined(USING_AVX) && defined(__AVX2__)
     #define  USING_AVX2
 #endif
+#if !defined(USING_AVX512F)  && N == 16 && defined(__AVX512F__)
+    #define  USING_AVX512F
+#endif
 
 // Similar to the AVX+ features, we define USING_NEON and USING_NEON_F16C.
 // This is more for organizational clarity... skcms.cc doesn't force these.
@@ -104,13 +107,12 @@ SI D cast(const S& v) {
     return (D)v;
 #elif defined(__clang__)
     return __builtin_convertvector(v, D);
-#elif N == 4
-    return D{v[0],v[1],v[2],v[3]};
-#elif N == 8
-    return D{v[0],v[1],v[2],v[3], v[4],v[5],v[6],v[7]};
-#elif N == 16
-    return D{v[0],v[1],v[ 2],v[ 3], v[ 4],v[ 5],v[ 6],v[ 7],
-             v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]};
+#else
+    D d;
+    for (int i = 0; i < N; i++) {
+        d[i] = v[i];
+    }
+    return d;
 #endif
 }
 
@@ -138,7 +140,7 @@ SI T if_then_else(I32 cond, T t, T e) {
 SI F F_from_Half(U16 half) {
 #if defined(USING_NEON_F16C)
     return vcvt_f32_f16((float16x4_t)half);
-#elif defined(__AVX512F__)
+#elif defined(USING_AVX512F)
     return (F)_mm512_cvtph_ps((__m256i)half);
 #elif defined(USING_AVX_F16C)
     typedef int16_t __attribute__((vector_size(16))) I16;
@@ -165,7 +167,7 @@ SI F F_from_Half(U16 half) {
 SI U16 Half_from_F(F f) {
 #if defined(USING_NEON_F16C)
     return (U16)vcvt_f16_f32(f);
-#elif defined(__AVX512F__)
+#elif defined(USING_AVX512F)
     return (U16)_mm512_cvtps_ph((__m512 )f, _MM_FROUND_CUR_DIRECTION );
 #elif defined(USING_AVX_F16C)
     return (U16)__builtin_ia32_vcvtps2ph256(f, 0x04/*_MM_FROUND_CUR_DIRECTION*/);
@@ -206,8 +208,12 @@ SI F floor_(F x) {
     return floorf_(x);
 #elif defined(__aarch64__)
     return vrndmq_f32(x);
-#elif defined(__AVX512F__)
-    return _mm512_floor_ps(x);
+#elif defined(USING_AVX512F)
+    // Clang's _mm512_floor_ps() passes its mask as -1, not (__mmask16)-1,
+    // and integer santizer catches that this implicit cast changes the
+    // value from -1 to 65535.  We'll cast manually to work around it.
+    // Read this as `return _mm512_floor_ps(x)`.
+    return _mm512_mask_floor_ps(x, (__mmask16)-1, x);
 #elif defined(USING_AVX)
     return __builtin_ia32_roundps256(x, 0x01/*_MM_FROUND_FLOOR*/);
 #elif defined(__SSE4_1__)
@@ -1237,6 +1243,9 @@ static void run_program(const Op* program, const void** arguments,
 #endif
 #if defined(USING_AVX2)
     #undef  USING_AVX2
+#endif
+#if defined(USING_AVX512F)
+    #undef  USING_AVX512F
 #endif
 
 #if defined(USING_NEON)

@@ -1478,12 +1478,18 @@ SI F lerp(F from, F to, F t) {
     return mad(to-from, t, from);
 }
 
-// Lerp from dst-color to src-color
 STAGE(lerp_1_float, const float* c) {
     r = lerp(dr, r, *c);
     g = lerp(dg, g, *c);
     b = lerp(db, b, *c);
     a = lerp(da, a, *c);
+}
+STAGE(lerp_native, const float scales[]) {
+    auto c = unaligned_load<F>(scales);
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
 }
 STAGE(lerp_u8, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
@@ -2341,21 +2347,17 @@ static void start_pipeline(const size_t x0,     const size_t y0,
 
 #if JUMPER_NARROW_STAGES
     #define STAGE_GG(name, ...)                                                                \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y,           \
-                         U16    , U16    , U16    , U16    ,                                   \
-                         U16    , U16    , U16    , U16    );                                  \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);          \
         static void ABI name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) {     \
             auto x = join<F>(r,g),                                                             \
                  y = join<F>(b,a);                                                             \
-            name##_k(Ctx{program}, params->dx,params->dy,params->tail, x,y, 0,0,0,0, 0,0,0,0); \
+            name##_k(Ctx{program}, params->dx,params->dy,params->tail, x,y);                   \
             split(x, &r,&g);                                                                   \
             split(y, &b,&a);                                                                   \
             auto next = (Stage)load_and_inc(program);                                          \
             next(params,program, r,g,b,a);                                                     \
         }                                                                                      \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y,           \
-                         U16    , U16    , U16    , U16    ,                                   \
-                         U16    , U16    , U16    , U16    )
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y)
 
     #define STAGE_GP(name, ...)                                                            \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
@@ -2374,37 +2376,33 @@ static void start_pipeline(const size_t x0,     const size_t y0,
                          U16& dr, U16& dg, U16& db, U16& da)
 
     #define STAGE_PP(name, ...)                                                            \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F  , F  ,         \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
         static void ABI name(Params* params, void** program, U16 r, U16 g, U16 b, U16 a) { \
-            name##_k(Ctx{program}, params->dx,params->dy,params->tail, 0,0, r,g,b,a,       \
+            name##_k(Ctx{program}, params->dx,params->dy,params->tail, r,g,b,a,            \
                      params->dr,params->dg,params->db,params->da);                         \
             auto next = (Stage)load_and_inc(program);                                      \
             next(params,program, r,g,b,a);                                                 \
         }                                                                                  \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F  , F  ,         \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da)
 #else
     #define STAGE_GG(name, ...)                                                            \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y,       \
-                         U16    , U16    , U16    , U16    ,                               \
-                         U16    , U16    , U16    , U16    );                              \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);      \
         static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
             auto x = join<F>(r,g),                                                         \
                  y = join<F>(b,a);                                                         \
-            name##_k(Ctx{program}, dx,dy,tail, x,y, 0,0,0,0, 0,0,0,0);                     \
+            name##_k(Ctx{program}, dx,dy,tail, x,y);                                       \
             split(x, &r,&g);                                                               \
             split(y, &b,&a);                                                               \
             auto next = (Stage)load_and_inc(program);                                      \
             next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
         }                                                                                  \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y,       \
-                         U16    , U16    , U16    , U16    ,                               \
-                         U16    , U16    , U16    , U16    )
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y)
 
     #define STAGE_GP(name, ...)                                                            \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
@@ -2424,17 +2422,17 @@ static void start_pipeline(const size_t x0,     const size_t y0,
                          U16& dr, U16& dg, U16& db, U16& da)
 
     #define STAGE_PP(name, ...)                                                            \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F  , F  ,         \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da);                              \
         static void ABI name(size_t tail, void** program, size_t dx, size_t dy,            \
                              U16  r, U16  g, U16  b, U16  a,                               \
                              U16 dr, U16 dg, U16 db, U16 da) {                             \
-            name##_k(Ctx{program}, dx,dy,tail, 0,0, r,g,b,a, dr,dg,db,da);                 \
+            name##_k(Ctx{program}, dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \
             auto next = (Stage)load_and_inc(program);                                      \
             next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
         }                                                                                  \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F  , F  ,         \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                          U16&  r, U16&  g, U16&  b, U16&  a,                               \
                          U16& dr, U16& dg, U16& db, U16& da)
 #endif
@@ -3051,6 +3049,33 @@ STAGE_PP(luminance_to_alpha, Ctx::None) {
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //
 
+STAGE_PP(load_src, const uint16_t* ptr) {
+    r = unaligned_load<U16>(ptr + 0*N);
+    g = unaligned_load<U16>(ptr + 1*N);
+    b = unaligned_load<U16>(ptr + 2*N);
+    a = unaligned_load<U16>(ptr + 3*N);
+}
+STAGE_PP(store_src, uint16_t* ptr) {
+    unaligned_store(ptr + 0*N, r);
+    unaligned_store(ptr + 1*N, g);
+    unaligned_store(ptr + 2*N, b);
+    unaligned_store(ptr + 3*N, a);
+}
+STAGE_PP(load_dst, const uint16_t* ptr) {
+    dr = unaligned_load<U16>(ptr + 0*N);
+    dg = unaligned_load<U16>(ptr + 1*N);
+    db = unaligned_load<U16>(ptr + 2*N);
+    da = unaligned_load<U16>(ptr + 3*N);
+}
+STAGE_PP(store_dst, uint16_t* ptr) {
+    unaligned_store(ptr + 0*N, dr);
+    unaligned_store(ptr + 1*N, dg);
+    unaligned_store(ptr + 2*N, db);
+    unaligned_store(ptr + 3*N, da);
+}
+
+// ~~~~~~ Coverage scales / lerps ~~~~~~ //
+
 STAGE_PP(scale_1_float, const float* f) {
     U16 c = from_float(*f);
     r = div255( r * c );
@@ -3060,6 +3085,13 @@ STAGE_PP(scale_1_float, const float* f) {
 }
 STAGE_PP(lerp_1_float, const float* f) {
     U16 c = from_float(*f);
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
+}
+STAGE_PP(lerp_native, const uint16_t scales[]) {
+    auto c = unaligned_load<U16>(scales);
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
     b = lerp(db, b, c);
@@ -3349,10 +3381,6 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
-    NOT_IMPLEMENTED(load_src)
-    NOT_IMPLEMENTED(store_src)
-    NOT_IMPLEMENTED(load_dst)
-    NOT_IMPLEMENTED(store_dst)
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)

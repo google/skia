@@ -126,7 +126,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
                                                views:views]];
 
     // make context current
-    GLint swapInterval = 1;
+    GLint swapInterval = fDisplayParams.fDisableVsync ? 0 : 1;
     [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
     [fGLView setOpenGLContext:fGLContext];
     [fGLView setPixelFormat:fPixelFormat];

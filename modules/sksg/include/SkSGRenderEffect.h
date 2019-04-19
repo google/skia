@@ -20,8 +20,58 @@
 // TODO: merge EffectNode.h with this header
 
 class SkImageFilter;
+class SkShader;
 
 namespace sksg {
+
+/**
+ * Shader base class.
+ */
+class Shader : public Node {
+public:
+    ~Shader() override;
+
+    const sk_sp<SkShader>& getShader() const {
+        SkASSERT(!this->hasInval());
+        return fShader;
+    }
+
+protected:
+    Shader();
+
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
+
+    virtual sk_sp<SkShader> onRevalidateShader() = 0;
+
+private:
+    sk_sp<SkShader> fShader;
+
+    using INHERITED = Node;
+};
+
+/**
+ * Attaches a shader to the render DAG.
+ */
+class ShaderEffect final : public EffectNode {
+public:
+    ~ShaderEffect() override;
+
+    static sk_sp<ShaderEffect> Make(sk_sp<RenderNode> child, sk_sp<Shader> shader = 0);
+
+    void setShader(sk_sp<Shader>);
+
+protected:
+    void onRender(SkCanvas*, const RenderContext*) const override;
+
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+private:
+    ShaderEffect(sk_sp<RenderNode> child, sk_sp<Shader> shader);
+
+    sk_sp<Shader> fShader;
+
+    using INHERITED = EffectNode;
+};
 
 /**
  * ImageFilter base class.

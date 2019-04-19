@@ -5,19 +5,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
 #include "SkCamera.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPoint3.h"
 #include "SkShadowUtils.h"
 #include "SkUTF.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -341,7 +341,7 @@ protected:
                                lightPos, kLightWidth, .5f);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fAnimTranslate = timer.pingPong(30, 0, 125, -125);
         fAnimAngle = timer.pingPong(15, 0, 0, 20);
         if (fDoAlphaAnimation) {

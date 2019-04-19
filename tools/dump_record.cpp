@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "DumpRecord.h"
 #include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkRecordDraw.h"
@@ -17,13 +17,14 @@
 
 #include <stdio.h>
 
-DEFINE_string2(skps, r, "", ".SKPs to dump.");
-DEFINE_string(match, "", "The usual filters on file names to dump.");
-DEFINE_bool2(optimize, O, false, "Run SkRecordOptimize before dumping.");
-DEFINE_bool(optimize2, false, "Run SkRecordOptimize2 before dumping.");
-DEFINE_int32(tile, 1000000000, "Simulated tile size.");
-DEFINE_bool(timeWithCommand, false, "If true, print time next to command, else in first column.");
-DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
+static DEFINE_string2(skps, r, "", ".SKPs to dump.");
+static DEFINE_string(match, "", "The usual filters on file names to dump.");
+static DEFINE_bool2(optimize, O, false, "Run SkRecordOptimize before dumping.");
+static DEFINE_bool(optimize2, false, "Run SkRecordOptimize2 before dumping.");
+static DEFINE_int(tile, 1000000000, "Simulated tile size.");
+static DEFINE_bool(timeWithCommand, false,
+                   "If true, print time next to command, else in first column.");
+static DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
 
 static void dump(const char* name, int w, int h, const SkRecord& record) {
     SkBitmap bitmap;
@@ -38,10 +39,10 @@ static void dump(const char* name, int w, int h, const SkRecord& record) {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 
     for (int i = 0; i < FLAGS_skps.count(); i++) {
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
             continue;
         }
 

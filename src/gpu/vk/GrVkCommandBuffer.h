@@ -33,7 +33,6 @@ public:
     // CommandBuffer commands
     ////////////////////////////////////////////////////////////////////////////
     enum BarrierType {
-        kMemory_BarrierType,
         kBufferMemory_BarrierType,
         kImageMemory_BarrierType
     };
@@ -90,20 +89,20 @@ public:
                           int numAttachments,
                           const VkClearAttachment* attachments,
                           int numRects,
-                          const VkClearRect* clearRects) const;
+                          const VkClearRect* clearRects);
 
     void drawIndexed(const GrVkGpu* gpu,
                      uint32_t indexCount,
                      uint32_t instanceCount,
                      uint32_t firstIndex,
                      int32_t vertexOffset,
-                     uint32_t firstInstance) const;
+                     uint32_t firstInstance);
 
     void draw(const GrVkGpu* gpu,
               uint32_t vertexCount,
               uint32_t instanceCount,
               uint32_t firstVertex,
-              uint32_t firstInstance) const;
+              uint32_t firstInstance);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
@@ -131,6 +130,8 @@ public:
 
     void releaseResources(GrVkGpu* gpu);
 
+    bool hasWork() const { return fHasWork; }
+
 protected:
         GrVkCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool,
                           const GrVkRenderPass* rp = nullptr)
@@ -149,13 +150,18 @@ protected:
             return fCmdPool == nullptr;
         }
 
+        void addingWork(const GrVkGpu* gpu);
+
+        void submitPipelineBarriers(const GrVkGpu* gpu);
+
         SkTDArray<const GrVkResource*>          fTrackedResources;
         SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
         SkTDArray<const GrVkResource*>          fTrackedRecordingResources;
 
         // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
         // new commands to the buffer;
-        bool fIsActive;
+        bool                      fIsActive;
+        bool                      fHasWork = false;
 
         // Stores a pointer to the current active render pass (i.e. begin has been called but not
         // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
@@ -198,6 +204,12 @@ private:
 #ifdef SK_DEBUG
     mutable bool fResourcesReleased = false;
 #endif
+    // Tracking of memory barriers so that we can submit them all in a batch together.
+    SkSTArray<4, VkBufferMemoryBarrier> fBufferBarriers;
+    SkSTArray<1, VkImageMemoryBarrier> fImageBarriers;
+    bool fBarriersByRegion = false;
+    VkPipelineStageFlags fSrcStageMask = 0;
+    VkPipelineStageFlags fDstStageMask = 0;
 };
 
 class GrVkSecondaryCommandBuffer;
@@ -301,7 +313,9 @@ public:
     void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
                        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
                        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
-    bool finished(const GrVkGpu* gpu) const;
+    bool finished(const GrVkGpu* gpu);
+
+    void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
     void recycleSecondaryCommandBuffers();
 
@@ -324,6 +338,7 @@ private:
 
     SkTArray<GrVkSecondaryCommandBuffer*, true> fSecondaryCommandBuffers;
     VkFence                                     fSubmitFence;
+    SkTArray<sk_sp<GrRefCntedCallback>>         fFinishedProcs;
 
     typedef GrVkCommandBuffer INHERITED;
 };

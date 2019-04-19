@@ -10,11 +10,11 @@
  * Tests overlapping LCD text
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -37,12 +37,12 @@ protected:
         // build text blob
         SkTextBlobBuilder builder;
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 32);
+        SkFont      font(ToolUtils::create_portable_typeface(), 32);
         const char* text = "able was I ere I saw elba";
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         // If we use SkTextBlob::MakeFromText, we get very different positioning ... why?
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, 0);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
     }
 

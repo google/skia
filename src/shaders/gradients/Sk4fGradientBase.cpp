@@ -138,7 +138,7 @@ Sk4fGradientInterval::Sk4fGradientInterval(const Sk4f& c0, SkScalar t0,
 }
 
 void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColorSpace* dstCS,
-                                      SkShader::TileMode tileMode, bool premulColors,
+                                      SkTileMode tileMode, bool premulColors,
                                       SkScalar alpha, bool reverse) {
     // The main job here is to build a specialized interval list: a different
     // representation of the color stops data, optimized for efficient scan line
@@ -198,14 +198,14 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
     // Transform all of the colors to destination color space
     SkColor4fXformer xformedColors(shader.fOrigColors4f, count, shader.fColorSpace.get(), dstCS);
 
-    if (tileMode == SkShader::kClamp_TileMode) {
+    if (tileMode == SkTileMode::kClamp) {
         // synthetic edge interval: -/+inf .. P0
         const Sk4f clamp_color = pack_color(xformedColors.fColors[first_index],
                                             premulColors, componentScale);
         const SkScalar clamp_pos = reverse ? SK_ScalarInfinity : SK_ScalarNegativeInfinity;
         fIntervals.emplace_back(clamp_color, clamp_pos,
                                 clamp_color, first_pos);
-    } else if (tileMode == SkShader::kMirror_TileMode && reverse) {
+    } else if (tileMode == SkTileMode::kMirror && reverse) {
         // synthetic mirror intervals injected before main intervals: (2 .. 1]
         addMirrorIntervals(shader, xformedColors.fColors, componentScale, premulColors, false,
                            &fIntervals);
@@ -220,14 +220,14 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
                                 pack_color(c1, premulColors, componentScale), t1);
     });
 
-    if (tileMode == SkShader::kClamp_TileMode) {
+    if (tileMode == SkTileMode::kClamp) {
         // synthetic edge interval: Pn .. +/-inf
         const Sk4f clamp_color = pack_color(xformedColors.fColors[last_index],
                                             premulColors, componentScale);
         const SkScalar clamp_pos = reverse ? SK_ScalarNegativeInfinity : SK_ScalarInfinity;
         fIntervals.emplace_back(clamp_color, last_pos,
                                 clamp_color, clamp_pos);
-    } else if (tileMode == SkShader::kMirror_TileMode && !reverse) {
+    } else if (tileMode == SkTileMode::kMirror && !reverse) {
         // synthetic mirror intervals injected after main intervals: [1 .. 2)
         addMirrorIntervals(shader, xformedColors.fColors, componentScale, premulColors, true,
                            &fIntervals);

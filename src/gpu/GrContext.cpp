@@ -25,7 +25,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTaskGroup.h"
 #include "SkTraceMemoryDump.h"
-#include "effects/GrConfigConversionEffect.h"
+#include "effects/generated/GrConfigConversionEffect.h"
 #include "effects/GrSkSLFP.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextBlobCache.h"
@@ -214,6 +214,13 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
     return fResourceCache->getPurgeableBytes();
 }
 
+size_t GrContext::ComputeTextureSize(SkColorType type, int width, int height, GrMipMapped mipMapped,
+                                     bool useNextPow2) {
+    int colorSamplesPerPixel = 1;
+    return GrSurface::ComputeSize(SkColorType2GrPixelConfig(type), width, height,
+                                  colorSamplesPerPixel, mipMapped, useNextPow2);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
@@ -232,24 +239,14 @@ int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::flush() {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-
-    this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                  SkSurface::kNone_FlushFlags, 0, nullptr);
-}
-
-GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
-                                                          GrBackendSemaphore signalSemaphores[]) {
+GrSemaphoresSubmitted GrContext::flush(const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
 
     return this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
-                                         SkSurface::kNone_FlushFlags, numSemaphores,
-                                         signalSemaphores);
+                                         info);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

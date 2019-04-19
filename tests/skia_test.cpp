@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include <atomic>
+#include "CommandLineFlags.h"
 #include "CrashHandler.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "OverwriteLine.h"
 #include "PathOpsDebug.h"
 #include "Resources.h"
-#include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkPathOpsDebug.h"
@@ -20,19 +21,36 @@
 #include "SkTemplates.h"
 #include "SkTime.h"
 #include "Test.h"
-#include <atomic>
 
 using namespace skiatest;
 using namespace sk_gpu_test;
 
-DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.");
-DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
-DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
-DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
-DEFINE_string2(json, J, "", "write json version of tests.");
+static DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.");
+static DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+static DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
+static DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
+static DEFINE_string2(json, J, "", "write json version of tests.");
+static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
+static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
+static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
+static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+
+static DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
+static DEFINE_int_2(threads, j, -1,
+               "Run threadsafe tests on a threadpool with this many extra threads, "
+               "defaulting to one extra thread per core.");
 
 #if DEBUG_COIN
-DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
+static DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
 #endif
 
 // need to explicitly declare this, or we get some weird infinite loop llist
@@ -113,7 +131,7 @@ private:
 };
 
 static bool should_run(const char* testName, bool isGPUTest) {
-    if (SkCommandLineFlags::ShouldSkip(FLAGS_match, testName)) {
+    if (CommandLineFlags::ShouldSkip(FLAGS_match, testName)) {
         return false;
     }
     if (!FLAGS_cpu && !isGPUTest) {
@@ -126,7 +144,7 @@ static bool should_run(const char* testName, bool isGPUTest) {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 #if DEBUG_DUMP_VERIFY
     SkPathOpsDebug::gDumpOp = FLAGS_dumpOp;
     SkPathOpsDebug::gVerifyOp = FLAGS_verifyOp;

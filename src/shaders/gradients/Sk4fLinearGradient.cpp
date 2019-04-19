@@ -46,16 +46,16 @@ void ramp(const Sk4f& c, const Sk4f& dc, SkPMColor dst[], int n,
     }
 }
 
-template<SkShader::TileMode>
+template<SkTileMode>
 SkScalar pinFx(SkScalar);
 
 template<>
-SkScalar pinFx<SkShader::kClamp_TileMode>(SkScalar fx) {
+SkScalar pinFx<SkTileMode::kClamp>(SkScalar fx) {
     return fx;
 }
 
 template<>
-SkScalar pinFx<SkShader::kRepeat_TileMode>(SkScalar fx) {
+SkScalar pinFx<SkTileMode::kRepeat>(SkScalar fx) {
     SkScalar f = SkScalarIsFinite(fx) ? SkScalarFraction(fx) : 0;
     if (f < 0) {
         f = SkTMin(f + 1, nextafterf(1, 0));
@@ -66,7 +66,7 @@ SkScalar pinFx<SkShader::kRepeat_TileMode>(SkScalar fx) {
 }
 
 template<>
-SkScalar pinFx<SkShader::kMirror_TileMode>(SkScalar fx) {
+SkScalar pinFx<SkTileMode::kMirror>(SkScalar fx) {
     SkScalar f = SkScalarIsFinite(fx) ? SkScalarMod(fx, 2.0f) : 0;
     if (f < 0) {
         f = SkTMin(f + 2, nextafterf(2, 0));
@@ -189,22 +189,22 @@ LinearGradient4fContext::shadePremulSpan(int x, int y, SkPMColor dst[], int coun
                                          float bias0, float bias1) const {
     const SkLinearGradient& shader = static_cast<const SkLinearGradient&>(fShader);
     switch (shader.fTileMode) {
-    case kDecal_TileMode:
+        case SkTileMode::kDecal:
         SkASSERT(false);    // decal only supported via stages
         // fall-through
-    case kClamp_TileMode:
-        this->shadeSpanInternal<premul, kClamp_TileMode >(x, y, dst, count, bias0, bias1);
+        case SkTileMode::kClamp:
+            this->shadeSpanInternal<premul, SkTileMode::kClamp >(x, y, dst, count, bias0, bias1);
         break;
-    case kRepeat_TileMode:
-        this->shadeSpanInternal<premul, kRepeat_TileMode>(x, y, dst, count, bias0, bias1);
+        case SkTileMode::kRepeat:
+            this->shadeSpanInternal<premul, SkTileMode::kRepeat>(x, y, dst, count, bias0, bias1);
         break;
-    case kMirror_TileMode:
-        this->shadeSpanInternal<premul, kMirror_TileMode>(x, y, dst, count, bias0, bias1);
+        case SkTileMode::kMirror:
+            this->shadeSpanInternal<premul, SkTileMode::kMirror>(x, y, dst, count, bias0, bias1);
         break;
     }
 }
 
-template<ApplyPremul premul, SkShader::TileMode tileMode>
+template<ApplyPremul premul, SkTileMode tileMode>
 void SkLinearGradient::
 LinearGradient4fContext::shadeSpanInternal(int x, int y, SkPMColor dst[], int count,
                                            float bias0, float bias1) const {
@@ -254,7 +254,7 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y, SkPMColor dst[], int co
     }
 }
 
-template<ApplyPremul premul, SkShader::TileMode tileMode>
+template<ApplyPremul premul, SkTileMode tileMode>
 class SkLinearGradient::
 LinearGradient4fContext::LinearIntervalProcessor {
 public:
@@ -274,7 +274,7 @@ public:
         SkASSERT(fAdvX >= 0);
         SkASSERT(firstInterval <= lastInterval);
 
-        if (tileMode != kClamp_TileMode && !is_vertical) {
+        if (tileMode != SkTileMode::kClamp && !is_vertical) {
             const auto spanX = (lastInterval->fT1 - firstInterval->fT0) / dx;
             SkASSERT(spanX >= 0);
 
@@ -350,7 +350,7 @@ private:
         SkASSERT(i <= fLastInterval);
         i++;
 
-        if (tileMode == kClamp_TileMode) {
+        if (tileMode == SkTileMode::kClamp) {
             SkASSERT(i <= fLastInterval);
             return i;
         }

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(440, 530); }
 
     void onDraw(SkCanvas* canvas) override {
-        auto cf = SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkBlendMode::kSrc);
+        auto cf = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kSrc);
         sk_sp<SkImageFilter> filters[] = {
             SkColorFilterImageFilter::Make(std::move(cf), nullptr),
             SkBlurImageFilter::Make(2.0f, 2.0f, nullptr),
@@ -70,8 +70,8 @@ protected:
 
         canvas->translate(MARGIN, MARGIN);
 
-        sk_sp<SkSurface> surface = sk_tool_utils::makeSurface(canvas, info);
-        sk_tool_utils::draw_checkerboard(surface->getCanvas());
+        sk_sp<SkSurface> surface = ToolUtils::makeSurface(canvas, info);
+        ToolUtils::draw_checkerboard(surface->getCanvas());
         sk_sp<SkImage> source = surface->makeImageSnapshot();
 
         for (auto clipBound : clipBounds) {

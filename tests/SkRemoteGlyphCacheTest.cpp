@@ -15,10 +15,11 @@
 #include "SkStrikeCache.h"
 #include "SkSurface.h"
 #include "SkSurfacePriv.h"
-#include "SkTestEmptyTypeface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface_remote.h"
 #include "Test.h"
+#include "TestEmptyTypeface.h"
+#include "ToolUtils.h"
 
 #include "text/GrTextContext.h"
 
@@ -30,30 +31,67 @@ public:
 
     // Server implementation.
     SkDiscardableHandleId createHandle() override {
+        SkAutoMutexAcquire l(&fMutex);
+
         // Handles starts as locked.
         fLockedHandles.add(++fNextHandleId);
         return fNextHandleId;
     }
     bool lockHandle(SkDiscardableHandleId id) override {
+        SkAutoMutexAcquire l(&fMutex);
+
         if (id <= fLastDeletedHandleId) return false;
         fLockedHandles.add(id);
         return true;
     }
 
     // Client implementation.
-    bool deleteHandle(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
-    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
-    bool isHandleDeleted(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
+    bool deleteHandle(SkDiscardableHandleId id) override {
+        SkAutoMutexAcquire l(&fMutex);
 
-    void unlockAll() { fLockedHandles.reset(); }
+        return id <= fLastDeletedHandleId;
+    }
+
+    void notifyCacheMiss(SkStrikeClient::CacheMissType type) override {
+        SkAutoMutexAcquire l(&fMutex);
+
+        fCacheMissCount[type]++;
+    }
+    bool isHandleDeleted(SkDiscardableHandleId id) override {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return id <= fLastDeletedHandleId;
+    }
+
+    void unlockAll() {
+        SkAutoMutexAcquire l(&fMutex);
+
+        fLockedHandles.reset();
+    }
     void unlockAndDeleteAll() {
-        unlockAll();
+        SkAutoMutexAcquire l(&fMutex);
+
+        fLockedHandles.reset();
         fLastDeletedHandleId = fNextHandleId;
     }
-    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const { return fLockedHandles; }
-    SkDiscardableHandleId handleCount() { return fNextHandleId; }
-    int cacheMissCount(uint32_t type) { return fCacheMissCount[type]; }
+    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return fLockedHandles;
+    }
+    SkDiscardableHandleId handleCount() {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return fNextHandleId;
+    }
+    int cacheMissCount(uint32_t type) {
+        SkAutoMutexAcquire l(&fMutex);
+
+        return fCacheMissCount[type];
+    }
     bool hasCacheMiss() const {
+        SkAutoMutexAcquire l(&fMutex);
+
         for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
             if (fCacheMissCount[i] > 0) return true;
         }
@@ -61,6 +99,11 @@ public:
     }
 
 private:
+    // The tests below run in parallel on multiple threads and use the same
+    // process global SkStrikeCache. So the implementation needs to be
+    // thread-safe.
+    mutable SkMutex fMutex;
+
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
     SkTHashSet<SkDiscardableHandleId> fLockedHandles;
@@ -133,7 +176,7 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
                     SkScalar x = 0) {
     auto surface = MakeSurface(width, height, context);
     if (matrix) surface->getCanvas()->concat(*matrix);
-    surface->getCanvas()->drawTextBlob(blob.get(), x, 0, paint);
+    surface->getCanvas()->drawTextBlob(blob.get(), x, height/2, paint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);
@@ -198,7 +241,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace, reporter,
     SkStrikeClient client(discardableManager, false);
 
     // Server.
-    auto serverTf = SkTestEmptyTypeface::Make();
+    auto serverTf     = TestEmptyTypeface::Make();
     auto serverTfData = server.serializeTypeface(serverTf.get());
     REPORTER_ASSERT(reporter, serverTf->unique());
 
@@ -453,7 +496,8 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
-    glyphTf->charsToGlyphs(s, SkTypeface::kUTF8_Encoding, runBuffer.glyphs, runSize);
+    SkFont(sk_ref_sp(glyphTf)).textToGlyphs(s, strlen(s), SkTextEncoding::kUTF8,
+                                            runBuffer.glyphs, runSize);
 
     SkRect glyphBounds;
     font.getWidths(runBuffer.glyphs, 1, nullptr, &glyphBounds);
@@ -508,6 +552,82 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFall
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
+
+#if 0
+// TODO: turn this one when I figure out how to deal with the pixel variance from linear
+//  interpolation from GPU to GPU.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsSDFTWithAllARGBFallback,
+                                   reporter, ctxInfo) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    SkStrikeClient client(discardableManager, false);
+
+    SkPaint paint;
+
+    auto serverTf = ToolUtils::planet_typeface();
+    // TODO: when the cq bots can handle this font remove the check.
+    if (serverTf == nullptr) {
+        return;
+    }
+    auto serverTfData = server.serializeTypeface(serverTf.get());
+
+    auto makeBlob = [&reporter](sk_sp<SkTypeface> typeface) {
+        SkFont font;
+        font.setSubpixel(true);
+        font.setSize(96);
+        font.setHinting(kNormal_SkFontHinting);
+        font.setTypeface(typeface);
+
+        REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));
+
+        // Mercury to Uranus.
+        SkGlyphID glyphs[] = {1, 2, 3, 4, 5, 6, 7, 8};
+
+        SkTextBlobBuilder builder;
+        SkRect bounds = SkRect::MakeIWH(100, 100);
+        const auto& runBuffer = builder.allocRunPosH(font, SK_ARRAY_COUNT(glyphs), 100, &bounds);
+        SkASSERT(runBuffer.utf8text == nullptr);
+        SkASSERT(runBuffer.clusters == nullptr);
+
+        std::copy(std::begin(glyphs), std::end(glyphs), runBuffer.glyphs);
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(glyphs); i++) {
+            runBuffer.pos[i] = i * 100;
+        }
+
+        return builder.make();
+    };
+
+    auto serverBlob = makeBlob(serverTf);
+
+    auto props = FindSurfaceProps(ctxInfo.grContext());
+    SkTextBlobCacheDiffCanvas cache_diff_canvas(800, 800, props, &server,
+                                                MakeSettings(ctxInfo.grContext()));
+    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 400, paint);
+
+    std::vector<uint8_t> serverStrikeData;
+    server.writeStrikeData(&serverStrikeData);
+
+    // Client.
+    auto clientTf = client.deserializeTypeface(serverTfData->data(), serverTfData->size());
+    REPORTER_ASSERT(reporter,
+                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+
+    auto clientBlob = makeBlob(clientTf);
+
+    SkBitmap expected = RasterBlob(serverBlob, 800, 800, paint, ctxInfo.grContext());
+    SkBitmap actual = RasterBlob(clientBlob, 800, 800, paint, ctxInfo.grContext());
+
+    // Pixel variance can be high because of the atlas placement, and large scaling in the linear
+    // interpolation.
+    compare_blobs(expected, actual, reporter, 36);
+    REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
+    SkStrikeCache::ValidateGlyphCacheDataSize();
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -831,12 +951,6 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         REPORTER_ASSERT(reporter, fallbackCache.get() != nullptr);
         auto glyph = fallbackCache->getRawGlyphByID(lostGlyphID);
         REPORTER_ASSERT(reporter, glyph->fMaskFormat == fakeMask);
-
-        // Try overriding the image, it should stay the same.
-        REPORTER_ASSERT(reporter,
-                        memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
-        const uint8_t newGlyphImage[] = {0, 0};
-        fallbackCache->initializeImage(newGlyphImage, glyph->computeImageSize(), glyph);
         REPORTER_ASSERT(reporter,
                         memcmp(glyph->fImage, glyphImage, glyph->computeImageSize()) == 0);
     }

@@ -24,7 +24,6 @@ static_library("particles") {
       "../..:skia",
     ]
     sources = skia_particle_sources
-    sources += [ "../../src/utils/SkTextUtils.cpp" ]
     configs += [ "../../:skia_private" ]
   }
 }

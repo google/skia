@@ -63,7 +63,8 @@ public:
      *  child.
      */
     static std::unique_ptr<GrFragmentProcessor> OverrideInput(std::unique_ptr<GrFragmentProcessor>,
-                                                              const SkPMColor4f&);
+                                                              const SkPMColor4f&,
+                                                              bool useUniform = true);
 
     /**
      *  Returns a fragment processor that premuls the input before calling the passed in fragment
@@ -284,13 +285,18 @@ protected:
     }
 
     GrFragmentProcessor(ClassID classID, OptimizationFlags optimizationFlags)
-    : INHERITED(classID)
-    , fFlags(optimizationFlags) {
+            : INHERITED(classID)
+            , fFlags(optimizationFlags) {
         SkASSERT((fFlags & ~kAll_OptimizationFlags) == 0);
     }
 
     OptimizationFlags optimizationFlags() const {
         return static_cast<OptimizationFlags>(kAll_OptimizationFlags & fFlags);
+    }
+
+    /** Useful when you can't call fp->optimizationFlags() on a base class object from a subclass.*/
+    static OptimizationFlags ProcessorOptimizationFlags(const GrFragmentProcessor* fp) {
+        return fp->optimizationFlags();
     }
 
     /**
@@ -431,8 +437,13 @@ public:
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
     // 'instantiate' should only ever be called at flush time.
+    // TODO: this can go away once explicit allocation has stuck
     bool instantiate(GrResourceProvider* resourceProvider) const {
-        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+        if (resourceProvider->explicitlyAllocateGPUResources()) {
+            return fProxyRef.get()->isInstantiated();
+        } else {
+            return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+        }
     }
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call

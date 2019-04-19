@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkBlurImageFilter.h"
@@ -27,7 +27,7 @@ static sk_sp<SkShader> MakeLinear() {
     constexpr SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     constexpr SkColor kColors[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
     return SkGradientShader::MakeLinear(kPts, kColors, kPos, SK_ARRAY_COUNT(kColors),
-                                        SkShader::kClamp_TileMode);
+                                        SkTileMode::kClamp);
 }
 
 static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
@@ -37,7 +37,7 @@ static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+    sk_sp<SkColorFilter> filter(SkColorFilters::MatrixRowMajor255(matrix));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 
@@ -62,8 +62,8 @@ protected:
         const char* text;
     } emojiFont;
     virtual void onOnceBeforeDraw() override {
-        emojiFont.typeface = sk_tool_utils::emoji_typeface();
-        emojiFont.text = sk_tool_utils::emoji_sample_text();
+        emojiFont.typeface = ToolUtils::emoji_typeface();
+        emojiFont.text     = ToolUtils::emoji_sample_text();
     }
 
     SkString onShortName() override {

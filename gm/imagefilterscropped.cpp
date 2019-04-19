@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #include "SkBlurImageFilter.h"
 #include "SkMorphologyImageFilter.h"
@@ -44,7 +44,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), r.height()/2);
+    SkFont font(ToolUtils::create_portable_typeface(), r.height() / 2);
     SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint, SkTextUtils::kCenter_Align);
 }
 
@@ -114,7 +114,7 @@ protected:
             draw_bitmap, draw_path, draw_paint, draw_text
         };
 
-        sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
+        sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorBLUE,
                                                               SkBlendMode::kSrcIn));
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
                                          SkImageFilter::CropRect::kHasAll_CropEdge);

@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
-#include "SkColorSpaceXformCanvas.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
@@ -28,6 +27,19 @@
 #include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 #endif
+
+sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
+                                      const SkRect* tile) const {
+    if (localMatrix && !localMatrix->invert(nullptr)) {
+        return nullptr;
+    }
+    return SkPictureShader::Make(sk_ref_sp(this), tmx, tmy, localMatrix, tile);
+}
+
+sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy,
+                                      const SkMatrix* localMatrix) const {
+    return this->makeShader(tmx, tmy, localMatrix, nullptr);
+}
 
 namespace {
 static unsigned gBitmapShaderKeyNamespaceLabel;
@@ -106,15 +118,13 @@ uint32_t next_id() {
 
 } // namespace
 
-SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
-                                 const SkMatrix* localMatrix, const SkRect* tile,
-                                 sk_sp<SkColorSpace> colorSpace)
+SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
+                                 const SkMatrix* localMatrix, const SkRect* tile)
     : INHERITED(localMatrix)
     , fPicture(std::move(picture))
     , fTile(tile ? *tile : fPicture->cullRect())
     , fTmx(tmx)
     , fTmy(tmy)
-    , fColorSpace(std::move(colorSpace))
     , fUniqueID(next_id())
     , fAddedToCache(false) {}
 
@@ -124,20 +134,19 @@ SkPictureShader::~SkPictureShader() {
     }
 }
 
-sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
+sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
                                       const SkMatrix* localMatrix, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
-        return SkShader::MakeEmptyShader();
+        return SkShaders::Empty();
     }
-    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile,
-                                               nullptr));
+    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
     buffer.readMatrix(&lm);
-    TileMode mx = (TileMode)buffer.read32();
-    TileMode my = (TileMode)buffer.read32();
+    auto tmx = buffer.read32LE(SkTileMode::kLastTileMode);
+    auto tmy = buffer.read32LE(SkTileMode::kLastTileMode);
     SkRect tile;
     buffer.readRect(&tile);
 
@@ -147,13 +156,13 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     if (didSerialize) {
         picture = SkPicturePriv::MakeFromBuffer(buffer);
     }
-    return SkPictureShader::Make(picture, mx, my, &lm, &tile);
+    return SkPictureShader::Make(picture, tmx, tmy, &lm, &tile);
 }
 
 void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(this->getLocalMatrix());
-    buffer.write32(fTmx);
-    buffer.write32(fTmy);
+    buffer.write32((unsigned)fTmx);
+    buffer.write32((unsigned)fTmy);
     buffer.writeRect(fTile);
 
     buffer.writeBool(true);
@@ -205,24 +214,15 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
 
     const SkISize tileSize = scaledSize.toCeil();
     if (tileSize.isEmpty()) {
-        return SkShader::MakeEmptyShader();
+        return SkShaders::Empty();
     }
 
     // The actual scale, compensating for rounding & clamping.
     const SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
                                           SkIntToScalar(tileSize.height()) / fTile.height());
 
-    // |fColorSpace| will only be set when using an SkColorSpaceXformCanvas to do pre-draw xforms.
-    // A non-null |dstColorSpace| indicates that the surface we're drawing to is tagged. In all
-    // cases, picture-backed images behave the same (using a tagged surface for rasterization),
-    // and (as sources) they require a valid color space, so default to sRGB.
 
-    // With SkColorSpaceXformCanvas, the surface should never have a color space attached.
-    SkASSERT(!fColorSpace || !dstColorSpace);
-
-    sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace)
-                                              : fColorSpace ? fColorSpace
-                                                            : SkColorSpace::MakeSRGB();
+    sk_sp<SkColorSpace> imgCS = dstColorSpace ? sk_ref_sp(dstColorSpace): SkColorSpace::MakeSRGB();
     SkImage::BitDepth bitDepth =
             dstColorType >= kRGBA_F16Norm_SkColorType
             ? SkImage::BitDepth::kF16 : SkImage::BitDepth::kU8;
@@ -254,7 +254,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     return tileShader;
 }
 
-bool SkPictureShader::onAppendStages(const StageRec& rec) const {
+bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     auto lm = this->totalLocalMatrix(rec.fLocalM);
 
     // Keep bitmapShader alive by using alloc instead of stack memory
@@ -265,7 +265,7 @@ bool SkPictureShader::onAppendStages(const StageRec& rec) const {
         return false;
     }
 
-    StageRec localRec = rec;
+    SkStageRec localRec = rec;
     localRec.fLocalM = lm->isIdentity() ? nullptr : lm.get();
 
     return as_SB(bitmapShader)->appendStages(localRec);
@@ -294,16 +294,6 @@ const {
     return ctx;
 }
 #endif
-
-sk_sp<SkShader> SkPictureShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    sk_sp<SkColorSpace> dstCS = xformer->dst();
-    if (SkColorSpace::Equals(dstCS.get(), fColorSpace.get())) {
-        return sk_ref_sp(const_cast<SkPictureShader*>(this));
-    }
-
-    return sk_sp<SkPictureShader>(new SkPictureShader(fPicture, fTmx, fTmy, &this->getLocalMatrix(),
-                                                      &fTile, std::move(dstCS)));
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

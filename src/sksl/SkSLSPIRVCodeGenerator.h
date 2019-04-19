@@ -101,6 +101,11 @@ private:
         kTexture_SpecialIntrinsic,
     };
 
+    enum class Precision {
+        kLow,
+        kHigh,
+    };
+
     void setupIntrinsics();
 
     SpvId nextId();
@@ -119,6 +124,8 @@ private:
 
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
+
+    void writePrecisionModifier(Precision precision, SpvId id);
 
     void writePrecisionModifier(const Type& type, SpvId id);
 
@@ -191,6 +198,10 @@ private:
      */
     void writeMatrixCopy(SpvId id, SpvId src, const Type& srcType, const Type& dstType,
                          OutputStream& out);
+
+    void addColumnEntry(SpvId columnType, std::vector<SpvId>* currentColumn,
+                        std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
+                        OutputStream& out);
 
     SpvId writeMatrixConstructor(const Constructor& c, OutputStream& out);
 

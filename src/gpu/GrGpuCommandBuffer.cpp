@@ -15,6 +15,7 @@
 #include "GrMesh.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "SkRect.h"
 
 void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
@@ -54,8 +55,11 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         return false;
     }
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
+        GrTextureProxy** processorProxies = fixedDynamicState->fPrimitiveProcessorTextures;
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            if (!fixedDynamicState->fPrimitiveProcessorTextures[i]->instantiate(resourceProvider)) {
+            if (resourceProvider->explicitlyAllocateGPUResources()) {
+                SkASSERT(processorProxies[i]->isInstantiated());
+            } else if (!processorProxies[i]->instantiate(resourceProvider)) {
                 return false;
             }
         }
@@ -64,7 +68,9 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         int n = primProc.numTextureSamplers() * meshCount;
         const auto* textures = dynamicStateArrays->fPrimitiveProcessorTextures;
         for (int i = 0; i < n; ++i) {
-            if (!textures[i]->instantiate(resourceProvider)) {
+            if (resourceProvider->explicitlyAllocateGPUResources()) {
+                SkASSERT(textures[i]->isInstantiated());
+            } else if (!textures[i]->instantiate(resourceProvider)) {
                 return false;
             }
         }
@@ -94,5 +100,17 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
     }
     this->onDraw(primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshes, meshCount,
                  bounds);
+#ifdef SK_DEBUG
+    GrProcessor::CustomFeatures processorFeatures = primProc.requestedFeatures();
+    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
+        processorFeatures |= pipeline.getFragmentProcessor(i).requestedFeatures();
+    }
+    processorFeatures |= pipeline.getXferProcessor().requestedFeatures();
+    if (GrProcessor::CustomFeatures::kSampleLocations & processorFeatures) {
+        // Verify we always have the same sample pattern key, regardless of graphics state.
+        SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget)
+                         == fRenderTarget->renderTargetPriv().getSamplePatternKey());
+    }
+#endif
     return true;
 }

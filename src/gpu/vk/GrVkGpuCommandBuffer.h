@@ -44,9 +44,9 @@ private:
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                  const SkIPoint& dstPoint)
-            : fSrc(sk_ref_sp(src)), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
-
-        sk_sp<GrSurface> fSrc;
+                : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
+        Src              fSrc;
         GrSurfaceOrigin  fSrcOrigin;
         SkIRect          fSrcRect;
         SkIPoint         fDstPoint;
@@ -159,13 +159,13 @@ private:
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                  const SkIPoint& dstPoint, bool shouldDiscardDst)
-            : fSrc(sk_ref_sp(src))
-            , fSrcOrigin(srcOrigin)
-            , fSrcRect(srcRect)
-            , fDstPoint(dstPoint)
-            , fShouldDiscardDst(shouldDiscardDst) {}
-
-        sk_sp<GrSurface> fSrc;
+                : fSrc(src)
+                , fSrcOrigin(srcOrigin)
+                , fSrcRect(srcRect)
+                , fDstPoint(dstPoint)
+                , fShouldDiscardDst(shouldDiscardDst) {}
+        using Src = GrPendingIOResource<GrSurface, kRead_GrIOType>;
+        Src              fSrc;
         GrSurfaceOrigin  fSrcOrigin;
         SkIRect          fSrcRect;
         SkIPoint         fDstPoint;
@@ -180,6 +180,7 @@ private:
     };
 
     struct CommandBufferInfo {
+        using SampledTexture = GrPendingIOResource<GrVkTexture, kRead_GrIOType>;
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
         VkClearValue                           fColorClearValue;
@@ -190,10 +191,10 @@ private:
         // command buffer.
         SkTArray<InlineUploadInfo>             fPreDrawUploads;
         SkTArray<CopyInfo>                     fPreCopies;
-        // Array of images that will be sampled and thus need to be transfered to sampled layout
+        // Array of images that will be sampled and thus need to be transferred to sampled layout
         // before submitting the secondary command buffers. This must happen after we do any predraw
         // uploads or copies.
-        SkTArray<sk_sp<GrVkTexture>>           fSampledTextures;
+        SkTArray<SampledTexture>               fSampledTextures;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
             return fCommandBuffers.back();

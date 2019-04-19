@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -13,7 +12,8 @@
 #include "SkMaskFilter.h"
 #include "SkTDArray.h"
 #include "SkUTF.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #include "GrContext.h"
 #include "GrContextOptions.h"
@@ -157,7 +157,7 @@ bool make_ringed_alpha_image(TestPixels* result, int width, int height) {
 static sk_sp<SkShader> make_shader() {
     constexpr SkPoint pts[] = { {0, 0}, {20, 20} };
     constexpr SkColor colors[] = { SK_ColorGREEN, SK_ColorYELLOW };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 }
 
 static sk_sp<SkShader> make_null_shader() { return nullptr; }
@@ -457,7 +457,7 @@ static sk_sp<SkImage> make_image(SkCanvas* canvas, SkRect* srcR) {
     // produce different mipmap filtering when we have an odd sized texture.
     const int N = 10 + 2 + 8 + 2 + 10;
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
-    auto surface = sk_tool_utils::makeSurface(canvas, info);
+    auto        surface = ToolUtils::makeSurface(canvas, info);
     SkCanvas* c = surface->getCanvas();
     SkRect r = SkRect::MakeIWH(info.width(), info.height());
     SkPaint paint;
@@ -489,7 +489,7 @@ DEF_SIMPLE_GM(bleed_downscale, canvas, 360, 240) {
         canvas->save();
         for (auto quality : qualities) {
             paint.setFilterQuality(quality);
-            auto surf = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeN32Premul(1, 1));
+            auto surf = ToolUtils::makeSurface(canvas, SkImageInfo::MakeN32Premul(1, 1));
             surf->getCanvas()->drawImageRect(img, src, SkRect::MakeWH(1, 1), &paint, constraint);
             // now blow up the 1 pixel result
             canvas->drawImageRect(surf->makeImageSnapshot(), SkRect::MakeWH(100, 100), nullptr);

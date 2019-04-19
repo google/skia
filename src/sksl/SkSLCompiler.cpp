@@ -7,6 +7,7 @@
 
 #include "SkSLCompiler.h"
 
+#include "SkSLByteCodeGenerator.h"
 #include "SkSLCFGGenerator.h"
 #include "SkSLCPPCodeGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
@@ -58,6 +59,10 @@ static const char* SKSL_FP_INCLUDE =
 
 static const char* SKSL_PIPELINE_STAGE_INCLUDE =
 #include "sksl_pipeline.inc"
+;
+
+static const char* SKSL_MIXER_INCLUDE =
+#include "sksl_mixer.inc"
 ;
 
 namespace SkSL {
@@ -1267,6 +1272,13 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                          strlen(SKSL_PIPELINE_STAGE_INCLUDE), *fTypes, &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
+        case Program::kMixer_Kind:
+            inherited = nullptr;
+            fIRGenerator->start(&settings, nullptr);
+            fIRGenerator->convertProgram(kind, SKSL_MIXER_INCLUDE, strlen(SKSL_MIXER_INCLUDE),
+                                         *fTypes, &elements);
+            fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+            break;
     }
     for (auto& element : elements) {
         if (element->fKind == ProgramElement::kEnum_Kind) {
@@ -1321,7 +1333,6 @@ bool Compiler::optimize(Program& program) {
                 ++iter;
             }
         }
-        fSource = nullptr;
     }
     return fErrorCount == 0;
 }
@@ -1465,6 +1476,18 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
         *out = buffer.str();
     }
     return result;
+}
+
+std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
+    if (!this->optimize(program)) {
+        return nullptr;
+    }
+    std::unique_ptr<ByteCode> result(new ByteCode());
+    ByteCodeGenerator cg(fContext.get(), &program, this, result.get());
+    if (cg.generateCode()) {
+        return result;
+    }
+    return nullptr;
 }
 
 const char* Compiler::OperatorName(Token::Kind kind) {

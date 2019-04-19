@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurImageFilter.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -46,7 +46,7 @@ protected:
                     "jumped over",
                     "the lazy dog.",
                 };
-                SkFont font(sk_tool_utils::create_portable_typeface(), 100);
+                SkFont font(ToolUtils::create_portable_typeface(), 100);
                 int posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
                     posY += 100;

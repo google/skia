@@ -93,7 +93,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
-    const SkShaderBase& shader, TileMode tmx, TileMode tmy,
+    const SkShaderBase& shader, SkTileMode tmx, SkTileMode tmy,
     const SkBitmapProvider& provider, const ContextRec& rec, SkArenaAlloc* alloc)
 {
     SkMatrix totalInverse;

@@ -27,7 +27,7 @@ static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                  SkShader::kClamp_TileMode, 0, &localMatrix));
+                                                  SkTileMode::kClamp, 0, &localMatrix));
     paint->setBlendMode(SkBlendMode::kDstIn);
 }
 
@@ -184,8 +184,8 @@ DEF_SAMPLE( return new LayersView; )
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 
+#include "AnimTimer.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
 
 class BackdropView : public Sample {
     SkPoint fCenter;
@@ -231,7 +231,7 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fAngle = SkDoubleToScalar(fmod(timer.secs() * 360 / 5, 360));
         return true;
     }

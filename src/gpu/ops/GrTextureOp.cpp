@@ -149,9 +149,9 @@ public:
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         GrPerspQuad grDstQuad = GrPerspQuad::MakeFromSkQuad(dstQuad, viewMatrix);
-        GrQuadType dstQuadType = viewMatrix.hasPerspective() ? GrQuadType::kPerspective
-                                                             : GrQuadType::kStandard;
+        GrQuadType dstQuadType = GrQuadTypeForPoints(dstQuad, viewMatrix);
         GrPerspQuad grSrcQuad = GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I());
+        GrQuadType srcQuadType = GrQuadTypeForPoints(srcQuad, SkMatrix::I());
 
         // If constraint remains fast, the value in srcRect will be ignored since srcQuads provides
         // the local coordinates and a domain won't be used.
@@ -166,19 +166,21 @@ public:
         // Pass domain as srcRect if provided, but send srcQuad as a GrPerspQuad for local coords
         return pool->allocate<TextureOp>(
                 std::move(proxy), filter, color, grDstQuad, dstQuadType, srcRect, constraint,
-                &grSrcQuad, GrQuadType::kStandard, aaType, aaFlags,
+                &grSrcQuad, srcQuadType, aaType, aaFlags,
                 std::move(textureColorSpaceXform));
     }
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt, GrSamplerState::Filter filter, GrAAType aaType,
+                                          SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         size_t size = sizeof(TextureOp) + sizeof(Proxy) * (cnt - 1);
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         void* mem = pool->allocate(size);
-        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(set, cnt, filter, aaType, viewMatrix,
-                                                             std::move(textureColorSpaceXform)));
+        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(
+                set, cnt, filter, aaType, constraint, viewMatrix,
+                std::move(textureColorSpaceXform)));
     }
 
     ~TextureOp() override {
@@ -228,12 +230,19 @@ public:
     }
 #endif
 
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps& caps, const GrAppliedClip*, GrFSAAType, GrClampType clampType) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy->addPendingRead();
             fProxies[p].fProxy->unref();
+        }
+        fColorType = static_cast<unsigned>(ColorType::kNone);
+        for (int q = 0; q < fQuads.count(); ++q) {
+            const ColorDomainAndAA& info = fQuads.metadata(q);
+            auto colorType = GrQuadPerEdgeAA::MinColorType(info.fColor, clampType, caps);
+            fColorType = SkTMax(fColorType, static_cast<unsigned>(colorType));
         }
         return GrProcessorSet::EmptySetAnalysis();
     }
@@ -291,12 +300,12 @@ private:
         auto bounds = dstQuad.bounds(dstQuadType);
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(domain);
-        fWideColor = !SkPMColor4fFitsInBytes(color);
         fCanSkipAllocatorGather =
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
-              GrSamplerState::Filter filter, GrAAType aaType, const SkMatrix& viewMatrix,
+              GrSamplerState::Filter filter, GrAAType aaType,
+              SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
@@ -311,7 +320,8 @@ private:
         // identical, unless an entry provides a dstClip or additional transform that changes it.
         // The quad list will automatically adapt to that.
         fQuads.reserve(cnt, GrQuadTypeForTransformedRect(viewMatrix));
-
+        bool allOpaque = true;
+        Domain netDomain = Domain::kNo;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -330,10 +340,9 @@ private:
             auto quad = set[p].fDstClipQuad == nullptr ?
                     GrPerspQuad::MakeFromRect(set[p].fDstRect, ctm) :
                     GrPerspQuad::MakeFromSkQuad(set[p].fDstClipQuad, ctm);
-            GrQuadType quadType = GrQuadTypeForTransformedRect(ctm);
-            if (set[p].fDstClipQuad && quadType != GrQuadType::kPerspective) {
-                quadType = GrQuadType::kStandard;
-            }
+            GrQuadType quadType =
+                    set[p].fDstClipQuad ? GrQuadTypeForPoints(set[p].fDstClipQuad, ctm)
+                                        : GrQuadTypeForTransformedRect(ctm);
 
             bounds.joinPossiblyEmptyRect(quad.bounds(quadType));
             GrQuadAAFlags aaFlags;
@@ -350,7 +359,19 @@ private:
                              GrTextureOp::GetFilterHasEffect(ctm, set[p].fSrcRect,
                                                              set[p].fDstRect);
             }
+            Domain domainForQuad = Domain::kNo;
+            if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+                // Check (briefly) if the strict constraint is needed for this set entry
+                if (!set[p].fSrcRect.contains(fProxies[p].fProxy->getWorstCaseBoundsRect()) &&
+                    (mustFilter || aaForQuad == GrAAType::kCoverage)) {
+                    // Can't rely on hardware clamping and the draw will access outer texels
+                    // for AA and/or bilerp
+                    netDomain = Domain::kYes;
+                    domainForQuad = Domain::kYes;
+                }
+            }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
+            allOpaque &= (1.f == alpha);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
             int srcQuadIndex = -1;
             if (set[p].fDstClipQuad) {
@@ -359,19 +380,18 @@ private:
                 SkPoint srcQuad[4];
                 GrMapRectPoints(set[p].fDstRect, set[p].fSrcRect, set[p].fDstClipQuad, srcQuad, 4);
                 fSrcQuads.push_back(GrPerspQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()),
-                                    GrQuadType::kStandard);
+                                    GrQuadTypeForPoints(srcQuad, SkMatrix::I()));
                 srcQuadIndex = fSrcQuads.count() - 1;
             }
             fQuads.push_back(quad, quadType,
-                             {color, set[p].fSrcRect, srcQuadIndex, Domain::kNo, aaFlags});
+                             {color, set[p].fSrcRect, srcQuadIndex, domainForQuad, aaFlags});
         }
         fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {
             fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
-        fDomain = static_cast<unsigned>(false);
-        fWideColor = static_cast<unsigned>(false);
+        fDomain = static_cast<unsigned>(netDomain);
     }
 
     void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy, int start,
@@ -408,7 +428,7 @@ private:
         GrQuadType quadType = GrQuadType::kRect;
         GrQuadType srcQuadType = GrQuadType::kRect;
         Domain domain = Domain::kNo;
-        bool wideColor = false;
+        ColorType colorType = ColorType::kNone;
         int numProxies = 0;
         int numTotalQuads = 0;
         auto textureType = fProxies[0].fProxy->textureType();
@@ -426,12 +446,16 @@ private:
             if (op.fDomain) {
                 domain = Domain::kYes;
             }
-            wideColor |= op.fWideColor;
+            colorType = SkTMax(colorType, static_cast<ColorType>(op.fColorType));
             numProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 numTotalQuads += op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
-                if (!proxy->instantiate(target->resourceProvider())) {
+                if (target->resourceProvider()->explicitlyAllocateGPUResources()) {
+                    if (!proxy->isInstantiated()) {
+                        return;
+                    }
+                } else if (!proxy->instantiate(target->resourceProvider())) {
                     return;
                 }
                 SkASSERT(proxy->config() == config);
@@ -443,8 +467,7 @@ private:
             }
         }
 
-        VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
-                              srcQuadType, /* hasLocal */ true, domain, aaType,
+        VertexSpec vertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true, domain, aaType,
                               /* alpha as coverage */ true);
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
@@ -525,8 +548,8 @@ private:
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         auto pipelineFlags = (GrAAType::kMSAA == this->aaType())
-                ? GrPipeline::kHWAntialias_Flag
-                : 0;
+                ? GrPipeline::InputFlags::kHWAntialias
+                : GrPipeline::InputFlags::kNone;
         flushState->executeDrawsAndUploadsForMeshDrawOp(
                 this, chainBounds, GrProcessorSet::MakeEmptySet(), pipelineFlags);
     }
@@ -562,7 +585,7 @@ private:
         }
 
         fDomain |= that->fDomain;
-        fWideColor |= that->fWideColor;
+        fColorType = SkTMax(fColorType, that->fColorType);
         if (upgradeToCoverageAAOnMerge) {
             fAAType = static_cast<unsigned>(GrAAType::kCoverage);
         }
@@ -644,11 +667,12 @@ private:
     unsigned fFilter : 2;
     unsigned fAAType : 2;
     unsigned fDomain : 1;
-    unsigned fWideColor : 1;
+    unsigned fColorType : 2;
+    GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fCanSkipAllocatorGather : 1;
-    unsigned fProxyCnt : 32 - 8;
+    unsigned fProxyCnt : 32 - 9;
     Proxy fProxies[1];
 
     static_assert(kGrQuadTypeCount <= 4, "GrQuadType does not fit in 2 bits");
@@ -695,9 +719,10 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   int cnt,
                                   GrSamplerState::Filter filter,
                                   GrAAType aaType,
+                                  SkCanvas::SrcRectConstraint constraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-    return TextureOp::Make(context, set, cnt, filter, aaType, viewMatrix,
+    return TextureOp::Make(context, set, cnt, filter, aaType, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
 }
 

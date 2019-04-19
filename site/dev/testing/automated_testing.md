@@ -68,7 +68,7 @@ the status of the task for each commit:
 
 * green: success
 * orange: failure
-* purple: exception (infrastructure issue)
+* purple: mishap (infrastructure issue)
 * black border, no fill: task in progress
 * blank: no task has started yet for a given revision
 
@@ -110,7 +110,7 @@ what you want. You will need to add the new job to
 to recipes:
 
 * If there are new GN flags or compiler options:
-  [infra/bots/recipe_modules/flavor/gn_flavor.py][gn flavor py]
+  [infra/bots/recipe_modules/build][build recipe module], probably default.py.
 * If there are modifications to dm flags: [infra/bots/recipes/test.py][test py]
 * If there are modifications to nanobench flags:
   [infra/bots/recipes/perf.py][perf py]
@@ -121,16 +121,68 @@ skia.primary -b <job name>` to run the new job. (After commit, the new job will
 appear in the PolyGerrit UI after the next successful run of the
 Housekeeper-Nightly-UpdateMetaConfig task.)
 
-If you need to do something more complicated, or if you are not sure how to add
-and configure the new jobs, please ask for help from borenet, benjaminwagner, or
-mtklein.
-
 [new bot request]:
     https://bugs.chromium.org/p/skia/issues/entry?template=New+Bot+Request
 [jobs json]: https://skia.googlesource.com/skia/+/master/infra/bots/jobs.json
-[gn flavor py]:
-    https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/flavor/gn_flavor.py
+[build recipe module]:
+    https://skia.googlesource.com/skia/+/refs/heads/master/infra/bots/recipe_modules/build/
 [test py]:
     https://skia.googlesource.com/skia/+/master/infra/bots/recipes/test.py
 [perf py]:
     https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py
+
+
+Detail on Skia Tasks
+--------------------
+
+[infra/bots/gen_tasks.go][gen_tasks] reads config files:
+
+* [infra/bots/jobs.json][jobs json]
+* [infra/bots/cfg.json][cfg json]
+* [infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json][builder_name_schema]
+
+Based on each job name in jobs.json, gen_tasks decides which tasks to generate (process
+function). Various helper functions return task name of the direct dependencies of the job.
+
+In gen_tasks, tasks are specified with a TaskSpec. A TaskSpec specifies how to generate and trigger
+a Swarming task.
+
+Most Skia tasks run a recipe with Kitchen. The arguments to the kitchenTask function specify the
+most common parameters for a TaskSpec that will run a recipe. More info on recipes at
+[infra/bots/recipes/README.md][recipes README] and
+[infra/bots/recipe_modules/README.md][recipe_modules README].
+
+The Swarming task is generated based on several parameters of the TaskSpec:
+
+* Isolate: specifies the isolate file. The isolate file specifies the files from the repo to place
+  on the bot before running the task. (For non-Kitchen tasks, the isolate also specifies the command
+  to run.) [More info][isolate user guide].
+* Command: the command to run, if not specified in the Isolate. (Generally this is a boilerplate
+  Kitchen command that runs a recipe; see below.)
+* CipdPackages: specifies the IDs of CIPD packages that will be placed on the bot before running the
+  task. See infra/bots/assets/README.md for more info.
+* Dependencies: specifies the names of other tasks that this task depends upon. The outputs of those
+  tasks will be placed on the bot before running this task.
+* Dimensions: specifies what kind of bot should run this task. Ask Infra team for how to set this.
+* ExecutionTimeout: total time the task is allowed to run before it is killed.
+* IoTimeout: amount of time the task can run without printing something to stdout/stderr before it
+  is killed.
+* Expiration: Mostly ignored. If the task happens to be scheduled when there are no bots that can
+  run it, it will remain pending for this long before being canceled.
+
+If you need to do something more complicated, or if you are not sure how to add
+and configure the new jobs, please ask for help from borenet, benjaminwagner, or
+mtklein.
+
+[gen_tasks]:
+	https://skia.googlesource.com/skia/+/master/infra/bots/gen_tasks.go
+[cfg json]:
+	https://skia.googlesource.com/skia/+/master/infra/bots/cfg.json
+[builder_name_schema]:
+	https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json
+[recipes README]:
+    https://skia.googlesource.com/skia/+/master/infra/bots/recipes/README.md
+[recipe_modules README]:
+    https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/README.md
+[isolate user guide]:
+    https://chromium.googlesource.com/infra/luci/luci-py/+/master/appengine/isolate/doc/client/Isolate-User-Guide.md

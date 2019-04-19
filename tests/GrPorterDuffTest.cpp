@@ -27,8 +27,12 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps);
 
-DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrPorterDuff, reporter, ctxInfo) {
-    const GrCaps& caps = *ctxInfo.grContext()->priv().getGpu()->caps();
+DEF_GPUTEST(GrPorterDuff, reporter, /*ctxInfo*/) {
+    GrMockOptions mockOptions;
+    mockOptions.fDualSourceBlendingSupport = true;
+    auto context = GrContext::MakeMock(&mockOptions, GrContextOptions());
+    const GrCaps& caps = *context->priv().getGpu()->caps();
+
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
         SK_ABORT("Null context does not support dual source blending.");
         return;
@@ -66,7 +70,7 @@ static GrProcessorSet::Analysis do_analysis(const GrXPFactory* xpf,
     SkPMColor4f overrideColor;
     GrProcessorSet::Analysis analysis = procs.finalize(
             colorInput, coverageInput, nullptr, &GrUserStencilSettings::kUnused, GrFSAAType::kNone,
-            caps, &overrideColor);
+            caps, GrClampType::kAuto, &overrideColor);
     return analysis;
 }
 
@@ -83,7 +87,8 @@ public:
             fCompatibleWithCoverageAsAlpha = analysis.isCompatibleWithCoverageAsAlpha();
             fIgnoresInputColor = analysis.inputColorIsIgnored();
             sk_sp<const GrXferProcessor> xp(
-                    GrXPFactory::MakeXferProcessor(xpf, inputColor, inputCoverage, false, caps));
+                    GrXPFactory::MakeXferProcessor(xpf, inputColor, inputCoverage, false, caps,
+                                                   GrClampType::kAuto));
             TEST_ASSERT(!analysis.requiresDstTexture() ||
                         (isLCD &&
                          !caps.shaderCaps()->dstReadInShaderSupport() &&
@@ -941,13 +946,14 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
+    constexpr GrClampType autoClamp = GrClampType::kAuto;
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
     GrProcessorAnalysisColor color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(123, 45, 67, 255));
     GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kLCD;
-    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
+    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps, autoClamp) &
                   GrXPFactory::AnalysisProperties::kRequiresDstTexture));
     sk_sp<const GrXferProcessor> xp_opaque(
-            GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps));
+            GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps, autoClamp));
     if (!xp_opaque) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -960,10 +966,10 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     // Test with non-opaque alpha
     color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(123, 45, 67, 221));
     coverage = GrProcessorAnalysisCoverage::kLCD;
-    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps) &
+    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps, autoClamp) &
                 GrXPFactory::AnalysisProperties::kRequiresDstTexture));
     sk_sp<const GrXferProcessor> xp(
-            GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps));
+            GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps, autoClamp));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -977,9 +983,9 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrContextOptions opts = options;
     opts.fSuppressDualSourceBlending = true;
     sk_gpu_test::GrContextFactory mockFactory(opts);
-    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType);
+    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kMock_ContextType);
     if (!ctx) {
-        SK_ABORT("Failed to create null context without ARB_blend_func_extended.");
+        SK_ABORT("Failed to create mock context without ARB_blend_func_extended.");
         return;
     }
 
@@ -987,7 +993,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     const GrCaps& caps = *ctx->priv().caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
-        SK_ABORT("Null context failed to honor request for no ARB_blend_func_extended.");
+        SK_ABORT("Mock context failed to honor request for no ARB_blend_func_extended.");
         return;
     }
 
@@ -1015,7 +1021,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
                 SkBlendMode xfermode = static_cast<SkBlendMode>(m);
                 const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
                 sk_sp<const GrXferProcessor> xp(
-                        GrXPFactory::MakeXferProcessor(xpf, colorInput, coverageType, false, caps));
+                        GrXPFactory::MakeXferProcessor(xpf, colorInput, coverageType, false, caps,
+                                                       GrClampType::kAuto));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
                     return;

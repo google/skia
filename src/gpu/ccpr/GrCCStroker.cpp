@@ -672,8 +672,8 @@ bool GrCCStroker::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     return true;
 }
 
-void GrCCStroker::drawStrokes(GrOpFlushState* flushState, BatchID batchID,
-                              const SkIRect& drawBounds) const {
+void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor* proc,
+                              BatchID batchID, const SkIRect& drawBounds) const {
     using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
     SkASSERT(fInstanceBuffer);
 
@@ -708,14 +708,14 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, BatchID batchID,
     }
 
     // Draw triangles.
-    GrCCCoverageProcessor triProc(flushState->resourceProvider(), PrimitiveType::kTriangles);
+    proc->reset(PrimitiveType::kTriangles, flushState->resourceProvider());
     this->drawConnectingGeometry<&InstanceTallies::fTriangles>(
-            flushState, pipeline, triProc, batch, startIndices, startScissorSubBatch, drawBounds);
+            flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
 
     // Draw conics.
-    GrCCCoverageProcessor conicProc(flushState->resourceProvider(), PrimitiveType::kConics);
+    proc->reset(PrimitiveType::kConics, flushState->resourceProvider());
     this->drawConnectingGeometry<&InstanceTallies::fConics>(
-            flushState, pipeline, conicProc, batch, startIndices, startScissorSubBatch, drawBounds);
+            flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
 }
 
 void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& batch,

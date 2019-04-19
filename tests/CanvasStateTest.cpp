@@ -6,12 +6,12 @@
  */
 
 #include "CanvasStateHelpers.h"
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkCanvasPriv.h"
 #include "SkCanvasStateUtils.h"
 #include "SkClipOpPriv.h"
 #include "SkColor.h"
-#include "SkCommandLineFlags.h"
 #include "SkImageInfo.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
@@ -32,12 +32,13 @@ class SkCanvasState;
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 #include <dlfcn.h>
 
-DEFINE_string(library, "", "Support library to use for CanvasState test. If empty (the default), "
-                           "the test will be run without crossing a library boundary. Otherwise, "
-                           "it is expected to be a full path to a shared library file, which will"
-                           " be dynamically loaded. Functions from the library will be called to "
-                           "test SkCanvasState. Instructions for generating the library are in "
-                           "gyp/canvas_state_lib.gyp");
+static DEFINE_string(library, "",
+                     "Support library to use for CanvasState test. If empty (the default), "
+                     "the test will be run without crossing a library boundary. Otherwise, "
+                     "it is expected to be a full path to a shared library file, which will"
+                     " be dynamically loaded. Functions from the library will be called to "
+                     "test SkCanvasState. Instructions for generating the library are in "
+                     "gyp/canvas_state_lib.gyp");
 
 
 // This class calls dlopen on the library passed in to the command line flag library, and handles

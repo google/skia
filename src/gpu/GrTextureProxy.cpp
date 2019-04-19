@@ -76,13 +76,15 @@ GrTextureProxy::~GrTextureProxy() {
     }
 }
 
-bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
+bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider,
+                                 bool dontForceNoPendingIO) {
     if (LazyState::kNot != this->lazyInstantiationState()) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false,
                                kNone_GrSurfaceFlags, fMipMapped,
-                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
+                               fUniqueKey.isValid() ? &fUniqueKey : nullptr,
+                               dontForceNoPendingIO)) {
         return false;
     }
 
@@ -92,10 +94,12 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
 }
 
 sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    sk_sp<GrSurface> surface= this->createSurfaceImpl(resourceProvider, 1,
-                                                      /* needsStencil = */ false,
-                                                      kNone_GrSurfaceFlags,
-                                                      fMipMapped);
+    SkASSERT(resourceProvider->explicitlyAllocateGPUResources());
+
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, 1,
+                                                       /* needsStencil = */ false,
+                                                       kNone_GrSurfaceFlags,
+                                                       fMipMapped, true);
     if (!surface) {
         return nullptr;
     }
@@ -150,7 +154,7 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUnique
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
 
-    if (fTarget) {
+    if (fTarget && fSyncTargetKey) {
         if (!fTarget->getUniqueKey().isValid()) {
             fTarget->resourcePriv().setUniqueKey(key);
         }

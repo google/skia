@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkShader.h"
 
-
 /** This GM draws with invalid paints. It should draw nothing other than the background. */
 class BadPaintGM : public skiagm::GM {
  public:
@@ -32,13 +31,11 @@ protected:
 
         // Empty bitmap.
         fPaints.push_back().setColor(SK_ColorGREEN);
-        fPaints.back().setShader(SkShader::MakeBitmapShader(emptyBmp, SkShader::kClamp_TileMode,
-                                                            SkShader::kClamp_TileMode));
+        fPaints.back().setShader(emptyBmp.makeShader());
 
         // Non-invertible local matrix.
         fPaints.push_back().setColor(SK_ColorGREEN);
-        fPaints.back().setShader(SkShader::MakeBitmapShader(blueBmp, SkShader::kClamp_TileMode,
-                                                            SkShader::kClamp_TileMode, &badMatrix));
+        fPaints.back().setShader(blueBmp.makeShader(&badMatrix));
     }
 
     void onDraw(SkCanvas* canvas) override {

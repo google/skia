@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkFontDescriptor.h"
 #include "SkPicture.h"
 #include "SkPictureCommon.h"
@@ -13,12 +13,12 @@
 #include "SkStream.h"
 #include "SkTo.h"
 
-DEFINE_string2(input, i, "", "skp on which to report");
-DEFINE_bool2(version, v, true, "version");
-DEFINE_bool2(cullRect, c, true, "cullRect");
-DEFINE_bool2(flags, f, true, "flags");
-DEFINE_bool2(tags, t, true, "tags");
-DEFINE_bool2(quiet, q, false, "quiet");
+static DEFINE_string2(input, i, "", "skp on which to report");
+static DEFINE_bool2(version, v, true, "version");
+static DEFINE_bool2(cullRect, c, true, "cullRect");
+static DEFINE_bool2(flags, f, true, "flags");
+static DEFINE_bool2(tags, t, true, "tags");
+static DEFINE_bool2(quiet, q, false, "quiet");
 
 // This tool can print simple information about an SKP but its main use
 // is just to check if an SKP has been truncated during the recording
@@ -32,8 +32,8 @@ static const int kMissingInput = 4;
 static const int kIOError = 5;
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("Prints information about an skp file");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage("Prints information about an skp file");
+    CommandLineFlags::Parse(argc, argv);
 
     if (FLAGS_input.count() != 1) {
         if (!FLAGS_quiet) {

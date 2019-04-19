@@ -56,23 +56,24 @@ static inline bool can_truncate_to_fixed_for_decal(SkFixed fx,
     return SkTFitsIn<int32_t>(lastFx) && (unsigned)SkFixedFloorToInt(SkTo<int32_t>(lastFx)) < max;
 }
 
-
 // When not filtering, we store 32-bit y, 16-bit x, 16-bit x, 16-bit x, ...
 // When filtering we write out 32-bit encodings, pairing 14.4 x0 with 14-bit x1.
 
 // The clamp routines may try to fall into one of these unclamped decal fast-paths.
 // (Only clamp works in the right coordinate space to check for decal.)
 static void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
-    for (; count >= 2; count -= 2) {
+    // can_truncate_to_fixed_for_decal() checked only that stepping fx+=dx count-1
+    // times doesn't overflow fx, so we take unusual care not to step count times.
+    for (; count > 2; count -= 2) {
         *dst++ = pack_two_shorts( (fx +  0) >> 16,
                                   (fx + dx) >> 16);
         fx += dx+dx;
     }
 
-    auto xx = (uint16_t*)dst;
-    while (count --> 0) {
-        *xx++ = SkToU16(fx >> 16);
-        fx += dx;
+    SkASSERT(count <= 2);
+    switch (count) {
+        case 2: ((uint16_t*)dst)[1] = SkToU16((fx + dx) >> 16);
+        case 1: ((uint16_t*)dst)[0] = SkToU16((fx +  0) >> 16);
     }
 }
 
@@ -465,7 +466,7 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
                 dst16 += 8;
                 count -= 8;
                 fx += dx8;
-            };
+            }
             xy = (uint32_t *) dst16;
         }
 
@@ -795,22 +796,22 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate_only_matrix) {
     SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(fTileModeX == fTileModeY);
-    SkASSERT(fTileModeX != SkShader::kDecal_TileMode);
+    SkASSERT(fTileModeX != SkTileMode::kDecal);
 
     // Check for our special case translate methods when there is no scale/affine/perspective.
     if (translate_only_matrix && kNone_SkFilterQuality == fFilterQuality) {
         switch (fTileModeX) {
             default: SkASSERT(false);
-            case SkShader::kClamp_TileMode:  return  clampx_nofilter_trans;
-            case SkShader::kRepeat_TileMode: return repeatx_nofilter_trans;
-            case SkShader::kMirror_TileMode: return mirrorx_nofilter_trans;
+            case SkTileMode::kClamp:  return  clampx_nofilter_trans;
+            case SkTileMode::kRepeat: return repeatx_nofilter_trans;
+            case SkTileMode::kMirror: return mirrorx_nofilter_trans;
         }
     }
 
     // The arrays are all [ nofilter, filter ].
     int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
 
-    if (fTileModeX == SkShader::kClamp_TileMode) {
+    if (fTileModeX == SkTileMode::kClamp) {
         // clamp gets special version of filterOne, working in non-normalized space (allowing decal)
         fFilterOneX = SK_Fixed1;
         fFilterOneY = SK_Fixed1;
@@ -821,7 +822,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
     fFilterOneX = SK_Fixed1 / fPixmap.width();
     fFilterOneY = SK_Fixed1 / fPixmap.height();
 
-    if (fTileModeX == SkShader::kRepeat_TileMode) {
+    if (fTileModeX == SkTileMode::kRepeat) {
         return RepeatX_RepeatY_Procs[index];
     }
 

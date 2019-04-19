@@ -37,6 +37,8 @@ def RunSteps(api):
   if 'Build' not in api.properties['buildername']:
     try:
       api.flavor.copy_file_to_device('file.txt', 'file.txt')
+      api.flavor.read_file_on_device('file.txt')
+      api.flavor.remove_file_on_device('file.txt')
       api.flavor.create_clean_host_dir('results_dir')
       api.flavor.create_clean_device_dir('device_results_dir')
       if 'Lottie' in api.properties['buildername']:
@@ -49,7 +51,10 @@ def RunSteps(api):
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
       elif 'Perf' in api.properties['buildername']:
-        api.flavor.step('nanobench', ['nanobench', '--some-flag'])
+        if 'SkottieTracing' in api.properties['buildername']:
+          api.flavor.step('dm', ['dm', '--some-flag'], skip_binary_push=True)
+        else:
+          api.flavor.step('nanobench', ['nanobench', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.perf_data_dir,
             api.flavor.host_dirs.perf_data_dir)
@@ -59,6 +64,8 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  ('Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All'
+   '-Android_SkottieTracing'),
   'Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
@@ -80,6 +87,7 @@ TEST_BUILDERS = [
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump',
+  'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
 ]
 
 # Default properties used for TEST_BUILDERS.
@@ -98,10 +106,6 @@ def GenTests(api):
       api.test(buildername) +
       api.properties(**defaultProps(buildername))
     )
-    if 'Chromebook' in buildername and not 'Build' in buildername:
-      test += api.step_data(
-          'read chromeos ip',
-          stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
     if 'Chromecast' in buildername:
       test += api.step_data(
           'read chromecast ip',

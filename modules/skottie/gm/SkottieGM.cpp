@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "AnimTimer.h"
 #include "Resources.h"
 #include "SkAnimCodecPlayer.h"
-#include "SkAnimTimer.h"
 #include "SkColor.h"
 #include "SkMakeUnique.h"
 #include "Skottie.h"
 #include "SkottieProperty.h"
 #include "SkottieUtils.h"
+#include "gm.h"
 
 #include <cmath>
 #include <vector>
@@ -72,7 +72,7 @@ protected:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (!fAnimation) {
             return false;
         }
@@ -125,7 +125,7 @@ protected:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (!fAnimation) {
             return false;
         }
@@ -198,7 +198,7 @@ protected:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (!fAnimation) {
             return false;
         }

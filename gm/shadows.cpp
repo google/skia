@@ -108,9 +108,7 @@ protected:
             canvas->drawBitmap(fBitmap, 10, 10, &paint);
 
             canvas->translate(0, 40);
-            paint.setShader(SkShader::MakeBitmapShader(
-                                          fBitmap, SkShader::kRepeat_TileMode,
-                                          SkShader::kRepeat_TileMode));
+            paint.setShader(fBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
 
             // see bug.skia.org/562 (shows bug as reported)
             paint.setStyle(SkPaint::kFill_Style);

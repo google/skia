@@ -8,7 +8,7 @@
 #include "Request.h"
 #include "Response.h"
 
-#include "SkCommandLineFlags.h"
+#include "CommandLineFlags.h"
 #include "SkGraphics.h"
 
 #include "urlhandlers/UrlHandler.h"
@@ -24,9 +24,9 @@
 
 using namespace Response;
 
-DEFINE_int32(port, 8888, "The port to listen on.");
-DEFINE_string(address, "127.0.0.1", "The address to bind to.");
-DEFINE_bool(hosted, false, "Running in hosted mode on debugger.skia.org.");
+static DEFINE_int(port, 8888, "The port to listen on.");
+static DEFINE_string(address, "127.0.0.1", "The address to bind to.");
+static DEFINE_bool(hosted, false, "Running in hosted mode on debugger.skia.org.");
 
 class UrlManager {
 public:
@@ -133,7 +133,7 @@ int skiaserve_main() {
 
 #if !defined SK_BUILD_FOR_IOS
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     return skiaserve_main();
 }
 #endif

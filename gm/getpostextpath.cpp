@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
 #include "SkFontPriv.h"
@@ -30,7 +30,7 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     SkPath path;
 
     SkFont font;
-    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(48);
 
     SkPaint paint;
@@ -39,7 +39,7 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
 
     canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 0, 0, font, paint);
-    sk_tool_utils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, nullptr);
+    ToolUtils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, nullptr);
     strokePath(canvas, path);
     path.reset();
 
@@ -60,6 +60,6 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     canvas->translate(0, SkIntToScalar(64));
 
     canvas->drawTextBlob(SkTextBlob::MakeFromPosText(text, len, &pos[0], font), 0, 0, paint);
-    sk_tool_utils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, &pos[0]);
+    ToolUtils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, &pos[0]);
     strokePath(canvas, path);
 }

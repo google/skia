@@ -28,7 +28,7 @@ static SkBitmap create_bm() {
 }
 
 static sk_sp<SkImageFilter> make_filter() {
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
+    sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE,
                                                               SkBlendMode::kSrcIn));
     return SkColorFilterImageFilter::Make(std::move(filter), nullptr, nullptr);
 }
@@ -203,7 +203,8 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     SkBitmap srcBM = create_bm();
     sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
     return proxyProvider->createTextureProxy(srcImage, kNone_GrSurfaceFlags, 1,
-                                             SkBudgeted::kYes, SkBackingFit::kExact);
+                                             SkBudgeted::kYes, SkBackingFit::kExact,
+                                             GrInternalSurfaceFlags::kNoPendingIO);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // test shader w/ transparency
 static sk_sp<SkShader> make_grad(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+                                        SkTileMode::kMirror);
 }
 
 // test opaque shader
@@ -24,13 +24,13 @@ static sk_sp<SkShader> make_grad2(SkScalar width) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+                                        SkTileMode::kMirror);
 }
 
 static sk_sp<SkShader> make_chrome_solid() {
     SkColor colors[] = { SK_ColorGREEN, SK_ColorGREEN };
     SkPoint pts[] = { { 0, 0 }, { 1, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 namespace skiagm {
@@ -55,7 +55,7 @@ protected:
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
         paint.setShader(make_chrome_solid());
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 500);
+        SkFont font(ToolUtils::create_portable_typeface(), 500);
         font.setEdging(SkFont::Edging::kAlias);
 
         canvas->drawString("I", 0, 100, font, paint);
@@ -75,7 +75,7 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont  font(ToolUtils::create_portable_typeface());
         font.setEdging(SkFont::Edging::kAlias);
 
         paint.setStyle(SkPaint::kFill_Style);
@@ -103,7 +103,7 @@ DEF_GM( return new ChromeGradTextGM2; )
 
 DEF_SIMPLE_GM(gradtext, canvas, 500, 480) {
     static constexpr float kTextSize = 26.0f;
-    SkFont font(sk_tool_utils::create_portable_typeface(), kTextSize);
+    SkFont                 font(ToolUtils::create_portable_typeface(), kTextSize);
 
     canvas->drawRect({0, 0, 500, 240}, SkPaint());
     canvas->translate(20.0f, kTextSize);

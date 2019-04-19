@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -289,7 +289,7 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
+        SkFont     font(ToolUtils::create_portable_typeface(), 15);
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";
@@ -314,7 +314,7 @@ protected:
                     canvas->translate(rect.width() + 4*SK_Scalar1, 0);
                 }
 
-                SkColor color = sk_tool_utils::color_to_565(0xff007000);
+                SkColor      color = ToolUtils::color_to_565(0xff007000);
                 StyleAndName style = gStyles[(rand.nextU() >> 16) % numStyles];
                 CapAndName cap = gCaps[(rand.nextU() >> 16) % numCaps];
                 FillAndName fill = gFills[(rand.nextU() >> 16) % numFills];

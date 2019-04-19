@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "ResourceFactory.h"
 #include "Resources.h"
+#include "CommandLineFlags.h"
+#include "ResourceFactory.h"
 #include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageGenerator.h"
@@ -17,7 +17,8 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-DEFINE_string2(resourcePath, i, "resources", "Directory with test resources: images, fonts, etc.");
+static DEFINE_string2(resourcePath, i, "resources",
+                      "Directory with test resources: images, fonts, etc.");
 
 sk_sp<SkData> (*gResourceFactory)(const char*) = nullptr;
 

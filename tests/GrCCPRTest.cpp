@@ -11,8 +11,8 @@
 #include "GrClip.h"
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
-#include "GrPathRenderer.h"
 #include "GrPaint.h"
+#include "GrPathRenderer.h"
 #include "GrRecordingContext.h"
 #include "GrRecordingContextPriv.h"
 #include "GrRenderTargetContext.h"
@@ -23,9 +23,9 @@
 #include "SkMatrix.h"
 #include "SkPathPriv.h"
 #include "SkRect.h"
-#include "sk_tool_utils.h"
-#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "ToolUtils.h"
 #include "ccpr/GrCCPathCache.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "mock/GrMockTypes.h"
 
 #include <cmath>
@@ -155,6 +155,7 @@ public:
         mockOptions.fFlatInterpolationSupport = true;
 
         GrContextOptions ctxOptions;
+        ctxOptions.fDisableCoverageCountingPaths = false;
         ctxOptions.fAllowPathMaskCaching = false;
         ctxOptions.fGpuPathRenderers = GpuPathRenderers::kCoverageCounting;
 
@@ -354,7 +355,7 @@ protected:
             do {
                 step = primes[rand.nextU() % SK_ARRAY_COUNT(primes)];
             } while (step == numPts);
-            fPaths[i] = sk_tool_utils::make_star(SkRect::MakeLTRB(0,0,1,1), numPts, step);
+            fPaths[i] = ToolUtils::make_star(SkRect::MakeLTRB(0, 0, 1, 1), numPts, step);
         }
     }
 

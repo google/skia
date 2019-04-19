@@ -126,7 +126,7 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
-    bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
+    void generatePath(const SkGlyph& glyph) override;
 
     const SkDescriptor& getDescriptor() const override;
 
@@ -136,7 +136,11 @@ public:
                             this->getScalerContext()->getEffects()};
     }
 
-    int glyphMetrics(const SkGlyphID[], const SkPoint[], int n, SkGlyphPos result[]) override;
+    SkSpan<const SkGlyphPos> prepareForDrawing(const SkGlyphID glyphIDs[],
+                                               const SkPoint positions[],
+                                               size_t n,
+                                               int maxDimension,
+                                               SkGlyphPos results[]) override;
 
     void onAboutToExitScope() override;
 

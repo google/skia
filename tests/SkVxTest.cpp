@@ -16,9 +16,10 @@ using double2 = skvx::Vec<2,double>;
 using double4 = skvx::Vec<4,double>;
 using double8 = skvx::Vec<8,double>;
 
-using byte2 = skvx::Vec<2,uint8_t>;
-using byte4 = skvx::Vec<4,uint8_t>;
-using byte8 = skvx::Vec<8,uint8_t>;
+using byte2  = skvx::Vec< 2,uint8_t>;
+using byte4  = skvx::Vec< 4,uint8_t>;
+using byte8  = skvx::Vec< 8,uint8_t>;
+using byte16 = skvx::Vec<16,uint8_t>;
 
 using int2 = skvx::Vec<2,int32_t>;
 using int4 = skvx::Vec<4,int32_t>;
@@ -112,7 +113,7 @@ DEF_TEST(SkVx, r) {
     REPORTER_ASSERT(r, all(  rcp(float2{2,3}) < float2{1.0f,0.5f}));
     REPORTER_ASSERT(r, all(rsqrt(float2{2,3}) < float2{1.0f,1.0f}));
 
-    REPORTER_ASSERT(r, all(cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
+    REPORTER_ASSERT(r, all(skvx::cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
 
     float buf[] = {1,2,3,4,5,6};
     REPORTER_ASSERT(r, all(float4::Load(buf) == float4{1,2,3,4}));
@@ -128,8 +129,53 @@ DEF_TEST(SkVx, r) {
 
     REPORTER_ASSERT(r, all(mad(float4{1,2,3,4}, 2.0f, 3.0f) == float4{5,7,9,11}));
 
-    REPORTER_ASSERT(r, all(shuffle<2,1,0,3>        (float4{1,2,3,4}) == float4{3,2,1,4}));
-    REPORTER_ASSERT(r, all(shuffle<2,1>            (float4{1,2,3,4}) == float2{3,2}));
-    REPORTER_ASSERT(r, all(shuffle<2,1,2,1,2,1,2,1>(float4{1,2,3,4}) == float8{3,2,3,2,3,2,3,2}));
-    REPORTER_ASSERT(r, all(shuffle<3,3,3,3>        (float4{1,2,3,4}) == float4{4,4,4,4}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<2,1,0,3>        (float4{1,2,3,4}) == float4{3,2,1,4}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<2,1>            (float4{1,2,3,4}) == float2{3,2}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<3,3,3,3>        (float4{1,2,3,4}) == float4{4,4,4,4}));
+    REPORTER_ASSERT(r, all(skvx::shuffle<2,1,2,1,2,1,2,1>(float4{1,2,3,4})
+                           == float8{3,2,3,2,3,2,3,2}));
+
+    // Test that mixed types can be used where they make sense.  Mostly about ergonomics.
+    REPORTER_ASSERT(r, all(float4{1,2,3,4} < 5));
+    REPORTER_ASSERT(r, all( byte4{1,2,3,4} < 5));
+    REPORTER_ASSERT(r, all(  int4{1,2,3,4} < 5.0f));
+    float4 five = 5;
+    REPORTER_ASSERT(r, all(five == 5.0f));
+    REPORTER_ASSERT(r, all(five == 5));
+
+    REPORTER_ASSERT(r, all(max(2, min(float4{1,2,3,4}, 3)) == float4{2,2,3,3}));
+
+    for (int x = 0; x < 256; x++)
+    for (int y = 0; y < 256; y++) {
+        uint8_t want = (uint8_t)( 255*(x/255.0 * y/255.0) + 0.5 );
+
+        {
+            uint8_t got = skvx::div255(skvx::Vec<8, uint16_t>(x) *
+                                       skvx::Vec<8, uint16_t>(y) )[0];
+            REPORTER_ASSERT(r, got == want);
+        }
+
+        {
+            uint8_t got = skvx::approx_scale(skvx::Vec<8,uint8_t>(x),
+                                             skvx::Vec<8,uint8_t>(y))[0];
+
+            REPORTER_ASSERT(r, got == want-1 ||
+                               got == want   ||
+                               got == want+1);
+            if (x == 0 || y == 0 || x == 255 || y == 255) {
+                REPORTER_ASSERT(r, got == want);
+            }
+        }
+    }
+
+    for (int x = 0; x < 256; x++)
+    for (int y = 0; y < 256; y++) {
+        uint16_t xy = x*y;
+
+        // Make sure to cover implementation cases N=8, N<8, and N>8.
+        REPORTER_ASSERT(r, all(mull(byte2 (x), byte2 (y)) == xy));
+        REPORTER_ASSERT(r, all(mull(byte4 (x), byte4 (y)) == xy));
+        REPORTER_ASSERT(r, all(mull(byte8 (x), byte8 (y)) == xy));
+        REPORTER_ASSERT(r, all(mull(byte16(x), byte16(y)) == xy));
+    }
 }

@@ -76,6 +76,13 @@ LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data')
 TMP_SKP_DIR = tempfile.mkdtemp()
 
+# Location of the credentials.json file and the string that represents missing
+# passwords.
+CREDENTIALS_FILE_PATH = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), 'page_sets', 'data',
+    'credentials.json'
+)
+
 # Name of the SKP benchmark
 SKP_BENCHMARK = 'skpicture_printer'
 
@@ -85,14 +92,17 @@ MAX_SKP_BASE_NAME_LEN = 31
 # Dictionary of device to platform prefixes for SKP files.
 DEVICE_TO_PLATFORM_PREFIX = {
     'desktop': 'desk',
-    'galaxynexus': 'mobi',
-    'nexus10': 'tabl'
+    'mobile': 'mobi',
+    'tablet': 'tabl'
 }
 
 # How many times the record_wpr binary should be retried.
 RETRY_RECORD_WPR_COUNT = 5
 # How many times the run_benchmark binary should be retried.
 RETRY_RUN_MEASUREMENT_COUNT = 3
+
+# Location of the credentials.json file in Google Storage.
+CREDENTIALS_GS_PATH = 'playback/credentials/credentials.json'
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
 
@@ -101,8 +111,6 @@ CHROMIUM_PAGE_SETS_PATH = os.path.join('tools', 'perf', 'page_sets')
 
 # Dictionary of supported Chromium page sets to their file prefixes.
 CHROMIUM_PAGE_SETS_TO_PREFIX = {
-    'key_mobile_sites_smooth.py': 'keymobi',
-    'top_25_smooth.py': 'top25desk',
 }
 
 PAGE_SETS_TO_EXCLUSIONS = {
@@ -111,6 +119,11 @@ PAGE_SETS_TO_EXCLUSIONS = {
     # See skbug.com/7421
     'top_25_smooth.py': '"(mail\.google\.com)"',
 }
+
+
+class InvalidSKPException(Exception):
+  """Raised when the created SKP is invalid."""
+  pass
 
 
 def remove_prefix(s, prefix):
@@ -191,6 +204,21 @@ class SkPicturePlayback(object):
   def Run(self):
     """Run the SkPicturePlayback BuildStep."""
 
+    # Download the credentials file if it was not previously downloaded.
+    if not os.path.isfile(CREDENTIALS_FILE_PATH):
+      # Download the credentials.json file from Google Storage.
+      self.gs.download_file(CREDENTIALS_GS_PATH, CREDENTIALS_FILE_PATH)
+
+    if not os.path.isfile(CREDENTIALS_FILE_PATH):
+      raise Exception("""Could not locate credentials file in the storage.
+      Please create a credentials file in gs://%s that contains:
+      {
+        "google": {
+          "username": "google_testing_account_username",
+          "password": "google_testing_account_password"
+        }
+      }\n\n""" % CREDENTIALS_GS_PATH)
+
     # Delete any left over data files in the data directory.
     for archive_file in glob.glob(
         os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, 'skia_*')):
@@ -207,8 +235,8 @@ class SkPicturePlayback(object):
 
       page_set_basename = os.path.basename(page_set).split('.')[0]
       page_set_json_name = page_set_basename + '.json'
-      wpr_data_file = (
-          page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wprgo')
+      wpr_data_file_glob = (
+          page_set.split(os.path.sep)[-1].split('.')[0] + '_*.wprgo')
       page_set_dir = os.path.dirname(page_set)
 
       if self._IsChromiumPageSet(page_set):
@@ -232,9 +260,11 @@ class SkPicturePlayback(object):
 
             # Copy over the created archive into the local webpages archive
             # directory.
-            shutil.copy(
-              os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
-              self._local_record_webpages_archive_dir)
+            for wpr_data_file in glob.glob(os.path.join(
+                LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file_glob)):
+              shutil.copy(
+                os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
+                self._local_record_webpages_archive_dir)
             shutil.copy(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                            page_set_json_name),
@@ -252,7 +282,7 @@ class SkPicturePlayback(object):
 
       else:
         # Get the webpages archive so that it can be replayed.
-        self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
+        self._DownloadWebpagesArchive(wpr_data_file_glob, page_set_json_name)
 
       run_benchmark_cmd = [
           'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
@@ -284,8 +314,16 @@ class SkPicturePlayback(object):
           time.sleep(10)
           continue
 
-        # Rename generated SKP files into more descriptive names.
-        self._RenameSkpFiles(page_set)
+        try:
+          # Rename generated SKP files into more descriptive names.
+          self._RenameSkpFiles(page_set)
+        except InvalidSKPException:
+          # There was a failure continue with the loop.
+          traceback.print_exc()
+          print '\n\n=======Retrying %s=======\n\n' % page_set
+          time.sleep(10)
+          continue
+
         # Break out of the retry loop since there were no errors.
         break
       else:
@@ -383,6 +421,10 @@ class SkPicturePlayback(object):
 
     Look into the subdirectory of TMP_SKP_DIR and find the most interesting
     .skp in there to be this page_set's representative .skp.
+
+    Throws InvalidSKPException if the chosen .skp is less than 1KB. This
+    typically happens when there is a 404 or a redirect loop. Anything greater
+    than 1KB seems to have captured at least some useful information.
     """
     subdirs = glob.glob(os.path.join(TMP_SKP_DIR, '*'))
     for site in subdirs:
@@ -403,6 +445,11 @@ class SkPicturePlayback(object):
       shutil.move(largest_skp, dest)
       self._skp_files.append(filename)
       shutil.rmtree(site)
+      skp_size = os.path.getsize(dest)
+      if skp_size < 1024:
+        raise InvalidSKPException(
+            'Size of %s is only %d. Something is wrong.' % (dest, skp_size))
+
 
   def _CreateLocalStorageDirs(self):
     """Creates required local storage directories for this script."""
@@ -422,9 +469,7 @@ class SkPicturePlayback(object):
     gs = self.gs
     if (gs.does_storage_object_exist(wpr_source) and
         gs.does_storage_object_exist(page_set_source)):
-      gs.download_file(wpr_source,
-                       os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
-                                    wpr_data_file))
+      gs.download_file(wpr_source, LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR)
       gs.download_file(page_set_source,
                        os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                                     page_set_json_name))

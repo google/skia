@@ -8,7 +8,7 @@
 #include "skqp.h"
 
 #include "../../../src/core/SkStreamPriv.h"
-#include "../../tools/fonts/SkTestFontMgr.h"
+#include "../../tools/fonts/TestFontMgr.h"
 #include "GrContext.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
@@ -245,7 +245,7 @@ void SkQP::init(SkQPAssetManager* am, const char* reportDirectory) {
     fReportDirectory = reportDirectory;
 
     SkGraphics::Init();
-    gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
+    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
 
     /* If the file "skqp/rendertests.txt" does not exist or is empty, run all
        render tests.  Otherwise only run tests mentioned in that file.  */

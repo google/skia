@@ -20,10 +20,9 @@ struct SkImageInfo;
 class SK_API SkMallocPixelRef : public SkPixelRef {
 public:
     /**
-     *  Return a new SkMallocPixelRef with the provided pixel storage, rowBytes,
-     *  and optional colortable. The caller is responsible for managing the
-     *  lifetime of the pixel storage buffer, as this pixelref will not try
-     *  to delete it.
+     *  Return a new SkMallocPixelRef with the provided pixel storage and
+     *  rowBytes.  The caller is responsible for managing the lifetime of the
+     *  pixel storage buffer, as this pixelref will not try to delete it.
      *
      *  Returns NULL on failure.
      */
@@ -35,21 +34,15 @@ public:
      *  If rowBytes is > 0, then it will be respected, or NULL will be returned
      *  if rowBytes is invalid for the specified info.
      *
-     *  This pixelref will ref() the specified colortable (if not NULL).
+     *  All pixel bytes are zeroed.
      *
      *  Returns NULL on failure.
      */
     static sk_sp<SkPixelRef> MakeAllocate(const SkImageInfo&, size_t rowBytes);
 
     /**
-     *  Identical to MakeAllocate, except all pixel bytes are zeroed.
-     */
-    static sk_sp<SkPixelRef> MakeZeroed(const SkImageInfo&, size_t rowBytes);
-
-    /**
-     *  Return a new SkMallocPixelRef with the provided pixel storage,
-     *  rowBytes, and optional colortable. On destruction, ReleaseProc
-     *  will be called.
+     *  Return a new SkMallocPixelRef with the provided pixel storage and
+     *  rowBytes. On destruction, ReleaseProc will be called.
      *
      *  If ReleaseProc is NULL, the pixels will never be released. This
      *  can be useful if the pixels were stack allocated. However, such an
@@ -63,10 +56,9 @@ public:
                                           ReleaseProc proc, void* context);
 
     /**
-     *  Return a new SkMallocPixelRef that will use the provided
-     *  SkData, rowBytes, and optional colortable as pixel storage.
-     *  The SkData will be ref()ed and on destruction of the PielRef,
-     *  the SkData will be unref()ed.
+     *  Return a new SkMallocPixelRef that will use the provided SkData and
+     *  rowBytes as pixel storage.  The SkData will be ref()ed and on
+     *  destruction of the PixelRef, the SkData will be unref()ed.
      *
      *  Returns NULL on failure.
      */
@@ -76,11 +68,6 @@ protected:
     ~SkMallocPixelRef() override;
 
 private:
-    // Uses alloc to implement NewAllocate or NewZeroed.
-    static sk_sp<SkPixelRef> MakeUsing(void*(*alloc)(size_t),
-                                       const SkImageInfo&,
-                                       size_t rowBytes);
-
     ReleaseProc fReleaseProc;
     void*       fReleaseProcContext;
 

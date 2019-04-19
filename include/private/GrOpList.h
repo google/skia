@@ -30,7 +30,7 @@ struct SkIRect;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>, GrSurfaceProxy*, GrAuditTrail*);
+    GrOpList(GrResourceProvider*, sk_sp<GrOpMemoryPool>, sk_sp<GrSurfaceProxy>, GrAuditTrail*);
     ~GrOpList() override;
 
     // These four methods are invoked at flush time
@@ -112,6 +112,16 @@ protected:
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
+
+    virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
+
+    bool isUsed(GrSurfaceProxy* proxy) const {
+        if (proxy == fTarget.get()) {
+            return true;
+        }
+
+        return this->onIsUsed(proxy);
+    }
 
     void addDependency(GrOpList* dependedOn);
     void addDependent(GrOpList* dependent);

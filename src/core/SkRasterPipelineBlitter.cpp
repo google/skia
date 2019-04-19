@@ -11,9 +11,9 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
+#include "SkPaint.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkShaderBase.h"
@@ -81,8 +81,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc* alloc) {
-    // For legacy/SkColorSpaceXformCanvas to keep working,
-    // we need to sometimes still need to distinguish null dstCS from sRGB.
+    // For legacy to keep working, we need to sometimes still distinguish null dstCS from sRGB.
 #if 0
     SkColorSpace* dstCS = dst.colorSpace() ? dst.colorSpace()
                                            : sk_srgb_singleton();
@@ -152,7 +151,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // If there's a color filter it comes next.
     if (auto colorFilter = paint.getColorFilter()) {
-        colorFilter->appendStages(colorPipeline, dst.colorSpace(), alloc, is_opaque);
+        SkStageRec rec = {
+            colorPipeline, alloc, dst.colorType(), dst.colorSpace(), paint, nullptr, SkMatrix::I()
+        };
+        colorFilter->appendStages(rec, is_opaque);
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
     }
 

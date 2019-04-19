@@ -33,6 +33,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPreferClientSideDynamicBuffers = false;
     fPreferFullscreenClears = false;
     fMustClearUploadedBufferData = false;
+    fShouldInitializeTextures = false;
     fSupportsAHardwareBufferImages = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
@@ -41,6 +42,9 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPerformPartialClearsAsDraws = false;
     fPerformColorClearsAsDraws = false;
     fPerformStencilClearsAsDraws = false;
+    fAllowCoverageCounting = false;
+    fTransferBufferSupport = false;
+    fDriverBlacklistCCPR = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
@@ -68,11 +72,12 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fWireframeMode = false;
 #endif
     fBufferMapThreshold = options.fBufferMapThreshold;
-    fBlacklistCoverageCounting = false;
     fAvoidStencilBuffers = false;
     fAvoidWritePixelsFastPath = false;
 
     fPreferVRAMUseOverFlushes = true;
+
+    fPreferTrianglesOverSampleMask = false;
 
     // Default to true, allow older versions of OpenGL to disable explicitly
     fClampToBorderSupport = true;
@@ -83,9 +88,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
-        // We always blacklist coverage counting on Vulkan currently. TODO: Either stop doing that
-        // or disambiguate blacklisting from incomplete implementation.
-        // SkASSERT(!fBlacklistCoverageCounting);
+        SkASSERT(!fDriverBlacklistCCPR);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAdvBlendEqBlacklist);
         SkASSERT(!fPerformColorClearsAsDraws);
@@ -100,6 +103,8 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fPerformColorClearsAsDraws = true;
         fPerformStencilClearsAsDraws = true;
     }
+
+    fAllowCoverageCounting = !options.fDisableCoverageCountingPaths;
 
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
     fMaxTileSize = fMaxTextureSize;
@@ -170,6 +175,12 @@ static SkString map_flags_to_string(uint32_t flags) {
             str.append(" full");
         }
         SkDEBUGCODE(flags &= ~GrCaps::kSubset_MapFlag);
+        if (GrCaps::kAsyncRead_MapFlag & flags) {
+            str.append(" async_read");
+        } else {
+            str.append(" sync_read");
+        }
+        SkDEBUGCODE(flags &= ~GrCaps::kAsyncRead_MapFlag);
     }
     SkASSERT(0 == flags); // Make sure we handled all the flags.
     return str;
@@ -196,6 +207,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
     writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
+    writer->appendBool("Should initialize textures", fShouldInitializeTextures);
     writer->appendBool("Supports importing AHardwareBuffers", fSupportsAHardwareBufferImages);
     writer->appendBool("Fence sync support", fFenceSyncSupport);
     writer->appendBool("Cross context texture support", fCrossContextTextureSupport);
@@ -205,11 +217,14 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);
     writer->appendBool("Use draws for color clears", fPerformColorClearsAsDraws);
     writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
+    writer->appendBool("Allow coverage counting shortcuts", fAllowCoverageCounting);
+    writer->appendBool("Supports transfer buffers", fTransferBufferSupport);
+    writer->appendBool("Blacklist CCPR on current driver [workaround]", fDriverBlacklistCCPR);
     writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
-    writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
-                       fBlacklistCoverageCounting);
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
+    writer->appendBool("Prefer more triangles over sample mask [MSAA only]",
+                       fPreferTrianglesOverSampleMask);
     writer->appendBool("Avoid stencil buffers [workaround]", fAvoidStencilBuffers);
 
     if (this->advancedBlendEquationSupport()) {
@@ -266,6 +281,32 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const { }
 
 bool GrCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
     return surface->readOnly() ? false : this->onSurfaceSupportsWritePixels(surface);
+}
+
+size_t GrCaps::transferFromOffsetAlignment(GrColorType bufferColorType) const {
+    if (!this->transferBufferSupport()) {
+        return 0;
+    }
+    size_t result = this->onTransferFromOffsetAlignment(bufferColorType);
+    if (!result) {
+        return 0;
+    }
+    // It's very convenient to access 1 byte-per-channel 32 bitvRGB/RGBA color types as uint32_t.
+    // Make those aligned reads out of the buffer even if the underlying API doesn't require it.
+    auto componentFlags = GrColorTypeComponentFlags(bufferColorType);
+    if ((componentFlags == kRGBA_SkColorTypeComponentFlags ||
+         componentFlags == kRGB_SkColorTypeComponentFlags) &&
+        GrColorTypeBytesPerPixel(bufferColorType) == 4) {
+        switch (result & 0b11) {
+            // offset alignment already a multiple of 4
+            case 0:     return result;
+            // offset alignment is a multiple of 2 but not 4.
+            case 2:     return 2 * result;
+            // offset alignment is not a multiple of 2.
+            default:    return 4 * result;
+        }
+    }
+    return result;
 }
 
 bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,

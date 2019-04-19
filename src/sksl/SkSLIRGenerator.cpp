@@ -268,6 +268,18 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
         baseType->kind() == Type::Kind::kMatrix_Kind) {
         fErrors.error(decl.fOffset, "'in' variables may not have matrix type");
     }
+    if (decl.fModifiers.fLayout.fWhen.length() && fKind != Program::kFragmentProcessor_Kind &&
+        fKind != Program::kPipelineStage_Kind) {
+        fErrors.error(decl.fOffset, "'when' is only permitted within fragment processors");
+    }
+    if (decl.fModifiers.fLayout.fKey) {
+        if (fKind != Program::kFragmentProcessor_Kind && fKind != Program::kPipelineStage_Kind) {
+            fErrors.error(decl.fOffset, "'key' is only permitted within fragment processors");
+        }
+        if ((decl.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0) {
+            fErrors.error(decl.fOffset, "'key' is not permitted on 'uniform' variables");
+        }
+    }
     for (const auto& varDecl : decl.fVars) {
         if (decl.fModifiers.fLayout.fLocation == 0 && decl.fModifiers.fLayout.fIndex == 0 &&
             (decl.fModifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
@@ -348,6 +360,10 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
                                                                  const ASTModifiersDeclaration& m) {
     Modifiers modifiers = m.fModifiers;
     if (modifiers.fLayout.fInvocations != -1) {
+        if (fKind != Program::kGeometry_Kind) {
+            fErrors.error(m.fOffset, "'invocations' is only legal in geometry shaders");
+            return nullptr;
+        }
         fInvocations = modifiers.fLayout.fInvocations;
         if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
@@ -669,6 +685,10 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
 
+// returns true if the modifiers are (explicitly or implicitly) nothing but 'in'
+static bool is_in(const Modifiers& modifiers) {
+    return (modifiers.fFlags & ~Modifiers::kIn_Flag) == 0;
+}
 
 void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
@@ -696,33 +716,51 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
     }
 
     if (f.fName == "main") {
-        if (fKind == Program::kPipelineStage_Kind) {
-            bool valid;
-            switch (parameters.size()) {
-                case 3:
-                    valid = parameters[0]->fType == *fContext.fInt_Type &&
-                            parameters[0]->fModifiers.fFlags == 0 &&
-                            parameters[1]->fType == *fContext.fInt_Type &&
-                            parameters[1]->fModifiers.fFlags == 0 &&
-                            parameters[2]->fType == *fContext.fHalf4_Type &&
-                            parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                 Modifiers::kOut_Flag);
-                    break;
-                case 1:
-                    valid = parameters[0]->fType == *fContext.fHalf4_Type &&
-                            parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                 Modifiers::kOut_Flag);
-                    break;
-                default:
-                    valid = false;
+        switch (fKind) {
+            case Program::kPipelineStage_Kind: {
+                bool valid;
+                switch (parameters.size()) {
+                    case 3:
+                        valid = parameters[0]->fType == *fContext.fInt_Type &&
+                                parameters[0]->fModifiers.fFlags == 0 &&
+                                parameters[1]->fType == *fContext.fInt_Type &&
+                                parameters[1]->fModifiers.fFlags == 0 &&
+                                parameters[2]->fType == *fContext.fHalf4_Type &&
+                                parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
+                                                                     Modifiers::kOut_Flag);
+                        break;
+                    case 1:
+                        valid = parameters[0]->fType == *fContext.fHalf4_Type &&
+                                parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
+                                                                     Modifiers::kOut_Flag);
+                        break;
+                    default:
+                        valid = false;
+                }
+                if (!valid) {
+                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
+                                             "int, inout half4) or main(inout half4)");
+                    return;
+                }
+                break;
             }
-            if (!valid) {
-                fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
-                                         "int, inout half4) or main(inout half4)");
-                return;
+            case Program::kMixer_Kind: {
+                if (*returnType != *fContext.fVoid_Type ||
+                    parameters.size() != 2 ||
+                    parameters[0]->fType != *fContext.fHalf4_Type ||
+                    !is_in(parameters[0]->fModifiers) ||
+                    parameters[1]->fType != *fContext.fHalf4_Type ||
+                    !is_in(parameters[1]->fModifiers)) {
+                    fErrors.error(f.fOffset, "mixer stage 'main' must be declared void main("
+                                             "half4, half4)");
+                    return;
+                }
+                break;
             }
-        } else if (parameters.size()) {
-            fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
+            default:
+                if (parameters.size()) {
+                    fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
+                }
         }
     }
 

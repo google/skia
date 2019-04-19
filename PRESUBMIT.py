@@ -25,6 +25,8 @@ SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
 
 # Please add the complete email address here (and not just 'xyz@' or 'xyz').
 PUBLIC_API_OWNERS = (
+    'mtklein@chromium.org',
+    'mtklein@google.com',
     'reed@chromium.org',
     'reed@google.com',
     'bsalomon@chromium.org',
@@ -441,12 +443,6 @@ def PostUploadHook(cl, change, output_api):
   This hook does the following:
   * Adds a link to preview docs changes if there are any docs changes in the CL.
   * Adds 'No-Try: true' if the CL contains only docs changes.
-  * Adds 'No-Tree-Checks: true' for non master branch changes since they do not
-    need to be gated on the master branch's tree.
-  * Adds 'No-Try: true' for non master branch changes since trybots do not yet
-    work on them.
-  * Adds 'No-Presubmit: true' for non master branch changes since those don't
-    run the presubmit checks.
   """
 
   results = []
@@ -495,30 +491,6 @@ def PostUploadHook(cl, change, output_api):
           output_api.PresubmitNotifyResult(
               'Automatically added a link to preview the docs changes to the '
               'CL\'s description'))
-
-    # If the target ref is not master then add 'No-Tree-Checks: true' and
-    # 'No-Try: true' to the CL's description if it does not already exist there.
-    target_ref = cl.GetRemoteBranch()[1]
-    if target_ref != 'refs/remotes/origin/master':
-      if not _FooterExists(footers, 'No-Tree-Checks', 'true'):
-        new_description_lines.append('No-Tree-Checks: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Branch changes do not need to rely on the master branch\'s '
-                'tree status. Automatically added \'No-Tree-Checks: true\' to '
-                'the CL\'s description'))
-      if not _FooterExists(footers, 'No-Try', 'true'):
-        new_description_lines.append('No-Try: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Trybots do not yet work for non-master branches. '
-                'Automatically added \'No-Try: true\' to the CL\'s '
-                'description'))
-      if not _FooterExists(footers, 'No-Presubmit', 'true'):
-        new_description_lines.append('No-Presubmit: true')
-        results.append(
-            output_api.PresubmitNotifyResult(
-                'Branch changes do not run the presubmit checks.'))
 
     # If the description has changed update it.
     if new_description_lines != original_description_lines:

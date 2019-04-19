@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkAAClip.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -27,7 +27,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
     // need to copy for deferred drawing test to work
     SkBitmap bm2;
 
-    sk_tool_utils::copy_to(&bm2, bm.colorType(), bm);
+    ToolUtils::copy_to(&bm2, bm.colorType(), bm);
 
     canvas->drawBitmap(bm2,
                        SK_Scalar1 * mask.fBounds.fLeft,
@@ -147,16 +147,16 @@ protected:
             const char*     fName;
             SkClipOp        fOp;
         } gOps[] = {
-            { SK_ColorBLACK,    "Difference", kDifference_SkClipOp    },
-            { SK_ColorRED,      "Intersect",  kIntersect_SkClipOp     },
-            { sk_tool_utils::color_to_565(0xFF008800), "Union", kUnion_SkClipOp },
-            { SK_ColorGREEN,    "Rev Diff",   kReverseDifference_SkClipOp },
-            { SK_ColorYELLOW,   "Replace",    kReplace_SkClipOp       },
-            { SK_ColorBLUE,     "XOR",        kXOR_SkClipOp           },
+                {SK_ColorBLACK, "Difference", kDifference_SkClipOp},
+                {SK_ColorRED, "Intersect", kIntersect_SkClipOp},
+                {ToolUtils::color_to_565(0xFF008800), "Union", kUnion_SkClipOp},
+                {SK_ColorGREEN, "Rev Diff", kReverseDifference_SkClipOp},
+                {SK_ColorYELLOW, "Replace", kReplace_SkClipOp},
+                {SK_ColorBLUE, "XOR", kXOR_SkClipOp},
         };
 
         SkPaint textPaint;
-        SkFont font(sk_tool_utils::create_portable_typeface(), 24);
+        SkFont  font(ToolUtils::create_portable_typeface(), 24);
         int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {

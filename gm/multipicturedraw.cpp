@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkColorFilter.h"
 #include "SkMultiPictureDraw.h"
@@ -241,7 +241,7 @@ static sk_sp<SkPicture> make_sierpinski_picture() {
 static sk_sp<SkSurface> create_compat_surface(SkCanvas* canvas, int width, int height) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
-    return sk_tool_utils::makeSurface(canvas, info);
+    return ToolUtils::makeSurface(canvas, info);
 }
 
 // This class stores the information required to compose all the result
@@ -409,7 +409,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
             step.fY = SkIntToScalar(y*kTileHeight);
             step.fPaint = new SkPaint;
             step.fPaint->setColorFilter(
-                SkColorFilter::MakeModeFilter(colors[x][y], SkBlendMode::kModulate));
+                SkColorFilters::Blend(colors[x][y], SkBlendMode::kModulate));
 
             step.fSurf = create_compat_surface(finalCanvas, kTileWidth, kTileHeight);
 

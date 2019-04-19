@@ -86,6 +86,8 @@ public:
 
     bool halfIs32Bits() const { return fHalfIs32Bits; }
 
+    bool hasLowFragmentPrecision() const { return fHasLowFragmentPrecision; }
+
     bool unsignedSupport() const { return fUnsignedSupport; }
 
     // SkSL only.
@@ -151,6 +153,10 @@ public:
     bool mustGuardDivisionEvenAfterExplicitZeroCheck() const {
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
     }
+
+    // On Nexus 6, the GL context can get lost if a shader does not write a value to gl_FragColor.
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
+    bool mustWriteToFragColor() const { return fMustWriteToFragColor; }
 
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
@@ -263,6 +269,7 @@ private:
     bool fFPManipulationSupport             : 1;
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
+    bool fHasLowFragmentPrecision           : 1;
     bool fUnsignedSupport                   : 1;
 
     // Used by SkSL to know when to generate polyfills.
@@ -285,6 +292,7 @@ private:
     bool fEmulateAbsIntFunction                       : 1;
     bool fRewriteDoWhileLoops                         : 1;
     bool fRemovePowWithConstantExponent               : 1;
+    bool fMustWriteToFragColor                        : 1;
 
     const char* fVersionDeclString;
 

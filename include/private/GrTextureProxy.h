@@ -25,7 +25,7 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    bool instantiate(GrResourceProvider*) override;
+    bool instantiate(GrResourceProvider*, bool dontForceNoPendingIO = false) override;
 
     GrSamplerState::Filter highestFilterMode() const;
 
@@ -57,7 +57,7 @@ public:
      */
     const GrUniqueKey& getUniqueKey() const {
 #ifdef SK_DEBUG
-        if (fTarget && fUniqueKey.isValid()) {
+        if (fTarget && fUniqueKey.isValid() && fSyncTargetKey) {
             SkASSERT(fTarget->getUniqueKey().isValid());
             // It is possible for a non-keyed proxy to have a uniquely keyed resource assigned to
             // it. This just means that a future user of the resource will be filling it with unique
@@ -83,9 +83,10 @@ public:
 
 protected:
     // DDL TODO: rm the GrSurfaceProxy friending
-    friend class GrSurfaceProxy; // for ctors
-    friend class GrProxyProvider; // for ctors
+    friend class GrSurfaceProxy;   // for ctors
+    friend class GrProxyProvider;  // for ctors
     friend class GrTextureProxyPriv;
+    friend class GrSurfaceProxyPriv;  // ability to change key sync state after lazy instantiation.
 
     // Deferred version - when constructed with data the origin is always kTopLeft.
     GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit,
@@ -116,6 +117,8 @@ protected:
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
+    void setTargetKeySync(bool sync) { fSyncTargetKey = sync; }
+
 private:
     // WARNING: Be careful when adding or removing fields here. ASAN is likely to trigger warnings
     // when instantiating GrTextureRenderTargetProxy. The std::function in GrSurfaceProxy makes
@@ -126,6 +129,7 @@ private:
     // address of other types, leading to this problem.
 
     GrMipMapped      fMipMapped;
+    bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
     GrUniqueKey      fUniqueKey;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid

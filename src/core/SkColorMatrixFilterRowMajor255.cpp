@@ -66,17 +66,17 @@ bool SkColorMatrixFilterRowMajor255::asColorMatrix(SkScalar matrix[20]) const {
     return true;
 }
 
-void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
-                                                    SkColorSpace* dst,
-                                                    SkArenaAlloc* scratch,
-                                                    const bool shaderIsOpaque) const {
+bool SkColorMatrixFilterRowMajor255::onAppendStages(const SkStageRec& rec,
+                                                    bool shaderIsOpaque) const {
     const bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
 
+    SkRasterPipeline* p = rec.fPipeline;
     if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
     if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
     if (           true) { p->append(SkRasterPipeline::clamp_0); }
     if (           true) { p->append(SkRasterPipeline::clamp_1); }
     if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    return true;
 }
 
 #if SK_SUPPORT_GPU
@@ -202,7 +202,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentP
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> SkColorFilter::MakeMatrixFilterRowMajor255(const SkScalar array[20]) {
+sk_sp<SkColorFilter> SkColorFilters::MatrixRowMajor255(const float array[20]) {
     if (!SkScalarsAreFinite(array, 20)) {
         return nullptr;
     }

@@ -47,7 +47,7 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
             0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(blueToCyan));
+    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(blueToCyan));
 
     paint.setColor(SK_ColorBLUE);
     canvas.drawPoint(0, 0, paint);
@@ -72,7 +72,7 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
             0.0f, 0.0f, 1.0f, 0.0f, 64.0f,
            -0.5f, 0.0f, 0.0f, 1.0f, 0.0f
     };
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(transparentRedAddBlue));
+    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(transparentRedAddBlue));
     bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     paint.setColor(SK_ColorRED);
@@ -93,7 +93,7 @@ static inline void test_colorMatrixCTS(skiatest::Reporter* reporter) {
     assert_color(reporter, SK_ColorCYAN, bitmap.getColor(0, 0));
 
     // create a new filter with the changed matrix
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(transparentRedAddBlue));
+    paint.setColorFilter(SkColorFilters::MatrixRowMajor255(transparentRedAddBlue));
     canvas.drawPoint(0, 0, paint);
     assert_color(reporter, SK_ColorBLUE, bitmap.getColor(0, 0));
 }
@@ -113,7 +113,7 @@ DEF_TEST(ColorMatrix_clamp_while_unpremul, r) {
         0, 0, 1, 0, 0,
         0, 0, 0, 1, 32,
     };
-    auto filter = SkColorFilter::MakeMatrixFilterRowMajor255(m);
+    auto filter = SkColorFilters::MatrixRowMajor255(m);
 
     SkColor filtered = filter->filterColor(0xff0a0b0c);
     REPORTER_ASSERT(r, SkColorGetA(filtered) == 0xff);

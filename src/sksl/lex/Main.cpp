@@ -98,6 +98,9 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     for (const auto& row : dfa.fTransitions) {
         states = std::max(states, row.size());
     }
+    // arbitrarily-chosen character which is greater than START_CHAR and should not appear in actual
+    // input
+    out << "static const uint8_t INVALID_CHAR = 18;";
     out << "static int8_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
     const char* separator = "";
     for (int m : dfa.fCharMappings) {
@@ -142,12 +145,18 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "        return " << token << "(" << token << "::END_OF_FILE, startOffset, 0);\n";
     out << "    }\n";
     out << "    int16_t state = 1;\n";
-    out << "    while (fOffset < fLength) {\n";
-    out << "        if ((uint8_t) fText[fOffset] >= " << dfa.fCharMappings.size() << ") {";
-    out << "            ++fOffset;\n";
-    out << "            break;";
+    out << "    for (;;) {\n";
+    out << "        if (fOffset >= fLength) {\n";
+    out << "            if (accepts[state] == -1) {\n";
+    out << "                return Token(Token::END_OF_FILE, startOffset, 0);\n";
+    out << "            }\n";
+    out << "            break;\n";
+    out << "        }\n";
+    out << "        uint8_t c = (uint8_t) fText[fOffset];";
+    out << "        if (c <= 8 || c >= " << dfa.fCharMappings.size() << ") {";
+    out << "            c = INVALID_CHAR;";
     out << "        }";
-    out << "        int16_t newState = transitions[mappings[(int) fText[fOffset]]][state];\n";
+    out << "        int16_t newState = transitions[mappings[c]][state];\n";
     out << "        if (!newState) {\n";
     out << "            break;\n";
     out << "        }\n";

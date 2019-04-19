@@ -10,15 +10,17 @@
 #include <sstream>
 #include <string>
 
+#include "CommandLineFlags.h"
 #include "SkAutoPixmapStorage.h"
-#include "SkCommandLineFlags.h"
 #include "SkMipMap.h"
 #include "SkUtils.h"
 
 #include "fiddle_main.h"
 
-DEFINE_double(duration, 1.0, "The total duration, in seconds, of the animation we are drawing.");
-DEFINE_double(frame, 1.0, "A double value in [0, 1] that specifies the point in animation to draw.");
+static DEFINE_double(duration, 1.0,
+                     "The total duration, in seconds, of the animation we are drawing.");
+static DEFINE_double(frame, 1.0,
+                     "A double value in [0, 1] that specifies the point in animation to draw.");
 
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
@@ -234,7 +236,7 @@ static bool setup_backend_objects(GrContext* context,
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     duration = FLAGS_duration;
     frame = FLAGS_frame;
     DrawOptions options = GetDrawOptions();

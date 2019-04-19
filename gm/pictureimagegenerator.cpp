@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkFontPriv.h"
@@ -18,6 +16,8 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     constexpr char kSkiaStr[] = "SKIA";
@@ -28,7 +28,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkFont font(sk_tool_utils::create_portable_typeface());
+    SkFont font(ToolUtils::create_portable_typeface());
     font.setSubpixel(true);
     font.setEmbolden(true);
 
@@ -74,7 +74,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     const SkColor colors1[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };
     SkASSERT(SK_ARRAY_COUNT(pos1) == SK_ARRAY_COUNT(colors1));
     paint.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos1, SK_ARRAY_COUNT(pos1),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawRect(underlineRect, paint);
 
     const SkPoint pts2[] = { SkPoint::Make(iBox.x() - iBox.width() * kGradientPad, 0),
@@ -92,7 +92,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     };
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
     paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawSimpleText(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
 }
 

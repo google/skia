@@ -72,6 +72,11 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         return nullptr;
     }
 
+    SkWGLExtensions extensions;
+    if (extensions.hasExtension(dc, "WGL_EXT_swap_control")) {
+        extensions.swapInterval(fDisplayParams.fDisableVsync ? 0 : 1);
+    }
+
     // Look to see if RenderDoc is attached. If so, re-create the context with a core profile
     if (wglMakeCurrent(dc, fHGLRC)) {
         auto interface = GrGLMakeNativeInterface();
@@ -100,7 +105,6 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         fStencilBits = pfd.cStencilBits;
 
         // Get sample count if the MSAA WGL extension is present
-        SkWGLExtensions extensions;
         if (extensions.hasExtension(dc, "WGL_ARB_multisample")) {
             static const int kSampleCountAttr = SK_WGL_SAMPLES;
             extensions.getPixelFormatAttribiv(dc,

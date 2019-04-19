@@ -7,14 +7,14 @@
 
 // This test only works with the GPU backend.
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
-#include "effects/GrConstColorProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrFillRectOp.h"
 
@@ -41,7 +41,7 @@ protected:
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
         fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                               SkShader::kClamp_TileMode);
+                                               SkTileMode::kClamp);
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
@@ -103,7 +103,7 @@ protected:
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.
                     SkFont labelFont;
-                    labelFont.setTypeface(sk_tool_utils::create_portable_typeface());
+                    labelFont.setTypeface(ToolUtils::create_portable_typeface());
                     labelFont.setEdging(SkFont::Edging::kAntiAlias);
                     labelFont.setSize(10.f);
                     SkPaint labelPaint;

@@ -9,9 +9,10 @@
 #include "GrCoordTransform.h"
 #include "GrPipeline.h"
 #include "GrProcessorAnalysis.h"
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrPremulInputFragmentProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
+#include "effects/generated/GrConstColorProcessor.h"
+#include "effects/generated/GrOverrideInputFragmentProcessor.h"
+#include "effects/generated/GrPremulInputFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -282,93 +283,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
-        std::unique_ptr<GrFragmentProcessor> fp, const SkPMColor4f& color) {
-    class ReplaceInputFragmentProcessor : public GrFragmentProcessor {
-    public:
-        static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
-                                                         const SkPMColor4f& color) {
-            return std::unique_ptr<GrFragmentProcessor>(
-                    new ReplaceInputFragmentProcessor(std::move(child), color));
-        }
-
-        const char* name() const override { return "Replace Color"; }
-
-        std::unique_ptr<GrFragmentProcessor> clone() const override {
-            return Make(this->childProcessor(0).clone(), fColor);
-        }
-
-    private:
-        GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-            class GLFP : public GrGLSLFragmentProcessor {
-            public:
-                GLFP() : fHaveSetColor(false) {}
-                void emitCode(EmitArgs& args) override {
-                    const char* colorName;
-                    fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                                 kHalf4_GrSLType,
-                                                                 "Color", &colorName);
-                    this->emitChild(0, colorName, args);
-                }
-
-            private:
-                void onSetData(const GrGLSLProgramDataManager& pdman,
-                               const GrFragmentProcessor& fp) override {
-                    SkPMColor4f color = fp.cast<ReplaceInputFragmentProcessor>().fColor;
-                    if (!fHaveSetColor || color != fPreviousColor) {
-                        pdman.set4fv(fColorUni, 1, color.vec());
-                        fPreviousColor = color;
-                        fHaveSetColor = true;
-                    }
-                }
-
-                GrGLSLProgramDataManager::UniformHandle fColorUni;
-                bool        fHaveSetColor;
-                SkPMColor4f fPreviousColor;
-            };
-
-            return new GLFP;
-        }
-
-        ReplaceInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child,
-                                      const SkPMColor4f& color)
-                : INHERITED(kReplaceInputFragmentProcessor_ClassID, OptFlags(child.get(), color))
-                , fColor(color) {
-            this->registerChildProcessor(std::move(child));
-        }
-
-        static OptimizationFlags OptFlags(const GrFragmentProcessor* child,
-                                          const SkPMColor4f& color) {
-            OptimizationFlags childFlags = child->optimizationFlags();
-            OptimizationFlags flags = kNone_OptimizationFlags;
-            if (childFlags & kConstantOutputForConstantInput_OptimizationFlag) {
-                flags |= kConstantOutputForConstantInput_OptimizationFlag;
-            }
-            if ((childFlags & kPreservesOpaqueInput_OptimizationFlag) && color.isOpaque()) {
-                flags |= kPreservesOpaqueInput_OptimizationFlag;
-            }
-            return flags;
-        }
-
-        void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override
-        {}
-
-        bool onIsEqual(const GrFragmentProcessor& that) const override {
-            return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
-        }
-
-        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override {
-            return ConstantOutputForConstantInput(this->childProcessor(0), fColor);
-        }
-
-        SkPMColor4f fColor;
-
-        typedef GrFragmentProcessor INHERITED;
-    };
-
+        std::unique_ptr<GrFragmentProcessor> fp, const SkPMColor4f& color, bool useUniform) {
     if (!fp) {
         return nullptr;
     }
-    return ReplaceInputFragmentProcessor::Make(std::move(fp), color);
+    return GrOverrideInputFragmentProcessor::Make(std::move(fp), color, useUniform);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(

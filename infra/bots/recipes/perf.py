@@ -69,6 +69,9 @@ def nanobench_flags(api, bot):
           'enarrow',
       ]
 
+    if 'Nexus7' in bot:
+      args.append('--purgeBetweenBenches')  # Debugging skia:8929
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -250,11 +253,11 @@ def nanobench_flags(api, bot):
     match.append('~^top25desk_techcrunch.skp_1$')
     match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
     match.append('~^top25desk_techcrunch.skp_1.1$')
-  if 'GalaxyS9' in bot and 'Debug' in bot and 'Vulkan' in bot:
-    # skia:8854
-    match.append('~^top25desk_techcrunch.skp_1.1_mpd$')
-    match.append('~^top25desk_cnn.skp_1.1_mpd$')
-    match.append('~^top25desk_linkedin.skp_1.1_mpd$')
+    # skia:skia:8706
+    match.append('~^mobi_wsj.skp_1_mpd$')
+    match.append('~^mobi_wsj.skp_1$')
+    match.append('~^mobi_wsj.skp_1.1_mpd$')
+    match.append('~^mobi_wsj.skp_1.1$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -364,10 +367,6 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
-    args.extend(['--abandonGpuContext'])
-
   api.run(api.flavor.step, target, cmd=args,
           abort_on_failure=False)
 
@@ -403,7 +402,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan',
+  'Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Debug-All-Android',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
@@ -422,7 +421,7 @@ TEST_BUILDERS = [
   ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
    'CommandBuffer'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
-    'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+    'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All',
@@ -458,11 +457,6 @@ def GenTests(api):
       test += api.step_data(
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
-
-    if 'ChromeOS' in builder:
-      test += api.step_data(
-          'read chromeos ip',
-          stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
 
     yield test
 

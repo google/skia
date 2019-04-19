@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkShader.h"
 
@@ -35,14 +35,13 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint bgPaint;
-        bgPaint.setShader(
-                sk_tool_utils::create_checkerboard_shader(0xFFAAAAAA, 0xFF777777, 1));
+        bgPaint.setShader(ToolUtils::create_checkerboard_shader(0xFFAAAAAA, 0xFF777777, 1));
         canvas->drawPaint(bgPaint);
 
         SkString offset;
         SkPaint labelPaint;
         labelPaint.setColor(SK_ColorWHITE);
-        SkFont font(sk_tool_utils::create_portable_typeface(), SkIntToScalar(kLabelTextSize));
+        SkFont  font(ToolUtils::create_portable_typeface(), SkIntToScalar(kLabelTextSize));
         SkPaint linePaint;
         linePaint.setColor(SK_ColorWHITE);
 

@@ -103,7 +103,8 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCount;
 
-    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
+    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted,
+                                                 GrResourceProvider::Flags::kNoPendingIO));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
     }
@@ -1545,18 +1546,18 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
     GrGpu* gpu = context->priv().getGpu();
 
     TestResource* wrapped1 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertCrossContextGpuResource(wrapped1);
+    cache->insertDelayedResourceUnref(wrapped1);
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
     TestResource* wrapped2 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertCrossContextGpuResource(wrapped2);
+    cache->insertDelayedResourceUnref(wrapped2);
 
     // An uncacheable cross-context should not be purged as soon as we drop our ref. This
     // is because inserting it as a cross-context resource actually holds a ref until the
     // message is received.
     TestResource* wrapped3 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
-    cache->insertCrossContextGpuResource(wrapped3);
+    cache->insertDelayedResourceUnref(wrapped3);
 
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
@@ -1624,7 +1625,8 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return provider->createTexture(desc, SkBudgeted::kYes);
+    return provider->createTexture(desc, SkBudgeted::kYes,
+                                   GrResourceProvider::Flags::kNoPendingIO);
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
@@ -1708,3 +1710,62 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
     }
 }
+
+#if GR_GPU_STATS
+DEF_GPUTEST_FOR_MOCK_CONTEXT(OverbudgetFlush, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    context->setResourceCacheLimits(1, 1);
+
+    // Helper that determines if cache is overbudget.
+    auto overbudget = [context] {
+         int uNum;
+         size_t uSize;
+         context->getResourceCacheUsage(&uNum, &uSize);
+         int bNum;
+         size_t bSize;
+         context->getResourceCacheLimits(&bNum, &bSize);
+         return uNum > bNum || uSize > bSize;
+    };
+
+    // Helper that does a trivial draw to a surface.
+    auto drawToSurf = [](SkSurface* surf) {
+        surf->getCanvas()->drawRect(SkRect::MakeWH(1,1), SkPaint());
+    };
+
+    // Helper that checks whether a flush has occurred between calls.
+    int baseFlushCount = 0;
+    auto getFlushCountDelta = [context, &baseFlushCount]() {
+        int cur = context->priv().getGpu()->stats()->numFinishFlushes();
+        int delta = cur - baseFlushCount;
+        baseFlushCount = cur;
+        return delta;
+    };
+
+    auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto surf1 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+    auto surf2 = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+
+    drawToSurf(surf1.get());
+    drawToSurf(surf2.get());
+
+    // Flush each surface once to ensure that their backing stores are allocated.
+    surf1->flush();
+    surf2->flush();
+    REPORTER_ASSERT(reporter, overbudget());
+    getFlushCountDelta();
+
+    // Nothing should be purgeable so drawing to either surface doesn't cause a flush.
+    drawToSurf(surf1.get());
+    REPORTER_ASSERT(reporter, !getFlushCountDelta());
+    drawToSurf(surf2.get());
+    REPORTER_ASSERT(reporter, !getFlushCountDelta());
+    REPORTER_ASSERT(reporter, overbudget());
+
+    // Make surf1 purgeable. Drawing to surf2 should flush.
+    surf1->flush();
+    surf1.reset();
+    drawToSurf(surf2.get());
+    REPORTER_ASSERT(reporter, getFlushCountDelta());
+    REPORTER_ASSERT(reporter, overbudget());
+}
+#endif

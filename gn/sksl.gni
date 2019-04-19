@@ -7,6 +7,7 @@
 _src = get_path_info("../src", "abspath")
 
 skia_sksl_sources = [
+  "$_src/sksl/SkSLByteCodeGenerator.cpp",
   "$_src/sksl/SkSLCFGGenerator.cpp",
   "$_src/sksl/SkSLCompiler.cpp",
   "$_src/sksl/SkSLCPPCodeGenerator.cpp",
@@ -36,12 +37,15 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.fp",
   "$_src/gpu/effects/GrCircleBlurFragmentProcessor.fp",
   "$_src/gpu/effects/GrCircleEffect.fp",
+  "$_src/gpu/effects/GrComposeLerpEffect.fp",
+  "$_src/gpu/effects/GrComposeLerpRedEffect.fp",
   "$_src/gpu/effects/GrConfigConversionEffect.fp",
   "$_src/gpu/effects/GrConstColorProcessor.fp",
   "$_src/gpu/effects/GrEllipseEffect.fp",
   "$_src/gpu/effects/GrLumaColorFilterEffect.fp",
   "$_src/gpu/effects/GrMagnifierEffect.fp",
   "$_src/gpu/effects/GrMixerEffect.fp",
+  "$_src/gpu/effects/GrOverrideInputFragmentProcessor.fp",
   "$_src/gpu/effects/GrPremulInputFragmentProcessor.fp",
   "$_src/gpu/effects/GrRectBlurEffect.fp",
   "$_src/gpu/effects/GrRRectBlurEffect.fp",

@@ -13,6 +13,7 @@
 #include <vector>
 #include "ir/SkSLProgram.h"
 #include "ir/SkSLSymbolTable.h"
+#include "SkSLByteCode.h"
 #include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
@@ -87,6 +88,9 @@ public:
 
     ~Compiler() override;
 
+    Compiler(const Compiler&) = delete;
+    Compiler& operator=(const Compiler&) = delete;
+
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
@@ -110,6 +114,8 @@ public:
     bool toCPP(Program& program, String name, OutputStream& out);
 
     bool toH(Program& program, String name, OutputStream& out);
+
+    std::unique_ptr<ByteCode> toByteCode(Program& program);
 
     bool toPipelineStage(const Program& program, String* out,
                          std::vector<FormatArg>* outFormatArgs);

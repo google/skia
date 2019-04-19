@@ -6,8 +6,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `SkSurface.grContext` now exposed. `GrContext` has new methods for monitoring/setting
+   the cache limits; tweaking these may lead to better performance in some cases.
+   `getResourceCacheLimitBytes`, `setResourceCacheLimitBytes`, `getResourceCacheUsageBytes`
+ - `SkCanvas.drawAtlas` for efficiently drawing multiple sprites from a sprite sheet with
+   a set of transforms, color blends, etc.
+ - `SkColorBuilder`, `RSXFormBuilder`, `SkRectBuilder` which increase performance by
+   reducing the amount of malloc/free calls per frame, given that the array size is fixed.
+ - Basic `SkPicture` support. `SkSurface.captureFrameAsSkPicture` is a helper function to
+   capture an `SkPicture`, which can be dumped to disk (for debugging) with
+   `SkPicture.DEBUGONLY_saveAsFile`.
+
+### Changed
+ - Better `GrGLCaps` support for WebGL - this shouldn't have any impacts on APIs or
+   correctness, except by perhaps fixing a few bugs in various surface types.
+ - Use unsigned ints for SkColor on the JS side - this shouldn't have any impacts
+   unless clients have pre-computed colors, in which case, they will need to re-compute them.
+ - [breaking] Moved `CanvasKit.MakeImageShader` to `SkImage.makeShader` - removed clampUnpremul
+   as argument.
+
+## [0.5.1] - 2019-03-21
+
+### Added
+ - `SkPathMeasure`, `RSXFormBuilder`, `SkFont.getWidths`, `SkTextBlob.MakeFromRSXform`
+   which were needed to add the helper function `SkTextBlob.MakeOnPath`.
+ - `SkSurface.requestAnimationFrame` - wrapper around window.requestAnimationFrame that
+   takes care of the setup/tear down required to use CanvasKit optimally. The callback
+   has an `SkCanvas` as the first parameter - callers should draw on that.
+
 ### Changed
  - Location in Skia Git repo now `modules/canvaskit` (was `experimental/canvaskit`)
+
+### Fixed
+ - Extern bug in `CanvasKit.SkMatrix.invert`
+ - Fallback to CPU now properly refreshes the canvas to get access to the
+   CanvasRenderingContext2D.
+ - Compile flags for better WebGL1 support for some graphics cards.
+ - Antialias bug on large oval paths <https://crbug.com/skia/8873>
+
+### Deprecated
+ - `SkCanvas.flush` will be removed soon - client should only call `SkSurface.flush`
+
 
 ## [0.5.0] - 2019-03-08
 

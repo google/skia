@@ -6,8 +6,6 @@
  */
 
 #include <SkFont.h>
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -16,6 +14,8 @@
 #include "SkImageSource.h"
 #include "SkShader.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WW  100
 #define HH  32
@@ -31,7 +31,7 @@ static sk_sp<SkImage> make_src() {
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }
@@ -47,13 +47,13 @@ static sk_sp<SkImage> make_dst() {
         SK_ColorGRAY,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }
 
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
-    SkFont font(sk_tool_utils::create_portable_typeface(), 24);
+    SkFont font(ToolUtils::create_portable_typeface(), 24);
     font.setEdging(SkFont::Edging::kAntiAlias);
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -149,7 +149,7 @@ protected:
                 canvas->translate(gap, 0);
 
                 // Label
-                SkFont font(sk_tool_utils::create_portable_typeface(), 24);
+                SkFont   font(ToolUtils::create_portable_typeface(), 24);
                 SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
                 canvas->drawString(str, 0, font.getSize(), font, SkPaint());
             }

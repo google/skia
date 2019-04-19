@@ -41,6 +41,10 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkS
     SkASSERT(advance > 0 && !path.isEmpty());
     SkASSERT((unsigned)style <= kMorph_Style);
 
+    // Make the path thread-safe.
+    fPath.updateBoundsCache();
+    (void)fPath.getGenerationID();
+
     // cleanup their phase parameter, inverting it so that it becomes an
     // offset along the path (to match the interpretation in PostScript)
     if (phase < 0) {

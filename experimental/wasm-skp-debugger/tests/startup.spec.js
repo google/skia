@@ -24,7 +24,7 @@ describe('Debugger\'s Startup Behavior', function() {
 
     it('can load and draw a skp file', function(done) {
         LoadDebugger.then(catchException(done, () => {
-            const surface = Debugger.MakeSWCanvasSurface('debugger_view');
+            const surface = Debugger.MakeSWCanvasSurface(document.getElementById('debugger_view'));
             const player = new Debugger.SkpDebugPlayer();
 
             fetch('/debugger/sample.skp').then(function(response) {
@@ -51,6 +51,7 @@ describe('Debugger\'s Startup Behavior', function() {
                     surface.flush();
 
                     console.log('drew picture to canvas element');
+                    surface.dispose();
                     done();
                 });
               });

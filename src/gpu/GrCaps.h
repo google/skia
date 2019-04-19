@@ -73,7 +73,7 @@ public:
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
-    bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
+    bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
 
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
@@ -114,11 +114,13 @@ public:
      * textures allows partial mappings or full mappings.
      */
     enum MapFlags {
-        kNone_MapFlags   = 0x0,       //<! Cannot map the resource.
+        kNone_MapFlags      = 0x0,   //<! Cannot map the resource.
 
-        kCanMap_MapFlag  = 0x1,       //<! The resource can be mapped. Must be set for any of
-                                      //   the other flags to have meaning.
-        kSubset_MapFlag  = 0x2,       //<! The resource can be partially mapped.
+        kCanMap_MapFlag     = 0x1,   //<! The resource can be mapped. Must be set for any of
+                                     //   the other flags to have meaning.
+        kSubset_MapFlag     = 0x2,   //<! The resource can be partially mapped.
+        kAsyncRead_MapFlag  = 0x4,   //<! Are maps for reading asynchronous WRT GrGpuCommandBuffers
+                                     //   submitted to GrGpu.
     };
 
     uint32_t mapBufferFlags() const { return fMapBufferFlags; }
@@ -220,6 +222,21 @@ public:
         return GrPixelConfigToColorType(config);
     }
 
+    /** Are transfer buffers (to textures and from surfaces) supported? */
+    bool transferBufferSupport() const { return fTransferBufferSupport; }
+
+    /**
+     * Gets the alignment requirement for the buffer offset used with GrGpu::transferPixelsFrom for
+     * a given GrColorType. To check whether a pixels as GrColorType can be read for a given surface
+     * see supportedReadPixelsColorType() and surfaceSupportsReadPixels().
+     *
+     * @param bufferColorType The color type of the pixel data that will be stored in the transfer
+     *                        buffer.
+     * @return minimum required alignment for the buffer offset or zero if reading to the color type
+     *         is not supported.
+     */
+    size_t transferFromOffsetAlignment(GrColorType bufferColorType) const;
+
     bool suppressPrints() const { return fSuppressPrints; }
 
     size_t bufferMapThreshold() const {
@@ -230,6 +247,13 @@ public:
     /** True in environments that will issue errors if memory uploaded to buffers
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
+
+    /** For some environments, there is a performance or safety concern to not
+        initializing textures. For example, with WebGL and Firefox, there is a large
+        performance hit to not doing it.
+     */
+    bool shouldInitializeTextures() const { return fShouldInitializeTextures; }
+
 
     /** Returns true if the given backend supports importing AHardwareBuffers via the
      * GrAHardwarebufferImageGenerator. This will only ever be supported on Android devices with API
@@ -258,16 +282,19 @@ public:
     }
 
     // Many drivers have issues with color clears.
-    bool performColorClearsAsDraws() const {
-        return fPerformColorClearsAsDraws;
-    }
+    bool performColorClearsAsDraws() const { return fPerformColorClearsAsDraws; }
 
     /// Adreno 4xx devices experience an issue when there are a large number of stencil clip bit
     /// clears. The minimal repro steps are not precisely known but drawing a rect with a stencil
     /// op instead of using glClear seems to resolve the issue.
-    bool performStencilClearsAsDraws() const {
-        return fPerformStencilClearsAsDraws;
-    }
+    bool performStencilClearsAsDraws() const { return fPerformStencilClearsAsDraws; }
+
+    // Can we use coverage counting shortcuts to render paths? Coverage counting can cause artifacts
+    // along shared edges if care isn't taken to ensure both contours wind in the same direction.
+    bool allowCoverageCounting() const { return fAllowCoverageCounting; }
+
+    // Should we disable the CCPR code due to a faulty driver?
+    bool driverBlacklistCCPR() const { return fDriverBlacklistCCPR; }
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
@@ -343,20 +370,26 @@ protected:
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
     bool fMustClearUploadedBufferData                : 1;
+    bool fShouldInitializeTextures                   : 1;
     bool fSupportsAHardwareBufferImages              : 1;
     bool fHalfFloatVertexAttributeSupport            : 1;
     bool fClampToBorderSupport                       : 1;
     bool fPerformPartialClearsAsDraws                : 1;
     bool fPerformColorClearsAsDraws                  : 1;
     bool fPerformStencilClearsAsDraws                : 1;
+    bool fAllowCoverageCounting                      : 1;
+    bool fTransferBufferSupport                      : 1;
 
     // Driver workaround
-    bool fBlacklistCoverageCounting                  : 1;
+    bool fDriverBlacklistCCPR                        : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
+
+    // On some platforms it's better to make more triangles than to use the sample mask (MSAA only).
+    bool fPreferTrianglesOverSampleMask              : 1;
 
     // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
@@ -390,6 +423,7 @@ private:
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
     virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                   const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
+    virtual size_t onTransferFromOffsetAlignment(GrColorType bufferColorType) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.

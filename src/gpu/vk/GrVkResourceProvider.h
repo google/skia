@@ -48,6 +48,7 @@ public:
                                  const GrPrimitiveProcessor& primProc,
                                  const GrPipeline& pipeline,
                                  const GrStencilSettings& stencil,
+                                 GrSurfaceOrigin,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  GrPrimitiveType primitiveType,
@@ -91,6 +92,13 @@ public:
     GrVkCommandPool* findOrCreateCommandPool();
 
     void checkCommandBuffers();
+
+    // We must add the finishedProc to all active command buffers since we may have flushed work
+    // that the client cares about before they explicitly called flush and the GPU may reorder
+    // command execution. So we make sure all previously submitted work finishes before we call the
+    // finishedProc.
+    void addFinishedProcToActiveCommandBuffers(GrGpuFinishedProc finishedProc,
+                                               GrGpuFinishedContext finishedContext);
 
     // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
     // The refcount is incremented and a pointer returned.

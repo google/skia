@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkJSONWriter.h"
 #include "SkMD5.h"
@@ -19,18 +19,18 @@
 #include "SkStream.h"
 #include "SkTHash.h"
 
-
 #include <iostream>
 #include <map>
 
-DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
-DEFINE_string2(out, o, "img-out", "A path to an output directory.");
-DEFINE_bool(testDecode, false, "Indicates if we want to test that the images decode successfully.");
-DEFINE_bool(writeImages, true,
-            "Indicates if we want to write out supported/decoded images.");
-DEFINE_bool(writeFailedImages, false,
-            "Indicates if we want to write out unsupported/failed to decode images.");
-DEFINE_string2(failuresJsonPath, j, "",
+static DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
+static DEFINE_string2(out, o, "img-out", "A path to an output directory.");
+static DEFINE_bool(testDecode, false,
+                   "Indicates if we want to test that the images decode successfully.");
+static DEFINE_bool(writeImages, true,
+                   "Indicates if we want to write out supported/decoded images.");
+static DEFINE_bool(writeFailedImages, false,
+                   "Indicates if we want to write out unsupported/failed to decode images.");
+static DEFINE_string2(failuresJsonPath, j, "",
                "Dump SKP and count of unknown images to the specified JSON file. Will not be "
                "written anywhere if empty.");
 
@@ -52,8 +52,7 @@ struct Sniffer {
     void sniff(const void* ptr, size_t len) {
         SkMD5 md5;
         md5.write(ptr, len);
-        SkMD5::Digest digest;
-        md5.finish(digest);
+        SkMD5::Digest digest = md5.finish();
 
         if (gSeen.contains(digest)) {
             return;
@@ -138,16 +137,16 @@ static bool get_images_from_file(const SkString& file) {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage(
+    CommandLineFlags::SetUsage(
             "Usage: get_images_from_skps -s <dir of skps> -o <dir for output images> --testDecode "
             "-j <output JSON path> --writeImages, --writeFailedImages\n");
 
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
     const char* inputs = FLAGS_skps[0];
     gOutputDir = FLAGS_out[0];
 
     if (!sk_isdir(gOutputDir)) {
-        SkCommandLineFlags::PrintUsage();
+        CommandLineFlags::PrintUsage();
         return 1;
     }
 

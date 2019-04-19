@@ -236,6 +236,7 @@
       "adb.1.0.35",
       "--pr",
       "ccpr",
+      "--cc",
       "--nocache",
       "/sdcard/revenge_of_the_skiabot/skps/desk_*svg.skp",
       "/sdcard/revenge_of_the_skiabot/skps/desk_chalkboard.skp"

@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright 2019 Google LLC
 #
 # Use of this source code is governed by a BSD-style license that can be
@@ -20,7 +21,19 @@ source $EMSDK/emsdk_env.sh
 EMCC=`which emcc`
 EMCXX=`which em++`
 
-BUILD_DIR=${BUILD_DIR:="out/debugger_wasm"}
+if [[ $@ == *debug* ]]; then
+  echo "Building a Debug build"
+  EXTRA_CFLAGS="\"-DSK_DEBUG\","
+  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
+                --source-map-base /node_modules/debugger/bin/ -DSK_DEBUG"
+  BUILD_DIR=${BUILD_DIR:="out/debugger_wasm_debug"}
+else
+  echo "Building a Release build"
+  EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+  RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
+  BUILD_DIR=${BUILD_DIR:="out/debugger_wasm"}
+fi
+
 mkdir -p $BUILD_DIR
 
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
@@ -31,7 +44,19 @@ python tools/embed_resources.py \
     --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
     --align 4
 
+GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
+WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
+          -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
+
+# Turn off exiting while we check for ninja (which may not be on PATH)
+set +e
 NINJA=`which ninja`
+if [[ -z $NINJA ]]; then
+  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
+  NINJA=$BUILD_DIR/depot_tools/ninja
+fi
+# Re-enable error checking
+set -e
 
 ./bin/fetch-gn
 
@@ -42,7 +67,9 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\"
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    ${GN_GPU_FLAGS}
+    ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
   is_official_build=true \
@@ -82,13 +109,13 @@ ${NINJA} -C ${BUILD_DIR} libskia.a libdebugcanvas.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
-echo "Generating final wasm"
+echo "Generating final debugger wasm and javascript"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
 ${EMCXX} \
-    --closure 1 \
+    $RELEASE_CONF \
     -Iexperimental \
     -Iinclude/c \
     -Iinclude/codec \
@@ -109,9 +136,9 @@ ${EMCXX} \
     -Itools \
     -Itools/debugger \
     -DSK_DISABLE_AAA \
-    -DSK_DISABLE_DAA \
-    -std=c++14 \
-    --pre-js $BASE_DIR/cpu.js \
+    -std=c++17 \
+    $WASM_GPU \
+    --pre-js $BASE_DIR/helper.js \
     --post-js $BASE_DIR/ready.js \
     --bind \
     $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
@@ -129,6 +156,7 @@ ${EMCXX} \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
+    -s USE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js
 
 # TODO(nifong): write unit tests

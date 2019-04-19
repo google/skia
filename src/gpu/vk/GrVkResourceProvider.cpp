@@ -96,14 +96,15 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(int numColorSamples,
                                                    const GrPrimitiveProcessor& primProc,
                                                    const GrPipeline& pipeline,
                                                    const GrStencilSettings& stencil,
+                                                   GrSurfaceOrigin origin,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    GrPrimitiveType primitiveType,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, numColorSamples, primProc, pipeline, stencil, shaderStageInfo,
-                                shaderStageCount, primitiveType, compatibleRenderPass, layout,
-                                this->pipelineCache());
+    return GrVkPipeline::Create(
+            fGpu, numColorSamples, primProc, pipeline, stencil, origin, shaderStageInfo,
+            shaderStageCount, primitiveType, compatibleRenderPass, layout, this->pipelineCache());
 }
 
 GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
@@ -365,6 +366,18 @@ void GrVkResourceProvider::checkCommandBuffers() {
                 fActiveCommandPools.removeShuffle(i);
                 this->backgroundReset(pool);
             }
+        }
+    }
+}
+
+void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
+        GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> procRef(new GrRefCntedCallback(finishedProc, finishedContext));
+    for (int i = 0; i < fActiveCommandPools.count(); ++i) {
+        GrVkCommandPool* pool = fActiveCommandPools[i];
+        if (!pool->isOpen()) {
+            GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
+            buffer->addFinishedProc(procRef);
         }
     }
 }

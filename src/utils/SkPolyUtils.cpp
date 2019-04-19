@@ -481,7 +481,8 @@ bool SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar offse
     int steps = SkScalarRoundToInt(floatSteps);
 
     SkScalar dTheta = steps > 0 ? theta / steps : 0;
-    *rotSin = SkScalarSinCos(dTheta, rotCos);
+    *rotSin = SkScalarSin(dTheta);
+    *rotCos = SkScalarCos(dTheta);
     *n = steps;
     return true;
 }
@@ -1164,7 +1165,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     if (SkScalarNearlyZero(offset)) {
         for (int i = 0; i < inputPolygonSize; ++i) {
             *offsetPolygon->push() = inputPolygonVerts[i];
-            *polygonIndices->push() = i;
+            if (polygonIndices) {
+                *polygonIndices->push() = i;
+            }
         }
         return true;
     }

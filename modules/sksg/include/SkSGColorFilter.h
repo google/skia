@@ -41,6 +41,30 @@ private:
 };
 
 /**
+ * Wrapper for externally-managed SkColorFilters.
+ *
+ * Allows attaching non-sksg color filters to the render tree.
+ */
+class ExternalColorFilter final : public EffectNode {
+public:
+    static sk_sp<ExternalColorFilter> Make(sk_sp<RenderNode> child);
+
+    ~ExternalColorFilter() override;
+
+    SG_ATTRIBUTE(ColorFilter, sk_sp<SkColorFilter>, fColorFilter)
+
+protected:
+    void onRender(SkCanvas*, const RenderContext*) const override;
+
+private:
+    explicit ExternalColorFilter(sk_sp<RenderNode>);
+
+    sk_sp<SkColorFilter> fColorFilter;
+
+    using INHERITED = EffectNode;
+};
+
+/**
  * Concrete SkModeColorFilter Effect node.
  */
 class ModeColorFilter final : public ColorFilter {

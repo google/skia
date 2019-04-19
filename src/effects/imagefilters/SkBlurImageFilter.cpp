@@ -13,7 +13,6 @@
 #include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkColorData.h"
-#include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
@@ -45,7 +44,6 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
@@ -636,17 +634,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
         return nullptr;
     }
 
-    // Typically, we would create the RTC with the output's color space (from ctx), but we
-    // always blur in the PixelConfig of the *input*. Those might not be compatible (if they
-    // have different transfer functions). We've already guaranteed that those color spaces
-    // have the same gamut, so in this case, we do everything in the input's color space.
-    // ...
-    // Unless the output is legacy. In that case, the input could be almost anything (if we're
-    // using SkColorSpaceXformCanvas), but we can't make a corresponding RTC. We don't care to,
-    // either, we want to do our blending (and blurring) without any color correction, so pass
-    // nullptr here, causing us to operate entirely in the input's color space, with no decoding.
-    // Then, when we create the output image later, we tag it with the input's color space, so
-    // it will be tagged correctly, regardless of how we created the intermediate RTCs.
     sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                             context,
                             std::move(inputTexture),
@@ -670,18 +657,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             &source->props());
 }
 #endif
-
-sk_sp<SkImageFilter> SkBlurImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
-const {
-    SkASSERT(1 == this->countInputs());
-
-    auto input = xformer->apply(this->getInput(0));
-    if (this->getInput(0) != input.get()) {
-        return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
-                                       this->getCropRectIfSet(), fTileMode);
-    }
-    return this->refMe();
-}
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;

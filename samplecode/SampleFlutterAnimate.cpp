@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
-#include "SkFont.h"
-#include "SkColorPriv.h"
 #include "SkColorFilter.h"
+#include "SkColorPriv.h"
+#include "SkFont.h"
 #include "SkImage.h"
 #include "SkRandom.h"
 #include "SkTime.h"
@@ -64,7 +64,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fCurrTime = timer.secs() - fResetTime;
         if (fCurrTime > kDuration) {
             this->initChars();

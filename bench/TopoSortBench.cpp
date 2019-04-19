@@ -10,7 +10,7 @@
 #include "SkString.h"
 #include "SkTTopoSort.h"
 
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 class TopoSortBench : public Benchmark {
 public:
@@ -30,7 +30,7 @@ protected:
 
     // Delayed initialization only done if onDraw will be called.
     void onDelayedSetup() override {
-        sk_tool_utils::TopoTestNode::AllocNodes(&fGraph, kNumElements);
+        ToolUtils::TopoTestNode::AllocNodes(&fGraph, kNumElements);
 
         for (int i = kNumElements-1; i > 0; --i) {
             int numEdges = fRand.nextU() % (kMaxEdges+1);
@@ -49,9 +49,9 @@ protected:
                 fGraph[j]->reset();
             }
 
-            sk_tool_utils::TopoTestNode::Shuffle(&fGraph, &fRand);
+            ToolUtils::TopoTestNode::Shuffle(&fGraph, &fRand);
 
-            SkDEBUGCODE(bool actualResult =) SkTTopoSort<sk_tool_utils::TopoTestNode>(&fGraph);
+            SkDEBUGCODE(bool actualResult =) SkTTopoSort<ToolUtils::TopoTestNode>(&fGraph);
             SkASSERT(actualResult);
 
 #ifdef SK_DEBUG
@@ -66,7 +66,7 @@ private:
     static const int kNumElements = 1000;
     static const int kMaxEdges = 5;
 
-    SkTArray<sk_sp<sk_tool_utils::TopoTestNode>> fGraph;
+    SkTArray<sk_sp<ToolUtils::TopoTestNode>> fGraph;
     SkRandom fRand;
 
     typedef Benchmark INHERITED;

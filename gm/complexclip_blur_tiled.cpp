@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "SkBlurImageFilter.h"
+#include "SkClipOpPriv.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
-#include "SkClipOpPriv.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH 512
 #define HEIGHT 512
@@ -38,7 +38,7 @@ protected:
         SkRect bounds = canvas->getLocalClipBounds();
         int ts = SkScalarCeilToInt(tileSize);
         SkImageInfo info = SkImageInfo::MakeN32Premul(ts, ts);
-        auto tileSurface(sk_tool_utils::makeSurface(canvas, info));
+        auto           tileSurface(ToolUtils::makeSurface(canvas, info));
         SkCanvas* tileCanvas = tileSurface->getCanvas();
         for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tileSize) {
             for (SkScalar x = bounds.left(); x < bounds.right(); x += tileSize) {

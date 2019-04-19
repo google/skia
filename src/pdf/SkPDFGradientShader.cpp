@@ -292,15 +292,14 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShader::GradientInf
 }
 
 /* Map a value of t on the stack into [0, 1) for Repeat or Mirror tile mode. */
-static void tileModeCode(SkShader::TileMode mode,
-                         SkDynamicMemoryWStream* result) {
-    if (mode == SkShader::kRepeat_TileMode) {
+static void tileModeCode(SkTileMode mode, SkDynamicMemoryWStream* result) {
+    if (mode == SkTileMode::kRepeat) {
         result->writeText("dup truncate sub\n");  // Get the fractional part.
         result->writeText("dup 0 le {1 add} if\n");  // Map (-1,0) => (0,1)
         return;
     }
 
-    if (mode == SkShader::kMirror_TileMode) {
+    if (mode == SkTileMode::kMirror) {
         // Map t mod 2 into [0, 1, 1, 0].
         //               Code                     Stack
         result->writeText("abs "                 // Map negative to positive.
@@ -371,7 +370,7 @@ static void linearCode(const SkShader::GradientInfo& info,
     apply_perspective_to_coordinates(perspectiveRemover, function);
 
     function->writeText("pop\n");  // Just ditch the y value.
-    tileModeCode(info.fTileMode, function);
+    tileModeCode((SkTileMode)info.fTileMode, function);
     gradient_function_code(info, function);
     function->writeText("}");
 }
@@ -392,7 +391,7 @@ static void radialCode(const SkShader::GradientInfo& info,
                     "add "      // y^2+x^2
                     "sqrt\n");  // sqrt(y^2+x^2)
 
-    tileModeCode(info.fTileMode, function);
+    tileModeCode((SkTileMode)info.fTileMode, function);
     gradient_function_code(info, function);
     function->writeText("}");
 }
@@ -504,7 +503,7 @@ static void twoPointConicalCode(const SkShader::GradientInfo& info,
 
     // if the pixel is in the cone, proceed to compute a color
     function->writeText("{");
-    tileModeCode(info.fTileMode, function);
+    tileModeCode((SkTileMode)info.fTileMode, function);
     gradient_function_code(info, function);
 
     // otherwise, just write black
@@ -515,7 +514,7 @@ static void sweepCode(const SkShader::GradientInfo& info,
                           const SkMatrix& perspectiveRemover,
                           SkDynamicMemoryWStream* function) {
     function->writeText("{exch atan 360 div\n");
-    tileModeCode(info.fTileMode, function);
+    tileModeCode((SkTileMode)info.fTileMode, function);
     gradient_function_code(info, function);
     function->writeText("}");
 }
@@ -595,8 +594,8 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
     bool doStitchFunctions = (state.fType == SkShader::kLinear_GradientType ||
                               state.fType == SkShader::kRadial_GradientType ||
                               state.fType == SkShader::kConical_GradientType) &&
-                             info.fTileMode == SkShader::kClamp_TileMode &&
-                             !finalMatrix.hasPerspective();
+                              (SkTileMode)info.fTileMode == SkTileMode::kClamp &&
+                              !finalMatrix.hasPerspective();
 
     int32_t shadingType = 1;
     auto pdfShader = SkPDFMakeDict();
@@ -874,7 +873,7 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
                                          const SkIRect& bbox) {
     SkPDFGradientShader::Key key = {
          SkShader::kNone_GradientType,
-         {0, nullptr, nullptr, {{0, 0}, {0, 0}}, {0, 0}, SkShader::kClamp_TileMode, 0},
+         {0, nullptr, nullptr, {{0, 0}, {0, 0}}, {0, 0}, SkTileMode::kClamp, 0},
          nullptr,
          nullptr,
          canvasTransform,

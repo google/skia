@@ -181,8 +181,8 @@ float SkCubicMap::computeYFromX(float x) const {
     float b = fCoeff[1].fY;
     float c = fCoeff[2].fY;
     float y = ((a * t + b) * t + c) * t;
-    SkASSERT(y >= 0);
-    return std::min(y, 1.0f);
+
+    return y;
 }
 
 static inline bool coeff_nearly_zero(float delta) {
@@ -190,11 +190,12 @@ static inline bool coeff_nearly_zero(float delta) {
 }
 
 SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {
+    // Clamp X values only (we allow Ys outside [0..1]).
+    p1.fX = SkTMin(SkTMax(p1.fX, 0.0f), 1.0f);
+    p2.fX = SkTMin(SkTMax(p2.fX, 0.0f), 1.0f);
+
     Sk2s s1 = Sk2s::Load(&p1) * 3;
     Sk2s s2 = Sk2s::Load(&p2) * 3;
-
-    s1 = Sk2s::Min(Sk2s::Max(s1, 0), 3);
-    s2 = Sk2s::Min(Sk2s::Max(s2, 0), 3);
 
     (Sk2s(1) + s1 - s2).store(&fCoeff[0]);
     (s2 - s1 - s1).store(&fCoeff[1]);

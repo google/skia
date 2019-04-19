@@ -17,6 +17,7 @@
 #include "SkPoint.h"
 #include "SkPoint3.h"
 
+class GrCaps;
 class GrColorSpaceXform;
 class GrShaderCaps;
 
@@ -26,6 +27,9 @@ namespace GrQuadPerEdgeAA {
     enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
+    // Gets the minimum ColorType that can represent a color.
+    ColorType MinColorType(SkPMColor4f, GrClampType, const GrCaps&);
+
     // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
     // order (when enabled) is device position, color, local position, domain, aa edge equations.
     // This order matches the constructor argument order of VertexSpec and is the order that
@@ -33,14 +37,16 @@ namespace GrQuadPerEdgeAA {
     struct VertexSpec {
     public:
         VertexSpec(GrQuadType deviceQuadType, ColorType colorType, GrQuadType localQuadType,
-                   bool hasLocalCoords, Domain domain, GrAAType aa, bool alphaAsCoverage)
+                   bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
                 , fHasLocalCoords(hasLocalCoords)
                 , fColorType(static_cast<unsigned>(colorType))
                 , fHasDomain(static_cast<unsigned>(domain))
                 , fUsesCoverageAA(aa == GrAAType::kCoverage)
-                , fCompatibleWithAlphaAsCoverage(alphaAsCoverage) { }
+                , fCompatibleWithCoverageAsAlpha(coverageAsAlpha)
+                , fRequiresGeometryDomain(aa == GrAAType::kCoverage &&
+                                          deviceQuadType > GrQuadType::kRectilinear) { }
 
         GrQuadType deviceQuadType() const { return static_cast<GrQuadType>(fDeviceQuadType); }
         GrQuadType localQuadType() const { return static_cast<GrQuadType>(fLocalQuadType); }
@@ -49,8 +55,8 @@ namespace GrQuadPerEdgeAA {
         bool hasVertexColors() const { return ColorType::kNone != this->colorType(); }
         bool hasDomain() const { return fHasDomain; }
         bool usesCoverageAA() const { return fUsesCoverageAA; }
-        bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoverage; }
-
+        bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
+        bool requiresGeometryDomain() const { return fRequiresGeometryDomain; }
         // Will always be 2 or 3
         int deviceDimensionality() const;
         // Will always be 0 if hasLocalCoords is false, otherwise will be 2 or 3
@@ -67,7 +73,10 @@ namespace GrQuadPerEdgeAA {
         unsigned fColorType : 2;
         unsigned fHasDomain: 1;
         unsigned fUsesCoverageAA: 1;
-        unsigned fCompatibleWithAlphaAsCoverage: 1;
+        unsigned fCompatibleWithCoverageAsAlpha: 1;
+        // The geometry domain serves to clip off pixels touched by quads with sharp corners that
+        // would otherwise exceed the miter limit for the AA-outset geometry.
+        unsigned fRequiresGeometryDomain: 1;
     };
 
     sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec);

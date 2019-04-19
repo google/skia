@@ -42,7 +42,7 @@ public:
     GrPixelConfig config() const { return fRenderTarget->config(); }
     int effectiveSampleCnt() const {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations(fPipeline).count();
+        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
     }
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrPipeline& pipeline() const { return fPipeline; }
@@ -156,7 +156,6 @@ private:
                                     SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>*);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrTexture*, const GrSamplerState&, const char* name);
-    void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
 
 #ifdef SK_DEBUG

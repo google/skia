@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
+#include "CommandLineFlags.h"
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkColor.h"
-#include "SkCommandLineFlags.h"
 #include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
-#include "Resources.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #include <vector>
 
-DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
+static DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
 class AnimatedGifGM : public skiagm::GM {
 private:
@@ -49,7 +49,7 @@ private:
                 SkBitmap& requiredBitmap = fFrames[requiredFrame];
                 // For simplicity, do not try to cache old frames
                 if (requiredBitmap.getPixels() &&
-                        sk_tool_utils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
+                    ToolUtils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
                     opts.fPriorFrame = requiredFrame;
                 }
             }
@@ -131,7 +131,7 @@ private:
         return DrawResult::kOk;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (!fCodec || fTotalFrames == 1) {
             return false;
         }
@@ -214,7 +214,7 @@ private:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (fBaseMSec == 0) {
             fBaseMSec = timer.msec();
         }

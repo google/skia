@@ -6,7 +6,7 @@
       "--lunch_target",
       "cf_x86_phone-eng",
       "--mmma_targets",
-      "frameworks/base/core/jni,external/skia",
+      "frameworks/base/core/jni,frameworks/base/libs/hwui,external/skia",
       "--issue",
       "1234",
       "--patchset",
@@ -14,7 +14,6 @@
     ],
     "name": "Trigger and wait for task on android compile server",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },

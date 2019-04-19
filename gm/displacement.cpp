@@ -8,8 +8,8 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 namespace skiagm {
 
@@ -25,21 +25,17 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBitmap = sk_tool_utils::create_string_bitmap(80, 80, 0xFF884422, 15, 55, 96, "g");
+        fBitmap = ToolUtils::create_string_bitmap(80, 80, 0xFF884422, 15, 55, 96, "g");
 
-        SkColor c1 = sk_tool_utils::color_to_565(0xFF244484);
-        SkColor c2 = sk_tool_utils::color_to_565(0xFF804020);
+        SkColor c1 = ToolUtils::color_to_565(0xFF244484);
+        SkColor c2 = ToolUtils::color_to_565(0xFF804020);
 
-        fCheckerboard = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(80, 80, c1, c2, 8));
-        fSmall = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(64, 64, c1, c2, 8));
-        fLarge = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(96, 96, c1, c2, 8));
-        fLargeW =
-            SkImage::MakeFromBitmap(sk_tool_utils::create_checkerboard_bitmap(96, 64, c1, c2, 8));
-        fLargeH = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(64, 96, c1, c2, 8));
+        fCheckerboard =
+                SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(80, 80, c1, c2, 8));
+        fSmall  = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(64, 64, c1, c2, 8));
+        fLarge  = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(96, 96, c1, c2, 8));
+        fLargeW = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(96, 64, c1, c2, 8));
+        fLargeH = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(64, 96, c1, c2, 8));
     }
 
     SkISize onISize() override {

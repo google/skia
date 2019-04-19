@@ -29,7 +29,7 @@ protected:
         SkPaint paint;
         uint32_t flags = doPreMul ? SkGradientShader::kInterpolateColorsInPremul_Flag : 0;
         paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkShader::kClamp_TileMode, flags, nullptr));
+                                                     SkTileMode::kClamp, flags, nullptr));
         canvas->drawRect(r, paint);
 
         paint.setShader(nullptr);

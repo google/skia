@@ -20,8 +20,8 @@
 #include "SkPoint3.h"
 #include "SkScalar.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
 #define RESIZE_FACTOR_Y SkIntToScalar(5)
@@ -38,7 +38,7 @@ static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     colors[1] = SK_ColorBLACK;
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr,
-        2, SkShader::kClamp_TileMode));
+        2, SkTileMode::kClamp));
     canvas->drawCircle(x, y, radius, paint);
     return surface->makeImageSnapshot();
 }
@@ -79,8 +79,8 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fCheckerboard = SkImage::MakeFromBitmap
-            (sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
+        fCheckerboard = SkImage::MakeFromBitmap(
+                ToolUtils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
         fGradientCircle = make_gradient_circle(64, 64);
     }
 

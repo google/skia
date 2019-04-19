@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas, SkColor color) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    auto surface(sk_tool_utils::makeSurface(rootCanvas, info));
+    auto        surface(ToolUtils::makeSurface(rootCanvas, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -46,7 +46,7 @@ DEF_SIMPLE_GM(localmatriximageshader, canvas, 250, 250) {
     canvas->translate(100.0f, 0.0f);
 
     // Use isAImage() and confirm that the shaders will draw exactly the same (to the right by 100).
-    SkShader::TileMode mode[2];
+    SkTileMode mode[2];
     SkMatrix matrix;
     SkImage* image = redLocalMatrixShader->isAImage(&matrix, mode);
     paint.setShader(image->makeShader(mode[0], mode[1], &matrix));

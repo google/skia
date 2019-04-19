@@ -9,16 +9,15 @@
 #include "SkAutoBlitterChoose.h"
 #include "SkComposeShader.h"
 #include "SkConvertPixels.h"
+#include "SkCoreBlitters.h"
 #include "SkDraw.h"
 #include "SkNx.h"
 #include "SkRasterClip.h"
+#include "SkRasterPipeline.h"
 #include "SkScan.h"
 #include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkVertState.h"
-
-#include "SkArenaAlloc.h"
-#include "SkCoreBlitters.h"
 
 struct Matrix43 {
     float fMat[12];    // column major
@@ -83,7 +82,7 @@ protected:
         return nullptr;
     }
 #endif
-    bool onAppendStages(const StageRec& rec) const override {
+    bool onAppendStages(const SkStageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         return true;
@@ -205,7 +204,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
 
     constexpr size_t kDefVertexCount = 16;
     constexpr size_t kOuterSize = sizeof(SkTriColorShader) +
-                                 sizeof(SkComposeShader) +
+                                 sizeof(SkShader_Blend) +
                                  (2 * sizeof(SkPoint) + sizeof(SkColor4f)) * kDefVertexCount;
     SkSTArenaAlloc<kOuterSize> outerAlloc;
 
@@ -278,8 +277,8 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                                                                                   vertexCount));
             matrix43 = triShader->getMatrix43();
             if (shader) {
-                shader = outerAlloc.make<SkComposeShader>(sk_ref_sp(triShader), sk_ref_sp(shader),
-                                                          bmode, 1);
+                shader = outerAlloc.make<SkShader_Blend>(bmode,
+                                                         sk_ref_sp(triShader), sk_ref_sp(shader));
             } else {
                 shader = triShader;
             }

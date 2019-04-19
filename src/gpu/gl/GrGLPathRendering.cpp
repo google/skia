@@ -98,11 +98,10 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
     this->flushPathStencilSettings(*args.fStencil);
-    SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
-    GrGLint writeMask = fHWPathStencilSettings.front().fWriteMask;
+        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.frontAndBack().fPassOp);
+    GrGLint writeMask = fHWPathStencilSettings.frontAndBack().fWriteMask;
 
     if (glPath->shouldFill()) {
         GL_CALL(StencilFillPath(glPath->pathID(), fillMode, writeMask));
@@ -125,11 +124,10 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget, GrSurfaceOrigin
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
     this->flushPathStencilSettings(stencilPassSettings);
-    SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
-    GrGLint writeMask = fHWPathStencilSettings.front().fWriteMask;
+        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.frontAndBack().fPassOp);
+    GrGLint writeMask = fHWPathStencilSettings.frontAndBack().fWriteMask;
 
     if (glPath->shouldStroke()) {
         if (glPath->shouldFill()) {
@@ -246,18 +244,19 @@ void GrGLPathRendering::deletePaths(GrGLuint path, GrGLsizei range) {
 }
 
 void GrGLPathRendering::flushPathStencilSettings(const GrStencilSettings& stencilSettings) {
+    SkASSERT(!stencilSettings.isTwoSided());
     if (fHWPathStencilSettings != stencilSettings) {
         SkASSERT(stencilSettings.isValid());
         // Just the func, ref, and mask is set here. The op and write mask are params to the call
         // that draws the path to the SB (glStencilFillPath)
-        uint16_t ref = stencilSettings.front().fRef;
-        GrStencilTest test = stencilSettings.front().fTest;
-        uint16_t testMask = stencilSettings.front().fTestMask;
+        uint16_t ref = stencilSettings.frontAndBack().fRef;
+        GrStencilTest test = stencilSettings.frontAndBack().fTest;
+        uint16_t testMask = stencilSettings.frontAndBack().fTestMask;
 
         if (!fHWPathStencilSettings.isValid() ||
-            ref != fHWPathStencilSettings.front().fRef ||
-            test != fHWPathStencilSettings.front().fTest ||
-            testMask != fHWPathStencilSettings.front().fTestMask) {
+            ref != fHWPathStencilSettings.frontAndBack().fRef ||
+            test != fHWPathStencilSettings.frontAndBack().fTest ||
+            testMask != fHWPathStencilSettings.frontAndBack().fTestMask) {
             GL_CALL(PathStencilFunc(GrToGLStencilFunc(test), ref, testMask));
         }
         fHWPathStencilSettings = stencilSettings;

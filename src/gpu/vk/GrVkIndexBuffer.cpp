@@ -48,24 +48,12 @@ void GrVkIndexBuffer::onAbandon() {
     INHERITED::onAbandon();
 }
 
-void GrVkIndexBuffer::onMap() {
-    if (!this->wasDestroyed()) {
-        this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu());
-    }
-}
+void GrVkIndexBuffer::onMap() { this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu()); }
 
-void GrVkIndexBuffer::onUnmap() {
-    if (!this->wasDestroyed()) {
-        this->vkUnmap(this->getVkGpu());
-    }
-}
+void GrVkIndexBuffer::onUnmap() { this->vkUnmap(this->getVkGpu()); }
 
 bool GrVkIndexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
-    if (!this->wasDestroyed()) {
-        return this->vkUpdateData(this->getVkGpu(), src, srcSizeInBytes);
-    } else {
-        return false;
-    }
+    return this->vkUpdateData(this->getVkGpu(), src, srcSizeInBytes);
 }
 
 GrVkGpu* GrVkIndexBuffer::getVkGpu() const {

@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -82,7 +82,7 @@ protected:
                 break;
             case kText_ShapeType: {
                 const char* text = "N";
-                SkFont font(sk_tool_utils::create_portable_typeface(), 100);
+                SkFont      font(ToolUtils::create_portable_typeface(), 100);
                 font.setEmbolden(true);
                 canvas->drawString(text, 0.f, 100.f, font, *paint);
             }
@@ -92,7 +92,7 @@ protected:
     }
 
     static SkColor GetColor(SkRandom* random) {
-        SkColor color = sk_tool_utils::color_to_565(random->nextU() | 0xFF000000);
+        SkColor color = ToolUtils::color_to_565(random->nextU() | 0xFF000000);
         return SkColorSetA(color, 0x80);
     }
 

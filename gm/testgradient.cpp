@@ -44,8 +44,7 @@ protected:
         SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
         SkPaint newPaint(paint);
         newPaint.setShader(SkGradientShader::MakeLinear(
-                points, colors, nullptr, 2,
-                SkShader::kClamp_TileMode, 0, nullptr));
+                points, colors, nullptr, 2, SkTileMode::kClamp));
         canvas->drawRect(rect, newPaint);
 
         SkRRect oval;

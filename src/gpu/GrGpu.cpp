@@ -301,9 +301,9 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     return false;
 }
 
-bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int height,
-                           GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
-                           size_t rowBytes) {
+bool GrGpu::transferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                             GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                             size_t offset, size_t rowBytes) {
     SkASSERT(texture);
     SkASSERT(transferBuffer);
 
@@ -319,12 +319,36 @@ bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(texture, left, top, width, height, bufferColorType, transferBuffer,
-                               offset, rowBytes)) {
+    if (this->onTransferPixelsTo(texture, left, top, width, height, bufferColorType, transferBuffer,
+                                 offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
         fStats.incTransfersToTexture();
 
+        return true;
+    }
+    return false;
+}
+
+bool GrGpu::transferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer,
+                               size_t offset) {
+    SkASSERT(surface);
+    SkASSERT(transferBuffer);
+    SkASSERT(this->caps()->transferFromOffsetAlignment(bufferColorType));
+    SkASSERT(offset % this->caps()->transferFromOffsetAlignment(bufferColorType) == 0);
+
+    // We require that the write region is contained in the texture
+    SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+    SkIRect bounds = SkIRect::MakeWH(surface->width(), surface->height());
+    if (!bounds.contains(subRect)) {
+        return false;
+    }
+
+    this->handleDirtyContext();
+    if (this->onTransferPixelsFrom(surface, left, top, width, height, bufferColorType,
+                                   transferBuffer, offset)) {
+        fStats.incTransfersFromSurface();
         return true;
     }
     return false;
@@ -379,49 +403,40 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     }
 }
 
-int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget, const GrPipeline& pipeline) {
+int GrGpu::findOrAssignSamplePatternKey(GrRenderTarget* renderTarget) {
     SkASSERT(this->caps()->sampleLocationsSupport());
     SkASSERT(renderTarget->numStencilSamples() > 1);
-    SkASSERT(pipeline.isHWAntialiasState());
-
-    GrStencilSettings stencil;
-    if (pipeline.isStencilEnabled()) {
-        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
-                      renderTarget->renderTargetPriv().numStencilBits());
-    }
 
     SkSTArray<16, SkPoint> sampleLocations;
-    this->querySampleLocations(renderTarget, stencil, &sampleLocations);
+    this->querySampleLocations(renderTarget, &sampleLocations);
     return fSamplePatternDictionary.findOrAssignSamplePatternKey(sampleLocations);
 }
 
 GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxy,
                                          SkSurface::BackendSurfaceAccess access,
-                                         SkSurface::FlushFlags flags, int numSemaphores,
-                                         GrBackendSemaphore backendSemaphores[]) {
+                                         const GrFlushInfo& info) {
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
     if (this->caps()->fenceSyncSupport()) {
-        for (int i = 0; i < numSemaphores; ++i) {
+        for (int i = 0; i < info.fNumSemaphores; ++i) {
             sk_sp<GrSemaphore> semaphore;
-            if (backendSemaphores[i].isInitialized()) {
+            if (info.fSignalSemaphores[i].isInitialized()) {
                 semaphore = resourceProvider->wrapBackendSemaphore(
-                        backendSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillSignal,
+                        info.fSignalSemaphores[i],
+                        GrResourceProvider::SemaphoreWrapType::kWillSignal,
                         kBorrow_GrWrapOwnership);
             } else {
                 semaphore = resourceProvider->makeSemaphore(false);
             }
             this->insertSemaphore(semaphore);
 
-            if (!backendSemaphores[i].isInitialized()) {
-                backendSemaphores[i] = semaphore->backendSemaphore();
+            if (!info.fSignalSemaphores[i].isInitialized()) {
+                info.fSignalSemaphores[i] = semaphore->backendSemaphore();
             }
         }
     }
-    this->onFinishFlush(proxy, access, flags,
-                        (numSemaphores > 0 && this->caps()->fenceSyncSupport()));
+    this->onFinishFlush(proxy, access, info);
     return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }
@@ -457,6 +472,7 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Textures Created: %d\n", fTextureCreates);
     out->appendf("Texture Uploads: %d\n", fTextureUploads);
     out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
+    out->appendf("Transfers from Surface: %d\n", fTransfersFromSurface);
     out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
     out->appendf("Number of draws: %d\n", fNumDraws);
 }
@@ -464,9 +480,6 @@ void GrGpu::Stats::dump(SkString* out) {
 void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
     keys->push_back(SkString("render_target_binds")); values->push_back(fRenderTargetBinds);
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
-    keys->push_back(SkString("texture_uploads")); values->push_back(fTextureUploads);
-    keys->push_back(SkString("number_of_draws")); values->push_back(fNumDraws);
-    keys->push_back(SkString("number_of_failed_draws")); values->push_back(fNumFailedDraws);
 }
 
 #endif

@@ -62,8 +62,7 @@ protected:
         mat.setScale(121.f/360.f, 93.f/288.f);
         mat.postTranslate(-72, -72);
 
-        paint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode, &mat));
+        paint.setShader(fBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &mat));
         canvas->drawRect({ 8, 8, 1008, 608 }, paint);
     }
 

@@ -45,7 +45,7 @@ SkString GrDrawPathOp::dumpInfo() const {
 GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     GrPipeline::InitArgs args;
     if (fDoAA) {
-        args.fFlags |= GrPipeline::kHWAntialias_Flag;
+        args.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
     args.fUserStencil = &kCoverPass;
     args.fCaps = &state.caps();
@@ -55,10 +55,11 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
 }
 
 const GrProcessorSet::Analysis& GrDrawPathOpBase::doProcessorAnalysis(
-        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) {
+        const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType,
+        GrClampType clampType) {
     fAnalysis = fProcessorSet.finalize(
             fInputColor, GrProcessorAnalysisCoverage::kNone, clip, &kCoverPass, fsaaType, caps,
-            &fInputColor);
+            clampType, &fInputColor);
     return fAnalysis;
 }
 

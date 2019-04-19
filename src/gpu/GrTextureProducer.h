@@ -107,6 +107,8 @@ public:
     bool domainNeedsDecal() const { return fDomainNeedsDecal; }
     virtual SkAlphaType alphaType() const = 0;
     virtual SkColorSpace* colorSpace() const = 0;
+    // If the "texture" samples multiple images that have different resolutions (e.g. YUV420)
+    virtual bool hasMixedResolutions() const { return false; }
 
 protected:
     friend class GrTextureProducer_TestAccess;

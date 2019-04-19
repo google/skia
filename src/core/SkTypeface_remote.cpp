@@ -32,11 +32,6 @@ unsigned SkScalerContextProxy::generateGlyphCount()  {
     return 0;
 }
 
-uint16_t SkScalerContextProxy::generateCharToGlyph(SkUnichar) {
-    SK_ABORT("Should never be called.");
-    return 0;
-}
-
 bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
     return false;
 }

@@ -97,7 +97,7 @@ namespace SK_OPTS_NS {
                         + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
                 }
                 device += 1;
-            };
+            }
 
             device = (uint32_t*)((char*)device + dstRB);
             mask += maskRB;
@@ -148,7 +148,7 @@ namespace SK_OPTS_NS {
                 *device = (aa << SK_A32_SHIFT)
                             + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
                 device += 1;
-            };
+            }
             device = (uint32_t*)((char*)device + dstRB);
             mask += maskRB;
         } while (--height != 0);

@@ -9,7 +9,7 @@
 
 #include "SkJSONWriter.h"
 #include "SkPictureRecorder.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 using namespace sk_gpu_test;
 
@@ -44,7 +44,7 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
 
     // write to an opaque png (black background)
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG(bmp, buffer);
+    DrawCommand::WritePNG(bmp, buffer);
     return buffer.detachAsData();
 }
 
@@ -204,7 +204,7 @@ bool Request::initPictureFromStream(SkStream* stream) {
 
     // pour picture into debug canvas
     SkIRect bounds = this->getBounds();
-    fDebugCanvas.reset(new SkDebugCanvas(bounds.width(), bounds.height()));
+    fDebugCanvas.reset(new DebugCanvas(bounds.width(), bounds.height()));
     fDebugCanvas->drawPicture(fPicture);
 
     // for some reason we need to 'flush' the debug canvas by drawing all of the ops
@@ -257,8 +257,10 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
     SkIRect clip = fDebugCanvas->getCurrentClip();
 
     writer.beginObject(); // root
-    writer.appendName("ViewMatrix"); SkDrawCommand::MakeJsonMatrix(writer, vm);
-    writer.appendName("ClipRect"); SkDrawCommand::MakeJsonIRect(writer, clip);
+    writer.appendName("ViewMatrix");
+    DrawCommand::MakeJsonMatrix(writer, vm);
+    writer.appendName("ClipRect");
+    DrawCommand::MakeJsonIRect(writer, clip);
     writer.endObject(); // root
 
     // TODO: Old code explicitly avoided the null terminator in the returned data. Important?

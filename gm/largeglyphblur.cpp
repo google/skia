@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
@@ -18,7 +18,7 @@
 DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
     const char text[] = "Hamburgefons";
 
-    SkFont font(sk_tool_utils::create_portable_typeface(), 256);
+    SkFont font(ToolUtils::create_portable_typeface(), 256);
     auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
 
     // setup up maskfilter

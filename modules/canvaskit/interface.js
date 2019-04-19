@@ -381,6 +381,74 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      return this._makeShader(xTileMode, yTileMode, localMatrix);
+    } else {
+      return this._makeShader(xTileMode, yTileMode);
+    }
+  }
+
+  // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
+  // srcRects and dstXforms should be CanvasKit.SkRectBuilder and CanvasKit.RSXFormBuilder
+  // or just arrays of floats in groups of 4.
+  // colors, if provided, should be a CanvasKit.SkColorBuilder or array of SkColor
+  // (from CanvasKit.Color)
+  CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
+                                       /*optional*/ blendMode, colors) {
+    if (!atlas || !paint || !srcRects || !dstXforms) {
+      SkDebug('Doing nothing since missing a required input');
+      return;
+    }
+    if (srcRects.length !== dstXforms.length || (colors && colors.length !== dstXforms.length)) {
+      SkDebug('Doing nothing since input arrays length mismatches');
+    }
+    if (!blendMode) {
+      blendMode = CanvasKit.BlendMode.SrcOver;
+    }
+
+    var srcRectPtr;
+    if (srcRects.build) {
+      srcRectPtr = srcRects.build();
+    } else {
+      srcRectPtr = copy1dArray(srcRects, CanvasKit.HEAPF32);
+    }
+
+    var dstXformPtr;
+    if (dstXforms.build) {
+      dstXformPtr = dstXforms.build();
+    } else {
+      dstXformPtr = copy1dArray(dstXforms, CanvasKit.HEAPF32);
+    }
+
+    var colorPtr = 0; // enscriptem doesn't like undefined for nullptr
+    if (colors) {
+      if (colors.build) {
+        colorPtr = colors.build();
+      } else {
+        colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
+      }
+    }
+
+    this._drawAtlas(atlas, dstXformPtr, srcRectPtr, colorPtr, dstXforms.length,
+                    blendMode, paint);
+
+    if (srcRectPtr && !srcRects.build) {
+      CanvasKit._free(srcRectPtr);
+    }
+    if (dstXformPtr && !dstXforms.build) {
+      CanvasKit._free(dstXformPtr);
+    }
+    if (colorPtr && !colors.build) {
+      CanvasKit._free(colorPtr);
+    }
+
+  }
+
   // str can be either a text string or a ShapedText object
   CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
     if (typeof str === 'string') {
@@ -452,6 +520,36 @@ CanvasKit.onRuntimeInitialized = function() {
     return ok;
   }
 
+  // Returns an array of the widths of the glyphs in this string.
+  CanvasKit.SkFont.prototype.getWidths = function(str) {
+    // add 1 for null terminator
+    var codePoints = str.length + 1;
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes);
+
+    var bytesPerFloat = 4;
+    // allocate widths == numCodePoints
+    var widthPtr = CanvasKit._malloc(codePoints * bytesPerFloat);
+    if (!this._getWidths(strPtr, strBytes, codePoints, widthPtr)) {
+      SkDebug('Could not compute widths');
+      CanvasKit._free(strPtr);
+      CanvasKit._free(widthPtr);
+      return null;
+    }
+    // reminder, this shouldn't copy the data, just is a nice way to
+    // wrap 4 bytes together into a float.
+    var widths = new Float32Array(CanvasKit.buffer, widthPtr, codePoints);
+    // This copies the data so we can free the CanvasKit memory
+    var retVal = Array.from(widths);
+    CanvasKit._free(strPtr);
+    CanvasKit._free(widthPtr);
+    return retVal;
+  }
+
   // fontData should be an arrayBuffer
   CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function(fontData) {
     var data = new Uint8Array(fontData);
@@ -466,6 +564,131 @@ CanvasKit.onRuntimeInitialized = function() {
       return null;
     }
     return font;
+  }
+
+  // The serialized format of an SkPicture (informally called an "skp"), is not something
+  // that clients should ever rely on. It is useful when filing bug reports, but that's
+  // about it. The format may change at anytime and no promises are made for backwards
+  // or forward compatibility.
+  CanvasKit.SkPicture.prototype.DEBUGONLY_saveAsFile = function(skpName) {
+    var data = this.DEBUGONLY_serialize();
+    if (!data) {
+      SkDebug('Could not serialize to skpicture.');
+      return;
+    }
+    var bytes = CanvasKit.getSkDataBytes(data);
+    saveBytesToFile(bytes, skpName);
+    data.delete();
+  }
+
+  CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
+    // Set up SkPictureRecorder
+    var spr = new CanvasKit.SkPictureRecorder();
+    var canvas = spr.beginRecording(
+                    CanvasKit.LTRBRect(0, 0, this.width(), this.height()));
+    drawFrame(canvas);
+    var pic = spr.finishRecordingAsPicture();
+    spr.delete();
+    // TODO: do we need to clean up the memory for canvas?
+    // If we delete it here, saveAsFile doesn't work correctly.
+    return pic;
+  }
+
+  CanvasKit.SkSurface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
+    if (!this._cached_canvas) {
+      this._cached_canvas = this.getCanvas();
+    }
+    window.requestAnimationFrame(function() {
+      if (this._context !== undefined) {
+        CanvasKit.setCurrentContext(this._context);
+      }
+
+      callback(this._cached_canvas);
+
+      this.flush();
+    }.bind(this));
+  }
+
+  CanvasKit.SkTextBlob.MakeOnPath = function(str, path, font, initialOffset) {
+    if (!str || !str.length) {
+      SkDebug('ignoring 0 length string');
+      return;
+    }
+    if (!path || !path.countPoints()) {
+      SkDebug('ignoring empty path');
+      return;
+    }
+    if (path.countPoints() === 1) {
+      SkDebug('path has 1 point, returning normal textblob');
+      return this.MakeFromText(str, font);
+    }
+
+    if (!initialOffset) {
+      initialOffset = 0;
+    }
+
+    var widths = font.getWidths(str);
+
+    var rsx = new CanvasKit.RSXFormBuilder();
+    var meas = new CanvasKit.SkPathMeasure(path, false, 1);
+    var dist = initialOffset;
+    for (var i = 0; i < str.length; i++) {
+      var width = widths[i];
+      dist += width/2;
+      if (dist > meas.getLength()) {
+        // jump to next contour
+        if (!meas.nextContour()) {
+          // We have come to the end of the path - terminate the string
+          // right here.
+          str = str.substring(0, i);
+          break;
+        }
+        dist = width/2;
+      }
+
+      // Gives us the (x, y) coordinates as well as the cos/sin of the tangent
+      // line at that position.
+      var xycs = meas.getPosTan(dist);
+      var cx = xycs[0];
+      var cy = xycs[1];
+      var cosT = xycs[2];
+      var sinT = xycs[3];
+
+      var adjustedX = cx - (width/2 * cosT);
+      var adjustedY = cy - (width/2 * sinT);
+
+      rsx.push(cosT, sinT, adjustedX, adjustedY);
+      dist += width/2;
+    }
+    var retVal = this.MakeFromRSXform(str, rsx, font);
+    rsx.delete();
+    meas.delete();
+    return retVal;
+  }
+
+  CanvasKit.SkTextBlob.MakeFromRSXform = function(str, rsxBuilder, font) {
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strLen = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strLen);
+    // Add 1 for the null terminator.
+    stringToUTF8(str, strPtr, strLen);
+    var rptr = rsxBuilder.build();
+
+    var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1,
+                          rptr, font, CanvasKit.TextEncoding.UTF8);
+    if (!blob) {
+      SkDebug('Could not make textblob from string "' + str + '"');
+      return null;
+    }
+
+    var origDelete = blob.delete.bind(blob);
+    blob.delete = function() {
+      CanvasKit._free(strPtr);
+      origDelete();
+    }
+    return blob;
   }
 
   CanvasKit.SkTextBlob.MakeFromText = function(str, font) {
@@ -551,23 +774,6 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
-// imgData is an SkImage, e.g. from MakeImageFromEncoded or SkSurface.makeImageSnapshot
-CanvasKit.MakeImageShader = function(img, xTileMode, yTileMode, clampUnpremul, localMatrix) {
-  if (!img) {
-    return null;
-  }
-  clampUnpremul = clampUnpremul || false;
-  if (localMatrix) {
-    // Add perspective args if not provided.
-    if (localMatrix.length === 6) {
-      localMatrix.push(0, 0, 1);
-    }
-    return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul, localMatrix);
-  } else {
-    return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul);
-  }
-}
-
 // pixels is a Uint8Array
 CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
   var bytesPerPixel = pixels.byteLength / (width * height);
@@ -585,7 +791,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
 }
 
 CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -607,7 +813,7 @@ CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, loc
 }
 
 CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -630,7 +836,7 @@ CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode,
 
 CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, endRadius,
                                                        colors, pos, mode, localMatrix, flags) {
-  var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+  var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
   flags = flags || 0;
 
@@ -657,10 +863,7 @@ CanvasKit.MakeSkVertices = function(mode, positions, textureCoordinates, colors,
                                     boneIndices, boneWeights, indices, isVolatile) {
   var positionPtr = copy2dArray(positions,          CanvasKit.HEAPF32);
   var texPtr =      copy2dArray(textureCoordinates, CanvasKit.HEAPF32);
-  // Since we write the colors to memory as signed integers (JSColor), we can
-  // read them out on the other side as unsigned ints (SkColor) just fine
-  // - it's effectively casting.
-  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAP32);
+  var colorPtr =    copy1dArray(colors,             CanvasKit.HEAPU32);
 
   var boneIdxPtr =  copy2dArray(boneIndices,        CanvasKit.HEAP32);
   var boneWtPtr  =  copy2dArray(boneWeights,        CanvasKit.HEAPF32);

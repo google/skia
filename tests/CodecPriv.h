@@ -7,14 +7,17 @@
 #ifndef CodecPriv_DEFINED
 #define CodecPriv_DEFINED
 
+#include "CommandLineFlags.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkImageEncoder.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+
+static DEFINE_string(codecWritePath, "",
+                     "Dump image decodes from codec unit tests here.");
 
 inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(SkData::MakeWithoutCopy(mem, size)));
@@ -29,11 +32,11 @@ inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
 }
 
 inline void write_bm(const char* name, const SkBitmap& bm) {
-    if (FLAGS_writePath.isEmpty()) {
+    if (FLAGS_codecWritePath.isEmpty()) {
         return;
     }
 
-    SkString filename = SkOSPath::Join(FLAGS_writePath[0], name);
+    SkString filename = SkOSPath::Join(FLAGS_codecWritePath[0], name);
     filename.appendf(".png");
     SkFILEWStream file(filename.c_str());
     if (!SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100)) {

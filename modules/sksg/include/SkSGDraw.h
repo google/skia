@@ -9,7 +9,7 @@
 #define SkSGDraw_DEFINED
 
 #include "SkSGGeometryNode.h"
-#include "SkSGPaintNode.h"
+#include "SkSGPaint.h"
 #include "SkSGRenderNode.h"
 
 namespace sksg {

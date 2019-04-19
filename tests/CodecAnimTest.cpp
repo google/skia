@@ -20,7 +20,7 @@
 #include "SkString.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include "sk_tool_utils.h"
+#include "ToolUtils.h"
 
 #include <cstring>
 #include <memory>
@@ -317,8 +317,8 @@ DEF_TEST(Codec_frames, r) {
                 bm->allocPixels(decodeInfo);
                 if (cachedIndex != SkCodec::kNoFrame) {
                     // First copy the pixels from the cached frame
-                    const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
-                            cachedFrames[cachedIndex]);
+                    const bool success =
+                            ToolUtils::copy_to(bm, kN32_SkColorType, cachedFrames[cachedIndex]);
                     REPORTER_ASSERT(r, success);
                 }
                 SkCodec::Options opts;

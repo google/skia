@@ -302,6 +302,8 @@ public:
     */
     SkGlyphID unicharToGlyph(SkUnichar uni) const;
 
+    void unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const;
+
     /** Returns number of glyphs represented by text.
 
         If encoding is kUTF8_SkTextEncoding, kUTF16_SkTextEncoding, or
@@ -361,12 +363,12 @@ public:
         @param widths      returns text advances for each glyph; may be nullptr
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
     */
-    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
+    void getWidths(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
         this->getWidthsBounds(glyphs, count, widths, bounds, nullptr);
     }
 
     // DEPRECATED
-    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[], std::nullptr_t) const {
+    void getWidths(const SkGlyphID glyphs[], int count, SkScalar widths[], std::nullptr_t) const {
         this->getWidths(glyphs, count, widths);
     }
 
@@ -379,7 +381,7 @@ public:
         @param count       number of glyphs
         @param widths      returns text advances for each glyph
      */
-    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[]) const {
+    void getWidths(const SkGlyphID glyphs[], int count, SkScalar widths[]) const {
         this->getWidthsBounds(glyphs, count, widths, nullptr, nullptr);
     }
 
@@ -394,7 +396,7 @@ public:
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
         @param paint       optional, specifies stroking, SkPathEffect and SkMaskFilter
      */
-    void getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
+    void getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[],
                          const SkPaint* paint) const;
 
 
@@ -407,7 +409,7 @@ public:
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
         @param paint       optional, specifies stroking, SkPathEffect, and SkMaskFilter
      */
-    void getBounds(const uint16_t glyphs[], int count, SkRect bounds[],
+    void getBounds(const SkGlyphID glyphs[], int count, SkRect bounds[],
                    const SkPaint* paint) const {
         this->getWidthsBounds(glyphs, count, nullptr, bounds, paint);
     }
@@ -420,7 +422,7 @@ public:
         @param pos      returns glyphs positions
         @param origin   location of the first glyph. Defaults to {0, 0}.
      */
-    void getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin = {0, 0}) const;
+    void getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin = {0, 0}) const;
 
     /** Retrieves the x-positions for each glyph, beginning at the specified origin. The caller
         must allocated at least count number of elements in the xpos[] array.
@@ -430,7 +432,7 @@ public:
         @param xpos     returns glyphs x-positions
         @param origin   x-position of the first glyph. Defaults to 0.
      */
-    void getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const;
+    void getXPos(const SkGlyphID glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const;
 
     /** Returns path corresponding to glyph outline.
         If glyph has an outline, copies outline to path and returns true.
@@ -441,7 +443,7 @@ public:
         @param path     pointer to existing SkPath
         @return         true if glyphID is described by path
      */
-    bool getPath(uint16_t glyphID, SkPath* path) const;
+    bool getPath(SkGlyphID glyphID, SkPath* path) const;
 
     /** Returns path corresponding to glyph array.
 
@@ -450,7 +452,7 @@ public:
         @param glyphPathProc function returning one glyph description as path
         @param ctx           function context
    */
-    void getPaths(const uint16_t glyphIDs[], int count,
+    void getPaths(const SkGlyphID glyphIDs[], int count,
                   void (*glyphPathProc)(const SkPath* pathOrNull, const SkMatrix& mx, void* ctx),
                   void* ctx) const;
 
@@ -477,8 +479,7 @@ public:
     */
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
 
-    /** Experimental.
-     *  Dumps fields of the font to SkDebugf. May change its output over time, so clients should
+    /** Dumps fields of the font to SkDebugf. May change its output over time, so clients should
      *  not rely on this for anything specific. Used to aid in debugging.
      */
     void dump() const;

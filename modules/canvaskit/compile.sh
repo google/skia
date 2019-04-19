@@ -40,8 +40,8 @@ fi
 
 mkdir -p $BUILD_DIR
 
-GN_GPU="skia_enable_gpu=true"
-GN_GPU_FLAGS="\"-DIS_WEBGL=1\", \"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
+GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
+GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
 if [[ $@ == *cpu* ]]; then
@@ -98,10 +98,12 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
+GN_FONT="skia_enable_fontmgr_empty=false"
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s)"
   BUILTIN_FONT=""
+  GN_FONT="skia_enable_fontmgr_empty=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
@@ -142,7 +144,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_DAA\", \"-DSK_DISABLE_READBUFFER\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_READBUFFER\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
@@ -173,12 +175,12 @@ echo "Compiling bitcode"
   \
   ${GN_SHAPER} \
   ${GN_GPU} \
+  ${GN_FONT} \
   \
   skia_enable_skshaper=true \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
-  skia_enable_skpicture=false \
-  skia_enable_fontmgr_empty=false \
+  skia_enable_skpicture=true \
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
@@ -210,15 +212,11 @@ ${EMCXX} \
     -Imodules/skshaper/include \
     -Imodules/particles/include \
     -Isrc/core/ \
-    -Isrc/gpu/ \
-    -Isrc/sfnt/ \
-    -Isrc/shaders/ \
     -Isrc/utils/ \
     -Ithird_party/icu \
     -Itools \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
-    -DSK_DISABLE_DAA \
     $WASM_GPU \
     -std=c++14 \
     --bind \
@@ -249,5 +247,6 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
+    -s USE_WEBGL2=0 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

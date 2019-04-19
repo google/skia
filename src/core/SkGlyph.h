@@ -150,12 +150,36 @@ public:
     // fImage, fPath, fID, fMaskFormat fields.
     void zeroMetrics();
 
-    void toMask(SkMask* mask) const;
+    bool hasImage() const {
+        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+        return fImage != nullptr;
+    }
+
+    SkMask mask() const;
+
+    SkMask mask(SkPoint position) const;
 
     SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
 
     SkPath* path() const {
         return fPathData != nullptr && fPathData->fHasPath ? &fPathData->fPath : nullptr;
+    }
+
+    bool hasPath() const {
+        // Need to have called getMetrics before calling findPath.
+        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+
+        // Find path must have been called to use this call.
+        SkASSERT(fPathData != nullptr);
+
+        return fPathData != nullptr && fPathData->fHasPath;
+    }
+
+    int maxDimension() const {
+        // width and height are only defined if a metrics call was made.
+        SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
+
+        return std::max(fWidth, fHeight);
     }
 
     // Returns the size allocated on the arena.

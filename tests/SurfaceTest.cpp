@@ -31,8 +31,7 @@
 #include <initializer_list>
 #include <vector>
 
-#include "sk_tool_utils.h"
-
+#include "ToolUtils.h"
 
 static void release_direct_surface_storage(void* pixels, void* context) {
     SkASSERT(pixels == context);
@@ -1019,9 +1018,10 @@ DEF_TEST(surface_image_unity, reporter) {
             auto img = surf->makeImageSnapshot();
             if (!img && false) {    // change to true to document the differences
                 SkDebugf("image failed: [%08X %08X] %14s %s\n",
-                         info.width(), info.height(),
-                         sk_tool_utils::colortype_name(info.colorType()),
-                         sk_tool_utils::alphatype_name(info.alphaType()));
+                         info.width(),
+                         info.height(),
+                         ToolUtils::colortype_name(info.colorType()),
+                         ToolUtils::alphatype_name(info.alphaType()));
                 return;
             }
             REPORTER_ASSERT(reporter, img != nullptr);

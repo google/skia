@@ -53,7 +53,7 @@ protected:
 
         // this combination of emboss+colorfilter used to crash -- so we exercise it to
         // confirm that we have a fix.
-        paint.setColorFilter(SkColorFilter::MakeModeFilter(0xFFFF0000, SkBlendMode::kSrcATop));
+        paint.setColorFilter(SkColorFilters::Blend(0xFFFF0000, SkBlendMode::kSrcATop));
         canvas->drawBitmap(bm, 10, 10, &paint);
         canvas->translate(bm.width() + SkIntToScalar(10), 0);
 
@@ -64,7 +64,7 @@ protected:
             SkBlurMask::ConvertRadiusToSigma(4),
             { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 128, 16*2 }));
         paint.setColorFilter(nullptr);
-        paint.setShader(SkShader::MakeColorShader(SK_ColorBLUE));
+        paint.setShader(SkShaders::Color(SK_ColorBLUE));
         paint.setDither(true);
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
                            SkIntToScalar(30), paint);

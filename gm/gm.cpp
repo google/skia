@@ -8,9 +8,9 @@
 #include "gm.h"
 
 #include "GrContext.h"
-#include "sk_tool_utils.h"
 #include "SkShader.h"
 #include "SkTraceEvent.h"
+#include "ToolUtils.h"
 using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];
@@ -38,15 +38,14 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     bmp.allocN32Pixels(128, 64);
     SkCanvas bmpCanvas(bmp);
     bmpCanvas.drawColor(SK_ColorWHITE);
-    SkFont font(sk_tool_utils::create_portable_typeface(), 20);
+    SkFont  font(ToolUtils::create_portable_typeface(), 20);
     SkPaint paint;
     paint.setColor(SK_ColorRED);
     bmpCanvas.drawString("GPU Only", 20, 40, font, paint);
     SkMatrix localM;
     localM.setRotate(35.f);
     localM.postTranslate(10.f, 0.f);
-    paint.setShader(SkShader::MakeBitmapShader(
-            bmp, SkShader::kMirror_TileMode, SkShader::kMirror_TileMode, &localM));
+    paint.setShader(bmp.makeShader(SkTileMode::kMirror, SkTileMode::kMirror, &localM));
     paint.setFilterQuality(kMedium_SkFilterQuality);
     canvas->drawPaint(paint);
 }
@@ -127,16 +126,14 @@ void GM::setBGColor(SkColor color) {
     fBGColor = color;
 }
 
-bool GM::animate(const SkAnimTimer& timer) {
-    return this->onAnimate(timer);
-}
+bool GM::animate(const AnimTimer& timer) { return this->onAnimate(timer); }
 
 bool GM::runAsBench() const { return false; }
 void GM::modifyGrContextOptions(GrContextOptions* options) {}
 
 void GM::onOnceBeforeDraw() {}
 
-bool GM::onAnimate(const SkAnimTimer&) { return false; }
+bool GM::onAnimate(const AnimTimer&) { return false; }
 bool GM::onHandleKey(SkUnichar uni) { return false; }
 bool GM::onGetControls(SkMetaData*) { return false; }
 void GM::onSetControls(const SkMetaData&) {}
@@ -173,7 +170,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     }
     if (ctx->abandoned()) {
         *errorMsg = "GrContext abandoned.";
-        return DrawResult::kFail;
+        return DrawResult::kSkip;
     }
     return this->onDraw(ctx, rtc, canvas, errorMsg);
 }

@@ -119,7 +119,7 @@ extern bool IsGLContextType(GrContextFactoryContextType);
 extern bool IsVulkanContextType(GrContextFactoryContextType);
 extern bool IsMetalContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
-extern bool IsNullGLContextType(GrContextFactoryContextType);
+extern bool IsMockContextType(GrContextFactoryContextType);
 void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*, Reporter*,
                             const GrContextOptions&);
 
@@ -196,8 +196,8 @@ private:
 #define DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info)                 \
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsRenderingGLContextType,                 \
                                  reporter, context_info, nullptr)
-#define DEF_GPUTEST_FOR_NULLGL_CONTEXT(name, reporter, context_info)                        \
-        DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsNullGLContextType,                      \
+#define DEF_GPUTEST_FOR_MOCK_CONTEXT(name, reporter, context_info)                          \
+        DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsMockContextType,                        \
                                  reporter, context_info, nullptr)
 #define DEF_GPUTEST_FOR_VULKAN_CONTEXT(name, reporter, context_info)                        \
         DEF_GPUTEST_FOR_CONTEXTS(name, &skiatest::IsVulkanContextType,                      \

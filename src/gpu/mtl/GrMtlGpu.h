@@ -44,9 +44,9 @@ public:
 
     id<MTLDevice> device() const { return fDevice; }
 
-    id<MTLCommandBuffer> commandBuffer() const { return fCmdBuffer; }
-
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
+
+    id<MTLCommandBuffer> commandBuffer();
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -58,7 +58,7 @@ public:
     // command buffer to finish before creating a new buffer and returning.
     void submitCommandBuffer(SyncQueue sync);
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
                                                      GrColorType colorType, bool isRT,
                                                      GrMipMapped, size_t rowBytes = 0) override;
@@ -131,8 +131,7 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
-    void querySampleLocations(
-            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) override {
+    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override {
         SkASSERT(!this->caps()->sampleLocationsSupport());
         SK_ABORT("Sample locations not yet implemented for Metal.");
     }
@@ -162,29 +161,45 @@ private:
     bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
                        const GrMipLevel[], int mipLevelCount) override;
 
-    bool onTransferPixels(GrTexture*,
-                          int left, int top, int width, int height,
-                          GrColorType, GrGpuBuffer*,
-                          size_t offset, size_t rowBytes) override {
+    bool onTransferPixelsTo(GrTexture*,
+                            int left, int top, int width, int height,
+                            GrColorType, GrGpuBuffer*,
+                            size_t offset, size_t rowBytes) override {
+        // TODO: not sure this is worth the work since nobody uses it
+        return false;
+    }
+    bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height, GrColorType,
+                              GrGpuBuffer*, size_t offset) override {
+        // TODO: Will need to implement this to support async read backs.
         return false;
     }
 
-    bool onRegenerateMipMapLevels(GrTexture*) override { return false; }
+    bool onRegenerateMipMapLevels(GrTexture*) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
-                       SkSurface::FlushFlags flags, bool insertedSemaphores) override {
-        if (flags & SkSurface::kSyncCpu_FlushFlag) {
+                       const GrFlushInfo& info) override {
+        if (info.fFlags & kSyncCpu_GrFlushFlag) {
             this->submitCommandBuffer(kForce_SyncQueue);
+            if (info.fFinishedProc) {
+                info.fFinishedProc(info.fFinishedContext);
+            }
         } else {
             this->submitCommandBuffer(kSkip_SyncQueue);
+            // TODO: support finishedProc to actually be called when the GPU is done with the work
+            // and not immediately.
+            if (info.fFinishedProc) {
+                info.fFinishedProc(info.fFinishedContext);
+            }
         }
     }
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
+    // Function that fills texture with transparent black
+    bool clearTexture(GrMtlTexture*, GrColorType);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

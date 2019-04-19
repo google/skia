@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -28,10 +28,10 @@ static void makebm(SkBitmap* bm, int w, int h) {
     SkPaint     paint;
 
     paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode));
+                    SK_ARRAY_COUNT(kColors0), SkTileMode::kClamp));
     canvas.drawPaint(paint);
     paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode));
+                    SK_ARRAY_COUNT(kColors1), SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
@@ -70,7 +70,7 @@ protected:
         bmpPaint.setAlphaf(0.5f);
         canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), SkIntToScalar(kPointSize));
+        SkFont  font(ToolUtils::create_portable_typeface(), SkIntToScalar(kPointSize));
         SkPaint outlinePaint;
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
@@ -80,9 +80,9 @@ protected:
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
-        constexpr SkShader::TileMode kTileModes[] = {
-            SkShader::kRepeat_TileMode,
-            SkShader::kMirror_TileMode,
+        constexpr SkTileMode kTileModes[] = {
+            SkTileMode::kRepeat,
+            SkTileMode::kMirror,
         };
 
         // position the baseline of the first run
@@ -100,8 +100,7 @@ protected:
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
-                fillPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTileModes[tm0],
-                                                               kTileModes[tm1], &localM));
+                fillPaint.setShader(fBmp.makeShader(kTileModes[tm0], kTileModes[tm1], &localM));
 
                 constexpr char kText[] = "B";
                 canvas->drawString(kText, 0, 0, font, fillPaint);

@@ -7,10 +7,11 @@
 
 #include "SkSGDraw.h"
 
+#include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkSGGeometryNode.h"
 #include "SkSGInvalidationController.h"
-#include "SkSGPaintNode.h"
+#include "SkSGPaint.h"
 #include "SkTLazy.h"
 
 namespace sksg {
@@ -30,7 +31,7 @@ Draw::~Draw() {
 void Draw::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     auto paint = fPaint->makePaint();
     if (ctx) {
-        ctx->modulatePaint(&paint);
+        ctx->modulatePaint(canvas->getTotalMatrix(), &paint);
     }
 
     const auto skipDraw = paint.nothingToDraw() ||

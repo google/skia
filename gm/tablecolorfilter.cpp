@@ -18,7 +18,7 @@ static sk_sp<SkShader> make_shader0(int w, int h) {
         SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
     };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kClamp_TileMode);
+                                        SkTileMode::kClamp);
 }
 static void make_bm0(SkBitmap* bm) {
     int W = 120;
@@ -38,7 +38,7 @@ static sk_sp<SkShader> make_shader1(int w, int h) {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
     };
     return SkGradientShader::MakeRadial(SkPoint::Make(cx, cy), cx, colors, nullptr,
-                                        SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
+                                        SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
 }
 static void make_bm1(SkBitmap* bm) {
     int W = 120;
@@ -230,7 +230,7 @@ protected:
         int index = 0;
         for (int i = 0; i < MODE_COUNT; ++i) {
             for (int j = 0; j < COLOR_COUNT; ++j) {
-                filters[index++] = SkColorFilter::MakeModeFilter(fColors[j], fModes[i]);
+                filters[index++] = SkColorFilters::Blend(fColors[j], fModes[i]);
             }
         }
 

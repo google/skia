@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "SkAdvancedTypefaceMetrics.h"
-#include "SkCommandLineFlags.h"
 #include "SkFont.h"
 #include "SkFontMgr.h"
 #include "SkPaint.h"
-#include "SkTypeface.h"
 #include "SkStream.h"
+#include "SkTypeface.h"
 #include "Test.h"
 
 #include <initializer_list>
@@ -136,14 +136,12 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             return nullptr;
         }
         void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-        virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-            uint16_t glyphs[], int glyphCount) const override {
-            if (glyphs && glyphCount > 0) {
-                sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-            }
-            return 0;
+        void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
+            sk_bzero(glyphs, count * sizeof(glyphs[0]));
         }
         int onCountGlyphs() const override { return 0; }
+        void getPostScriptGlyphNames(SkString*) const override {}
+        void getGlyphToUnicodeMap(SkUnichar*) const override {}
         int onGetUPEM() const override { return 0; }
         class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
         public:
@@ -160,6 +158,11 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
                 int coordinateCount) const override
         {
             return 0;
+        }
+        int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                           int parameterCount) const override
+        {
+            return -1;
         }
         int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
         size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {

@@ -30,7 +30,6 @@ bool ValueTraits<ScalarValue>::CanLerp(const ScalarValue&, const ScalarValue&) {
 template <>
 void ValueTraits<ScalarValue>::Lerp(const ScalarValue& v0, const ScalarValue& v1, float t,
                                     ScalarValue* result) {
-    SkASSERT(t >= 0 && t <= 1);
     *result = v0 + (v1 - v0) * t;
 }
 
@@ -183,7 +182,6 @@ static SkPoint lerp_point(const SkPoint& v0, const SkPoint& v1, const Sk2f& t) {
 template <>
 void ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, float t,
                                    ShapeValue* result) {
-    SkASSERT(t >= 0 && t <= 1);
     SkASSERT(v0.fVertices.size() == v1.fVertices.size());
     SkASSERT(v0.fClosed == v1.fClosed);
 
@@ -268,8 +266,38 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         SkTextUtils::kRight_Align, // 'j': 1
         SkTextUtils::kCenter_Align // 'j': 2
     };
-    v->fAlign = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
-                                         SK_ARRAY_COUNT(gAlignMap))];
+    v->fHAlign = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
+                                          SK_ARRAY_COUNT(gAlignMap))];
+
+    // Optional text box size.
+    if (const skjson::ArrayValue* jsz = (*jtxt)["sz"]) {
+        if (jsz->size() == 2) {
+            v->fBox.setWH(ParseDefault<SkScalar>((*jsz)[0], 0),
+                          ParseDefault<SkScalar>((*jsz)[1], 0));
+        }
+    }
+
+    // Optional text box position.
+    if (const skjson::ArrayValue* jps = (*jtxt)["ps"]) {
+        if (jps->size() == 2) {
+            v->fBox.offset(ParseDefault<SkScalar>((*jps)[0], 0),
+                           ParseDefault<SkScalar>((*jps)[1], 0));
+        }
+    }
+
+    // In point mode, the text is baseline-aligned.
+    v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
+                                   : Shaper::VAlign::kTop;
+
+    // Skia vertical alignment extension "sk_vj":
+    enum {
+        kDefault_VJ = 0, // AE default alignment.
+         kCenter_VJ = 1, // Center-aligned.
+    };
+
+    if (ParseDefault<int>((*jtxt)["sk_vj"], kDefault_VJ) == kCenter_VJ) {
+        v->fVAlign = Shaper::VAlign::kCenter;
+    }
 
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
                                   const internal::AnimationBuilder* abuilder,

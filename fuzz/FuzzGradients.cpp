@@ -5,15 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "CommandLineFlags.h"
 #include "Fuzz.h"
 #include "SkCanvas.h"
-#include "SkCommonFlags.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkTLazy.h"
 
 #include <algorithm>
 #include <vector>
+
+static DEFINE_bool2(verbose, v, false, "log verbose linear gradient description");
 
 const int MAX_COUNT = 400;
 
@@ -24,7 +26,7 @@ void makeMatrix(Fuzz* fuzz, SkMatrix* m) {
 }
 
 void initGradientParams(Fuzz* fuzz, std::vector<SkColor>* colors,
-                        std::vector<SkScalar>* pos, SkShader::TileMode* mode) {
+                        std::vector<SkScalar>* pos, SkTileMode* mode) {
     int count;
     fuzz->nextRange(&count, 0, MAX_COUNT);
 
@@ -32,7 +34,7 @@ void initGradientParams(Fuzz* fuzz, std::vector<SkColor>* colors,
     // smaller, which leads to more efficient fuzzing.
     uint8_t m;
     fuzz->nextRange(&m, 0, 2);
-    *mode = static_cast<SkShader::TileMode>(m);
+    *mode = static_cast<SkTileMode>(m);
 
     colors->clear();
     pos   ->clear();
@@ -66,7 +68,7 @@ static void logOptionalMatrix(const char* label, const SkMatrix* m) {
 static void logLinearGradient(const SkPoint pts[2],
                               const std::vector<SkColor>& colors,
                               const std::vector<SkScalar> pos,
-                              SkShader::TileMode mode,
+                              SkTileMode mode,
                               uint32_t flags,
                               const SkMatrix* localMatrix,
                               const SkMatrix* globalMatrix) {
@@ -94,10 +96,10 @@ static void logLinearGradient(const SkPoint pts[2],
     SkDebugf("]\n");
 
     static const char* gModeName[] = {
-        "kClamp_TileMode", "kRepeat_TileMode", "kMirror_TileMode"
+        "kClamp_TileMode", "kRepeat_TileMode", "kMirror_TileMode", "kDecal_TileMode"
     };
-    SkASSERT(mode < SK_ARRAY_COUNT(gModeName));
-    SkDebugf("  mode:\t\t%s\n", gModeName[mode]);
+    SkASSERT((unsigned)mode < SK_ARRAY_COUNT(gModeName));
+    SkDebugf("  mode:\t\t%s\n", gModeName[(unsigned)mode]);
     SkDebugf("  flags:\t0x%x\n", flags);
     logOptionalMatrix("local matrix", localMatrix);
     logOptionalMatrix("global matrix", globalMatrix);
@@ -111,7 +113,7 @@ void fuzzLinearGradient(Fuzz* fuzz) {
 
     std::vector<SkColor> colors;
     std::vector<SkScalar> pos;
-    SkShader::TileMode mode;
+    SkTileMode mode;
     initGradientParams(fuzz, &colors, &pos, &mode);
 
     SkPaint p;
@@ -149,7 +151,7 @@ void fuzzRadialGradient(Fuzz* fuzz) {
 
     std::vector<SkColor> colors;
     std::vector<SkScalar> pos;
-    SkShader::TileMode mode;
+    SkTileMode mode;
     initGradientParams(fuzz, &colors, &pos, &mode);
 
     SkPaint p;
@@ -187,7 +189,7 @@ void fuzzTwoPointConicalGradient(Fuzz* fuzz) {
 
     std::vector<SkColor> colors;
     std::vector<SkScalar> pos;
-    SkShader::TileMode mode;
+    SkTileMode mode;
     initGradientParams(fuzz, &colors, &pos, &mode);
 
     SkPaint p;
@@ -221,7 +223,7 @@ void fuzzSweepGradient(Fuzz* fuzz) {
 
     std::vector<SkColor> colors;
     std::vector<SkScalar> pos;
-    SkShader::TileMode mode;
+    SkTileMode mode;
     initGradientParams(fuzz, &colors, &pos, &mode);
 
     SkPaint p;

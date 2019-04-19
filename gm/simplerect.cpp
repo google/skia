@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 class SimpleRectGM : public skiagm::GM {
 public:
@@ -36,7 +36,7 @@ protected:
         SkRandom rand;
         SkPaint paint;
         for (int i = 0; i < 10000; i++) {
-            paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+            paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
             SkScalar x = rand.nextRangeScalar(min, max);
             SkScalar y = rand.nextRangeScalar(min, max);
             SkScalar w = rand.nextRangeScalar(0, size);
@@ -45,9 +45,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        return true;
-    }
+    bool onAnimate(const AnimTimer& timer) override { return true; }
 
 private:
 

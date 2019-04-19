@@ -313,6 +313,16 @@ enum class GrFSAAType {
 };
 
 /**
+ * Some pixel configs are inherently clamped to [0,1], some are allowed to go outside that range,
+ * and some are FP but manually clamped in the XP.
+ */
+enum class GrClampType {
+    kAuto,    // Normalized, fixed-point configs
+    kManual,  // Clamped FP configs
+    kNone,    // Normal (unclamped) FP configs
+};
+
+/**
  * A number of rectangle/quadrilateral drawing APIs can control anti-aliasing on a per edge basis.
  * These masks specify which edges are AA'ed. The intent for this is to support tiling with seamless
  * boundaries, where the inner edges are non-AA and the outer edges are AA. Regular draws (where AA
@@ -823,7 +833,9 @@ enum class GpuPathRenderers {
     kSmall             = 1 << 6,
     kTessellating      = 1 << 7,
 
-    kAll               = (kTessellating | (kTessellating - 1))
+    kAll               = (kTessellating | (kTessellating - 1)),
+    kDefault           = kAll & ~kCoverageCounting
+
 };
 
 /**
@@ -1029,6 +1041,13 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
     }
     SK_ABORT("Invalid pixel config.");
     return false;
+}
+
+static inline GrClampType GrPixelConfigClampType(GrPixelConfig config) {
+    if (!GrPixelConfigIsFloatingPoint(config)) {
+        return GrClampType::kAuto;
+    }
+    return kRGBA_half_Clamped_GrPixelConfig == config ? GrClampType::kManual : GrClampType::kNone;
 }
 
 /**
@@ -1464,8 +1483,7 @@ static inline GrPixelConfig GrColorTypeToPixelConfig(GrColorType config,
 }
 
 /**
- * Ref-counted object that calls a callback from its destructor. These can be chained together. Any
- * owner can cancel calling the callback via abandon().
+ * Ref-counted object that calls a callback from its destructor.
  */
 class GrRefCntedCallback : public SkRefCnt {
 public:
@@ -1477,28 +1495,9 @@ public:
     }
     ~GrRefCntedCallback() override { fReleaseProc ? fReleaseProc(fReleaseCtx) : void(); }
 
-    /**
-     * After abandon is called the release proc will no longer be called in the destructor. This
-     * does not recurse on child release procs or unref them.
-     */
-    void abandon() {
-        fReleaseProc = nullptr;
-        fReleaseCtx = nullptr;
-    }
-
-    /** Adds another GrRefCntedCallback that this will unref in its destructor. */
-    void addChild(sk_sp<GrRefCntedCallback> next) {
-        if (!fNext) {
-            fNext = std::move(next);
-            return;
-        }
-        fNext->addChild(std::move(next));
-    }
-
     Context context() const { return fReleaseCtx; }
 
 private:
-    sk_sp<GrRefCntedCallback> fNext;
     Callback fReleaseProc;
     Context fReleaseCtx;
 };

@@ -14,25 +14,26 @@
 #include "SkEmptyShader.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
 /**
  *  We are faster in clamp, so always use that tiling when we can.
  */
-static SkShader::TileMode optimize(SkShader::TileMode tm, int dimension) {
+static SkTileMode optimize(SkTileMode tm, int dimension) {
     SkASSERT(dimension > 0);
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // need to update frameworks/base/libs/hwui/tests/unit/SkiaBehaviorTests.cpp:55 to allow
     // for transforming to clamp.
     return tm;
 #else
-    return dimension == 1 ? SkShader::kClamp_TileMode : tm;
+    return dimension == 1 ? SkTileMode::kClamp : tm;
 #endif
 }
 
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
-                             TileMode tmx, TileMode tmy,
+                             SkTileMode tmx, SkTileMode tmy,
                              const SkMatrix* localMatrix,
                              bool clampAsIfUnpremul)
     : INHERITED(localMatrix)
@@ -46,27 +47,28 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
 // so there's no need to read or write it here.
 
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
-    const TileMode tx = (TileMode)buffer.readUInt();
-    const TileMode ty = (TileMode)buffer.readUInt();
+    auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+    auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     SkMatrix localMatrix;
     buffer.readMatrix(&localMatrix);
     sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(std::move(img), tx, ty, &localMatrix);
+    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeUInt(fTileModeX);
-    buffer.writeUInt(fTileModeY);
+    buffer.writeUInt((unsigned)fTileModeX);
+    buffer.writeUInt((unsigned)fTileModeY);
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
 }
 
 bool SkImageShader::isOpaque() const {
-    return fImage->isOpaque() && fTileModeX != kDecal_TileMode && fTileModeY != kDecal_TileMode;
+    return fImage->isOpaque() &&
+           fTileModeX != SkTileMode::kDecal && fTileModeY != SkTileMode::kDecal;
 }
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -103,7 +105,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     if (fTileModeX != fTileModeY) {
         return nullptr;
     }
-    if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
+    if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
         return nullptr;
     }
 
@@ -137,25 +139,25 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
 }
 #endif
 
-SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
+SkImage* SkImageShader::onIsAImage(SkMatrix* texM, SkTileMode xy[]) const {
     if (texM) {
         *texM = this->getLocalMatrix();
     }
     if (xy) {
-        xy[0] = (TileMode)fTileModeX;
-        xy[1] = (TileMode)fTileModeY;
+        xy[0] = fTileModeX;
+        xy[1] = fTileModeY;
     }
     return const_cast<SkImage*>(fImage.get());
 }
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
-                                    TileMode tx, TileMode ty,
+                                    SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix,
                                     bool clampAsIfUnpremul) {
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
-    return sk_sp<SkShader>{ new SkImageShader(image, tx,ty, localMatrix, clampAsIfUnpremul) };
+    return sk_sp<SkShader>{ new SkImageShader(image, tmx, tmy, localMatrix, clampAsIfUnpremul) };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,17 +170,17 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 #include "GrRecordingContextPriv.h"
 #include "SkGr.h"
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 
-static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkShader::TileMode tileMode) {
+static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkTileMode tileMode) {
     switch (tileMode) {
-        case SkShader::TileMode::kClamp_TileMode:
+        case SkTileMode::kClamp:
             return GrSamplerState::WrapMode::kClamp;
-        case SkShader::TileMode::kRepeat_TileMode:
+        case SkTileMode::kRepeat:
             return GrSamplerState::WrapMode::kRepeat;
-        case SkShader::TileMode::kMirror_TileMode:
+        case SkTileMode::kMirror:
             return GrSamplerState::WrapMode::kMirrorRepeat;
-        case SkShader::kDecal_TileMode:
+        case SkTileMode::kDecal:
             return GrSamplerState::WrapMode::kClampToBorder;
     }
     SK_ABORT("Unknown tile mode.");
@@ -255,6 +257,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                           args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;
+    } else if (args.fInputColorIsOpaque) {
+        return GrFragmentProcessor::OverrideInput(std::move(inner), SK_PMColor4fWHITE, false);
     }
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
 }
@@ -264,16 +268,31 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkImagePriv.h"
 
-sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
-                                   SkShader::TileMode tmy, const SkMatrix* localMatrix,
-                                   SkCopyPixelsMode cpm) {
+sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
+                                   const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
                                tmx, tmy, localMatrix);
 }
 
+sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
+                                           SkTileMode tmx, SkTileMode tmy,
+                                           const SkMatrix* localMatrix, SkCopyPixelsMode mode) {
+    auto s = SkMakeBitmapShader(src, tmx, tmy, localMatrix, mode);
+    if (!s) {
+        return nullptr;
+    }
+    if (src.colorType() == kAlpha_8_SkColorType && paint.getShader()) {
+        // Compose the image shader with the paint's shader. Alpha images+shaders should output the
+        // texture's alpha multiplied by the shader's color. DstIn (d*sa) will achieve this with
+        // the source image and dst shader (MakeBlend takes dst first, src second).
+        s = SkShaders::Blend(SkBlendMode::kDstIn, paint.refShader(), std::move(s));
+    }
+    return s;
+}
+
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
-bool SkImageShader::onAppendStages(const StageRec& rec) const {
+bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
@@ -331,8 +350,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     limit_y->invScale = 1.0f / pm.height();
 
     SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
-    bool decal_x_and_y = fTileModeX == kDecal_TileMode && fTileModeY == kDecal_TileMode;
-    if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
+    bool decal_x_and_y = fTileModeX == SkTileMode::kDecal && fTileModeY == SkTileMode::kDecal;
+    if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
         decal_ctx = alloc->make<SkRasterPipeline_DecalTileCtx>();
         decal_ctx->limit_x = limit_x->scale;
         decal_ctx->limit_y = limit_y->scale;
@@ -343,16 +362,16 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             p->append(SkRasterPipeline::decal_x_and_y,  decal_ctx);
         } else {
             switch (fTileModeX) {
-                case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */     break;
-                case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x);   break;
-                case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x);   break;
-                case kDecal_TileMode:  p->append(SkRasterPipeline::decal_x,  decal_ctx); break;
+                case SkTileMode::kClamp:  /* The gather_xxx stage will clamp for us. */     break;
+                case SkTileMode::kMirror: p->append(SkRasterPipeline::mirror_x, limit_x);   break;
+                case SkTileMode::kRepeat: p->append(SkRasterPipeline::repeat_x, limit_x);   break;
+                case SkTileMode::kDecal:  p->append(SkRasterPipeline::decal_x,  decal_ctx); break;
             }
             switch (fTileModeY) {
-                case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */     break;
-                case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y);   break;
-                case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y);   break;
-                case kDecal_TileMode:  p->append(SkRasterPipeline::decal_y,  decal_ctx); break;
+                case SkTileMode::kClamp:  /* The gather_xxx stage will clamp for us. */     break;
+                case SkTileMode::kMirror: p->append(SkRasterPipeline::mirror_y, limit_y);   break;
+                case SkTileMode::kRepeat: p->append(SkRasterPipeline::repeat_y, limit_y);   break;
+                case SkTileMode::kDecal:  p->append(SkRasterPipeline::decal_y,  decal_ctx); break;
             }
         }
 
@@ -426,8 +445,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     if (true
         && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType)
         && quality == kLow_SkFilterQuality
-        && fTileModeX == SkShader::kClamp_TileMode
-        && fTileModeY == SkShader::kClamp_TileMode) {
+        && fTileModeX == SkTileMode::kClamp && fTileModeY == SkTileMode::kClamp) {
 
         p->append(SkRasterPipeline::bilerp_clamp_8888, gather);
         if (ct == kBGRA_8888_SkColorType) {

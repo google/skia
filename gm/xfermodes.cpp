@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkShader.h"
 #include "SkTextUtils.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
@@ -88,7 +88,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
 
     {
         SkCanvas c(*src);
-        p.setColor(sk_tool_utils::color_to_565(0xFFFFCC44));
+        p.setColor(ToolUtils::color_to_565(0xFFFFCC44));
         r.set(0, 0, ww*3/4, hh*3/4);
         c.drawOval(r, p);
     }
@@ -98,7 +98,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
 
     {
         SkCanvas c(*dst);
-        p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
+        p.setColor(ToolUtils::color_to_565(0xFF66AAFF));
         r.set(ww/3, hh/3, ww*19/20, hh*19/20);
         c.drawRect(r, p);
     }
@@ -145,11 +145,11 @@ class XfermodesGM : public skiagm::GM {
             case kQuarterClear_SrcType: {
                 SkScalar halfW = SkIntToScalar(W) / 2;
                 SkScalar halfH = SkIntToScalar(H) / 2;
-                p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
+                p.setColor(ToolUtils::color_to_565(0xFF66AAFF));
                 SkRect r = SkRect::MakeXYWH(x + halfW, y, halfW,
                                             SkIntToScalar(H));
                 canvas->drawRect(r, p);
-                p.setColor(sk_tool_utils::color_to_565(0xFFAA66FF));
+                p.setColor(ToolUtils::color_to_565(0xFFAA66FF));
                 r = SkRect::MakeXYWH(x, y + halfH, SkIntToScalar(W), halfH);
                 canvas->drawRect(r, p);
                 break;
@@ -168,7 +168,7 @@ class XfermodesGM : public skiagm::GM {
                 SkScalar h = SkIntToScalar(H);
                 SkRect r = SkRect::MakeXYWH(x + w / 3, y + h / 3,
                                             w * 37 / 60, h * 37 / 60);
-                p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
+                p.setColor(ToolUtils::color_to_565(0xFF66AAFF));
                 canvas->drawRect(r, p);
                 break;
             }
@@ -222,13 +222,12 @@ protected:
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        auto s = SkShader::MakeBitmapShader(fBG, SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode, &m);
+        auto s = fBG.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
 
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont font(ToolUtils::create_portable_typeface());
 
         const int W = 5;
 

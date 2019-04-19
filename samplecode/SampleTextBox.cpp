@@ -58,15 +58,14 @@ protected:
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
-            SkTextBlobBuilderRunHandler builder(gText);
+            SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
             SkFont font(nullptr, SkIntToScalar(i));
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
-            SkPoint end = fShaper->shape(&builder, font, gText, strlen(gText), true,
-                                         { margin, margin }, w - margin);
+            fShaper->shape(gText, strlen(gText), font, true, w - margin, &builder);
             canvas->drawTextBlob(builder.makeBlob(), 0, 0, paint);
 
-            canvas->translate(0, end.y());
+            canvas->translate(0, builder.endPoint().y());
         }
     }
 

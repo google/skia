@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkLightingShader.h"
 #include "SkNormalSource.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // Create a truncated pyramid normal map
 static SkBitmap make_frustum_normalmap(int texSize) {
     SkBitmap frustum;
     frustum.allocN32Pixels(texSize, texSize);
 
-    sk_tool_utils::create_frustum_normal_map(&frustum, SkIRect::MakeWH(texSize, texSize));
+    ToolUtils::create_frustum_normal_map(&frustum, SkIRect::MakeWH(texSize, texSize));
     return frustum;
 }
 
@@ -29,7 +29,7 @@ namespace skiagm {
 class LightingShader2GM : public GM {
 public:
     LightingShader2GM() : fRect(SkRect::MakeIWH(kTexSize, kTexSize)) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFF0000CC));
+        this->setBGColor(ToolUtils::color_to_565(0xFF0000CC));
     }
 
 protected:
@@ -77,25 +77,20 @@ protected:
         SkRect bitmapBounds = SkRect::MakeIWH(kTexSize, kTexSize);
         matrix.setRectToRect(bitmapBounds, fRect, SkMatrix::kFill_ScaleToFit);
 
-        SkBitmap opaqueDiffuseMap = sk_tool_utils::create_checkerboard_bitmap(
-                kTexSize, kTexSize, SK_ColorBLACK,
-                0xFF808080,
-                8);
-        fOpaqueDiffuse = SkShader::MakeBitmapShader(opaqueDiffuseMap, SkShader::kClamp_TileMode,
-                                                    SkShader::kClamp_TileMode, &matrix);
+        SkBitmap opaqueDiffuseMap = ToolUtils::create_checkerboard_bitmap(
+                kTexSize, kTexSize, SK_ColorBLACK, 0xFF808080, 8);
+        fOpaqueDiffuse = opaqueDiffuseMap.makeShader(&matrix);
 
-        SkBitmap translucentDiffuseMap = sk_tool_utils::create_checkerboard_bitmap(
-                kTexSize, kTexSize,
-                SkColorSetARGB(0x55, 0x00, 0x00, 0x00),
-                SkColorSetARGB(0x55, 0x80, 0x80, 0x80),
-                8);
-        fTranslucentDiffuse = SkShader::MakeBitmapShader(translucentDiffuseMap,
-                                                         SkShader::kClamp_TileMode,
-                                                         SkShader::kClamp_TileMode, &matrix);
+        SkBitmap translucentDiffuseMap =
+                ToolUtils::create_checkerboard_bitmap(kTexSize,
+                                                      kTexSize,
+                                                      SkColorSetARGB(0x55, 0x00, 0x00, 0x00),
+                                                      SkColorSetARGB(0x55, 0x80, 0x80, 0x80),
+                                                      8);
+        fTranslucentDiffuse = translucentDiffuseMap.makeShader(&matrix);
 
         SkBitmap normalMap = make_frustum_normalmap(kTexSize);
-        fNormalMapShader = SkShader::MakeBitmapShader(normalMap, SkShader::kClamp_TileMode,
-                                                      SkShader::kClamp_TileMode, &matrix);
+        fNormalMapShader = normalMap.makeShader(&matrix);
 
     }
 
@@ -143,8 +138,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint labelPaint;
-        SkFont font(
-                sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle()), kLabelSize);
+        SkFont  font(ToolUtils::create_portable_typeface("sans-serif", SkFontStyle()), kLabelSize);
 
         int gridNum = 0;
 

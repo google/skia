@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkCanvas.h"
@@ -26,19 +26,19 @@ protected:
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        SkFont font(sk_tool_utils::create_portable_typeface(), 162);
+        SkFont font(ToolUtils::create_portable_typeface(), 162);
         font.setEdging(SkFont::Edging::kAlias);
         const char* text = "A";
 
         SkRect bounds;
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, 0);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
 
         // Medium
         SkScalar xOffset = bounds.width() + 5;
         font.setSize(72);
         text = "B";
-        sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset, 0);
+        ToolUtils::add_to_text_blob(&builder, text, font, xOffset, 0);
 
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         SkScalar yOffset = bounds.height();
@@ -46,7 +46,7 @@ protected:
         // Small
         font.setSize(32);
         text = "C";
-        sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset, -yOffset - 10);
+        ToolUtils::add_to_text_blob(&builder, text, font, xOffset, -yOffset - 10);
 
         // build
         fBlob = builder.make();

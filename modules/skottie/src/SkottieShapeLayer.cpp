@@ -12,14 +12,15 @@
 #include "SkottieJson.h"
 #include "SkottieValue.h"
 #include "SkPath.h"
-#include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGeometryTransform.h"
 #include "SkSGGradient.h"
 #include "SkSGGroup.h"
 #include "SkSGMerge.h"
+#include "SkSGPaint.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGRenderEffect.h"
 #include "SkSGRoundEffect.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
@@ -145,8 +146,8 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
     return std::move(path_node);
 }
 
-sk_sp<sksg::Gradient> AttachGradient(const skjson::ObjectValue& jgrad,
-                                     const AnimationBuilder* abuilder, AnimatorScope* ascope) {
+sk_sp<sksg::ShaderPaint> AttachGradient(const skjson::ObjectValue& jgrad,
+                                        const AnimationBuilder* abuilder, AnimatorScope* ascope) {
     const skjson::ObjectValue* stops = jgrad["g"];
     if (!stops)
         return nullptr;
@@ -183,7 +184,7 @@ sk_sp<sksg::Gradient> AttachGradient(const skjson::ObjectValue& jgrad,
             adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
         });
 
-    return gradient_node;
+    return sksg::ShaderPaint::Make(std::move(gradient_node));
 }
 
 sk_sp<sksg::PaintNode> AttachPaint(const skjson::ObjectValue& jpaint,
@@ -560,6 +561,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
         const auto* info = FindShapeInfo(*shape);
         if (!info) {
             this->log(Logger::Level::kError, &(*shape)["ty"], "Unknown shape.");
+            continue;
+        }
+
+        if (ParseDefault<bool>((*shape)["hd"], false)) {
+            // Ignore hidden shapes.
             continue;
         }
 

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkLayerDrawLooper.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static SkRect inset(const SkRect& r) {
     SkRect rect = r;
@@ -46,7 +46,7 @@ protected:
         bool hasInterior = false;
 #endif
 
-        paint.setColor(hasInterior ? sk_tool_utils::color_to_565(0xFF8888FF) : SK_ColorGRAY);
+        paint.setColor(hasInterior ? ToolUtils::color_to_565(0xFF8888FF) : SK_ColorGRAY);
         canvas->drawPath(path, paint);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorRED);

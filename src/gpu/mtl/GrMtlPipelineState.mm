@@ -118,6 +118,13 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     }
 }
 
+void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                      GrPixelConfig config, const GrXferProcessor& xferProcessor) {
+    this->bind(renderCmdEncoder);
+    this->setBlendConstants(renderCmdEncoder, config, xferProcessor);
+    this->setDepthStencilState(renderCmdEncoder);
+}
+
 void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     if (fGeometryUniformBuffer) {
         [renderCmdEncoder setVertexBuffer: fGeometryUniformBuffer->mtlBuffer()
@@ -259,17 +266,44 @@ void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> render
     }
     else {
         MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
-        desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.front());
+        GrSurfaceOrigin origin = fRenderTargetState.fRenderTargetOrigin;
         if (fStencil.isTwoSided()) {
-            desc.backFaceStencil = skia_stencil_to_mtl(fStencil.back());
-            [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front().fRef
-                              backReferenceValue:fStencil.back().fRef];
+            desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.front(origin));
+            desc.backFaceStencil = skia_stencil_to_mtl(fStencil.back(origin));
+            [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front(origin).fRef
+                              backReferenceValue:fStencil.back(origin).fRef];
         }
         else {
+            desc.frontFaceStencil = skia_stencil_to_mtl(fStencil.frontAndBack());
             desc.backFaceStencil = desc.frontFaceStencil;
-            [renderCmdEncoder setStencilReferenceValue:fStencil.front().fRef];
+            [renderCmdEncoder setStencilReferenceValue:fStencil.frontAndBack().fRef];
         }
         id<MTLDepthStencilState> state = [fGpu->device() newDepthStencilStateWithDescriptor:desc];
         [renderCmdEncoder setDepthStencilState:state];
     }
+}
+
+void GrMtlPipelineState::SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                                    const GrRenderTarget* renderTarget,
+                                                    GrSurfaceOrigin rtOrigin,
+                                                    SkIRect scissorRect) {
+    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
+        scissorRect.setEmpty();
+    }
+
+    MTLScissorRect scissor;
+    scissor.x = scissorRect.fLeft;
+    scissor.width = scissorRect.width();
+    if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
+        scissor.y = scissorRect.fTop;
+    } else {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
+        scissor.y = renderTarget->height() - scissorRect.fBottom;
+    }
+    scissor.height = scissorRect.height();
+
+    SkASSERT(scissor.x >= 0);
+    SkASSERT(scissor.y >= 0);
+
+    [renderCmdEncoder setScissorRect: scissor];
 }

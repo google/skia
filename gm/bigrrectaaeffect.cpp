@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "SkRRect.h"
+#include "ToolUtils.h"
 #include "effects/GrRRectEffect.h"
+#include "gm.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrFillRectOp.h"
 
@@ -24,7 +24,7 @@ public:
     BigRRectAAEffectGM(const SkRRect& rrect, const char* name)
         : fRRect(rrect)
         , fName(name) {
-        this->setBGColor(sk_tool_utils::color_to_565(SK_ColorBLUE));
+        this->setBGColor(ToolUtils::color_to_565(SK_ColorBLUE));
         // Each test case draws the rrect with gaps around it.
         fTestWidth = SkScalarCeilToInt(rrect.width()) + 2 * kGap;
         fTestHeight = SkScalarCeilToInt(rrect.height()) + 2 * kGap;

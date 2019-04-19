@@ -14,9 +14,9 @@
 #include "SkMakeUnique.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
-#include "SkSGColor.h"
 #include "SkSGInvalidationController.h"
 #include "SkSGOpacityEffect.h"
+#include "SkSGPaint.h"
 #include "SkSGPath.h"
 #include "SkSGRenderEffect.h"
 #include "SkSGScene.h"
@@ -117,12 +117,15 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
 
 sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
                                                         AnimatorScope* ascope,
-                                                        sk_sp<sksg::Transform> parent) const {
+                                                        sk_sp<sksg::Transform> parent,
+                                                        sk_sp<TransformAdapter3D> adapter) const {
     static const VectorValue g_default_vec_0   = {  0,   0,   0},
                              g_default_vec_100 = {100, 100, 100};
 
-    auto matrix = sksg::Matrix<SkMatrix44>::Make(SkMatrix::I());
-    auto adapter = sk_make_sp<TransformAdapter3D>(matrix);
+    if (!adapter) {
+        // Default to TransformAdapter3D (we only use external adapters for cameras).
+        adapter = sk_make_sp<TransformAdapter3D>();
+    }
 
     auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
             [adapter](const VectorValue& a) {
@@ -165,7 +168,7 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
     // TODO: dispatch 3D transform properties
 
     return (bound)
-        ? sksg::Transform::MakeConcat(std::move(parent), std::move(matrix))
+        ? sksg::Transform::MakeConcat(std::move(parent), adapter->refTransform())
         : parent;
 }
 
@@ -209,6 +212,7 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
         SkBlendMode::kSaturation, // 13:'saturation'
         SkBlendMode::kColor,      // 14:'color'
         SkBlendMode::kLuminosity, // 15:'luminosity'
+        SkBlendMode::kPlus,       // 16:'add'
     };
 
     const auto bm_index = ParseDefault<size_t>(jobject["bm"], 0);
@@ -266,13 +270,14 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver,
                                    Animation::Builder::Stats* stats,
-                                   float duration, float framerate)
+                                   const SkSize& size, float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
     , fMarkerObserver(std::move(mobserver))
     , fStats(stats)
+    , fSize(size)
     , fDuration(duration)
     , fFrameRate(framerate)
     , fHasNontrivialBlending(false) {}
@@ -499,7 +504,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
                                        std::move(fMarkerObserver),
-                                       &fStats, duration, fps);
+                                       &fStats, size, duration, fps);
     auto scene = builder.parse(json);
 
     const auto t2 = std::chrono::steady_clock::now();

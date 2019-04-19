@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
@@ -106,8 +106,7 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
     for (size_t font = 0; font < SK_ARRAY_COUNT(fam); ++font) {
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
-            SkFont skFont(
-                    sk_tool_utils::create_portable_typeface(fam[font], SkFontStyle()), textSize);
+            SkFont skFont(ToolUtils::create_portable_typeface(fam[font], SkFontStyle()), textSize);
             const SkScalar uWidth = textSize / 15;
             paint.setStrokeWidth(uWidth);
             paint.setStyle(SkPaint::kFill_Style);
@@ -230,7 +229,7 @@ DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
     const char text[] = "Hyjay {worlp}.";
     const size_t length = strlen(text);
     SkFont font;
-    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(100);
     font.setEdging(SkFont::Edging::kAntiAlias);
     const int count = font.countText(text, length, kUTF8_SkTextEncoding);

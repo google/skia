@@ -29,8 +29,6 @@ public:
                     GrSurfaceOrigin, sk_sp<SkColorSpace>);
     ~SkImage_GpuYUVA() override;
 
-    SkImageInfo onImageInfo() const override;
-
     // This returns the single backing proxy if the YUV channels have already been flattened but
     // nullptr if they have not.
     GrTextureProxy* peekProxy() const override;
@@ -73,7 +71,8 @@ public:
                                                  PromiseImageTextureFulfillProc textureFulfillProc,
                                                  PromiseImageTextureReleaseProc textureReleaseProc,
                                                  PromiseImageTextureDoneProc textureDoneProc,
-                                                 PromiseImageTextureContext textureContexts[]);
+                                                 PromiseImageTextureContext textureContexts[],
+                                                 PromiseImageApiVersion);
 
 private:
     SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
@@ -85,7 +84,10 @@ private:
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
-    const sk_sp<SkColorSpace>        fTargetColorSpace;
+    // If this is non-null then the planar data should be converted from fFromColorSpace to
+    // this->colorSpace(). Otherwise we assume the planar data (post YUV->RGB conversion) is already
+    // in this->colorSpace().
+    const sk_sp<SkColorSpace> fFromColorSpace;
 
     // Repeated calls to onMakeColorSpace will result in a proliferation of unique IDs and
     // SkImage_GpuYUVA instances. Cache the result of the last successful onMakeColorSpace call.

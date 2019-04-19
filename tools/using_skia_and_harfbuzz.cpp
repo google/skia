@@ -139,10 +139,10 @@ public:
     }
 
     void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
-        SkTextBlobBuilderRunHandler textBlobBuilder(text);
-        SkPoint endPoint = shaper.shape(&textBlobBuilder, font, text, textBytes, true,
-                                        SkPoint{0, 0},
-                                        config->page_width.value - 2*config->left_margin.value);
+        SkTextBlobBuilderRunHandler textBlobBuilder(text, {0, 0});
+        shaper.shape(text, textBytes, font, true,
+                     config->page_width.value - 2*config->left_margin.value, &textBlobBuilder);
+        SkPoint endPoint = textBlobBuilder.endPoint();
         sk_sp<const SkTextBlob> blob = textBlobBuilder.makeBlob();
         // If we don't have a page, or if we're not at the start of the page and the blob won't fit
         if (!pageCanvas ||

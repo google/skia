@@ -14,7 +14,10 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBench.h"
 #include "CodecBenchPriv.h"
+#include "CommonFlags.h"
+#include "CommonFlagsConfig.h"
 #include "CrashHandler.h"
+#include "EventTracingPriv.h"
 #include "GMBench.h"
 #include "ProcStats.h"
 #include "RecordingBench.h"
@@ -28,19 +31,14 @@
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkColorSpacePriv.h"
-#include "SkCommonFlags.h"
-#include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
-#include "SkEventTracingPriv.h"
 #include "SkGraphics.h"
 #include "SkJSONWriter.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
-#include "SkScan.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
@@ -103,39 +101,86 @@ static SkString to_string(int n) {
     return str;
 }
 
-DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
+static DEFINE_int(loops, kDefaultLoops, loops_help_txt().c_str());
 
-DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
-DEFINE_int32(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
-DEFINE_int32(overheadLoops, 100000, "Loops to estimate timer overhead.");
-DEFINE_double(overheadGoal, 0.0001,
+static DEFINE_int(samples, 10, "Number of samples to measure for each bench.");
+static DEFINE_int(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
+static DEFINE_int(overheadLoops, 100000, "Loops to estimate timer overhead.");
+static DEFINE_double(overheadGoal, 0.0001,
               "Loop until timer overhead is at most this fraction of our measurments.");
-DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
-DEFINE_int32(gpuFrameLag, 5, "If unknown, estimated maximum number of frames GPU allows to lag.");
+static DEFINE_double(gpuMs, 5, "Target bench time in millseconds for GPU.");
+static DEFINE_int(gpuFrameLag, 5,
+                    "If unknown, estimated maximum number of frames GPU allows to lag.");
 
-DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
-DEFINE_int32(maxCalibrationAttempts, 3,
+static DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
+static DEFINE_int(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
-DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
-DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
-DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
-DEFINE_string(zoom, "1.0,0", "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
-                             "function that ping-pongs between 1.0 and zoomMax.");
-DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
-DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
-DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
-DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
-DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
-DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
-DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
-DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
-DEFINE_bool(csv, false, "Print status in CSV format");
-DEFINE_string(sourceType, "",
+static DEFINE_int(maxLoops, 1000000, "Never run a bench more times than this.");
+static DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
+static DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
+static DEFINE_string(zoom, "1.0,0",
+                     "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
+                     "function that ping-pongs between 1.0 and zoomMax.");
+static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
+static DEFINE_bool(lite, false, "Use SkLiteRecorder in recording benchmarks?");
+static DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
+static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
+static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
+static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
+static DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
+static DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
+static DEFINE_bool(csv, false, "Print status in CSV format");
+static DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
-DEFINE_string(benchType,  "",
-        "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
+static DEFINE_string(benchType,  "",
+        "Apply usual --match rules to bench type: micro, recording, "
+        "piping, playback, skcodec, etc.");
 
-DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+
+static DEFINE_bool2(pre_log, p, false,
+                    "Log before running each test. May be incomprehensible when threading");
+
+static DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
+static DEFINE_bool(gpu, true, "master switch for running GPU-bound work.");
+static DEFINE_bool(dryRun, false,
+                   "just print the tests that would be run, without actually running them.");
+static DEFINE_string(images, "",
+                     "List of images and/or directories to decode. A directory with no images"
+                     " is treated as a fatal error.");
+static DEFINE_bool(simpleCodec, false,
+                   "Runs of a subset of the codec tests, always N32, Premul or Opaque");
+
+static DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching name to always be skipped\n"
+               "^ requires the start of the name to match\n"
+               "$ requires the end of the name to match\n"
+               "^ and $ requires an exact match\n"
+               "If a name does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+
+static DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
+static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
+
+
+static DEFINE_string(skps, "skps", "Directory to read skps from.");
+static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+
+static DEFINE_int_2(threads, j, -1,
+               "Run threadsafe tests on a threadpool with this many extra threads, "
+               "defaulting to one extra thread per core.");
+
+static DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
+
+static DEFINE_string(key, "",
+                     "Space-separated key/value pairs to add to JSON identifying this builder.");
+static DEFINE_string(properties, "",
+                     "Space-separated key/value pairs to add to JSON identifying this run.");
+
+static DEFINE_bool(purgeBetweenBenches, false,
+                   "Call SkGraphics::PurgeAllCaches() between each benchmark?");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -572,8 +617,9 @@ static void cleanup_run(Target* target) {
     delete target;
 }
 
-static void collect_files(const SkCommandLineFlags::StringArray& paths, const char* ext,
-                          SkTArray<SkString>* list) {
+static void collect_files(const CommandLineFlags::StringArray& paths,
+                          const char*                          ext,
+                          SkTArray<SkString>*                  list) {
     for (int i = 0; i < paths.count(); ++i) {
         if (SkStrEndsWith(paths[i], ext)) {
             list->push_back(SkString(paths[i]));
@@ -648,7 +694,7 @@ public:
     static sk_sp<SkPicture> ReadPicture(const char* path) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
             return nullptr;
         }
 
@@ -698,8 +744,8 @@ public:
             if (!bench) {
                 return nullptr;
             }
-        } while(SkCommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
-                SkCommandLineFlags::ShouldSkip(FLAGS_benchType,  fBenchType));
+        } while (CommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
+                 CommandLineFlags::ShouldSkip(FLAGS_benchType, fBenchType));
         return bench.release();
     }
 
@@ -821,7 +867,7 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (CommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -900,7 +946,7 @@ public:
             fBenchType = "skandroidcodec";
 
             const SkString& path = fImages[fCurrentAndroidCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (CommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -945,7 +991,7 @@ public:
             fBenchType = "BRD";
 
             const SkString& path = fImages[fCurrentBRDImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (CommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
 
@@ -1099,7 +1145,7 @@ static void start_keepalive() {
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::Parse(argc, argv);
 
     initializeEventTracingForTools();
 
@@ -1111,10 +1157,6 @@ int main(int argc, char** argv) {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
     SetCtxOptionsFromCommonFlags(&grContextOpts);
-
-    if (FLAGS_veryVerbose) {
-        FLAGS_verbose = true;
-    }
 
     if (kAutoTuneLoops != FLAGS_loops) {
         FLAGS_samples     = 1;
@@ -1185,15 +1227,8 @@ int main(int argc, char** argv) {
         start_keepalive();
     }
 
-    gSkUseAnalyticAA = FLAGS_analyticAA;
-    gSkUseDeltaAA = FLAGS_deltaAA;
+    SetAnalyticAAFromCommonFlags();
 
-    if (FLAGS_forceDeltaAA) {
-        gSkForceDeltaAA = true;
-    }
-    if (FLAGS_forceAnalyticAA) {
-        gSkForceAnalyticAA = true;
-    }
     if (FLAGS_forceRasterPipeline) {
         gSkForceRasterPipelineBlitter = true;
     }
@@ -1203,7 +1238,7 @@ int main(int argc, char** argv) {
     log.beginObject("results");
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
             continue;
         }
 
@@ -1228,6 +1263,10 @@ int main(int argc, char** argv) {
                 if (FLAGS_dryRun) {
                     continue;
                 }
+            }
+
+            if (FLAGS_purgeBetweenBenches) {
+                SkGraphics::PurgeAllCaches();
             }
 
             TRACE_EVENT2("skia", "Benchmark", "name", TRACE_STR_COPY(bench->getUniqueName()),

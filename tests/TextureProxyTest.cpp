@@ -46,7 +46,7 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,
-                                       SkBudgeted::kYes);
+                                       SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -59,7 +59,8 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
             ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
+            proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,
+                                       SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -104,7 +105,8 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
 
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
-    *backingSurface = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    *backingSurface = resourceProvider->createTexture(desc, SkBudgeted::kNo,
+                                                      GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;
     }

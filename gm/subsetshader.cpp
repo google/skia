@@ -29,11 +29,11 @@ DEF_SIMPLE_GM_CAN_FAIL(bitmap_subset_shader, canvas, errorMsg, 256, 256) {
     SkMatrix matrix;
     matrix.setScale(0.75f, 0.75f);
     matrix.preRotate(30.0f);
-    SkShader::TileMode tm = SkShader::kRepeat_TileMode;
+    SkTileMode tm = SkTileMode::kRepeat;
     SkPaint paint;
-    paint.setShader(SkShader::MakeBitmapShader(leftBitmap, tm, tm, &matrix));
+    paint.setShader(leftBitmap.makeShader(tm, tm, &matrix));
     canvas->drawRect(SkRect::MakeWH(256.0f, 128.0f), paint);
-    paint.setShader(SkShader::MakeBitmapShader(rightBitmap, tm, tm, &matrix));
+    paint.setShader(rightBitmap.makeShader(tm, tm, &matrix));
     canvas->drawRect(SkRect::MakeXYWH(0, 128.0f, 256.0f, 128.0f), paint);
     return skiagm::DrawResult::kOk;
 }

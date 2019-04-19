@@ -7,8 +7,8 @@
 
 #include "Sample.h"
 
+#include "AnimTimer.h"
 #include "Resources.h"
-#include "SkAnimTimer.h"
 #include "nima/NimaActor.h"
 
 #include <nima/Animation/ActorAnimationInstance.hpp>
@@ -54,7 +54,7 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         if (fActor) {
             float time = std::fmod(timer.secs(), fActor->duration());
             fActor->seek(time);

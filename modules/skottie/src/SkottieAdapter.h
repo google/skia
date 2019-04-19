@@ -19,6 +19,7 @@ class BlurImageFilter;
 class Color;
 class Draw;
 class DropShadowImageFilter;
+class ExternalColorFilter;
 class Gradient;
 class Group;
 class LinearGradient;
@@ -28,11 +29,17 @@ class Path;
 class RadialGradient;
 class RenderNode;
 class RRect;
+class ShaderEffect;
 class TextBlob;
+class Transform;
 class TransformEffect;
 class TrimEffect;
 
 };
+
+namespace skjson {
+    class ObjectValue;
+}
 
 namespace skottie {
 
@@ -108,10 +115,10 @@ private:
     sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
 };
 
-class TransformAdapter3D final : public SkNVRefCnt<TransformAdapter3D> {
+class TransformAdapter3D : public SkRefCnt {
 public:
-    explicit TransformAdapter3D(sk_sp<sksg::Matrix<SkMatrix44>>);
-    ~TransformAdapter3D();
+    TransformAdapter3D();
+    ~TransformAdapter3D() override;
 
     struct Vec3 {
         float fX, fY, fZ;
@@ -129,12 +136,32 @@ public:
     ADAPTER_PROPERTY(Rotation   , Vec3, Vec3({  0,   0,   0}))
     ADAPTER_PROPERTY(Scale      , Vec3, Vec3({100, 100, 100}))
 
-    SkMatrix44 totalMatrix() const;
+    sk_sp<sksg::Transform> refTransform() const;
 
-private:
+protected:
     void apply();
 
+private:
+    virtual SkMatrix44 totalMatrix() const;
+
     sk_sp<sksg::Matrix<SkMatrix44>> fMatrixNode;
+
+    using INHERITED = SkRefCnt;
+};
+
+class CameraAdapter final : public TransformAdapter3D {
+public:
+    explicit CameraAdapter(const SkSize& viewport_size);
+    ~CameraAdapter() override;
+
+    ADAPTER_PROPERTY(Zoom, SkScalar, 0)
+
+private:
+    SkMatrix44 totalMatrix() const override;
+
+    const SkSize fViewportSize;
+
+    using INHERITED = TransformAdapter3D;
 };
 
 class RepeaterAdapter final : public SkNVRefCnt<RepeaterAdapter> {
@@ -208,6 +235,37 @@ private:
     using INHERITED = GradientAdapter;
 };
 
+class GradientRampEffectAdapter final : public SkNVRefCnt<GradientRampEffectAdapter> {
+public:
+    explicit GradientRampEffectAdapter(sk_sp<sksg::RenderNode> child);
+    ~GradientRampEffectAdapter();
+
+    ADAPTER_PROPERTY(StartPoint, SkPoint , SkPoint::Make(0, 0))
+    ADAPTER_PROPERTY(EndPoint  , SkPoint , SkPoint::Make(0, 0))
+    ADAPTER_PROPERTY(StartColor, SkColor ,       SK_ColorBLACK)
+    ADAPTER_PROPERTY(EndColor  , SkColor ,       SK_ColorBLACK)
+    ADAPTER_PROPERTY(Blend     , SkScalar,                   0)
+    ADAPTER_PROPERTY(Scatter   , SkScalar,                   0)
+
+    // Really an enum: 1 -> linear, 7 -> radial (?!)
+    ADAPTER_PROPERTY(Shape     , SkScalar,                   0)
+
+    const sk_sp<sksg::ShaderEffect>& root() const { return fRoot; }
+
+private:
+    enum class InstanceType {
+        kNone,
+        kLinear,
+        kRadial,
+    };
+
+    void apply();
+
+    sk_sp<sksg::ShaderEffect> fRoot;
+    sk_sp<sksg::Gradient>     fGradient;
+    InstanceType              fInstanceType = InstanceType::kNone;
+};
+
 class TrimEffectAdapter final : public SkNVRefCnt<TrimEffectAdapter> {
 public:
     explicit TrimEffectAdapter(sk_sp<sksg::TrimEffect>);
@@ -272,6 +330,30 @@ private:
     const sk_sp<sksg::BlurImageFilter> fBlur;
 };
 
+class LevelsEffectAdapter final : public SkNVRefCnt<LevelsEffectAdapter> {
+public:
+    explicit LevelsEffectAdapter(sk_sp<sksg::RenderNode> child);
+    ~LevelsEffectAdapter();
+
+    // 1: RGB, 2: R, 3: G, 4: B, 5: A
+    ADAPTER_PROPERTY(  Channel, SkScalar, 1)
+    ADAPTER_PROPERTY(  InBlack, SkScalar, 0)
+    ADAPTER_PROPERTY(  InWhite, SkScalar, 1)
+    ADAPTER_PROPERTY( OutBlack, SkScalar, 0)
+    ADAPTER_PROPERTY( OutWhite, SkScalar, 1)
+    ADAPTER_PROPERTY(    Gamma, SkScalar, 1)
+    // 1: clip, 2,3: don't clip
+    ADAPTER_PROPERTY(ClipBlack, SkScalar, 1)
+    ADAPTER_PROPERTY(ClipWhite, SkScalar, 1)
+
+    const sk_sp<sksg::ExternalColorFilter>& root() const { return fEffect; }
+
+private:
+    void apply();
+
+    sk_sp<sksg::ExternalColorFilter> fEffect;
+};
+
 class TextAdapter final : public SkNVRefCnt<TextAdapter> {
 public:
     explicit TextAdapter(sk_sp<sksg::Group> root);
@@ -283,7 +365,6 @@ public:
 
 private:
     void apply();
-    sk_sp<SkTextBlob> makeBlob() const;
 
     sk_sp<sksg::Group>     fRoot;
     sk_sp<sksg::TextBlob>  fTextNode;

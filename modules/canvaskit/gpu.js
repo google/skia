@@ -61,7 +61,7 @@
           }
         }
         // we are ok with all the defaults
-        var ctx = CanvasKit.GetWebGLContext(canvas);
+        var ctx = this.GetWebGLContext(canvas);
 
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
@@ -72,6 +72,11 @@
         }
 
         var grcontext = this.MakeGrContext(ctx);
+
+        // Bump the default resource cache limit.
+        var RESOURCE_CACHE_BYTES = 256 * 1024 * 1024;
+        grcontext.setResourceCacheLimitBytes(RESOURCE_CACHE_BYTES);
+
         // Maybe better to use clientWidth/height.  See:
         // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
         var surface = this.MakeOnScreenGLSurface(grcontext,
@@ -79,8 +84,18 @@
                                                  height || canvas.height);
         if (!surface) {
           SkDebug('falling back from GPU implementation to a SW based one');
-          return CanvasKit.MakeSWCanvasSurface(arg);
+          // we need to throw away the old canvas (which was locked to
+          // a webGL context) and create a new one so we can
+          var newCanvas = canvas.cloneNode(true);
+          var parent = canvas.parentNode;
+          parent.replaceChild(newCanvas, canvas);
+          // add a class so the user can detect that it was replaced.
+          newCanvas.classList.add('ck-replaced');
+
+          return CanvasKit.MakeSWCanvasSurface(newCanvas);
         }
+        surface._context = ctx;
+        surface.grContext = grcontext;
         return surface;
       };
       // Default to trying WebGL first.

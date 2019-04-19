@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkHighContrastFilter.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
@@ -32,7 +32,7 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
              config.fContrast);
 
     SkFont font;
-    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setTypeface(ToolUtils::create_portable_typeface());
     font.setSize(0.05f);
     font.setEdging(SkFont::Edging::kAlias);
 
@@ -73,14 +73,14 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
     SkScalar    pos[] = { 0.2f, 0.8f };
     paint.setShader(SkGradientShader::MakeLinear(
         pts, colors, pos,
-        SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
+        SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
     canvas->drawRect(bounds, paint);
 
     bounds = SkRect::MakeLTRB(0.1f, 0.6f, 0.9f, 0.8f);
     SkColor colors2[] = { SK_ColorGREEN, SK_ColorWHITE };
     paint.setShader(SkGradientShader::MakeLinear(
         pts, colors2, pos,
-        SK_ARRAY_COUNT(colors2), SkShader::kClamp_TileMode));
+        SK_ARRAY_COUNT(colors2), SkTileMode::kClamp));
     canvas->drawRect(bounds, paint);
 
     canvas->restore();
@@ -99,10 +99,10 @@ public:
         fFilter = SkHighContrastFilter::Make(fConfig);
         fGr1 = SkGradientShader::MakeLinear(
             g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
-            SkShader::kClamp_TileMode);
+            SkTileMode::kClamp);
         fGr2 = SkGradientShader::MakeLinear(
             g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
-            SkShader::kClamp_TileMode);
+            SkTileMode::kClamp);
     }
 
 protected:

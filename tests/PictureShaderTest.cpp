@@ -13,34 +13,6 @@
 #include "SkSurface.h"
 #include "Test.h"
 
-// Test that attempting to create a picture shader with a nullptr picture or
-// empty picture returns a shader that draws nothing.
-DEF_TEST(PictureShader_empty, reporter) {
-    SkPaint paint;
-
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(1,1);
-
-    SkCanvas canvas(bitmap);
-    canvas.clear(SK_ColorGREEN);
-
-    paint.setShader(SkShader::MakePictureShader(
-            nullptr, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr, nullptr));
-
-    canvas.drawRect(SkRect::MakeWH(1,1), paint);
-    REPORTER_ASSERT(reporter, *bitmap.getAddr32(0,0) == SK_ColorGREEN);
-
-
-    SkPictureRecorder factory;
-    factory.beginRecording(0, 0, nullptr, 0);
-    paint.setShader(SkShader::MakePictureShader(factory.finishRecordingAsPicture(),
-                                                SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode, nullptr, nullptr));
-
-    canvas.drawRect(SkRect::MakeWH(1,1), paint);
-    REPORTER_ASSERT(reporter, *bitmap.getAddr32(0,0) == SK_ColorGREEN);
-}
-
 // Test that the SkPictureShader cache is purged on shader deletion.
 DEF_TEST(PictureShader_caching, reporter) {
     auto makePicture = [] () {
@@ -56,9 +28,7 @@ DEF_TEST(PictureShader_caching, reporter) {
 
     {
         SkPaint paint;
-        paint.setShader(SkPictureShader::Make(picture,
-                                              SkShader::kRepeat_TileMode,
-                                              SkShader::kRepeat_TileMode, nullptr, nullptr));
+        paint.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
         surface->getCanvas()->drawPaint(paint);
 
         // We should have about 3 refs by now: local + shader + shader cache.
@@ -68,9 +38,7 @@ DEF_TEST(PictureShader_caching, reporter) {
     // Draw another picture shader to have a chance to purge.
     {
         SkPaint paint;
-        paint.setShader(SkPictureShader::Make(makePicture(),
-                                              SkShader::kRepeat_TileMode,
-                                              SkShader::kRepeat_TileMode, nullptr, nullptr));
+        paint.setShader(makePicture()->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
         surface->getCanvas()->drawPaint(paint);
 
     }

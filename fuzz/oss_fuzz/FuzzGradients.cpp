@@ -9,7 +9,6 @@
 
 void fuzz_Gradients(Fuzz* f);
 
-bool FLAGS_verbose = false;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
     fuzz_Gradients(&fuzz);

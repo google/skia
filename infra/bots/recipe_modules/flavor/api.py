@@ -14,6 +14,7 @@ from . import chromecast
 from . import default
 from . import ios
 from . import valgrind
+from . import win_ssh
 
 
 """Abstractions for running code on various platforms.
@@ -36,7 +37,8 @@ VERSION_FILE_SVG = 'SVG_VERSION'
 VERSION_NONE = -1
 
 def is_android(vars_api):
-  return 'Android' in vars_api.extra_tokens
+  return ('Android' in vars_api.extra_tokens or
+          'Android' in vars_api.builder_cfg.get('os', ''))
 
 def is_chromecast(vars_api):
   return ('Chromecast' in vars_api.extra_tokens or
@@ -57,6 +59,9 @@ def is_test_skqp(vars_api):
 def is_valgrind(vars_api):
   return 'Valgrind' in vars_api.extra_tokens
 
+def is_win_ssh(vars_api):
+  return 'LenovoYogaC630' in vars_api.builder_cfg.get('model', '')
+
 
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, vars_api):
@@ -71,6 +76,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return ios.iOSFlavor(self)
     elif is_valgrind(vars_api):
       return valgrind.ValgrindFlavor(self)
+    elif is_win_ssh(vars_api):
+      return win_ssh.WinSSHFlavor(self)
     else:
       return default.DefaultFlavor(self)
 

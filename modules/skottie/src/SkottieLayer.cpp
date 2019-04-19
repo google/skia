@@ -12,17 +12,18 @@
 #include "SkImage.h"
 #include "SkJSON.h"
 #include "SkMakeUnique.h"
+#include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
 #include "SkParse.h"
 #include "SkSGClipEffect.h"
-#include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
 #include "SkSGImage.h"
 #include "SkSGMaskEffect.h"
 #include "SkSGMerge.h"
 #include "SkSGOpacityEffect.h"
+#include "SkSGPaint.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
@@ -171,6 +172,8 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     return sksg::MaskEffect::Make(std::move(childNode), std::move(maskNode));
 }
 
+static constexpr int kCameraLayerType = 13;
+
 } // namespace
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name,
@@ -191,7 +194,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
 
         void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
             const auto local_scope =
-                ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(), true);
+                ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
+                                                              canvas->getTotalMatrix(),
+                                                              true);
             fAnimation->render(canvas);
         }
 
@@ -290,8 +295,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectV
 
     const SkColor color = 0xff000000 | c;
 
+    auto solid_paint = sksg::Color::Make(color);
+    solid_paint->setAntiAlias(true);
+
     return sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(size)),
-                            sksg::Color::Make(color));
+                            std::move(solid_paint));
 }
 
 const AnimationBuilder::ImageAssetInfo*
@@ -406,9 +414,13 @@ struct AnimationBuilder::AttachLayerContext {
     AnimatorScope*                          fScope;
     SkTHashMap<int, sk_sp<sksg::Transform>> fLayerMatrixMap;
     sk_sp<sksg::RenderNode>                 fCurrentMatte;
+    sk_sp<sksg::Transform>                  fCameraTransform;
+
+    enum class TransformType { kLayer, kCamera };
 
     sk_sp<sksg::Transform> attachLayerTransform(const skjson::ObjectValue& jlayer,
-                                                const AnimationBuilder* abuilder) {
+                                                const AnimationBuilder* abuilder,
+                                                TransformType type = TransformType::kLayer) {
         const auto layer_index = ParseDefault<int>(jlayer["ind"], -1);
         if (layer_index < 0)
             return nullptr;
@@ -416,7 +428,7 @@ struct AnimationBuilder::AttachLayerContext {
         if (auto* m = fLayerMatrixMap.find(layer_index))
             return *m;
 
-        return this->attachLayerTransformImpl(jlayer, abuilder, layer_index);
+        return this->attachLayerTransformImpl(jlayer, abuilder, type, layer_index);
     }
 
 private:
@@ -434,16 +446,47 @@ private:
             if (!l) continue;
 
             if (ParseDefault<int>((*l)["ind"], -1) == parent_index) {
-                return this->attachLayerTransformImpl(*l, abuilder, parent_index);
+                const auto parent_type = ParseDefault<int>((*l)["ty"], -1) == kCameraLayerType
+                        ? TransformType::kCamera
+                        : TransformType::kLayer;
+                return this->attachLayerTransformImpl(*l, abuilder, parent_type, parent_index);
             }
         }
 
         return nullptr;
     }
 
+    sk_sp<sksg::Transform> attachTransformNode(const skjson::ObjectValue& jlayer,
+                                               const AnimationBuilder* abuilder,
+                                               sk_sp<sksg::Transform> parent_transform,
+                                               TransformType type) const {
+        const skjson::ObjectValue* jtransform = jlayer["ks"];
+        if (!jtransform) {
+            return nullptr;
+        }
+
+        if (type == TransformType::kCamera) {
+            auto camera_adapter = sk_make_sp<CameraAdapter>(abuilder->fSize);
+
+            abuilder->bindProperty<ScalarValue>(jlayer["pe"], fScope,
+                [camera_adapter] (const ScalarValue& pe) {
+                    // 'pe' (perspective?) corresponds to AE's "zoom" camera property.
+                    camera_adapter->setZoom(pe);
+                });
+
+            return abuilder->attachMatrix3D(*jtransform, fScope,
+                                            std::move(parent_transform),
+                                            std::move(camera_adapter));
+        }
+
+        return (ParseDefault<int>(jlayer["ddd"], 0) == 0)
+                ? abuilder->attachMatrix2D(*jtransform, fScope, std::move(parent_transform))
+                : abuilder->attachMatrix3D(*jtransform, fScope, std::move(parent_transform));
+    }
+
     sk_sp<sksg::Transform> attachLayerTransformImpl(const skjson::ObjectValue& jlayer,
                                                     const AnimationBuilder* abuilder,
-                                                    int layer_index) {
+                                                    TransformType type, int layer_index) {
         SkASSERT(!fLayerMatrixMap.find(layer_index));
 
         // Add a stub entry to break recursion cycles.
@@ -451,20 +494,19 @@ private:
 
         auto parent_matrix = this->attachParentLayerTransform(jlayer, abuilder, layer_index);
 
-        if (const skjson::ObjectValue* jtransform = jlayer["ks"]) {
-            auto transform_node = (ParseDefault<int>(jlayer["ddd"], 0) == 0)
-                ? abuilder->attachMatrix2D(*jtransform, fScope, std::move(parent_matrix))
-                : abuilder->attachMatrix3D(*jtransform, fScope, std::move(parent_matrix));
-
-            return *fLayerMatrixMap.set(layer_index, std::move(transform_node));
-        }
-        return nullptr;
+        return *fLayerMatrixMap.set(layer_index, this->attachTransformNode(jlayer,
+                                                                           abuilder,
+                                                                           std::move(parent_matrix),
+                                                                           type));
     }
 };
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue* jlayer,
                                                       AttachLayerContext* layerCtx) const {
-    if (!jlayer) return nullptr;
+    if (!jlayer || ParseDefault<bool>((*jlayer)["hd"], false)) {
+        // Ignore hidden layers.
+        return nullptr;
+    }
 
     const LayerInfo layer_info = {
         ParseDefault<float>((*jlayer)["ip"], 0.0f),
@@ -478,27 +520,50 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
 
     const AutoPropertyTracker apt(this, *jlayer);
 
-    using LayerAttacher = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
-                                                                        const LayerInfo&,
-                                                                        AnimatorScope*) const;
-    static constexpr LayerAttacher gLayerAttachers[] = {
-        &AnimationBuilder::attachPrecompLayer,  // 'ty': 0
-        &AnimationBuilder::attachSolidLayer,    // 'ty': 1
-        &AnimationBuilder::attachImageLayer,    // 'ty': 2
-        &AnimationBuilder::attachNullLayer,     // 'ty': 3
-        &AnimationBuilder::attachShapeLayer,    // 'ty': 4
-        &AnimationBuilder::attachTextLayer,     // 'ty': 5
+    using LayerBuilder = sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
+                                                                       const LayerInfo&,
+                                                                       AnimatorScope*) const;
+    enum : uint32_t {
+        kTransformEffects = 1, // The layer transform applies to its effects also.
     };
 
-    int type = ParseDefault<int>((*jlayer)["ty"], -1);
-    if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gLayerAttachers))) {
+    static constexpr struct {
+        LayerBuilder fBuilder;
+        uint32_t     fFlags;
+    } gLayerBuildInfo[] = {
+        { &AnimationBuilder::attachPrecompLayer,                 0 },  // 'ty': 0 -> precomp
+        { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty': 1 -> solid
+        { &AnimationBuilder::attachImageLayer  ,                 0 },  // 'ty': 2 -> image
+        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 3 -> null
+        { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty': 4 -> shape
+        { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty': 5 -> text
+    };
+
+    const auto type = ParseDefault<int>((*jlayer)["ty"], -1);
+
+    if (type == kCameraLayerType) {
+        // Camera layers are special: they don't build normal SG fragments, but drive a root-level
+        // transform.
+        if (layerCtx->fCameraTransform) {
+            this->log(Logger::Level::kWarning, jlayer, "Ignoring duplicate camera layer.");
+        } else {
+            layerCtx->fCameraTransform =
+                    layerCtx->attachLayerTransform(*jlayer, this,
+                                                   AttachLayerContext::TransformType::kCamera);
+        }
         return nullptr;
     }
 
+    if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gLayerBuildInfo))) {
+        return nullptr;
+    }
+
+    const auto& build_info = gLayerBuildInfo[type];
+
     AnimatorScope layer_animators;
 
-    // Layer content.
-    auto layer = (this->*(gLayerAttachers[type]))(*jlayer, layer_info, &layer_animators);
+    // Build the layer content fragment.
+    auto layer = (this->*(build_info.fBuilder))(*jlayer, layer_info, &layer_animators);
 
     // Clip layers with explicit dimensions.
     float w = 0, h = 0;
@@ -512,7 +577,24 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     layer = AttachMask((*jlayer)["masksProperties"], this, &layer_animators, std::move(layer));
 
     // Optional layer transform.
-    if (auto layer_transform = layerCtx->attachLayerTransform(*jlayer, this)) {
+    auto layer_transform = layerCtx->attachLayerTransform(*jlayer, this);
+
+    // Does the transform apply to effects also?
+    // (AE quirk: it doesn't - except for solid layers)
+    const auto transform_effects = (build_info.fFlags & kTransformEffects);
+
+    // Attach the transform before effects, when needed.
+    if (layer_transform && !transform_effects) {
+        layer = sksg::TransformEffect::Make(std::move(layer), layer_transform);
+    }
+
+    // Optional layer effects.
+    if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
+        layer = this->attachLayerEffects(*jeffects, &layer_animators, std::move(layer));
+    }
+
+    // Attach the transform after effects, when needed.
+    if (layer_transform && transform_effects) {
         layer = sksg::TransformEffect::Make(std::move(layer), std::move(layer_transform));
     }
 
@@ -520,11 +602,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     // TODO: de-dupe this "ks" lookup with matrix above.
     if (const skjson::ObjectValue* jtransform = (*jlayer)["ks"]) {
         layer = this->attachOpacity(*jtransform, &layer_animators, std::move(layer));
-    }
-
-    // Optional layer effects.
-    if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
-        layer = this->attachLayerEffects(*jeffects, &layer_animators, std::move(layer));
     }
 
     // Optional blend mode.
@@ -593,9 +670,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     return std::move(controller_node);
 }
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::ObjectValue& comp,
+sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::ObjectValue& jcomp,
                                                             AnimatorScope* scope) const {
-    const skjson::ArrayValue* jlayers = comp["layers"];
+    const skjson::ArrayValue* jlayers = jcomp["layers"];
     if (!jlayers) return nullptr;
 
     std::vector<sk_sp<sksg::RenderNode>> layers;
@@ -612,11 +689,22 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::Object
         return nullptr;
     }
 
-    // Layers are painted in bottom->top order.
-    std::reverse(layers.begin(), layers.end());
-    layers.shrink_to_fit();
+    sk_sp<sksg::RenderNode> comp;
+    if (layers.size() == 1) {
+        comp = std::move(layers[0]);
+    } else {
+        // Layers are painted in bottom->top order.
+        std::reverse(layers.begin(), layers.end());
+        layers.shrink_to_fit();
+        comp = sksg::Group::Make(std::move(layers));
+    }
 
-    return sksg::Group::Make(std::move(layers));
+    // Optional camera.
+    if (layerCtx.fCameraTransform) {
+        comp = sksg::TransformEffect::Make(std::move(comp), std::move(layerCtx.fCameraTransform));
+    }
+
+    return comp;
 }
 
 } // namespace internal

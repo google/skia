@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkStream.h"
 #include "SkUtils.h"
 
@@ -113,10 +114,10 @@ inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
 
 inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
     SkMatrix localMatrix;
-    if (sk_sp<SkShader> s = shader->makeAsALocalMatrixShader(&localMatrix)) {
-        return SkMatrix::Concat(s->getLocalMatrix(), localMatrix);
+    if (sk_sp<SkShader> s = as_SB(shader)->makeAsALocalMatrixShader(&localMatrix)) {
+        return SkMatrix::Concat(as_SB(s)->getLocalMatrix(), localMatrix);
     }
-    return shader->getLocalMatrix();
+    return as_SB(shader)->getLocalMatrix();
 }
 bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);
 void PopulateTilingPatternDict(SkPDFDict* pattern,
@@ -130,6 +131,7 @@ bool ToBitmap(const SkImage* img, SkBitmap* dst);
 void Base85Encode(std::unique_ptr<SkStreamAsset> src, SkDynamicMemoryWStream* dst);
 #endif //  SK_PDF_BASE85_BINARY
 
+void AppendTransform(const SkMatrix&, SkWStream*);
 }  // namespace SkPDFUtils
 
 #endif

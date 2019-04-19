@@ -138,7 +138,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
                            f->sampleOffsets(), coord.fsIn());
         f->codeAppendf(    "if (all(lessThanEqual(abs(samplecoord), float2(1)))) {");
         f->maskOffMultisampleCoverage(
-                "~(1 << i)", GrGLSLFragmentShaderBuilder::Scope::kInsideLoopOrBranch);
+                "~(1 << i)", GrGLSLFPFragmentBuilder::ScopeFlags::kInsideLoop);
         f->codeAppendf(    "}");
         f->codeAppendf("}");
     }
@@ -174,7 +174,8 @@ private:
     FixedFunctionFlags fixedFunctionFlags() const override {
         return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
     }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrepare(GrOpFlushState*) override {}
@@ -190,7 +191,8 @@ private:
         );
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                            GrPipeline::Flags::kHWAntialias_Flag, &kStencilWrite);
+                            GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
         flushState->rtCommandBuffer()->draw(

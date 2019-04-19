@@ -17,6 +17,36 @@ GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
         , fAccessPattern(pattern)
         , fIntendedType(type) {}
 
+void* GrGpuBuffer::map() {
+    if (this->wasDestroyed()) {
+        return nullptr;
+    }
+    if (!fMapPtr) {
+        this->onMap();
+    }
+    return fMapPtr;
+}
+
+void GrGpuBuffer::unmap() {
+    if (this->wasDestroyed()) {
+        return;
+    }
+    SkASSERT(fMapPtr);
+    this->onUnmap();
+    fMapPtr = nullptr;
+}
+
+bool GrGpuBuffer::isMapped() const { return SkToBool(fMapPtr); }
+
+bool GrGpuBuffer::updateData(const void* src, size_t srcSizeInBytes) {
+    SkASSERT(!this->isMapped());
+    SkASSERT(srcSizeInBytes <= fSizeInBytes);
+    if (this->intendedType() == GrGpuBufferType::kXferGpuToCpu) {
+        return false;
+    }
+    return this->onUpdateData(src, srcSizeInBytes);
+}
+
 void GrGpuBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType intendedType,
                                                  GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();

@@ -7,7 +7,7 @@
 
 #include "Sample.h"
 
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkFont.h"
@@ -221,7 +221,7 @@ public:
                 0.f, 0.f, 0.f, 255.f, 0.f
             };
 
-            blit.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(kFilter));
+            blit.setColorFilter(SkColorFilters::MatrixRowMajor255(kFilter));
         }
 
         canvas->scale(scale, scale);
@@ -316,7 +316,7 @@ protected:
         this->drawShapes(canvas, "SSx64", 4, fSS16);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         SkScalar t = timer.secs();
         SkScalar dt = fLastFrameTime < 0.f ? 0.f : t - fLastFrameTime;
         fLastFrameTime = t;

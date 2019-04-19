@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkImage.h"
 #include "SkRandom.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_GOOGLE3)
 #include "etc1.h"
@@ -18,7 +18,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTextureProxy.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "effects/generated/GrSimpleTextureEffect.h"
 #include "ops/GrFillRectOp.h"
 
 // Basic test of Ganesh's ETC1 support

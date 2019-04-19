@@ -51,7 +51,7 @@ SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
 }
 #endif
 
-SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mode) const {
+SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, SkTileMode* mode) const {
     SkMatrix imageMatrix;
     SkImage* image = fProxyShader->isAImage(&imageMatrix, mode);
     if (image && outMatrix) {
@@ -62,13 +62,13 @@ SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mod
     return image;
 }
 
-bool SkLocalMatrixShader::onAppendStages(const StageRec& rec) const {
+bool SkLocalMatrixShader::onAppendStages(const SkStageRec& rec) const {
     SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
     if (rec.fLocalM) {
         lm.writable()->preConcat(*rec.fLocalM);
     }
 
-    StageRec newRec = rec;
+    SkStageRec newRec = rec;
     newRec.fLocalM = lm;
     return as_SB(fProxyShader)->appendStages(newRec);
 }

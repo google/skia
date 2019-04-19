@@ -26,8 +26,6 @@ public:
                 sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
-    SkImageInfo onImageInfo() const override;
-
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }
@@ -55,7 +53,8 @@ public:
                                              PromiseImageTextureFulfillProc textureFulfillProc,
                                              PromiseImageTextureReleaseProc textureReleaseProc,
                                              PromiseImageTextureDoneProc textureDoneProc,
-                                             PromiseImageTextureContext textureContext);
+                                             PromiseImageTextureContext textureContext,
+                                             PromiseImageApiVersion);
 
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrContext*, SkYUVColorSpace yuvColorSpace,
                                                    const GrBackendTexture yuvaTextures[],

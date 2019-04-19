@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkMaskFilter.h"
 #include "SkTextBlob.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -42,7 +42,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        SkFont font(sk_tool_utils::create_portable_typeface(), 256);
+        SkFont font(ToolUtils::create_portable_typeface(), 256);
 
         // setup up maskfilter
         const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(50));

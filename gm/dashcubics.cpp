@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkAnimTimer.h"
+#include "AnimTimer.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
-#include "SkPath.h"
 #include "SkParsePath.h"
+#include "SkPath.h"
 #include "SkTArray.h"
 #include "SkTrimPathEffect.h"
+#include "gm.h"
 
 #include <utility>
 
@@ -153,7 +153,7 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& t) override {
+    bool onAnimate(const AnimTimer& t) override {
         fOffset = t.msec() / 2000.0f;
         fOffset -= floorf(fOffset);
         return true;

@@ -77,8 +77,7 @@ def skpbench_steps(api):
         '--adb_binary', ADB_BINARY]
   if 'CCPR' in api.vars.builder_name:
     skpbench_args += [
-        '--pr', 'ccpr',
-        '--nocache',
+        '--pr', 'ccpr', '--cc', '--nocache',
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
   else:

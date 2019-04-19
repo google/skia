@@ -4,8 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
@@ -13,6 +11,8 @@
 #include "SkShader.h"
 #include "SkTextUtils.h"
 #include "SkUTF.h"
+#include "ToolUtils.h"
+#include "gm.h"
 // effects
 #include "SkGradientShader.h"
 #include "SkBlurDrawLooper.h"
@@ -31,13 +31,13 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 
     paint.setDither(true);
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
-                  SkShader::TileMode tmx, SkShader::TileMode tmy) {
-    paint->setShader(SkShader::MakeBitmapShader(bm, tmx, tmy));
+                  SkTileMode tmx, SkTileMode tmy) {
+    paint->setShader(bm.makeShader(tmx, tmy));
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
@@ -80,7 +80,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint textPaint;
-        SkFont font(sk_tool_utils::create_portable_typeface(), 12);
+        SkFont  font(ToolUtils::create_portable_typeface(), 12);
 
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
 
@@ -91,8 +91,8 @@ protected:
         constexpr bool gFilters[] = { false, true };
         static const char* gFilterNames[] = { "point", "bilinear" };
 
-        constexpr SkShader::TileMode gModes[] = {
-            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
+        constexpr SkTileMode gModes[] = {
+            SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror };
         static const char* gModeNames[] = { "C", "R", "M" };
 
         SkScalar y = SkIntToScalar(24);
@@ -103,7 +103,7 @@ protected:
                 SkPaint p;
                 p.setDither(true);
                 SkString str;
-                SkFont font(sk_tool_utils::create_portable_typeface());
+                SkFont   font(ToolUtils::create_portable_typeface());
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                 SkTextUtils::DrawString(canvas, str.c_str(), x + r.width()/2, y, font, p,
@@ -156,17 +156,17 @@ DEF_GM( return new TilingGM(false); )
 constexpr int gWidth = 32;
 constexpr int gHeight = 32;
 
-static sk_sp<SkShader> make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_bm(SkTileMode tx, SkTileMode ty) {
     SkBitmap bm;
     makebm(&bm, kN32_SkColorType, gWidth, gHeight);
-    return SkShader::MakeBitmapShader(bm, tx, ty);
+    return bm.makeShader(tx, ty);
 }
 
-static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
+static sk_sp<SkShader> make_grad(SkTileMode tx, SkTileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
-    SkColor colors[] = { 0xFFFF0000, sk_tool_utils::color_to_565(0xFF0044FF) };
+    SkColor  colors[] = {0xFFFF0000, ToolUtils::color_to_565(0xFF0044FF)};
 
     int index = (int)ty;
     switch (index % 3) {
@@ -181,7 +181,7 @@ static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     return nullptr;
 }
 
-typedef sk_sp<SkShader> (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
+typedef sk_sp<SkShader> (*ShaderProc)(SkTileMode, SkTileMode);
 
 class Tiling2GM : public skiagm::GM {
     ShaderProc fProc;
@@ -206,8 +206,8 @@ protected:
         const SkScalar h = SkIntToScalar(gHeight);
         SkRect r = { -w, -h, w*2, h*2 };
 
-        constexpr SkShader::TileMode gModes[] = {
-            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
+        constexpr SkTileMode gModes[] = {
+            SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror
         };
         const char* gModeNames[] = {
             "Clamp", "Repeat", "Mirror"
@@ -216,7 +216,7 @@ protected:
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(66);
 
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont font(ToolUtils::create_portable_typeface());
 
         for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
             SkString str(gModeNames[kx]);
@@ -268,30 +268,30 @@ DEF_SIMPLE_GM(tilemode_decal, canvas, 720, 1100) {
     SkRect r = { -20, -20, img->width() + 20.0f, img->height() + 20.0f };
     canvas->translate(45, 45);
 
-    std::function<void(SkPaint*, SkShader::TileMode, SkShader::TileMode)> shader_procs[] = {
-        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+    std::function<void(SkPaint*, SkTileMode, SkTileMode)> shader_procs[] = {
+        [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
             // Test no filtering with decal mode
             paint->setShader(img->makeShader(tx, ty));
             paint->setFilterQuality(kNone_SkFilterQuality);
         },
-        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+        [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
             // Test bilerp approximation for decal mode (or clamp to border HW)
             paint->setShader(img->makeShader(tx, ty));
             paint->setFilterQuality(kLow_SkFilterQuality);
         },
-        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+        [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
             // Test bicubic filter with decal mode
             paint->setShader(img->makeShader(tx, ty));
             paint->setFilterQuality(kHigh_SkFilterQuality);
         },
-        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+        [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
             SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
             const SkPoint pts[] = {{ 0, 0 }, {img->width()*1.0f, img->height()*1.0f }};
             const SkScalar* pos = nullptr;
             const int count = SK_ARRAY_COUNT(colors);
             paint->setShader(SkGradientShader::MakeLinear(pts, colors, pos, count, tx));
         },
-        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+        [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
             SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
             const SkScalar* pos = nullptr;
             const int count = SK_ARRAY_COUNT(colors);
@@ -301,13 +301,13 @@ DEF_SIMPLE_GM(tilemode_decal, canvas, 720, 1100) {
     };
 
     const struct XY {
-        SkShader::TileMode  fX;
-        SkShader::TileMode  fY;
+        SkTileMode  fX;
+        SkTileMode  fY;
     } pairs[] = {
-        { SkShader::kClamp_TileMode,    SkShader::kClamp_TileMode },
-        { SkShader::kClamp_TileMode,    SkShader::kDecal_TileMode },
-        { SkShader::kDecal_TileMode,    SkShader::kClamp_TileMode },
-        { SkShader::kDecal_TileMode,    SkShader::kDecal_TileMode },
+        { SkTileMode::kClamp,    SkTileMode::kClamp },
+        { SkTileMode::kClamp,    SkTileMode::kDecal },
+        { SkTileMode::kDecal,    SkTileMode::kClamp },
+        { SkTileMode::kDecal,    SkTileMode::kDecal },
     };
     for (const auto& p : pairs) {
         SkPaint paint;

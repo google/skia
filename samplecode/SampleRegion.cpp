@@ -81,7 +81,7 @@ static void drawFadingText(SkCanvas* canvas,
     const SkScalar pos[] = { 0, 0.9f, SK_Scalar1 };
 
     SkPaint p;
-    p.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 3, SkShader::kClamp_TileMode));
+    p.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 3, SkTileMode::kClamp));
     p.setBlendMode(SkBlendMode::kDstIn);
     canvas->drawRect(bounds, p);
 
@@ -109,7 +109,7 @@ static void test_text(SkCanvas* canvas) {
     const SkScalar pos[] = { 0, 0.9f, 1 };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
                                                  SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
 
     y += 20;

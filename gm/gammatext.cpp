@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
-#include "SkPath.h"
 #include "SkGradientShader.h"
+#include "SkPath.h"
 #include "SkTypeface.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
 
-    return SkGradientShader::MakeLinear(pts, bw, nullptr, SK_ARRAY_COUNT(bw),
-                                        SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, bw, nullptr, SK_ARRAY_COUNT(bw), SkTileMode::kClamp);
 }
 
 /**
@@ -91,7 +90,7 @@ static sk_sp<SkShader> make_gradient(SkColor c) {
     SkColor colors[2];
     colors[0] = c;
     colors[1] = SkColorSetA(c, 0);
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,
@@ -100,7 +99,7 @@ static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,
     SkPaint paint;
     paint.setColor(color);
     canvas->drawString(text, 10, 20, font, paint);
-    paint.setShader(SkShader::MakeColorShader(paint.getColor()));
+    paint.setShader(SkShaders::Color(paint.getColor()));
     canvas->drawString(text, 10, 40, font, paint);
     paint.setShader(shader);
     canvas->drawString(text, 10, 60, font, paint);

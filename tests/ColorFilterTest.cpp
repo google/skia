@@ -35,7 +35,7 @@ static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
 
 static sk_sp<SkColorFilter> make_filter() {
     // pick a filter that cannot compose with itself via newComposed()
-    return SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kColorBurn);
+    return SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kColorBurn);
 }
 
 static void test_composecolorfilter_limit(skiatest::Reporter* reporter) {
@@ -65,7 +65,7 @@ DEF_TEST(ColorFilter, reporter) {
         // special case that would return nullptr (if color's alpha is 0 or 0xFF)
         color = SkColorSetA(color, 0x7F);
 
-        auto cf = SkColorFilter::MakeModeFilter(color, (SkBlendMode)mode);
+        auto cf = SkColorFilters::Blend(color, (SkBlendMode)mode);
 
         // allow for no filter if we're in Dst mode (its a no op)
         if (SkBlendMode::kDst == (SkBlendMode)mode && nullptr == cf) {

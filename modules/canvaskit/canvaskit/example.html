@@ -5,12 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  svg, canvas, img {
+  canvas, img {
     border: 1px dashed #AAA;
-  }
-
-  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding,
-  img, canvas {
     width: 300px;
     height: 300px;
   }
@@ -43,42 +39,24 @@
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
+<canvas id=atlas width=300 height=300></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
 <canvas id=shape2 width=600 height=600></canvas>
-
-<h2> Skottie </h2>
-<canvas id=sk_legos width=300 height=300></canvas>
-<canvas id=sk_drinks width=500 height=500></canvas>
-<canvas id=sk_party width=500 height=500></canvas>
-<canvas id=sk_onboarding width=500 height=500></canvas>
-<canvas id=sk_animated_gif width=500 height=500
-        title='This is an animated gif being animated in Skottie'></canvas>
-<canvas id=sk_webfont width=500 height=500
-        title='This shows loading of a custom font (e.g. WebFont)'></canvas>
-
-<h2> Particles </h2>
-<canvas id=particles width=500 height=500></canvas>
+<canvas id=textonpath width=300 height=300></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
   var CanvasKit = null;
-  var legoJSON = null;
-  var drinksJSON = null;
-  var confettiJSON = null;
-  var onboardingJSON = null;
-  var multiFrameJSON = null;
-  var webfontJSON = null;
-  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
   var robotoData = null;
   var notoserifData = null;
 
   var bonesImageData = null;
-  var flightAnimGif = null;
+  var mandrillData = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).ready().then((CK) => {
@@ -86,19 +64,6 @@
     DrawingExample(CanvasKit, robotoData);
     PathExample(CanvasKit);
     InkExample(CanvasKit);
-    // Set bounds to fix the 4:3 resolution of the legos
-    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    // Re-size to fit
-    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-      'image_0.png': flightAnimGif,
-    });
-    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-      'Roboto-Regular': robotoData,
-    });
 
     CanvasAPI1(CanvasKit);
     CanvasAPI2(CanvasKit);
@@ -116,57 +81,11 @@
 
     TextShapingAPI1(CanvasKit, notoserifData);
     TextShapingAPI2(CanvasKit, notoserifData);
-
-    ParticlesAPI1(CanvasKit);
+    TextOnPathAPI1(CanvasKit);
 
     SurfaceAPI1(CanvasKit);
-  });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
-    resp.text().then((str) => {
-      legoJSON = str;
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
-    resp.text().then((str) => {
-      drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
-    resp.text().then((str) => {
-      confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
-    resp.text().then((str) => {
-      onboardingJSON = str;
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_multiframe.json').then((resp) => {
-    resp.text().then((str) => {
-      multiFrameJSON = str;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_webfont.json').then((resp) => {
-    resp.text().then((str) => {
-      webfontJSON = str;
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-        'Roboto-Regular': robotoData,
-      });
-    });
+    AtlasAPI1(CanvasKit, mandrillData);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
@@ -176,22 +95,10 @@
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/flightAnim.gif').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      flightAnimGif = buffer;
-      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
-        'image_0.png': flightAnimGif,
-      });
-    });
-  });
-
   fetch('./Roboto-Regular.woff').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       robotoData = buffer;
       DrawingExample(CanvasKit, robotoData);
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-        'Roboto-Regular': robotoData,
-      });
     });
   });
 
@@ -203,6 +110,12 @@
     });
   });
 
+  // Mandrill test image
+  fetch('./test.png').then((response) => response.arrayBuffer()).then((buffer) => {
+    mandrillData = buffer;
+    AtlasAPI1(CanvasKit, mandrillData);
+  });
+
   function DrawingExample(CanvasKit, robotoData) {
     if (!robotoData || !CanvasKit) {
       return;
@@ -212,9 +125,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext(); // only needed for WebGL; no-op for CPU
-
-    const canvas = surface.getCanvas();
 
     const paint = new CanvasKit.SkPaint();
 
@@ -232,12 +142,11 @@
     let X = 128;
     let Y = 128;
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       const path = starPath(CanvasKit, X, Y);
       // Some animations see performance improvements by marking their
       // paths as volatile.
       path.setIsVolatile(true);
-      CanvasKit.setCurrentContext(context);
       const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
       i++;
 
@@ -252,13 +161,11 @@
       canvas.drawPath(path, paint);
       canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
 
-      surface.flush();
-
       dpe.delete();
       path.delete();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
 
     // Make animation interactive
     let interact = (e) => {
@@ -278,17 +185,13 @@
   }
 
   function PathExample(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('paths');
+    const surface = CanvasKit.MakeSWCanvasSurface('paths');
     if (!surface) {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
 
-    const canvas = surface.getCanvas();
-
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       const paint = new CanvasKit.SkPaint();
       paint.setStrokeWidth(1.0);
       paint.setAntiAlias(true);
@@ -325,14 +228,12 @@
 
       canvas.drawPath(rrect, paint);
 
-      surface.flush();
-
       path.delete();
       rrect.delete();
       paint.delete();
       // Intentionally just draw frame once
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
   }
 
   function preventScrolling(canvas) {
@@ -349,9 +250,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-
-    const canvas = surface.getCanvas();
 
     let paint = new CanvasKit.SkPaint();
     paint.setAntiAlias(true);
@@ -379,16 +277,14 @@
     let paths = [path];
     let paints = [paint];
 
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
       for (let i = 0; i < paints.length && i < paths.length; i++) {
         canvas.drawPath(paths[i], paints[i]);
       }
-      surface.flush();
 
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
 
     let hold = false;
@@ -415,7 +311,7 @@
     document.getElementById('ink').addEventListener('lostpointercapture', interact);
     document.getElementById('ink').addEventListener('pointerup', interact);
     preventScrolling(document.getElementById('ink'));
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
   }
 
   function starPath(CanvasKit, X=128, Y=128, R=116) {
@@ -426,54 +322,6 @@
       p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
     }
     return p;
-  }
-
-  function fps(frameTimes) {
-    let total = 0;
-    for (let ft of frameTimes) {
-      total += ft;
-    }
-    return frameTimes.length / total;
-  }
-
-  function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
-    if (!CanvasKit || !jsonStr) {
-      return;
-    }
-    const animation = CanvasKit.MakeManagedAnimation(jsonStr, assets);
-    const duration = animation.duration() * 1000;
-    const size = animation.size();
-    let c = document.getElementById(id);
-    bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
-
-    // Basic managed animation test.
-    if (id === 'sk_drinks') {
-      animation.setColor('BACKGROUND_FILL', CanvasKit.Color(0, 163, 199, 1.0));
-    }
-
-    const surface = CanvasKit.MakeCanvasSurface(id);
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
-
-    let firstFrame = Date.now();
-
-    function drawFrame() {
-      let seek = ((Date.now() - firstFrame) / duration) % 1.0;
-      CanvasKit.setCurrentContext(context);
-      animation.seek(seek);
-      canvas.clear(CanvasKit.WHITE);
-      animation.render(canvas, bounds);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
-
-    //animation.delete();
-    return surface;
   }
 
   function CanvasAPI1(CanvasKit) {
@@ -1010,7 +858,6 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
 
@@ -1024,7 +871,6 @@
                                             false /*isVolatile*/);
 
     canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
-    surface.flush();
 
     vertices.delete();
 
@@ -1047,7 +893,7 @@
     surface.delete();
   }
 
-  // bonesImageDatae is passed in as raw, encoded bytes.
+  // bonesImageData is passed in as raw, encoded bytes.
   function VertexAPI2(CanvasKit, bonesImageData) {
     if (!CanvasKit || !bonesImageData) {
       return;
@@ -1057,13 +903,11 @@
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
     let bonesImage = CanvasKit.MakeImageFromEncoded(bonesImageData);
 
-    let shader = CanvasKit.MakeImageShader(bonesImage,
-                    CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
+    let shader = bonesImage.makeShader(CanvasKit.TileMode.Clamp,
+                                       CanvasKit.TileMode.Clamp);
 
     // comment this out to see just the triangles move.
     paint.setShader(shader);
@@ -1079,7 +923,7 @@
     let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
                                             points, texs, null, boneidxs, bonewts);
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       let now = Date.now();
       let bones = [
         [[1,0, // world bone (move 10px down and to the right to center)
@@ -1096,15 +940,13 @@
           0,30*Math.cos(now/500)]],
       ];
       let tVerts = vertices.applyBones(bones);
-      CanvasKit.setCurrentContext(context);
-      //canvas.clear(CanvasKit.TRANSPARENT);
+      canvas.clear(CanvasKit.TRANSPARENT);
       canvas.drawVertices(tVerts, CanvasKit.BlendMode.Src, paint);
-      surface.flush();
 
       tVerts.delete();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
     //tVerts.delete();
     //vertices.delete();
 
@@ -1116,12 +958,11 @@
   }
 
   function GradiantAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('gradient1');
+    const surface = CanvasKit.MakeSWCanvasSurface('gradient1');
     if (!surface) {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
 
@@ -1151,12 +992,11 @@
     if (!notoserifData || !CanvasKit) {
       return;
     }
-    const surface = CanvasKit.MakeCanvasSurface('shape1');
+    const surface = CanvasKit.MakeSWCanvasSurface('shape1');
     if (!surface) {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     const paint = new CanvasKit.SkPaint();
     paint.setColor(CanvasKit.BLUE);
@@ -1220,13 +1060,11 @@
     if (!notoserifData || !CanvasKit) {
       return;
     }
-    const surface = CanvasKit.MakeCanvasSurface('shape2');
+    const surface = CanvasKit.MakeSWCanvasSurface('shape2');
     if (!surface) {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
     const paint = new CanvasKit.SkPaint();
     paint.setColor(CanvasKit.BLUE);
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -1243,8 +1081,7 @@
     let X = 240;
     let Y = 190;
 
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
+    function drawFrame(canvas) {
       canvas.clear(CanvasKit.TRANSPARENT);
 
       const shapedText = new CanvasKit.ShapedText({
@@ -1258,13 +1095,11 @@
       canvas.drawText(shapedText, 10, 40, textPaint, smallFont);
       canvas.drawText('Try Clicking!', 10, 480, textPaint, bigFont);
 
-      surface.flush();
-
       shapedText.delete();
 
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
 
     // Make animation interactive
     let interact = (e) => {
@@ -1279,143 +1114,41 @@
     preventScrolling(document.getElementById('shape2'));
   }
 
-  function ParticlesAPI1(CanvasKit) {
-    const surface = CanvasKit.MakeCanvasSurface('particles');
+  function TextOnPathAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeSWCanvasSurface('textonpath');
     if (!surface) {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    paint.setAntiAlias(true);
 
-    const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
-    particles.start(Date.now() / 1000.0, true);
+    const font = new CanvasKit.SkFont(null, 24);
+    const fontPaint = new CanvasKit.SkPaint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+    fontPaint.setAntiAlias(true);
 
-    function drawFrame() {
-      CanvasKit.setCurrentContext(context);
-      canvas.clear(CanvasKit.BLACK);
+    const arc = new CanvasKit.SkPath();
+    arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+    arc.lineTo(210, 140);
+    arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
 
-      particles.update(Date.now() / 1000.0);
-      particles.draw(canvas);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
+    const str = 'This téxt should follow the curve across contours...';
+    const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);
 
+    canvas.drawPath(arc, paint);
+    canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+    surface.flush();
+
+    textBlob.delete();
+    arc.delete();
+    paint.delete();
+    font.delete();
+    fontPaint.delete();
   }
-
-const snowfall = {
-   "MaxCount": 4096,
-   "Duration": 1,
-   "Rate": 30,
-   "Life": {
-      "Input": {
-         "Source": "Age",
-         "TileMode": "Repeat",
-         "Left": 0,
-         "Right": 1
-      },
-      "XValues": [],
-      "Segments": [
-         {
-            "Type": "Constant",
-            "Ranged": false,
-            "Bidirectional": false,
-            "A0": 10
-         }
-      ]
-   },
-   "Drawable": {
-      "Type": "SkCircleDrawable",
-      "Radius": 1
-   },
-   "Spawn": [
-      {
-         "Type": "SkLinearVelocityAffector",
-         "Enabled": true,
-         "Force": false,
-         "Frame": "World",
-         "Angle": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 170,
-                  "A1": 190
-               }
-            ]
-         },
-         "Strength": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Constant",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "A1": 30
-               }
-            ]
-         }
-      },
-      {
-         "Type": "SkPositionOnPathAffector",
-         "Enabled": true,
-         "Input": {
-            "Source": "Random",
-            "TileMode": "Clamp",
-            "Left": 0,
-            "Right": 1
-         },
-         "SetHeading": false,
-         "Path": "h500"
-      }
-   ],
-   "Update": [
-      {
-         "Type": "SkSizeAffector",
-         "Enabled": true,
-         "Curve": {
-            "Input": {
-               "Source": "Age",
-               "TileMode": "Repeat",
-               "Left": 0,
-               "Right": 1
-            },
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Cubic",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "B0": 10,
-                  "C0": 10,
-                  "D0": 0,
-                  "A1": 10,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
-               }
-            ]
-         }
-      }
-   ]
-};
 
   function SurfaceAPI1(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('surfaces');
@@ -1423,8 +1156,7 @@ const snowfall = {
       console.error('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
+    const grContext = surface.grContext;
 
     // create a subsurface as a temporary workspace.
     const subSurface = surface.makeSurface({
@@ -1461,27 +1193,84 @@ const snowfall = {
     // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
     const img = subSurface.makeImageSnapshot();
 
-    // clean up the temporary surface
+    // clean up the temporary surface (which also cleans up subCanvas)
     subSurface.delete();
     paint.delete();
 
     // Make it repeat a bunch with a shader
-    const pattern = CanvasKit.MakeImageShader(img, CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
     const patternPaint = new CanvasKit.SkPaint();
     patternPaint.setShader(pattern);
 
     let i = 0;
 
-    function drawFrame() {
+    function drawFrame(canvas) {
       i++;
-      CanvasKit.setCurrentContext(context);
       canvas.clear(CanvasKit.WHITE);
 
       canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
+      surface.requestAnimationFrame(drawFrame);
+      // if (grContext) {
+      //   console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
+      // }
     }
-    window.requestAnimationFrame(drawFrame);
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function AtlasAPI1(CanvasKit, imgData) {
+    if (!CanvasKit || !imgData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('atlas');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const img = CanvasKit.MakeImageFromEncoded(imgData);
+
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+    const srcs = new CanvasKit.SkRectBuilder();
+    srcs.push(0, 0, 250, 250 ); // LTRB
+    srcs.push(250, 0, 500, 250 );
+
+    const dsts = new CanvasKit.RSXFormBuilder();
+    dsts.push(.5, 0, 0, 0); // scos, ssin, tx, ty
+    dsts.push(0, .8, 200, 100);
+
+    const colors = new CanvasKit.SkColorBuilder();
+    colors.push(CanvasKit.Color(85, 170, 10, 0.5)); // light green
+    colors.push(CanvasKit.Color(51, 51, 191, 0.5)); // light blue
+
+    let i = 0;
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      i++;
+      let scale = 0.5 + Math.sin(i/40)/4;
+
+      // update the coordinates of existing sprites - note that this
+      // does not require a full re-copy of the full array; they are
+      // updated in-place.
+      dsts.set(0, 0.5, 0, (2*i)%200, (5*Math.round(i/200)) % 200);
+      dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
+
+      canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
+
+      // Skip drawing the 17th frame to the screen, and instead draw it to
+      // an SkPicture - a format which can be useful for debugging.
+      // The C++ version of Skia can open a SKP created by the WASM version,
+      // which can aid performance diagnosis.
+      //if (i === 17) {
+      //   const pic = surface.captureFrameAsSkPicture(drawFrame, "frame17.skp");
+      //   pic.DEBUGONLY_saveAsFile("frame17.skp");
+      //   pic.delete();
+      // } else {
+        surface.requestAnimationFrame(drawFrame);
+       // }
+    }
+    surface.requestAnimationFrame(drawFrame);
 
   }
 </script>

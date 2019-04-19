@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvasPriv.h"
-
+#include "SkShaderMaskFilter.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
@@ -25,7 +25,7 @@ static void do_draw(SkCanvas* canvas) {
     SkRandom rand;
 
     for (int i = 0; i < 20; ++i) {
-        paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
+        paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
         canvas->drawRect({ 15, 15, 290, 40 }, paint);
         canvas->translate(0, 30);
     }
@@ -141,7 +141,7 @@ static void draw_mask(SkCanvas* canvas, int size) {
     canvas->drawPaint(paint);
 
     paint.setShader(SkGradientShader::MakeRadial({cx, cy}, size / 4, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawCircle(cx, cy, size / 4, paint);
 }
 
@@ -277,6 +277,63 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->restore();
 }
 
+DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
+    // Offscreen surface for making the clip mask and mask filter images
+    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(100, 100));
+    SkPaint maskPaint;
+    maskPaint.setColor(SK_ColorWHITE);
+    maskPaint.setAntiAlias(true);
+
+    // Draw a centered circle for the mask filter
+    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
+    surf->getCanvas()->drawCircle(50.f, 50.f, 50.f, maskPaint);
+    auto maskFilterImage = surf->makeImageSnapshot();
+    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(maskFilterImage->makeShader());
+
+    // Cut out a cross for the clip mask
+    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(0.f, 0.f, 40.f, 40.f), maskPaint);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(60.f, 0.f, 100.f, 40.f), maskPaint);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(0.f, 60.f, 40.f, 100.f), maskPaint);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(60.f, 60.f, 100.f, 100.f), maskPaint);
+    auto clipMaskImage = surf->makeImageSnapshot();
+    SkMatrix clipMatrix = SkMatrix::I();
+    SkRect clipBounds = SkRect::MakeWH(100, 100);
+
+    // On the main canvas, save a 100x100 layer three times, applying clip mask, mask filter, or
+    // both, translating across the GM for each configuration.
+    canvas->clear(SK_ColorGRAY);
+
+    canvas->translate(25.f, 0.f);
+
+    // Clip mask only
+    SkCanvas::SaveLayerRec rec;
+    rec.fBounds = &clipBounds;
+    rec.fClipMask = clipMaskImage.get();
+    rec.fClipMatrix = &clipMatrix;
+    canvas->saveLayer(rec);
+    canvas->clear(SK_ColorWHITE);
+    canvas->restore();
+
+    canvas->translate(125.f, 0.f);
+
+    // Mask filter only
+    maskPaint.setMaskFilter(maskFilter);
+    rec.fClipMask = nullptr;
+    rec.fPaint = &maskPaint;
+    canvas->saveLayer(rec);
+    canvas->clear(SK_ColorWHITE);
+    canvas->restore();
+
+    canvas->translate(125.f, 0.f);
+
+    // Both
+    rec.fClipMask = clipMaskImage.get();
+    canvas->saveLayer(rec);
+    canvas->clear(SK_ColorWHITE);
+    canvas->restore();
+}
+
 #include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkTextBlob.h"
@@ -306,7 +363,7 @@ static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkSca
     // draw the treatment
     const SkPoint pts[] = { {r.fLeft,0}, {r.fRight, 0} };
     const SkColor colors[] = { 0x88000000, 0x0 };
-    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
     p.setShader(sh);
     p.setBlendMode(SkBlendMode::kDstIn);
     canvas->drawRect(r, p);

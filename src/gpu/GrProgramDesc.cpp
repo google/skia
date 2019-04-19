@@ -231,7 +231,7 @@ bool GrProgramDesc::Build(
 
     if (processorFeatures & GrProcessor::CustomFeatures::kSampleLocations) {
         SkASSERT(pipeline.isHWAntialiasState());
-        b.add32(renderTarget->renderTargetPriv().getSamplePatternKey(pipeline));
+        b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
     }
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
@@ -253,5 +253,7 @@ bool GrProgramDesc::Build(
     SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fHasPointSize = hasPointSize ? 1 : 0;
+    header->fClampBlendInput =
+            GrClampType::kManual == GrPixelConfigClampType(renderTarget->config()) ? 1 : 0;
     return true;
 }

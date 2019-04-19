@@ -85,18 +85,16 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
 
     fTextureProxy = GrProxyProvider::MakeFullyLazyProxy(
             [this, pixelConfig](GrResourceProvider* resourceProvider) {
-                    if (!resourceProvider) {
-                        return sk_sp<GrTexture>();
-                    }
                     if (!fBackingTexture) {
                         GrSurfaceDesc desc;
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
                         desc.fWidth = fWidth;
                         desc.fHeight = fHeight;
                         desc.fConfig = pixelConfig;
-                        fBackingTexture = resourceProvider->createTexture(desc, SkBudgeted::kYes);
+                        fBackingTexture = resourceProvider->createTexture(
+                            desc, SkBudgeted::kYes, GrResourceProvider::Flags::kNoPendingIO);
                     }
-                    return fBackingTexture;
+                    return GrSurfaceProxy::LazyInstantiationResult(fBackingTexture);
             },
             format, GrProxyProvider::Renderable::kYes, kTextureOrigin, pixelConfig, caps);
 }

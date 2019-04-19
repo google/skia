@@ -35,12 +35,8 @@ public:
     SkImage_Lazy(Validator* validator);
     ~SkImage_Lazy() override;
 
-    SkImageInfo onImageInfo() const override {
-        return fInfo;
-    }
-
     SkIRect onGetSubset() const override {
-        return SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY, fInfo.width(), fInfo.height());
+        return SkIRect::MakeXYWH(fOrigin.fX, fOrigin.fY, this->width(), this->height());
     }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
@@ -77,10 +73,10 @@ public:
 private:
     class ScopedGenerator;
 
+    // Note that this->imageInfo() is not necessarily the info from the generator. It may be
+    // cropped by onMakeSubset and its color type/space may be changed by
+    // onMakeColorTypeAndColorSpace.
     sk_sp<SharedGenerator> fSharedGenerator;
-    // Note that fInfo is not necessarily the info from the generator. It may be cropped by
-    // onMakeSubset and its color type/space may be changed by onMakeColorTypeAndColorSpace.
-    const SkImageInfo      fInfo;
     const SkIPoint         fOrigin;
 
     uint32_t fUniqueID;

@@ -51,7 +51,7 @@ public:
                                               const char name[]) const override {
         // For CK/Skottie we ignore paths and identify images based solely on name.
         if (auto data = this->findAsset(name)) {
-            return skottie_utils::MultiFrameImageAsset::Make(std::move(data));
+            return skottie_utils::MultiFrameImageAsset::Make(std::move(data), true /* predecode */);
         }
 
         return nullptr;
@@ -131,8 +131,8 @@ public:
         return props;
     }
 
-    bool setColor(const std::string& key, JSColor c) {
-        return fPropMgr->setColor(key, static_cast<SkColor>(c));
+    bool setColor(const std::string& key, SkColor c) {
+        return fPropMgr->setColor(key, c);
     }
 
     bool setOpacity(const std::string& key, float o) {

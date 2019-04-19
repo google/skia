@@ -78,9 +78,7 @@ protected:
         fClip.set(0, 0, 950, 600);
     }
 
-    bool onAnimate(const SkAnimTimer& ) override {
-        return true;
-    }
+    bool onAnimate(const AnimTimer&) override { return true; }
 
 private:
     SkPath      fMegaPath;

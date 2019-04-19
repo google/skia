@@ -14,16 +14,21 @@
 #include "SkTime.h"
 
 StatsLayer::StatsLayer()
-    : fCurrentMeasurement(0)
+    : fCurrentMeasurement(-1)
+    , fLastTotalBegin(0)
     , fCumulativeMeasurementTime(0)
     , fCumulativeMeasurementCount(0)
-    , fDisplayScale(1.0f) {}
+    , fDisplayScale(1.0f) {
+    memset(fTotalTimes, 0, sizeof(fTotalTimes));
+}
 
 void StatsLayer::resetMeasurements() {
     for (int i = 0; i < fTimers.count(); ++i) {
         memset(fTimers[i].fTimes, 0, sizeof(fTimers[i].fTimes));
     }
-    fCurrentMeasurement = 0;
+    memset(fTotalTimes, 0, sizeof(fTotalTimes));
+    fCurrentMeasurement = -1;
+    fLastTotalBegin = 0;
     fCumulativeMeasurementTime = 0;
     fCumulativeMeasurementCount = 0;
 }
@@ -39,28 +44,32 @@ StatsLayer::Timer StatsLayer::addTimer(const char* label, SkColor color, SkColor
 }
 
 void StatsLayer::beginTiming(Timer timer) {
-    fTimers[timer].fTimes[fCurrentMeasurement] -= SkTime::GetMSecs();
+    if (fCurrentMeasurement >= 0) {
+        fTimers[timer].fTimes[fCurrentMeasurement] -= SkTime::GetMSecs();
+    }
 }
 
 void StatsLayer::endTiming(Timer timer) {
-    fTimers[timer].fTimes[fCurrentMeasurement] += SkTime::GetMSecs();
+    if (fCurrentMeasurement >= 0) {
+        fTimers[timer].fTimes[fCurrentMeasurement] += SkTime::GetMSecs();
+    }
 }
 
-double StatsLayer::getLastTime(Timer timer) {
-    int idx = (fCurrentMeasurement + (kMeasurementCount - 1)) & (kMeasurementCount - 1);
-    return fTimers[timer].fTimes[idx];
+void StatsLayer::onPrePaint() {
+    if (fCurrentMeasurement >= 0) {
+        fTotalTimes[fCurrentMeasurement] = SkTime::GetMSecs() - fLastTotalBegin;
+        fCumulativeMeasurementTime += fTotalTimes[fCurrentMeasurement];
+        fCumulativeMeasurementCount++;
+    }
+    fCurrentMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
+    SkASSERT(fCurrentMeasurement >= 0 && fCurrentMeasurement < kMeasurementCount);
+    fLastTotalBegin = SkTime::GetMSecs();
 }
 
 void StatsLayer::onPaint(SkSurface* surface) {
-    // Advance our timing bookkeeping
+    int nextMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
     for (int i = 0; i < fTimers.count(); ++i) {
-        fCumulativeMeasurementTime += fTimers[i].fTimes[fCurrentMeasurement];
-    }
-    fCumulativeMeasurementCount++;
-    fCurrentMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
-    SkASSERT(fCurrentMeasurement < kMeasurementCount);
-    for (int i = 0; i < fTimers.count(); ++i) {
-        fTimers[i].fTimes[fCurrentMeasurement] = 0;
+        fTimers[i].fTimes[nextMeasurement] = 0;
     }
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -109,12 +118,13 @@ void StatsLayer::onPaint(SkSurface* surface) {
 
     int x = SkScalarTruncToInt(rect.fLeft) + kGraphPadding;
     const int xStep = 3;
-    int i = fCurrentMeasurement;
-    double ms = 0;
+    int i = nextMeasurement;
     SkTDArray<double> sumTimes;
     sumTimes.setCount(fTimers.count());
     memset(sumTimes.begin(), 0, sumTimes.count() * sizeof(double));
     int count = 0;
+    double totalTime = 0;
+    int totalCount = 0;
     do {
         int startY = SkScalarTruncToInt(rect.fBottom);
         double inc = 0;
@@ -129,19 +139,29 @@ void StatsLayer::onPaint(SkSurface* surface) {
             sumTimes[timer] += fTimers[timer].fTimes[i];
         }
 
+        int height = (int)(fTotalTimes[i] * kPixelPerMS + 0.5);
+        height = SkTMax(0, height - (SkScalarTruncToInt(rect.fBottom) - startY));
+        int endY = SkTMax(startY - height, kDisplayPadding + kTextHeight);
+        paint.setColor(SK_ColorWHITE);
+        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
+                         SkIntToScalar(x), SkIntToScalar(endY), paint);
+        totalTime += fTotalTimes[i];
+        if (fTotalTimes[i] > 0) {
+            ++totalCount;
+        }
+
         if (inc > 0) {
-            ms += inc;
             ++count;
         }
 
         i++;
         i &= (kMeasurementCount - 1);  // fast mod
         x += xStep;
-    } while (i != fCurrentMeasurement);
+    } while (i != nextMeasurement);
 
     SkFont font(nullptr, 16);
     paint.setColor(SK_ColorWHITE);
-    double time = ms / SkTMax(1, count);
+    double time = totalTime / SkTMax(1, totalCount);
     double measure = fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount);
     canvas->drawString(SkStringPrintf("%4.3f ms -> %4.3f ms", time, measure),
                        rect.fLeft + 3, rect.fTop + 14, font, paint);

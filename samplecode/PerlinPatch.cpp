@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "AnimTimer.h"
 #include "Sample.h"
-#include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPatchUtils.h"
@@ -104,7 +104,7 @@ public:
                                                   colors,
                                                   nullptr,
                                                   3,
-                                                  SkShader::kMirror_TileMode,
+                                                  SkTileMode::kMirror,
                                                   0,
                                                   nullptr);
     }
@@ -125,11 +125,10 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(const AnimTimer& timer) override {
         fSeed += 0.005f;
         return true;
     }
-
 
     void onDrawContent(SkCanvas* canvas) override {
         if (!canvas->getTotalMatrix().invert(&fInvMatrix)) {
@@ -150,7 +149,7 @@ protected:
         SkScalar scaleFreq = 2.0;
         fShader1 = SkPerlinNoiseShader::MakeImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
                                                              fSeed);
-        fShaderCompose = SkShader::MakeComposeShader(fShader0, fShader1, SkBlendMode::kSrcOver);
+        fShaderCompose = SkShaders::Blend(SkBlendMode::kSrcOver, fShader0, fShader1);
 
         paint.setShader(fShaderCompose);
 

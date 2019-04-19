@@ -42,6 +42,6 @@ DEF_SIMPLE_GM(bug6783, canvas, 500, 500) {
     p.setFilterQuality(kLow_SkFilterQuality);
 
     // It's only important to repeat or mirror in x to show off the bug.
-    p.setShader(img->makeShader(SkShader::kRepeat_TileMode, SkShader::kClamp_TileMode, &m));
+    p.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kClamp, &m));
     canvas->drawPaint(p);
 }

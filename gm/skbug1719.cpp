@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 /**
  * This test exercises bug 1719. An anti-aliased blurred path is rendered through a soft clip. On
@@ -62,7 +62,7 @@ DEF_SIMPLE_GM_BG(skbug1719, canvas, 300, 100, 0xFF303030) {
         paint.setColor(0xFF000000);
         paint.setMaskFilter(
             SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 0.78867501f));
-        paint.setColorFilter(SkColorFilter::MakeModeFilter(0xBFFFFFFF, SkBlendMode::kSrcIn));
+        paint.setColorFilter(SkColorFilters::Blend(0xBFFFFFFF, SkBlendMode::kSrcIn));
 
         canvas->clipPath(clipPath, true);
         canvas->drawPath(drawPath, paint);

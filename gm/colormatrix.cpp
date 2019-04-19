@@ -14,11 +14,11 @@
 #define HEIGHT 500
 
 static void set_color_matrix(SkPaint* paint, const SkColorMatrix& matrix) {
-    paint->setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix.fMat));
+    paint->setColorFilter(SkColorFilters::MatrixRowMajor255(matrix.fMat));
 }
 
 static void set_array(SkPaint* paint, const SkScalar array[]) {
-    paint->setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(array));
+    paint->setColorFilter(SkColorFilters::MatrixRowMajor255(array));
 }
 
 class ColorMatrixGM : public skiagm::GM {
@@ -68,7 +68,7 @@ protected:
         SkColor colors[] = {0x00000000, 0xFFFFFFFF};
         SkPaint paint;
         paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+                                                     SkTileMode::kClamp));
         canvas.drawRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), paint);
         return SkImage::MakeFromBitmap(bm);
     }

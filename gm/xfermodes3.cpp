@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "GrContext.h"
 #include "SkBitmap.h"
-#include "SkGradientShader.h"
-#include "SkSurface.h"
 #include "SkBlendModePriv.h"
 #include "SkColorPriv.h"
+#include "SkGradientShader.h"
+#include "SkSurface.h"
 #include "SkTextUtils.h"
-#include "GrContext.h"
+#include "ToolUtils.h"
+#include "gm.h"
 
 namespace skiagm {
 
@@ -23,7 +23,7 @@ namespace skiagm {
  */
 class Xfermodes3GM : public GM {
 public:
-    Xfermodes3GM() { this->setBGColor(sk_tool_utils::color_to_565(0xFF70D0E0)); }
+    Xfermodes3GM() { this->setBGColor(ToolUtils::color_to_565(0xFF70D0E0)); }
 
 protected:
     SkString onShortName() override {
@@ -37,7 +37,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
-        SkFont font(sk_tool_utils::create_portable_typeface());
+        SkFont  font(ToolUtils::create_portable_typeface());
         SkPaint labelP;
 
         constexpr SkColor kSolidColors[] = {
@@ -169,8 +169,7 @@ private:
 
         SkMatrix lm;
         lm.setScale(SkIntToScalar(kCheckSize), SkIntToScalar(kCheckSize));
-        fBGShader = SkShader::MakeBitmapShader(bg, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode, &lm);
+        fBGShader = bg.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm);
 
         SkPaint bmpPaint;
         const SkPoint kCenter = { SkIntToScalar(kSize) / 2, SkIntToScalar(kSize) / 2 };
@@ -179,7 +178,7 @@ private:
         };
         bmpPaint.setShader(SkGradientShader::MakeRadial(kCenter, 3 * SkIntToScalar(kSize) / 4,
                                                         kColors, nullptr, SK_ARRAY_COUNT(kColors),
-                                                        SkShader::kRepeat_TileMode));
+                                                        SkTileMode::kRepeat));
 
         SkBitmap bmp;
         bmp.allocN32Pixels(kSize, kSize);
@@ -190,8 +189,7 @@ private:
                         7 * SkIntToScalar(kSize) / 8, 7 * SkIntToScalar(kSize) / 8};
         bmpCanvas.drawRect(rect, bmpPaint);
 
-        fBmpShader = SkShader::MakeBitmapShader(bmp, SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode);
+        fBmpShader = bmp.makeShader();
     }
 
     enum {

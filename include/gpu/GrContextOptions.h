@@ -78,11 +78,12 @@ struct SK_API GrContextOptions {
     bool fDoManualMipmapping = false;
 
     /**
-     * Disables the coverage counting path renderer. Coverage counting can sometimes cause new
-     * rendering artifacts along shared edges if care isn't taken to ensure both contours wind in
-     * the same direction.
+     * Disables the use of coverage counting shortcuts to render paths. Coverage counting can cause
+     * artifacts along shared edges if care isn't taken to ensure both contours wind in the same
+     * direction.
      */
-    bool fDisableCoverageCountingPaths = false;
+    // FIXME: Once this is removed from Chrome and Android, rename to fEnable"".
+    bool fDisableCoverageCountingPaths = true;
 
     /**
      * Disables distance field rendering for paths. Distance field computation can be expensive,

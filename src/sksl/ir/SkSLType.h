@@ -321,7 +321,7 @@ public:
      */
     int columns() const {
         SkASSERT(fTypeKind == kScalar_Kind || fTypeKind == kVector_Kind ||
-               fTypeKind == kMatrix_Kind || fTypeKind == kArray_Kind);
+                 fTypeKind == kMatrix_Kind || fTypeKind == kArray_Kind);
         return fColumns;
     }
 

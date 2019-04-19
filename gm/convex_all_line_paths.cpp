@@ -10,15 +10,14 @@
 #include "SkPathPriv.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
-    float angleStep = 360.0f / n, angle = 0.0f, sin, cos;
+    float angleStep = 360.0f / n, angle = 0.0f;
     if ((n % 2) == 1) {
         angle = angleStep/2.0f;
     }
 
     for (int i = 0; i < n; ++i) {
-        sin = SkScalarSinCos(SkDegreesToRadians(angle), &cos);
-        pts[i].fX = -sin * width;
-        pts[i].fY = cos * height;
+        pts[i].fX = -SkScalarSin(SkDegreesToRadians(angle)) * width;
+        pts[i].fY =  SkScalarCos(SkDegreesToRadians(angle)) * height;
         angle += angleStep;
     }
 }

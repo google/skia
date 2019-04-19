@@ -23,16 +23,6 @@ public:
     // depends on the read and write refs (So this method can validly return 0).
     int32_t getProxyRefCnt() const { return fProxy->getProxyRefCnt(); }
 
-    // Beware! This call is only guaranteed to tell you if the proxy in question has
-    // any pending IO in its current state. It won't tell you about the IO state in the
-    // future when the proxy is actually used/instantiated.
-    bool hasPendingIO() const { return fProxy->hasPendingIO(); }
-
-    // Beware! This call is only guaranteed to tell you if the proxy in question has
-    // any pending writes in its current state. It won't tell you about the IO state in the
-    // future when the proxy is actually used/instantiated.
-    bool hasPendingWrite() const { return fProxy->hasPendingWrite(); }
-
     void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
@@ -58,6 +48,11 @@ public:
 
     GrSurfaceProxy::LazyInstantiationType lazyInstantiationType() const {
         return fProxy->fLazyInstantiationType;
+    }
+
+    bool isSafeToDeinstantiate() const {
+        return SkToBool(fProxy->fTarget) && SkToBool(fProxy->fLazyInstantiateCallback) &&
+               GrSurfaceProxy::LazyInstantiationType::kDeinstantiate == lazyInstantiationType();
     }
 
     static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,

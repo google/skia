@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "ToolUtils.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 #include "Resources.h"
 #include "SkGradientShader.h"
@@ -14,7 +14,7 @@
 #include "SkTypeface.h"
 
 static void setTypeface(SkFont* font, const char name[], SkFontStyle style) {
-    font->setTypeface(sk_tool_utils::create_portable_typeface(name, style));
+    font->setTypeface(ToolUtils::create_portable_typeface(name, style));
 }
 
 static SkSize computeSize(const SkBitmap& bm, const SkMatrix& mat) {
@@ -170,7 +170,7 @@ public:
           }
           if (fConvertToG8) {
               SkBitmap tmp;
-              sk_tool_utils::copy_to_g8(&tmp, fBM);
+              ToolUtils::copy_to_g8(&tmp, fBM);
               fBM = tmp;
           }
       }
@@ -205,7 +205,7 @@ protected:
 
         if (fConvertToG8) {
             SkBitmap tmp;
-            sk_tool_utils::copy_to_g8(&tmp, fBM);
+            ToolUtils::copy_to_g8(&tmp, fBM);
             fBM = tmp;
         }
       }

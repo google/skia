@@ -8,6 +8,7 @@
 #include "vk/GrVkPipelineStateBuilder.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrPersistentCacheUtils.h"
 #include "GrShaderCaps.h"
 #include "GrStencilSettings.h"
 #include "GrVkRenderTarget.h"
@@ -71,15 +72,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     Desc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
-    SkString shaderString;
-    for (int i = 0; i < builder.fCompilerStrings.count(); ++i) {
-        if (builder.fCompilerStrings[i]) {
-            shaderString.append(builder.fCompilerStrings[i]);
-            shaderString.append("\n");
-        }
-    }
-
-    if (!GrCompileVkShaderModule(fGpu, shaderString.c_str(), stage, shaderModule,
+    if (!GrCompileVkShaderModule(fGpu, builder.fCompilerString.c_str(), stage, shaderModule,
                                  stageInfo, settings, outSPIRV, outInputs)) {
         return false;
     }
@@ -113,118 +106,44 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
                                                    VkShaderModule* outFragShaderModule,
                                                    VkShaderModule* outGeomShaderModule,
                                                    VkPipelineShaderStageCreateInfo* outStageInfo) {
-    // format for shader cache entries is:
-    //     shader_size vertSize;
-    //     char[vertSize] vert;
-    //     SkSL::Program::Inputs vertInputs;
-    //     shader_size fragSize;
-    //     char[fragSize] frag;
-    //     SkSL::Program::Inputs fragInputs;
-    //     shader_size geomSize;
-    //     char[geomSize] geom;
-    //     SkSL::Program::Inputs geomInputs;
-    size_t offset = 0;
+    SkSL::String shaders[kGrShaderTypeCount];
+    SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    // vertex shader
-    shader_size vertSize = *((shader_size*) ((char*) cached.data() + offset));
-    offset += sizeof(shader_size);
-    SkSL::String vert((char*) cached.data() + offset, vertSize);
-    offset += vertSize;
-    SkSL::Program::Inputs vertInputs;
-    memcpy(&vertInputs, (char*) cached.data() + offset, sizeof(vertInputs));
-    offset += sizeof(vertInputs);
-
-    // fragment shader
-    shader_size fragSize = *((shader_size*) ((char*) cached.data() + offset));
-    offset += sizeof(shader_size);
-    SkSL::String frag((char*) cached.data() + offset, fragSize);
-    offset += fragSize;
-    SkSL::Program::Inputs fragInputs;
-    memcpy(&fragInputs, (char*) cached.data() + offset, sizeof(fragInputs));
-    offset += sizeof(fragInputs);
-
-    // geometry shader
-    shader_size geomSize = *((shader_size*) ((char*) cached.data() + offset));
-    offset += sizeof(shader_size);
-    SkSL::String geom((char*) cached.data() + offset, geomSize);
-    offset += geomSize;
-    SkSL::Program::Inputs geomInputs;
-    memcpy(&geomInputs, (char*) cached.data() + offset, sizeof(geomInputs));
-    offset += sizeof(geomInputs);
-
-    SkASSERT(offset == cached.size());
+    GrPersistentCacheUtils::UnpackCachedSPIRV(&cached, shaders, inputs);
 
     SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                fVS,
                                                outVertShaderModule,
                                                &outStageInfo[0],
-                                               vert,
-                                               vertInputs));
+                                               shaders[kVertex_GrShaderType],
+                                               inputs[kVertex_GrShaderType]));
 
     SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
                                                fFS,
                                                outFragShaderModule,
                                                &outStageInfo[1],
-                                               frag,
-                                               fragInputs));
+                                               shaders[kFragment_GrShaderType],
+                                               inputs[kFragment_GrShaderType]));
 
-    if (geomSize) {
+    if (!shaders[kGeometry_GrShaderType].empty()) {
         SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
                                                    fGS,
                                                    outGeomShaderModule,
                                                    &outStageInfo[2],
-                                                   geom,
-                                                   geomInputs));
+                                                   shaders[kGeometry_GrShaderType],
+                                                   inputs[kGeometry_GrShaderType]));
         return 3;
     } else {
         return 2;
     }
 }
 
-void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String& vert,
-                                                   const SkSL::Program::Inputs& vertInputs,
-                                                   const SkSL::String& frag,
-                                                   const SkSL::Program::Inputs& fragInputs,
-                                                   const SkSL::String& geom,
-                                                   const SkSL::Program::Inputs& geomInputs) {
+void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
+                                                   const SkSL::Program::Inputs inputs[]) {
     Desc* desc = static_cast<Desc*>(this->desc());
-
-    // see loadShadersFromCache for the layout of cache entries
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
-    size_t dataLength = (sizeof(shader_size) + sizeof(SkSL::Program::Inputs)) * 3 + vert.length() +
-                        frag.length() + geom.length();
-    std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-    size_t offset = 0;
-
-    // vertex shader
-    *((shader_size*) (data.get() + offset)) = (shader_size) vert.length();
-    offset += sizeof(shader_size);
-    memcpy(data.get() + offset, vert.data(), vert.length());
-    offset += vert.length();
-    memcpy(data.get() + offset, &vertInputs, sizeof(vertInputs));
-    offset += sizeof(vertInputs);
-
-    // fragment shader
-    *((shader_size*) (data.get() + offset)) = (shader_size) frag.length();
-    offset += sizeof(shader_size);
-    memcpy(data.get() + offset, frag.data(), frag.length());
-    offset += frag.length();
-    memcpy(data.get() + offset, &fragInputs, sizeof(fragInputs));
-    offset += sizeof(fragInputs);
-
-    // geometry shader
-    *((shader_size*) (data.get() + offset)) = (shader_size) geom.length();
-    offset += sizeof(shader_size);
-    memcpy(data.get() + offset, geom.data(), geom.length());
-    offset += geom.length();
-    memcpy(data.get() + offset, &geomInputs, sizeof(geomInputs));
-    offset += sizeof(geomInputs);
-
-    SkASSERT(offset == dataLength);
-
-    this->gpu()->getContext()->priv().getPersistentCache()->store(
-                                                  *key,
-                                                  *SkData::MakeWithoutCopy(data.get(), dataLength));
+    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedSPIRV(shaders, inputs);
+    this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
@@ -292,20 +211,16 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                      &geomShaderModule, shaderStageInfo);
     } else {
         numShaderStages = 2; // We always have at least vertex and fragment stages.
-        SkSL::String vert;
-        SkSL::Program::Inputs vertInputs;
-        SkSL::String frag;
-        SkSL::Program::Inputs fragInputs;
-        SkSL::String geom;
-        SkSL::Program::Inputs geomInputs;
+        SkSL::String shaders[kGrShaderTypeCount];
+        SkSL::Program::Inputs inputs[kGrShaderTypeCount];
         SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                   fVS,
                                                   &vertShaderModule,
                                                   &shaderStageInfo[0],
                                                   settings,
                                                   desc,
-                                                  &vert,
-                                                  &vertInputs));
+                                                  &shaders[kVertex_GrShaderType],
+                                                  &inputs[kVertex_GrShaderType]));
 
         SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
                                                   fFS,
@@ -313,8 +228,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                   &shaderStageInfo[1],
                                                   settings,
                                                   desc,
-                                                  &frag,
-                                                  &fragInputs));
+                                                  &shaders[kFragment_GrShaderType],
+                                                  &inputs[kFragment_GrShaderType]));
 
         if (this->primitiveProcessor().willUseGeoShader()) {
             SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
@@ -323,17 +238,17 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                                       &shaderStageInfo[2],
                                                       settings,
                                                       desc,
-                                                      &geom,
-                                                      &geomInputs));
+                                                      &shaders[kGeometry_GrShaderType],
+                                                      &inputs[kGeometry_GrShaderType]));
             ++numShaderStages;
         }
         if (persistentCache) {
-            this->storeShadersInCache(vert, vertInputs, frag, fragInputs, geom, geomInputs);
+            this->storeShadersInCache(shaders, inputs);
         }
     }
     GrVkPipeline* pipeline = resourceProvider.createPipeline(
-            this->renderTarget()->numColorSamples(), fPrimProc, fPipeline, stencil, shaderStageInfo,
-            numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
+            this->renderTarget()->numColorSamples(), fPrimProc, fPipeline, stencil, this->origin(),
+            shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), vertShaderModule,
                                                         nullptr));
     GR_VK_CALL(fGpu->vkInterface(), DestroyShaderModule(fGpu->device(), fragShaderModule,

@@ -220,11 +220,13 @@ private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
-                                                   const GrCaps&) const override;
+                                                   const GrCaps&,
+                                                   GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          const GrCaps&) const override;
+                                          const GrCaps&,
+                                          GrClampType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
 
@@ -244,7 +246,8 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor&,
         GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
-        const GrCaps& caps) const {
+        const GrCaps& caps,
+        GrClampType clampType) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
@@ -254,7 +257,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
         const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) const {
+        const GrCaps& caps, GrClampType clampType) const {
     /*
       The general SVG blend equation is defined in the spec as follows:
 
@@ -352,13 +355,13 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
     */
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         if (caps.blendEquationSupport() == GrCaps::kAdvancedCoherent_BlendEquationSupport) {
-            return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+            return AnalysisProperties::kCompatibleWithCoverageAsAlpha;
         } else {
-            return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+            return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
                    AnalysisProperties::kRequiresNonOverlappingDraws;
         }
     }
-    return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+    return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
            AnalysisProperties::kReadsDstInShader;
 }
 

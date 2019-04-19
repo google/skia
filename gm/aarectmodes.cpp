@@ -111,8 +111,7 @@ static sk_sp<SkShader> make_bg_shader() {
                                                              0xCF, 0xCE);
 
     const SkMatrix m = SkMatrix::MakeScale(SkIntToScalar(6), SkIntToScalar(6));
-    return SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                      &m);
+    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
 }
 
 DEF_SIMPLE_GM(aarectmodes, canvas, 640, 480) {

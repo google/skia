@@ -8,8 +8,8 @@
 #ifndef DMJsonWriter_DEFINED
 #define DMJsonWriter_DEFINED
 
+#include "CommandLineFlags.h"
 #include "SkString.h"
-#include "Test.h"
 
 namespace DM {
 
@@ -42,14 +42,11 @@ public:
     static void AddBitmapResult(const BitmapResult&);
 
     /**
-     *  Add a Failure from a Test.
+     *  Write all collected results to the file dir/dm.json.
      */
-    static void AddTestFailure(const skiatest::Failure&);
-
-    /**
-     *  Write all collected results to the file FLAGS_writePath[0]/dm.json.
-     */
-    static void DumpJson();
+    static void DumpJson(const char* dir,
+                         CommandLineFlags::StringArray key,
+                         CommandLineFlags::StringArray properties);
 
     /**
      * Read JSON file at path written by DumpJson, calling callback for each
