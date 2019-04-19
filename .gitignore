@@ -8,6 +8,7 @@
 .gm-actuals
 .gradle
 .idea
+.vscode
 .cproject
 .project
 .recipe_deps/
