@@ -163,10 +163,10 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrFSAAType fsaaType, GrClampType clampType) override {
         return fHelper.finalizeProcessors(
-                caps, clip, fsaaType, GrProcessorAnalysisCoverage::kNone, &fColor);
+                caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kNone, &fColor);
     }
 
 private:
@@ -410,10 +410,10 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(
-            const GrCaps& caps, const GrAppliedClip* clip, GrFSAAType fsaaType) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrFSAAType fsaaType, GrClampType clampType) override {
         return fHelper.finalizeProcessors(
-                caps, clip, fsaaType, GrProcessorAnalysisCoverage::kSingleChannel,
+                caps, clip, fsaaType, clampType, GrProcessorAnalysisCoverage::kSingleChannel,
                 &fRects.back().fColor);
     }
 

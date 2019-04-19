@@ -42,7 +42,8 @@ public:
         return FixedFunctionFlags::kNone;
     }
 
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
 
