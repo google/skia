@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fa58d63_1a2446a0",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-04-19T13:56:16Z",
+      "side": 1,
+      "message": "Probably don\u0027t want to leave this active.",
+      "range": {
+        "startLine": 275,
+        "startChar": 8,
+        "endLine": 275,
+        "endChar": 41
+      },
+      "revId": "da2d49204cf2271332d871c5d182032039e731a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
