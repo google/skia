@@ -126,6 +126,7 @@ GrRenderTargetOpList::OpChain::OpChain(std::unique_ptr<GrOp> op,
     if (fProcessorAnalysis.requiresDstTexture()) {
         SkASSERT(dstProxy && dstProxy->proxy());
         fDstProxy = *dstProxy;
+        dstProxy->proxy()->incFoo();
     }
     fBounds = fList.head()->bounds();
 }
@@ -302,7 +303,11 @@ bool GrRenderTargetOpList::OpChain::prependChain(OpChain* that, const GrCaps& ca
     fList = std::move(that->fList);
     fBounds = that->fBounds;
 
-    that->fDstProxy.setProxy(nullptr);
+    if (that->fDstProxy.proxy()) {
+        that->fDstProxy.proxy()->decFoo();
+        that->fDstProxy.setProxy(nullptr);
+    }
+
     if (that->fAppliedClip) {
         for (int i = 0; i < that->fAppliedClip->numClipCoverageFragmentProcessors(); ++i) {
             that->fAppliedClip->detachClipCoverageFragmentProcessor(i);
@@ -634,24 +639,25 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         // they can be recycled. This is a bit unfortunate because a flush can proceed in waves
         // with sub-flushes. The deferred proxies only need to be pinned from the start of
         // the sub-flush in which they appear.
-        alloc->addInterval(fDeferredProxies[i], 0, 0);
+        alloc->addInterval(fDeferredProxies[i], 0, 0, false);
     }
 
     // Add the interval for all the writes to this opList's target
     if (fOpChains.count()) {
         unsigned int cur = alloc->curOp();
 
-        alloc->addInterval(fTarget.get(), cur, cur + fOpChains.count() - 1);
+        alloc->addInterval(fTarget.get(), cur, cur + fOpChains.count() - 1, true);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp());
+        alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp(), true);
         alloc->incOps();
     }
 
     auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p, alloc->curOp(), alloc->curOp() SkDEBUGCODE(, fTarget.get() == p));
+        alloc->addInterval(p, alloc->curOp(), alloc->curOp(), true
+                           SkDEBUGCODE(, fTarget.get() == p));
     };
     for (const OpChain& recordedOp : fOpChains) {
         // only diff from the GrTextureOpList version

@@ -312,12 +312,18 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxy,
     {
         GrResourceAllocator alloc(resourceProvider, flushState.deinstantiateProxyTracker()
                                   SkDEBUGCODE(, fDAG.numOpLists()));
+#if 1
+        for (int i = 0; i < fOnFlushCBOpLists.count(); ++i) {
+            alloc.addInterval(fOnFlushCBOpLists[i]->fTarget.get(), alloc.curOp(), alloc.curOp(), true);
+        }
+#endif
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
                 fDAG.opList(i)->gatherProxyIntervals(&alloc);
             }
             alloc.markEndOfOpList(i);
         }
+        alloc.determineRecyclability();
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
         int numOpListsExecuted = 0;
