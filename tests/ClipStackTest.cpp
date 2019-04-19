@@ -1425,6 +1425,41 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_is_rrect_deep_rect_stack(skiatest::Reporter* reporter) {
+    static constexpr SkRect kTargetBounds = SkRect::MakeWH(1000, 500);
+    // All antialiased or all not antialiased.
+    for (bool aa : {false, true}) {
+        SkClipStack stack;
+        for (int i = 0; i <= 100; ++i) {
+            stack.save();
+            stack.clipRect(SkRect::MakeLTRB(i, 0.5, kTargetBounds.width(), kTargetBounds.height()),
+                           SkMatrix::I(), SkClipOp::kIntersect, aa);
+        }
+        SkRRect rrect;
+        bool isAA;
+        SkRRect expected = SkRRect::MakeRect(
+                SkRect::MakeLTRB(100, 0.5, kTargetBounds.width(), kTargetBounds.height()));
+        if (stack.isRRect(kTargetBounds, &rrect, &isAA)) {
+            REPORTER_ASSERT(reporter, rrect == expected);
+            REPORTER_ASSERT(reporter, aa == isAA);
+        } else {
+            ERRORF(reporter, "Expected to be an rrect.");
+        }
+    }
+    // Mixed AA and non-AA without simple containment.
+    SkClipStack stack;
+    for (int i = 0; i <= 100; ++i) {
+        bool aa = i & 0b1;
+        int j = 100 - i;
+        stack.save();
+        stack.clipRect(SkRect::MakeLTRB(i, j + 0.5, kTargetBounds.width(), kTargetBounds.height()),
+                       SkMatrix::I(), SkClipOp::kIntersect, aa);
+    }
+    SkRRect rrect;
+    bool isAA;
+    REPORTER_ASSERT(reporter, !stack.isRRect(kTargetBounds, &rrect, &isAA));
+}
+
 DEF_TEST(ClipStack, reporter) {
     SkClipStack stack;
 
@@ -1477,6 +1512,7 @@ DEF_TEST(ClipStack, reporter) {
     test_reduced_clip_stack_no_aa_crash(reporter);
     test_reduced_clip_stack_aa(reporter);
     test_tiny_query_bounds_assertion_bug(reporter);
+    test_is_rrect_deep_rect_stack(reporter);
 }
 
 //////////////////////////////////////////////////////////////////////////////
