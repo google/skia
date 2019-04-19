@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>In-Browser Greyscale converter</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    canvas {
+      border: 1px dashed black;
+      width: 400px;
+      height: 400px;
+    }
+    #original {
+      display:none;
+    }
+  </style>
+
+<body>
+   <input type=file name=file id=file @change=${ele._onFileChange}/>
+   <canvas id=original></canvas>
+
+   <canvas id=grey></canvas>
+
+  <script type="text/javascript" charset="utf-8">
+    function drawImageAndGreyscaleImg(img) {
+      const oCanvas = document.querySelector('#original');
+      oCanvas.width = img.width;
+      oCanvas.height = img.height;
+      const oCtx = oCanvas.getContext('2d');
+
+      oCtx.drawImage(img, 0, 0);
+
+      const pixels = oCtx.getImageData(0, 0, img.width, img.height).data;
+
+      const gCanvas = document.querySelector('#grey');
+      gCanvas.width = img.width;
+      gCanvas.height = img.height;
+      const gCtx = gCanvas.getContext('2d');
+
+      for (let y = 0; y < img.height; y++) {
+        for (let x = 0; x < img.width; x++) {
+          const offset = 4*(x + img.width*y)
+          const r = pixels[offset], g = pixels[offset + 1], b = pixels[offset + 2];
+          const grey = (r + g + b)/3;
+          pixels[offset    ] = grey;
+          pixels[offset + 1] = grey;
+          pixels[offset + 2] = grey;
+        }
+      }
+
+      const greyData = new ImageData(pixels, img.width, img.height);
+
+      gCtx.putImageData(greyData, 0, 0);
+    }
+    document.querySelector('#file').addEventListener('change', (e) => {
+      const toLoad = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        const b64dataURL = reader.result;
+
+        const img = new Image();
+        img.src = b64dataURL;
+        requestAnimationFrame( () => {
+          drawImageAndGreyscaleImg(img);
+        });
+
+      });
+      reader.addEventListener('error', () => {
+        console.error('Failed to load '+ toLoad.name);
+      });
+      reader.readAsDataURL(toLoad);
+    });
+  </script>
+<body>
+</html>
