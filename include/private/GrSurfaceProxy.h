@@ -187,6 +187,10 @@ protected:
         return fRefCnt;
     }
 
+    int32_t internalGetTotalRefs() const {
+        return fRefCnt + fPendingReads + fPendingWrites;
+    }
+
     // For deferred proxies this will be null. For wrapped proxies it will point to the
     // wrapped resource.
     GrSurface* fTarget;
@@ -201,13 +205,21 @@ private:
         }
     }
 
+public:
     mutable int32_t fRefCnt;
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 };
 
 class GrSurfaceProxy : public GrIORefProxy {
+private:
+    int fFoo = 0;
+
 public:
+    int foo() const { return fFoo; }
+    void incFoo() { ++fFoo; }
+    void decFoo() { --fFoo; }
+
     /**
      * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
      * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls
@@ -493,8 +505,15 @@ protected:
     friend class GrSurfaceProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
+    bool ignoredByResourceAllocator() const { return fIgnoredByResourceAllocator; }
+    void setIgnoredByResourceAllocator() { fIgnoredByResourceAllocator = true; }
+
     int32_t getProxyRefCnt() const {
         return this->internalGetProxyRefCnt();
+    }
+
+    int32_t getTotalRefs() const {
+        return this->internalGetTotalRefs();
     }
 
     void computeScratchKey(GrScratchKey*) const;
@@ -551,6 +570,7 @@ private:
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
     bool                   fNeedsClear;
+    bool                   fIgnoredByResourceAllocator = false;
 
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.
