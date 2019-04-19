@@ -37,7 +37,7 @@
       [
         "cp",
         "-a",
-        "#{self.target_dir}/.",
+        "#{self.target_dir}/out/Debug/.",
         "#{self.lib}"
       ],
       [
