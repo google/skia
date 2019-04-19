@@ -84,7 +84,7 @@ void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type,
     }
 }
 
-const VkDeviceSize kMaxSmallImageSize = 16 * 1024;
+const VkDeviceSize kMaxSmallImageSize = 256 * 1024;
 
 bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
                                          VkImage image,
