@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bf8487f_b18429a7",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-19T18:31:36Z",
+      "side": 1,
+      "message": "This call (and the other related ones) are just along for the ride in this CL.",
+      "revId": "693efe2ae7454e318378a6dec4d2df4391be5fbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92ee8a28_ac6c1b76",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-04-19T18:31:36Z",
+      "side": 1,
+      "message": "Now that we\u0027re ignoring more allocations we actually hit cases where there are ops to render but no allocations to perform.",
+      "revId": "693efe2ae7454e318378a6dec4d2df4391be5fbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
