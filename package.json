@@ -25,12 +25,12 @@
       [
         "bin/gn",
         "gen",
-        "#{self.target_dir}"
+        "#{self.target_dir}/out/Debug"
       ],
       [
         "ninja.exe",
         "-C",
-        "#{self.target_dir}"
+        "#{self.target_dir}/out/Debug"
       ]
     ],
     "install": [
