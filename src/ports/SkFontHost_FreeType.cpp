@@ -1560,8 +1560,17 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
         return;
     }
 
+    SkAutoMutexAcquire ama(fC2GCacheMutex);
+
     for (int i = 0; i < count; ++i) {
-        glyphs[i] = SkToU16(FT_Get_Char_Index(face, uni[i]));
+        SkUnichar c = uni[i];
+        int index = fC2GCache.findGlyphIndex(c);
+        if (index >= 0) {
+            glyphs[i] = SkToU16(index);
+        } else {
+            glyphs[i] = SkToU16(FT_Get_Char_Index(face, c));
+            fCache.insertCharAndGlyph(~index, c, glyphs[i]);
+        }
     }
 }
 
