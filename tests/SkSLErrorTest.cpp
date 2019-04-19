@@ -166,6 +166,12 @@ DEF_TEST(SkSLSwizzleDuplicateOutput, r) {
                  "error: 1: cannot write to the same swizzle field more than once\n1 error\n");
 }
 
+DEF_TEST(SkSLSwizzleConstantOutput, r) {
+    test_failure(r,
+                 "void main() { float4 test = float4(1); test.xyz0 = float4(1); }",
+                 "error: 1: cannot write to a swizzle mask containing a constant\n1 error\n");
+}
+
 DEF_TEST(SkSLAssignmentTypeMismatch, r) {
     test_failure(r,
                  "void main() { int x = 1.0; }",
