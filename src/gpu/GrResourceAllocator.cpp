@@ -37,6 +37,46 @@ void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     fProxy->priv().assign(std::move(s));
 }
 
+void GrResourceAllocator::determineRecyclability() {
+    for (Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        SkASSERT(!cur->proxy()->baz() && !cur->proxy()->canSkipResourceAllocator());
+
+        if (cur->uses() >= cur->proxy()->priv().getTotalRefs()) {
+#if 0
+            SkDebugf("%d: recyclable %d == %d (%d %d %d %d)\n",
+                cur->proxy()->uniqueID().asUInt(),
+                cur->uses(),
+                cur->proxy()->priv().getTotalRefs(),
+                cur->proxy()->fRefCnt,
+                cur->proxy()->fPendingReads,
+                cur->proxy()->fPendingWrites,
+                cur->proxy()->foo());
+#endif
+            // All the refs on the proxy are known to the resource allocator thus no one
+            // should be holding onto it outside of Ganesh.
+            SkASSERT(0 == (cur->proxy()->priv().getProxyRefCnt() - cur->proxy()->foo()));
+            SkASSERT(cur->uses() == cur->proxy()->priv().getTotalRefs());
+            cur->markAsRecyclable();
+        }
+#if 1
+        else {
+#if 0
+            SkDebugf("%d: NOT recyclable %d < %d (%d %d %d %d)\n",
+                cur->proxy()->uniqueID().asUInt(),
+                cur->uses(),
+                cur->proxy()->priv().getTotalRefs(),
+                cur->proxy()->fRefCnt,
+                cur->proxy()->fPendingReads,
+                cur->proxy()->fPendingWrites,
+                cur->proxy()->foo());
+#endif
+            SkASSERT(cur->uses() == cur->proxy()->fPendingReads + cur->proxy()->fPendingWrites + cur->proxy()->foo());
+            SkASSERT(cur->proxy()->fRefCnt - cur->proxy()->foo() > 0);
+        }
+#endif
+    }
+}
+
 void GrResourceAllocator::markEndOfOpList(int opListIndex) {
     SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
 
@@ -55,8 +95,15 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
+                                      bool actualUse
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
+    if (proxy->canSkipResourceAllocator()) {
+        return;
+    }
+
+    SkASSERT(!proxy->baz());
+
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
@@ -85,6 +132,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
                 SkASSERT(intvl->end() <= start && intvl->end() <= end);
             }
 #endif
+            if (actualUse) {
+                intvl->addUse();
+            }
             intvl->extendEnd(end);
             return;
         }
@@ -98,6 +148,9 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
             newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
         }
 
+        if (actualUse) {
+            newIntvl->addUse();
+        }
         fIntvlList.insertByIncreasingStart(newIntvl);
         fIntvlHash.add(newIntvl);
     }
@@ -294,10 +347,7 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         if (temp->wasAssignedSurface()) {
             sk_sp<GrSurface> surface = temp->detachSurface();
 
-            // If the proxy has an actual live ref on it that means someone wants to retain its
-            // contents. In that case we cannot recycle it (until the external holder lets
-            // go of it).
-            if (0 == temp->proxy()->priv().getProxyRefCnt()) {
+            if (temp->isRecyclable()) {
                 this->recycleSurface(std::move(surface));
             }
         }
@@ -341,16 +391,21 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     SkASSERT(outError);
     *outError = AssignError::kNoError;
 
-    fIntvlHash.reset(); // we don't need the interval hash anymore
-    if (fIntvlList.empty()) {
-        return false;          // nothing to render
-    }
-
-    SkASSERT(fCurOpListIndex < fNumOpLists);
     SkASSERT(fNumOpLists == fEndOfOpListOpIndices.count());
+
+    fIntvlHash.reset(); // we don't need the interval hash anymore
+
+    if (fCurOpListIndex >= fNumOpLists) {
+        return false; // nothing to render
+    }
 
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
+
+    if (fIntvlList.empty()) {
+        fCurOpListIndex = fNumOpLists;
+        return true;          // no resources to assign
+    }
 
 #if GR_ALLOCATION_SPEW
     SkDebugf("assigning opLists %d through %d out of %d numOpLists\n",

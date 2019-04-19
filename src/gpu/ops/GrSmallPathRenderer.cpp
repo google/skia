@@ -272,13 +272,17 @@ public:
 
     const char* name() const override { return "SmallPathOp"; }
 
-    void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
+    void visitProxies(const VisitProxyFunc& func, VisitorType type) const override {
         fHelper.visitProxies(func);
 
-        const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
-        for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
-            SkASSERT(proxies[i]);
-            func(proxies[i].get());
+        // The atlas' pages are allocated and deallocated by the atlas manager. The resource
+        // allocator need not be bothered with them
+        if (GrOp::VisitorType::kAllocatorGather != type) {
+            const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
+            for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
+                SkASSERT(proxies[i]);
+                func(proxies[i].get());
+            }
         }
     }
 

@@ -103,6 +103,7 @@ public:
                     },
                     format, GrProxyProvider::Renderable::kNo, kTopLeft_GrSurfaceOrigin,
                     kRGB_565_GrPixelConfig, *proxyProvider->caps());
+            fProxy->incFoo();
 
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo,
                             GrOp::IsZeroArea::kNo);
@@ -352,6 +353,7 @@ private:
                 SkBudgeted::kNo);
 
         SkASSERT(fLazyProxy.get());
+        fLazyProxy->incFoo();
 
         this->setBounds(SkRect::MakeIWH(kSize, kSize),
                         HasAABloat::kNo, IsZeroArea::kNo);
