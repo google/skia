@@ -93,7 +93,7 @@ struct Constructor : public Expression {
         Constructor& c = (Constructor&) other;
         if (c.fType.kind() == Type::kVector_Kind) {
             for (int i = 0; i < fType.columns(); i++) {
-                if (!this->getVecComponent(i).compareConstant(context, c.getVecComponent(i))) {
+                if (!this->getVecComponent(i)->compareConstant(context, *c.getVecComponent(i))) {
                     return false;
                 }
             }
@@ -113,17 +113,17 @@ struct Constructor : public Expression {
         return true;
     }
 
-    const Expression& getVecComponent(int index) const {
+    const Expression* getVecComponent(int index) const {
         SkASSERT(fType.kind() == Type::kVector_Kind);
         if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
-            return *fArguments[0];
+            return fArguments[0].get();
         }
         int current = 0;
         for (const auto& arg : fArguments) {
             SkASSERT(current <= index);
             if (arg->fType.kind() == Type::kScalar_Kind) {
                 if (index == current) {
-                    return *arg;
+                    return arg.get();
                 }
                 current++;
             } else {
@@ -136,15 +136,15 @@ struct Constructor : public Expression {
         ABORT("failed to find vector component %d in %s\n", index, description().c_str());
     }
 
-    double getFVecComponent(int index) const {
-        return this->getVecComponent(index).getConstantFloat();
+    double getFVecComponent(int index) const override {
+        return this->getVecComponent(index)->getConstantFloat();
     }
 
-    int64_t getIVecComponent(int index) const {
-        return this->getVecComponent(index).getConstantInt();
+    int64_t getIVecComponent(int index) const override {
+        return this->getVecComponent(index)->getConstantInt();
     }
 
-    double getMatComponent(int col, int row) const {
+    double getMatComponent(int col, int row) const override {
         SkASSERT(this->isConstant());
         SkASSERT(fType.kind() == Type::kMatrix_Kind);
         SkASSERT(col < fType.columns() && row < fType.rows());
@@ -178,19 +178,7 @@ struct Constructor : public Expression {
                 if (arg->fType.columns() == 1) {
                     return arg->getConstantFloat();
                 } else {
-                    int index = targetIndex - currentIndex;
-                    switch (arg->fKind) {
-                        case Expression::kPrefix_Kind: {
-                            PrefixExpression& p = (PrefixExpression&) *arg;
-                            SkASSERT(p.fOperator == Token::MINUS);
-                            SkASSERT(p.fOperand->fKind == Expression::kConstructor_Kind);
-                            return -((Constructor&) *p.fOperand).getFVecComponent(index);
-                        }
-                        case Expression::kConstructor_Kind:
-                            return ((Constructor&) *arg).getFVecComponent(index);
-                        default:
-                            SkASSERT(false);
-                    }
+                    return arg->getFVecComponent(targetIndex - currentIndex);
                 }
             }
             currentIndex += arg->fType.columns();
