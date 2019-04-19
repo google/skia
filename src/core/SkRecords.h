@@ -59,6 +59,7 @@ namespace SkRecords {
     M(DrawImageNine)                                                \
     M(DrawDRRect)                                                   \
     M(DrawOval)                                                     \
+    M(DrawBehind)                                                   \
     M(DrawPaint)                                                    \
     M(DrawPath)                                                     \
     M(DrawPatch)                                                    \
@@ -265,6 +266,8 @@ RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,
         SkRect oval);
 RECORD(DrawPaint, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint);
+RECORD(DrawBehind, kDraw_Tag|kHasPaint_Tag,
+       SkPaint paint);
 RECORD(DrawPath, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         PreCachedPath path);

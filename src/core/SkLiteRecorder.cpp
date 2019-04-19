@@ -60,6 +60,9 @@ void SkLiteRecorder::onClipRegion(const SkRegion& region, SkClipOp op) {
 void SkLiteRecorder::onDrawPaint(const SkPaint& paint) {
     fDL->drawPaint(paint);
 }
+void SkLiteRecorder::onDrawBehind(const SkPaint& paint) {
+    fDL->drawBehind(paint);
+}
 void SkLiteRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
     fDL->drawPath(path, paint);
 }

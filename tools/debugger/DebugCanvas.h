@@ -127,6 +127,7 @@ protected:
                      SkBlendMode,
                      const SkPaint& paint) override;
     void onDrawPaint(const SkPaint&) override;
+    void onDrawBehind(const SkPaint&) override;
 
     void onDrawRect(const SkRect&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
