@@ -1348,16 +1348,10 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.getConvexity();
-    check_convexity(reporter, tinyConvexPolygon, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
-    // colinear diagonal points cause convexicator to give up, so CheapComputeFirstDirection
-    // makes its best guess
-    check_direction(reporter, tinyConvexPolygon, SkPathPriv::kCW_FirstDirection);
-#else
+    check_convexity(reporter, tinyConvexPolygon, SkPath::kConvex_Convexity);
     // lines are close enough to straight that polygon collapses to line that does not
     // enclose area, so has unknown first direction
     check_direction(reporter, tinyConvexPolygon, SkPathPriv::kUnknown_FirstDirection);
-#endif
 
     SkPath  platTriangle;
     platTriangle.moveTo(0, 0);
@@ -1485,7 +1479,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
     stroke.applyToPath(&strokedSin, strokedSin);
-    check_convexity(reporter, strokedSin, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, strokedSin, SkPath::kConvex_Convexity); // !!!
     check_direction(reporter, strokedSin, kDontCheckDir);
 
     // http://crbug.com/412640
@@ -1519,7 +1513,7 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     doubleback.lineTo(1, 1);
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.lineTo(2, 2);
-    check_convexity(reporter, doubleback, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.reset();
     doubleback.lineTo(1, 0);
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
@@ -1529,7 +1523,7 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.reset();
     doubleback.quadTo(1, 1, 2, 2);
-    check_convexity(reporter, doubleback, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
     doubleback.reset();
     doubleback.quadTo(1, 0, 2, 0);
     check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
@@ -1592,7 +1586,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
 
     path.reset();
     path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
-    check_convexity(reporter, path, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    check_convexity(reporter, path, SkPath::kConvex_Convexity);
 
     static const struct {
         const char*                 fPathStr;
@@ -3727,10 +3721,10 @@ static void test_arc(skiatest::Reporter* reporter) {
     // diagonal colinear points make arc convex
     // TODO: one way to keep it concave would be to introduce interpolated on curve points
     // between control points and computing the on curve point at scan conversion time
-    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::kConvex_Convexity);
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p, SkPathPriv::kCW_FirstDirection));
     p.setConvexity(SkPath::kUnknown_Convexity);
-    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::kConvex_Convexity);
 }
 
 static inline SkScalar oval_start_index_to_angle(unsigned start) {
