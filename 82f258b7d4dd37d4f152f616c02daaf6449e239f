@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9755d865_500a33b3",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-19T19:01:02Z",
+      "side": 1,
+      "message": "removed.",
+      "parentUuid": "41d199ab_4e449137",
+      "revId": "82f258b7d4dd37d4f152f616c02daaf6449e239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbaa8fb1_278058b4",
         "filename": "src/core/SkLiteDL.h",
         "patchSetId": 10
@@ -39,6 +57,30 @@
       "revId": "82f258b7d4dd37d4f152f616c02daaf6449e239f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74cbc757_f63ed853",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-04-19T19:01:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbaa8fb1_278058b4",
+      "range": {
+        "startLine": 47,
+        "startChar": 19,
+        "endLine": 47,
+        "endChar": 20
+      },
+      "revId": "82f258b7d4dd37d4f152f616c02daaf6449e239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
