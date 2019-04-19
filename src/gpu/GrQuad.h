@@ -355,4 +355,139 @@ private:
     typedef GrQuadListBase<T> INHERITED;
 };
 
+/**
+ * GrQuadBuffer is an optimized collection for storing GrPerspQuads and simpler variants of
+ * quadrilaterals, i.e. for use in a GrOp prior to tessellation into a GPU buffer. It only supports
+ * adding quadrilaterals, appending another buffer, and iterating over the elements. This allows it
+ * to compactly represent each GrPerspQuad with as little data as possible:
+ *  - Each quad with type kRect requires 4 floats
+ *  - Each quad with type kRectilinear or kStandard requires 8 floats
+ *  - Each quad with type kPerspective requires 12 floats
+ * The buffer tracks the most complex quad type in the buffer, but each element preserves its own
+ * type so storing mixed type quadrilaterals does not require the largest storage size per-quad.
+ *
+ * Additionally, each element can optionally store metadata of type T inline with its coordinate
+ * data. It is not a requirement that every element have metadata, but it is guaranteed that every
+ * element with metadata has type T.
+ */
+template<typename T>
+class GrQuadBuffer<T> {
+public:
+    GrQuadBuffer() = default;
+    explicit GrQuadBuffer(int reserve) {
+
+    }
+
+    /** Copies all elements of 'that' into this buffer. */
+    void concat(const GrQuadBuffer<T>& that) {
+
+    }
+
+    /** Appends a 'quad' of the given type (not verified), and stores the associated metadata. */
+    void push_back(const GrQuad& quad, GrQuadType type, T&& metadata) {
+
+    }
+
+    /** Appends a 'quad' of the given type (not verified), and stores the associated metadata. */
+    void push_back(const GrPerspQuad& quad, GrQuadType type, T&& metadata) {
+
+    }
+
+    /** Appends a 'rect', with type kRect, and stores the associated metadata. */
+    void push_back(const SkRect& rect, T&& metadata) {
+
+    }
+
+    /** Appends 'quad' of the given type (not verified), with no extra metadata. */
+    void push_back(const GrQuad& quad, GrQuadType type) {
+
+    }
+
+    /** Appends 'quad' of the given type (not verified), with no extra metadata. */
+    void push_back(const GrPerspQuad& quad, GrQuadType type) {
+
+    }
+
+    /** Appends 'rect', with type kRect, with no extra metadata. */
+    void push_back(const SkRect& rect) {
+
+    }
+
+    /** The most general quad type stored in the buffer. */
+    GrQuadType quadType() const {
+
+    }
+
+    /** The number of quads in the buffer. */
+    int count() const {
+
+    }
+
+    /** Get a new iterator over every current quad in the buffer. */
+    Iterator iter() const {
+        return Iterator(this);
+    }
+
+    /**
+     * Iterator reports quads in the order they were added to its buffer. It is not allowed to
+     * iterate over the buffer while adding quads.
+     */
+    class Iterator {
+    public:
+        /** Get the next quad, or return false if there are no more. The quad coordinates are
+         * unpacked into the GrPerspQuad 'quad', regardless of the element's underlying GrQuadType.
+         * If 'metadata' is not null, it will be updated to point the element's metadata or will
+         * point to null if the element has no metadata. */
+        bool next(GrPerspQuad* quad, T** metadata = nullptr) {
+
+        }
+
+    private:
+        explicit Iterator(const GrQuadBuffer<T>* buffer) : fBuffer(buffer), fNextIndex(0) {
+            SK_DEBUGCODE(fBufferCount = fBuffer->count());
+        }
+
+        const GrQuadBuffer<T>* fBuffer;
+        int                    fNextIndex;
+        // Since buffers are only added to, and existing elements are immutable, if the buffer's
+        // element count is greater than this, the iterator has been invalidated.
+        SK_DEBUGCODE(int       fBufferCount);
+    };
+
+private:
+    // FIXME so how do I want to actually store this data?
+    // the coordinates can be done in blocks of 4 floats and tagged as rect, x, y, or w.
+    // and with these tags, we'd be able to reconstruct the GrPerspQuad by peeking at the next one
+    // (no need for rect or w, assert y follows x, check for persp data after y). But then we
+    // need something to store the metadata without messing up alignment. If we keep everything
+    // aligned to 4 bytes, we'd be okay?
+    //
+    // Because we also need someway to describe the key for each block. And if we hold that per block
+    // then we actually are storing 5 "floats" for rects, 10 for quads, and 15 for persps. with an
+    // additional "float" overhead when they have metadata.
+    //
+    // Alternatively, we could have 4 bytes go into the front of an entry, and it holds the "size"
+    // of the data blob and quad type. These two numbers determine how far to advance. This manner
+    // we keep everything 4 byte aligned, and there's always a maximum of 1 extra byte.
+
+    // If we need 4 or 8 byte alignment, we can adjust the flag type size appropriately
+    // to be an int or long int. It's wasted space but makes everything better.
+    // Alternatively, we don't worry about that but issue memcopys to a local struct for the
+    // metadata. That adds overhead and makes the API a little less clean.
+    //
+    // So is that all that's needed? Probably for starters. Worth implementing it that
+    // way with the flag upfront per-entry and see if it speeds performance up for
+    // the texture op. If so, then see what happens with fill rect op.
+    // Then try it on bots and see if the different archs barf. Then ask Mike about it.
+    enum Flags {
+
+    };
+
+    int             fQuadCount;
+    GrQuadType      fQuadType;
+    SkSTArray<???, ???> fData;
+    // or should I be using SkAutoSTArray and manage my copies and resizes myself?
+    // Or jut SkAutoSArray since I don't really have a single type it should be.
+}
+
 #endif
