@@ -1977,7 +1977,12 @@ void Viewer::drawImGui() {
                 // Defer actually doing the load/save logic so that we can trigger a save when we
                 // start or finish hovering on a tree node in the list below:
                 bool doLoad = ImGui::Button("Load"); ImGui::SameLine();
-                bool doSave = ImGui::Button("Save");
+                bool doSave = ImGui::Button("Save"); ImGui::SameLine();
+                if (ImGui::Checkbox("SkSL", &params.fGrContextOptions.fCacheSKSL)) {
+                    paramsChanged = true;
+                    doLoad = true;
+                    fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
+                }
 
                 ImGui::BeginChild("##ScrollingRegion");
                 for (auto& entry : fCachedGLSL) {
@@ -2008,8 +2013,10 @@ void Viewer::drawImGui() {
                 if (doSave) {
                     // The hovered item (if any) gets a special shader to make it identifiable
                     SkSL::String highlight = ctx->priv().caps()->shaderCaps()->versionDeclString();
-                    highlight.append("out vec4 sk_FragColor;\n"
-                                     "void main() { sk_FragColor = vec4(1, 0, 1, 0.5); }");
+                    const char* f4Type = params.fGrContextOptions.fCacheSKSL ? "half4" : "vec4";
+                    highlight.appendf("out %s sk_FragColor;\n"
+                                      "void main() { sk_FragColor = %s(1, 0, 1, 0.5); }",
+                                      f4Type, f4Type);
 
                     fPersistentCache.reset();
                     fWindow->getGrContext()->priv().getGpu()->resetShaderCacheForTesting();
