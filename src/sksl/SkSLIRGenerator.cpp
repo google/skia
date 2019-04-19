@@ -1495,13 +1495,11 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     if (left.fType.kind() == Type::kVector_Kind && left.fType.componentType().isFloat() &&
         left.fType == right.fType) {
-        SkASSERT(left.fKind  == Expression::kConstructor_Kind);
-        SkASSERT(right.fKind == Expression::kConstructor_Kind);
         std::vector<std::unique_ptr<Expression>> args;
         #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                    \
             for (int i = 0; i < left.fType.columns(); i++) {                           \
-                float value = ((Constructor&) left).getFVecComponent(i) op             \
-                              ((Constructor&) right).getFVecComponent(i);              \
+                float value = left.getFVecComponent(i) op             \
+                              right.getFVecComponent(i);              \
                 args.emplace_back(new FloatLiteral(fContext, -1, value));              \
             }                                                                          \
             return std::unique_ptr<Expression>(new Constructor(-1, left.fType,         \
