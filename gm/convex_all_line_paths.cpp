@@ -55,13 +55,9 @@ const SkPoint gPoints3[] = {
 const SkPoint gPoints4[] = {
     { -6.0f, -50.0f },
     { 4.0f, -50.0f },
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE == 0
     { 5.0f, -25.0f },  // remove if collinear diagonal points are not concave
-#endif
     { 6.0f,   0.0f },
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE == 0
     { 5.0f,  25.0f },  // remove if collinear diagonal points are not concave
-#endif
     { 4.0f,  50.0f },
     { -4.0f,  50.0f }
 };

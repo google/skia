@@ -2698,16 +2698,7 @@ private:
         largest = SkTMax(largest, -smallest);
 
         if (almost_equal(largest, largest + cross)) {
-#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
-    // colinear diagonals are not allowed; they aren't numerically stable
-    #define COLINEAR_POINT_DIR_CHANGE kConcave_DirChange
-#else
-    // colinear diagonals are allowed; we can survive dealing with 'close enough'
-    #define COLINEAR_POINT_DIR_CHANGE kStraight_DirChange
-#endif
-
-            SkScalar dot = lastVec.dot(curVec);
-            return dot < 0 ? kBackwards_DirChange : COLINEAR_POINT_DIR_CHANGE;
+            return lastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
         }
         return 1 == SkScalarSignAsInt(cross) ? kRight_DirChange : kLeft_DirChange;
     }
