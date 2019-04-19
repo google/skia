@@ -16,6 +16,13 @@ public:
     SkCharToGlyphCache();
     ~SkCharToGlyphCache();
 
+    // return number of unichars cached
+    int count() const {
+        return fK32.count();
+    }
+
+    void reset();       // forget all cache entries (to save memory)
+
     /**
      *  Given a unichar, return its glyphID (if the return value is positive), else return
      *  ~index of where to insert the computed glyphID.
