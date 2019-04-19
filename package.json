@@ -1,6 +1,6 @@
 {
   "name": "esy-skia",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Mirror of skia repo, buildable with esy",
   "directories": {
     "doc": "docs",
@@ -15,11 +15,13 @@
     "url": "https://github.com/manuhornung/esy-skia/issues"
   },
   "homepage": "https://skia.org",
-  "scripts": {
-    "postinstall": "python tools/git-sync-deps"
-  },
   "esy": {
+    "buildsInSource": true,
     "build": [
+      [
+        "python",
+        "tools/git-sync-deps"
+      ],
       [
         "bin/gn",
         "gen",
