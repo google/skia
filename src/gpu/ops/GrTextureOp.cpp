@@ -557,6 +557,12 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
+        if (fDomain != that->fDomain) {
+            // It is technically possible to combine operations across domain modes, but performance
+            // testing suggests it's better to make more draw calls where some take advantage of
+            // the more optimal shader path without coordinate clamping.
+            return CombineResult::kCannotCombine;
+        }
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
                                        that->fTextureColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
