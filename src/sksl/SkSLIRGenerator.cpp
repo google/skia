@@ -1437,15 +1437,27 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     #define RESULT(t, op) std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
                                                                        leftVal op rightVal))
+    #define COMPUTE_AND_RETURN(t, f) {                                                      \
+                int64_t result;                                                             \
+                if (f(leftVal, rightVal, &result)) {                                        \
+                    fErrors.error(left.fOffset, "arithmetic overflow");                     \
+                }                                                                           \
+                return std::unique_ptr<Expression>(new t ## Literal(fContext, left.fOffset, \
+                                                                    result));               \
+            }
     if (left.fKind == Expression::kIntLiteral_Kind && right.fKind == Expression::kIntLiteral_Kind) {
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
         switch (op) {
-            case Token::PLUS:       return RESULT(Int, +);
-            case Token::MINUS:      return RESULT(Int, -);
-            case Token::STAR:       return RESULT(Int, *);
+            case Token::PLUS:  COMPUTE_AND_RETURN(Int, __builtin_add_overflow)
+            case Token::MINUS: COMPUTE_AND_RETURN(Int, __builtin_sub_overflow)
+            case Token::STAR:  COMPUTE_AND_RETURN(Int, __builtin_mul_overflow)
             case Token::SLASH:
                 if (rightVal) {
+                    if (leftVal == std::numeric_limits<int64_t>::min() && rightVal == -1) {
+                        fErrors.error(left.fOffset, "arithmetic overflow");
+                        return nullptr;
+                    }
                     return RESULT(Int, /);
                 }
                 fErrors.error(right.fOffset, "division by zero");
