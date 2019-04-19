@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41d199ab_4e449137",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-19T18:55:59Z",
+      "side": 1,
+      "message": "Is this intended?",
+      "revId": "82f258b7d4dd37d4f152f616c02daaf6449e239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbaa8fb1_278058b4",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-04-19T18:55:59Z",
+      "side": 1,
+      "message": "remove space? looks like the rest of these align the \"(\"s?",
+      "range": {
+        "startLine": 47,
+        "startChar": 19,
+        "endLine": 47,
+        "endChar": 20
+      },
+      "revId": "82f258b7d4dd37d4f152f616c02daaf6449e239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
