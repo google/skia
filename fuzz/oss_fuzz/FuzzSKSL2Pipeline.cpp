@@ -21,6 +21,9 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
                                                     settings);
+    if (!program || !compiler.optimize(*program)) {
+        return false;
+    }
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
     if (!program || !compiler.toPipelineStage(*program, &output, &formatArgs)) {
         return false;
